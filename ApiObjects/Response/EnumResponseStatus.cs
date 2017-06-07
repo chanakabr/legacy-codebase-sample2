@@ -93,6 +93,7 @@ namespace ApiObjects.Response
         MetaNotFound = 2044,
         MetaNotBelongtoPartner = 2045,
         WrongMetaName = 2046,
+        ParentParnerDiffrentFromMetaPartner = 2048,
 
         // CAS Section 3000 - 3999
         InvalidPurchase = 3000,

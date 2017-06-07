@@ -79,7 +79,6 @@ namespace Core.Catalog
         private const string NO_META_TO_UPDATE = "No meta update";
         private const string NAME_REQUIRED = "Name must have a value";
         private const string META_NOT_EXIST = "Meta not exist";
-        private static string INVALID_PARENT_ID = "Invalid parent id";
         private static string PARENT_ID_SHOULD_NOT_POINT_TO_ITSELF = "Parent id should not point to itself";
         private static string META_DOES_NOT_A_USER_INTEREST = "Meta not a user interest";
         private static string PARENT_ID_NOT_A_USER_INTERSET = "Parent meta id should be recognized as user interest";
@@ -87,6 +86,7 @@ namespace Core.Catalog
         private static string PARENT_DUPLICATE_ASSOCIATION = "Parent should be associated to only 1 meta";
         private static string WRONG_META_NAME = "Wrong meta name";
         private static string META_NOT_BELONG_TO_PARTNER = "Meta not belong to partner";
+        private static string PARENT_PARNER_DIFFRENT_FROM_META_PARTNER = "Partner parent should be the some as meta partner";
 
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
 		            {
@@ -8294,6 +8294,13 @@ namespace Core.Catalog
                 return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.ParentAssetTypeDiffrentFromMeta, Message = PARENT_ASSET_TYPE_DIFFRENT_FROM_META };
             }
 
+            // partner parent should be the some as meta partner
+            if (parentMetaId.PartnerId != meta.PartnerId)
+            {
+                log.ErrorFormat("Error. partner parent should be the some as meta partner. {0}", JsonConvert.SerializeObject(meta));
+                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.ParentParnerDiffrentFromMetaPartner, Message = PARENT_PARNER_DIFFRENT_FROM_META_PARTNER };
+            }
+
             // parentMetaId should be associated to only 1 meta
             var someMeta = partnerTopicInterests.Where(x => x.ParentId == meta.ParentId).FirstOrDefault();
             if (someMeta != null && someMeta.Id != meta.Id)
@@ -8301,6 +8308,8 @@ namespace Core.Catalog
                 log.ErrorFormat("Error. parentMetaId should be associated to only 1 meta. {0}", JsonConvert.SerializeObject(meta));
                 return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.ParentDuplicateAssociation, Message = PARENT_DUPLICATE_ASSOCIATION };
             }
+
+
 
             return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
         }
