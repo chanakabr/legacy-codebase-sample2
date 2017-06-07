@@ -4683,30 +4683,5 @@ namespace Tvinci.Core.DAL
                 return false;
             }
         }
-
-        public static ApiObjects.Meta GetTopicInterest(int partnerId, string name, eAssetTypes assetType)
-        {
-            ApiObjects.Meta topicInterestMeta = null;
-
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_TopicInterestByName");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@groupId", partnerId);
-                sp.AddParameter("@name", name);
-                sp.AddParameter("@assetType", (int)assetType);
-                DataSet ds = sp.ExecuteDataSet();
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                {
-                    topicInterestMeta = CreateTopicInterestMeta(ds.Tables[0].Rows[0]);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error at GetGroupTopicOptions. groupId: {0}. Error {1}", partnerId, ex);
-            }
-
-            return topicInterestMeta;
-        }
     }
 }
