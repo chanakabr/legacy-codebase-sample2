@@ -161,7 +161,7 @@ public partial class adm_interests : System.Web.UI.Page
                             break;
                         case "parent_meta_id":
                             if (sVal == "0")
-                                parentMetaIdNode.InnerText = "0";
+                                parentMetaIdNode.InnerText = string.Empty;
                             else
                                 parentMetaIdNode.InnerText = sVal;
                             break;
