@@ -84,11 +84,9 @@ namespace APILogic.Notification
                 if (!InterestDal.SetUserInterest(userInterests))
                     log.ErrorFormat("Error inserting user interest into CB. User interest {0}", JsonConvert.SerializeObject(userInterests));
 
-                // checking whether user already register to an upper topic level
-                // for example: user register to "ligat Haal" and now ask for "Maccaci" ( both are enable notification true) 
-                // in this case user should be register to "Maccabi" but without a specific notification.
-                List<KeyValuePair> interestNotificationToCancel = new List<KeyValuePair>();
-                if (!IsNotificationRegistrationNeeded(newUserInterest, userInterests, partnerTopicInterests, out interestNotificationToCancel))
+                // checking whether user already register to an upper topic level notification or if he should be removed from lower topic level notification
+                List<KeyValuePair> interestsToCancel = new List<KeyValuePair>();
+                if (!IsNotificationRegistrationNeeded(newUserInterest, userInterests, partnerTopicInterests, out interestsToCancel))
                 {
                     log.DebugFormat("Notification registration is not needed. group: {0}, user id: {1}", partnerId, userId);
                     return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
@@ -151,11 +149,42 @@ namespace APILogic.Notification
                     log.ErrorFormat("Registering user to notifications failed. User ID: {0}, Partner ID: {1}, User Interest: {2}", userId, partnerId, JsonConvert.SerializeObject(newUserInterest));
                     return response;
                 }
+
+                // get all notification interest to cancel
+                List<InterestNotification> interestsNotificationToCancel = new List<InterestNotification>();
+                foreach (var interestToCancel in interestsToCancel)
+                {
+                    string notificationKeyValue = GetInterestKeyValueName(interestToCancel.key, interestToCancel.value);
+                    InterestNotification interestNotificationToCancel = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, notificationKeyValue, topicInterest.AssetType);
+                    if (interestNotificationToCancel == null)
+                        log.ErrorFormat("Could not find topic notification to cancel. notificationKeyValue: {0}, type: {1}", notificationKeyValue, topicInterest.AssetType.ToString());
+                    else
+                        interestsNotificationToCancel.Add(interestNotificationToCancel);
+                }
+
+                if (interestsNotificationToCancel.Count == 0)
+                {
+                    // register user (devices) to Amazon topic interests
+                    response = UnRegisterUserToInterestNotifications(partnerId, userId, interestsNotificationToCancel);
+                    if (response == null || response.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Unregistering user to notifications failed. User ID: {0}, Partner ID: {1}, User Interest to cancel: {2}", userId, partnerId, JsonConvert.SerializeObject(interestsNotificationToCancel));
+                        return response;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error inserting user interest  into CB. New user interest: {0}, exception {1}", JsonConvert.SerializeObject(newUserInterest), ex);
             }
+
+            return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+        }
+
+        private static Status UnRegisterUserToInterestNotifications(int partnerId, int userId, List<InterestNotification> interestsNotificationToCancel)
+        {
+            Status response = new Status { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+
 
             return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
         }
