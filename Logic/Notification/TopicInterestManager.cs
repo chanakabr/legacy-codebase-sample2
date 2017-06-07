@@ -164,7 +164,14 @@ namespace APILogic.Notification
 
                 if (interestsNotificationToCancel.Count == 0)
                 {
-                    // register user (devices) to Amazon topic interests
+                    // remove user mapping
+                    foreach (var interestNotificationToCancel in interestsNotificationToCancel)
+                    {
+                        if (!InterestDal.RemoveUserInterestMapping(partnerId, userId, interestNotificationToCancel.Id))
+                            log.ErrorFormat("Error un-mapping interest to user. User ID: {0}, interest ID: {1}", userId, interestNotificationToCancel.Id);
+                    }
+
+                    // un-register user (devices) to Amazon topic interests
                     response = UnRegisterUserToInterestNotifications(partnerId, userId, interestsNotificationToCancel);
                     if (response == null || response.Code != (int)eResponseStatus.OK)
                     {
@@ -183,10 +190,124 @@ namespace APILogic.Notification
 
         private static Status UnRegisterUserToInterestNotifications(int partnerId, int userId, List<InterestNotification> interestsNotificationToCancel)
         {
-            Status response = new Status { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            List<UnSubscribe> unsubscribeList = new List<AmazonSnsAdapter.UnSubscribe>();
 
+            // register user to topic
+            bool docExists = false;
+            UserNotification userNotificationData = NotificationDal.GetUserNotificationData(partnerId, userId, ref docExists);
+            if (userNotificationData == null)
+            {
+                // error while getting user notification data
+                log.ErrorFormat("error retrieving user announcement data. GID: {0}, UID: {1}", partnerId, userId);
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                return response;
+            }
 
-            return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+            foreach (var interestNotificationToCancel in interestsNotificationToCancel)
+                userNotificationData.UserInterests.RemoveAll(x => x.AnnouncementId == interestNotificationToCancel.Id);
+
+            // update user notification object
+            if (!DAL.NotificationDal.SetUserNotificationData(partnerId, userId, userNotificationData))
+            {
+                log.ErrorFormat("error setting user notification data. group: {0}, user id: {1}", partnerId, userId);
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            else
+                log.DebugFormat("successfully updated user notification data. group: {0}, user id: {1}, user data: {2}", partnerId, userId, JsonConvert.SerializeObject(userNotificationData));
+
+            // update user's devices 
+            if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
+            {
+                log.DebugFormat("User doesn't have any notification devices. User notification object: {0}", JsonConvert.SerializeObject(userNotificationData));
+                response = new Status((int)eResponseStatus.OK);
+                return response;
+            }
+
+            foreach (UserDevice device in userNotificationData.devices)
+            {
+                // get device notification data
+                docExists = false;
+                DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
+                if (deviceNotificationData == null)
+                {
+                    log.ErrorFormat("device notification data not found group: {0}, UDID: {1}", partnerId, device.Udid);
+                    continue;
+                }
+
+                // get push data
+                APILogic.DmsService.PushData pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
+                if (pushData == null)
+                {
+                    log.ErrorFormat("push data not found. group: {0}, UDID: {1}", partnerId, device.Udid);
+                    continue;
+                }
+
+                foreach (var interestNotificationToCancel in interestsNotificationToCancel)
+                {
+                    if (string.IsNullOrEmpty(device.Udid))
+                    {
+                        log.Error("device UDID is empty: " + device.Udid);
+                        continue;
+                    }
+
+                    try
+                    {
+                        // get device interest
+                        var deviceInterest = deviceNotificationData.SubscribedUserInterests.FirstOrDefault(x => x.Id == interestNotificationToCancel.Id);
+                        if (deviceInterest == null)
+                        {
+                            log.ErrorFormat("User interest to remove was not found on user device. group: {0}, UDID: {1}, interest to remove: {2}, device notification doc: {3}",
+                                partnerId,
+                                device.Udid,
+                                interestNotificationToCancel.Id,
+                                JsonConvert.SerializeObject(device));
+                            continue;
+                        }
+
+                        // add to cancel list
+                        unsubscribeList.Add(new UnSubscribe()
+                        {
+                            SubscriptionArn = deviceInterest.ExternalId,
+                            ExternalId = interestNotificationToCancel.Id
+                        });
+
+                        deviceNotificationData.SubscribedUserInterests.RemoveAll(x => x.Id == interestNotificationToCancel.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("Error in follow", ex);
+                    }
+                }
+
+                // update device data
+                if (!DAL.NotificationDal.SetDeviceNotificationData(partnerId, device.Udid, deviceNotificationData))
+                {
+                    log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}", partnerId, device.Udid);
+                    response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+                else
+                    log.DebugFormat("Successfully updated device data. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, JsonConvert.SerializeObject(deviceNotificationData));
+            }
+
+            if (unsubscribeList != null && unsubscribeList.Count > 0)
+            {
+                List<UnSubscribe> unregisterResults = NotificationAdapter.UnSubscribeToAnnouncement(partnerId, unsubscribeList);
+                if (unregisterResults == null)
+                {
+                    log.ErrorFormat("Error while trying to unregister devices. unsubscribeList: {0}", JsonConvert.SerializeObject(unsubscribeList));
+                }
+
+                foreach (var unregisterResult in unregisterResults)
+                {
+                    if (unregisterResult.Success)
+                        log.DebugFormat("Successfully unregistered device from interest. user ID: {0}, interest ID", userId, unregisterResult.ExternalId);
+                    else
+                        log.ErrorFormat("Error unregistering device from interest. user ID: {0}, interest ID", userId, unregisterResult.ExternalId);
+                }
+            }
+            response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
+            return response;
         }
 
         private static Status RegisterUserToInterestNotification(int partnerId, int userId, int interestNotificationId, string interestNotificationName, string topicExternalId)
