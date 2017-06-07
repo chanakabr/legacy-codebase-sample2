@@ -359,6 +359,7 @@ public partial class adm_interests : System.Web.UI.Page
             }
             if (tagTable)
             {
+                FillParentTopics(0, epgParentTopics, groupId, ref metaTagId, ref name, ref isTag, dtTag);
             }
         }
     }
