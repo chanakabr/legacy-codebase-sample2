@@ -110,10 +110,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeRecurringSubscriptionInTheSameSubscriptionSet)]
         [Throws(eResponseStatus.CanOnlyDowngradeSubscriptionWithLowerPriority)]
         [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce)]
-        public KalturaTransaction Downgrade(KalturaPurchase purchase)
+        public void Downgrade(KalturaPurchase purchase)
         {
-            KalturaTransaction response = new KalturaTransaction();
-
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
 
@@ -122,7 +120,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().SubscriptionSetModifySubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
+                ClientsManager.ConditionalAccessClient().SubscriptionSetModifySubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
                                                                                                         purchase.Currency, purchase.ProductId, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(),
                                                                                                         purchase.getPaymentMethodId(), purchase.AdapterData,
                                                                                                         WebAPI.Models.Pricing.KalturaSubscriptionSetSwitchPurchaseType.downgrade);
@@ -130,9 +128,7 @@ namespace WebAPI.Controllers
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
+            }            
         }
         
         /// <summary>
