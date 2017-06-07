@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,19 +10,25 @@ namespace ApiObjects.SubscriptionSet
     [Serializable]
     public class SubscriptionSetDowngradeDetails : SubscriptionSetModifyDetails
     {
-
+        [JsonProperty("Price")]
         public double Price { get; set; }
 
+        [JsonProperty("CurrencyCode")]
         public string CurrencyCode { get; set; }
 
+        [JsonProperty("CouponCode")]
         public string CouponCode { get; set; }
 
+        [JsonProperty("PaymentGatewayId")]
         public int PaymentGatewayId { get; set; }
 
+        [JsonProperty("PaymentMethodId")]
         public int PaymentMethodId { get; set; }
 
+        [JsonProperty("AdapterData")]
         public string AdapterData { get; set; }
 
+        [JsonProperty("StartDate")]
         public DateTime StartDate { get; set; }
 
         public SubscriptionSetDowngradeDetails()
