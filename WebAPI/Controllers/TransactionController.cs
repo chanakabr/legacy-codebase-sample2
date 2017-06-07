@@ -63,10 +63,9 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().SubscriptionSetModifySubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
+                response = ClientsManager.ConditionalAccessClient().UpgradeSubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
                                                                                                         purchase.Currency, purchase.ProductId, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(),
-                                                                                                        purchase.getPaymentMethodId(), purchase.AdapterData,
-                                                                                                        WebAPI.Models.Pricing.KalturaSubscriptionSetSwitchPurchaseType.upgrade);
+                                                                                                        purchase.getPaymentMethodId(), purchase.AdapterData);
             }
             catch (ClientException ex)
             {
@@ -120,10 +119,9 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ClientsManager.ConditionalAccessClient().SubscriptionSetModifySubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
+                ClientsManager.ConditionalAccessClient().DowngradeSubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
                                                                                                         purchase.Currency, purchase.ProductId, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(),
-                                                                                                        purchase.getPaymentMethodId(), purchase.AdapterData,
-                                                                                                        WebAPI.Models.Pricing.KalturaSubscriptionSetSwitchPurchaseType.downgrade);
+                                                                                                        purchase.getPaymentMethodId(), purchase.AdapterData);
             }
             catch (ClientException ex)
             {

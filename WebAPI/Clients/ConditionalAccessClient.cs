@@ -2158,22 +2158,19 @@ namespace WebAPI.Clients
             return Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaCompensation>(response.Compensation);
         }
 
-        internal KalturaTransaction SubscriptionSetModifySubscription(int groupId, string siteguid, long houshold, double price, string currency, int productId, string coupon, string udid,
-                                                                    int paymentGatewayId, int paymentMethodId, string adapterData, KalturaSubscriptionSetSwitchPurchaseType subscriptinSetModifyPurchaseType)
+        internal KalturaTransaction UpgradeSubscription(int groupId, string siteguid, long houshold, double price, string currency, int productId, string coupon, string udid,
+                                                                    int paymentGatewayId, int paymentMethodId, string adapterData)
         {
             KalturaTransaction clientResponse = null;
             TransactionResponse wsResponse = new TransactionResponse();
 
             try
             {
-                // convert local enumerator, to web service enumerator                
-                bool isUpgrade = subscriptinSetModifyPurchaseType == KalturaSubscriptionSetSwitchPurchaseType.upgrade;
-
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Core.ConditionalAccess.Module.SubscriptionSetModifySubscription(groupId, siteguid, houshold, price, currency, productId, coupon, Utils.Utils.GetClientIP(),
-                                                                                                udid, paymentGatewayId, paymentMethodId, adapterData, isUpgrade);
+                    wsResponse = Core.ConditionalAccess.Module.UpgradeSubscription(groupId, siteguid, houshold, price, currency, productId, coupon, Utils.Utils.GetClientIP(),
+                                                                                                udid, paymentGatewayId, paymentMethodId, adapterData);
                 }
             }
             catch (Exception ex)
@@ -2198,6 +2195,39 @@ namespace WebAPI.Clients
             clientResponse = AutoMapper.Mapper.Map<KalturaTransaction>(wsResponse);
 
             return clientResponse;
+        }
+
+        internal void DowngradeSubscription(int groupId, string siteguid, long houshold, double price, string currency, int productId, string coupon, string udid,
+                                                                    int paymentGatewayId, int paymentMethodId, string adapterData)
+        {
+            Status wsResponse = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Core.ConditionalAccess.Module.DowngradeSubscription(groupId, siteguid, houshold, price, currency, productId, coupon, Utils.Utils.GetClientIP(),
+                                                                                                udid, paymentGatewayId, paymentMethodId, adapterData);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Code, wsResponse.Message);
+            }
         }
 
         internal bool CancelScheduledSubscription(int groupId, long domainId, long scheduledSubscriptionId)

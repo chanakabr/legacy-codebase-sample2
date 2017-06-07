@@ -22,9 +22,4 @@ namespace WebAPI.Models.Pricing
 
     }
 
-    public enum KalturaSubscriptionSetSwitchPurchaseType
-    {
-        upgrade,
-        downgrade
-    }
 }
