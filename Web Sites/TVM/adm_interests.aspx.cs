@@ -252,7 +252,7 @@ public partial class adm_interests : System.Web.UI.Page
 
         if (ds != null && ds.Tables != null)
         {
-            GetParentTopics(ds, assetType, ref vodParentTopics, ref epgParentTopics);
+            GetParentTopics(ds, ref vodParentTopics, ref epgParentTopics);
             foreach (DataTable dt in ds.Tables)
             {
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -317,7 +317,7 @@ public partial class adm_interests : System.Web.UI.Page
         }
     }
 
-    private void GetParentTopics(DataSet ds, int asset_type, ref System.Data.DataTable vodParentTopics, ref System.Data.DataTable epgParentTopics)
+    private void GetParentTopics(DataSet ds, ref System.Data.DataTable vodParentTopics, ref System.Data.DataTable epgParentTopics)
     {
         int groupId = LoginManager.GetLoginGroupID();
         string metaTagId = string.Empty;
@@ -336,11 +336,11 @@ public partial class adm_interests : System.Web.UI.Page
             vodParentTopics.Columns.Add("id", typeof(string));
             if (metaTable)
             {
-                FillParentTopics(asset_type, vodParentTopics, groupId, ref metaTagId, ref name, ref isTag, dtMeta);
+                FillParentTopics(2, vodParentTopics, groupId, ref metaTagId, ref name, ref isTag, dtMeta);
             }
             if (tagTable)
             {
-                FillParentTopics(asset_type, vodParentTopics, groupId, ref metaTagId, ref name, ref isTag, dtTag);
+                FillParentTopics(2, vodParentTopics, groupId, ref metaTagId, ref name, ref isTag, dtTag);
             }
 
         }
@@ -355,11 +355,10 @@ public partial class adm_interests : System.Web.UI.Page
             epgParentTopics.Columns.Add("id", typeof(string));
             if (metaTable)
             {
-                FillParentTopics(asset_type, epgParentTopics, groupId, ref metaTagId, ref name, ref isTag, dtMeta);
+                FillParentTopics(0, epgParentTopics, groupId, ref metaTagId, ref name, ref isTag, dtMeta);
             }
             if (tagTable)
             {
-                FillParentTopics(asset_type, epgParentTopics, groupId, ref metaTagId, ref name, ref isTag, dtTag);
             }
         }
     }
