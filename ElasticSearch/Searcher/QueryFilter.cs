@@ -45,20 +45,49 @@ namespace ElasticSearch.Searcher
         }
     }
 
+    #region Interface
+
     public interface IESTerm
     {
-        eTermType eType { get; }
+        eTermType eType
+        {
+            get;
+        }
         bool IsEmpty();
         string ToString();
     }
 
+    #endregion
+
+    #region Term
+
     public class ESTerm : IESTerm
     {
-        public string Value { get; set; }
-        public string Key { get; set; }
-        public eTermType eType { get; protected set; }
-        public bool isNot { get; set; }
-        public float Boost { get; set; }
+        public string Value
+        {
+            get;
+            set;
+        }
+        public string Key
+        {
+            get;
+            set;
+        }
+        public eTermType eType
+        {
+            get;
+            protected set;
+        }
+        public bool isNot
+        {
+            get;
+            set;
+        }
+        public float Boost
+        {
+            get;
+            set;
+        }
 
         bool m_bIsNumeric;
 
@@ -145,14 +174,34 @@ namespace ElasticSearch.Searcher
             //return  sb.ToString();
 
         }
-    }
+    } 
+
+    #endregion
+
+    #region Terms
 
     public class ESTerms : IESTerm
     {
-        public eTermType eType { get; protected set; }
-        public List<string> Value { get; protected set; }
-        public string Key { get; set; }
-        public bool isNot { get; set; }
+        public eTermType eType
+        {
+            get;
+            protected set;
+        }
+        public List<string> Value
+        {
+            get;
+            protected set;
+        }
+        public string Key
+        {
+            get;
+            set;
+        }
+        public bool isNot
+        {
+            get;
+            set;
+        }
 
         bool m_bIsNumeric;
 
@@ -206,6 +255,10 @@ namespace ElasticSearch.Searcher
 
         }
     }
+
+    #endregion
+
+    #region Prefix
 
     /// <summary>
     /// Prefix filter part
@@ -279,18 +332,38 @@ namespace ElasticSearch.Searcher
                 sb.Append("}");
             }
 
-            return sb.ToString();      
+            return sb.ToString();
         }
 
         #endregion
     }
 
+    #endregion
+
+    #region Range
+
     public class ESRange : IESTerm
     {
-        public eTermType eType { get; protected set; }
-        public List<KeyValuePair<eRangeComp, string>> Value { get; protected set; }
-        public string Key { get; set; }
-        public bool isNot { get; set; }
+        public eTermType eType
+        {
+            get;
+            protected set;
+        }
+        public List<KeyValuePair<eRangeComp, string>> Value
+        {
+            get;
+            protected set;
+        }
+        public string Key
+        {
+            get;
+            set;
+        }
+        public bool isNot
+        {
+            get;
+            set;
+        }
 
         bool m_bIsNumeric;
 
@@ -348,6 +421,10 @@ namespace ElasticSearch.Searcher
         }
     }
 
+    #endregion
+
+    #region Wildcard
+
     public class ESWildcard : ESTerm
     {
         public ESWildcard() : base(false)
@@ -383,6 +460,10 @@ namespace ElasticSearch.Searcher
             return sb.ToString();
         }
     }
+
+    #endregion
+
+    #region Exists
 
     public class ESExists : IESTerm
     {
@@ -423,6 +504,8 @@ namespace ElasticSearch.Searcher
         }
 
     }
+
+    #endregion
 
     public enum eTermType
     {
