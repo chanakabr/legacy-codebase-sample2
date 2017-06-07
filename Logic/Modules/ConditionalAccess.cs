@@ -3010,8 +3010,8 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static TransactionResponse SubscriptionSetModifySubscription(int groupId, string siteguid, long housholdId, double price, string currency, int productId, string coupon, string userIp,
-                                                                            string udid, int paymentGatewayId, int paymentMethodId, string adapterData, bool isUpgrade)
+        public static TransactionResponse UpgradeSubscription(int groupId, string siteguid, long housholdId, double price, string currency, int productId, string coupon, string userIp,
+                                                                            string udid, int paymentGatewayId, int paymentMethodId, string adapterData)
         {
             TransactionResponse response = new TransactionResponse();
 
@@ -3024,12 +3024,32 @@ namespace Core.ConditionalAccess
 
             if (casImpl != null)
             {
-                response = casImpl.SubscriptionSetModifySubscription(siteguid, housholdId, price, currency, productId, coupon, userIp, udid, paymentGatewayId, paymentMethodId, adapterData, isUpgrade);
+                response = casImpl.UpgradeSubscription(siteguid, housholdId, price, currency, productId, coupon, userIp, udid, paymentGatewayId, paymentMethodId, adapterData);
                 if (response == null)
                 {
                     response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 }
             }
+            return response;
+        }
+
+        public static Status DowngradeSubscription(int groupId, string siteguid, long housholdId, double price, string currency, int productId, string coupon, string userIp,
+                                                                            string udid, int paymentGatewayId, int paymentMethodId, string adapterData)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            // add siteguid to logs/monitor
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+
+            // get partner implementation and group ID
+            BaseConditionalAccess casImpl = null;
+            Utils.GetBaseConditionalAccessImpl(ref casImpl, groupId);
+
+            if (casImpl != null)
+            {
+                response = casImpl.DowngradeSubscription(siteguid, housholdId, price, currency, productId, coupon, userIp, udid, paymentGatewayId, paymentMethodId, adapterData);
+            }
+
             return response;
         }
 

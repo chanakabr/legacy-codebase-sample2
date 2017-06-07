@@ -15648,11 +15648,27 @@ namespace Core.ConditionalAccess
 			return EntitelemantManager.GetCompensation(this, m_nGroupID, compensationId);
 		}
 
-        public virtual TransactionResponse SubscriptionSetModifySubscription(string siteguid, long housholdId, double price, string currency, int productId, string coupon, string userIp, string udid,
-                                                                            int paymentGatewayId, int paymentMethodId, string adapterData, bool isUpgrade)
+        public virtual TransactionResponse UpgradeSubscription(string siteguid, long housholdId, double price, string currency, int productId, string coupon, string userIp, string udid,
+                                                                            int paymentGatewayId, int paymentMethodId, string adapterData)
         {
+            TransactionResponse transactionResponse = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            ApiObjects.Response.Status status = PurchaseManager.SubscriptionSetModifySubscription(this, m_nGroupID, siteguid, housholdId, price, currency, productId, coupon, userIp, udid, paymentGatewayId,
+                                                                    paymentMethodId, adapterData, true, ref transactionResponse);
+            if (status != null && status.Code != (int)eResponseStatus.OK)
+            {
+                transactionResponse.Status.Code = status.Code;
+                transactionResponse.Status.Message = status.Message;
+            }
+
+            return transactionResponse;
+        }
+
+        public virtual ApiObjects.Response.Status DowngradeSubscription(string siteguid, long housholdId, double price, string currency, int productId, string coupon, string userIp, string udid,
+                                                                            int paymentGatewayId, int paymentMethodId, string adapterData)
+        {
+            TransactionResponse transactionResponse = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             return PurchaseManager.SubscriptionSetModifySubscription(this, m_nGroupID, siteguid, housholdId, price, currency, productId, coupon, userIp, udid, paymentGatewayId,
-                                                                    paymentMethodId, adapterData, isUpgrade);
+                                                                    paymentMethodId, adapterData, false, ref transactionResponse);
         }
 
         public bool HandleDowngrade(string siteguid, long subscriptionSetModifyDetailsId, ref bool shouldResetModifyStatus)
