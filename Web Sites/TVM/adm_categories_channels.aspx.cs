@@ -60,7 +60,7 @@ public partial class adm_categories_channels : System.Web.UI.Page
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         if (Session["category_id"] != null && Session["category_id"].ToString() != "" && Session["category_id"].ToString() != "0")
         {
-            sBack = "adm_categories.aspx?category_id=" + PageUtils.GetTableSingleVal("categories", "parent_category_id", int.Parse(Session["category_id"].ToString()));
+            sBack = "adm_categories.aspx?parent_category_id=" + PageUtils.GetTableSingleVal("categories", "parent_category_id", int.Parse(Session["category_id"].ToString()));
         }
         if (sBack != "")
         {
