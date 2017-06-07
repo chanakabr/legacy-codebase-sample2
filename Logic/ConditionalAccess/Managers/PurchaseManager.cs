@@ -189,7 +189,7 @@ namespace Core.ConditionalAccess
                 KeyValuePair<long, int> setAndPriority = subscription.GetSubscriptionSetIdsToPriority().First();
                 Subscription subscriptionInTheSameSet = null;
                 DomainSubscriptionPurchaseDetails previousSubsriptionPurchaseDetails = null;
-                if (!IsEntitlementContainSameSetSubscription(groupId, domainId, productId, setAndPriority.Key, ref subscriptionInTheSameSet, ref previousSubsriptionPurchaseDetails) || !previousSubsriptionPurchaseDetails.IsRecurring)
+                if (!IsEntitlementContainSameSetSubscription(groupId, domainId, productId, setAndPriority.Key, ref subscriptionInTheSameSet, ref previousSubsriptionPurchaseDetails))
                 {
                     response.Status = new Status((int)eResponseStatus.CanOnlyUpgradeOrDowngradeRecurringSubscriptionInTheSameSubscriptionSet,
                     "Can only upgrade or downgrade recurring subscription in the same subscriptionSet");
@@ -199,6 +199,13 @@ namespace Core.ConditionalAccess
                 if (!previousSubsriptionPurchaseDetails.IsFirstSubscriptionSetModify)
                 {
                     response.Status = new Status((int)eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce, eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce.ToString());
+                    return response;
+                }
+
+                if (!previousSubsriptionPurchaseDetails.IsRecurring)
+                {
+                    response.Status = new Status((int)eResponseStatus.CanOnlyUpgradeOrDowngradeRecurringSubscriptionInTheSameSubscriptionSet,
+                    "Can only upgrade or downgrade recurring subscription in the same subscriptionSet");
                     return response;
                 }
 
@@ -245,9 +252,6 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                // initialize response state before downgrade/upgrade
-                response.State = eTransactionState.Failed.ToString();
-
                 // downgrade logic
                 if (!isUpgrade)
                 {
@@ -274,7 +278,8 @@ namespace Core.ConditionalAccess
                                                     int paymentGatewayId, int paymentMethodId, string adapterData, ref TransactionResponse response, string logString, CouponData couponData, string country,
                                                     PriceReason priceReason, Subscription subscription, ref bool isGiftCard, ref Price priceResponse, Subscription subscriptionInTheSameSet,
                                                     DomainSubscriptionPurchaseDetails previousSubsriptionPurchaseDetails)
-        {            
+        {
+            response.State = eTransactionState.Failed.ToString();
             if (string.IsNullOrEmpty(previousSubsriptionPurchaseDetails.CurrencyCode))
             {
                 log.ErrorFormat("Failed to get previous subscription purchase currency code for groupId: {0}, purchaseId: {1}", groupId, previousSubsriptionPurchaseDetails.PurchaseId);
@@ -554,7 +559,6 @@ namespace Core.ConditionalAccess
             {
                 log.DebugFormat("scheduled purchase successfully queued. data: {0}", data);
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                response.State = eTransactionState.Pending.ToString();
             }
 
             return response;

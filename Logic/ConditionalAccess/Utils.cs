@@ -7625,7 +7625,7 @@ namespace Core.ConditionalAccess
                         string currencyCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "CURRENCY_CD");
                         bool isRecurring = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_RECURRING", 0) == 1;
                         string billingGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "BILLING_GUID");
-                        bool isFirstSubscriptionSetModify = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_FIRST_SUBSCRIPTION_SET_MODIFY", 0) == 0;
+                        bool isFirstSubscriptionSetModify = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_SUBSCRIPTION_SET_MODIFY_EXISTS", 0) == 0;
                         if (purchaseId > 0)
                         {
                             previousSubsriptionPurchaseDetails = new PurchaseManager.DomainSubscriptionPurchaseDetails(previousBundlePurchase, purchaseId, price, currencyCode, isRecurring, billingGuid, isFirstSubscriptionSetModify);
