@@ -187,45 +187,7 @@ public partial class adm_media : System.Web.UI.Page
                         theTable += sFN;
                     }
                 }
-            }
-        }
-        selectQuery.Finish();
-        selectQuery = null;
-    }
-    protected void InsertMetasToTable(ref DBTableWebEditor theTable, Int32 nGroupID)
-    {
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += " select * from media_tags_types where status=1 and IS_ON_TABLE=1 and group_id " + PageUtils.GetParentsGroupsStr(nGroupID);
-        //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-        selectQuery += " order by order_num";
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            for (int j = 0; j < nCount; j++)
-            {
-                Int32 nTagType = int.Parse(selectQuery.Table("query").DefaultView[j].Row["ID"].ToString());
-                string sFieldNameVal = selectQuery.Table("query").DefaultView[j].Row["NAME"].ToString();
 
-                DataTableMultiValuesColumn multi_tag = new DataTableMultiValuesColumn(sFieldNameVal, "val", "mt.media_id", "ID");
-                multi_tag += "select t.value as val from tags t,media_tags mt where mt.tag_id=t.id and mt.status=1 and t.status=1 and t.TAG_TYPE_ID=" + nTagType.ToString() + " and ";
-                theTable.AddMultiValuesColumn(multi_tag);
-            }
-        }
-        selectQuery.Finish();
-        selectQuery = null;
-
-    }
-
-    protected void InsertDoubleMetaToTable(ref DBTableWebEditor theTable, Int32 nGroupID, bool bWithQ)
-    {
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += " select * from groups with (nolock) where ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nGroupID);
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            if (nCount > 0)
-            {
                 for (int j = 1; j < 11; j++)
                 {
                     string sFieldVal = "META" + j.ToString() + "_DOUBLE";
@@ -254,41 +216,103 @@ public partial class adm_media : System.Web.UI.Page
         selectQuery = null;
     }
 
-    protected void AddCommentFields(ref DBTableWebEditor theTable, Int32 nGroupID)
+    protected void InsertMetasToTable(ref DBTableWebEditor theTable, Int32 nGroupID)
     {
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select * from comment_types where status=1 and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+        selectQuery += " select ID, NAME from media_tags_types where status=1 and IS_ON_TABLE=1 and group_id " + PageUtils.GetParentsGroupsStr(nGroupID);
+        //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
         selectQuery += " order by order_num";
         if (selectQuery.Execute("query", true) != null)
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            for (int i = 0; i < nCount; i++)
+            for (int j = 0; j < nCount; j++)
             {
-                Int32 nCommentID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
-                string sName = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
-                {
-                    DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_media_comments.aspx", sName, "");
-                    linkColumn1.AddQueryStringValue("media_id", "field=id");
-                    linkColumn1.AddQueryStringValue("comment_type_id", nCommentID.ToString());
-                    theTable.AddLinkColumn(linkColumn1);
-                }
+                Int32 nTagType = int.Parse(selectQuery.Table("query").DefaultView[j].Row["ID"].ToString());
+                string sFieldNameVal = selectQuery.Table("query").DefaultView[j].Row["NAME"].ToString();
+
+                DataTableMultiValuesColumn multi_tag = new DataTableMultiValuesColumn(sFieldNameVal, "val", "mt.media_id", "ID");
+                multi_tag += "select t.value as val from tags t,media_tags mt where mt.tag_id=t.id and mt.status=1 and t.status=1 and t.TAG_TYPE_ID=" + nTagType.ToString() + " and ";
+                theTable.AddMultiValuesColumn(multi_tag);
             }
         }
         selectQuery.Finish();
         selectQuery = null;
+
     }
+
+    //protected void InsertDoubleMetaToTable(ref DBTableWebEditor theTable, Int32 nGroupID, bool bWithQ)
+    //{
+    //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+    //    selectQuery += " select * from groups with (nolock) where ";
+    //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nGroupID);
+    //    if (selectQuery.Execute("query", true) != null)
+    //    {
+    //        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+    //        if (nCount > 0)
+    //        {
+    //            for (int j = 1; j < 11; j++)
+    //            {
+    //                string sFieldVal = "META" + j.ToString() + "_DOUBLE";
+    //                string sField = "IS_META" + j.ToString() + "_DOUBLE_ON_TABLE";
+    //                string sFieldName = "META" + j.ToString() + "_DOUBLE_NAME";
+
+    //                Int32 nOnOff = int.Parse(selectQuery.Table("query").DefaultView[0].Row[sField].ToString());
+    //                string sFieldNameVal = selectQuery.Table("query").DefaultView[0].Row[sFieldName].ToString();
+    //                if (nOnOff == 1)
+    //                {
+    //                    theTable += ",";
+    //                    string sFN = "";
+    //                    if (bWithQ == true)
+    //                        sFN = "q.";
+    //                    else
+    //                        sFN = "m.";
+    //                    sFN += sFieldVal;
+    //                    if (bWithQ == true)
+    //                        sFN += " as '" + sFieldNameVal + "'";
+    //                    theTable += sFN;
+    //                }
+    //            }
+    //        }
+    //    }
+    //    selectQuery.Finish();
+    //    selectQuery = null;
+    //}
+
+    //protected void AddCommentFields(ref DBTableWebEditor theTable, Int32 nGroupID)
+    //{
+    //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+    //    selectQuery += "select ID, NAME from comment_types where status=1 and ";
+    //    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+    //    selectQuery += " order by order_num";
+    //    if (selectQuery.Execute("query", true) != null)
+    //    {
+    //        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+    //        for (int i = 0; i < nCount; i++)
+    //        {
+    //            Int32 nCommentID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
+    //            string sName = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
+    //            {
+    //                DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_media_comments.aspx", sName, "");
+    //                linkColumn1.AddQueryStringValue("media_id", "field=id");
+    //                linkColumn1.AddQueryStringValue("comment_type_id", nCommentID.ToString());
+    //                theTable.AddLinkColumn(linkColumn1);
+    //            }
+    //        }
+    //    }
+    //    selectQuery.Finish();
+    //    selectQuery = null;
+    //}
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
-        theTable += "select q.editor_remarks,q.is_active,q.status as 'status1',q.s_id as 'MID',p.base_url as 'Pic',q.NAME as 'Name', ISNULL(q.catalog_start_date,q.start_date) as 'Catalog Start Date'  ,q.start_date as 'Start Date',q.end_date as 'Catalog End Date',q.description as 'Description',q.PLAYER_CONTROL_ADS as 'Ads Controller'";
+        theTable += "select q.editor_remarks,q.is_active,q.status as 'status1',q.s_id as 'MID',p.base_url as 'Pic',q.NAME as 'Name', ISNULL(q.catalog_start_date,q.start_date) as 'Catalog Start Date'  ,q.start_date as 'Start Date',q.end_date as 'Catalog End Date',q.description as 'Description'";
         InsertStrMetaToTable(ref theTable, nGroupID, true);
-        InsertDoubleMetaToTable(ref theTable, nGroupID, true);
+        //InsertDoubleMetaToTable(ref theTable, nGroupID, true);
         theTable += ",q.CO_GUID as 'Outer GUID',q.EPG_IDENTIFIER as 'EPG GUID',q.s_id as 'id',q.s_desc as 'Status', pic_id from (select distinct m.is_active,m.is_active as 'q_ia'";
         InsertStrMetaToTable(ref theTable, nGroupID, false);
-        InsertDoubleMetaToTable(ref theTable, nGroupID, false);
-        theTable += ",m.editor_remarks,m.MEDIA_PIC_ID as 'pic_id',m.PLAYER_CONTROL_ADS,m.CO_GUID,m.EPG_IDENTIFIER,m.status,m.NAME as 'NAME',m.DESCRIPTION as 'Description',m.id as 's_id',lcs.description as 's_desc',CONVERT(VARCHAR(10),m.CATALOG_START_DATE, 104) as 'Catalog_Start_Date',CONVERT(VARCHAR(10),m.START_DATE, 104) as 'Start_Date',CONVERT(VARCHAR(10),m.End_DATE, 104) as 'End_Date',CONVERT(VARCHAR(10),m.Final_End_DATE, 104) as 'Final_End_Date'  from media m with (nolock),lu_content_status lcs with (nolock)";
+        //InsertDoubleMetaToTable(ref theTable, nGroupID, false);
+        theTable += ",m.editor_remarks,m.MEDIA_PIC_ID as 'pic_id',m.CO_GUID,m.EPG_IDENTIFIER,m.status,m.NAME as 'NAME',m.DESCRIPTION as 'Description',m.id as 's_id',lcs.description as 's_desc',CONVERT(VARCHAR(10),m.CATALOG_START_DATE, 104) as 'Catalog_Start_Date',CONVERT(VARCHAR(10),m.START_DATE, 104) as 'Start_Date',CONVERT(VARCHAR(10),m.End_DATE, 104) as 'End_Date',CONVERT(VARCHAR(10),m.Final_End_DATE, 104) as 'Final_End_Date'  from media m with (nolock),lu_content_status lcs with (nolock)";
         if (Session["search_tag"] != null && Session["search_tag"].ToString() != "")
             theTable += ",tags t,media_tags mt ";
         if (Session["search_only_unapproved_comments"] != null && Session["search_only_unapproved_comments"].ToString() != "")
@@ -375,13 +399,14 @@ public partial class adm_media : System.Web.UI.Page
         theTable.AddHiddenField("EDITOR_REMARKS");
         theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("pic_Id");
-        theTable.AddOnOffField("Ads Controller", "media~~|~~PLAYER_CONTROL_ADS~~|~~id~~|~~Player~~|~~Owner");
+        //theTable.AddOnOffField("Ads Controller", "media~~|~~PLAYER_CONTROL_ADS~~|~~id~~|~~Player~~|~~Owner");
         //string sNotifyURL = "";
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) &&
             LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             theTable.AddActivationField("media", "adm_media.aspx");
         }
+
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_media_files.aspx", "Files", "");
             linkColumn1.AddQueryStringValue("media_id", "field=id");
@@ -389,15 +414,17 @@ public partial class adm_media : System.Web.UI.Page
             theTable.AddLinkColumn(linkColumn1);
         }
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) &&
-            LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
-            theTable.AddActivationField("media", "adm_media.aspx");
-        {
-            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_media_locales.aspx", "Locale", "");
-            linkColumn1.AddQueryStringValue("media_id", "field=id");
-            linkColumn1.AddQueryCounterValue("select count(*) as val from media_locale_values where status=1 and is_active=1 and media_ID=", "field=id");
-            theTable.AddLinkColumn(linkColumn1);
-        }
+        //if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) &&
+        //    LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
+        //    theTable.AddActivationField("media", "adm_media.aspx");
+        //{
+        //    DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_media_locales.aspx", "Locale", "");
+        //    linkColumn1.AddQueryStringValue("media_id", "field=id");
+        //    linkColumn1.AddQueryCounterValue("select count(*) as val from media_locale_values where status=1 and is_active=1 and media_ID=", "field=id");
+        //    theTable.AddLinkColumn(linkColumn1);
+        //}
+
+
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_media_comments.aspx", "Comments", "");
             linkColumn1.AddQueryStringValue("media_id", "field=id");
@@ -405,12 +432,14 @@ public partial class adm_media : System.Web.UI.Page
             theTable.AddLinkColumn(linkColumn1);
         }
 
-        AddCommentFields(ref theTable, nGroupID);
-        {
-            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_cube.aspx", "Statistics", "");
-            linkColumn1.AddQueryStringValue("media_id", "field=id");
-            theTable.AddLinkColumn(linkColumn1);
-        }
+        //AddCommentFields(ref theTable, nGroupID);
+        
+        //{
+        //    DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_cube.aspx", "Statistics", "");
+        //    linkColumn1.AddQueryStringValue("media_id", "field=id");
+        //    theTable.AddLinkColumn(linkColumn1);
+        //}
+
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_media_new.aspx", "Edit", "");
@@ -535,10 +564,10 @@ public partial class adm_media : System.Web.UI.Page
             log.Error(string.Format("Failed updating index for mediaIDs: {0}, groupID: {1}", idsToUpdate, nGroupID));
         }
 
-        NotifyMediaActivationChange(int.Parse(sID), int.Parse(sStatus));
-        Notifiers.BaseMediaNotifier t = null;
-        Notifiers.Utils.GetBaseMediaNotifierImpl(ref t, LoginManager.GetLoginGroupID());
-        if (t != null)
-            t.NotifyChange(sID);
+        //NotifyMediaActivationChange(int.Parse(sID), int.Parse(sStatus));
+        //Notifiers.BaseMediaNotifier t = null;
+        //Notifiers.Utils.GetBaseMediaNotifierImpl(ref t, LoginManager.GetLoginGroupID());
+        //if (t != null)
+        //    t.NotifyChange(sID);
     }
 }
