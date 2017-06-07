@@ -84,9 +84,16 @@ namespace ApiObjects.Response
         NoUserInterestToInsert = 2035,
         MetaIdRequired = 2036,
         MetaValueRequired = 2037,
-        TopicNotFound = 2038,
-        InvalidParentId = 2039,
+        TopicNotFound = 2038,         
+        ParentDuplicateAssociation = 2039,
         MetaNotAUserinterest = 2040,
+        ParentIdShouldNotPointToItself = 2041,
+        ParentIdNotAUserInterest = 2042,
+        ParentAssetTypeDiffrentFromMeta = 2043,
+        MetaNotFound = 2044,
+        MetaNotBelongtoPartner = 2045,
+        WrongMetaName = 2046,
+        ParentParnerDiffrentFromMetaPartner = 2048,
 
         // CAS Section 3000 - 3999
         InvalidPurchase = 3000,
