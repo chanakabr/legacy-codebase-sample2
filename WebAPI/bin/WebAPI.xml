@@ -1293,7 +1293,7 @@
         </member>
         <member name="P:WebAPI.Models.Users.KalturaUserInterestTopic.Value">
             <summary>
-            Meta identifier
+            Meta Value
             </summary>
         </member>
         <member name="P:WebAPI.Models.Users.KalturaUserInterestTopic.ParentTopic">
