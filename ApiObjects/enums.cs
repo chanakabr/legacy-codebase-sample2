@@ -380,7 +380,9 @@ namespace ApiObjects
         In,
         NotIn,
         Prefix,
-        Phonetic
+        Phonetic,
+        Exists,
+        NotExists
     }
 
     [Serializable]

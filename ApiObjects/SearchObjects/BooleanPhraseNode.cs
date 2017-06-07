@@ -92,7 +92,7 @@ namespace ApiObjects.SearchObjects
                         stack.Push(eCutType.Or);
                     }
 
-                    else if ("!=<=>=!~^:*".Contains(token)) // comparison operator - parse to enum and add to stack
+                    else if ("!=<=>=!~^:*!+".Contains(token)) // comparison operator - parse to enum and add to stack
                     {
                         ComparisonOperator comparisonOperator = GetComparisonOperator(token);
                         stack.Push(comparisonOperator);
@@ -205,6 +205,12 @@ namespace ApiObjects.SearchObjects
                 break;
                 case "*":
                 comparisonOperator = ComparisonOperator.Phonetic;
+                break;
+                case "+":
+                comparisonOperator = ComparisonOperator.Exists;
+                break;
+                case "!+":
+                comparisonOperator = ComparisonOperator.NotExists;
                 break;
                 default:
                 comparisonOperator = ComparisonOperator.Contains;
