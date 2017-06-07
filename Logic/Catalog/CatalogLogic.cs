@@ -7340,11 +7340,6 @@ namespace Core.Catalog
 
                 CatalogLogic.UpdateNodeTreeFields(request, ref requestFilterTree, definitions, group);
 
-                if (definitions.entitlementSearchDefinitions != null)
-                {
-                    UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, request.order, group.m_nParentGroupID, group);
-                }
-
                 if (initialTree != null)
                 {
                     List<BooleanPhraseNode> rootNodes = new List<BooleanPhraseNode>();
@@ -7365,6 +7360,16 @@ namespace Core.Catalog
             }
 
             definitions.filterPhrase = root;
+
+            if (definitions.entitlementSearchDefinitions != null)
+            {
+                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, request.order, group.m_nParentGroupID, group);
+            }
+
+            if (definitions.shouldGetUserPreferences)
+            {
+                definitions.userPreferences = CatalogLogic.GetUserPreferences(request.m_nGroupID, Convert.ToInt32(request.m_sSiteGuid));
+            }
 
             #endregion
 
