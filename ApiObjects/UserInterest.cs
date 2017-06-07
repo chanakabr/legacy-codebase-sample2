@@ -26,11 +26,17 @@ namespace ApiObjects
         public override bool Equals(object userInterestToCompare)
         {
             var userInterest = userInterestToCompare as UserInterest;
+            
             if(userInterest == null)
-                throw new Exception("Error while comparing userInterest");
+               return false;
 
             return JsonConvert.SerializeObject(this.Topic) == JsonConvert.SerializeObject(userInterest.Topic);            
-        }   
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Topic.GetHashCode();
+        }
     }
 
     public class UserInterestTopic 
