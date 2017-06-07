@@ -41,11 +41,11 @@ namespace WebAPI.Models.Users
         public string MetaId { get; set; }
 
         /// <summary>
-        /// Meta identifier
+        /// Meta Value
         /// </summary>
-        [DataMember(Name = "metaId")]
-        [JsonProperty("metaId")]
-        [XmlElement(ElementName = "metaId")]
+        [DataMember(Name = "value")]
+        [JsonProperty("value")]
+        [XmlElement(ElementName = "value")]
         public string Value { get; set; }
 
         /// <summary>

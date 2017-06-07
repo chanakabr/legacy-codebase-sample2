@@ -50,7 +50,16 @@ namespace WebAPI.Managers.Scheme
                 try
                 {
                     if (!string.IsNullOrEmpty(sValue))
+                    {
+                        var nValue = 0;
+                        if(int.TryParse(sValue,out nValue))
+                        { 
+                            // value should be only String
+                            throw new BadRequestException(BadRequestException.ARGUMENT_STRING_SHOULD_BE_ENUM, name, DynamicType.Name);
+                        }
+
                         Enum.Parse(DynamicType, sValue, true);
+                    }
                 }
                 catch (ArgumentException e)
                 {
