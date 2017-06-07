@@ -81,6 +81,7 @@ namespace WebAPI.Controllers
         [SchemeArgument("assetId", MinInteger = 1)]
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.InvalidPurchase)]
+        [Throws(eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending)]
         public bool ForceCancel(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
