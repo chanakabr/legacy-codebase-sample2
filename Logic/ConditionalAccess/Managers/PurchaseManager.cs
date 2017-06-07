@@ -245,6 +245,9 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
+                // initialize response state before downgrade/upgrade
+                response.State = eTransactionState.Failed.ToString();
+
                 // downgrade logic
                 if (!isUpgrade)
                 {
@@ -551,6 +554,7 @@ namespace Core.ConditionalAccess
             {
                 log.DebugFormat("scheduled purchase successfully queued. data: {0}", data);
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.State = eTransactionState.Pending.ToString();
             }
 
             return response;
