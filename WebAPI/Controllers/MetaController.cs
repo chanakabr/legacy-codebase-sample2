@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
          /// <remarks>
          /// Possible status codes: 
          /// NoMetaToUpdate, NameRequired, NotaTopicInterestMeta, ParentDuplicateAssociation, MetaNotAUserinterest, ParentIdShouldNotPointToItself, ParentIdNotAUserInterest,
-         /// ParentAssetTypeDiffrentFromMeta, MetaNotFound, MetaNotBelongtoPartner, WrongMetaName
+         /// ParentAssetTypeDiffrentFromMeta, MetaNotFound, MetaNotBelongtoPartner, WrongMetaName, ParentParnerDiffrentFromMetaPartner
          /// </remarks>
          [Route("update"), HttpPost]
          [ApiAuthorize]
@@ -77,6 +77,7 @@ namespace WebAPI.Controllers
          [Throws(eResponseStatus.MetaNotFound)]
          [Throws(eResponseStatus.MetaNotBelongtoPartner)]
          [Throws(eResponseStatus.ParentAssetTypeDiffrentFromMeta)]
+         [Throws(eResponseStatus.ParentParnerDiffrentFromMetaPartner)]        
          public KalturaMeta Update(string id, KalturaMeta meta)
          {
              KalturaMeta response = null;
