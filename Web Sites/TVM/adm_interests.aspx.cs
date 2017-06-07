@@ -246,12 +246,19 @@ public partial class adm_interests : System.Web.UI.Page
         string name = string.Empty;
         string metaTagId = string.Empty;
         int assetType = 0;
+
+        System.Data.DataTable vodParentTopics = new System.Data.DataTable();
+        System.Data.DataTable epgParentTopics = new System.Data.DataTable();
+
         if (ds != null && ds.Tables != null)
         {
+            GetParentTopics(ds, assetType, ref vodParentTopics, ref epgParentTopics);
             foreach (DataTable dt in ds.Tables)
             {
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
+                    
+
                     foreach (DataRow dr in dt.Rows)
                     {
                         name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
@@ -287,14 +294,19 @@ public partial class adm_interests : System.Web.UI.Page
                         dr_enable_notification.Initialize("Enable Notification", "adm_table_header_nbg", "FormInput", "enable_notification", false);
                         dr_enable_notification.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_notification"));
                         theRecord.AddRecord(dr_enable_notification);
-
-                        System.Data.DataTable parentTopics = GetParentTopics(dt, assetType);
-
+                                                
                         DataRecordDropDownField dr_parent = new DataRecordDropDownField("", "txt", "id", "", null, 60, true);
                         dr_parent.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "parent_meta_id"));
                         dr_parent.SetFieldType("string");
                         dr_parent.Initialize("Parent Topic", "adm_table_header_nbg", "FormInput", "parent_meta_id", false);
-                        dr_parent.SetSelectsDT(parentTopics);
+                        if (assetType == 2)
+                        {
+                            dr_parent.SetSelectsDT(vodParentTopics);
+                        }
+                        else 
+                        {
+                            dr_parent.SetSelectsDT(epgParentTopics);
+                        }
                         string defaultParentTopic = ODBCWrapper.Utils.GetSafeStr(dr, "PARENT_META_ID");
                         dr_parent.SetDefaultVal(defaultParentTopic);
                         theRecord.AddRecord(dr_parent);
@@ -305,25 +317,62 @@ public partial class adm_interests : System.Web.UI.Page
         }
     }
 
-    private System.Data.DataTable GetParentTopics(DataTable dt, int asset_type)
+    private void GetParentTopics(DataSet ds, int asset_type, ref System.Data.DataTable vodParentTopics, ref System.Data.DataTable epgParentTopics)
     {
-        System.Data.DataTable dtP = new System.Data.DataTable();
-
-        dtP.Columns.Add("txt", typeof(string));
-        dtP.Columns.Add("id", typeof(string));
-
         int groupId = LoginManager.GetLoginGroupID();
         string metaTagId = string.Empty;
         string name = string.Empty;
         int isTag = 0;
-        foreach (DataRow dr in dt.Rows)
+
+        DataTable dtMeta = ds.Tables[0];
+        DataTable dtTag = ds.Tables[1];
+
+        bool metaTable = dtMeta != null && dtMeta.Rows != null && dtMeta.Rows.Count > 0;
+        bool tagTable = dtTag != null && dtTag.Rows != null && dtTag.Rows.Count > 0;
+
+        if (metaTable || tagTable)
+        {
+            vodParentTopics.Columns.Add("txt", typeof(string));
+            vodParentTopics.Columns.Add("id", typeof(string));
+            if (metaTable)
+            {
+                FillParentTopics(asset_type, vodParentTopics, groupId, ref metaTagId, ref name, ref isTag, dtMeta);
+            }
+            if (tagTable)
+            {
+                FillParentTopics(asset_type, vodParentTopics, groupId, ref metaTagId, ref name, ref isTag, dtTag);
+            }
+
+        }
+        dtMeta = ds.Tables[2];
+        dtTag = ds.Tables[3];
+        metaTable = dtMeta != null && dtMeta.Rows != null && dtMeta.Rows.Count > 0;
+        tagTable = dtTag != null && dtTag.Rows != null && dtTag.Rows.Count > 0;
+
+        if (metaTable || tagTable)
+        {
+            epgParentTopics.Columns.Add("txt", typeof(string));
+            epgParentTopics.Columns.Add("id", typeof(string));
+            if (metaTable)
+            {
+                FillParentTopics(asset_type, epgParentTopics, groupId, ref metaTagId, ref name, ref isTag, dtMeta);
+            }
+            if (tagTable)
+            {
+                FillParentTopics(asset_type, epgParentTopics, groupId, ref metaTagId, ref name, ref isTag, dtTag);
+            }
+        }
+    }
+
+    private static void FillParentTopics(int asset_type, System.Data.DataTable vodParentTopics, int groupId, ref string metaTagId, ref string name, ref int isTag, DataTable dtVodMeta)
+    {
+        foreach (DataRow dr in dtVodMeta.Rows)
         {
             metaTagId = ODBCWrapper.Utils.GetSafeStr(dr, "metaTagId");
             name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
             isTag = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_tag");
-            dtP.Rows.Add(name, ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_{3}", groupId, asset_type.ToString(), isTag, metaTagId)));
+            vodParentTopics.Rows.Add(name, ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_{3}", groupId, asset_type.ToString(), isTag, metaTagId)));
         }
-        return dtP;
     }
 
     private void EndOfAction()
