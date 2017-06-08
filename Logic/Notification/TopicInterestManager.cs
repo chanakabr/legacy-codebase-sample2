@@ -1071,16 +1071,20 @@ namespace APILogic.Notification
 
                 string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, interestNotification.ExternalPushId, string.Empty, messageData);
                 if (string.IsNullOrEmpty(resultMsgId))
-                    log.ErrorFormat("failed to publish interest message to push topic. result message id is empty for reminder {0}", interestNotificationMessage.Id);
+                    log.ErrorFormat("failed to publish interest message to push topic. response message id is empty for interests notification ID: {0}", interestNotificationMessage.Id);
                 else
                 {
-                    log.DebugFormat("Successfully sent interest message. interest message Id: {0}", interestNotificationMessage.Id);
+                    log.DebugFormat("Successfully sent interest push message to topic. interest message Id: {0}", interestNotificationMessage.Id);
 
                     // update external push result
-                    InterestNotificationMessage updatedInterestNotificationMessage = DAL.InterestDal.UpdateTopicInterestNotificationMessage(partnerId, interestNotificationMessage.Id, null, interestNotificationMessage.Message, true, resultMsgId, DateTime.UtcNow);
+                    InterestNotificationMessage updatedInterestNotificationMessage = DAL.InterestDal.UpdateTopicInterestNotificationMessage(partnerId, interestNotificationMessage.Id, null, interestNotificationMessage.Message, true, resultMsgId, currentDate);
                     if (updatedInterestNotificationMessage == null)
+                        log.ErrorFormat("Failed to update interest message. partner ID: {0}, interests notification ID: {1} ", partnerId, interestNotificationMessage.Id);
+                    else
                     {
-                        log.ErrorFormat("Failed to update interest message. partner ID: {0}, reminder ID: {1} ", partnerId, interestNotificationMessage.Id);
+                        // update interest notification 
+                        if (DAL.InterestDal.UpdateTopicInterestNotification(partnerId, interestNotification.Id, null, currentDate, null) == null)
+                            log.ErrorFormat("Failed to update interest notification last message send date. partner ID: {0}, interests notification ID: {1} ", partnerId, interestNotificationMessage.Id);
                     }
                 }
 
