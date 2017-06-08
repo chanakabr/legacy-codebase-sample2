@@ -131,7 +131,50 @@ namespace ElasticSearchHandler.IndexBuilders
                     suffix = language.Code;
                 }
 
-                string mappingString = serializer.CreateEpgMapping(group.m_oEpgGroupSettings.m_lMetasName, group.m_oEpgGroupSettings.m_lTagsName, indexAnalyzer, searchAnalyzer,
+                #region Join tags and metas of EPG and media to same mapping
+
+                List<string> tags = new List<string>();
+
+                if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lTagsName != null)
+                {
+                    tags.AddRange(group.m_oEpgGroupSettings.m_lTagsName);
+                }
+
+                if (group.m_oGroupTags != null)
+                {
+                    foreach (var item in group.m_oGroupTags.Values)
+                    {
+                        if (!tags.Contains(item))
+                        {
+                            tags.Add(item);
+                        }
+                    }
+                }
+
+                List<string> metas = new List<string>();
+
+                if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lMetasName != null)
+                {
+                    metas.AddRange(group.m_oEpgGroupSettings.m_lMetasName);
+                }
+
+                if (group.m_oMetasValuesByGroupId != null)
+                {
+                    foreach (var item in group.m_oMetasValuesByGroupId)
+                    {
+                        foreach (var mediaMeta in item.Value)
+                        {
+                            if (!metas.Contains(mediaMeta.Value))
+                            {
+                                metas.Add(mediaMeta.Value);
+                            }
+                        }
+                    }
+                }
+
+                #endregion
+
+                string mappingString = serializer.CreateEpgMapping(metas, tags, indexAnalyzer, searchAnalyzer,
                     specificType, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix, shouldAddRouting);
                 bool mappingResult = api.InsertMapping(newIndexName, specificType, mappingString.ToString());
                 

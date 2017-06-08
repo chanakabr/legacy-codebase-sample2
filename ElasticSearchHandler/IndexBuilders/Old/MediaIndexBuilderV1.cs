@@ -106,7 +106,11 @@ namespace ElasticSearchHandler.IndexBuilders
                     log.Error(string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
                 }
 
-                string mapping = serializer.CreateMediaMapping(group.m_oMetasValuesByGroupId, group.m_oGroupTags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
+                List<string> tags = new List<string>();
+
+                tags.AddRange(group.m_oGroupTags.Values);
+
+                string mapping = serializer.CreateMediaMapping(group.m_oMetasValuesByGroupId, tags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
                 string type = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
                 bool bMappingRes = api.InsertMapping(newIndexName, type, mapping.ToString());
 

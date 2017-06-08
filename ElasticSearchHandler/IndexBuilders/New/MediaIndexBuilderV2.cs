@@ -142,9 +142,51 @@ namespace ElasticSearchHandler.IndexBuilders
                     suffix = language.Code;
                 }
 
+                #region Join tags and metas of EPG and media to same mapping
+
+                List<string> tags = new List<string>();
+
+                if (group.m_oGroupTags != null)
+                {
+                    tags.AddRange(group.m_oGroupTags.Values);
+                }
+
+                if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lTagsName != null)
+                {
+                    foreach (var item in group.m_oEpgGroupSettings.m_lTagsName)
+                    {
+                        if (!tags.Contains(item))
+                        {
+                            tags.Add(item);
+                        }
+                    }
+                }
+
+                Dictionary<int, Dictionary<string, string>> metas = new Dictionary<int, Dictionary<string, string>>();
+
+                if (group.m_oMetasValuesByGroupId != null)
+                {
+                    foreach (var item in group.m_oMetasValuesByGroupId)
+                    {
+                        metas.Add(item.Key, item.Value);
+                    }
+                }
+
+                if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lMetasName != null)
+                {
+                    metas.Add(0, new Dictionary<string, string>());
+
+                    foreach (var item in group.m_oEpgGroupSettings.m_lMetasName)
+                    {
+                        metas[0].Add(item, item);
+                    }
+                }
+
+                #endregion
+
                 // Ask serializer to create the mapping definitions string
                 string mapping = serializer.CreateMediaMapping(
-                    group.m_oMetasValuesByGroupId, group.m_oGroupTags,
+                    metas, tags,
                     indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix, phoneticIndexAnalyzer, phoneticSearchAnalyzer);      
 
                 bool mappingResult = api.InsertMapping(newIndexName, type, mapping.ToString());
