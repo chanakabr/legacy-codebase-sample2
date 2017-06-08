@@ -666,24 +666,32 @@ namespace Core.ConditionalAccess
         }
 
         private static bool CalculateUpgradePrice(BaseConditionalAccess cas, long domainId, Subscription oldSubscription, ref Price price,
-                                                        ConditionalAccess.Utils.UserBundlePurchase oldSubscriptionPurchaseDetails)
+                                                        DomainSubscriptionPurchaseDetails oldSubscriptionPurchaseDetails)
         {
             bool res = false;
             try
             {
-                int daysLeftOnOldSubscription = (int)Math.Ceiling((DateTime.UtcNow - oldSubscriptionPurchaseDetails.dtEndDate).TotalDays);
-                if (oldSubscription.m_oUsageModule == null || oldSubscription.m_oPriceCode == null || oldSubscription.m_oPriceCode.m_oPrise == null)
+                int daysLeftOnOldSubscription = (int)Math.Ceiling((oldSubscriptionPurchaseDetails.dtEndDate - DateTime.UtcNow).TotalDays);
+                if (oldSubscription.m_oUsageModule == null)
                 {
                     log.ErrorFormat("oldSubscription Usage Module, Price Code or Price is null, domainId: {0}, oldSubscriptionCode: {1}", domainId, oldSubscription.m_sObjectCode);
                     return res;
                 }
-                                
-                double oldSubscriptionRelativePriceTodeduct = (((double)daysLeftOnOldSubscription / (double)oldSubscription.m_oUsageModule.m_tsMaxUsageModuleLifeCycle) * oldSubscription.m_oPriceCode.m_oPrise.m_dPrice);
-                price.m_dPrice = price.m_dPrice - oldSubscriptionRelativePriceTodeduct;
+
+                DateTime oldStartDate = Utils.GetEndDateTime(oldSubscriptionPurchaseDetails.dtEndDate, oldSubscription.m_oUsageModule.m_tsMaxUsageModuleLifeCycle, false);
+                double oldSubTotalDays = (oldSubscriptionPurchaseDetails.dtEndDate - oldStartDate).TotalDays;
+
+                double oldSubscriptionRelativePriceToDeduct = (((double)daysLeftOnOldSubscription / oldSubTotalDays) * oldSubscriptionPurchaseDetails.Price);
+                price.m_dPrice = price.m_dPrice - oldSubscriptionRelativePriceToDeduct;
                 if (price.m_dPrice < 0)
                 {
-                    price.m_dPrice = 0;                    
+                    price.m_dPrice = 0;
                 }
+
+                log.DebugFormat("daysLeftOnOldSubscription = {0}, oldSubscriptionRelativePriceTodeduct = {1}, oldSubscriptionPurchaseDetails.Price = {2}, price.m_dPrice = {3}, oldStartDate = {4}, oldSubTotalDays = {5}",
+                   daysLeftOnOldSubscription, oldSubscriptionRelativePriceToDeduct, oldSubscriptionPurchaseDetails.Price, price.m_dPrice, oldStartDate, oldSubTotalDays);
+
+                res = true;
             }
             catch (Exception ex)
             {
@@ -693,6 +701,7 @@ namespace Core.ConditionalAccess
 
             return res;
         }
+
 
         /// <summary>
         /// Purchase
