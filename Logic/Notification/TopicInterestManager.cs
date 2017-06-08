@@ -129,27 +129,8 @@ namespace APILogic.Notification
                     return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
                 }
 
-                // create Amazon topic 
-                if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
-                {
-                    string externalId = NotificationAdapter.CreateAnnouncement(partnerId, string.Format("Interest_{0}", topicNameValue));
-                    if (string.IsNullOrEmpty(externalId))
-                    {
-                        log.DebugFormat("failed to create announcement groupID = {0}, topicNameValue = {1}", partnerId, topicNameValue);
-                        return new ApiObjects.Response.Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic");
-                    }
-
-                    // update table with external id
-                    interestNotification = InterestDal.UpdateTopicInterestNotification(partnerId, interestNotification.Id, externalId);
-                    if (interestNotification == null)
-                    {
-                        log.DebugFormat("failed to update topic interest notification: {0} with externalId: {1}, groupId = {2}", interestNotification.Id, externalId, partnerId);
-                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic"); //TODO: Anat change error code and message
-                    }
-                }
-
                 // register user (devices) to Amazon topic interests
-                response = RegisterUserToInterestNotification(partnerId, userId, interestNotification.Id, interestNotification.Name, interestNotification.ExternalPushId);
+                response = RegisterUserToInterestNotification(partnerId, userId, interestNotification);
                 if (response == null || response.Code != (int)eResponseStatus.OK)
                 {
                     log.ErrorFormat("Registering user to notifications failed. User ID: {0}, Partner ID: {1}, User Interest: {2}", userId, partnerId, JsonConvert.SerializeObject(newUserInterest));
@@ -316,9 +297,28 @@ namespace APILogic.Notification
             return response;
         }
 
-        private static Status RegisterUserToInterestNotification(int partnerId, int userId, int interestNotificationId, string interestNotificationName, string topicExternalId)
+        private static Status RegisterUserToInterestNotification(int partnerId, int userId, InterestNotification interestNotification)
         {
             Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+
+            // create Amazon topic 
+            if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
+            {
+                string externalId = NotificationAdapter.CreateAnnouncement(partnerId, string.Format("Interest_{0}", interestNotification.TopicNameValue));
+                if (string.IsNullOrEmpty(externalId))
+                {
+                    log.DebugFormat("failed to create announcement groupID = {0}, topicNameValue = {1}", partnerId, interestNotification.TopicNameValue);
+                    return new ApiObjects.Response.Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic");
+                }
+
+                // update table with external id
+                interestNotification = InterestDal.UpdateTopicInterestNotification(partnerId, interestNotification.Id, externalId);
+                if (interestNotification == null)
+                {
+                    log.DebugFormat("failed to update topic interest notification: {0} with externalId: {1}, groupId = {2}", interestNotification.Id, externalId, partnerId);
+                    return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic"); //TODO: Anat change error code and message
+                }
+            }
 
             // register user to topic
             bool docExists = false;
@@ -348,8 +348,8 @@ namespace APILogic.Notification
             long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
             userNotificationData.UserInterests.Add(new Announcement()
             {
-                AnnouncementId = interestNotificationId,
-                AnnouncementName = interestNotificationName,
+                AnnouncementId = interestNotification.Id,
+                AnnouncementName = interestNotification.Name,
                 AddedDateSec = addedSecs
             });
 
@@ -372,7 +372,7 @@ namespace APILogic.Notification
                         continue;
                     }
 
-                    log.DebugFormat("adding user interest to device group: {0}, user: {1}, UDID: {2}, interestNotificationId: {3}", partnerId, userId, device.Udid, interestNotificationId);
+                    log.DebugFormat("adding user interest to device group: {0}, user: {1}, UDID: {2}, interestNotificationId: {3}", partnerId, userId, device.Udid, interestNotification.Id);
 
                     // get device notification data
                     docExists = false;
@@ -386,7 +386,7 @@ namespace APILogic.Notification
                     try
                     {
                         // validate device doesn't already have the announcement
-                        var subscribedUserInterests = deviceNotificationData.SubscribedUserInterests.Where(x => x.Id == interestNotificationId);
+                        var subscribedUserInterests = deviceNotificationData.SubscribedUserInterests.Where(x => x.Id == interestNotification.Id);
                         if (subscribedUserInterests != null && subscribedUserInterests.Count() > 0)
                         {
                             log.ErrorFormat("user already subscribed on userInterests on device. group: {0}, UDID: {1}", partnerId, device.Udid);
@@ -406,8 +406,8 @@ namespace APILogic.Notification
                         {
                             EndPointArn = pushData.ExternalToken, // take from pushdata (with UDID)
                             Protocol = EnumseDeliveryProtocol.application,
-                            TopicArn = topicExternalId,
-                            ExternalId = interestNotificationId
+                            TopicArn = interestNotification.ExternalPushId,
+                            ExternalId = interestNotification.Id
                         };
 
                         List<AnnouncementSubscriptionData> subs = new List<AnnouncementSubscriptionData>() { subData };
@@ -422,7 +422,7 @@ namespace APILogic.Notification
                         NotificationSubscription sub = new NotificationSubscription()
                         {
                             ExternalId = subs.First().SubscriptionArnResult,
-                            Id = interestNotificationId,
+                            Id = interestNotification.Id,
                             SubscribedAtSec = addedSecs
                         };
                         deviceNotificationData.SubscribedUserInterests.Add(sub);
@@ -1372,5 +1372,5 @@ namespace APILogic.Notification
             }
         }
     }
-    
+
 }
