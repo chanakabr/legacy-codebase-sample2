@@ -495,10 +495,11 @@ namespace APILogic.Notification
                 // iterate through branch
                 UserInterestTopic node = interestLeaf.Topic;
 
+                Meta groupsTopic = groupsTopics.FirstOrDefault(x => x.Features != null && x.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION) && x.Id == node.MetaId);
                 // validate leaf is notification enabled
-                if (groupsTopics.Exists(x => x.Features != null && x.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION) && x.Id == node.MetaId))
+                if (groupsTopic != null)
                 {
-                    KeyValuePair branchInterestToCancel = new KeyValuePair() { key = node.MetaId, value = node.Value };
+                    KeyValuePair branchInterestToCancel = new KeyValuePair() { key = groupsTopic.Name, value = node.Value };
 
                     while (node != null)
                     {
@@ -516,6 +517,7 @@ namespace APILogic.Notification
 
             return true;
         }
+
 
         /// <summary>
         /// Returns user interest values
@@ -1195,6 +1197,7 @@ namespace APILogic.Notification
                     }
                     else
                         log.DebugFormat("VOD topic was found for notification. Asset ID: {0}, key-value topic: {1}", assetId, keyValueTopic);
+
 
                     // check if future message was not already sent and we only need to update
                     InterestNotificationMessage oldInterestMessage = InterestDal.GetTopicInterestNotificationMessageByInterestNotificationId(partnerId, interestNotification.Id, assetId);
