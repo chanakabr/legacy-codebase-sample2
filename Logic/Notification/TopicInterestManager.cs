@@ -1102,7 +1102,7 @@ namespace APILogic.Notification
                     {
                         InboxMessage inboxMessage = new InboxMessage()
                         {
-                            Category = eMessageCategory.Followed,
+                            Category = eMessageCategory.Interest,
                             CreatedAtSec = DateUtils.DateTimeToUnixTimestamp(currentDate),
                             Id = Guid.NewGuid().ToString(),
                             Message = messageData.Alert,
