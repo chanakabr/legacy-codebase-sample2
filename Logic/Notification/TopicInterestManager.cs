@@ -42,6 +42,7 @@ namespace APILogic.Notification
         public static ApiObjects.Response.Status AddUserInterest(int partnerId, int userId, UserInterest newUserInterest)
         {
             Status response = new Status { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            List<KeyValuePair> interestsToCancel = new List<KeyValuePair>();
 
             try
             {
@@ -72,6 +73,7 @@ namespace APILogic.Notification
                     return response;
                 }
 
+                bool isRegistrationNeeded = true;
                 if (userInterests == null)
                 {
                     // first user interest
@@ -81,6 +83,9 @@ namespace APILogic.Notification
                 }
                 else
                 {
+                    // checking whether user already register to an upper topic level notification or if he should be removed from lower topic level notification
+                    isRegistrationNeeded = IsNotificationRegistrationNeeded(newUserInterest, userInterests, partnerTopicInterests, out interestsToCancel);
+
                     // User interest should be added
                     newUserInterest.UserInterestId = Guid.NewGuid().ToString();
                     userInterests.UserInterestList.Add(newUserInterest);
@@ -88,11 +93,12 @@ namespace APILogic.Notification
 
                 // Set CB with new interest
                 if (!InterestDal.SetUserInterest(userInterests))
+                {
                     log.ErrorFormat("Error inserting user interest into CB. User interest {0}", JsonConvert.SerializeObject(userInterests));
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error };
+                }
 
-                // checking whether user already register to an upper topic level notification or if he should be removed from lower topic level notification
-                List<KeyValuePair> interestsToCancel = new List<KeyValuePair>();
-                if (!IsNotificationRegistrationNeeded(newUserInterest, userInterests, partnerTopicInterests, out interestsToCancel))
+                if (!isRegistrationNeeded)
                 {
                     log.DebugFormat("Notification registration is not needed. group: {0}, user id: {1}", partnerId, userId);
                     return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
