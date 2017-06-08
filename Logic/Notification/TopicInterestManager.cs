@@ -352,20 +352,27 @@ namespace APILogic.Notification
 
             // update user notification object
             long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
-            userNotificationData.UserInterests.Add(new Announcement()
-            {
-                AnnouncementId = interestNotification.Id,
-                AnnouncementName = interestNotification.Name,
-                AddedDateSec = addedSecs
-            });
 
-            if (!DAL.NotificationDal.SetUserNotificationData(partnerId, userId, userNotificationData))
-            {
-                log.ErrorFormat("error setting user notification data. group: {0}, user id: {1}", partnerId, userId);
-                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            }
+            if (userNotificationData.UserInterests.FirstOrDefault(x => x.AnnouncementId == interestNotification.Id) != null)
+                log.DebugFormat("User is already registered to topic.group: {0}, user id: {1}, interest ID: {2}", partnerId, userId, interestNotification.Id);
             else
-                log.DebugFormat("successfully updated user notification data. group: {0}, user id: {1}", partnerId, userId);
+            {
+                userNotificationData.UserInterests.Add(new Announcement()
+                {
+                    AnnouncementId = interestNotification.Id,
+                    AnnouncementName = interestNotification.Name,
+                    AddedDateSec = addedSecs
+                });
+
+                if (!DAL.NotificationDal.SetUserNotificationData(partnerId, userId, userNotificationData))
+                {
+                    log.ErrorFormat("error setting user notification data. group: {0}, user id: {1}", partnerId, userId);
+                    response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+                else
+                    log.DebugFormat("successfully updated user notification data. group: {0}, user id: {1}", partnerId, userId);
+            }
+
 
             // update user's devices 
             if (userNotificationData.devices != null && userNotificationData.devices.Count > 0)
@@ -436,9 +443,7 @@ namespace APILogic.Notification
                         if (!DAL.NotificationDal.SetDeviceNotificationData(partnerId, device.Udid, deviceNotificationData))
                             log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, subData.EndPointArn);
                         else
-                        {
                             log.DebugFormat("Successfully registered device to announcement. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, subData.EndPointArn);
-                        }
                     }
                     catch (Exception ex)
                     {
