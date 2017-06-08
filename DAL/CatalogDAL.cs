@@ -27,6 +27,7 @@ namespace Tvinci.Core.DAL
 
         private static readonly string NAME_FIELD = "NAME";
         private static readonly string ASSET_TYPE_FIELD = "ASSET_TYPE";
+        private static readonly string IS_TAG_FIELD = "IS_TAG";
         private static readonly string GROUP_ID_FIELD = "GROUP_ID";
         private static readonly string META_ID_FIELD = "META_ID";
         private static readonly string PARENT_META_ID_FIELD = "PARENT_META_ID";
@@ -4595,15 +4596,14 @@ namespace Tvinci.Core.DAL
             meta.Features = new List<MetaFeatureType>();
             meta.Features.Add(MetaFeatureType.USER_INTEREST);
             if (ODBCWrapper.Utils.GetIntSafeVal(dr, ENABLE_NOTIFICATION_FIELD) == 1 ? true : false)
-            {
                 meta.Features.Add(MetaFeatureType.ENABLED_NOTIFICATION);
-            }
 
             meta.Id = ODBCWrapper.Utils.GetSafeStr(dr, META_ID_FIELD);
             meta.ParentId = ODBCWrapper.Utils.GetSafeStr(dr, PARENT_META_ID_FIELD);
             meta.PartnerId = ODBCWrapper.Utils.GetIntSafeVal(dr, GROUP_ID_FIELD);
             assetType = ODBCWrapper.Utils.GetIntSafeVal(dr, ASSET_TYPE_FIELD);
             meta.AssetType = Enum.IsDefined(typeof(eAssetTypes), assetType) ? (eAssetTypes)assetType : eAssetTypes.UNKNOWN;
+            meta.IsTag = ODBCWrapper.Utils.GetIntSafeVal(dr, IS_TAG_FIELD) == 1 ? true : false;
 
             return meta;
         }
