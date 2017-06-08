@@ -90,7 +90,8 @@ namespace ElasticSearchFeeder.IndexBuilders
                     log.Error("Error - " + string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code) + " ElasticSearch");
                 }
 
-                string sMapping = m_oESSerializer.CreateMediaMapping(oGroup.m_oMetasValuesByGroupId, oGroup.m_oGroupTags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
+                string sMapping = m_oESSerializer.CreateMediaMapping(oGroup.m_oMetasValuesByGroupId, 
+                    oGroup.m_oGroupTags.Values.ToList(), indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
                 string sType = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
                 bool bMappingRes = m_oESApi.InsertMapping(sNewIndex, sType, sMapping.ToString());
 
