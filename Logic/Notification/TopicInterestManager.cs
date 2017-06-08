@@ -3,6 +3,7 @@ using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
+using ChannelsSchema;
 using Core.Notification;
 using Core.Notification.Adapters;
 using DAL;
@@ -13,12 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Tvinci.Core.DAL;
 using TVinciShared;
-using Core.Notification;
-using APILogic.AmazonSnsAdapter;
-using Core.Notification.Adapters;
-using ChannelsSchema;
 
 
 namespace APILogic.Notification
@@ -41,8 +37,8 @@ namespace APILogic.Notification
 
         public static ApiObjects.Response.Status AddUserInterest(int partnerId, int userId, UserInterest newUserInterest)
         {
-            Status response = new Status { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             List<KeyValuePair> interestsToCancel = new List<KeyValuePair>();
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             try
             {
@@ -123,7 +119,7 @@ namespace APILogic.Notification
                 {
                     if (!InterestDal.SetUserInterestMapping(partnerId, userId, interestNotification.Id))
                     {
-                        log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId);
+                        log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId); //TODO: Anat
                         return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
                     }
                 }
@@ -131,7 +127,7 @@ namespace APILogic.Notification
                 // validate push is enabled
                 if (!NotificationSettings.IsPartnerPushEnabled(partnerId))
                 {
-                    log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId);
+                    log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId); //TODO: Anat
                     return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
                 }
 
@@ -158,10 +154,13 @@ namespace APILogic.Notification
                 if (interestsNotificationToCancel.Count == 0)
                 {
                     // remove user mapping
-                    foreach (var interestNotificationToCancel in interestsNotificationToCancel)
+                    if (topicInterest.AssetType == eAssetTypes.MEDIA)
                     {
-                        if (!InterestDal.RemoveUserInterestMapping(partnerId, userId, interestNotificationToCancel.Id))
-                            log.ErrorFormat("Error un-mapping interest to user. User ID: {0}, interest ID: {1}", userId, interestNotificationToCancel.Id);
+                        foreach (var interestNotificationToCancel in interestsNotificationToCancel)
+                        {
+                            if (!InterestDal.RemoveUserInterestMapping(partnerId, userId, interestNotificationToCancel.Id))
+                                log.ErrorFormat("Error un-mapping interest to user. User ID: {0}, interest ID: {1}", userId, interestNotificationToCancel.Id);
+                        }
                     }
 
                     // un-register user (devices) to Amazon topic interests
@@ -352,20 +351,27 @@ namespace APILogic.Notification
 
             // update user notification object
             long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
-            userNotificationData.UserInterests.Add(new Announcement()
-            {
-                AnnouncementId = interestNotification.Id,
-                AnnouncementName = interestNotification.Name,
-                AddedDateSec = addedSecs
-            });
 
-            if (!DAL.NotificationDal.SetUserNotificationData(partnerId, userId, userNotificationData))
-            {
-                log.ErrorFormat("error setting user notification data. group: {0}, user id: {1}", partnerId, userId);
-                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            }
+            if (userNotificationData.UserInterests.FirstOrDefault(x => x.AnnouncementId == interestNotification.Id) != null)
+                log.DebugFormat("User is already registered to topic.group: {0}, user id: {1}, interest ID: {2}", partnerId, userId, interestNotification.Id);
             else
-                log.DebugFormat("successfully updated user notification data. group: {0}, user id: {1}", partnerId, userId);
+            {
+                userNotificationData.UserInterests.Add(new Announcement()
+                {
+                    AnnouncementId = interestNotification.Id,
+                    AnnouncementName = interestNotification.Name,
+                    AddedDateSec = addedSecs
+                });
+
+                if (!DAL.NotificationDal.SetUserNotificationData(partnerId, userId, userNotificationData))
+                {
+                    log.ErrorFormat("error setting user notification data. group: {0}, user id: {1}", partnerId, userId);
+                    response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+                else
+                    log.DebugFormat("successfully updated user notification data. group: {0}, user id: {1}", partnerId, userId);
+            }
+
 
             // update user's devices 
             if (userNotificationData.devices != null && userNotificationData.devices.Count > 0)
@@ -436,9 +442,7 @@ namespace APILogic.Notification
                         if (!DAL.NotificationDal.SetDeviceNotificationData(partnerId, device.Udid, deviceNotificationData))
                             log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, subData.EndPointArn);
                         else
-                        {
                             log.DebugFormat("Successfully registered device to announcement. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, subData.EndPointArn);
-                        }
                     }
                     catch (Exception ex)
                     {
@@ -517,7 +521,6 @@ namespace APILogic.Notification
 
             return true;
         }
-
 
         /// <summary>
         /// Returns user interest values
@@ -727,53 +730,181 @@ namespace APILogic.Notification
 
         internal static Status DeleteUserInterest(int partnerId, int userId, string id)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            string logData = string.Format("partnerId: {0}, userId: {1}", partnerId, userId);
+
+            // validate user                                
+            response = ValidateUser(partnerId, userId);
+            if (response == null || response.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("Delete user interest failed. User not valid. {0}", logData);
+                return response;
+            }
 
             UserInterests userInterests = null;
-            bool updateIsNeeded = false;
             try
             {
                 // Get user interests 
                 userInterests = InterestDal.GetUserInterest(partnerId, userId);
                 if (userInterests == null)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.UserInterestNotExist, USER_INTEREST_NOT_EXIST);
-                    return response;
+                    log.ErrorFormat("No userInterests for user. {0}", logData);
+                    return new ApiObjects.Response.Status((int)eResponseStatus.UserInterestNotExist, USER_INTEREST_NOT_EXIST);
                 }
-                else
+
+                var userInterestToRemove = userInterests.UserInterestList.FirstOrDefault(x => x.UserInterestId == id);
+                if (userInterestToRemove == null)
                 {
-                    foreach (var UserInterestItem in userInterests.UserInterestList)
+                    log.ErrorFormat("No such userInterestToRemove. {0}", logData);
+                    return new ApiObjects.Response.Status((int)eResponseStatus.UserInterestNotExist, USER_INTEREST_NOT_EXIST);
+                }
+
+                userInterests.UserInterestList.Remove(userInterestToRemove);
+
+                // Set CB with new interest
+                if (!InterestDal.SetUserInterest(userInterests))
+                {
+                    log.ErrorFormat("Error delete user interest into CB. User interest {0}", JsonConvert.SerializeObject(userInterests));
+                    return new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+
+                // UnRegister User ToInterestNotifications In case Topic is enable notification
+                var partnerTopics = NotificationCache.Instance().GetPartnerTopicInterests(partnerId);
+                if (partnerTopics == null || partnerTopics.Count == 0)
+                {
+                    log.ErrorFormat("Error getting partner topic interests. User ID: {0}, Partner ID: {1}", userId, partnerId);
+                    return new ApiObjects.Response.Status((int)eResponseStatus.PartnerTopicInterestIsMissing, PARTNER_TOPIC_INTEREST_IS_MISSING);
+                }
+
+                var userInterestToRemoveTopic = partnerTopics.FirstOrDefault(x => x.Id == userInterestToRemove.Topic.MetaId);
+                if (userInterestToRemoveTopic == null)
+                {
+                    log.ErrorFormat("userInterestToRemoveTopic is missing . {0}", logData);
+                    return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
+                }
+
+                // Get all topic upper level for notification registration. 
+                List<UserInterest> userInterestsForRegisterNotifications = GetUserInterestsForRegisterNotifications(userInterestToRemove, userInterests.UserInterestList);
+
+                if (userInterestsForRegisterNotifications != null)
+                {
+                    // Register Notification
+                    RegisterUserInterestsForNotifications(partnerId, userId, partnerTopics, userInterestsForRegisterNotifications);
+                }
+
+                // remove notification 
+                // get interestNotification
+                string topicNameValue = TopicInterestManager.GetInterestKeyValueName(userInterestToRemoveTopic.Name, userInterestToRemove.Topic.Value);
+                InterestNotification interestNotificationToCancel = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, topicNameValue, userInterestToRemoveTopic.AssetType);
+                if (interestNotificationToCancel == null)
+                {
+                    //TODO: anat
+                }
+
+                // remove user mapping
+                if (userInterestToRemoveTopic.AssetType == eAssetTypes.MEDIA)
+                {
+                    if (!InterestDal.RemoveUserInterestMapping(partnerId, userId, interestNotificationToCancel.Id))
                     {
-                        if (UserInterestItem.UserInterestId == id)
-                        {
-                            userInterests.UserInterestList.Remove(UserInterestItem);
-                            updateIsNeeded = true;
-                            break;
-                        }
+                        log.ErrorFormat("Error un-mapping interest to user. User ID: {0}, interest ID: {1}", userId, interestNotificationToCancel.Id);
+                        // todo :Anat
                     }
                 }
 
-                // Set CB with new interest
-                if (updateIsNeeded)
+                // un-register user (devices) to Amazon topic interests
+                response = UnRegisterUserToInterestNotifications(partnerId, userId, new List<InterestNotification> { interestNotificationToCancel });
+                if (response == null || response.Code != (int)eResponseStatus.OK)
                 {
-                    if (!InterestDal.SetUserInterest(userInterests))
-                        log.ErrorFormat("Error inserting user interest  into CB. User interest {0}", JsonConvert.SerializeObject(userInterests));
-                }
-                else
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.UserInterestNotExist, USER_INTEREST_NOT_EXIST);
+                    log.ErrorFormat("Unregistering user to notifications failed. User ID: {0}, Partner ID: {1}, User Interest to cancel: {2}", userId, partnerId, JsonConvert.SerializeObject(interestNotificationToCancel));
                     return response;
                 }
 
-                response.Code = (int)eResponseStatus.OK;
-                response.Message = eResponseStatus.OK.ToString();
+
+
+                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error inserting user interest  into CB. User interest {0}, exception {1} ", JsonConvert.SerializeObject(userInterests), ex);
+                log.ErrorFormat("Error delete user interest  into CB. User interest {0}, exception {1} ", JsonConvert.SerializeObject(userInterests), ex);
             }
 
             return response;
+        }
+
+        private static void RegisterUserInterestsForNotifications(int partnerId, int userId, List<Meta> partnerTopics, List<UserInterest> userInterestsForRegisterNotifications)
+        {
+            foreach (var userInterestsForRegisterNotification in userInterestsForRegisterNotifications)
+            {
+                // get relevant topic 
+                Meta topicInterest = partnerTopics.FirstOrDefault(x => x.Id == userInterestsForRegisterNotification.Topic.MetaId);
+                if (topicInterest == null)
+                {
+                    log.ErrorFormat("Enable to find  topicInterest for userInterest User ID: {0}, Partner ID: {1}", userId, partnerId);
+                    continue;
+                }
+
+                // get interestNotification
+                string topicNameValue = TopicInterestManager.GetInterestKeyValueName(topicInterest.Name, userInterestsForRegisterNotification.Topic.Value);
+                InterestNotification interestNotification = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, topicNameValue, topicInterest.AssetType);
+                if (interestNotification == null)
+                {
+                    // create notification in DB
+                    CreateInterestNotification(partnerId, userInterestsForRegisterNotification, topicInterest, out interestNotification);
+                    continue;
+                }
+
+                // update user-interest mapping (for inbox purposes)
+                if (topicInterest.AssetType == eAssetTypes.MEDIA)
+                {
+                    if (!InterestDal.SetUserInterestMapping(partnerId, userId, interestNotification.Id))
+                    {
+                        log.ErrorFormat("Error . adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId); //TODO: Anat
+                    }
+                }
+
+                // validate push is enabled
+                if (!NotificationSettings.IsPartnerPushEnabled(partnerId))
+                {
+                    log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId);
+                    continue;
+                }
+
+                // register user (devices) to Amazon topic interests
+                var response = RegisterUserToInterestNotification(partnerId, userId, interestNotification);
+                if (response == null || response.Code != (int)eResponseStatus.OK)
+                {
+                    log.ErrorFormat("Registering user to notifications failed. User ID: {0}, Partner ID: {1}, User Interest: {2}", userId, partnerId, JsonConvert.SerializeObject(userInterestsForRegisterNotification));
+                    continue;
+                }
+            }
+
+        }
+
+        //TODO: Anat get the right list
+        private static List<UserInterest> GetUserInterestsForRegisterNotifications(UserInterest userInterestToRemove, List<UserInterest> userInterestList)
+        {
+            List<UserInterest> userInterestsForRegisterNotifications = new List<UserInterest>();
+
+            // iterate through UserInterestList
+            foreach (var userInterestItem in userInterestList)
+            {
+                // iterate through topic
+                UserInterestTopic topic = userInterestItem.Topic;
+
+                while (topic != null)
+                {
+                    if (topic.Value.ToLower() == userInterestToRemove.Topic.Value.ToLower())
+                    {
+                        userInterestsForRegisterNotifications.Add(userInterestItem);
+                        break;
+                    }
+
+                    // go to parent node
+                    topic = topic.ParentTopic;
+                }
+            }
+
+            return userInterestsForRegisterNotifications.Count == 0 ? null : userInterestsForRegisterNotifications;
         }
 
         public static string GetInterestKeyValueName(string key, string value)
