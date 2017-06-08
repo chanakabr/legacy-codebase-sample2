@@ -696,7 +696,8 @@ namespace ApiObjects
     {
         SystemAnnouncement = 0,
         Followed = 1,
-        Engagement = 2
+        Engagement = 2,
+        Interest = 3
     }
 
     public enum eMessageState

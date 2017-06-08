@@ -1855,8 +1855,6 @@ namespace Core.Users
 
         public static ApiObjects.Response.Status AddUserInterest(int groupId, int userId, UserInterest userInterest)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
-
             try
             {
                 return TopicInterestManager.AddUserInterest(groupId, userId, userInterest);
@@ -1866,7 +1864,7 @@ namespace Core.Users
                 log.ErrorFormat("Error inserting user interest  into CB. User interest {0}, exception {1} ", JsonConvert.SerializeObject(userInterest), ex);
             }
 
-            return response;
+            return new ApiObjects.Response.Status();
         }
 
         public static UserInterestResponseList GetUserInterests(int groupId, int userId)
@@ -1887,8 +1885,6 @@ namespace Core.Users
 
         public static ApiObjects.Response.Status DeleteUserInterest(int groupId, int userId, string id)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
-
             try
             {
                 return TopicInterestManager.DeleteUserInterest(groupId, userId, id);
@@ -1898,7 +1894,7 @@ namespace Core.Users
                 log.ErrorFormat("Error remove user interest  from CB. User interest id {0}, exception {1} ", id, ex);
             }
 
-            return response;
+            return new ApiObjects.Response.Status();
         }
 
         public static UserResponseObject SignInWithUserId(int groupID, int userId, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<ApiObjects.KeyValuePair> KeyValuePairs)
