@@ -6681,7 +6681,7 @@ namespace Core.Catalog
 
                     eCutType cutType = eCutType.Or;
 
-                    if (leaf.operand == ComparisonOperator.NotContains || leaf.operand == ComparisonOperator.NotEquals)
+                    if (leaf.operand == ComparisonOperator.NotContains || leaf.operand == ComparisonOperator.NotEquals || leaf.operand == ComparisonOperator.NotExists)
                     {
                         cutType = eCutType.And;
                     }
