@@ -1032,7 +1032,7 @@ namespace CouchbaseManager
 
                 if (removeResult.Exception != null)
                     throw removeResult.Exception;
-
+                
                 if (removeResult.Status == Couchbase.IO.ResponseStatus.Success || removeResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
                     result = removeResult.Success;
                 else
