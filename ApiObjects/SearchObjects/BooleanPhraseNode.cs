@@ -47,6 +47,25 @@ namespace ApiObjects.SearchObjects
 
         #region Parse Expression
 
+        private static readonly List<char> singleComparisonOperatorsOrEnd = new List<char>()
+        {
+            ')',
+            '~',
+            '=',
+            '^',
+            ':',
+            '*',
+            '+'
+        };
+
+        private static readonly List<char> doubleComparisonOperators = new List<char>()
+        {
+            '~',
+            '=',
+            '+'
+        };
+
+        // (chr == ')' || chr == '~' || chr == '=' || chr == '^' || chr == ':' || chr == '*' || chr == '+'
         // returns tree representing the search expression 
         // example of expression: "(and actor='brad pitt' (or genre='drama' genre='action'))"
         // when the expression "actor='brad pitt'" represented by BooleanLeaf and the list represented by BooleanPhrase
@@ -91,8 +110,8 @@ namespace ApiObjects.SearchObjects
                     {
                         stack.Push(eCutType.Or);
                     }
-
-                    else if ("!=<=>=!~^:*!+".Contains(token)) // comparison operator - parse to enum and add to stack
+                    // comparison operator - parse to enum and add to stack
+                    else if (token != string.Empty && "!=<=>=!~^:*!+".Contains(token)) 
                     {
                         ComparisonOperator comparisonOperator = GetComparisonOperator(token);
                         stack.Push(comparisonOperator);
@@ -304,7 +323,7 @@ namespace ApiObjects.SearchObjects
                 }
                 // single comparison operator or end of expression with operand - 
                 // get the full token from the buffer if availible and add to tokens list, add the seperator to tokens list
-                else if ((chr == ')' || chr == '~' || chr == '=' || chr == '^' || chr == ':' || chr == '*') && !isQuote) 
+                else if ((singleComparisonOperatorsOrEnd.Contains(chr)) && !isQuote) 
                 {
                     if (GetTokenFromBuffer(string.Empty, false, true, ref buffer, ref token))
                     {
@@ -347,7 +366,7 @@ namespace ApiObjects.SearchObjects
                     }
 
                     // double comparison operator - add the full operator to tokens list and skip the next char in the loop
-                    if (i + 1 < expression.Length && (expression[i + 1] == '=' || expression[i + 1] == '~'))
+                    if (i + 1 < expression.Length && (doubleComparisonOperators.Contains(expression[i + 1])))
                     {
                         token = new string(new char[2] { chr, expression[i + 1] });
                         tokens.Add(token);
