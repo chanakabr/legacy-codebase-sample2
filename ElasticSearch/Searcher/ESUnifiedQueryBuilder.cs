@@ -1698,6 +1698,21 @@ namespace ElasticSearch.Searcher
 
                         (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
                     }
+                    else if (leaf.operand ==  ApiObjects.ComparisonOperator.Exists)
+                    {
+                        term = new ESExists()
+                        {
+                            Value = leaf.field
+                        };
+                    }
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotExists)
+                    {
+                        term = new ESExists()
+                        {
+                            Value = leaf.field,
+                            isNot = true
+                        };
+                    }
                     // Other cases are "Range"
                     else
                     {
@@ -1819,28 +1834,34 @@ namespace ElasticSearch.Searcher
                 ((this.SearchDefinitions.userPreferences.Tags != null) &&
                 (this.SearchDefinitions.userPreferences.Tags.Count > 0))))
             {
-                foreach (var tag in userPreferences.Tags)
+                if (userPreferences.Tags != null)
                 {
-                    ESTerms terms = new ESTerms(false)
+                    foreach (var tag in userPreferences.Tags)
                     {
-                        Key = string.Format("tags.{0}", tag.Key.ToLower())
-                    };
+                        ESTerms terms = new ESTerms(false)
+                        {
+                            Key = string.Format("tags.{0}", tag.Key.ToLower())
+                        };
 
-                    terms.Value.AddRange(tag.Value.Select(s => s.ToLower()));
+                        terms.Value.AddRange(tag.Value.Select(s => s.ToLower()));
 
-                    (result as BoolQuery).AddChild(terms, CutWith.AND);
+                        (result as BoolQuery).AddChild(terms, CutWith.AND);
+                    }
                 }
 
-                foreach (var meta in userPreferences.Metas)
+                if (userPreferences.Metas != null)
                 {
-                    ESTerms terms = new ESTerms(false)
+                    foreach (var meta in userPreferences.Metas)
                     {
-                        Key = string.Format("metas.{0}", meta.Key.ToLower())
-                    };
+                        ESTerms terms = new ESTerms(false)
+                        {
+                            Key = string.Format("metas.{0}", meta.Key.ToLower())
+                        };
 
-                    terms.Value.AddRange(meta.Value.Select(s => s.ToLower()));
+                        terms.Value.AddRange(meta.Value.Select(s => s.ToLower()));
 
-                    (result as BoolQuery).AddChild(terms, CutWith.AND);
+                        (result as BoolQuery).AddChild(terms, CutWith.AND);
+                    }
                 }
             }
             else
