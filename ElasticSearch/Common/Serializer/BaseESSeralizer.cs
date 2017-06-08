@@ -219,14 +219,14 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags,
+        public virtual string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> metasValuesByGroupId, List<string> groupTags,
             string normalIndexAnalyzer, string normalSearchAnalyzer, 
             string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, 
             string suffix = null,
             string phoneticIndexAnalyzer = null,
             string phoneticSearchAnalyzer = null)
         {
-            if (oMetasValuesByGroupId == null || oGroupTags == null)
+            if (metasValuesByGroupId == null || groupTags == null)
                 return string.Empty;
 
             ESMappingObj mappingObj = new ESMappingObj("media");
@@ -426,23 +426,29 @@ namespace ElasticSearch.Common
                 name = "tags"
             };
 
-            if (oGroupTags.Count > 0)
+            if (groupTags.Count > 0)
             {
-                foreach (int tagID in oGroupTags.Keys)
+                HashSet<string> mappedTags = new HashSet<string>();
+                
+                foreach (string tagName in groupTags)
                 {
-                    string sTagName = oGroupTags[tagID];
-
-                    if (!string.IsNullOrEmpty(sTagName))
+                    if (!string.IsNullOrEmpty(tagName))
                     {
-                        sTagName = sTagName.ToLower();
+                        string loweredTagName = tagName.ToLower();
+
+                        // Don't create double mapping for tags to avoid errors
+                        if (mappedTags.Contains(loweredTagName))
+                        {
+                            continue;
+                        }
 
                         MultiFieldMappingPropertyV1 multiField = new ElasticSearch.Common.MultiFieldMappingPropertyV1()
                         {
-                            name = sTagName
+                            name = loweredTagName
                         };
                         multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
                         {
-                            name = sTagName,
+                            name = loweredTagName,
                             type = ElasticSearch.Common.eESFieldType.STRING,
                             null_value = string.Empty,
                             analyzed = false
@@ -471,6 +477,8 @@ namespace ElasticSearch.Common
                         }
 
                         tags.AddProperty(multiField);
+
+                        mappedTags.Add(loweredTagName);
                     }
                 }
             }
@@ -478,15 +486,20 @@ namespace ElasticSearch.Common
             #endregion
 
             #region Add metas mapping
+
             InnerMappingPropertyV1 metas = new InnerMappingPropertyV1()
             {
                 name = "metas"
             };
-            if (oMetasValuesByGroupId != null)
+
+            if (metasValuesByGroupId != null)
             {
-                foreach (int groupID in oMetasValuesByGroupId.Keys)
+                HashSet<string> mappedMetas = new HashSet<string>();
+
+                foreach (int groupID in metasValuesByGroupId.Keys)
                 {
-                    Dictionary<string, string> dMetas = oMetasValuesByGroupId[groupID];
+                    Dictionary<string, string> dMetas = metasValuesByGroupId[groupID];
+
                     if (dMetas != null)
                     {
                         foreach (string sMeta in dMetas.Keys)
@@ -496,9 +509,17 @@ namespace ElasticSearch.Common
                             if (!string.IsNullOrEmpty(sMetaName))
                             {
                                 sMetaName = sMetaName.ToLower();
+
+                                // Don't create double mapping for metas in order to avoid errors
+                                if (mappedMetas.Contains(sMetaName))
+                                {
+                                    continue;
+                                }
+
                                 string sNullValue;
                                 eESFieldType eMetaType;
                                 GetMetaType(sMeta, out eMetaType, out sNullValue);
+
                                 if (eMetaType != eESFieldType.DATE)
                                 {
                                     MultiFieldMappingPropertyV1 multiField = new ElasticSearch.Common.MultiFieldMappingPropertyV1()
@@ -546,6 +567,8 @@ namespace ElasticSearch.Common
                                         analyzed = false
                                     });
                                 }
+
+                                mappedMetas.Add(sMetaName);
                             }
                         }
                     }

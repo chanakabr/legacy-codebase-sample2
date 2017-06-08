@@ -60,14 +60,14 @@ namespace ElasticSearch.Common
         /// </summary>
         /// <param name="autocompleteSearchAnalyzer"></param>
         /// <returns></returns>
-        public override string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags,
+        public override string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, List<string> groupTags,
             string normalIndexAnalyzer, string normalSearchAnalyzer,
             string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
             string suffix = null,
             string phoneticIndexAnalyzer = null,
             string phoneticSearchAnalyzer = null)
         {
-            if (oMetasValuesByGroupId == null || oGroupTags == null)
+            if (oMetasValuesByGroupId == null || groupTags == null)
                 return string.Empty;
 
             ESMappingObj mappingObj = new ESMappingObj(AddSuffix("media", suffix));
@@ -310,19 +310,25 @@ namespace ElasticSearch.Common
                 name = "tags"
             };
 
-            if (oGroupTags.Count > 0)
+            if (groupTags.Count > 0)
             {
-                foreach (int tagID in oGroupTags.Keys)
-                {
-                    string sTagName = oGroupTags[tagID];
+                HashSet<string> mappedTags = new HashSet<string>();
 
-                    if (!string.IsNullOrEmpty(sTagName))
+                foreach (string tagName in groupTags)
+                {
+                    if (!string.IsNullOrEmpty(tagName))
                     {
-                        sTagName = sTagName.ToLower();
+                        string loweredTagName = tagName.ToLower();
+
+                        // Don't create double mapping for tags to avoid errors
+                        if (mappedTags.Contains(loweredTagName))
+                        {
+                            continue;
+                        }
 
                         FieldsMappingPropertyV2 multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
                         {
-                            name = AddSuffix(sTagName, suffix),
+                            name = AddSuffix(loweredTagName, suffix),
                             type = eESFieldType.STRING,
                             index = eMappingIndex.analyzed,
                             search_analyzer = LOWERCASE_ANALYZER,
@@ -331,7 +337,7 @@ namespace ElasticSearch.Common
                         };
                         multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                         {
-                            name = AddSuffix(sTagName, suffix),
+                            name = AddSuffix(loweredTagName, suffix),
                             type = ElasticSearch.Common.eESFieldType.STRING,
                             null_value = string.Empty,
                             index = eMappingIndex.analyzed,
@@ -384,6 +390,7 @@ namespace ElasticSearch.Common
                         }
 
                         tags.AddProperty(multiField);
+                        mappedTags.Add(loweredTagName);
                     }
                 }
             }
@@ -399,9 +406,12 @@ namespace ElasticSearch.Common
 
             if (oMetasValuesByGroupId != null)
             {
+                HashSet<string> mappedMetas = new HashSet<string>();
+
                 foreach (int groupID in oMetasValuesByGroupId.Keys)
                 {
                     Dictionary<string, string> dMetas = oMetasValuesByGroupId[groupID];
+
                     if (dMetas != null)
                     {
                         foreach (string sMeta in dMetas.Keys)
@@ -411,6 +421,13 @@ namespace ElasticSearch.Common
                             if (!string.IsNullOrEmpty(sMetaName))
                             {
                                 sMetaName = sMetaName.ToLower();
+
+                                // Don't create double mapping for metas to avoid errors
+                                if (mappedMetas.Contains(sMetaName))
+                                {
+                                    continue;
+                                }
+
                                 string sNullValue;
                                 eESFieldType eMetaType;
 
@@ -518,6 +535,8 @@ namespace ElasticSearch.Common
                                         format = DATE_FORMAT
                                     });
                                 }
+
+                                mappedMetas.Add(sMetaName);
                             }
                         }
                     }
@@ -616,6 +635,13 @@ namespace ElasticSearch.Common
                 name = "date_routing",
                 index = eMappingIndex.not_analyzed,
                 type = eESFieldType.STRING
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "wp_type_id",
+                type = eESFieldType.INTEGER,
+                index = eMappingIndex.not_analyzed,
+                null_value = "0"
             });
 
             ElasticSearch.Common.FieldsMappingPropertyV2 nameProperty = new FieldsMappingPropertyV2()
