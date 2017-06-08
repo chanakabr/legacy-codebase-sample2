@@ -523,7 +523,6 @@ namespace APILogic.Notification
             return true;
         }
 
-
         /// <summary>
         /// Returns user interest values
         /// </summary>
