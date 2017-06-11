@@ -9380,10 +9380,9 @@ namespace Core.Api
                         // filer metaFeatureTypeList if requested
                         if (metaFeatureTypeList != null && metaFeatureTypeList.Count > 0)
                         {
-                            //var output = emails.Where(e => domains.All(d => !e.EndsWith(d)));
-                            var a = response.MetaList.Where(x => metaFeatureTypeList.All(d => x.Features != null && x.Features.Contains(d)));
-                            if (a != null)
-                                response.MetaList = a.ToList();
+                            var metaListFilterd = response.MetaList.Where(x => metaFeatureTypeList.All(d => x.Features != null && x.Features.Contains(d)));
+                            if (metaListFilterd != null)
+                                response.MetaList = metaListFilterd.ToList();
                         }
                     }
                 }
