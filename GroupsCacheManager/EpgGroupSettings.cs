@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Newtonsoft.Json;
 
 namespace GroupsCacheManager
 {
@@ -17,6 +15,9 @@ namespace GroupsCacheManager
         public List<string> m_lTagsName;
         public List<string> m_lMetasName;
 
+        public List<string> MetasDisplayName;
+        public List<string> TagsDisplayName;
+
         public Dictionary<long, string> tags;
         public Dictionary<long, string> metas;
 
@@ -26,6 +27,8 @@ namespace GroupsCacheManager
         {
             m_lTagsName = new List<string>();
             m_lMetasName = new List<string>();
+            MetasDisplayName = new List<string>();
+            TagsDisplayName = new List<string>();
 
             tags = new Dictionary<long, string>();
             metas = new Dictionary<long, string>();
