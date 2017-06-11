@@ -8134,19 +8134,21 @@ namespace Core.Catalog
                     var topic = availableTopics.FirstOrDefault(x => x.Id == node.MetaId);
                     if (topic != null)
                     {
+                        List<string> valueList = new List<string>();
                         if (topic.IsTag)
                         {
-                            if (result.Tags[topic.Name] == null)
-                                result.Tags.Add(topic.Name, new List<string> { node.Value });
+                            if (result.Tags.TryGetValue(topic.Name, out valueList))
+                                valueList.Add(node.Value);
                             else
-                                result.Tags[topic.Name].Add(node.Value);
+                                result.Tags.Add(topic.Name, new List<string> { node.Value });
+
                         }
                         else
                         {
-                            if (result.Metas[topic.Name] == null)
-                                result.Metas.Add(topic.Name, new List<string> { node.Value });
+                            if (result.Metas.TryGetValue(topic.Name, out valueList))
+                                valueList.Add(node.Value);
                             else
-                                result.Metas[topic.Name].Add(node.Value);
+                                result.Metas.Add(topic.Name, new List<string> { node.Value });
                         }
                     }
 
