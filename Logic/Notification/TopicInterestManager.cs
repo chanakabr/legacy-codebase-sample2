@@ -151,7 +151,7 @@ namespace APILogic.Notification
                         interestsNotificationToCancel.Add(interestNotificationToCancel);
                 }
 
-                if (interestsNotificationToCancel.Count == 0)
+                if (interestsNotificationToCancel.Count != 0)
                 {
                     // remove user mapping
                     if (topicInterest.AssetType == eAssetTypes.MEDIA)
