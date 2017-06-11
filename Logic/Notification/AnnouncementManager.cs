@@ -762,12 +762,15 @@ namespace Core.Notification
                                     UserId = userId
                                 };
 
-                                if (!NotificationDal.SetUserInboxMessage(groupId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(groupId)))
+                                int TtlDays = NotificationSettings.GetInboxMessageTTLDays(groupId);
+                                if (!NotificationDal.SetUserInboxMessage(groupId, inboxMessage, TtlDays))
                                 {
                                     log.ErrorFormat("Error while setting user follow series inbox message. GID: {0}, InboxMessage: {1}",
                                         groupId,
                                         JsonConvert.SerializeObject(inboxMessage));
                                 }
+                                else
+                                    log.DebugFormat("Successfully inserted user message inbox. Group ID: {0}, Inbox message: {1},  TTL in days: {2}", groupId, JsonConvert.SerializeObject(inboxMessage), TtlDays);
                             }
                     }
                     break;
