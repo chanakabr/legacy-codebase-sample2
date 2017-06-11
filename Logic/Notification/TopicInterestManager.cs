@@ -119,15 +119,15 @@ namespace APILogic.Notification
                 {
                     if (!InterestDal.SetUserInterestMapping(partnerId, userId, interestNotification.Id))
                     {
-                        log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId); //TODO: Anat
-                        return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+                        log.DebugFormat("Error. set userInterst mapping. group: {0}, user id: {1}", partnerId, userId); 
+                        return new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     }
                 }
 
                 // validate push is enabled
                 if (!NotificationSettings.IsPartnerPushEnabled(partnerId))
                 {
-                    log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId); //TODO: Anat
+                    log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId);
                     return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
                 }
 
@@ -321,7 +321,7 @@ namespace APILogic.Notification
                 if (interestNotification == null)
                 {
                     log.DebugFormat("failed to update topic interest notification: {0} with externalId: {1}, groupId = {2}", interestNotification.Id, externalId, partnerId);
-                    return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic"); //TODO: Anat change error code and message
+                    return new Status((int)eResponseStatus.Error, "Error"); 
                 }
             }
 
@@ -798,7 +798,7 @@ namespace APILogic.Notification
                 InterestNotification interestNotificationToCancel = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, topicNameValue, userInterestToRemoveTopic.AssetType);
                 if (interestNotificationToCancel == null)
                 {
-                    //TODO: anat
+                    log.ErrorFormat("Error .InterestNotification to cancel not found. {0}", logData);                    
                 }
 
                 // remove user mapping
@@ -806,8 +806,7 @@ namespace APILogic.Notification
                 {
                     if (!InterestDal.RemoveUserInterestMapping(partnerId, userId, interestNotificationToCancel.Id))
                     {
-                        log.ErrorFormat("Error un-mapping interest to user. User ID: {0}, interest ID: {1}", userId, interestNotificationToCancel.Id);
-                        // todo :Anat
+                        log.ErrorFormat("Error un-mapping interest to user. User ID: {0}, interest ID: {1}", userId, interestNotificationToCancel.Id);                        
                     }
                 }
 
@@ -858,7 +857,7 @@ namespace APILogic.Notification
                 {
                     if (!InterestDal.SetUserInterestMapping(partnerId, userId, interestNotification.Id))
                     {
-                        log.ErrorFormat("Error . adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId); //TODO: Anat
+                        log.ErrorFormat("Error . SetUserInterestMapping . group: {0}, user id: {1}", partnerId, userId);
                     }
                 }
 
@@ -879,32 +878,50 @@ namespace APILogic.Notification
             }
 
         }
-
-        //TODO: Anat get the right list
+        
         private static List<UserInterest> GetUserInterestsForRegisterNotifications(UserInterest userInterestToRemove, List<UserInterest> userInterestList)
         {
             List<UserInterest> userInterestsForRegisterNotifications = new List<UserInterest>();
+            var userInterestNodeDepth = new Dictionary<string, int>();
 
             // iterate through UserInterestList
             foreach (var userInterestItem in userInterestList)
             {
                 // iterate through topic
                 UserInterestTopic topic = userInterestItem.Topic;
+                int nodeDeep = 1;
+                bool shouldAdd = false;
 
                 while (topic != null)
                 {
                     if (topic.Value.ToLower() == userInterestToRemove.Topic.Value.ToLower())
                     {
                         userInterestsForRegisterNotifications.Add(userInterestItem);
-                        break;
+                        shouldAdd = true;
                     }
 
                     // go to parent node
                     topic = topic.ParentTopic;
+                    nodeDeep++;
+                }
+
+                if (shouldAdd)
+                {
+                    userInterestNodeDepth.Add(userInterestItem.UserInterestId, nodeDeep);
                 }
             }
 
-            return userInterestsForRegisterNotifications.Count == 0 ? null : userInterestsForRegisterNotifications;
+            List<UserInterest> finalListForRegisterNotifications = null;
+
+            if (userInterestNodeDepth.Count > 0)
+            {
+                var shorterBranch = userInterestNodeDepth.Min(x => x.Value);
+                var userInterestIdsForRegistration = userInterestNodeDepth.Where(x => x.Value == shorterBranch).ToList();
+
+                finalListForRegisterNotifications = userInterestsForRegisterNotifications.Where(x => userInterestIdsForRegistration.All(d => x.UserInterestId == d.Key)).ToList();
+            }
+
+            return finalListForRegisterNotifications;
         }
 
         public static string GetInterestKeyValueName(string key, string value)
