@@ -672,13 +672,24 @@ namespace Core.ConditionalAccess
             try
             {
                 int daysLeftOnOldSubscription = (int)Math.Ceiling((oldSubscriptionPurchaseDetails.dtEndDate - DateTime.UtcNow).TotalDays);
-                if (oldSubscription.m_oUsageModule == null)
+
+                int usageModuleLifeCycle = 0;
+                if (oldSubscription.m_MultiSubscriptionUsageModule != null && oldSubscription.m_MultiSubscriptionUsageModule.Length > 0
+                    && oldSubscription.m_MultiSubscriptionUsageModule[0] != null)
+                {
+                    usageModuleLifeCycle = oldSubscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle;
+                }
+                else if (oldSubscription.m_oUsageModule != null)
+                {
+                    usageModuleLifeCycle = oldSubscription.m_oUsageModule.m_tsMaxUsageModuleLifeCycle;
+                }
+                else
                 {
                     log.ErrorFormat("oldSubscription Usage Module, Price Code or Price is null, domainId: {0}, oldSubscriptionCode: {1}", domainId, oldSubscription.m_sObjectCode);
                     return res;
                 }
 
-                DateTime oldStartDate = Utils.GetEndDateTime(oldSubscriptionPurchaseDetails.dtEndDate, oldSubscription.m_oUsageModule.m_tsMaxUsageModuleLifeCycle, false);
+                DateTime oldStartDate = Utils.GetEndDateTime(oldSubscriptionPurchaseDetails.dtEndDate, usageModuleLifeCycle, false);
                 double oldSubTotalDays = (oldSubscriptionPurchaseDetails.dtEndDate - oldStartDate).TotalDays;
 
                 double oldSubscriptionRelativePriceToDeduct = (((double)daysLeftOnOldSubscription / oldSubTotalDays) * oldSubscriptionPurchaseDetails.Price);
