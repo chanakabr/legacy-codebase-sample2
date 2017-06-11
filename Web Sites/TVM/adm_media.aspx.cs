@@ -309,17 +309,17 @@ public partial class adm_media : System.Web.UI.Page
         theTable += "select q.editor_remarks,q.is_active,q.status as 'status1',q.s_id as 'MID',p.base_url as 'Pic',q.NAME as 'Name', ISNULL(q.catalog_start_date,q.start_date) as 'Catalog Start Date'  ,q.start_date as 'Start Date',q.end_date as 'Catalog End Date',q.description as 'Description'";
         InsertStrMetaToTable(ref theTable, nGroupID, true);
         //InsertDoubleMetaToTable(ref theTable, nGroupID, true);
-        theTable += ",q.CO_GUID as 'Outer GUID',q.EPG_IDENTIFIER as 'EPG GUID',q.s_id as 'id',q.s_desc as 'Status', pic_id from (select distinct m.is_active,m.is_active as 'q_ia'";
+        theTable += ",q.CO_GUID as 'Outer GUID',q.EPG_IDENTIFIER as 'EPG GUID',q.s_id as 'id', pic_id from (select distinct m.is_active,m.is_active as 'q_ia'";
         InsertStrMetaToTable(ref theTable, nGroupID, false);
         //InsertDoubleMetaToTable(ref theTable, nGroupID, false);
-        theTable += ",m.editor_remarks,m.MEDIA_PIC_ID as 'pic_id',m.CO_GUID,m.EPG_IDENTIFIER,m.status,m.NAME as 'NAME',m.DESCRIPTION as 'Description',m.id as 's_id',lcs.description as 's_desc',CONVERT(VARCHAR(10),m.CATALOG_START_DATE, 104) as 'Catalog_Start_Date',CONVERT(VARCHAR(10),m.START_DATE, 104) as 'Start_Date',CONVERT(VARCHAR(10),m.End_DATE, 104) as 'End_Date',CONVERT(VARCHAR(10),m.Final_End_DATE, 104) as 'Final_End_Date'  from media m with (nolock),lu_content_status lcs with (nolock)";
+        theTable += ",m.editor_remarks,m.MEDIA_PIC_ID as 'pic_id',m.CO_GUID,m.EPG_IDENTIFIER,m.status,m.NAME as 'NAME',m.DESCRIPTION as 'Description',m.id as 's_id',CONVERT(VARCHAR(10),m.CATALOG_START_DATE, 104) as 'Catalog_Start_Date',CONVERT(VARCHAR(10),m.START_DATE, 104) as 'Start_Date',CONVERT(VARCHAR(10),m.End_DATE, 104) as 'End_Date',CONVERT(VARCHAR(10),m.Final_End_DATE, 104) as 'Final_End_Date'  from media m with (nolock)";
         if (Session["search_tag"] != null && Session["search_tag"].ToString() != "")
             theTable += ",tags t,media_tags mt ";
         if (Session["search_only_unapproved_comments"] != null && Session["search_only_unapproved_comments"].ToString() != "")
             theTable += ",media_comments mc ";
 
 
-        theTable += "where m.status<>2 and lcs.id=m.status ";
+        theTable += "where m.status<>2 ";
         if (Session["search_tag"] != null && Session["search_tag"].ToString() != "")
         {
             string sL = "LTRIM(RTRIM(LOWER(t.value))) like (N'%" + Session["search_tag"].ToString().ToLower().Trim() + "%')";
@@ -391,7 +391,7 @@ public partial class adm_media : System.Web.UI.Page
         theTable.AddHiddenField("status1");
         theTable.AddOrderByColumn("Name", "q.NAME");
         theTable.AddOrderByColumn("MID", "q.s_id");
-        theTable.AddOrderByColumn("Status", "q.s_desc");
+        //theTable.AddOrderByColumn("Status", "q.s_desc");
         theTable.AddOrderByColumn("Media ID", "q.s_id");
         theTable.AddImageField("Pic");
         theTable.AddTechDetails("media");
