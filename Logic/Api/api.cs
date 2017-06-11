@@ -9253,8 +9253,9 @@ namespace Core.Api
                                 Meta meta = new Meta()
                                 {
                                     AssetType = eAssetTypes.EPG,
-                                    FieldName = MetaFieldName.None,
-                                    Name = val,
+                                    FieldName = MetaFieldName.None,                                    
+                                    Name = GetTagName(val, group.m_oEpgGroupSettings.MetasDisplayName),
+
                                     Type = ApiObjects.MetaType.String,
                                     IsTag = false,
                                     PartnerId = group.m_oEpgGroupSettings.GroupId
@@ -9275,7 +9276,7 @@ namespace Core.Api
                                 {
                                     AssetType = eAssetTypes.EPG,
                                     FieldName = MetaFieldName.None,
-                                    Name = val,
+                                    Name = GetTagName(val,group.m_oEpgGroupSettings.TagsDisplayName),
                                     Type = ApiObjects.MetaType.Tag,
                                     IsTag = true,
                                     PartnerId = group.m_oEpgGroupSettings.GroupId
@@ -9394,6 +9395,17 @@ namespace Core.Api
                 log.Error(string.Format("Failed to get meta for group = {0}", groupId), ex);
             }
             return response;
+        }
+
+        private static string GetTagName(string val, List<string> list)
+        {
+            if (list == null)
+                return val;
+
+            if (string.IsNullOrEmpty(val))
+                return val;
+
+            return list.FirstOrDefault(x => x.ToLower() == val);
         }
 
         private static MetaFieldName GetFieldNameByAlias(string alias)
