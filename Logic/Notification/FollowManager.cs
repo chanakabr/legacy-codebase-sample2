@@ -649,6 +649,8 @@ namespace Core.Notification
                     // update user following items
                     if (!NotificationDal.SetUserFollowNotificationData(groupId, userId, (int)followData.AnnouncementId))
                         log.ErrorFormat("Error updating the user following notification data. GID :{0}, user ID: {1}, Announcement ID: {2}", groupId, userId, followData.AnnouncementId);
+                    else
+                        log.DebugFormat("successfully set notification announcements inbox mapping. group: {0}, user id: {1}, Announcements ID: {2}", groupId, userId, (int)followData.AnnouncementId);
 
                     log.DebugFormat("successfully updated user notification data. group: {0}, user id: {1}", groupId, userId);
                 }
