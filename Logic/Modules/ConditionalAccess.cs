@@ -3077,7 +3077,7 @@ namespace Core.ConditionalAccess
                 }
             }
 
-            if (shouldResetModifyStatus && !DAL.ConditionalAccessDAL.UpdateSubscriptionSetModifyDetails(subscriptionSetModifyDetailsId, 1, 1))
+            if (shouldResetModifyStatus && !DAL.ConditionalAccessDAL.UpdateSubscriptionSetModifyDetails(subscriptionSetModifyDetailsId, null, 1))
             {
                 log.ErrorFormat("Failed to Update SubscriptionSetModifyDetails to pending, groupId: {0}, siteguid: {1}, subscriptionSetModifyDetailsId: {2}",
                                 groupId, siteguid, subscriptionSetModifyDetailsId);

@@ -596,7 +596,7 @@ namespace Core.ConditionalAccess
                 {
                     log.DebugFormat("Downgrade completed successfully, groupId: {0}, userId: {1}, subscriptionSetModifyDetailsId: {2}, purchaseId: {3}, transactionId: {4}",
                                     groupId, userId, subscriptionSetModifyDetailsId, purchaseResponse.Id, purchaseResponse.TransactionID);
-                    if (!ConditionalAccessDAL.UpdateSubscriptionSetModifyDetails(subscriptionSetModifyDetailsId, 1, 3))
+                    if (!ConditionalAccessDAL.UpdateSubscriptionSetModifyDetails(subscriptionSetModifyDetailsId, 2, 3))
                     {
                         log.ErrorFormat("Failed to Update SubscriptionSetModifyDetails to completed, groupId: {0}, userId: {1}, subscriptionSetModifyDetailsId: {2}",
                                         groupId, userId, subscriptionSetModifyDetailsId);
@@ -818,7 +818,6 @@ namespace Core.ConditionalAccess
                     {
                         log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
                     }
-
                 }
             }
             catch (Exception ex)
@@ -1019,7 +1018,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                if (subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
+                if (!shouldIgnoreSubscriptionSetValidation && subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
                 {
                     Subscription subscriptionInTheSameSet = null;
                     KeyValuePair<long, int> setAndPriority = subscription.GetSubscriptionSetIdsToPriority().First();
