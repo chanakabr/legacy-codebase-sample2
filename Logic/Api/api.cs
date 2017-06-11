@@ -9323,7 +9323,8 @@ namespace Core.Api
                                     FieldName = MetaFieldName.None,
                                     Name = metaVal.Value,
                                     Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
-                                    PartnerId = partnerId
+                                    PartnerId = partnerId,
+                                    IsTag = false
                                 };
 
                                 meta.Id = BuildMetaId(meta, metaVal.Key);
@@ -9345,7 +9346,8 @@ namespace Core.Api
                                 AssetType = eAssetTypes.MEDIA,
                                 FieldName = MetaFieldName.None,
                                 Name = tagVal.Value,
-                                Type = ApiObjects.MetaType.Tag
+                                Type = ApiObjects.MetaType.Tag,
+                                IsTag = true
                             };
 
                             meta.PartnerId = GetPartnerIdforTag(tagVal, group);
