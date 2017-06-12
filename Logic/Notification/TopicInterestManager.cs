@@ -70,12 +70,22 @@ namespace APILogic.Notification
                 }
 
                 bool isRegistrationNeeded = true;
+                // get relevant topic 
+                Meta topicInterest = partnerTopicInterests.Where(x => x.Id == newUserInterest.Topic.MetaId).FirstOrDefault();
+
                 if (userInterests == null)
                 {
                     // first user interest
                     userInterests = new UserInterests() { PartnerId = partnerId, UserId = userId };
                     newUserInterest.UserInterestId = Guid.NewGuid().ToString();
                     userInterests.UserInterestList.Add(newUserInterest);
+
+                    // validate feature is ENABLED_NOTIFICATION   
+                    if (!topicInterest.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION))
+                    {
+                        log.DebugFormat("Interest is not notification enabled - not adding notification");
+                        isRegistrationNeeded = false;
+                    }
                 }
                 else
                 {
@@ -100,9 +110,6 @@ namespace APILogic.Notification
                     return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
                 }
 
-                // get relevant topic 
-                Meta topicInterest = partnerTopicInterests.Where(x => x.Id == newUserInterest.Topic.MetaId).FirstOrDefault();
-
                 // get interestNotification
                 string topicNameValue = TopicInterestManager.GetInterestKeyValueName(topicInterest.Name, newUserInterest.Topic.Value);
                 InterestNotification interestNotification = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, topicNameValue, topicInterest.AssetType);
@@ -119,7 +126,7 @@ namespace APILogic.Notification
                 {
                     if (!InterestDal.SetUserInterestMapping(partnerId, userId, interestNotification.Id))
                     {
-                        log.DebugFormat("Error. set userInterst mapping. group: {0}, user id: {1}", partnerId, userId); 
+                        log.DebugFormat("Error. set userInterst mapping. group: {0}, user id: {1}", partnerId, userId);
                         return new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     }
                 }
@@ -321,7 +328,7 @@ namespace APILogic.Notification
                 if (interestNotification == null)
                 {
                     log.DebugFormat("failed to update topic interest notification: {0} with externalId: {1}, groupId = {2}", interestNotification.Id, externalId, partnerId);
-                    return new Status((int)eResponseStatus.Error, "Error"); 
+                    return new Status((int)eResponseStatus.Error, "Error");
                 }
             }
 
@@ -798,7 +805,7 @@ namespace APILogic.Notification
                 InterestNotification interestNotificationToCancel = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, topicNameValue, userInterestToRemoveTopic.AssetType);
                 if (interestNotificationToCancel == null)
                 {
-                    log.ErrorFormat("Error .InterestNotification to cancel not found. {0}", logData);                    
+                    log.ErrorFormat("Error .InterestNotification to cancel not found. {0}", logData);
                 }
 
                 // remove user mapping
@@ -806,7 +813,7 @@ namespace APILogic.Notification
                 {
                     if (!InterestDal.RemoveUserInterestMapping(partnerId, userId, interestNotificationToCancel.Id))
                     {
-                        log.ErrorFormat("Error un-mapping interest to user. User ID: {0}, interest ID: {1}", userId, interestNotificationToCancel.Id);                        
+                        log.ErrorFormat("Error un-mapping interest to user. User ID: {0}, interest ID: {1}", userId, interestNotificationToCancel.Id);
                     }
                 }
 
@@ -878,7 +885,7 @@ namespace APILogic.Notification
             }
 
         }
-        
+
         private static List<UserInterest> GetUserInterestsForRegisterNotifications(UserInterest userInterestToRemove, List<UserInterest> userInterestList)
         {
             List<UserInterest> userInterestsForRegisterNotifications = new List<UserInterest>();
