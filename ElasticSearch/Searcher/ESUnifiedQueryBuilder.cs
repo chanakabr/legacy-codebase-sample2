@@ -1845,7 +1845,7 @@ namespace ElasticSearch.Searcher
 
                         terms.Value.AddRange(tag.Value.Select(s => s.ToLower()));
 
-                        (result as BoolQuery).AddChild(terms, CutWith.AND);
+                        (result as BoolQuery).AddChild(terms, CutWith.OR);
                     }
                 }
 
@@ -1860,7 +1860,7 @@ namespace ElasticSearch.Searcher
 
                         terms.Value.AddRange(meta.Value.Select(s => s.ToLower()));
 
-                        (result as BoolQuery).AddChild(terms, CutWith.AND);
+                        (result as BoolQuery).AddChild(terms, CutWith.OR);
                     }
                 }
             }
