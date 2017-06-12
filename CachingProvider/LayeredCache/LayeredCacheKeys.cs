@@ -212,6 +212,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("Reminder_groupId_{0}_id_{1}", groupId, reminderId);
         }
 
+        public static string GetAnnouncementsKey(int groupId)
+        {
+            return string.Format("announecements_groupId_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -321,7 +326,12 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+        public static string GetAnnouncementsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyAnnounecements_groupId_{0}", groupId);
+        }
+
         #endregion
-        
+
     }
 }
