@@ -596,7 +596,7 @@ namespace Core.ConditionalAccess
                 {
                     log.DebugFormat("Downgrade completed successfully, groupId: {0}, userId: {1}, subscriptionSetModifyDetailsId: {2}, purchaseId: {3}, transactionId: {4}",
                                     groupId, userId, subscriptionSetModifyDetailsId, purchaseResponse.Id, purchaseResponse.TransactionID);
-                    if (!ConditionalAccessDAL.UpdateSubscriptionSetModifyDetails(subscriptionSetModifyDetailsId, 1, 3))
+                    if (!ConditionalAccessDAL.UpdateSubscriptionSetModifyDetails(subscriptionSetModifyDetailsId, 2, 3))
                     {
                         log.ErrorFormat("Failed to Update SubscriptionSetModifyDetails to completed, groupId: {0}, userId: {1}, subscriptionSetModifyDetailsId: {2}",
                                         groupId, userId, subscriptionSetModifyDetailsId);
@@ -672,13 +672,24 @@ namespace Core.ConditionalAccess
             try
             {
                 int daysLeftOnOldSubscription = (int)Math.Ceiling((oldSubscriptionPurchaseDetails.dtEndDate - DateTime.UtcNow).TotalDays);
-                if (oldSubscription.m_oUsageModule == null)
+
+                int usageModuleLifeCycle = 0;
+                if (oldSubscription.m_MultiSubscriptionUsageModule != null && oldSubscription.m_MultiSubscriptionUsageModule.Length > 0
+                    && oldSubscription.m_MultiSubscriptionUsageModule[0] != null)
+                {
+                    usageModuleLifeCycle = oldSubscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle;
+                }
+                else if (oldSubscription.m_oUsageModule != null)
+                {
+                    usageModuleLifeCycle = oldSubscription.m_oUsageModule.m_tsMaxUsageModuleLifeCycle;
+                }
+                else
                 {
                     log.ErrorFormat("oldSubscription Usage Module, Price Code or Price is null, domainId: {0}, oldSubscriptionCode: {1}", domainId, oldSubscription.m_sObjectCode);
                     return res;
                 }
 
-                DateTime oldStartDate = Utils.GetEndDateTime(oldSubscriptionPurchaseDetails.dtEndDate, oldSubscription.m_oUsageModule.m_tsMaxUsageModuleLifeCycle, false);
+                DateTime oldStartDate = Utils.GetEndDateTime(oldSubscriptionPurchaseDetails.dtEndDate, usageModuleLifeCycle, false);
                 double oldSubTotalDays = (oldSubscriptionPurchaseDetails.dtEndDate - oldStartDate).TotalDays;
 
                 double oldSubscriptionRelativePriceToDeduct = (((double)daysLeftOnOldSubscription / oldSubTotalDays) * oldSubscriptionPurchaseDetails.Price);
@@ -818,7 +829,6 @@ namespace Core.ConditionalAccess
                     {
                         log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
                     }
-
                 }
             }
             catch (Exception ex)
@@ -1019,7 +1029,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                if (subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
+                if (!shouldIgnoreSubscriptionSetValidation && subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
                 {
                     Subscription subscriptionInTheSameSet = null;
                     KeyValuePair<long, int> setAndPriority = subscription.GetSubscriptionSetIdsToPriority().First();
