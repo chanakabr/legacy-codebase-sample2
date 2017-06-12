@@ -389,10 +389,6 @@ namespace Core.Notification
             return assetType;
         }
 
-
-
-
-
         internal static bool TryGetAnnouncements(int groupId, ref List<DbAnnouncement> announcements)
         {
             bool res = false;
