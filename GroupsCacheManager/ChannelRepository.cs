@@ -167,8 +167,9 @@ namespace GroupsCacheManager
 
                             if (!string.IsNullOrEmpty(name))
                             {
-                                egs.m_lMetasName.Add(name);
-                                egs.metas[id] = name;
+                                egs.m_lMetasName.Add(name.ToLower());
+                                egs.metas[id] = name.ToLower();
+                                egs.MetasDisplayName.Add(name);
                             }
                         }
                     }
@@ -184,12 +185,13 @@ namespace GroupsCacheManager
                             }
 
                             long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
-                            string name = ODBCWrapper.Utils.GetSafeStr(row["name"]);
+                            string name = ODBCWrapper.Utils.GetSafeStr(row["name"]);                            
 
                             if (!string.IsNullOrEmpty(name))
                             {
-                                egs.m_lTagsName.Add(name);
-                                egs.tags[id] = name;
+                                egs.m_lTagsName.Add(name.ToLower());
+                                egs.tags[id] = name.ToLower();
+                                egs.TagsDisplayName.Add(name);
                             }
                         }
                     }
