@@ -419,13 +419,11 @@ namespace Core.Notification
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
                 {
-                    int? groupId = funcParams["groupId"] as int?, domainId = funcParams["domainId"] as int?;
+                    int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue)
                         announcements = NotificationDal.GetAnnouncements(groupId.Value);
                 }
             }
-
-
             catch (Exception ex)
             {
                 log.Error(string.Format("InitializeDomainEntitlements failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
