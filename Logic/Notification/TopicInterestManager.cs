@@ -918,7 +918,7 @@ namespace APILogic.Notification
                 var shorterBranch = userInterestNodeDepth.Min(x => x.Value);
                 var userInterestIdsForRegistration = userInterestNodeDepth.Where(x => x.Value == shorterBranch).ToList();
 
-                finalListForRegisterNotifications = userInterestsForRegisterNotifications.Where(x => userInterestIdsForRegistration.All(d => x.UserInterestId == d.Key)).ToList();
+                finalListForRegisterNotifications = userInterestsForRegisterNotifications.Where(x => userInterestIdsForRegistration.Any(d => x.UserInterestId == d.Key)).ToList();
             }
 
             return finalListForRegisterNotifications;
