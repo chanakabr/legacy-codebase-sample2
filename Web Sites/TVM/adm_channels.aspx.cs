@@ -361,5 +361,25 @@ FROM   (SELECT lct.description AS 'channel_type',
         eAction = (nAction == 0) ? eAction = eAction.Delete : eAction = eAction.Update;
 
         bool result = ImporterImpl.UpdateChannelIndex(nGroupID, idsToUpdate, eAction);
+
+        // update CATEGORIES_CHANNELS to status 2 (for this channel _id)
+        if (eAction == ApiObjects.eAction.Delete)
+        {
+            result= DeleteChannelFromCategory(nGroupID, idsToUpdate, LoginManager.GetLoginID());
+        }
+    }
+
+    public bool DeleteChannelFromCategory(int nGroupID, List<int> idsToUpdate, int updater)
+    {
+        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("CATEGORIES_CHANNELS");
+        updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 0);
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.Now);
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("updater_id", "=", updater);
+        updateQuery += " where CHANNEL_ID in ( " + string.Join(",", idsToUpdate) + ")";
+        updateQuery.Execute();
+        updateQuery.Finish();
+        updateQuery = null;
+        return true;
     }
 }

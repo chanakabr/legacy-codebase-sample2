@@ -270,9 +270,12 @@ public partial class adm_categories_channels : System.Web.UI.Page
 
                 foreach (KeyValuePair<long, int> pair in categoryChannelsMap)
                 {
-                    CategoryChannel categoryChannel = channelsToOrder[pair.Key];
-                    categoryChannel.OrderNum = pair.Value;                    
-                    categoryChannelsData.Add(categoryChannel);
+                    if (channelsToOrder.ContainsKey(pair.Key))
+                    {
+                        CategoryChannel categoryChannel = channelsToOrder[pair.Key];
+                        categoryChannel.OrderNum = pair.Value;
+                        categoryChannelsData.Add(categoryChannel);
+                    }
                 }
 
                 Session["includedChannels"] = includedChannelsHashset;
