@@ -325,7 +325,11 @@ namespace Core.Notification
                 userNotificationData.Announcements.Count > 0)
             {
                 // get announcement from DB
-                List<DbAnnouncement> dbAnnouncements = NotificationCache.Instance().GetAnnouncements(groupId).Where(ann => userNotificationData.Announcements.Select(userAnn => userAnn.AnnouncementId).Contains(ann.ID)).ToList();
+                List<DbAnnouncement> dbAnnouncements = null;
+                NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
+
+                if (dbAnnouncements != null)
+                    dbAnnouncements = dbAnnouncements.Where(ann => userNotificationData.Announcements.Select(userAnn => userAnn.AnnouncementId).Contains(ann.ID)).ToList();
 
                 // create response object
                 userFollowResponse.Follows = dbAnnouncements.Select(x => new FollowDataBase(groupId, x.FollowPhrase)
@@ -370,8 +374,13 @@ namespace Core.Notification
             UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
 
             // get announcement from DB
-            List<DbAnnouncement> dbAnnouncements = NotificationCache.Instance().GetAnnouncements(groupId).Where(ann => ann.FollowPhrase == followData.FollowPhrase).ToList();
-            if (dbAnnouncements.Count == 0)
+            List<DbAnnouncement> announcements = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+
+            if (announcements != null)
+                announcements = announcements.Where(ann => ann.FollowPhrase == followData.FollowPhrase).ToList();
+
+            if (announcements.Count == 0)
             {
                 log.ErrorFormat("user is not following any asset. group: {0}, user: {1}, phrase: {2}", groupId, userId, followData.FollowPhrase);
                 statusResult = new Status((int)eResponseStatus.UserNotFollowing, "user is not following asset");
@@ -379,7 +388,7 @@ namespace Core.Notification
             }
 
             // get user announcement
-            long announcementId = dbAnnouncements.First().ID;
+            long announcementId = announcements.First().ID;
             if (userNotificationData == null ||
                 userNotificationData.Announcements == null ||
                 userNotificationData.Announcements.Where(x => x.AnnouncementId == announcementId).Count() == 0)
@@ -505,7 +514,9 @@ namespace Core.Notification
             {
                 // get user announcements from DB
                 DbAnnouncement announcementToFollow = null;
-                List<DbAnnouncement> dbAnnouncements = NotificationCache.Instance().GetAnnouncements(groupId);
+                List<DbAnnouncement> dbAnnouncements = null;
+                NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
+
                 if (dbAnnouncements != null)
                     announcementToFollow = dbAnnouncements.FirstOrDefault(ann => ann.FollowPhrase == followData.FollowPhrase);
 
@@ -750,7 +761,8 @@ namespace Core.Notification
             List<string> phrases = seriesNames.Select(x => GetSeriesFollowPhrase(groupId, x)).ToList();
 
             // get announcement of message
-            List<DbAnnouncement> dbAnnouncements = NotificationCache.Instance().GetAnnouncements(groupId);
+            List<DbAnnouncement> dbAnnouncements = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
             if (dbAnnouncements != null)
                 dbAnnouncements = dbAnnouncements.Where(dbAnn => phrases.Contains(dbAnn.FollowPhrase)).ToList();
 
@@ -948,7 +960,12 @@ namespace Core.Notification
             }
 
             // get announcement from DB
-            List<DbAnnouncement> dbAnnouncements = NotificationCache.Instance().GetAnnouncements(groupId).Where(ann => userNotificationData.Announcements.Select(userAnn => userAnn.AnnouncementId).Contains(ann.ID)).ToList();
+            List<DbAnnouncement> dbAnnouncements = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
+
+            if (dbAnnouncements != null)
+                dbAnnouncements = dbAnnouncements.Where(ann => userNotificationData.Announcements.Select(userAnn => userAnn.AnnouncementId).Contains(ann.ID)).ToList();
+
             if (dbAnnouncements == null || dbAnnouncements.Count == 0)
             {
                 log.ErrorFormat("user announcements were not found on the DB. GID: {0}, user ID: {1}", groupId, userId);

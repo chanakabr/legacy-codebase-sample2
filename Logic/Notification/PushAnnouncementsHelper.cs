@@ -151,8 +151,12 @@ namespace Core.Notification
                 return result;
             }
 
-            // get guest announcement external token from DB
-            var guestAnnouncement = NotificationCache.Instance().GetAnnouncements(groupId).Where(x => x.RecipientsType == eAnnouncementRecipientsType.Guests).FirstOrDefault();
+            // get guest announcement external token from DB 
+            List<DbAnnouncement> announcements = null;
+            DbAnnouncement guestAnnouncement = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            if (announcements != null)
+                guestAnnouncement = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Guests).FirstOrDefault();
 
             // build announcements adapter object
             if (guestAnnouncement == null)
@@ -239,7 +243,11 @@ namespace Core.Notification
 
             // get announcements
             result = new List<AnnouncementSubscriptionData>();
-            var announcements = NotificationCache.Instance().GetAnnouncements(groupId).Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn || notificationIds.Contains(x.ID)).ToList();
+
+            List<DbAnnouncement> announcements = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            if (announcements != null)
+                announcements = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn || notificationIds.Contains(x.ID)).ToList();
 
             // build announcements adapter object
             if (announcements == null || announcements.Count == 0)

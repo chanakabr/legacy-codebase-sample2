@@ -274,7 +274,12 @@ namespace Core.Notification
 
             // check if announcement is for series, if not - return true to do nothing. if yes, check no msg was sent for series in the last 24H.
             // get topic push external id's of guests and logged in users
-            var announcement = NotificationCache.Instance().GetAnnouncements(groupId).Where(x => x.ID == announcementId).FirstOrDefault();
+            List<DbAnnouncement> announcements = null;
+            DbAnnouncement announcement = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+            if (announcements != null)
+                announcement = announcements.Where(x => x.ID == announcementId).FirstOrDefault();
+
             if (announcement == null)
             {
                 log.ErrorFormat("announcement wasn't found. GID: {0}, announcementId: {1}", groupId, announcementId);
@@ -620,15 +625,24 @@ namespace Core.Notification
             List<string> topicExternalIds = new List<string>();
             List<string> queueNames = new List<string>();
 
+            List<DbAnnouncement> announcements = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+
+
             switch (recipients)
             {
                 case eAnnouncementRecipientsType.All:
 
+
                     if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {
                         // get topic push external id's of guests and logged in users
-                        var announcements = NotificationCache.Instance().GetAnnouncements(groupId).Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn || x.RecipientsType == eAnnouncementRecipientsType.Guests);
-                        foreach (var announcement in announcements)
+
+                        List<DbAnnouncement> announcementGuestAndLoggedIn = null;
+                        if (announcements != null)
+                            announcementGuestAndLoggedIn.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn || x.RecipientsType == eAnnouncementRecipientsType.Guests);
+
+                        foreach (var announcement in announcementGuestAndLoggedIn)
                             topicExternalIds.Add(announcement.ExternalId);
                     }
 
@@ -651,7 +665,10 @@ namespace Core.Notification
                     }
 
                     // add the Q name to list to be sent to later
-                    var loggedInAnnouncement = NotificationCache.Instance().GetAnnouncements(groupId).FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
+                    DbAnnouncement loggedInAnnouncement = null;
+                    if (announcements != null)
+                        loggedInAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
+
                     if (loggedInAnnouncement != null && !string.IsNullOrEmpty(loggedInAnnouncement.QueueName))
                         queueNames.Add(loggedInAnnouncement.QueueName);
 
@@ -710,7 +727,11 @@ namespace Core.Notification
                     }
 
                     // add the Q name to list to be sent to later
-                    var loggedInAnn = NotificationCache.Instance().GetAnnouncements(groupId).FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
+                    // add the Q name to list to be sent to later
+                    DbAnnouncement loggedInAnn = null;
+                    if (announcements != null)
+                        loggedInAnn = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
+
                     if (loggedInAnn != null && !string.IsNullOrEmpty(loggedInAnn.QueueName))
                         queueNames.Add(loggedInAnn.QueueName);
 
@@ -839,7 +860,12 @@ namespace Core.Notification
             string logData = string.Format("GID: {0}, announcementId: {1}", groupId, announcementId);
 
             // get announcement
-            var announcement = NotificationCache.Instance().GetAnnouncements(groupId).FirstOrDefault(x => x.ID == announcementId);
+            List<DbAnnouncement> announcements = null;
+            DbAnnouncement announcement = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+
+            if (announcements != null)
+                announcement = announcements.FirstOrDefault(x => x.ID == announcementId);
             if (announcement == null)
             {
                 log.ErrorFormat("announcement ID wasn't found. {0}", logData);
@@ -918,7 +944,8 @@ namespace Core.Notification
             foreach (var partnerSettings in partnerNotificationSettings)
             {
                 // get all announcements
-                var announcements = NotificationCache.Instance().GetAnnouncements(partnerSettings.PartnerId);
+                List<DbAnnouncement> announcements = null;
+                NotificationCache.TryGetAnnouncements(partnerSettings.PartnerId, ref announcements);
                 if (announcements == null)
                 {
                     log.ErrorFormat("Error getting announcements. GID {0}", partnerSettings.PartnerId);
@@ -1016,7 +1043,12 @@ namespace Core.Notification
             {
                 // check if Announcement exist
                 // get announcement
-                var announcement = NotificationCache.Instance().GetAnnouncements(groupId).FirstOrDefault(x => x.ID == announcementId);
+                List<DbAnnouncement> announcements = null;
+                DbAnnouncement announcement = null;
+                NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+
+                if (announcements != null)
+                    announcement = announcements.FirstOrDefault(x => x.ID == announcementId);
                 if (announcement == null)
                 {
                     log.ErrorFormat("Announcement not exist in DB: {0}", logData);
@@ -1072,7 +1104,13 @@ namespace Core.Notification
             try
             {
                 // get announcement
-                var announcement = NotificationCache.Instance().GetAnnouncements(groupId).FirstOrDefault(x => x.ID == announcementId);
+                List<DbAnnouncement> announcements = null;
+                DbAnnouncement announcement = null;
+                NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+
+                if (announcements != null)
+                    announcement = announcements.FirstOrDefault(x => x.ID == announcementId);
+
                 if (announcement != null)
                 {
                     response.Announcements = new List<DbAnnouncement>();
@@ -1106,7 +1144,13 @@ namespace Core.Notification
             try
             {
                 // get announcements
-                var topicAnnouncements = NotificationCache.Instance().GetAnnouncements(groupId).Where(x => x.RecipientsType == eAnnouncementRecipientsType.Other).ToList();
+                List<DbAnnouncement> announcements = null;
+                List<DbAnnouncement> topicAnnouncements = null;
+                NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+
+                if (announcements != null)
+                    topicAnnouncements = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Other).ToList();
+
                 if (topicAnnouncements == null)
                 {
                     log.ErrorFormat("Error while trying to fetch Other announcement from DB. {0}", logData);
@@ -1203,7 +1247,14 @@ namespace Core.Notification
             string queueName = string.Format(ANNOUNCEMENT_QUEUE_NAME_FORMAT, groupId, announcementId);
 
             // get relevant announcement
-            var announcement = NotificationCache.Instance().GetAnnouncements(groupId).Where(x => x.ID == announcementId).FirstOrDefault();
+
+            List<DbAnnouncement> announcements = null;
+            DbAnnouncement announcement = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+
+            if (announcements != null)
+                announcement = announcements.Where(x => x.ID == announcementId).FirstOrDefault();
+
             if (announcement == null)
             {
                 log.ErrorFormat("GetPushWebParams: announcement not found. id: {0}.", announcementId);
@@ -1259,7 +1310,8 @@ namespace Core.Notification
             List<int> announcementIds = new List<int>();
 
             // get all announcements
-            var announcements = NotificationCache.Instance().GetAnnouncements(groupId);
+            List<DbAnnouncement> announcements = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref announcements);
             if (announcements == null)
             {
                 log.Error("GetPushWebParams: announcements were not found.");
