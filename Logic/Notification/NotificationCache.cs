@@ -6,6 +6,7 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using CachingProvider.LayeredCache;
 
 namespace Core.Notification
 {
@@ -147,29 +148,29 @@ namespace Core.Notification
             return CacheService.Set(sKey, bModule, dCacheTime);
         }
 
-        public List<DbAnnouncement> GetAnnouncements(int groupId)
-        {
-            List<DbAnnouncement> announcements = null;
-            try
-            {
-                string sKey = GetKey(eNotificationCacheTypes.Announcements, groupId);
-                announcements = Get<List<DbAnnouncement>>(sKey);
+        //public List<DbAnnouncement> GetAnnouncements(int groupId)
+        //{
+        //    List<DbAnnouncement> announcements = null;
+        //    try
+        //    {
+        //        string sKey = GetKey(eNotificationCacheTypes.Announcements, groupId);
+        //        announcements = Get<List<DbAnnouncement>>(sKey);
 
-                if (announcements == null || announcements.Count == 0)
-                {
-                    // get from DB
-                    announcements = NotificationDal.GetAnnouncements(groupId);
+        //        if (announcements == null || announcements.Count == 0)
+        //        {
+        //            // get from DB
+        //            announcements = NotificationDal.GetAnnouncements(groupId);
 
-                    if (announcements != null && announcements.Count > 0)
-                        Set(sKey, announcements, SHORT_IN_CACHE_MINUTES);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while getting cache partner announcements. GID {0}, ex: {1}", groupId, ex);
-            }
-            return announcements;
-        }
+        //            if (announcements != null && announcements.Count > 0)
+        //                Set(sKey, announcements, SHORT_IN_CACHE_MINUTES);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.ErrorFormat("Error while getting cache partner announcements. GID {0}, ex: {1}", groupId, ex);
+        //    }
+        //    return announcements;
+        //}
 
         public List<MessageTemplate> GetMessageTemplates(int groupId)
         {
@@ -339,27 +340,14 @@ namespace Core.Notification
         {
             try
             {
-                string sKey = GetKey(eNotificationCacheTypes.Announcements, groupId);
-                this.Remove(sKey);
+                if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAnnouncementsInvalidationKey(groupId)))
+                    log.ErrorFormat("Error while trying to update invalidation key: {0}", LayeredCacheKeys.GetAnnouncementsInvalidationKey(groupId));
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while removing cached announcements. GID {0}, ex: {1}", groupId, ex);
             }
         }
-
-        //public void RemoveRemindersFromCache(int groupId)
-        //{
-        //    try
-        //    {
-        //        string sKey = GetKey(eNotificationCacheTypes.Reminders, groupId);
-        //        this.Remove(sKey);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.ErrorFormat("Error while removing cached reminders. GID {0}, ex: {1}", groupId, ex);
-        //    }
-        //}
 
         public void RemoveMessageTemplateFromCache(int groupId)
         {
@@ -399,6 +387,47 @@ namespace Core.Notification
                 log.ErrorFormat("Error while getting cache OTTAssetType . GID {0}, ex: {1}", groupId, ex);
             }
             return assetType;
+        }
+
+        internal static bool TryGetAnnouncements(int groupId, ref List<DbAnnouncement> announcements)
+        {
+            bool res = false;
+            try
+            {
+                string key = LayeredCacheKeys.GetAnnouncementsKey(groupId);
+
+                Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId } };
+                res = LayeredCache.Instance.Get<List<DbAnnouncement>>(key, ref announcements, InitializeAnnouncements, funcParams,
+                                                                    groupId, LayeredCacheConfigNames.GET_ANNOUNCEMENTS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetAnnouncementsInvalidationKey(groupId) });
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed TryGetAnnouncements, groupId: {0}", groupId), ex);
+            }
+
+            return res && announcements != null && announcements.Count > 0;
+        }
+
+        private static Tuple<List<DbAnnouncement>, bool> InitializeAnnouncements(Dictionary<string, object> funcParams)
+        {
+            List<DbAnnouncement> announcements = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                        announcements = NotificationDal.GetAnnouncements(groupId.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("InitializeDomainEntitlements failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            bool res = (announcements != null && announcements.Count > 0);
+
+            return new Tuple<List<DbAnnouncement>, bool>(announcements, res);
         }
     }
 }

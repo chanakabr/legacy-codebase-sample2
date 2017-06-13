@@ -179,14 +179,9 @@ namespace Core.Notification
 
         public static void DeleteOldAnnouncements(int groupId, UserNotification userNotificationData)
         {
-            // take reminders 
-            List<DbAnnouncement> dbFollowSeries = NotificationCache.Instance().GetAnnouncements(groupId);
-            List<DbReminder> dbReminders = new List<DbReminder>();
-            List<DbSeriesReminder> dbSeriesReminders = new List<DbSeriesReminder>();
-            int numOfFollowSeriesToRemove = 0;
-            int numOfRemindersToRemove = 0;
-
             // remove old reminders
+            int numOfRemindersToRemove = 0;
+            List<DbReminder> dbReminders = new List<DbReminder>();
             if (userNotificationData != null &&
                 userNotificationData.Reminders != null &&
                 userNotificationData.Reminders.Count > 0)
@@ -211,6 +206,7 @@ namespace Core.Notification
             }
 
             // remove old series reminders
+            List<DbSeriesReminder> dbSeriesReminders = new List<DbSeriesReminder>();
             if (userNotificationData != null &&
                 userNotificationData.SeriesReminders != null &&
                 userNotificationData.SeriesReminders.Count > 0)
@@ -234,7 +230,12 @@ namespace Core.Notification
                 }
             }
 
-            // remove old follow series
+
+            // remove old follow series 
+            int numOfFollowSeriesToRemove = 0;
+            List<DbAnnouncement> dbFollowSeries = null;
+            NotificationCache.TryGetAnnouncements(groupId, ref dbFollowSeries);
+
             if (userNotificationData != null &&
                 userNotificationData.Announcements != null &&
                 userNotificationData.Announcements.Count > 0)
@@ -857,7 +858,8 @@ namespace Core.Notification
                             if (subscription.ExternalId != loginAnnouncementId)
                             {
                                 // add result to follow announcements (if its a follow push announcement)
-                                var notifications = NotificationCache.Instance().GetAnnouncements(groupId);
+                                List<DbAnnouncement> notifications = null;
+                                NotificationCache.TryGetAnnouncements(groupId, ref notifications);
                                 if (notifications != null && notifications.FirstOrDefault(x => x.ID == subscription.ExternalId) != null)
                                 {
                                     deviceData.SubscribedAnnouncements.Add(new NotificationSubscription()
