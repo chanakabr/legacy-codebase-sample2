@@ -55,7 +55,17 @@ namespace WebAPI.Controllers
                     throw new RequestParserException();
                 }
 
-                result = parameter.GetType().IsArray ? ((object[])parameter)[index] : ((JArray)parameter)[index];
+                result = ((object[])parameter)[index];
+            }
+            else if (typeof(IList).IsAssignableFrom(parameter.GetType()))
+            {
+                int index;
+                if (!int.TryParse(token, out index))
+                {
+                    throw new RequestParserException();
+                }
+
+                result = ((IList)parameter)[index];
             }
             else if (parameter.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
             {
