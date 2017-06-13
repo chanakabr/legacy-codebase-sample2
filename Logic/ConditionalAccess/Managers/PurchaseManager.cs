@@ -255,7 +255,7 @@ namespace Core.ConditionalAccess
                 // downgrade logic
                 if (!isUpgrade)
                 {
-                    return Downgrade(cas, groupId, userId, domainId, price, currencyCode, productId, couponCode, userIp, udid, paymentGatewayId, paymentMethodId,
+                    return Downgrade(cas, groupId, userId, domainId, priceResponse.m_dPrice, currencyCode, productId, couponCode, userIp, udid, paymentGatewayId, paymentMethodId,
                                      adapterData, subscriptionInTheSameSet, previousSubsriptionPurchaseDetails);
                 }
                 // upgrade logic
@@ -596,7 +596,7 @@ namespace Core.ConditionalAccess
                 {
                     log.DebugFormat("Downgrade completed successfully, groupId: {0}, userId: {1}, subscriptionSetModifyDetailsId: {2}, purchaseId: {3}, transactionId: {4}",
                                     groupId, userId, subscriptionSetModifyDetailsId, purchaseResponse.Id, purchaseResponse.TransactionID);
-                    if (!ConditionalAccessDAL.UpdateSubscriptionSetModifyDetails(subscriptionSetModifyDetailsId, 2, 3))
+                    if (!ConditionalAccessDAL.UpdateSubscriptionSetModifyDetails(subscriptionSetModifyDetailsId, null, 3))
                     {
                         log.ErrorFormat("Failed to Update SubscriptionSetModifyDetails to completed, groupId: {0}, userId: {1}, subscriptionSetModifyDetailsId: {2}",
                                         groupId, userId, subscriptionSetModifyDetailsId);
@@ -1055,9 +1055,10 @@ namespace Core.ConditionalAccess
                     (isGiftCard && (priceReason == PriceReason.ForPurchase || priceReason == PriceReason.Free)))
                 {
                     // item is for purchase
-                    if (priceResponse != null &&
+                    if (shouldIgnoreSubscriptionSetValidation || 
+                        (priceResponse != null &&
                         priceResponse.m_dPrice == price &&
-                        priceResponse.m_oCurrency.m_sCurrencyCD3 == currency)
+                        priceResponse.m_oCurrency.m_sCurrencyCD3 == currency))
                     {
                         // price is validated, create custom data
                         string customData = cas.GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, siteguid, price, currency,
