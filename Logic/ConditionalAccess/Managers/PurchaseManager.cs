@@ -671,7 +671,7 @@ namespace Core.ConditionalAccess
             bool res = false;
             try
             {
-                double daysLeftOnOldSubscription = (oldSubscriptionPurchaseDetails.dtEndDate - DateTime.UtcNow).TotalDays;
+                double daysLeftOnOldSubscription = Math.Floor((oldSubscriptionPurchaseDetails.dtEndDate - DateTime.UtcNow).TotalDays);
 
                 int usageModuleLifeCycle = 0;
                 if (oldSubscription.m_MultiSubscriptionUsageModule != null && oldSubscription.m_MultiSubscriptionUsageModule.Length > 0
