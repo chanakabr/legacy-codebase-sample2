@@ -189,11 +189,11 @@ namespace Core.Notification
             switch (assetTypes)
             {
                 case ApiObjects.MessageTemplateType.Series:
-                case ApiObjects.MessageTemplateType.InterestEPG:
+                case ApiObjects.MessageTemplateType.InterestVod:
                     validationStatus = ValidatePlaceholders<eFollowSeriesPlaceHolders>(ref url);
                     break;
                 case ApiObjects.MessageTemplateType.Reminder:
-                case ApiObjects.MessageTemplateType.InterestVod:
+                case ApiObjects.MessageTemplateType.InterestEPG:
                     validationStatus = ValidatePlaceholders<eReminderPlaceHolders>(ref url);
                     break;
                 case ApiObjects.MessageTemplateType.Churn:
