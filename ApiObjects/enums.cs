@@ -608,23 +608,6 @@ namespace ApiObjects
         EpisodeName = 3,
     }
 
-    public enum eInterestVodPlaceHolders
-    {
-        MediaName = 0,
-        SeriesName = 1,
-        CatalaogStartDate = 2,
-        StartDate = 3,
-        MediaId = 4
-    }
-
-    public enum eInterestEPGPlaceHolders
-    {
-        ProgramName = 0,
-        ChannelName = 1,
-        StartDate = 2,
-        ProgramId = 3
-    }
-
     public enum TstvRecordingStatus
     {
         OK = 0,

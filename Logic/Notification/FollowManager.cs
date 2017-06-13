@@ -165,10 +165,10 @@ namespace Core.Notification
                     validationStatus = ValidatePlaceholders<eSeriesReminderPlaceHolders>(ref message);
                     break;
                 case ApiObjects.MessageTemplateType.InterestVod:
-                    validationStatus = ValidatePlaceholders<eInterestVodPlaceHolders>(ref message);
+                    validationStatus = ValidatePlaceholders<eFollowSeriesPlaceHolders>(ref message);
                     break;
                 case ApiObjects.MessageTemplateType.InterestEPG:
-                    validationStatus = ValidatePlaceholders<eInterestEPGPlaceHolders>(ref message);
+                    validationStatus = ValidatePlaceholders<eReminderPlaceHolders>(ref message);
                     break;
                 default:
                     break;
@@ -189,9 +189,11 @@ namespace Core.Notification
             switch (assetTypes)
             {
                 case ApiObjects.MessageTemplateType.Series:
+                case ApiObjects.MessageTemplateType.InterestEPG:
                     validationStatus = ValidatePlaceholders<eFollowSeriesPlaceHolders>(ref url);
                     break;
                 case ApiObjects.MessageTemplateType.Reminder:
+                case ApiObjects.MessageTemplateType.InterestVod:
                     validationStatus = ValidatePlaceholders<eReminderPlaceHolders>(ref url);
                     break;
                 case ApiObjects.MessageTemplateType.Churn:
@@ -199,12 +201,6 @@ namespace Core.Notification
                     break;
                 case ApiObjects.MessageTemplateType.SeriesReminder:
                     validationStatus = ValidatePlaceholders<eSeriesReminderPlaceHolders>(ref url);
-                    break;
-                case ApiObjects.MessageTemplateType.InterestEPG:
-                    validationStatus = ValidatePlaceholders<eInterestEPGPlaceHolders>(ref url);
-                    break;
-                case ApiObjects.MessageTemplateType.InterestVod:
-                    validationStatus = ValidatePlaceholders<eInterestVodPlaceHolders>(ref url);
                     break;
                 default:
                     break;
