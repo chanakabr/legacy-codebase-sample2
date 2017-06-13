@@ -671,7 +671,7 @@ namespace Core.ConditionalAccess
             bool res = false;
             try
             {
-                int daysLeftOnOldSubscription = (int)Math.Ceiling((oldSubscriptionPurchaseDetails.dtEndDate - DateTime.UtcNow).TotalDays);
+                double daysLeftOnOldSubscription = (oldSubscriptionPurchaseDetails.dtEndDate - DateTime.UtcNow).TotalDays;
 
                 int usageModuleLifeCycle = 0;
                 if (oldSubscription.m_MultiSubscriptionUsageModule != null && oldSubscription.m_MultiSubscriptionUsageModule.Length > 0
@@ -692,7 +692,7 @@ namespace Core.ConditionalAccess
                 DateTime oldStartDate = Utils.GetEndDateTime(oldSubscriptionPurchaseDetails.dtEndDate, usageModuleLifeCycle, false);
                 double oldSubTotalDays = (oldSubscriptionPurchaseDetails.dtEndDate - oldStartDate).TotalDays;
 
-                double oldSubscriptionRelativePriceToDeduct = (((double)daysLeftOnOldSubscription / oldSubTotalDays) * oldSubscriptionPurchaseDetails.Price);
+                double oldSubscriptionRelativePriceToDeduct = (daysLeftOnOldSubscription / oldSubTotalDays) * oldSubscriptionPurchaseDetails.Price;
                 price.m_dPrice = price.m_dPrice - oldSubscriptionRelativePriceToDeduct;
                 if (price.m_dPrice < 0)
                 {
