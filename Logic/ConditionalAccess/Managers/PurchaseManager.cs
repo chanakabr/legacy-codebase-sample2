@@ -979,7 +979,7 @@ namespace Core.ConditionalAccess
 
         private static TransactionResponse PurchaseSubscription(BaseConditionalAccess cas, int groupId, string siteguid,
             long householdId, double price, string currency, int productId, CouponData coupon, string userIp, string deviceName,
-            int paymentGwId, int paymentMethodId, string adapterData, bool shouldIgnoreSubscriptionSetValidation = false)
+            int paymentGwId, int paymentMethodId, string adapterData, bool isSubscriptionSetModifySubscription = false)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -1021,7 +1021,7 @@ namespace Core.ConditionalAccess
                 Price priceResponse = null;                
 
                 priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode,
-                    ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, currency);
+                    ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, currency, isSubscriptionSetModifySubscription);
 
                 if (subscription == null)
                 {
@@ -1029,7 +1029,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                if (!shouldIgnoreSubscriptionSetValidation && subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
+                if (!isSubscriptionSetModifySubscription && subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
                 {
                     Subscription subscriptionInTheSameSet = null;
                     KeyValuePair<long, int> setAndPriority = subscription.GetSubscriptionSetIdsToPriority().First();
@@ -1066,7 +1066,7 @@ namespace Core.ConditionalAccess
                     (isGiftCard && (priceReason == PriceReason.ForPurchase || priceReason == PriceReason.Free)))
                 {
                     // item is for purchase
-                    if (shouldIgnoreSubscriptionSetValidation || 
+                    if (isSubscriptionSetModifySubscription || 
                         (priceResponse != null &&
                         priceResponse.m_dPrice == price &&
                         priceResponse.m_oCurrency.m_sCurrencyCD3 == currency))
