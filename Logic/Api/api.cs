@@ -9353,7 +9353,7 @@ namespace Core.Api
                 switch (fieldNameEqual)
                 {
                     case MetaFieldName.None:
-                        return list.Where(x => x.FieldName != MetaFieldName.EpisodeNumber || x.FieldName != MetaFieldName.SeasonNumber || x.FieldName != MetaFieldName.SeriesId).ToList();                        
+                        return list.Where(x => x.FieldName != MetaFieldName.EpisodeNumber && x.FieldName != MetaFieldName.SeasonNumber && x.FieldName != MetaFieldName.SeriesId).ToList();
                     case MetaFieldName.SeriesId:
                     case MetaFieldName.SeasonNumber:
                     case MetaFieldName.EpisodeNumber:
@@ -9368,13 +9368,13 @@ namespace Core.Api
                 switch (fieldNameNotEqual)
                 {
                     case MetaFieldName.None:
-                        return list.Where(x => x.FieldName == MetaFieldName.EpisodeNumber || x.FieldName == MetaFieldName.SeasonNumber || x.FieldName == MetaFieldName.SeriesId).ToList();                        
+                        return list.Where(x => x.FieldName == MetaFieldName.EpisodeNumber || x.FieldName == MetaFieldName.SeasonNumber || x.FieldName == MetaFieldName.SeriesId).ToList();
                     case MetaFieldName.SeriesId:
                     case MetaFieldName.SeasonNumber:
                     case MetaFieldName.EpisodeNumber:
-                        return list.Where(x => x.FieldName != fieldNameNotEqual).ToList();                        
+                        return list.Where(x => x.FieldName != fieldNameNotEqual).ToList();
                     case MetaFieldName.All:
-                    default:                        
+                    default:
                         break;
                 }
             }
