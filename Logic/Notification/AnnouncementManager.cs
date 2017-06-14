@@ -637,13 +637,15 @@ namespace Core.Notification
                     if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {
                         // get topic push external id's of guests and logged in users
-
                         List<DbAnnouncement> announcementGuestAndLoggedIn = null;
                         if (announcements != null)
                             announcementGuestAndLoggedIn.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn || x.RecipientsType == eAnnouncementRecipientsType.Guests);
 
-                        foreach (var announcement in announcementGuestAndLoggedIn)
-                            topicExternalIds.Add(announcement.ExternalId);
+                        if (announcementGuestAndLoggedIn != null && announcementGuestAndLoggedIn.Count() > 0)
+                        {
+                            foreach (var announcement in announcementGuestAndLoggedIn)
+                                topicExternalIds.Add(announcement.ExternalId);
+                        }
                     }
 
                     // send inbox messages
