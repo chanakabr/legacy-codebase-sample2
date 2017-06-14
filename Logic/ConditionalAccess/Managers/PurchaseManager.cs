@@ -504,17 +504,16 @@ namespace Core.ConditionalAccess
                     {
                         log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
                     }
+
+                    // cancel existing subscription
+                    Status cancelSubscriptionStatus = cas.CancelServiceNow((int)domainId, int.Parse(subscriptionInTheSameSet.m_SubscriptionCode), eTransactionType.Subscription, true);
+                    if (cancelSubscriptionStatus == null && cancelSubscriptionStatus.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Failed cas.CancelSubscriptionRenewal for domainId: {0}, subscriptionCode: {1}", domainId, subscriptionInTheSameSet.m_SubscriptionCode);
+                        response = cancelSubscriptionStatus != null ? cancelSubscriptionStatus : new Status((int)eResponseStatus.Error, "Failed while canceling renewal");                        
+                    }  
                 }
             }
-            
-            // cancel existing subscription
-            Status cancelSubscriptionStatus = cas.CancelServiceNow((int)domainId, int.Parse(subscriptionInTheSameSet.m_SubscriptionCode), eTransactionType.Subscription, true);
-            if (cancelSubscriptionStatus == null && cancelSubscriptionStatus.Code != (int)eResponseStatus.OK)
-            {
-                log.ErrorFormat("Failed cas.CancelSubscriptionRenewal for domainId: {0}, subscriptionCode: {1}", domainId, subscriptionInTheSameSet.m_SubscriptionCode);
-                response = cancelSubscriptionStatus != null ? cancelSubscriptionStatus : new Status((int)eResponseStatus.Error, "Failed while canceling renewal");
-                return response;
-            }            
 
             return response;
         }
