@@ -78,35 +78,11 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
 
         //get epg programs from CB
         int groupId = LoginManager.GetLoginGroupID();
-        int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
-        int channelID = int.Parse(Session["epg_channel_id"].ToString());
+        int channelId = int.Parse(Session["epg_channel_id"].ToString());
 
-        List<int> epgIds = new List<int>();
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-        selectQuery += "SELECT ID FROM epg_channels_schedule with (nolock) where status<>2 and";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("epg_channel_id", "=", channelID);
-        selectQuery += "and";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", tStart.AddDays(-1));
-        selectQuery += "and";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "<=", tEnd);
-        selectQuery += "and";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
-       
-        if (selectQuery.Execute("query", true) != null)
-        {
-            int count = selectQuery.Table("query").DefaultView.Count;
-            for (int i = 0; i < count; i++)
-            {
-                epgIds.Add(ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", i));
-            }
-        }
-        selectQuery.Finish();
-        selectQuery = null;
+        List<EPGChannelProgrammeObject> programs = GetPrograms(channelId, tStart, tEnd, groupId);
 
-        TvinciEpgBL oEpgBL = new TvinciEpgBL(parentGroupId);
-        List<EPGChannelProgrammeObject> Epgs = oEpgBL.GetEpgs(epgIds);
-        theTable.SetData(Epgs);
+        theTable.SetData(programs);
 
         theTable.AddField("Name");
         theTable.AddImageField("Pic");
@@ -380,6 +356,63 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
             return string.Empty;
         }
         return string.Empty;
+    }
+
+    private static List<EPGChannelProgrammeObject> GetPrograms(int channelId, DateTime start, DateTime end, int groupId)
+    {
+        List<EPGChannelProgrammeObject> orderEpgs = new List<EPGChannelProgrammeObject>();
+
+        try
+        {
+            List<int> epgIds = new List<int>();
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+            selectQuery += "SELECT ID FROM epg_channels_schedule with (nolock) where status<>2 and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("epg_channel_id", "=", channelId);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", start.AddDays(-1));
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "<=", end);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
+            selectQuery += "order by START_DATE asc";
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int count = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < count; i++)
+                {
+                    epgIds.Add(ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", i));
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            if (epgIds.Count > 0)
+            {
+                TvinciEpgBL oEpgBL = new TvinciEpgBL(DAL.UtilsDal.GetParentGroupID(groupId));
+                List<EPGChannelProgrammeObject> Epgs = oEpgBL.GetEpgs(epgIds);
+
+                if (Epgs != null && Epgs.Count > 0)
+                {
+                    foreach (int id in epgIds)
+                    {
+                        EPGChannelProgrammeObject program = Epgs.FirstOrDefault(x => x.EPG_ID == id);
+                        if (program != null)
+                        {
+                            orderEpgs.Add(program);
+                            Epgs.Remove(program);
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+        return orderEpgs;
     }
 
 }
