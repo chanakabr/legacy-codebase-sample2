@@ -37,6 +37,13 @@ namespace CouchbaseManager
         MEMCACHED = 15
     }
 
+    public enum eResultStatus
+    {
+        ERROR = 0,
+        SUCCESS = 1,
+        KEY_NOT_EXIST = 2
+    }
+
     public class CouchbaseManager
     {
         #region Consts
@@ -265,8 +272,9 @@ namespace CouchbaseManager
             }
         }
 
-        private void HandleStatusCode(IOperationResult result, string key = "")
+        private void HandleStatusCode(IOperationResult result, ref eResultStatus status, string key = "")
         {
+            status = eResultStatus.ERROR;
             if (result.Status != Couchbase.IO.ResponseStatus.Success)
             {
                 // 1 - not found
@@ -306,8 +314,10 @@ namespace CouchbaseManager
                 case Couchbase.IO.ResponseStatus.ItemNotStored:
                     break;
                 case Couchbase.IO.ResponseStatus.KeyExists:
+                    status = eResultStatus.SUCCESS;
                     break;
                 case Couchbase.IO.ResponseStatus.KeyNotFound:
+                    status = eResultStatus.KEY_NOT_EXIST;
                     break;
                 case Couchbase.IO.ResponseStatus.NoReplicasFound:
                     break;
@@ -322,6 +332,7 @@ namespace CouchbaseManager
                 case Couchbase.IO.ResponseStatus.OutOfMemory:
                     break;
                 case Couchbase.IO.ResponseStatus.Success:
+                    status = eResultStatus.SUCCESS;
                     break;
                 case Couchbase.IO.ResponseStatus.TemporaryFailure:
                     break;
@@ -432,7 +443,8 @@ namespace CouchbaseManager
                         result = insertResult.Success;
                     else
                     {
-                        HandleStatusCode(insertResult, key);
+                        eResultStatus status = eResultStatus.ERROR;
+                        HandleStatusCode(insertResult, ref status, key);
 
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
@@ -493,7 +505,8 @@ namespace CouchbaseManager
                         result = insertResult.Success;
                     else
                     {
-                        HandleStatusCode(insertResult, key);
+                        eResultStatus status = eResultStatus.ERROR;
+                        HandleStatusCode(insertResult, ref status, key);
 
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
@@ -554,7 +567,8 @@ namespace CouchbaseManager
                         result = insertResult.Success;
                     else
                     {
-                        HandleStatusCode(insertResult, key);
+                        eResultStatus status = eResultStatus.ERROR;
+                        HandleStatusCode(insertResult, ref status, key);
 
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
@@ -615,7 +629,8 @@ namespace CouchbaseManager
                         result = insertResult.Success;
                     else
                     {
-                        HandleStatusCode(insertResult, key);
+                        eResultStatus status = eResultStatus.ERROR;
+                        HandleStatusCode(insertResult, ref status, key);
 
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
@@ -685,7 +700,8 @@ namespace CouchbaseManager
                     }
                     else
                     {
-                        HandleStatusCode(insertResult, key);
+                        eResultStatus status = eResultStatus.ERROR;
+                        HandleStatusCode(insertResult, ref status, key);
 
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
@@ -751,22 +767,11 @@ namespace CouchbaseManager
                         throw insertResult.Exception;
 
                     if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
-                    {
                         result = insertResult.Success;
-
-                        //log.DebugFormat("SET before unlocking {0}, cas: {1}", key, cas);
-                        //if (unlock && cas > 0)
-                        //{
-                        //    var unlockResult = bucket.Unlock(key, cas);
-                        //    if (unlockResult.Success)
-                        //        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
-                        //    else
-                        //        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
-                        //}
-                    }
                     else
                     {
-                        HandleStatusCode(insertResult, key);
+                        eResultStatus status = eResultStatus.ERROR;
+                        HandleStatusCode(insertResult, ref status, key);
 
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
@@ -776,22 +781,7 @@ namespace CouchbaseManager
                                 insertResult = bucket.Upsert<T>(key, value, expiration);
 
                             if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
-                            {
                                 result = insertResult.Success;
-
-                                //log.Debug("before lock2");
-                                //if (unlock && cas > 0)
-                                //{
-                                //    var unlockResult = bucket.Unlock(key, cas);
-                                //    if (unlockResult.Success)
-                                //        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
-                                //    else
-                                //        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
-
-
-                                //    log.Debug("after lock2");
-                                //}
-                            }
                         }
                     }
                 }
@@ -820,7 +810,10 @@ namespace CouchbaseManager
                     if (unlockResult.Status == Couchbase.IO.ResponseStatus.Success)
                         result = true;
                     else
-                        HandleStatusCode(unlockResult, key);
+                    {
+                        eResultStatus status = eResultStatus.ERROR;
+                        HandleStatusCode(unlockResult, ref status, key);
+                    }
                 }
             }
             catch (Exception ex)
@@ -861,7 +854,8 @@ namespace CouchbaseManager
                     }
                     else
                     {
-                        HandleStatusCode(getResult, key);
+                        eResultStatus status = eResultStatus.ERROR;
+                        HandleStatusCode(getResult, ref status, key);
                     }
                 }
             }
@@ -873,10 +867,10 @@ namespace CouchbaseManager
             return result;
         }
 
-        public T Get<T>(string key, out Couchbase.IO.ResponseStatus status)
+        public T Get<T>(string key, out eResultStatus status)
         {
             T result = default(T);
-            status = Couchbase.IO.ResponseStatus.None;
+            status = eResultStatus.ERROR;
 
             try
             {
@@ -891,14 +885,16 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
-                    status = getResult.Status;
                     if (getResult.Exception != null)
                         throw getResult.Exception;
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    {
                         result = getResult.Value;
+                        status = eResultStatus.SUCCESS;
+                    }
                     else
-                        HandleStatusCode(getResult, key);
+                        HandleStatusCode(getResult, ref status, key);
                 }
             }
             catch (Exception ex)
@@ -912,11 +908,12 @@ namespace CouchbaseManager
         public bool Get<T>(string key, ref T result)
         {
             bool res = false;
-            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            eResultStatus status = eResultStatus.ERROR;
+
             try
             {
                 result = Get<T>(key, out status);
-                res = status == Couchbase.IO.ResponseStatus.Success;
+                res = status == eResultStatus.SUCCESS;
             }
             catch (Exception ex)
             {
@@ -926,10 +923,10 @@ namespace CouchbaseManager
             return res;
         }
 
-        public T Get<T>(string key, out Couchbase.IO.ResponseStatus status, int inMemoryCacheTTL)
+        public T Get<T>(string key, out eResultStatus status, int inMemoryCacheTTL)
         {
             T result = default(T);
-            status = Couchbase.IO.ResponseStatus.None;
+            status = eResultStatus.ERROR;
 
             try
             {
@@ -944,14 +941,16 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
-                    status = getResult.Status;
                     if (getResult.Exception != null)
                         throw getResult.Exception;
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    {
                         result = getResult.Value;
+                        status = eResultStatus.SUCCESS;
+                    }
                     else
-                        HandleStatusCode(getResult, key);
+                        HandleStatusCode(getResult, ref status, key);
                 }
             }
             catch (Exception ex)
@@ -962,11 +961,11 @@ namespace CouchbaseManager
             return result;
         }
 
-        public T Get<T>(string key, bool withLock, out ulong cas, out Couchbase.IO.ResponseStatus status)
+        public T Get<T>(string key, bool withLock, out ulong cas, out eResultStatus status)
         {
             T result = default(T);
             cas = 0;
-            status = Couchbase.IO.ResponseStatus.None;
+            status = eResultStatus.ERROR;
 
             try
             {
@@ -993,15 +992,14 @@ namespace CouchbaseManager
                     if (getResult.Exception != null)
                         throw getResult.Exception;
 
-                    status = getResult.Status;
-
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
                     {
                         result = getResult.Value;
                         cas = getResult.Cas;
+                        status = eResultStatus.SUCCESS;
                     }
                     else
-                        HandleStatusCode(getResult, key);
+                        HandleStatusCode(getResult, ref status, key);
                 }
             }
             catch (Exception ex)
@@ -1032,7 +1030,7 @@ namespace CouchbaseManager
 
                 if (removeResult.Exception != null)
                     throw removeResult.Exception;
-                
+
                 if (removeResult.Status == Couchbase.IO.ResponseStatus.Success || removeResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
                     result = removeResult.Success;
                 else
@@ -1078,7 +1076,8 @@ namespace CouchbaseManager
                     }
                     else
                     {
-                        HandleStatusCode(getResult, key);
+                        eResultStatus status = eResultStatus.ERROR;
+                        HandleStatusCode(getResult, ref status, key);
                     }
                 }
             }
@@ -1094,11 +1093,11 @@ namespace CouchbaseManager
         {
             bool res = false;
             version = 0;
-            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            eResultStatus status = eResultStatus.ERROR;
             try
             {
                 result = GetWithVersion<T>(key, out version, out status);
-                res = status == Couchbase.IO.ResponseStatus.Success;
+                res = status == eResultStatus.SUCCESS;
             }
             catch (Exception ex)
             {
@@ -1108,11 +1107,11 @@ namespace CouchbaseManager
             return res;
         }
 
-        public T GetWithVersion<T>(string key, out ulong version, out Couchbase.IO.ResponseStatus status, bool asJson = false)
+        public T GetWithVersion<T>(string key, out ulong version, out eResultStatus status, bool asJson = false)
         {
             version = 0;
             T result = default(T);
-            status = Couchbase.IO.ResponseStatus.None;
+            status = eResultStatus.ERROR;
 
 
             if (asJson)
@@ -1135,16 +1134,15 @@ namespace CouchbaseManager
                     if (getResult.Exception != null)
                         throw getResult.Exception;
 
-                    status = getResult.Status;
-
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
                     {
                         result = getResult.Value;
                         version = getResult.Cas;
+                        status = eResultStatus.SUCCESS;
                     }
                     else
                     {
-                        HandleStatusCode(getResult, key);
+                        HandleStatusCode(getResult, ref status, key);
                     }
                 }
             }
@@ -1194,7 +1192,8 @@ namespace CouchbaseManager
                     result = setResult.Success;
                 else
                 {
-                    HandleStatusCode(setResult, key);
+                    eResultStatus status = eResultStatus.ERROR;
+                    HandleStatusCode(setResult, ref status, key);
 
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
@@ -1245,7 +1244,8 @@ namespace CouchbaseManager
                 }
                 else
                 {
-                    HandleStatusCode(setResult, key);
+                    eResultStatus status = eResultStatus.ERROR;
+                    HandleStatusCode(setResult, ref status, key);
 
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
@@ -1304,7 +1304,8 @@ namespace CouchbaseManager
                     result = setResult.Success;
                 else
                 {
-                    HandleStatusCode(setResult, key);
+                    eResultStatus status = eResultStatus.ERROR;
+                    HandleStatusCode(setResult, ref status, key);
 
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
@@ -1355,7 +1356,8 @@ namespace CouchbaseManager
                 }
                 else
                 {
-                    HandleStatusCode(setResult, key);
+                    eResultStatus status = eResultStatus.ERROR;
+                    HandleStatusCode(setResult, ref status, key);
 
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
@@ -1535,9 +1537,9 @@ namespace CouchbaseManager
             return result;
         }
 
-        public T GetJsonAsTWithVersion<T>(string key, out ulong version, out Couchbase.IO.ResponseStatus status)
+        public T GetJsonAsTWithVersion<T>(string key, out ulong version, out eResultStatus status)
         {
-            status = Couchbase.IO.ResponseStatus.None;
+            status = eResultStatus.ERROR;
 
             T result = default(T);
             var json = GetWithVersion<string>(key, out version, out status);
@@ -1819,7 +1821,8 @@ namespace CouchbaseManager
                 }
                 else
                 {
-                    HandleStatusCode(incrementResult, key);
+                    eResultStatus status = eResultStatus.ERROR;
+                    HandleStatusCode(incrementResult, ref status, key);
                 }
             }
 

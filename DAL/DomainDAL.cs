@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 namespace DAL
 {
     public class DomainDal : BaseDal
-    {   
+    {
         #region Private Constants
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
@@ -541,7 +541,7 @@ namespace DAL
                 ref defaultGroupConcurrentLimit, ref defaultDeviceFreqLimit, ref npvrQuotaInMins);
         }
 
-        public static int GetDomainDefaultLimitsID(int nGroupID, ref int defaultDeviceLimit, ref int defaultUserLimit, 
+        public static int GetDomainDefaultLimitsID(int nGroupID, ref int defaultDeviceLimit, ref int defaultUserLimit,
             ref int defaultConcurrentLimit, ref int defaultGroupConcurrentLimit, ref int defaultDeviceFreqLimit,
             ref long npvrQuotaInMins)
         {
@@ -670,7 +670,7 @@ namespace DAL
 
                 DataTable dt = sp.Execute();
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {                    
+                {
                     DataRow dr = dt.Rows[0];
                     name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
                     description = ODBCWrapper.Utils.GetSafeStr(dr, "description");
@@ -691,7 +691,7 @@ namespace DAL
             return res;
         }
 
-        public static bool GetDomainDbObject(int nGroupID, DateTime dDateTime, ref string sName, ref string sDbDescription, 
+        public static bool GetDomainDbObject(int nGroupID, DateTime dDateTime, ref string sName, ref string sDbDescription,
             ref int nDbDomainID, ref int nDbIsActive, ref int nDbStatus, ref string sCoGuid, ref int regionId)
         {
             bool res = false;
@@ -820,14 +820,14 @@ namespace DAL
                 {
                     foreach (DataRow dr in dtResult.Rows)
                     {
-                         int domainID = ODBCWrapper.Utils.GetIntSafeVal(dr, "domain_id");
-                         if (domainIDs == null)
-                         {
-                             domainIDs = new List<int>();
-                         }
-                         domainIDs.Add(domainID);
+                        int domainID = ODBCWrapper.Utils.GetIntSafeVal(dr, "domain_id");
+                        if (domainIDs == null)
+                        {
+                            domainIDs = new List<int>();
+                        }
+                        domainIDs.Add(domainID);
                     }
-                }        
+                }
             }
             catch (Exception ex)
             {
@@ -884,7 +884,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-               
+
         public static bool UpdateDomain(string sName, string sDescription, int nDomainID, int nGroupID, int nDomainRestriciton = 0)
         {
             bool res = false;
@@ -958,7 +958,7 @@ namespace DAL
             ref string sCoGuid, ref int nDomainRestriction, ref DomainSuspentionStatus eDomainSuspendStat, ref int regionId)
         {
             int nGroupConcurrentMaxLimit = 0;
-           
+
 
             return GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
@@ -1011,7 +1011,7 @@ namespace DAL
                 dUserFrequencyLastAction = ODBCWrapper.Utils.GetDateSafeVal(dr, "USER_FREQUENCY_LAST_ACTION");
                 nDomainRestriction = ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");
                 nGroupConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_CONCURRENT_MAX_LIMIT");
-                int suspendStatInt  = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_SUSPENDED");
+                int suspendStatInt = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_SUSPENDED");
                 if (Enum.IsDefined(typeof(DomainSuspentionStatus), suspendStatInt))
                 {
                     suspendStatus = (DomainSuspentionStatus)suspendStatInt;
@@ -1260,7 +1260,7 @@ namespace DAL
 
         public static int GetDomainIDBySiteGuid(int nGroupID, int nSiteGuid, ref int nOperatorID, ref bool bIsDomainMaster, ref DomainSuspentionStatus eSuspendStat)
         {
-            return (int)Get_DomainDataBySiteGuid(nGroupID, nSiteGuid, ref nOperatorID, ref bIsDomainMaster,ref eSuspendStat);
+            return (int)Get_DomainDataBySiteGuid(nGroupID, nSiteGuid, ref nOperatorID, ref bIsDomainMaster, ref eSuspendStat);
         }
 
         public static List<int> GetDomainIDsByEmail(int nGroupID, string sEmail)
@@ -1745,7 +1745,7 @@ namespace DAL
                     if (Enum.IsDefined(typeof(DomainSuspentionStatus), domainSusStat))
                     {
                         eDomainSuspendStatus = (DomainSuspentionStatus)domainSusStat;
-                    }  
+                    }
                 }
             }
 
@@ -1913,7 +1913,7 @@ namespace DAL
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@domainID", nDomainID);
             sp.AddParameter("@groupID", nGroupID);
-            sp.AddParameter("@IsSuspended", nStatus);           
+            sp.AddParameter("@IsSuspended", nStatus);
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -1945,7 +1945,7 @@ namespace DAL
             sp.AddParameter("@status", status);
             sp.AddParameter("@isActive", isActive);
             sp.AddParameter("@dominID", domainID);
-            sp.AddIDListParameter<int>("@usersID", users, "Id");            
+            sp.AddIDListParameter<int>("@usersID", users, "Id");
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
 
             DataSet ds = sp.ExecuteDataSet();
@@ -1957,15 +1957,15 @@ namespace DAL
                     usersChange.Add(ODBCWrapper.Utils.GetSafeStr(dr, "user_id"));
                 }
             }
-            return usersChange; 
+            return usersChange;
         }
 
-        public static List<string> SetDevicesDomainStatus(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)            
+        public static List<string> SetDevicesDomainStatus(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)
         {
             List<string> devicesChange = new List<string>();
             StoredProcedure sp = new StoredProcedure("SetDevicesDomainStatus");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.AddParameter("@top", nDeviceToDelete);            
+            sp.AddParameter("@top", nDeviceToDelete);
             sp.AddParameter("@isActive", isActive);
             sp.AddParameter("@dominID", domainID);
             sp.AddIDListParameter<int>("@devicesID", lDevicesID, "Id");
@@ -2033,7 +2033,7 @@ namespace DAL
                 sp.AddParameter("@extRegionID", extRegionId);
                 sp.AddParameter("@lookupKey", string.Empty);
             }
-            else 
+            else
             {
                 sp.AddParameter("@lookupKey", lookupKey);
                 sp.AddParameter("@extRegionID", string.Empty);
@@ -2120,12 +2120,12 @@ namespace DAL
 
 
         public static DrmPolicy GetDrmPolicy(int groupId)
-        {   
+        {
             DrmPolicy response = null;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager("OTT_Apps");
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            CouchbaseManager.eResultStatus getResult = new CouchbaseManager.eResultStatus();
             string drmPolicyKey = UtilsDal.GetDrmPolicyKey(groupId);
             if (string.IsNullOrEmpty(drmPolicyKey))
             {
@@ -2140,7 +2140,7 @@ namespace DAL
                     {
                         response = cbClient.Get<DrmPolicy>(drmPolicyKey, out getResult);
 
-                        if (getResult == Couchbase.IO.ResponseStatus.Success)
+                        if (getResult == CouchbaseManager.eResultStatus.SUCCESS)
                         {
                             break;
                         }
@@ -2167,7 +2167,7 @@ namespace DAL
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            CouchbaseManager.eResultStatus getResult = new CouchbaseManager.eResultStatus();
             string domainDrmIdKey = UtilsDal.GetDomainDrmIdKey(domainId);
             if (string.IsNullOrEmpty(domainDrmIdKey))
             {
@@ -2182,7 +2182,7 @@ namespace DAL
                     {
                         object document = cbClient.Get<object>(domainDrmIdKey, out getResult);
 
-                        if (getResult == Couchbase.IO.ResponseStatus.Success)
+                        if (getResult == CouchbaseManager.eResultStatus.SUCCESS)
                         {
                             // Deserialize to known class - for comfortable access
                             response = JsonConvert.DeserializeObject<Dictionary<int, string>>(document.ToString());
@@ -2218,7 +2218,7 @@ namespace DAL
                 else
                 {
                     CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
-                    
+
                     var json = JsonConvert.SerializeObject(domainDrmId);
                     result = client.Set<object>(domainDrmIdKey, json);
 
@@ -2243,7 +2243,7 @@ namespace DAL
             else
             {
                 CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
-                               
+
                 result = client.Remove(domainDrmIdKey);
 
                 if (!result)
@@ -2261,7 +2261,7 @@ namespace DAL
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            CouchbaseManager.eResultStatus getResult = CouchbaseManager.eResultStatus.ERROR;
             string drmIdKey = UtilsDal.GetDrmIdKey(drmId);
             if (string.IsNullOrEmpty(drmIdKey))
             {
@@ -2276,7 +2276,7 @@ namespace DAL
                     {
                         object document = cbClient.Get<object>(drmIdKey, out getResult);
 
-                        if (getResult == Couchbase.IO.ResponseStatus.Success)
+                        if (getResult == CouchbaseManager.eResultStatus.SUCCESS)
                         {
                             // Deserialize to known class - for comfortable access
                             response = JsonConvert.DeserializeObject<KeyValuePair<string, KeyValuePair<int, string>>>(document.ToString());
@@ -2292,7 +2292,7 @@ namespace DAL
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Error while trying to get drm : {0}, ex: {1}", drmId, ex);                    
+                    log.ErrorFormat("Error while trying to get drm : {0}, ex: {1}", drmId, ex);
                 }
             }
 

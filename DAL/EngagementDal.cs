@@ -324,7 +324,7 @@ namespace DAL
         public static UserEngagement GetUserEngagement(int partnerId, int engagementId, int userId)
         {
             UserEngagement userEngagement = null;
-            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            eResultStatus status = eResultStatus.ERROR;
             string key = GetUserEngagementKey(partnerId, engagementId, userId);
 
             try
@@ -336,7 +336,7 @@ namespace DAL
                     userEngagement = cbManager.Get<UserEngagement>(key, out status);
                     if (userEngagement == null)
                     {
-                        if (status != Couchbase.IO.ResponseStatus.KeyNotFound)
+                        if (status == eResultStatus.ERROR)
                         {
                             numOfTries++;
                             log.ErrorFormat("Error while getting user engagement data. number of tries: {0}/{1}. key: {2}",

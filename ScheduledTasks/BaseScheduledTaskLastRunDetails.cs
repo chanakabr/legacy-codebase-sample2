@@ -60,7 +60,7 @@ namespace ScheduledTasks
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            CouchbaseManager.eResultStatus getResult = new CouchbaseManager.eResultStatus();
             string scheduledTaksKey = GetKey();
             if (string.IsNullOrEmpty(scheduledTaksKey))
             {
@@ -73,12 +73,12 @@ namespace ScheduledTasks
                 while (numOfRetries < limitRetries)
                 {
                     response = cbClient.Get<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, out getResult);
-                    if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    if (getResult == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                     {
                         log.ErrorFormat("Error while trying to get last scheduled task run details, KeyNotFound. scheduleTaskName: {0}, key: {1}", ScheduledTaskType.ToString(), scheduledTaksKey);
                         break;
                     }
-                    else if (getResult == Couchbase.IO.ResponseStatus.Success)
+                    else if (getResult == CouchbaseManager.eResultStatus.SUCCESS)
                     {
                         log.DebugFormat("BaseScheduledTaskLastRunDetails with scheduleTaskName: {0} and key {1} was found", ScheduledTaskType.ToString(), scheduledTaksKey);
                         break;
@@ -117,9 +117,9 @@ namespace ScheduledTasks
                 while (!result && numOfRetries < limitRetries)
                 {
                     ulong version;
-                    Couchbase.IO.ResponseStatus status;
+                    CouchbaseManager.eResultStatus status;
                     BaseScheduledTaskLastRunDetails currentScheduledTask = cbClient.GetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, out version, out status);
-                    if (status == Couchbase.IO.ResponseStatus.Success || status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    if (status == CouchbaseManager.eResultStatus.SUCCESS || status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                     {
                         result = cbClient.SetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, this, version);
                     }
@@ -160,14 +160,14 @@ namespace ScheduledTasks
                 while (!result && numOfRetries < limitRetries)
                 {
                     ulong version;
-                    Couchbase.IO.ResponseStatus status;
+                    CouchbaseManager.eResultStatus status;
                     BaseScheduledTaskLastRunDetails scheduledTask = cbClient.GetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, out version, out status);
-                    if (status == Couchbase.IO.ResponseStatus.Success)
+                    if (status == CouchbaseManager.eResultStatus.SUCCESS)
                     {
                         scheduledTask.NextRunIntervalInSeconds = updatedNextRunIntervalInSeconds;
                         result = cbClient.SetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, scheduledTask, version);
                     }
-                    else if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    else if (status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                     {
                         break;
                     }
@@ -189,6 +189,5 @@ namespace ScheduledTasks
 
             return result;
         }
-
     }
 }

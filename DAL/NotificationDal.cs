@@ -1286,7 +1286,7 @@ namespace DAL
         public static DeviceNotificationData GetDeviceNotificationData(int groupId, string udid, ref bool isDocumentExist, bool withLock = false)
         {
             DeviceNotificationData deviceData = null;
-            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            CouchbaseManager.eResultStatus status = eResultStatus.ERROR;
             ulong cas = 0;
             isDocumentExist = true;
 
@@ -1303,7 +1303,7 @@ namespace DAL
 
                     if (deviceData == null)
                     {
-                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        if (status == eResultStatus.KEY_NOT_EXIST)
                         {
                             // key doesn't exist - don't try again
                             log.DebugFormat("device notification data with lock wasn't found. key: {0}", GetDeviceDataKey(groupId, udid));
@@ -1397,7 +1397,7 @@ namespace DAL
         public static UserNotification GetUserNotificationData(int groupId, int userId, ref bool isDocumentExist, bool withLock = false)
         {
             UserNotification userNotification = null;
-            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            CouchbaseManager.eResultStatus status = eResultStatus.ERROR;
             ulong cas = 0;
             isDocumentExist = true;
 
@@ -1414,7 +1414,7 @@ namespace DAL
 
                     if (userNotification == null)
                     {
-                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        if (status == eResultStatus.KEY_NOT_EXIST)
                         {
                             // key doesn't exist - don't try again
                             log.DebugFormat("user notification data wasn't found. key: {0}", GetUserNotificationKey(groupId, userId));
@@ -1542,7 +1542,7 @@ namespace DAL
         {
             bool result = false;
             UserNotification userNotification = null;
-            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            CouchbaseManager.eResultStatus status = eResultStatus.ERROR;
             isDocumentExist = true;
             ulong cas = 0;
             string cbKey = string.Empty;
@@ -1557,7 +1557,7 @@ namespace DAL
                     userNotification = cbManager.Get<UserNotification>(cbKey, false, out cas, out status);
                     if (userNotification == null)
                     {
-                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        if (status == eResultStatus.KEY_NOT_EXIST)
                         {
                             isDocumentExist = false;
 
@@ -1736,7 +1736,7 @@ namespace DAL
         public static InboxMessage GetUserInboxMessage(int groupId, int userId, string messageId)
         {
             InboxMessage userInboxMessage = null;
-            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            CouchbaseManager.eResultStatus status = eResultStatus.ERROR;
 
             try
             {
@@ -1747,7 +1747,7 @@ namespace DAL
                     userInboxMessage = cbManager.Get<InboxMessage>(GetInboxMessageKey(groupId, userId, messageId), out status);
                     if (userInboxMessage == null)
                     {
-                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        if (status == eResultStatus.KEY_NOT_EXIST)
                         {
                             // key doesn't exist - don't try again
                             log.DebugFormat("user inbox message wasn't found. key: {0}", GetInboxMessageKey(groupId, userId, messageId));

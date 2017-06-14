@@ -44,9 +44,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Couchbase.NetClient">
-      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
-    </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>

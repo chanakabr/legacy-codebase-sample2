@@ -17,7 +17,7 @@ namespace DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
-        private static readonly uint CACHED_ENTITLEMENT_RESULTS_TTL_SEC = TCMClient.Settings.Instance.GetValue<uint>("LicenseLinkCacheInSec");        
+        private static readonly uint CACHED_ENTITLEMENT_RESULTS_TTL_SEC = TCMClient.Settings.Instance.GetValue<uint>("LicenseLinkCacheInSec");
 
         public static DataTable Get_MediaFileByProductCode(int nGroupID, string sProductCode)
         {
@@ -68,7 +68,7 @@ namespace DAL
             return sCoGuid;
         }
 
-        public static bool InsertPPVPurchase(int nGroupID, string sSubCode, int nMediaFileID, string sSiteGUID, double dPrice, string sCurrency, int nNumOfUses, string sCustomData,int transactionID,
+        public static bool InsertPPVPurchase(int nGroupID, string sSubCode, int nMediaFileID, string sSiteGUID, double dPrice, string sCurrency, int nNumOfUses, string sCustomData, int transactionID,
                                              string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, int maxNumOfUses, int nIsActive, int nStatus, DateTime? dtEndDate, int domainId)
         {
             bool res = false;
@@ -286,13 +286,13 @@ namespace DAL
 
         public static DataTable GetDomainBillingHistory(int groupID, int domainID, int topNum, DateTime startDate, DateTime endDate, int orderBy)
         {
-            DataTable dt = null;            
+            DataTable dt = null;
             if (domainID > 0)
             {
                 try
                 {
                     StoredProcedure spGet_DomainBillingHistory = new ODBCWrapper.StoredProcedure("Get_DomainBillingHistory");
-                    spGet_DomainBillingHistory.SetConnectionKey("MAIN_CONNECTION_STRING");                    
+                    spGet_DomainBillingHistory.SetConnectionKey("MAIN_CONNECTION_STRING");
                     spGet_DomainBillingHistory.AddParameter("@GroupID", groupID);
                     spGet_DomainBillingHistory.AddParameter("@DomainID", domainID);
                     spGet_DomainBillingHistory.AddParameter("@StartDate", startDate);
@@ -574,7 +574,7 @@ namespace DAL
             spGet_AllUsersPurchases.AddParameter("@DomainID", domainID);
 
             DataSet ds = spGet_AllUsersPurchases.ExecuteDataSet();
-            
+
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -599,7 +599,7 @@ namespace DAL
                             p_nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dr, "WAIVER");
                             p_dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
                             p_dtStartDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "START_DATE");
-                            p_dtEndDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "END_DATE");  
+                            p_dtEndDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "END_DATE");
                         }
                     }
                 }
@@ -1569,43 +1569,43 @@ namespace DAL
 
         public static bool Insert_NewPPVUse(long groupID, long mediaFileID, string ppvModuleCode, string siteGuid, string countryCode, string langCode, string deviceName, int relPp, int relBoxSet)
         {
-                StoredProcedure sp = new StoredProcedure("Insert_NewPPVUse");
-                sp.SetConnectionKey("CA_CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@MediaFileID", mediaFileID);
-                sp.AddParameter("@PPVModuleCode", ppvModuleCode);
-                sp.AddParameter("@SiteGuid", siteGuid);
-                sp.AddParameter("@IsCreditDownloaded", 1);
-                sp.AddParameter("@IsActive", 1);
-                sp.AddParameter("@Status", 1);
-                if (countryCode == null)
-                {
-                    sp.AddParameter("@CountryCode", string.Empty);
-                }
-                else
-                {
-                    sp.AddParameter("@CountryCode", countryCode);
-                }
-                if (langCode == null)
-                {
-                    sp.AddParameter("@LangCode", string.Empty);
-                }
-                else
-                {
-                    sp.AddParameter("@LangCode", langCode);
-                }
-                if (deviceName == null)
-                {
-                    sp.AddParameter("@DeviceName", string.Empty);
-                }
-                else
-                {
-                    sp.AddParameter("@DeviceName", deviceName);
-                }
-                sp.AddParameter("@RelPP", relPp);
-                sp.AddParameter("@RelBoxSet", relBoxSet);
+            StoredProcedure sp = new StoredProcedure("Insert_NewPPVUse");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@MediaFileID", mediaFileID);
+            sp.AddParameter("@PPVModuleCode", ppvModuleCode);
+            sp.AddParameter("@SiteGuid", siteGuid);
+            sp.AddParameter("@IsCreditDownloaded", 1);
+            sp.AddParameter("@IsActive", 1);
+            sp.AddParameter("@Status", 1);
+            if (countryCode == null)
+            {
+                sp.AddParameter("@CountryCode", string.Empty);
+            }
+            else
+            {
+                sp.AddParameter("@CountryCode", countryCode);
+            }
+            if (langCode == null)
+            {
+                sp.AddParameter("@LangCode", string.Empty);
+            }
+            else
+            {
+                sp.AddParameter("@LangCode", langCode);
+            }
+            if (deviceName == null)
+            {
+                sp.AddParameter("@DeviceName", string.Empty);
+            }
+            else
+            {
+                sp.AddParameter("@DeviceName", deviceName);
+            }
+            sp.AddParameter("@RelPP", relPp);
+            sp.AddParameter("@RelBoxSet", relBoxSet);
 
-                return sp.ExecuteReturnValue<long>() > 0;            
+            return sp.ExecuteReturnValue<long>() > 0;
         }
 
         public static bool Insert_NewSubscriptionUse(long groupID, string subCode, long mediaFileID, string siteGuid, string countryCode, string langCode, string deviceName, int relPP)
@@ -1719,7 +1719,7 @@ namespace DAL
             }
 
             return nUrlType;
-        }        
+        }
 
         public static bool GetFileUrlLinks(int mediaFileID, string siteGuid, int groupID, ref string mainUrl, ref string altUrl, ref int mainStreamingCoID, ref int altStreamingCoID, ref int mediaID)
         {
@@ -1847,9 +1847,9 @@ namespace DAL
             return fileIds;
         }
 
-        public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData, 
+        public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData,
             string country, string deviceName, int maxNumOfUses, int viewLifeCycle,
-            bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate, 
+            bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate,
             DateTime createAndUpdateDate, long householdId, string billingGuid, int purchaseStatus = 0, string coupon = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
@@ -2007,7 +2007,7 @@ namespace DAL
             dt = spGet_AllUsersEntitlements.Execute();
 
             if (dt != null && dt.Rows.Count > 0)
-            {                
+            {
                 int ppvmTagLength = 6;
                 foreach (DataRow dr in dt.Rows)
                 {
@@ -2052,7 +2052,7 @@ namespace DAL
                     int mediaFileID = Utils.GetIntSafeVal(dr["MEDIA_FILE_ID"]);
                     string mediaID = Utils.GetSafeStr(dr["MEDIA_ID"]);
                     string groupFileType = Utils.GetSafeStr(dr["GROUP_FILE_TYPE"]);
-                    string key = mediaID + "_" + groupFileType;                                       
+                    string key = mediaID + "_" + groupFileType;
                     resultKey = UtilsDal.MediaIdGroupFileTypesKey(Utils.GetIntSafeVal(dr["MEDIA_ID"]));
 
                     if (result.Keys.Contains(resultKey))
@@ -2089,7 +2089,7 @@ namespace DAL
 
         public static DataTable Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID(int domainID, List<int> lstUsers, int nGroupID)
         {
-            StoredProcedure sp= new StoredProcedure("Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID");
+            StoredProcedure sp = new StoredProcedure("Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddIDListParameter("@usersList", lstUsers, "ID");
             sp.AddParameter("@DomainID", domainID);
@@ -2112,8 +2112,8 @@ namespace DAL
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@ppv_purchase_id", ppvPurchaseId);
             sp.AddParameter("@start_date", startDate);
-            sp.AddParameter("@end_date", endDate); 
- 
+            sp.AddParameter("@end_date", endDate);
+
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
@@ -2135,7 +2135,7 @@ namespace DAL
             sp.AddIDListParameter("@subscription_purchase_ids", subscriptionIds, "ID");
             return sp.ExecuteReturnValue<int>() > 0;
         }
-        
+
         public static DataSet Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(int groupId, int domainId, int paymentMethodId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod");
@@ -2144,7 +2144,7 @@ namespace DAL
             sp.AddParameter("@DomainID", domainId);
             sp.AddParameter("@PaymentMethodID", paymentMethodId);
 
-            return sp.ExecuteDataSet();            
+            return sp.ExecuteDataSet();
         }
 
         public static Dictionary<long, List<int>> GetEpgsToFileIdsMap(int groupId, List<long> epgIds)
@@ -2166,7 +2166,7 @@ namespace DAL
             DataTable dt = spGet_Get_FilesByEpgIds.Execute();
 
             if (dt != null && dt.Rows != null)
-            {                
+            {
                 foreach (DataRow dr in dt.Rows)
                 {
                     int fileId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id", 0);
@@ -2423,7 +2423,7 @@ namespace DAL
                 bool isDelete = sp.ExecuteReturnValue<bool>();
                 return isDelete;
             }
-            catch 
+            catch
             {
                 return false;
             }
@@ -2468,7 +2468,7 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>() * 60;
         }
-        
+
         public static int GetTimeShiftedTVAdapterId(int groupId)
         {
             int adapterId = 0;
@@ -2551,7 +2551,7 @@ namespace DAL
 
         public static bool InsertOrSetCachedEntitlementResults(string version, long domainId, int mediaFileId, CachedEntitlementResults cachedEntitlementResults)
         {
-            bool result = false;            
+            bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEMCACHED);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
@@ -2568,9 +2568,9 @@ namespace DAL
                     while (!result && numOfRetries < limitRetries)
                     {
                         ulong docVersion;
-                        Couchbase.IO.ResponseStatus status;
+                        CouchbaseManager.eResultStatus status;
                         CachedEntitlementResults currentCachedEntitlementResults = cbClient.GetWithVersion<CachedEntitlementResults>(cachedEntitlementKey, out docVersion, out status);
-                        if (status == Couchbase.IO.ResponseStatus.Success || status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        if (status == CouchbaseManager.eResultStatus.SUCCESS || status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                         {
                             result = cbClient.SetWithVersion<CachedEntitlementResults>(cachedEntitlementKey, cachedEntitlementResults, docVersion, CACHED_ENTITLEMENT_RESULTS_TTL_SEC);
                         }
@@ -2599,7 +2599,7 @@ namespace DAL
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEMCACHED);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            CouchbaseManager.eResultStatus getResult = CouchbaseManager.eResultStatus.ERROR;
             string cachedEntitlementKey = UtilsDal.GetCachedEntitlementResultsKey(version, domainId, mediaFileId);
             if (string.IsNullOrEmpty(cachedEntitlementKey))
             {
@@ -2613,13 +2613,13 @@ namespace DAL
                 while (numOfRetries < limitRetries)
                 {
                     response = cbClient.Get<CachedEntitlementResults>(cachedEntitlementKey, out getResult);
-                    if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    if (getResult == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                     {
                         log.ErrorFormat("Error while trying to get CachedEntitlementResults, KeyNotFound. key: {0}", cachedEntitlementKey);
                         break;
                     }
-                    else if (getResult == Couchbase.IO.ResponseStatus.Success)
-                    {                        
+                    else if (getResult == CouchbaseManager.eResultStatus.SUCCESS)
+                    {
                         break;
                     }
                     else
@@ -2658,9 +2658,9 @@ namespace DAL
                     while (!result && numOfRetries < limitRetries)
                     {
                         ulong docVersion;
-                        Couchbase.IO.ResponseStatus status;
+                        CouchbaseManager.eResultStatus status;
                         SubscriptionSetDowngradeDetails currentCachedEntitlementResults = cbManager.GetWithVersion<SubscriptionSetDowngradeDetails>(key, out docVersion, out status);
-                        if (status == Couchbase.IO.ResponseStatus.Success || status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        if (status == CouchbaseManager.eResultStatus.SUCCESS || status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                         {
                             string totalSeconds = Math.Ceiling((subscriptionSetDowngradeDetails.StartDate.AddDays(7) - DateTime.UtcNow).TotalSeconds).ToString();
                             uint ttl = 0;
@@ -2693,7 +2693,7 @@ namespace DAL
             CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            CouchbaseManager.eResultStatus getResult = CouchbaseManager.eResultStatus.ERROR;
             string key = UtilsDal.GetSubscriptionSetModifyKey(groupId, id, SubscriptionSetModifyType.Downgrade);
             if (string.IsNullOrEmpty(key))
             {
@@ -2707,12 +2707,12 @@ namespace DAL
                 while (numOfRetries < limitRetries)
                 {
                     response = cbManager.Get<SubscriptionSetDowngradeDetails>(key, out getResult);
-                    if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    if (getResult == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                     {
                         log.ErrorFormat("Error while trying to get SubscriptionSetDowngradeDetails, KeyNotFound. key: {0}", key);
                         break;
                     }
-                    else if (getResult == Couchbase.IO.ResponseStatus.Success)
+                    else if (getResult == CouchbaseManager.eResultStatus.SUCCESS)
                     {
                         break;
                     }
@@ -2752,15 +2752,15 @@ namespace DAL
                     while (!result && numOfRetries < limitRetries)
                     {
                         ulong docVersion;
-                        Couchbase.IO.ResponseStatus status;
+                        CouchbaseManager.eResultStatus status;
                         SubscriptionSetDowngradeDetails currentCachedEntitlementResults = cbManager.GetWithVersion<SubscriptionSetDowngradeDetails>(key, out docVersion, out status);
-                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        if (status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                         {
-                            result = true;                            
+                            result = true;
                         }
-                        else if (status == Couchbase.IO.ResponseStatus.Success)
+                        else if (status == CouchbaseManager.eResultStatus.SUCCESS)
                         {
-                            result = cbManager.Remove(key, docVersion);                            
+                            result = cbManager.Remove(key, docVersion);
                         }
                         else
                         {
@@ -2815,7 +2815,7 @@ namespace DAL
         }
 
         public static DataRow GetPurchaseByID(int purchaseID)
-        {            
+        {
             try
             {
                 StoredProcedure sp = new StoredProcedure("Get_SubscriptionsByPurchaseID");
@@ -2826,7 +2826,7 @@ namespace DAL
                 {
                     return dt.Rows[0];
                 }
-               // return ODBCWrapper.Utils.GetTableSingleRowByValue("subscriptions_purchases", "ID", purchaseID, true, "CA_CONNECTION_STRING");
+                // return ODBCWrapper.Utils.GetTableSingleRowByValue("subscriptions_purchases", "ID", purchaseID, true, "CA_CONNECTION_STRING");
             }
             catch (Exception ex)
             {
@@ -2857,7 +2857,7 @@ namespace DAL
 
             return result;
         }
-        
+
         public static DataTable GetFileCdnData(int mediaFileId)
         {
             DataTable response = null;
@@ -2935,7 +2935,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSubscriptionCompensationByPurchaseId");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@purchaseId", purchaseId);
-            
+
             DataTable dt = sp.Execute();
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -3014,7 +3014,7 @@ namespace DAL
         }
 
         public static int GetGroupDefaultCurrency(int groupId)
-        {            
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupDefaultCurrency");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
@@ -3064,7 +3064,7 @@ namespace DAL
             sp.AddParameter("@Type", (int)type);
 
             return sp.ExecuteReturnValue<long>();
-        }        
+        }
 
         public static bool ValidateSubscriptionSetModifyDetailsById(long subscriptionSetModifyDetailsId)
         {
@@ -3103,7 +3103,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateSubscriptionPurchaseRenewalStatus");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@Id", purchaseId);
-            sp.AddParameter("@IsRecurringStatus", is_recurring_status);            
+            sp.AddParameter("@IsRecurringStatus", is_recurring_status);
 
             return sp.ExecuteReturnValue<int>() == 1;
         }

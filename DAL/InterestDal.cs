@@ -526,7 +526,7 @@ namespace DAL
         public static UserInterests GetUserInterest(int partnerId, int userId)
         {
             UserInterests userInterests = null;
-            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            eResultStatus status = eResultStatus.ERROR;
             string key = GetUserInterestKey(partnerId, userId);
 
             try
@@ -538,11 +538,11 @@ namespace DAL
                     userInterests = cbManager.Get<UserInterests>(key, out status);
                     if (userInterests == null)
                     {
-                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        if (status == eResultStatus.KEY_NOT_EXIST)
                         {
                             return userInterests;
                         }
-                        else if (status != Couchbase.IO.ResponseStatus.KeyNotFound)
+                        else if (status == eResultStatus.ERROR)
                         {
                             numOfTries++;
                             log.ErrorFormat("Error while getting user interest data. number of tries: {0}/{1}. key: {2}",
