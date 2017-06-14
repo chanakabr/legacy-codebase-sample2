@@ -691,7 +691,6 @@ namespace Core.ConditionalAccess
 
                 DateTime oldStartDate = Utils.GetEndDateTime(oldSubscriptionPurchaseDetails.dtEndDate, usageModuleLifeCycle, false);
                 double oldSubTotalDays = (oldSubscriptionPurchaseDetails.dtEndDate - oldStartDate).TotalDays;
-
                 double oldSubscriptionRelativePriceToDeduct = (daysLeftOnOldSubscription / oldSubTotalDays) * oldSubscriptionPurchaseDetails.Price;
                 price.m_dPrice = price.m_dPrice - oldSubscriptionRelativePriceToDeduct;
                 if (price.m_dPrice < 0)
@@ -701,8 +700,9 @@ namespace Core.ConditionalAccess
                 else
                 {
                     // leave only 2 decimals after the dot
-                    price.m_dPrice = Math.Truncate(price.m_dPrice * 100) / 100;
+                    price.m_dPrice = Math.Round(price.m_dPrice, 2);
                 }
+
                 log.DebugFormat("daysLeftOnOldSubscription = {0}, oldSubscriptionRelativePriceTodeduct = {1}, oldSubscriptionPurchaseDetails.Price = {2}, price.m_dPrice = {3}, oldStartDate = {4}, oldSubTotalDays = {5}",
                    daysLeftOnOldSubscription, oldSubscriptionRelativePriceToDeduct, oldSubscriptionPurchaseDetails.Price, price.m_dPrice, oldStartDate, oldSubTotalDays);
 
