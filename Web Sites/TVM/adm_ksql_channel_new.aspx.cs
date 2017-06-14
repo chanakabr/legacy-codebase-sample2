@@ -332,6 +332,12 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         System.Data.DataRow tmpRow = null;
 
         tmpRow = d.NewRow();
+        tmpRow["ID"] = 31;
+        tmpRow["txt"] = "Relevancy";
+        d.Rows.InsertAt(tmpRow, 0);
+        d.AcceptChanges();
+
+        tmpRow = d.NewRow();
         tmpRow["ID"] = -6;
         tmpRow["txt"] = "Random";
         d.Rows.InsertAt(tmpRow, 0);
