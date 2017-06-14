@@ -271,17 +271,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="ApiParameterPermissionItem">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PermissionItem">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="Object" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="ApiArgumentPermissionItem">
         <s:complexContent mixed="false">
           <s:extension base="tns:PermissionItem">
@@ -289,6 +278,17 @@
               <s:element minOccurs="0" maxOccurs="1" name="Service" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ApiParameterPermissionItem">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PermissionItem">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="Object" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -767,6 +767,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="IsRecordingPlaybackNonExistingChannelEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="QuotaOveragePolicy" nillable="true" type="tns:QuotaOveragePolicy" />
           <s:element minOccurs="1" maxOccurs="1" name="ProtectionPolicy" nillable="true" type="tns:ProtectionPolicy" />
+          <s:element minOccurs="1" maxOccurs="1" name="RecoveryGracePeriod" nillable="true" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="QuotaOveragePolicy">
@@ -1204,6 +1205,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="metaType" type="tns:MetaType" />
             <s:element minOccurs="1" maxOccurs="1" name="fieldNameEqual" type="tns:MetaFieldName" />
             <s:element minOccurs="1" maxOccurs="1" name="fieldNameNotEqual" type="tns:MetaFieldName" />
+            <s:element minOccurs="0" maxOccurs="1" name="metaFeatureTypeList" type="tns:ArrayOfMetaFeatureType" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1224,6 +1226,17 @@
           <s:enumeration value="SeriesId" />
           <s:enumeration value="SeasonNumber" />
           <s:enumeration value="EpisodeNumber" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="ArrayOfMetaFeatureType">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MetaFeatureType" type="tns:MetaFeatureType" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="MetaFeatureType">
+        <s:restriction base="s:string">
+          <s:enumeration value="USER_INTEREST" />
+          <s:enumeration value="ENABLED_NOTIFICATION" />
         </s:restriction>
       </s:simpleType>
       <s:element name="GetGroupMetaListResponse">
@@ -1250,6 +1263,12 @@
           <s:element minOccurs="1" maxOccurs="1" name="FieldName" type="tns:MetaFieldName" />
           <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:MetaType" />
           <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
+          <s:element minOccurs="1" maxOccurs="1" name="SkipFeatures" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="Features" type="tns:ArrayOfMetaFeatureType" />
+          <s:element minOccurs="0" maxOccurs="1" name="ParentId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="PartnerId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Id" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsTag" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:element name="DoActionRules">
@@ -1308,7 +1327,8 @@
               <s:element minOccurs="0" maxOccurs="1" name="FilterTagValues" type="tns:ArrayOfString" />
               <s:element minOccurs="1" maxOccurs="1" name="FilterTagOperand" type="tns:eCutType" />
               <s:element minOccurs="0" maxOccurs="1" name="MetaDateName" type="s:string" />
-              <s:element minOccurs="1" maxOccurs="1" name="MetaDateValue" type="s:long" />
+              <s:element minOccurs="1" maxOccurs="1" name="MetaDateStartFromValue" type="s:long" />
+              <s:element minOccurs="1" maxOccurs="1" name="MetaDateEndBeforeValue" type="s:long" />
               <s:element minOccurs="0" maxOccurs="1" name="TagNamesToAdd" type="tns:ArrayOfString" />
               <s:element minOccurs="0" maxOccurs="1" name="TagNamesToRemove" type="tns:ArrayOfString" />
             </s:sequence>
@@ -1390,6 +1410,91 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="1" maxOccurs="1" name="InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypesResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMediaFilesByMediaId">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="mediaId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMediaFilesByMediaIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMediaFilesByMediaIdResult" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCountryByIp">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="ip" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCountryByIpResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCountryByIpResult" type="tns:Country" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetLayeredCacheGroupConfig">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetLayeredCacheGroupConfigResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetLayeredCacheGroupConfigResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateLayeredCacheGroupConfig">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="version" nillable="true" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="disableLayeredCache" nillable="true" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="layeredCacheSettingsToExclude" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="shouldOverrideExistingExludeSettings" nillable="true" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateLayeredCacheGroupConfigResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateLayeredCacheGroupConfigResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateLayeredCacheGroupConfigST">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="version" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="disableLayeredCache" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="layeredCacheSettingsToExcludeCommaSeperated" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="shouldOverrideExistingExludeSettings" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateLayeredCacheGroupConfigSTResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateLayeredCacheGroupConfigSTResult" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2762,18 +2867,9 @@
           <s:enumeration value="RemoveDomain" />
           <s:enumeration value="PurchaseWithGiftCard" />
           <s:enumeration value="GiftCardRenewReminder" />
+          <s:enumeration value="Churn" />
         </s:restriction>
       </s:simpleType>
-      <s:complexType name="CinepolisRenewalFailMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="CinepolisPurchaseMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -2782,6 +2878,15 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangePasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2882,6 +2987,17 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="WelcomeMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="PurchaseMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -2911,32 +3027,22 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PurchaseFailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="PreviewModuleCancelOrRefundRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="ChangePasswordMailRequest">
+      <s:complexType name="PurchaseFailRequest">
         <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
+          <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="WelcomeMailRequest">
+      <s:complexType name="CinepolisRenewalFailMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3698,6 +3804,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="Code" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Direction" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="IsDefault" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="DisplayName" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetParentalRules">
@@ -5281,6 +5388,36 @@
   <wsdl:message name="InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypesSoapOut">
     <wsdl:part name="parameters" element="tns:InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypesResponse" />
   </wsdl:message>
+  <wsdl:message name="GetMediaFilesByMediaIdSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMediaFilesByMediaId" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaFilesByMediaIdSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMediaFilesByMediaIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCountryByIpSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCountryByIp" />
+  </wsdl:message>
+  <wsdl:message name="GetCountryByIpSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCountryByIpResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetLayeredCacheGroupConfigSoapIn">
+    <wsdl:part name="parameters" element="tns:GetLayeredCacheGroupConfig" />
+  </wsdl:message>
+  <wsdl:message name="GetLayeredCacheGroupConfigSoapOut">
+    <wsdl:part name="parameters" element="tns:GetLayeredCacheGroupConfigResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateLayeredCacheGroupConfigSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateLayeredCacheGroupConfig" />
+  </wsdl:message>
+  <wsdl:message name="UpdateLayeredCacheGroupConfigSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateLayeredCacheGroupConfigResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateLayeredCacheGroupConfigSTSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateLayeredCacheGroupConfigST" />
+  </wsdl:message>
+  <wsdl:message name="UpdateLayeredCacheGroupConfigSTSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateLayeredCacheGroupConfigSTResponse" />
+  </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
   </wsdl:message>
@@ -6252,6 +6389,26 @@
       <wsdl:input message="tns:InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypesSoapIn" />
       <wsdl:output message="tns:InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypesSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetMediaFilesByMediaId">
+      <wsdl:input message="tns:GetMediaFilesByMediaIdSoapIn" />
+      <wsdl:output message="tns:GetMediaFilesByMediaIdSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCountryByIp">
+      <wsdl:input message="tns:GetCountryByIpSoapIn" />
+      <wsdl:output message="tns:GetCountryByIpSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLayeredCacheGroupConfig">
+      <wsdl:input message="tns:GetLayeredCacheGroupConfigSoapIn" />
+      <wsdl:output message="tns:GetLayeredCacheGroupConfigSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateLayeredCacheGroupConfig">
+      <wsdl:input message="tns:UpdateLayeredCacheGroupConfigSoapIn" />
+      <wsdl:output message="tns:UpdateLayeredCacheGroupConfigSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateLayeredCacheGroupConfigST">
+      <wsdl:input message="tns:UpdateLayeredCacheGroupConfigSTSoapIn" />
+      <wsdl:output message="tns:UpdateLayeredCacheGroupConfigSTSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
       <wsdl:output message="tns:TVAPI_GetTvinciGUIDSoapOut" />
@@ -7205,6 +7362,51 @@
     </wsdl:operation>
     <wsdl:operation name="InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes">
       <soap:operation soapAction="http://api.tvinci.com/InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaFilesByMediaId">
+      <soap:operation soapAction="http://api.tvinci.com/GetMediaFilesByMediaId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCountryByIp">
+      <soap:operation soapAction="http://api.tvinci.com/GetCountryByIp" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLayeredCacheGroupConfig">
+      <soap:operation soapAction="http://api.tvinci.com/GetLayeredCacheGroupConfig" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateLayeredCacheGroupConfig">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateLayeredCacheGroupConfig" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateLayeredCacheGroupConfigST">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateLayeredCacheGroupConfigST" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8810,6 +9012,51 @@
     </wsdl:operation>
     <wsdl:operation name="InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes">
       <soap12:operation soapAction="http://api.tvinci.com/InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaFilesByMediaId">
+      <soap12:operation soapAction="http://api.tvinci.com/GetMediaFilesByMediaId" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCountryByIp">
+      <soap12:operation soapAction="http://api.tvinci.com/GetCountryByIp" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLayeredCacheGroupConfig">
+      <soap12:operation soapAction="http://api.tvinci.com/GetLayeredCacheGroupConfig" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateLayeredCacheGroupConfig">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateLayeredCacheGroupConfig" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateLayeredCacheGroupConfigST">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateLayeredCacheGroupConfigST" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

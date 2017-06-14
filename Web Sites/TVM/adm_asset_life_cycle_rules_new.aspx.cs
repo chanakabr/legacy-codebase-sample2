@@ -208,15 +208,25 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         }
         theRecord.AddRecord(dr_metaDateName);
 
-        DataRecordShortIntField dr_metaDateValue = new DataRecordShortIntField(true, 9, 9, 0);
-        dr_metaDateValue.Initialize("Meta Date Value", "adm_table_header_nbg", "FormInput", "", true);
-        dr_metaDateValue.SetDefault(1);
-        dr_metaDateValue.setFiledName("MetaDateValue");
+        DataRecordShortIntField dr_metaDateStartFromValue = new DataRecordShortIntField(true, 9, 9, 0);
+        dr_metaDateStartFromValue.Initialize("Meta Date Start From Value", "adm_table_header_nbg", "FormInput", "", true);
+        dr_metaDateStartFromValue.SetDefault(1);
+        dr_metaDateStartFromValue.setFiledName("MetaDateStartFromValue");
         if (friendlyAssetLifeCycleRule != null)
         {
-            dr_metaDateValue.SetValue(friendlyAssetLifeCycleRule.MetaDateValue.ToString());
+            dr_metaDateStartFromValue.SetValue(friendlyAssetLifeCycleRule.MetaDateStartFromValue.ToString());
         }
-        theRecord.AddRecord(dr_metaDateValue);
+        theRecord.AddRecord(dr_metaDateStartFromValue);
+
+        DataRecordShortIntField dr_metaDateEndBeforeValue = new DataRecordShortIntField(true, 9, 9, 0);
+        dr_metaDateEndBeforeValue.Initialize("Meta Date End Before Value", "adm_table_header_nbg", "FormInput", "", false);
+        dr_metaDateEndBeforeValue.SetDefault(0);
+        dr_metaDateEndBeforeValue.setFiledName("MetaDateEndBeforeValue");
+        if (friendlyAssetLifeCycleRule != null)
+        {
+            dr_metaDateEndBeforeValue.SetValue(friendlyAssetLifeCycleRule.MetaDateEndBeforeValue.ToString());
+        }
+        theRecord.AddRecord(dr_metaDateEndBeforeValue);
 
         DataRecordShortTextField dr_transitionTagToAdd = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_transitionTagToAdd.Initialize("Add Tag Values", "adm_table_header_nbg", "FormInput", "", false);
@@ -350,11 +360,22 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
                                         result = false;
                                     }
                                     break;
-                                case "MetaDateValue":
-                                    long metaDate = 0;
-                                    if (long.TryParse(sVal, out metaDate))
+                                case "MetaDateStartFromValue":
+                                    long metaDateStartFromValue = 0;
+                                    if (long.TryParse(sVal, out metaDateStartFromValue))
                                     {
-                                        rule.MetaDateValue = metaDate;
+                                        rule.MetaDateStartFromValue = metaDateStartFromValue;
+                                    }
+                                    else
+                                    {
+                                        result = false;
+                                    }
+                                    break;
+                                case "MetaDateEndBeforeValue":
+                                    long metaDateEndBeforeValue = 0;
+                                    if (long.TryParse(sVal, out metaDateEndBeforeValue))
+                                    {
+                                        rule.MetaDateEndBeforeValue = metaDateEndBeforeValue;
                                     }
                                     else
                                     {
