@@ -639,7 +639,7 @@ namespace Core.Notification
                         // get topic push external id's of guests and logged in users
                         List<DbAnnouncement> announcementGuestAndLoggedIn = null;
                         if (announcements != null)
-                            announcementGuestAndLoggedIn.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn || x.RecipientsType == eAnnouncementRecipientsType.Guests);
+                            announcementGuestAndLoggedIn = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn || x.RecipientsType == eAnnouncementRecipientsType.Guests).ToList();
 
                         if (announcementGuestAndLoggedIn != null && announcementGuestAndLoggedIn.Count() > 0)
                         {
