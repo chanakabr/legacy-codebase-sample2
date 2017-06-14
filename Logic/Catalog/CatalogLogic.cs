@@ -3681,7 +3681,13 @@ namespace Core.Catalog
         private static List<EPGChannelProgrammeObject> GetEpgsByGroupAndIDs(int groupID, List<int> epgIDs)
         {
             BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupID);
-            return epgBL.GetEpgs(epgIDs);
+            var result = epgBL.GetEpgs(epgIDs);
+
+            var language = new GroupManager().GetGroup(groupID).GetGroupDefaultLanguage();
+
+            BaseEpgBL.UpdateProgrammeWithMultilingual(ref result, language);
+
+            return result;
         }
 
         private static List<EPGChannelProgrammeObject> GetEpgsByGroupIdLanguageIdAndEpgIds(int groupID, List<int> epgIDs, int languageId)
