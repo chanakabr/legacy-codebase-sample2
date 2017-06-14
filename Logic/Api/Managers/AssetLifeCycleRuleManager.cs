@@ -395,7 +395,7 @@ namespace Core.Api.Managers
                         if (secondNode != null)
                         {
                             rule.MetaDateName = secondNode.field;                            
-                            rule.MetaDateValue = GetMetaDateValueFromKsqlValueInSeconds(Math.Abs(Convert.ToInt64(secondNode.value)), rule.TransitionIntervalUnits);
+                            rule.MetaDateStartFromValue = GetMetaDateValueFromKsqlValueInSeconds(Math.Abs(Convert.ToInt64(secondNode.value)), rule.TransitionIntervalUnits);
                             result = true;
                         }
                     }
@@ -409,9 +409,9 @@ namespace Core.Api.Managers
         {
             bool result = false;
 
-            if (rule.FilterTagType != null && !string.IsNullOrEmpty(rule.FilterTagType.value) && rule.FilterTagValues != null && rule.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(rule.MetaDateName) && rule.MetaDateValue >= 0)
+            if (rule.FilterTagType != null && !string.IsNullOrEmpty(rule.FilterTagType.value) && rule.FilterTagValues != null && rule.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(rule.MetaDateName) && rule.MetaDateStartFromValue >= 0)
             {
-                long date = -1 * (GetKsqlMetaDateValue(rule.MetaDateValue, rule.TransitionIntervalUnits));
+                long date = -1 * (GetKsqlMetaDateValue(rule.MetaDateStartFromValue, rule.TransitionIntervalUnits));
                 StringBuilder builder = new StringBuilder();
                 if (rule.FilterTagValues == null || rule.FilterTagValues.Count == 0)
                 {

@@ -650,7 +650,7 @@ namespace APILogic
                 }
 
                 rule = new FriendlyAssetLifeCycleRule(rule.Id, groupId, rule.Name, rule.Description, rule.TransitionIntervalUnits, rule.FilterTagType, rule.FilterTagValues, rule.FilterTagOperand,
-                                                                                 rule.MetaDateName, rule.MetaDateValue, tagIdsToAdd, tagIdsToRemove);
+                                                                                 rule.MetaDateName, rule.MetaDateStartFromValue, rule.MetaDateEndBeforeValue, tagIdsToAdd, tagIdsToRemove);
                 if (!AssetLifeCycleRuleManager.BuildActionRuleKsqlFromData(rule))
                 {
                     log.ErrorFormat("failed BuildActionRuleKsqlFromData, groupId: {0}, id: {1}, name: {2}", groupId, rule.Id, rule.Name);
