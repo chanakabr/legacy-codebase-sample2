@@ -6721,18 +6721,43 @@ namespace Core.Catalog
                     if (metaType == typeof(DateTime))
                     {
                         leaf.valueType = typeof(long);
-                        GetLeafDate(ref leaf, request.m_dServerTime);
+
+                        if (leaf.value != DBNull.Value && leaf.value != null && Convert.ToString(leaf.value) != string.Empty)
+                        {
+                            GetLeafDate(ref leaf, request.m_dServerTime);
+                        }
+                        else
+                        {
+                            leaf.value = default(DateTime);
+                        }
+
                         leaf.shouldLowercase = false;
                     }
                     else if (metaType == typeof(double))
                     {
-                        leaf.value = Convert.ToDouble(leaf.value);
+                        if (leaf.value != DBNull.Value && leaf.value != null && Convert.ToString(leaf.value) != string.Empty)
+                        {
+                            leaf.value = Convert.ToDouble(leaf.value);
+                        }
+                        else
+                        {
+                            leaf.value = default(double);
+                        }
+
                         leaf.valueType = typeof(double);
                         leaf.shouldLowercase = false;
                     }
                     else if (metaType == typeof(int) || metaType == typeof(long))
                     {
-                        leaf.value = Convert.ToInt64(leaf.value);
+                        if (leaf.value != DBNull.Value && leaf.value != null && Convert.ToString(leaf.value) != string.Empty)
+                        {
+                            leaf.value = Convert.ToInt64(leaf.value);
+                        }
+                        else
+                        {
+                            leaf.value = default(long);
+                        }
+
                         leaf.valueType = typeof(long);
                         leaf.shouldLowercase = false;
                     }
