@@ -386,18 +386,73 @@ namespace Core.Api.Managers
                         }
                     }
 
-                    // Validate that date nodes actually exist - there should be two
+                    // Validate that date nodes actually exist - there should be one or two
                     // Second and third nodes should be LEAFs as well, looking like: cycledate<'-2days'
                     if (nodes.Count > 1)
                     {
-                        var secondNode = nodes[1] as BooleanLeaf;
-
-                        if (secondNode != null)
+                        if (nodes[1] is BooleanLeaf)
                         {
-                            rule.MetaDateName = secondNode.field;                            
-                            rule.MetaDateStartFromValue = GetMetaDateValueFromKsqlValueInSeconds(Math.Abs(Convert.ToInt64(secondNode.value)), rule.TransitionIntervalUnits);
-                            result = true;
+                            var secondNode = nodes[1] as BooleanLeaf;
+
+                            if (secondNode != null)
+                            {
+                                rule.MetaDateName = secondNode.field;
+                                rule.MetaDateToValue = GetMetaDateValueFromKsqlValueInSeconds(Math.Abs(Convert.ToInt64(secondNode.value)), rule.TransitionIntervalUnits);
+                                result = true;
+                            }
                         }
+                        // If, by any chance, the second node is a phrase which should be like (and date<'x' date>'y')
+                        else if (nodes[1] is BooleanPhrase)
+                        {
+                            var secondNode = nodes[1] as BooleanPhrase;
+
+                            if (secondNode != null)
+                            {
+                                if (secondNode.nodes != null && secondNode.nodes.Count > 0)
+                                {
+                                    var firstDateNode = secondNode.nodes[0] as BooleanLeaf;
+
+                                    if (firstDateNode != null)
+                                    {
+                                        rule.MetaDateName = firstDateNode.field;
+                                        rule.MetaDateToValue =
+                                            GetMetaDateValueFromKsqlValueInSeconds(
+                                                Math.Abs(Convert.ToInt64(firstDateNode.value)),
+                                                rule.TransitionIntervalUnits);
+                                        result = true;
+                                    }
+
+                                    // if there is a second child in the second node, it means we have a "cycledate >'date' node as well)
+                                    if (secondNode.nodes.Count > 1)
+                                    {
+                                        var secondDateNode = secondNode.nodes[1] as BooleanLeaf;
+
+                                        if (secondDateNode != null)
+                                        {
+                                            rule.MetaDateFromValue =
+                                                GetMetaDateValueFromKsqlValueInSeconds(
+                                                    Math.Abs(Convert.ToInt64(secondDateNode.value)),
+                                                    rule.TransitionIntervalUnits);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Optional - third node
+                    if (nodes.Count > 2)
+                    {
+                        if (nodes[2] is BooleanLeaf)
+                        {
+                            var thirdNode = nodes[2] as BooleanLeaf;
+
+                            if (thirdNode != null)
+                            {
+                                rule.MetaDateFromValue = GetMetaDateValueFromKsqlValueInSeconds(Math.Abs(Convert.ToInt64(thirdNode.value)), rule.TransitionIntervalUnits);
+                            }
+                        }
+
                     }
                 }
             }
@@ -409,10 +464,11 @@ namespace Core.Api.Managers
         {
             bool result = false;
 
-            if (rule.FilterTagType != null && !string.IsNullOrEmpty(rule.FilterTagType.value) && rule.FilterTagValues != null && rule.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(rule.MetaDateName) && rule.MetaDateStartFromValue >= 0)
+            if (rule.FilterTagType != null && !string.IsNullOrEmpty(rule.FilterTagType.value) && rule.FilterTagValues != null && rule.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(rule.MetaDateName) && rule.MetaDateToValue >= 0)
             {
-                long date = -1 * (GetKsqlMetaDateValue(rule.MetaDateStartFromValue, rule.TransitionIntervalUnits));
-                StringBuilder builder = new StringBuilder();
+                long firstDate = -1 * (GetKsqlMetaDateValue(rule.MetaDateToValue, rule.TransitionIntervalUnits));
+                StringBuilder tagsBuilder = new StringBuilder();
+
                 if (rule.FilterTagValues == null || rule.FilterTagValues.Count == 0)
                 {
                     return result;
@@ -420,18 +476,37 @@ namespace Core.Api.Managers
 
                 foreach (var tagValue in rule.FilterTagValues)
                 {
-                    builder.AppendFormat("{0}='{1}' ", rule.FilterTagType.value, tagValue);
+                    tagsBuilder.AppendFormat("{0}='{1}' ", rule.FilterTagType.value, tagValue);
                 }
 
-                rule.KsqlFilter = string.Format("(and ({0} {1}) {2}<'{3}')",
+                StringBuilder finalBuilder = new StringBuilder();
+
+                finalBuilder.AppendFormat("(and ({0} {1}) {2}<'{3}'",
                     // 0
                     rule.FilterTagOperand.ToString().ToLower(),
                     // 1
-                    builder.ToString(),
+                    tagsBuilder.ToString(),
                     // 3
                     rule.MetaDateName,
                     // 4
-                    date);
+                    firstDate);
+
+                // Optional - second date - which is "from"
+                if (rule.MetaDateFromValue > 0)
+                {
+                    long secondDate = -1 * (GetKsqlMetaDateValue(rule.MetaDateFromValue, rule.TransitionIntervalUnits));
+
+                    finalBuilder.AppendFormat("{0}>'{1}')",
+                        rule.MetaDateName,
+                        secondDate);
+                }
+                else
+                {
+                    // no second date - close the parenthesis
+                    finalBuilder.Append(")");
+                }
+
+                rule.KsqlFilter = finalBuilder.ToString();
 
                 result = true;
             }

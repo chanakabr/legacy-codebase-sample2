@@ -13,8 +13,8 @@ namespace ApiObjects.AssetLifeCycleRules
         public List<string> FilterTagValues { get; set; } // from Tvinci.dbo.tags
         public eCutType FilterTagOperand { get; set; }
         public string MetaDateName { get; set; }
-        public long MetaDateStartFromValue { get; set; }
-        public long MetaDateEndBeforeValue { get; set; }
+        public long MetaDateToValue { get; set; }
+        public long MetaDateFromValue { get; set; }
         public List<string> TagNamesToAdd { get; set; }
         public List<string> TagNamesToRemove { get; set; }
 
@@ -24,8 +24,8 @@ namespace ApiObjects.AssetLifeCycleRules
             this.FilterTagType = new KeyValuePair(string.Empty, string.Empty);
             this.FilterTagValues = new List<string>();
             this.MetaDateName = string.Empty;
-            this.MetaDateStartFromValue = 0;
-            this.MetaDateEndBeforeValue = 0;
+            this.MetaDateToValue = 0;
+            this.MetaDateFromValue = 0;
             this.TagNamesToAdd = new List<string>();
             this.TagNamesToRemove = new List<string>();
         }
@@ -36,8 +36,8 @@ namespace ApiObjects.AssetLifeCycleRules
             this.FilterTagType = new KeyValuePair(string.Empty, string.Empty);
             this.FilterTagValues = new List<string>();
             this.MetaDateName = string.Empty;
-            this.MetaDateStartFromValue = 0;
-            this.MetaDateEndBeforeValue = 0;
+            this.MetaDateToValue = 0;
+            this.MetaDateFromValue = 0;
             this.TagNamesToAdd = new List<string>();
             this.TagNamesToRemove = new List<string>();
         }
@@ -52,8 +52,8 @@ namespace ApiObjects.AssetLifeCycleRules
             this.FilterTagValues = new List<string>(tagValues);
             this.FilterTagOperand = operand;
             this.MetaDateName = dateMeta;
-            this.MetaDateStartFromValue = dateUpperBoundaryValue;
-            this.MetaDateEndBeforeValue = dateLowerBoundaryValue;
+            this.MetaDateToValue = dateUpperBoundaryValue;
+            this.MetaDateFromValue = dateLowerBoundaryValue;
             this.TagNamesToAdd = new List<string>();
             this.TagNamesToRemove = new List<string>();
         }
