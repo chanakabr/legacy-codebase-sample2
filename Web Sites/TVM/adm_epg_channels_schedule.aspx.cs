@@ -64,13 +64,13 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
             sOldOrderBy = Session["order_by"].ToString();
         CBTableWebEditor<EPGChannelProgrammeObject> theTable = new CBTableWebEditor<EPGChannelProgrammeObject>(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         FillTheTableEditor(ref theTable, sOldOrderBy, startD, startM, startY, endD, endM, endY);
-
+        FillDataTable(ref theTable);
+       
         string sCSVFile = theTable.OpenCSV();
         theTable.Finish();
         theTable = null;
         return sCSVFile;
     }
-
     protected void FillTheTableEditor(ref CBTableWebEditor<EPGChannelProgrammeObject> theTable, string sOrderBy, string startD, string startM, string startY, string endD, string endM, string endY)
     {
         DateTime tStart = DateUtils.GetDateFromStr(startD + "/" + startM + "/" + startY);

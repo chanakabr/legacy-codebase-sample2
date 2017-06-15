@@ -53,9 +53,36 @@
             putError("Problematic date");
         }
     }
-    function create_csv()
-    {
-        RS.Execute("adm_epg_channels_schedule.aspx", "GetTableCSV", callback_create_csv, errorCallback);
+    function create_csv() {
+        try {
+            startD = Number(Trim(document.getElementById("s_day").value));
+            startM = Number(Trim(document.getElementById("s_mounth").value));
+            startY = Number(Trim(document.getElementById("s_year").value));
+            endD = Number(Trim(document.getElementById("s_day_to").value));
+            endM = Number(Trim(document.getElementById("s_mounth_to").value));
+            endY = Number(Trim(document.getElementById("s_year_to").value));
+
+            if (IsNumeric(startD) == false || startD < 0 || startD > 31)
+                return putError("Problematic date");
+            else if (IsNumeric(startM) == false || startM < 1 || startM > 12)
+                return putError("Problematic date1");
+            else if (IsNumeric(startY) == false || startY < 2006)
+                return putError("Problematic date2");
+            else if (IsNumeric(endD) == false || endD < 0 || endD > 31)
+                return putError("Problematic date3");
+            else if (IsNumeric(endM) == false || endM < 1 || endM > 12)
+                return putError("Problematic date4");
+            else if (IsNumeric(endY) == false || endY < 2006)
+                return putError("Problematic date5");
+
+            strStart = startD + "/" + startM + "/" + startY;
+            strEnd = endD + "/" + endM + "/" + endY;
+
+            RS.Execute("adm_epg_channels_schedule.aspx", "GetTableCSV", startD, startM, startY, endD, endM, endY, callback_create_csv, errorCallback);
+        }
+        catch (theEx) {
+            putError("Problematic date");
+        }
     }
 </script>
 </head>
