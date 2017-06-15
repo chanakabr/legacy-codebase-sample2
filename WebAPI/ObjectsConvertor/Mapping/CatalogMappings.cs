@@ -515,14 +515,40 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             foreach (var tag in list)
             {
+                KalturaMultilingualStringValue valueToAdd = null;
+
+                if (tag.Values != null)
+                {
+                    valueToAdd = new KalturaMultilingualStringValue()
+                    {
+                        value = new KalturaMultilingualString(tag.Values)
+                    };
+                }
+                else
+                {
+                    LanguageContainer[] containers = new LanguageContainer[1] 
+                        { 
+                            new LanguageContainer() 
+                            {
+                                m_sLanguageCode3 = WebAPI.Utils.Utils.GetDefaultLanguage(),
+                                m_sValue = tag.Value
+                            } 
+                        };
+
+                    valueToAdd = new KalturaMultilingualStringValue()
+                    {
+                        value = new KalturaMultilingualString(containers)
+                    };
+                }
+
                 if (tags.ContainsKey(tag.Key))
                 {
-                    tags[tag.Key].Objects.Add(new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(tag.Values) });
+                    tags[tag.Key].Objects.Add(valueToAdd);
                 }
                 else
                 {
                     tagsList = new KalturaMultilingualStringValueArray();
-                    tagsList.Objects.Add(new KalturaMultilingualStringValue() { value = new KalturaMultilingualString( tag.Values) });
+                    tagsList.Objects.Add(valueToAdd);
                     tags.Add(tag.Key, tagsList);
                 }
             }
@@ -541,7 +567,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             foreach (var meta in list)
             {
-                metas.Add(meta.Key, new KalturaMultilingualStringValue() { value = new KalturaMultilingualString( meta.Values) });
+                if (meta.Values != null)
+                {
+                    metas.Add(meta.Key, new KalturaMultilingualStringValue()
+                    {
+                        value = new KalturaMultilingualString(meta.Values)
+                    });
+                }
+                else
+                {
+                    LanguageContainer[] containers = new LanguageContainer[1] 
+                    { 
+                        new LanguageContainer() 
+                        {
+                            m_sLanguageCode3 = WebAPI.Utils.Utils.GetDefaultLanguage(),
+                            m_sValue = meta.Value
+                        } 
+                    };
+
+                    metas.Add(meta.Key, new KalturaMultilingualStringValue()
+                    {
+                        value = new KalturaMultilingualString(containers)
+                    });
+                }
             }
 
             return metas;
