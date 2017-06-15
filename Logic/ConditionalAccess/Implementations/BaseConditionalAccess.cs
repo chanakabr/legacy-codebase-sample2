@@ -10189,7 +10189,7 @@ namespace Core.ConditionalAccess
 				}
 
 				// validate parameters
-				if (string.IsNullOrEmpty(sBasicLink) || nMediaFileID <= 0)
+                if ((eLinkType != eObjectType.Recording && string.IsNullOrEmpty(sBasicLink)) || nMediaFileID <= 0)
 				{
 					log.Debug("GetLicensedLinks - " + string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}", sSiteGuid, nMediaFileID, sDeviceName, sBasicLink));
 
@@ -10244,7 +10244,7 @@ namespace Core.ConditionalAccess
 					bool bIsDynamic = Utils.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
 
 					// validate link
-					if (!sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) && !bIsDynamic)
+                    if (eLinkType != eObjectType.Recording && !sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) && !bIsDynamic)
 					{
 						log.Debug("GetLicensedLinks - " + string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}", sSiteGuid, nMediaFileID, sBasicLink));
 						res = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidBaseLink.ToString(), (int)eResponseStatus.InvalidBaseLink, "Invalid base link");
@@ -10274,7 +10274,7 @@ namespace Core.ConditionalAccess
 						log.DebugFormat("Failed to insert cachedEntitlementResults, domainId: {0}, mediaFileId: {1}", domainID, nMediaFileID);
 					}
 
-					if (eLinkType == eObjectType.EPG)
+                    if (eLinkType == eObjectType.EPG || eLinkType != eObjectType.Recording)
 					{
 						res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 						return res;
