@@ -496,7 +496,7 @@ namespace Core.Api.Managers
                 {
                     long secondDate = -1 * (GetKsqlMetaDateValue(rule.MetaDateFromValue, rule.TransitionIntervalUnits));
 
-                    finalBuilder.AppendFormat("{0}>'{1}')",
+                    finalBuilder.AppendFormat(" {0}>'{1}')",
                         rule.MetaDateName,
                         secondDate);
                 }
