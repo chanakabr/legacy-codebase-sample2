@@ -1327,8 +1327,8 @@
               <s:element minOccurs="0" maxOccurs="1" name="FilterTagValues" type="tns:ArrayOfString" />
               <s:element minOccurs="1" maxOccurs="1" name="FilterTagOperand" type="tns:eCutType" />
               <s:element minOccurs="0" maxOccurs="1" name="MetaDateName" type="s:string" />
-              <s:element minOccurs="1" maxOccurs="1" name="MetaDateStartFromValue" type="s:long" />
-              <s:element minOccurs="1" maxOccurs="1" name="MetaDateEndBeforeValue" type="s:long" />
+              <s:element minOccurs="1" maxOccurs="1" name="MetaDateToValue" type="s:long" />
+              <s:element minOccurs="1" maxOccurs="1" name="MetaDateFromValue" type="s:long" />
               <s:element minOccurs="0" maxOccurs="1" name="TagNamesToAdd" type="tns:ArrayOfString" />
               <s:element minOccurs="0" maxOccurs="1" name="TagNamesToRemove" type="tns:ArrayOfString" />
             </s:sequence>

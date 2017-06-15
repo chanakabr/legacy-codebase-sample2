@@ -214,16 +214,17 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         dr_metaDateStartFromValue.setFiledName("MetaDateStartFromValue");
         if (friendlyAssetLifeCycleRule != null)
         {
-            dr_metaDateStartFromValue.SetValue(friendlyAssetLifeCycleRule.MetaDateStartFromValue.ToString());
+            dr_metaDateStartFromValue.SetValue(friendlyAssetLifeCycleRule.MetaDateToValue.ToString());
         }
         theRecord.AddRecord(dr_metaDateStartFromValue);
 
         DataRecordShortIntField dr_metaDateEndBeforeValue = new DataRecordShortIntField(true, 9, 9, 0);
-        dr_metaDateEndBeforeValue.Initialize("Meta Date End Before Value", "adm_table_header_nbg", "FormInput", "", false);        
+        dr_metaDateEndBeforeValue.Initialize("Meta Date End Before Value", "adm_table_header_nbg", "FormInput", "", false);
+        dr_metaDateEndBeforeValue.SetDefault(0);
         dr_metaDateEndBeforeValue.setFiledName("MetaDateEndBeforeValue");
         if (friendlyAssetLifeCycleRule != null)
         {
-            dr_metaDateEndBeforeValue.SetValue(friendlyAssetLifeCycleRule.MetaDateEndBeforeValue.ToString());
+            dr_metaDateEndBeforeValue.SetValue(friendlyAssetLifeCycleRule.MetaDateFromValue.ToString());
         }
         theRecord.AddRecord(dr_metaDateEndBeforeValue);
 
@@ -363,7 +364,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
                                 case "MetaDateStartFromValue":                                    
                                     if (long.TryParse(sVal, out metaDateStartFromValue))
                                     {
-                                        rule.MetaDateStartFromValue = metaDateStartFromValue;
+                                        rule.MetaDateToValue = metaDateStartFromValue;
                                     }
                                     else
                                     {
@@ -372,13 +373,26 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
                                     break;
                                 case "MetaDateEndBeforeValue":
                                     long metaDateEndBeforeValue = 0;
-                                    if (long.TryParse(sVal, out metaDateEndBeforeValue) && metaDateStartFromValue < metaDateEndBeforeValue)
+                                    if (!string.IsNullOrEmpty(sVal))
                                     {
-                                        rule.MetaDateEndBeforeValue = metaDateEndBeforeValue;
-                                    }
-                                    else
-                                    {
-                                        result = false;
+                                        if (long.TryParse(sVal, out metaDateEndBeforeValue))
+                                        {
+                                            if (metaDateEndBeforeValue > 0)
+                                            {
+                                                if (metaDateStartFromValue < metaDateEndBeforeValue)
+                                                {
+                                                    rule.MetaDateFromValue = metaDateEndBeforeValue;
+                                                }
+                                                else
+                                                {
+                                                    result = false;
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            result = false;
+                                        }
                                     }
                                     break;
                                 case "TagNamesToAdd":
