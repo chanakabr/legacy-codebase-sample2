@@ -219,8 +219,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_metaDateStartFromValue);
 
         DataRecordShortIntField dr_metaDateEndBeforeValue = new DataRecordShortIntField(true, 9, 9, 0);
-        dr_metaDateEndBeforeValue.Initialize("Meta Date End Before Value", "adm_table_header_nbg", "FormInput", "", false);
-        dr_metaDateEndBeforeValue.SetDefault(0);
+        dr_metaDateEndBeforeValue.Initialize("Meta Date End Before Value", "adm_table_header_nbg", "FormInput", "", false);        
         dr_metaDateEndBeforeValue.setFiledName("MetaDateEndBeforeValue");
         if (friendlyAssetLifeCycleRule != null)
         {
@@ -273,6 +272,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         string[] values = null;
         AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits = AssetLifeCycleRuleTransitionIntervalUnits.Unknown;
         eCutType operand = eCutType.And;
+        long metaDateStartFromValue = 0;
         try
         {
             rule = new FriendlyAssetLifeCycleRule();
@@ -360,8 +360,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
                                         result = false;
                                     }
                                     break;
-                                case "MetaDateStartFromValue":
-                                    long metaDateStartFromValue = 0;
+                                case "MetaDateStartFromValue":                                    
                                     if (long.TryParse(sVal, out metaDateStartFromValue))
                                     {
                                         rule.MetaDateStartFromValue = metaDateStartFromValue;
@@ -373,7 +372,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
                                     break;
                                 case "MetaDateEndBeforeValue":
                                     long metaDateEndBeforeValue = 0;
-                                    if (long.TryParse(sVal, out metaDateEndBeforeValue))
+                                    if (long.TryParse(sVal, out metaDateEndBeforeValue) && metaDateStartFromValue < metaDateEndBeforeValue)
                                     {
                                         rule.MetaDateEndBeforeValue = metaDateEndBeforeValue;
                                     }
