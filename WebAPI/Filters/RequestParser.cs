@@ -454,18 +454,6 @@ namespace WebAPI.Filters
                                 }
                             }
 
-                            if (string.IsNullOrEmpty((string)HttpContext.Current.Items["playSessionId"]))
-                            {
-                                if (reqParams["playSessionId"] != null)
-                                {
-                                    HttpContext.Current.Items["playSessionId"] = reqParams["playSessionId"];
-                                }
-                                else if (HttpContext.Current.Request.QueryString.Count > 0 && HttpContext.Current.Request.QueryString["playSessionId"] != null)
-                                {
-                                    HttpContext.Current.Items["playSessionId"] = HttpContext.Current.Request.QueryString["playSessionId"];
-                                }
-                            }
-
                             if (reqParams["apiVersion"] != null)
                             {
                                 //For logging and to parse old standard

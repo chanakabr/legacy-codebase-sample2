@@ -133,13 +133,46 @@ namespace WebAPI.Controllers
                     // pass query string params
                     if (response.ToLower().Contains("playmanifest"))
                     {
-                        if (!string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG]))
+                        if (HttpContext.Current.Request.QueryString.Count > 0)
                         {
-                            response = string.Format("{0}?clientTag={1}", response, HttpContext.Current.Items[Constants.CLIENT_TAG]);
+                            string dynamicQueryStringParamsConfiguration = TCMClient.Settings.Instance.GetValue<string>("PlayManifestDynamicQueryStringParamsNames");
+                            
+                            // old fix for passing query string params - not using dynamic configuration
+                            string[] dynamicQueryStringParamsNames;
+                            if (string.IsNullOrEmpty(dynamicQueryStringParamsConfiguration))
+                            {
+                                dynamicQueryStringParamsNames = new string[] { "clientTag", "playSessionId" };
+                            }
+                            else
+                            {
+                                dynamicQueryStringParamsNames = dynamicQueryStringParamsConfiguration.Split(',');
+
+                                foreach (var dynamicParam in dynamicQueryStringParamsNames)
+                                {
+                                    if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[dynamicParam]))
+                                    {
+                                        response = string.Format("{0}{1}{2}={3}", response, response.Contains("?") ? "&" : "?", dynamicParam, HttpContext.Current.Request.QueryString[dynamicParam]);
+                                    }
+                                }
+                            }
                         }
-                        if (!string.IsNullOrEmpty((string)HttpContext.Current.Items["playSessionId"]))
+
+                        // pass headers
+                        if (HttpContext.Current.Request.Headers != null && HttpContext.Current.Request.Headers.Count > 0)
                         {
-                            response = string.Format("{0}{1}playSessionId={2}", response, response.Contains("?") ? "&" : "?", HttpContext.Current.Items["playSessionId"]);
+                            string dynamicHeadersConfiguration = TCMClient.Settings.Instance.GetValue<string>("PlayManifestDynamicHeadersNames");
+                            if (!string.IsNullOrEmpty(dynamicHeadersConfiguration))
+                            {
+                                string[] dynamicHeaders = dynamicHeadersConfiguration.Split(',');
+                                foreach (var dynamicHeader in dynamicHeaders)
+                                {
+                                    var headerValues = HttpContext.Current.Request.Headers.GetValues(dynamicHeader);
+                                    if (headerValues != null && headerValues.Length > 0)
+                                    {
+                                        HttpContext.Current.Response.Headers.Add(dynamicHeader, string.Join(";", headerValues));
+                                    }
+                                }
+                            }
                         }
                     }
 
