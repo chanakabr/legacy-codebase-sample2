@@ -3683,9 +3683,9 @@ namespace Core.Catalog
             BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupID);
             var result = epgBL.GetEpgs(epgIDs);
 
-            var language = new GroupManager().GetGroup(groupID).GetGroupDefaultLanguage();
+            //var language = new GroupManager().GetGroup(groupID).GetGroupDefaultLanguage();
 
-            BaseEpgBL.UpdateProgrammeWithMultilingual(ref result, language);
+            //BaseEpgBL.UpdateProgrammeWithMultilingual(ref result, language);
 
             return result;
         }
