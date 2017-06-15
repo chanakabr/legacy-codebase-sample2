@@ -547,7 +547,7 @@ namespace Core.ConditionalAccess
                 int mediaId = 0;
                 string fileType = string.Empty;
                 LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode,
-                    eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType);
+                    eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType);
 
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || oLicensedLinkResponse.Status == null || oLicensedLinkResponse.Status.Code != (int)eResponseStatus.OK)
