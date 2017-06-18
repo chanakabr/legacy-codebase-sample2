@@ -977,7 +977,15 @@ namespace ElasticsearchTasksCommon
                                         if (!string.IsNullOrEmpty(sMetaName) && !sMeta.StartsWith("date"))
                                         {
                                             string sMetaValue = ODBCWrapper.Utils.GetSafeStr(row[sMeta]);
-                                            media.m_dMeatsValues.Add(sMetaName, sMetaValue);
+
+                                            if (!media.m_dMeatsValues.ContainsKey(sMetaName))
+                                            {
+                                                media.m_dMeatsValues.Add(sMetaName, sMetaValue);
+                                            }
+                                            else
+                                            {
+                                                log.WarnFormat("Duplicate meta found. group Id = {0}, name = {1}, media_id = {2}", nGroupID, sMetaName, media.m_nMediaID);
+                                            }
                                         }
                                     }
                                 }
