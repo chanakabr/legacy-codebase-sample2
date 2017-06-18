@@ -10274,7 +10274,7 @@ namespace Core.ConditionalAccess
 						log.DebugFormat("Failed to insert cachedEntitlementResults, domainId: {0}, mediaFileId: {1}", domainID, nMediaFileID);
 					}
 
-                    if (eLinkType == eObjectType.EPG || eLinkType != eObjectType.Recording)
+                    if (eLinkType == eObjectType.EPG || eLinkType == eObjectType.Recording)
 					{
 						res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 						return res;
