@@ -3644,11 +3644,15 @@ namespace Core.Api
         public static List<string> GetUserStartedWatchingMedias(string siteGuid, int numOfItems, int groupId)
         {
             List<string> medias = new List<string>();
+            string signString = Guid.NewGuid().ToString();
+            string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, GetWSURL("CatalogSignatureKey"));
 
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
             {
                 m_sSiteGuid = siteGuid,
+                m_sSignature = signature,
+                m_sSignString = signString,
                 m_nGroupID = groupId,
                 m_nPageIndex = 0,
                 m_nPageSize = numOfItems,
