@@ -874,6 +874,7 @@ namespace ElasticSearch.Searcher
                     // If it is contains - it is not exact and thus belongs to query
                     if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
                         leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith || leaf.operand == ApiObjects.ComparisonOperator.Phonetic ||
+                        leaf.operand == ApiObjects.ComparisonOperator.Exists || leaf.operand == ApiObjects.ComparisonOperator.NotExists ||
                         leaf.shouldLowercase)
                     {
                         queryNode = leaf;
@@ -915,6 +916,8 @@ namespace ElasticSearch.Searcher
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.WordStartsWith ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Phonetic ||
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Exists ||
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotExists || 
                                     (current as BooleanLeaf).shouldLowercase)
                                 {
                                     queryRoots.Add(node);
