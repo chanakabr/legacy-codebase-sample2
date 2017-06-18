@@ -1525,7 +1525,7 @@ namespace WS_ConditionalAccess
             if (nGroupID != 0)
             {
                 return Core.ConditionalAccess.Module.GetCustomDataID(nGroupID, sSiteGUID, dPrice, sCurrencyCode3,
-                        assetID, sPPVModuleCode, sCouponCode, sCampaignCode, sPaymentMethod, sUserIP, sCountryCd2, sLanguageCode3, sDeviceName, assetType, sOverrideEndDate, sOverrideEndDate);
+                        assetID, sPPVModuleCode, sCampaignCode, sCouponCode, sPaymentMethod, sUserIP, sCountryCd2, sLanguageCode3, sDeviceName, assetType, sOverrideEndDate, sOverrideEndDate);
             }
             else
             {
