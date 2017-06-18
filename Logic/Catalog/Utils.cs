@@ -885,7 +885,15 @@ namespace Core.Catalog
                                     if (!string.IsNullOrEmpty(sMetaName) && sMeta.StartsWith("META"))
                                     {
                                         string sMetaValue = ODBCWrapper.Utils.GetSafeStr(row[sMeta]);
-                                        media.m_dMeatsValues.Add(sMetaName, sMetaValue);
+
+                                        if (!media.m_dMeatsValues.ContainsKey(sMetaName))
+                                        {
+                                            media.m_dMeatsValues.Add(sMetaName, sMetaValue);
+                                        }
+                                        else
+                                        {
+                                            log.WarnFormat("Duplicate meta found. group Id = {0}, name = {1}, media_id = {2}", media.m_nGroupID, sMetaName, media.m_nMediaID);
+                                        }
                                     }
                                 }
                             }
@@ -908,6 +916,10 @@ namespace Core.Catalog
                                     if (!medias[mediaId].m_dMeatsValues.ContainsKey(metaName))
                                     {
                                         medias[mediaId].m_dMeatsValues.Add(metaName, val.ToString("yyyyMMddHHmmss"));
+                                    }
+                                    else
+                                    {
+                                        log.WarnFormat("Duplicate meta found. group Id = {0}, name = {1}, media_id = {2}", media.m_nGroupID, metaName, media.m_nMediaID);
                                     }
                                 }
                                 catch
