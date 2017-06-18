@@ -392,6 +392,9 @@ namespace Core.Users
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("coguid", "=", coGuid);
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", GroupId);
+
+            selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+            
             if (selectQuery.Execute("query", true) != null)
             {
                 int count = selectQuery.Table("query").DefaultView.Count;
