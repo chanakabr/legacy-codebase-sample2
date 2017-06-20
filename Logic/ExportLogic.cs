@@ -669,7 +669,6 @@ namespace APILogic
             };
 
             Core.ConditionalAccess.Utils.FillCatalogSignature(request);            
-
             assetsResponse = request.GetResponse(request) as AssetInfoResponse;
 
             if (assetsResponse != null)
@@ -692,6 +691,7 @@ namespace APILogic
                 m_oFilter = new Filter()
             };
 
+            Core.ConditionalAccess.Utils.FillCatalogSignature(request);  
             assetsResponse = request.GetResponse(request) as AssetInfoResponse;
 
             if (assetsResponse != null)
