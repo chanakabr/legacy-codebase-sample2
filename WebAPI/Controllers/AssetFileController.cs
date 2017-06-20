@@ -136,7 +136,7 @@ namespace WebAPI.Controllers
                         if (HttpContext.Current.Request.QueryString.Count > 0)
                         {
                             string dynamicQueryStringParamsConfiguration = TCMClient.Settings.Instance.GetValue<string>("PlayManifestDynamicQueryStringParamsNames");
-                            
+
                             // old fix for passing query string params - not using dynamic configuration
                             string[] dynamicQueryStringParamsNames;
                             if (string.IsNullOrEmpty(dynamicQueryStringParamsConfiguration))
@@ -152,24 +152,6 @@ namespace WebAPI.Controllers
                                     if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[dynamicParam]))
                                     {
                                         response = string.Format("{0}{1}{2}={3}", response, response.Contains("?") ? "&" : "?", dynamicParam, HttpContext.Current.Request.QueryString[dynamicParam]);
-                                    }
-                                }
-                            }
-                        }
-
-                        // pass headers
-                        if (HttpContext.Current.Request.Headers != null && HttpContext.Current.Request.Headers.Count > 0)
-                        {
-                            string dynamicHeadersConfiguration = TCMClient.Settings.Instance.GetValue<string>("PlayManifestDynamicHeadersNames");
-                            if (!string.IsNullOrEmpty(dynamicHeadersConfiguration))
-                            {
-                                string[] dynamicHeaders = dynamicHeadersConfiguration.Split(',');
-                                foreach (var dynamicHeader in dynamicHeaders)
-                                {
-                                    var headerValues = HttpContext.Current.Request.Headers.GetValues(dynamicHeader);
-                                    if (headerValues != null && headerValues.Length > 0)
-                                    {
-                                        HttpContext.Current.Response.Headers.Add(dynamicHeader, string.Join(";", headerValues));
                                     }
                                 }
                             }
