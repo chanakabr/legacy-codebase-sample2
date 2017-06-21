@@ -722,7 +722,7 @@ namespace TVinciShared
                     bool bAllowedIP = false;
 
                     ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                    selectQuery.SetCachedSec(3600);
+                    selectQuery.SetCachedSec(0);
                     selectQuery += "select * from groups_ips(nolock) where ADMIN_OPEN=1 and status=1 and is_active=1 and (end_date is null or end_date>getdate()) and ";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
                     selectQuery += "and";
