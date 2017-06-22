@@ -534,6 +534,12 @@ namespace Core.Users
                 return resp;
             }
 
+            if (!string.IsNullOrEmpty(oBasicData.m_CoGuid) && UsersDal.GetUserIDByExternalId(m_nGroupID, oBasicData.m_CoGuid) > 0)
+            {
+                resp.Initialize(ResponseStatus.ExternalIdAlreadyExists, u);
+                return resp;
+            }
+
             if (!Utils.SetPassword(sPassword, ref oBasicData, m_nGroupID))
             {
                 resp.Initialize(ResponseStatus.WrongPasswordOrUserName, u);
@@ -1150,7 +1156,7 @@ namespace Core.Users
                     return resp;
                 }
 
-                if (!string.IsNullOrEmpty(u.m_oBasicData.m_CoGuid) && UsersDal.GetUserIDByExternalId(m_nGroupID, u.m_oBasicData.m_CoGuid) > 0)
+                if (!string.IsNullOrEmpty(oBasicData.m_CoGuid) && UsersDal.GetUserIDByExternalId(m_nGroupID, oBasicData.m_CoGuid) > 0)
                 {
                     resp.Initialize(ResponseStatus.ExternalIdAlreadyExists, u);
                     return resp;
