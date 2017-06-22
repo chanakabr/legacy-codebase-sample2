@@ -2154,6 +2154,7 @@ namespace DAL
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUserIDByExternalId");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@externalId", externalId);
             return sp.ExecuteReturnValue<long>();
         }
