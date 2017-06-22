@@ -2149,5 +2149,13 @@ namespace DAL
 
             return null;
         }
+
+        public static long GetUserIDByExternalId(int groupId, string externalId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUserIDByExternalId");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@externalId", externalId);
+            return sp.ExecuteReturnValue<long>();
+        }
     }     
 }
