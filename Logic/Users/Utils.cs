@@ -1292,5 +1292,37 @@ namespace Core.Users
             bool result = DomainDal.SetDrmId(document, drmId);
             return result;
         }
+
+        internal static bool IsServiceAllowed(int groupId, int domainId, eService service)
+        {
+            List<int> enforcedGroupServices = Utils.GetGroupEnforcedServices(groupId);
+            //check if service is part of the group enforced services
+            if (enforcedGroupServices == null || enforcedGroupServices.Count == 0 || !enforcedGroupServices.Contains((int)service))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static List<int> GetGroupEnforcedServices(int groupId)
+        {
+            List<int> services;
+            string key = string.Format("GroupEnforcedServices_{0}", groupId);
+            if (!DomainsCache.GetItem<List<int>>(key, out services))
+            {
+                log.DebugFormat("Failed getting GroupEnforcedServices from cache, key: {0}", key);
+                services = Tvinci.Core.DAL.CatalogDAL.GetGroupServices(groupId);
+                if (services == null)
+                {
+                    log.ErrorFormat("Failed CatalogDAL.GetGroupServices for groupID: {0}", groupId);
+                }
+                else if (!DomainsCache.AddItem(key, services))
+                {
+                    log.ErrorFormat("Failed inserting GroupEnforcedServices to cache, key: {0}", key);
+                }
+            }
+
+            return services;
+        }
     }
 }
