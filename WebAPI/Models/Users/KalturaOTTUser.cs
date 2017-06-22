@@ -129,7 +129,6 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "externalId")]
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
-        [SchemeProperty(InsertOnly = true)]
         [OldStandardProperty("external_id")]
         public string ExternalId { get; set; }
 

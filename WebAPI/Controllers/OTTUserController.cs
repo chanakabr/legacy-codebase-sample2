@@ -239,6 +239,7 @@ namespace WebAPI.Controllers
         [OldStandardAction("add")]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.UserExists)]
+        [Throws(eResponseStatus.ExternalIdAlreadyExists)]
         public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
         {
             KalturaOTTUser response = null;
@@ -584,6 +585,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserExists)]
+        [Throws(eResponseStatus.ExternalIdAlreadyExists)]
         public KalturaOTTUser Update(KalturaOTTUser user)
         {
             KalturaOTTUser response = null;

@@ -88,6 +88,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType DEFAULT_USER_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.DefaultUserCannotBeDeleted, "Default User Cannot Be Deleted", "Unable to delete the default household user");
         public static ClientExceptionType EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.ExclusiveMasterUserCannotBeDeleted, "Exclusive Master User Cannot Be Deleted", "The exclusive household master user can't be deleted");
         public static ClientExceptionType ITEM_NOT_FOUND = new ClientExceptionType(eResponseStatus.ItemNotFound, "Item Not Found", "Unable to find the item you requested");
+        public static ClientExceptionType EXTERNAL_ID_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.ExternalIdAlreadyExists, "External ID already exists", "The external ID you are trying to add / update already exists");
 
         // CAS Section 3000 - 3999
         public static ClientExceptionType INVALID_PURCHASE = new ClientExceptionType(eResponseStatus.InvalidPurchase, "Invalid Purchase", "Unable to complete the purchase of the item requested");
