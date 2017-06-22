@@ -687,6 +687,9 @@ namespace Core.Users
                 case ResponseStatus.LoginServerDown:
                     result = eResponseStatus.LoginServerDown;
                     break;
+                case ResponseStatus.ExternalIdAlreadyExists:
+                    result = eResponseStatus.ExternalIdAlreadyExists;
+                    break;
                 default:
                     result = eResponseStatus.Error;
                     break;
@@ -781,6 +784,10 @@ namespace Core.Users
                 case ResponseStatus.LoginServerDown:
                     result.Message = "Login server down";
                     result.Code = (int)eResponseStatus.LoginServerDown;
+                    break;
+                case ResponseStatus.ExternalIdAlreadyExists:
+                    result.Message = "External ID already exists";
+                    result.Code = (int)eResponseStatus.ExternalIdAlreadyExists;
                     break;
                 default:
                     result.Code = (int)eResponseStatus.Error;

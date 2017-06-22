@@ -809,7 +809,8 @@ namespace ApiObjects
         InternalError = 999,
         LoginServerDown = 22,
         UserSuspended = 23,
-        UserCreatedWithNoRole = 24
+        UserCreatedWithNoRole = 24,
+        ExternalIdAlreadyExists = 25
     }
 
     public enum SubscriptionPurchaseStatus
