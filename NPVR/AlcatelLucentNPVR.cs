@@ -160,7 +160,7 @@ namespace NPVR
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
                             GetCreateAccountResponse(responseJson, args, res);
-                            log.Debug(string.Format("CreateAccount. Group ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode));
+                            log.Debug(string.Format("CreateAccount. Group ID: {0} , Params Obj: {1} , HTTP Status Code: {2}", groupID, args.ToString(), httpStatusCode));
                         }
                         else
                         {
