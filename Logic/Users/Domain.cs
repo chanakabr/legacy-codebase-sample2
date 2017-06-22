@@ -2781,7 +2781,7 @@ namespace Core.Users
             }
 
             INPVRProvider npvr;
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr) && Utils.IsServiceAllowed(m_nGroupID, m_nDomainID, eService.NPVR))
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr) && npvr.SynchronizeNpvrWithDomain && Utils.IsServiceAllowed(m_nGroupID, m_nDomainID, eService.NPVR))
             {
 
                 if (npvr != null)
