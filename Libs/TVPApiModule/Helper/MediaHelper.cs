@@ -1201,84 +1201,96 @@ namespace TVPApi
             return ret;
         }
 
-        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetMediaExternalSearchList(InitializationObject initObj, string user, string pass, string query, int pageSize, int pageIndex, int groupID, OrderBy orderBy, int[] reqMediaTypes = null, List<string> with = null)
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId 
+            GetMediaExternalSearchList(InitializationObject initObj, string user, string pass, string query, int pageSize, int pageIndex, int groupID, OrderBy orderBy, int[] reqMediaTypes = null, List<string> with = null)
         {
-            List<BaseObject> mediaInfo;
+            List<AssetInfo> mediaInfo;
 
-            APIExternalSearchMediaLoader externalRelatedLoader = new APIExternalSearchMediaLoader(query, user, pass)
+            APIExternalSearchMediaLoader externalRelatedLoader = new TVPApiModule.CatalogLoaders.APIExternalSearchMediaLoader(
+                    query,
+                    reqMediaTypes != null ? reqMediaTypes.ToList() : new List<int>(),
+                    SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByGroupID(groupID).BaseGroupID,
+                    groupID,
+                    initObj.Platform.ToString(),
+                    SiteHelper.GetClientIP(),
+                    pageSize,
+                    pageIndex)
+                {
+                    DeviceId = initObj.UDID,
+                    OnlyActiveMedia = true,
+                    Platform = initObj.Platform.ToString(),
+                    Culture = initObj.Locale.LocaleLanguage,
+                    SiteGuid = initObj.SiteGuid,
+                    DomainId = initObj.DomainID,
+                    With = with
+                };
+            TVPApiModule.Objects.Responses.UnifiedSearchResponse res = externalRelatedLoader.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+            TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId()
             {
-                GroupID = groupID,
-                Platform = initObj.Platform,
-                WithInfo = true,
-                PageSize = pageSize,
-                PageIndex = pageIndex,
-                IsPosterPic = false,
-                DeviceUDID = initObj.UDID,
-                MediaTypes = reqMediaTypes,
-                Language = initObj.Locale.LocaleLanguage,
-                SiteGuid = initObj.SiteGuid,
-                DomainID = initObj.DomainID,
-                With = with
+                Assets = res.Assets,
+                RequestId = externalRelatedLoader.RequestId,
+                Status = externalRelatedLoader.Status,
+                TotalItems = externalRelatedLoader.TotalResults
             };
-            mediaInfo = externalRelatedLoader.Execute();            
 
-            bool shouldAddFiles = false;
-            bool shouldAddImages = false;
-            List<AssetStatsResult> mediaAssetsStats = null;
-            Dictionary<string, AssetStatsResult> mediaAssetsStatsDic = new Dictionary<string,AssetStatsResult>();
+            return ret;
+            //bool shouldAddFiles = false;
+            //bool shouldAddImages = false;
+            //List<AssetStatsResult> mediaAssetsStats = null;
+            //Dictionary<string, AssetStatsResult> mediaAssetsStatsDic = new Dictionary<string, AssetStatsResult>();
 
-            if (externalRelatedLoader.With != null)
-            {
-                if (externalRelatedLoader.With.Contains("stats")) // if stats are required - gets the stats from Catalog
-                {
-                    if (mediaInfo != null && mediaInfo.Count > 0)
-                    {
-                        mediaAssetsStats = new TVPPro.SiteManager.CatalogLoaders.AssetStatsLoader(groupID, SiteHelper.GetClientIP(), 0, 0, mediaInfo.Select(m => int.Parse(m.AssetId)).ToList(),
-                            StatsType.MEDIA, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
+            //if (externalRelatedLoader.With != null)
+            //{
+            //    if (externalRelatedLoader.With.Contains("stats")) // if stats are required - gets the stats from Catalog
+            //    {
+            //        if (mediaInfo != null && mediaInfo.Count > 0)
+            //        {
+            //            mediaAssetsStats = new TVPPro.SiteManager.CatalogLoaders.AssetStatsLoader(groupID, SiteHelper.GetClientIP(), 0, 0, mediaInfo.Select(m => int.Parse(m.AssetId)).ToList(),
+            //                StatsType.MEDIA, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
 
-                        foreach (var stat in mediaAssetsStats)
-                        {
-                            if (!mediaAssetsStatsDic.ContainsKey(stat.m_nAssetID.ToString()))
-                                mediaAssetsStatsDic.Add(stat.m_nAssetID.ToString(), stat);
-                        }
-                    }                    
-                }
-                if (externalRelatedLoader.With.Contains("files"))
-                {
-                    shouldAddFiles = true;
-                }
-                if (externalRelatedLoader.With.Contains("images")) 
-                {
-                    shouldAddImages = true;
-                }
-            }
+            //            foreach (var stat in mediaAssetsStats)
+            //            {
+            //                if (!mediaAssetsStatsDic.ContainsKey(stat.m_nAssetID.ToString()))
+            //                    mediaAssetsStatsDic.Add(stat.m_nAssetID.ToString(), stat);
+            //            }
+            //        }
+            //    }
+            //    if (externalRelatedLoader.With.Contains("files"))
+            //    {
+            //        shouldAddFiles = true;
+            //    }
+            //    if (externalRelatedLoader.With.Contains("images"))
+            //    {
+            //        shouldAddImages = true;
+            //    }
+            //}
 
-            TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
+            //TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
 
-            try
-            {
-                List<MediaObj> mediaList = mediaInfo.Cast<MediaObj>().ToList();
-                               
-                ret.TotalItems = externalRelatedLoader.TotalResults;
-                ret.Assets = mediaList.Select(m => new AssetInfo(m,
-                                                                mediaAssetsStatsDic.ContainsKey(m.AssetId) ? mediaAssetsStatsDic[m.AssetId] : null, 
-                                                                shouldAddFiles)).ToList();
+            //try
+            //{
+            //    List<MediaObj> mediaList = mediaInfo.Cast<MediaObj>().ToList();
 
-                ret.RequestId = externalRelatedLoader.RequestId;
-                ret.Status = new TVPApiModule.Objects.Responses.Status();
-                ret.Status.Code = externalRelatedLoader.Status.Code;
-                ret.Status.Message = externalRelatedLoader.Status.Message;
-                if (!shouldAddImages)
-                    ret.Assets.ForEach(m => m.Images = null);
+            //    ret.TotalItems = externalRelatedLoader.TotalResults;
+            //    ret.Assets = mediaList.Select(m => new AssetInfo(m,
+            //                                                    mediaAssetsStatsDic.ContainsKey(m.AssetId) ? mediaAssetsStatsDic[m.AssetId] : null,
+            //                                                    shouldAddFiles)).ToList();
 
-                return ret;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            //    ret.RequestId = externalRelatedLoader.RequestId;
+            //    ret.Status = new TVPApiModule.Objects.Responses.Status();
+            //    ret.Status.Code = externalRelatedLoader.Status.Code;
+            //    ret.Status.Message = externalRelatedLoader.Status.Message;
+            //    if (!shouldAddImages)
+            //        ret.Assets.ForEach(m => m.Images = null);
 
-            return ret;            
+            //    return ret;
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw;
+            //}
+
+            //return ret;            
         }
 
         //Get User Items (favorites, Purchases, Packages)
