@@ -19,9 +19,13 @@ namespace Core.Catalog.Response
         [DataMember]
         public string RequestId;
 
+        [DataMember]
+        public List<UnifiedSearchResult> assetIds;
+
         public MediaIdsStatusResponse() : base()
         {
             Status = new ApiObjects.Response.Status();
+            assetIds = new List<UnifiedSearchResult>();
         }
     }
 }
