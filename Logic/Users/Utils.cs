@@ -792,8 +792,8 @@ namespace Core.Users
                 case ResponseStatus.ExternalError:
                     if (externalCode > 0 && !string.IsNullOrEmpty(externalMessage))
                     {
-                        result.Code = (int)eResponseStatus.Error;
-                        result.Message = "Error";
+                        result.Code = (int)eResponseStatus.UserExternalError;
+                        result.Message = "User External Error";                        
                     }
                     else
                     {
