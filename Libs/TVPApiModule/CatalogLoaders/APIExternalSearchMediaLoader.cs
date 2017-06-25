@@ -27,9 +27,6 @@ namespace TVPApiModule.CatalogLoaders
 
         public string Query { get; set; }
         public List<int> MediaTypes { get; set; }
-        public string RequestId { get; set; }
-        public TVPApiModule.Objects.Responses.Status Status { get; set; }
-        public int TotalResults { get; set; }
         public List<string> With { get; set; }
 
         public string Culture
@@ -94,13 +91,6 @@ namespace TVPApiModule.CatalogLoaders
                 Log("Got:", m_oResponse);
                 response = (TVPApiModule.Objects.Responses.UnifiedSearchResponse)Process();
             }
-
-            if (response != null)
-            {
-                this.RequestId = response.RequestId;
-                this.Status = new TVPApiModule.Objects.Responses.Status() { Code = response.Status.Code, Message = response.Status.Message };
-                this.TotalResults = response.TotalItems;
-            }
             return response;
         }
 
@@ -135,7 +125,6 @@ namespace TVPApiModule.CatalogLoaders
             result = new Objects.Responses.UnifiedSearchResponse();
             result.Status = new Objects.Responses.Status((int)response.Status.Code, response.Status.Message);
             result.TotalItems = response.m_nTotalItems;
-            // also add the request identifier to the reqsposne
             result.RequestId = response.RequestId;
 
             if (response.assetIds != null && response.assetIds.Count > 0)
