@@ -105,7 +105,7 @@ namespace Core.Catalog.Request
                         searcher.FillUpdateDates(mediaSearchRequest.m_nGroupID, allRecommendations, ref totalItems, mediaSearchRequest.m_nPageSize, mediaSearchRequest.m_nPageIndex);
 
                 mediaResponse.m_nTotalItems = totalItems;
-                mediaResponse.m_nMediaIds = searchResultsList.Select(result => new SearchResult() { assetID = int.Parse(result.AssetId), UpdateDate = result.m_dUpdateDate }).ToList();
+                mediaResponse.assetIds = searchResultsList;
 
                 return mediaResponse;
             }
