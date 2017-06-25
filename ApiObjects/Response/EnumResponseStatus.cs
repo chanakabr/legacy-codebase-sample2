@@ -84,7 +84,7 @@ namespace ApiObjects.Response
         NoUserInterestToInsert = 2035,
         MetaIdRequired = 2036,
         MetaValueRequired = 2037,
-        TopicNotFound = 2038,         
+        TopicNotFound = 2038,
         ParentDuplicateAssociation = 2039,
         MetaNotAUserinterest = 2040,
         ParentIdShouldNotPointToItself = 2041,
@@ -99,6 +99,7 @@ namespace ApiObjects.Response
         ParentTopicShouldNotHaveValue = 2051,
         ParentTopicMetaIdNotEqualToMetaParentMetaID = 2052,
         ParentTopicValueIsMissing = 2053,
+        UserExternalError = 2055,
 
 
         // CAS Section 3000 - 3999
@@ -334,7 +335,7 @@ namespace ApiObjects.Response
         EngagementIllegalSendTime = 8035,
         FutureScheduledEngagementDetected = 8036,
         EngagementTemplateNotFound = 8037,
-        EngagementScheduleWithoutAdapter = 8038,        
+        EngagementScheduleWithoutAdapter = 8038,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,
@@ -375,6 +376,6 @@ namespace ApiObjects.Response
         ItemAlreadyExist = 12005,
         Registered = 12006,
         VersionNotFound = 12007,
-        AlreadyExist = 12008
+        AlreadyExist = 12008        
     }
 }

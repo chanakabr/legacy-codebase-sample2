@@ -12,11 +12,13 @@ namespace Core.Users
         public void Initialize(ResponseStatus theStatus, User u)
         {
             m_RespStatus = theStatus;
-            m_user = u;           
+            m_user = u;
         }
 
         public ResponseStatus m_RespStatus;
         public User m_user;
-        public string m_userInstanceID;      
+        public string m_userInstanceID;
+        public int ExternalCode { get; set; }
+        public string ExternalMessage { get; set; }
     }
 }

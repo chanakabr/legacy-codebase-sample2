@@ -696,7 +696,7 @@ namespace Core.Users
         }
 
 
-        public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus status, bool isLogin = false)
+        public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus status, bool isLogin = false, int externalCode = 0, string externalMessage = null)
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status();
 
@@ -781,6 +781,18 @@ namespace Core.Users
                 case ResponseStatus.LoginServerDown:
                     result.Message = "Login server down";
                     result.Code = (int)eResponseStatus.LoginServerDown;
+                    break;
+                case ResponseStatus.ExternalError:
+                    if (externalCode > 0 && !string.IsNullOrEmpty(externalMessage))
+                    {
+                        result.Code = (int)eResponseStatus.Error;
+                        result.Message = "Error";
+                    }
+                    else
+                    {
+                        result.Code = (int)eResponseStatus.Error;
+                        result.Message = "Error";
+                    }
                     break;
                 default:
                     result.Code = (int)eResponseStatus.Error;

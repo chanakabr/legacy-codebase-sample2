@@ -1467,7 +1467,7 @@ namespace Core.Users
                 if (response.user != null)
                 {
                     // convert response status
-                    response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus, true);
+                    response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus, true, response.user.ExternalCode, response.user.ExternalMessage);
                     int userID;
 
                     if (response.resp.Code == (int)ApiObjects.Response.eResponseStatus.OK && int.TryParse(response.user.m_user.m_sSiteGUID, out userID) && userID > 0)
