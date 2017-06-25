@@ -1302,17 +1302,6 @@ namespace Core.Users
 
         internal static bool IsServiceAllowed(int groupId, int domainId, eService service)
         {
-            List<int> enforcedGroupServices = Utils.GetGroupEnforcedServices(groupId);
-            //check if service is part of the group enforced services
-            if (enforcedGroupServices == null || enforcedGroupServices.Count == 0 || !enforcedGroupServices.Contains((int)service))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private static List<int> GetGroupEnforcedServices(int groupId)
-        {
             List<int> services;
             string key = string.Format("GroupEnforcedServices_{0}", groupId);
             if (!DomainsCache.GetItem<List<int>>(key, out services))
@@ -1328,8 +1317,14 @@ namespace Core.Users
                     log.ErrorFormat("Failed inserting GroupEnforcedServices to cache, key: {0}", key);
                 }
             }
-
-            return services;
+            //check if service is part of the group enforced services
+            if (services == null || services.Count == 0 || !services.Contains((int)service))
+            {
+                return true;
+            }
+            return false;
         }
+
+       
     }
 }
