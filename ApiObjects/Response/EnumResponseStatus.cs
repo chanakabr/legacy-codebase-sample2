@@ -99,7 +99,8 @@ namespace ApiObjects.Response
         ParentTopicShouldNotHaveValue = 2051,
         ParentTopicMetaIdNotEqualToMetaParentMetaID = 2052,
         ParentTopicValueIsMissing = 2053,
-        UserExternalError = 2055,
+        ExternalIdAlreadyExists = 2054,
+        UserExternalError = 2055,        
 
 
         // CAS Section 3000 - 3999

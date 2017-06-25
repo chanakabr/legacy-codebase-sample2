@@ -534,6 +534,12 @@ namespace Core.Users
                 return resp;
             }
 
+            if (!string.IsNullOrEmpty(oBasicData.m_CoGuid) && UsersDal.GetUserIDByExternalId(m_nGroupID, oBasicData.m_CoGuid) > 0)
+            {
+                resp.Initialize(ResponseStatus.ExternalIdAlreadyExists, u);
+                return resp;
+            }
+
             if (!Utils.SetPassword(sPassword, ref oBasicData, m_nGroupID))
             {
                 resp.Initialize(ResponseStatus.WrongPasswordOrUserName, u);
@@ -1136,13 +1142,13 @@ namespace Core.Users
 
                 bool isSubscribeNewsLetter = false;
                 bool isUnSubscribeNewsLeter = false;
-
+                
                 if (string.IsNullOrEmpty(u.m_oBasicData.m_sUserName))
                 {
                     resp.Initialize(ResponseStatus.UserDoesNotExist, null);
                     return resp;
                 }
-
+           
                 int userID = GetUserIDByUserName(oBasicData.m_sUserName);
                 if (userID > 0 && userID != nUserID)
                 {
@@ -1150,6 +1156,11 @@ namespace Core.Users
                     return resp;
                 }
 
+                if (!string.IsNullOrEmpty(oBasicData.m_CoGuid) && UsersDal.GetUserIDByExternalId(m_nGroupID, oBasicData.m_CoGuid) > 0)
+                {
+                    resp.Initialize(ResponseStatus.ExternalIdAlreadyExists, u);
+                    return resp;
+                }
                 if (m_newsLetterImpl != null)
                 {
                     if (sDynamicData != null && u.m_oDynamicData != null)

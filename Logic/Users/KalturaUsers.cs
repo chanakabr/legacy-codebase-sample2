@@ -243,6 +243,18 @@ namespace Core.Users
                 }
             }
 
+            if (!string.IsNullOrEmpty(newUser.m_oBasicData.m_CoGuid) && UsersDal.GetUserIDByExternalId(GroupId, newUser.m_oBasicData.m_CoGuid) > 0)
+            {
+                userResponse.Initialize(ResponseStatus.ExternalIdAlreadyExists, newUser);
+                return userResponse;
+            }
+
+            if (!string.IsNullOrEmpty(newUser.m_oBasicData.m_CoGuid) && UsersDal.GetUserIDByExternalId(GroupId, newUser.m_oBasicData.m_CoGuid) > 0)
+            {
+                userResponse.Initialize(ResponseStatus.ExternalIdAlreadyExists, newUser);
+                return userResponse;
+            }
+
             // save user
             int nUserID = FlowManager.SaveUser(ref userResponse, this, ref basicData, newUser, GroupId, !IsActivationNeeded(basicData), keyValueList);
 

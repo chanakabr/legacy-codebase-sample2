@@ -687,6 +687,9 @@ namespace Core.Users
                 case ResponseStatus.LoginServerDown:
                     result = eResponseStatus.LoginServerDown;
                     break;
+                case ResponseStatus.ExternalIdAlreadyExists:
+                    result = eResponseStatus.ExternalIdAlreadyExists;
+                    break;
                 default:
                     result = eResponseStatus.Error;
                     break;
@@ -781,6 +784,10 @@ namespace Core.Users
                 case ResponseStatus.LoginServerDown:
                     result.Message = "Login server down";
                     result.Code = (int)eResponseStatus.LoginServerDown;
+                    break;
+                case ResponseStatus.ExternalIdAlreadyExists:
+                    result.Message = "External ID already exists";
+                    result.Code = (int)eResponseStatus.ExternalIdAlreadyExists;
                     break;
                 case ResponseStatus.ExternalError:
                     if (externalCode > 0 && !string.IsNullOrEmpty(externalMessage))
@@ -1303,6 +1310,38 @@ namespace Core.Users
             KeyValuePair<string, KeyValuePair<int, string>> document = new KeyValuePair<string, KeyValuePair<int, string>>(drmId, new KeyValuePair<int, string>(domainId, udid));
             bool result = DomainDal.SetDrmId(document, drmId);
             return result;
+        }
+
+        internal static bool IsServiceAllowed(int groupId, int domainId, eService service)
+        {
+            List<int> enforcedGroupServices = Utils.GetGroupEnforcedServices(groupId);
+            //check if service is part of the group enforced services
+            if (enforcedGroupServices == null || enforcedGroupServices.Count == 0 || !enforcedGroupServices.Contains((int)service))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static List<int> GetGroupEnforcedServices(int groupId)
+        {
+            List<int> services;
+            string key = string.Format("GroupEnforcedServices_{0}", groupId);
+            if (!DomainsCache.GetItem<List<int>>(key, out services))
+            {
+                log.DebugFormat("Failed getting GroupEnforcedServices from cache, key: {0}", key);
+                services = Tvinci.Core.DAL.CatalogDAL.GetGroupServices(groupId);
+                if (services == null)
+                {
+                    log.ErrorFormat("Failed CatalogDAL.GetGroupServices for groupID: {0}", groupId);
+                }
+                else if (!DomainsCache.AddItem(key, services))
+                {
+                    log.ErrorFormat("Failed inserting GroupEnforcedServices to cache, key: {0}", key);
+                }
+            }
+
+            return services;
         }
     }
 }
