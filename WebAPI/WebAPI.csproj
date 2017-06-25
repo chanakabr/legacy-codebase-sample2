@@ -259,6 +259,7 @@
     <Compile Include="EventNotifications\Handlers\KalturaHttpNotification.cs" />
     <Compile Include="EventNotifications\Handlers\RabbitQueueHandler.cs" />
     <Compile Include="EventNotifications\RestNotificationEventConsumer.cs" />
+    <Compile Include="Exceptions\ClientExternalException.cs" />
     <Compile Include="Filters\EventNotificationsConfig.cs" />
     <Compile Include="Handlers\ExtWsPagesHendler.cs" />
     <Compile Include="Managers\CouchbaseManager.cs" />

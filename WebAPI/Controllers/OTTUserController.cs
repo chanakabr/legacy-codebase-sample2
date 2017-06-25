@@ -135,6 +135,10 @@ namespace WebAPI.Controllers
                 // add header. if key exists use extraParams
                 response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extraParams, System.Web.HttpContext.Current.Request.Headers);
             }
+            catch (ClientExternalException ex)
+            {
+                ErrorUtils.HandleClientExternalException(ex);
+            }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
@@ -251,6 +255,10 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.UsersClient().SignUp(partnerId, user, password);
+            }
+            catch (ClientExternalException ex)
+            {
+                ErrorUtils.HandleClientExternalException(ex);
             }
             catch (ClientException ex)
             {

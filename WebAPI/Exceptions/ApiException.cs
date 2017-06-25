@@ -89,6 +89,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.ExclusiveMasterUserCannotBeDeleted, "Exclusive Master User Cannot Be Deleted", "The exclusive household master user can't be deleted");
         public static ClientExceptionType ITEM_NOT_FOUND = new ClientExceptionType(eResponseStatus.ItemNotFound, "Item Not Found", "Unable to find the item you requested");
         public static ClientExceptionType EXTERNAL_ID_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.ExternalIdAlreadyExists, "External ID already exists", "The external ID you are trying to add / update already exists");
+        public static ClientExternalExceptionType USERS_EXTERNAL_ERROR = new ClientExternalExceptionType(StatusCode.ActionArgumentForbidden, "Users returned external error, externalCode: [@externalCode@], externalMessage: [@externalMessage@]", "externalCode", "externalMessage");
 
         // CAS Section 3000 - 3999
         public static ClientExceptionType INVALID_PURCHASE = new ClientExceptionType(eResponseStatus.InvalidPurchase, "Invalid Purchase", "Unable to complete the purchase of the item requested");
@@ -344,6 +345,12 @@ namespace WebAPI.Exceptions
             }
         }
 
+        public class ClientExternalExceptionType : ApiExceptionType
+        {
+            public ClientExternalExceptionType(StatusCode statusCode, string message, params string[] parameters)
+                :base(statusCode, message,parameters) { }
+        }
+
         public class ApiExceptionType : ExceptionType
         {
             public StatusCode? obsoleteStatusCode = null;
@@ -402,6 +409,11 @@ namespace WebAPI.Exceptions
         public ApiException(ClientException ex)
             : this(ex.Code, ex.ExceptionMessage)
         {
+        }
+
+        public ApiException(ApiExceptionType type, ClientExternalException ex)
+            : this(type, ex.ExternalCode, ex.ExternalMessage)
+        {            
         }
 
         public ApiException(ClientException ex, HttpStatusCode httpStatusCode)
