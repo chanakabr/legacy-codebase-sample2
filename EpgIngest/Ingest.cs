@@ -320,27 +320,29 @@ namespace EpgIngest
                                     object baseURl = ODBCWrapper.Utils.GetTableSingleVal("epg_pics", "BASE_URL", nPicID);
                                     if (baseURl != null && baseURl != DBNull.Value)
                                         sPicUrl = baseURl.ToString();
+
+
+                                    //update each epgCB with the picURL + PicID - ONLY FIRST ONE -  all the rest will be in the list 
+                                    if (newEpgItem.PicID == 0)
+                                    {
+                                        newEpgItem.PicID = nPicID;
+                                    }
+                                    if (string.IsNullOrEmpty(newEpgItem.PicUrl))
+                                    {
+                                        newEpgItem.PicUrl = sPicUrl;
+                                    }
+
+                                    if (newEpgItem.pictures.Count(x => x.PicID == nPicID && x.Ratio == icon.ratio) == 0) // this ratio not exsits yet in the list
+                                    {
+                                        epgPicture.Url = sPicUrl;
+                                        epgPicture.PicID = nPicID;
+                                        epgPicture.Ratio = icon.ratio;
+                                        newEpgItem.pictures.Add(epgPicture);
+                                    }
                                 }
                                 else
                                 {
                                     ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.FailedDownloadPic, Message = FAILED_DOWNLOAD_PIC });
-                                }
-                                //update each epgCB with the picURL + PicID - ONLY FIRST ONE -  all the rest will be in the list 
-                                if (newEpgItem.PicID == 0)
-                                {
-                                    newEpgItem.PicID = nPicID;
-                                }
-                                if (string.IsNullOrEmpty(newEpgItem.PicUrl))
-                                {
-                                    newEpgItem.PicUrl = sPicUrl;
-                                }
-
-                                if (newEpgItem.pictures.Count(x => x.PicID == nPicID && x.Ratio == icon.ratio) == 0) // this ratio not exsits yet in the list
-                                {
-                                    epgPicture.Url = sPicUrl;
-                                    epgPicture.PicID = nPicID;
-                                    epgPicture.Ratio = icon.ratio;
-                                    newEpgItem.pictures.Add(epgPicture);
                                 }
                             }
                         }
