@@ -266,6 +266,7 @@ namespace Core.Users
                 m_oBasicData.m_bIsFacebookImagePermitted = oBasicData.m_bIsFacebookImagePermitted;
                 m_oBasicData.m_sFacebookToken = oBasicData.m_sFacebookToken;
                 m_oBasicData.m_UserType = oBasicData.m_UserType;
+                m_oBasicData.m_CoGuid = oBasicData.m_CoGuid;
                 m_oDynamicData = oDynamicData;
             }
 
