@@ -120,6 +120,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ErrorOnInitUser)]
         [Throws(eResponseStatus.UserNotMasterApproved)]
         [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserExternalError)]
         public KalturaLoginResponse Login(int partnerId, string username = null, string password = null, SerializableDictionary<string, KalturaStringValue> extraParams = null,
             string udid = null)
         {
@@ -244,6 +245,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.UserExists)]
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
+        [Throws(eResponseStatus.UserExternalError)]
         public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
         {
             KalturaOTTUser response = null;
