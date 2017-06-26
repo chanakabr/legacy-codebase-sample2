@@ -89,7 +89,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.ExclusiveMasterUserCannotBeDeleted, "Exclusive Master User Cannot Be Deleted", "The exclusive household master user can't be deleted");
         public static ClientExceptionType ITEM_NOT_FOUND = new ClientExceptionType(eResponseStatus.ItemNotFound, "Item Not Found", "Unable to find the item you requested");
         public static ClientExceptionType EXTERNAL_ID_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.ExternalIdAlreadyExists, "External ID already exists", "The external ID you are trying to add / update already exists");
-        public static ClientExternalExceptionType USERS_EXTERNAL_ERROR = new ClientExternalExceptionType(StatusCode.ActionArgumentForbidden, "Users returned external error, externalCode: [@externalCode@], externalMessage: [@externalMessage@]", "externalCode", "externalMessage");
+        public static ClientExternalExceptionType USERS_EXTERNAL_ERROR = new ClientExternalExceptionType(eResponseStatus.UserExternalError, "Users returned external error, externalCode: [@externalCode@], externalMessage: [@externalMessage@]", "externalCode", "externalMessage");
 
         // CAS Section 3000 - 3999
         public static ClientExceptionType INVALID_PURCHASE = new ClientExceptionType(eResponseStatus.InvalidPurchase, "Invalid Purchase", "Unable to complete the purchase of the item requested");
@@ -320,6 +320,12 @@ namespace WebAPI.Exceptions
         [XmlElement(ElementName = "message")]
         new public string Message { get; set; }
 
+        [DataMember(Name = "args")]
+        [JsonProperty("args")]
+        [XmlArray(ElementName = "args")]
+        [XmlArrayItem("item")]
+        new public WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg[] Args { get; set; }
+
         private HttpStatusCode FailureHttpCode;
 
         public class ExceptionType
@@ -345,10 +351,52 @@ namespace WebAPI.Exceptions
             }
         }
 
-        public class ClientExternalExceptionType : ApiExceptionType
-        {
-            public ClientExternalExceptionType(StatusCode statusCode, string message, params string[] parameters)
-                :base(statusCode, message,parameters) { }
+        public class ClientExternalExceptionType : ClientExceptionType
+        {            
+            public string[] parameters;
+            public string message;
+
+            public ClientExternalExceptionType(eResponseStatus statusCode, string message, params string[] parameters)
+                :base(statusCode, message)
+            {
+                this.message = message;
+                this.parameters = parameters;
+            }
+
+            public string Format(params object[] values)
+            {
+                if (parameters == null || parameters.Length == 0)
+                    return message;
+
+                string ret = message;
+                string token;
+                string value;
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    token = string.Format("@{0}@", parameters[i]);
+                    value = values[i] != null ? values[i].ToString() : string.Empty;
+                    ret = ret.Replace(token, value);
+                }
+
+                return ret;
+            }
+
+            public WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg[] CreateArgs(params object[] values)
+            {
+                if (parameters == null || parameters.Length == 0)
+                    return null;
+
+                WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg[] ret = new App_Start.WrappingHandler.KalturaAPIExceptionArg[parameters.Length];
+                string token;
+                string value;
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg args = new App_Start.WrappingHandler.KalturaAPIExceptionArg() { name = parameters[i], value = values[i] != null ? values[i].ToString() : string.Empty };
+                    ret[i] = args;
+                }
+
+                return ret;
+            }
         }
 
         public class ApiExceptionType : ExceptionType
@@ -388,6 +436,23 @@ namespace WebAPI.Exceptions
 
                 return ret;
             }
+
+            public WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg[] CreateArgs(params object[] values)
+            {
+                if (parameters == null || parameters.Length == 0)
+                    return null;
+
+                WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg[] ret = new App_Start.WrappingHandler.KalturaAPIExceptionArg[parameters.Length];
+                string token;
+                string value;
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg args = new App_Start.WrappingHandler.KalturaAPIExceptionArg() { name = parameters[i], value = values[i] != null ? values[i].ToString() : string.Empty };
+                    ret[i] = args;
+                }
+
+                return ret;
+            }
         }
 
         public class ExceptionPayload
@@ -396,9 +461,10 @@ namespace WebAPI.Exceptions
             {
 
             }
-            public int code { get; set; }
+            public int code { get; set; }            
             public HttpError error { get; set; }
             public HttpStatusCode failureHttpCode { get; set; }
+            public WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg[] arguments { get; set; }
         }
 
         public ApiException()
@@ -411,25 +477,25 @@ namespace WebAPI.Exceptions
         {
         }
 
-        public ApiException(ApiExceptionType type, ClientExternalException ex)
+        public ApiException(ClientExternalExceptionType type, ClientExternalException ex)
             : this(type, ex.ExternalCode, ex.ExternalMessage)
         {            
         }
 
         public ApiException(ClientException ex, HttpStatusCode httpStatusCode)
-            : this(ex.Code, ex.ExceptionMessage, httpStatusCode)
+            : this(ex.Code, ex.ExceptionMessage, null, httpStatusCode)
         {
             FailureHttpCode = httpStatusCode;
         }
 
         public ApiException(ApiException ex, HttpStatusCode httpStatusCode)
-            : this(ex.Code, ex.Message, httpStatusCode)
+            : this(ex.Code, ex.Message, null, httpStatusCode)
         {
             FailureHttpCode = httpStatusCode;
         }
 
         public ApiException(Exception ex, HttpStatusCode httpStatusCode)
-            : this((int)eResponseStatus.Error, eResponseStatus.Error.ToString(), httpStatusCode)
+            : this((int)eResponseStatus.Error, eResponseStatus.Error.ToString(), null, httpStatusCode)
         {
             FailureHttpCode = httpStatusCode;
         }
@@ -440,25 +506,32 @@ namespace WebAPI.Exceptions
         }
 
         protected ApiException(ApiExceptionType type, params object[] parameters)
-            : this((int)(OldStandardAttribute.isCurrentRequestOldVersion() && type.obsoleteStatusCode.HasValue ? type.obsoleteStatusCode.Value : type.statusCode), type.Format(parameters))
+            : this((int)(OldStandardAttribute.isCurrentRequestOldVersion() && type.obsoleteStatusCode.HasValue ? type.obsoleteStatusCode.Value : type.statusCode), type.Format(parameters), type.CreateArgs(parameters))
         {
         }
 
-        private ApiException(int code, string message, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
+        protected ApiException(ClientExternalExceptionType type, params object[] parameters)
+            : this((int)type.statusCode, type.Format(parameters), type.CreateArgs(parameters))
+        {
+        }
+
+        private ApiException(int code, string message, WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg[] args = null, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
             : base(new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.OK,
                 Content = new ObjectContent(typeof(ExceptionPayload), new ExceptionPayload()
                 {
-                    error = new HttpError(new Exception(message), true),
+                    error = new HttpError(new Exception(message), true),                    
                     code = code,
-                    failureHttpCode = httpStatusCode
+                    failureHttpCode = httpStatusCode,
+                    arguments = args
                 },
                 new JsonMediaTypeFormatter())
             })
         {
             Code = code;
             Message = message;
+            Args = args;
         }
     }
 }
