@@ -1448,7 +1448,7 @@ namespace Core.Pricing
                        .Where<DataRow>(r => r.Field<string>("tableName") == "CouponGroups").ToDictionary(x=> x.Field<long>("id"), x=>x.Field<string>("code"));
 
                     List<string> missingVerificationPGW = result.AsEnumerable()
-                       .Where<DataRow>(r => r.Field<string>("tableName") == "CouponGroups" && r.Field<long>("id") == 0)
+                       .Where<DataRow>(r => r.Field<string>("tableName") == "ProductCodes" && r.Field<long>("id") == 0)
                         .Select(r => r.Field<string>("code")).ToList<string>();
                     if (missingVerificationPGW.Count() > 0)
                     {
