@@ -125,5 +125,6 @@ namespace WebAPI.Managers.Models
         InvalidUdid = 500060,
         ArgumentsConflictEachOther = 500061,
         UnableToCreateHouseholdForRole = 500062,
+        UserExternalError = 500063
     }
 }
