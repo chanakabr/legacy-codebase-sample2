@@ -51,6 +51,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CanOnlyUpgradeSubscriptionWithHigherPriority)]
         [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce)]
         [Throws(eResponseStatus.CanOnlyUpgradeSubscriptionWithTheSameCurrencyAsCurrentSubscription)]
+        [Throws(eResponseStatus.SubscriptionNotAllowedForUserType)]
         public KalturaTransaction Upgrade(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();
@@ -109,6 +110,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeRecurringSubscriptionInTheSameSubscriptionSet)]
         [Throws(eResponseStatus.CanOnlyDowngradeSubscriptionWithLowerPriority)]
         [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce)]
+        [Throws(eResponseStatus.SubscriptionNotAllowedForUserType)]
         public void Downgrade(KalturaPurchase purchase)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -167,6 +169,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
         [Throws(eResponseStatus.PaymentMethodNotExist)]
         [Throws(eResponseStatus.CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet)]
+        [Throws(eResponseStatus.SubscriptionNotAllowedForUserType)]
         public KalturaTransaction Purchase(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();
