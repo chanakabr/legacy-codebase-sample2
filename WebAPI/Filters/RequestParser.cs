@@ -285,7 +285,8 @@ namespace WebAPI.Filters
             {
                 switch (action)
                 {
-                    case "add":
+                    case "register":
+                    case "add":                    
                         HttpContext.Current.Items[REQUEST_TYPE] = RequestType.INSERT;
                         break;
 
