@@ -586,7 +586,8 @@ namespace WebAPI.Controllers
 
         /// <summary>Update user information      
         /// </summary>
-        /// <param name="user"> UserData Object (include basic and dynamic data)</param>
+        /// <param name="user"> User data (includes basic and dynamic data)</param>
+        /// <param name="id">User ID</param>
         /// <remarks>         User suspended = 2001, User does not exist = 2000
         /// </remarks>
         [Route("update"), HttpPost]
@@ -596,7 +597,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserExists)]
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
-        public KalturaOTTUser Update(KalturaOTTUser user)
+        [SchemeArgument("id", RequiresPermission = true)]
+        public KalturaOTTUser Update(KalturaOTTUser user, string id = null)
         {
             KalturaOTTUser response = null;
 
@@ -604,8 +606,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                // call client
-                response = ClientsManager.UsersClient().SetUserData(groupId, KS.GetFromRequest().UserId, user);
+                if (!string.IsNullOrEmpty(id))
+                {
+                    response = ClientsManager.UsersClient().SetUserData(groupId, id, user);
+                }
+                else
+                {
+                    response = ClientsManager.UsersClient().SetUserData(groupId, KS.GetFromRequest().UserId, user);
+                }
             }
             catch (ClientException ex)
             {
