@@ -219,7 +219,7 @@ namespace WebAPI.Controllers
 
                 if(response is ApiException) 
                 {
-                    response = WrappingHandler.prepareExceptionResponse(((ApiException)response).Code, ((ApiException)response).Message);
+                    response = WrappingHandler.prepareExceptionResponse(((ApiException)response).Code, ((ApiException)response).Message, ((ApiException)response).Args);
                 }
                 responses[i] = response;
             }

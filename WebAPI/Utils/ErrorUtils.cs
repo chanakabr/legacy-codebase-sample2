@@ -31,8 +31,13 @@ namespace WebAPI.Utils
         }
 
         public static void HandleClientException(ClientException ex)
-        {
+        {            
             throw new ApiException(ex);
+        }
+
+        public static void HandleClientExternalException(ClientExternalException ex)
+        {
+            throw new ApiException(ex.ClientExceptionType, ex);
         }
     }
 }

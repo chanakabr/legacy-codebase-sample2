@@ -210,12 +210,12 @@ namespace WebAPI.Utils
                             }
                             else if (item.GetType().IsSubclassOf(typeof(ApiException)))
                             {
-                                list.Add(WrappingHandler.prepareExceptionResponse(((ApiException)item).Code, ((ApiException)item).Message));
+                                list.Add(WrappingHandler.prepareExceptionResponse(((ApiException)item).Code, ((ApiException)item).Message, ((ApiException)item).Args));
                             }
                             else if (item.GetType().IsSubclassOf(typeof(Exception)))
                             {
                                 InternalServerErrorException ex = new InternalServerErrorException();
-                                list.Add(WrappingHandler.prepareExceptionResponse(ex.Code, ex.Message));
+                                list.Add(WrappingHandler.prepareExceptionResponse(ex.Code, ex.Message, ((ApiException)item).Args));
                             }
                             else
                             {

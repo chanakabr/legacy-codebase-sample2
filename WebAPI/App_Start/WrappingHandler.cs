@@ -49,17 +49,16 @@ namespace WebAPI.App_Start
                 return response;
 
             object content = null;
-            string message = "";
+            string message = "";            
             int subCode = (int)StatusCode.OK;
             response.TryGetContentValue(out content);
 
             if (content is ApiException.ExceptionPayload && ((ApiException.ExceptionPayload)content).code != 0)
             {
                 WebAPI.Exceptions.ApiException.ExceptionPayload payload = content as WebAPI.Exceptions.ApiException.ExceptionPayload;
-
                 subCode = payload.code;
-                message = HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
-                content = prepareExceptionResponse(payload.code, message);
+                message = HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);                
+                content = prepareExceptionResponse(payload.code, message, payload.arguments);
                 if (payload.failureHttpCode != System.Net.HttpStatusCode.OK && payload.failureHttpCode != 0)
                 {
                     response.StatusCode = payload.failureHttpCode;
@@ -124,12 +123,25 @@ namespace WebAPI.App_Start
             public string message { get; set; }
 
             [JsonProperty(PropertyName = "args")]
-            public string[] args { get; set; }
+            public KalturaAPIExceptionArg[] args { get; set; }
         }
 
-        public static KalturaAPIExceptionWrapper prepareExceptionResponse(int statusCode, string msg)
+        public class KalturaAPIExceptionArg
         {
-            return new KalturaAPIExceptionWrapper() { error = new KalturaAPIException() { message = msg, code = statusCode.ToString() } };
+            [JsonProperty(PropertyName = "objectType")]
+            [DataMember(Name = "objectType")]
+            public string objectType { get { return this.GetType().Name; } set { } }
+
+            [JsonProperty(PropertyName = "name")]
+            public string name { get; set; }
+
+            [JsonProperty(PropertyName = "value")]
+            public string value { get; set; }
+        }
+
+        public static KalturaAPIExceptionWrapper prepareExceptionResponse(int statusCode, string msg, KalturaAPIExceptionArg[] arguments = null)
+        {
+            return new KalturaAPIExceptionWrapper() { error = new KalturaAPIException() { message = msg, code = statusCode.ToString(), args = arguments } };
         }
 
         public static string HandleError(string errorMsg, string stack)

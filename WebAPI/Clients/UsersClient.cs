@@ -62,7 +62,14 @@ namespace WebAPI.Clients
 
             if (response.resp.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.resp.Code, response.resp.Message);
+                if (response.resp.Code == (int)eResponseStatus.UserExternalError)
+                {
+                    throw new ClientExternalException(ApiException.USERS_EXTERNAL_ERROR, response.resp.Code, response.resp.Message, response.user.ExternalCode, response.user.ExternalMessage);
+                }
+                else
+                {
+                    throw new ClientException((int)response.resp.Code, response.resp.Message);
+                }
             }
 
             if (response.user == null)
@@ -134,7 +141,14 @@ namespace WebAPI.Clients
 
             if (response.resp.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.resp.Code, response.resp.Message);
+                if (response.resp.Code == (int)eResponseStatus.UserExternalError)
+                {
+                    throw new ClientExternalException(ApiException.USERS_EXTERNAL_ERROR, response.resp.Code, response.resp.Message, response.user.ExternalCode, response.user.ExternalMessage);
+                }
+                else
+                {
+                    throw new ClientException((int)response.resp.Code, response.resp.Message);
+                }
             }
 
             user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);

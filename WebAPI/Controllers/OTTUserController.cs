@@ -120,6 +120,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ErrorOnInitUser)]
         [Throws(eResponseStatus.UserNotMasterApproved)]
         [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserExternalError)]
         public KalturaLoginResponse Login(int partnerId, string username = null, string password = null, SerializableDictionary<string, KalturaStringValue> extraParams = null,
             string udid = null)
         {
@@ -134,6 +135,10 @@ namespace WebAPI.Controllers
                 // call client
                 // add header. if key exists use extraParams
                 response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extraParams, System.Web.HttpContext.Current.Request.Headers);
+            }
+            catch (ClientExternalException ex)
+            {
+                ErrorUtils.HandleClientExternalException(ex);
             }
             catch (ClientException ex)
             {
@@ -240,6 +245,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.UserExists)]
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
+        [Throws(eResponseStatus.UserExternalError)]
         public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
         {
             KalturaOTTUser response = null;
@@ -251,6 +257,10 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.UsersClient().SignUp(partnerId, user, password);
+            }
+            catch (ClientExternalException ex)
+            {
+                ErrorUtils.HandleClientExternalException(ex);
             }
             catch (ClientException ex)
             {
