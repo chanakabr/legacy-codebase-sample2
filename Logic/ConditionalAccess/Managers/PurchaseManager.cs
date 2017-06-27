@@ -174,7 +174,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                if (!subscription.m_UserTypes.Contains(user.m_oBasicData.m_UserType))
+                if (subscription.m_UserTypes != null && subscription.m_UserTypes.Length > 0 && !subscription.m_UserTypes.Contains(user.m_oBasicData.m_UserType))
                 {
                     response = new Status((int)eResponseStatus.SubscriptionNotAllowedForUserType, eResponseStatus.SubscriptionNotAllowedForUserType.ToString());
                     return response;
@@ -1039,7 +1039,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                if (!subscription.m_UserTypes.Contains(user.m_oBasicData.m_UserType))
+                if (subscription.m_UserTypes != null && subscription.m_UserTypes.Length > 0 && !subscription.m_UserTypes.Contains(user.m_oBasicData.m_UserType))
                 {
                     response.Status = new Status((int)eResponseStatus.SubscriptionNotAllowedForUserType, eResponseStatus.SubscriptionNotAllowedForUserType.ToString());
                     return response;
