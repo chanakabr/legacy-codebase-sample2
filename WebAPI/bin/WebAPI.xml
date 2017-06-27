@@ -10785,10 +10785,11 @@
             <remarks></remarks>
             <remarks></remarks>        
         </member>
-        <member name="M:WebAPI.Controllers.OttUserController.Update(WebAPI.Models.Users.KalturaOTTUser)">
+        <member name="M:WebAPI.Controllers.OttUserController.Update(WebAPI.Models.Users.KalturaOTTUser,System.String)">
             <summary>Update user information      
             </summary>
-            <param name="user"> UserData Object (include basic and dynamic data)</param>
+            <param name="user"> User data (includes basic and dynamic data)</param>
+            <param name="id">User ID</param>
             <remarks>         User suspended = 2001, User does not exist = 2000
             </remarks>
         </member>
