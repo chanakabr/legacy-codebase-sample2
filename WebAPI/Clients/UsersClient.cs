@@ -64,7 +64,7 @@ namespace WebAPI.Clients
             {
                 if (response.resp.Code == (int)eResponseStatus.UserExternalError)
                 {
-                    throw new ClientExternalException(ApiException.USERS_EXTERNAL_ERROR, response.resp.Code, response.resp.Message, response.user.ExternalCode, response.user.ExternalMessage);
+                    throw new ClientExternalException(ApiException.EXTERNAL_ERROR, response.resp.Code, response.resp.Message, response.user.ExternalCode, response.user.ExternalMessage);
                 }
                 else
                 {
@@ -143,7 +143,7 @@ namespace WebAPI.Clients
             {
                 if (response.resp.Code == (int)eResponseStatus.UserExternalError)
                 {
-                    throw new ClientExternalException(ApiException.USERS_EXTERNAL_ERROR, response.resp.Code, response.resp.Message, response.user.ExternalCode, response.user.ExternalMessage);
+                    throw new ClientExternalException(ApiException.EXTERNAL_ERROR, response.resp.Code, response.resp.Message, response.user.ExternalCode, response.user.ExternalMessage);
                 }
                 else
                 {
