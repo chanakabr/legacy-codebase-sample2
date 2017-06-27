@@ -123,9 +123,10 @@ namespace Core.ConditionalAccess
             {
                 // validate user
                 ResponseStatus userValidStatus = ResponseStatus.OK;
-                userValidStatus = Utils.ValidateUser(groupId, userId, ref domainId);
+                Core.Users.User user;
+                userValidStatus = Utils.ValidateUser(groupId, userId, ref domainId, out user);
 
-                if (userValidStatus != ResponseStatus.OK)
+                if (userValidStatus != ResponseStatus.OK || user == null || user.m_oBasicData == null)
                 {
                     // user validation failed
                     response = Utils.SetResponseStatus(userValidStatus);
@@ -170,6 +171,12 @@ namespace Core.ConditionalAccess
                 if (subscription == null)
                 {
                     response.Message = "ProductId doesn't exist";
+                    return response;
+                }
+
+                if (!subscription.m_UserTypes.Contains(user.m_oBasicData.m_UserType))
+                {
+                    response = new Status((int)eResponseStatus.SubscriptionNotAllowedForUserType, eResponseStatus.SubscriptionNotAllowedForUserType.ToString());
                     return response;
                 }
 
@@ -771,9 +778,9 @@ namespace Core.ConditionalAccess
             {
                 // validate user
                 ResponseStatus userValidStatus = ResponseStatus.OK;
-                userValidStatus = Utils.ValidateUser(groupId, siteguid, ref household);
-
-                if (userValidStatus != ResponseStatus.OK)
+                Core.Users.User user;
+                userValidStatus = Utils.ValidateUser(groupId, siteguid, ref household, out user);
+                if (userValidStatus != ResponseStatus.OK || user == null || user.m_oBasicData == null)
                 {
                     // user validation failed
                     response.Status = Utils.SetResponseStatus(userValidStatus);
@@ -813,7 +820,7 @@ namespace Core.ConditionalAccess
                         break;
                     case eTransactionType.Subscription:
                         response = PurchaseSubscription(cas, groupId, siteguid, household, price, currency,
-                            productId, couponData, userIp, deviceName, paymentGwId, paymentMethodId, adapterData, shouldIgnoreSubscriptionSetValidation);
+                            productId, couponData, userIp, deviceName, paymentGwId, paymentMethodId, adapterData, shouldIgnoreSubscriptionSetValidation, user);
                         break;
                     case eTransactionType.Collection:
                         response = PurchaseCollection(cas, groupId, siteguid, household, price, currency,
@@ -982,7 +989,7 @@ namespace Core.ConditionalAccess
 
         private static TransactionResponse PurchaseSubscription(BaseConditionalAccess cas, int groupId, string siteguid,
             long householdId, double price, string currency, int productId, CouponData coupon, string userIp, string deviceName,
-            int paymentGwId, int paymentMethodId, string adapterData, bool isSubscriptionSetModifySubscription = false)
+            int paymentGwId, int paymentMethodId, string adapterData, bool isSubscriptionSetModifySubscription, Core.Users.User user)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -1029,6 +1036,12 @@ namespace Core.ConditionalAccess
                 if (subscription == null)
                 {
                     response.Status.Message = "ProductId doesn't exist";
+                    return response;
+                }
+
+                if (!subscription.m_UserTypes.Contains(user.m_oBasicData.m_UserType))
+                {
+                    response.Status = new Status((int)eResponseStatus.SubscriptionNotAllowedForUserType, eResponseStatus.SubscriptionNotAllowedForUserType.ToString());
                     return response;
                 }
 
