@@ -2255,14 +2255,14 @@ namespace DAL
             return result;
         }
 
-        public static KeyValuePair<string, KeyValuePair<int, string>> GetDrmId(string drmId)
+        public static KeyValuePair<string, KeyValuePair<int, string>> GetDrmId(string drmId, int groupId)
         {
             KeyValuePair<string, KeyValuePair<int, string>> response = new KeyValuePair<string, KeyValuePair<int, string>>();
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
             Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
-            string drmIdKey = UtilsDal.GetDrmIdKey(drmId);
+            string drmIdKey = UtilsDal.GetDrmIdKey(drmId, groupId);
             if (string.IsNullOrEmpty(drmIdKey))
             {
                 log.ErrorFormat("Failed getting drmIdKey for drmId: {0}", drmId);
@@ -2299,11 +2299,11 @@ namespace DAL
             return response;
         }
 
-        public static bool SetDrmId(KeyValuePair<string, KeyValuePair<int, string>> document, string drmId)
+        public static bool SetDrmId(KeyValuePair<string, KeyValuePair<int, string>> document, string drmId, int groupId)
         {
             bool result = false;
 
-            string drmIdKey = UtilsDal.GetDrmIdKey(drmId);
+            string drmIdKey = UtilsDal.GetDrmIdKey(drmId, groupId);
             if (string.IsNullOrEmpty(drmIdKey))
             {
                 log.ErrorFormat("Failed getting drmIdKey for drmIdKey: {0}", drmIdKey);
@@ -2318,6 +2318,54 @@ namespace DAL
                 if (!result)
                 {
                     log.ErrorFormat("Failed updating drmId in Couchbase. drmId = {0}", drmId);
+                }
+            }
+            return result;
+        }
+
+        public static bool RemoveDrmId(string drmId, int groupId)
+        {
+            bool result = false;
+
+            string drmIdKey = UtilsDal.GetDrmIdKey(drmId, groupId);
+            if (string.IsNullOrEmpty(drmIdKey))
+            {
+                log.ErrorFormat("Failed getting drmIdKey for drmId: {0}", drmIdKey);
+            }
+            else
+            {
+                CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+
+                result = client.Remove(drmIdKey);
+
+                if (!result)
+                {
+                    log.ErrorFormat("Failed Remove DomainDrmId domainDrmId in Couchbase. drmId = {0}", drmIdKey);
+                }
+            }
+
+            return result;
+        }
+
+        public static bool ClearDevicesDrmID(int groupId, List<int> deviceIds, int domainId)
+        {
+            bool result = true;
+            bool RemoveDomainDrmIdResult = false;
+            StoredProcedure sp;
+            foreach (int deviceId in deviceIds)
+            {
+                sp = new StoredProcedure("Update_DeviceDrmID");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@deviceId", deviceId);
+                sp.AddParameter("@drmId", null);
+
+                result = sp.ExecuteReturnValue<bool>();
+
+                if (result && !RemoveDomainDrmIdResult) // at least one was update in DB go delete drm domain from CB
+                {
+                    // remove all object from CB
+                    RemoveDomainDrmIdResult = RemoveDomainDrmId(domainId);
                 }
             }
             return result;
