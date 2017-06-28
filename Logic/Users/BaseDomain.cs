@@ -1795,7 +1795,7 @@ namespace Core.Users
                 }
                 //check the uniqueness of drmID
                  KeyValuePair<int, string> drmValue = new KeyValuePair<int,string>();
-                bool isDrmIdUnique = Utils.IsDrmIdUnique(drmId, domain.m_nDomainID, udid, ref drmValue);
+                bool isDrmIdUnique = Utils.IsDrmIdUnique(drmId, domain.m_nDomainID, udid, m_nGroupID, ref drmValue);
                 if (!isDrmIdUnique)
                 {
                     return false; // drmid exsits in ANOTHER domain
@@ -1833,9 +1833,13 @@ namespace Core.Users
                         {
                             if (drmValue.Key == 0 || string.IsNullOrEmpty(drmValue.Value))
                             {
-                                return Utils.SetDrmId(drmId, domain.m_nDomainID, udid);
+                                return Utils.SetDrmId(drmId, domain.m_nDomainID, udid, groupId);
                             }
                             return true;
+                        }
+                        else if (drmPolicy.Policy == DrmSecurityPolicy.HouseholdLevel && drmValue.Key > 0 && !string.IsNullOrEmpty(drmValue.Value))
+                        {
+                            return false;
                         }
                         // get all devices with empty drmId 
                         domainDrmId = domainDrmId.Where(x => string.IsNullOrEmpty(x.Value)).ToDictionary(x => x.Key, x => x.Value);
@@ -1845,7 +1849,7 @@ namespace Core.Users
 
                             if(DomainDal.UpdateDeviceDrmID(m_nGroupID, domainDrmId.First().Key.ToString(), drmId, domain.m_nDomainID))                            
                             {
-                                return Utils.SetDrmId(drmId, domain.m_nDomainID, udid);
+                                return Utils.SetDrmId(drmId, domain.m_nDomainID, udid, groupId);
                             }
                         }
                         return false;
@@ -1860,9 +1864,9 @@ namespace Core.Users
                             return false;
                         }
                         deviceIds = new List<int>(){int.Parse(device.m_id)};
-                        if (CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy))
+                        if (CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy, drmValue))
                         {
-                            return Utils.SetDrmId(drmId, domain.m_nDomainID, udid);
+                            return Utils.SetDrmId(drmId, domain.m_nDomainID, udid, m_nGroupID);
                         }
                         return false;
                        
@@ -1870,9 +1874,9 @@ namespace Core.Users
                         
                         deviceIds = (domain.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Where(f=> drmPolicy.FamilyLimitation.Count == 0||
                             !drmPolicy.FamilyLimitation.Contains(f.m_deviceFamilyID)).Select(y => int.Parse(y.m_id)).ToList<int>();
-                        if (CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy))
+                        if (CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy, drmValue))
                         {
-                            return Utils.SetDrmId(drmId, domain.m_nDomainID, udid);
+                            return Utils.SetDrmId(drmId, domain.m_nDomainID, udid, m_nGroupID);
                         }
                         return false;
                     
@@ -1887,7 +1891,7 @@ namespace Core.Users
             return false;
         }
 
-        private bool CheckDrmSecurity(string drmId, List<int> deviceIds, Dictionary<int, string> domainDrmId, Domain domain, DrmSecurityPolicy drmPolicy)
+        private bool CheckDrmSecurity(string drmId, List<int> deviceIds, Dictionary<int, string> domainDrmId, Domain domain, DrmSecurityPolicy drmPolicy, KeyValuePair<int, string> drmValue)
         {
             domainDrmId = Utils.GetDomainDrmId(m_nGroupID, domain.m_nDomainID, deviceIds);
             // drmid exsits (in the houshold)
@@ -1907,6 +1911,10 @@ namespace Core.Users
                         }
                     } 
                     return true;
+                }
+                else if (drmPolicy == DrmSecurityPolicy.HouseholdLevel && drmValue.Key > 0 && !string.IsNullOrEmpty(drmValue.Value))
+                {
+                    return false;
                 }
                 // get an empty slot and set it with drmId
                 domainDrmId = domainDrmId.Where(x => string.IsNullOrEmpty(x.Value)).ToDictionary(x => x.Key, x => x.Value);
