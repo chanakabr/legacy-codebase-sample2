@@ -61,10 +61,24 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
                 {
                     ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                     selectQuery.SetConnectionKey("pricing_connection");
-                    selectQuery += " select subscription_id from subscriptions_usage_modules where is_active = 1 and status = 1 and order_num = 1 and ";
+                    selectQuery += @"select subscription_id from 
+                                    (
+                                    select sum.subscription_id, sum.order_num, sum.usage_module_id, dense_rank() over (partition by sum.subscription_id order by sum.order_num asc) rn 
+                                    from subscriptions_usage_modules sum
+                                    join usage_modules um on (sum.usage_module_id=um.id and um.status=1 and um.IS_ACTIVE=1 and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("um.group_id", "=", LoginManager.GetLoginGroupID());
+                    selectQuery += @")
+                                    where subscription_id in (
+						                                        select subscription_id
+						                                        from subscriptions_usage_modules
+						                                        where is_active=1 and status=1
+						                                        and ";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("usage_module_id", "=", usageModuleID);
-                    selectQuery += " and ";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
+                    selectQuery += @"                           )
+                                    and sum.status=1 and sum.is_Active=1
+                                    ) a
+                                    where rn=1 and ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("usage_module_id", "=", usageModuleID);
                     if (selectQuery.Execute("query", true) != null)
                     {
                         int count = selectQuery.Table("query").DefaultView.Count;
