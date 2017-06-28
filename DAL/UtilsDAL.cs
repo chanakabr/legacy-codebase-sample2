@@ -768,9 +768,9 @@ namespace DAL
             return string.Format("domain_drmId_{0}", domainId);
         }
 
-        internal static string GetDrmIdKey(string drmId)
+        internal static string GetDrmIdKey(string drmId, int groupId)
         {
-            return string.Format("drmId_{0}", drmId);
+            return string.Format("drmId_{0}_groupId_{1}", drmId, groupId);
         }
 
         internal static string GetSubscriptionSetModifyKey(int groupId, long id, SubscriptionSetModifyType type)
