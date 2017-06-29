@@ -17,11 +17,11 @@ namespace NPVR
         private static readonly object dictMutex = new object();
         private static NPVRProviderFactory instance = null;
 
-        private Dictionary<int, NPVRProvider> groupsToNPVRImplMapping = null;
+        private Dictionary<int, NPVRProviderImp> groupsToNPVRImplMapping = null;
 
         private NPVRProviderFactory()
         {
-            groupsToNPVRImplMapping = new Dictionary<int, NPVRProvider>();
+            groupsToNPVRImplMapping = new Dictionary<int, NPVRProviderImp>();
         }
 
         public static NPVRProviderFactory Instance()
@@ -42,7 +42,7 @@ namespace NPVR
 
         private NPVRProvider GetGroupNPVRImpl(int groupID, out bool synchronizeNpvrWithDomain)
         {
-            NPVRProvider provider = NPVRProvider.None;
+            NPVRProviderImp providerImp = new NPVRProviderImp(NPVRProvider.None, false);
             synchronizeNpvrWithDomain = false;
 
             if (!groupsToNPVRImplMapping.ContainsKey(groupID))
@@ -54,27 +54,29 @@ namespace NPVR
                         int npvrProviderID = UtilsDal.Get_NPVRProviderID(groupID, out synchronizeNpvrWithDomain);
                         if (Enum.IsDefined(typeof(NPVRProvider), npvrProviderID))
                         {
-                            provider = (NPVRProvider)npvrProviderID;
+                            providerImp.npvrProvider = (NPVRProvider)npvrProviderID;
                         }
                         else
                         {
                             log.Error("Error - " + string.Format("Unknown NPVR Provider ID extracted from DB. G ID: {0} , NPVR ID: {1}", groupID, npvrProviderID));
                         }
 
-                        groupsToNPVRImplMapping.Add(groupID, provider);
+                        groupsToNPVRImplMapping.Add(groupID, new NPVRProviderImp(providerImp.npvrProvider, synchronizeNpvrWithDomain));
                     }
                     else
                     {
-                        provider = groupsToNPVRImplMapping[groupID];
+                        providerImp = groupsToNPVRImplMapping[groupID];
+                        synchronizeNpvrWithDomain = providerImp.synchronizeNpvrWithDomain;
                     }
                 }
             }
             else
             {
-                provider = groupsToNPVRImplMapping[groupID];
+                providerImp = groupsToNPVRImplMapping[groupID];
+                synchronizeNpvrWithDomain = providerImp.synchronizeNpvrWithDomain;
             }
 
-            return provider;
+            return providerImp.npvrProvider;
         }
 
         public bool IsGroupHaveNPVRImpl(int groupID, out INPVRProvider npvr)
