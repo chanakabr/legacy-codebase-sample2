@@ -1022,13 +1022,19 @@ namespace CouchbaseManager
                         removeResult = bucket.Remove(key, cas);
                 }
 
-                if (removeResult.Exception != null)
-                    throw removeResult.Exception;
-
-                if (removeResult.Status == Couchbase.IO.ResponseStatus.Success || removeResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
-                    result = removeResult.Success;
+                if (removeResult.Success)
+                {
+                    result = true;
+                }
+                // if key is already deleted - we regard this remove as successful
+                else if (removeResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                {
+                    result = true;
+                }
                 else
+                {
                     log.ErrorFormat("Error while trying to delete document. key: {0}, CAS: {1}. CB response: {2}", key, cas, JsonConvert.SerializeObject(removeResult));
+                }
             }
             catch (Exception ex)
             {
