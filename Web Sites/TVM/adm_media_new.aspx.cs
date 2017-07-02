@@ -250,7 +250,7 @@ public partial class adm_media_new : System.Web.UI.Page
                         string sName = oName.ToString();
                         string sField = "META" + i.ToString() + "_STR";
                         //DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 255);
-                        DataRecordLongTextField dr_name = new DataRecordLongTextField("ltr", true, 60, 3);
+                        DataRecordLongTextField dr_name = new DataRecordLongTextField("ltr", true, 60, 3, true);
                         dr_name.Initialize(sName, "adm_table_header_nbg", "FormInput", sField, false);
                         theRecord.AddRecord(dr_name);
                     }
@@ -333,11 +333,11 @@ public partial class adm_media_new : System.Web.UI.Page
         string sBack = "adm_media.aspx?search_save=1";
         DBRecordWebEditor theRecord = new DBRecordWebEditor("media", "adm_table_pager", sBack, "", "ID", mediaId, sBack, "");
 
-        DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
+        DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128, true);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
         theRecord.AddRecord(dr_name);
 
-        DataRecordLongTextField dr_description = new DataRecordLongTextField("ltr", true, 60, 4);
+        DataRecordLongTextField dr_description = new DataRecordLongTextField("ltr", true, 60, 4, true);
         dr_description.Initialize("Description", "adm_table_header_nbg", "FormInput", "DESCRIPTION", false);
         theRecord.AddRecord(dr_description);
 
