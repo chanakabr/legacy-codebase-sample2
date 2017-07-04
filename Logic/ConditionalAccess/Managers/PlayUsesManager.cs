@@ -101,9 +101,6 @@ namespace Core.ConditionalAccess
             }
             else
             {
-                string purchasingUserId = GetPurchasingSiteGuid(itemPriceContainer);
-                purchasingUserId = string.IsNullOrEmpty(purchasingUserId) ? userId : purchasingUserId;
-
                 if (IsPurchasedAsPartOfSub(itemPriceContainer))
                 {
                     int numOfUses = 0;
@@ -133,7 +130,7 @@ namespace Core.ConditionalAccess
                                 isCreditDownloaded, nRelPP));
                         }
 
-                        if (ConditionalAccessDAL.Update_SubPurchaseNumOfUses(groupId, purchasingUserId, itemPriceContainer.m_relevantSub.m_sObjectCode))
+                        if (ConditionalAccessDAL.Update_SubPurchaseNumOfUses(groupId, domainId, itemPriceContainer.m_relevantSub.m_sObjectCode))
                         {
                             //Subscription Purchases updated - update purchase validation key
                             setPurchaseInvalidationKey = true;
@@ -144,7 +141,7 @@ namespace Core.ConditionalAccess
                             #region Logging
                             StringBuilder sb = new StringBuilder("Failed to update num of uses in subscriptions_purchases table. ");
                             sb.Append(String.Concat("Sub Cd: ", itemPriceContainer.m_relevantSub.m_sObjectCode));
-                            sb.Append(String.Concat(" Site Guid: ", purchasingUserId));
+                            sb.Append(String.Concat(" DomainId: ", domainId));
                             sb.Append(String.Concat(" Group ID: ", groupId));
                             sb.Append(String.Concat(" MF ID: ", mediaFileId));
 
@@ -635,16 +632,6 @@ namespace Core.ConditionalAccess
             PPVModule thePPVModule = Core.Pricing.Module.GetPPVModuleData(groupId, sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
 
             return thePPVModule;
-        }
-
-        private static string GetPurchasingSiteGuid(ItemPriceContainer price)
-        {
-            if (!string.IsNullOrEmpty(price.m_sPurchasedBySiteGuid))
-            {
-                return price.m_sPurchasedBySiteGuid;
-            }
-
-            return string.Empty;
         }
 
         private static string GetColUseInsertionFailureMsg(string colCode, long mediaFileID, string siteGuid, bool isCreditDownloaded, int relPP)
