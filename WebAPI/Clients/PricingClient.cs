@@ -471,5 +471,63 @@ namespace WebAPI.Clients
             return result;
         }
 
+
+        internal KalturaSubscriptionSetListResponse GetSubscriptionSetsBySBaseSubscriptionIds(int groupId, List<long> subscriptionIds, KalturaSubscriptionSetOrderBy? orderBy, KalturaSubscriptionSetType? type)
+        {
+            KalturaSubscriptionSetListResponse result = new KalturaSubscriptionSetListResponse() { TotalCount = 0 };
+            SubscriptionSetsResponse response = null;
+
+            try
+            {
+                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type.Value);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetSubscriptionSetsByBaseSubscriptionIds(groupId, subscriptionIds, setType);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SubscriptionSets != null && response.SubscriptionSets.Count > 0)
+            {
+                result.TotalCount = response.SubscriptionSets.Count;
+                result.SubscriptionSets = new List<KalturaSubscriptionSet>();
+                foreach (SubscriptionSet subscriptionSet in response.SubscriptionSets)
+                {
+                    result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionSwitchSet>(subscriptionSet));
+                }
+            }
+
+            if (result.TotalCount > 0 && orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaSubscriptionSetOrderBy.NAME_ASC:
+                        result.SubscriptionSets = result.SubscriptionSets.OrderBy(x => x.Name).ToList();
+                        break;
+                    case KalturaSubscriptionSetOrderBy.NAME_DESC:
+                        result.SubscriptionSets = result.SubscriptionSets.OrderByDescending(x => x.Name).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result;
+        }
     }
 }

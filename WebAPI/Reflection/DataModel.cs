@@ -5744,6 +5744,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSubscriptionDependencySetFilter":
+                    switch(property.Name)
+                    {
+                        case "BaseSubscriptionIdIn":
+                            return "baseSubscriptionIdIn";
+                    }
+                    break;
+                    
                 case "KalturaSubscriptionEntitlement":
                     switch(property.Name)
                     {
