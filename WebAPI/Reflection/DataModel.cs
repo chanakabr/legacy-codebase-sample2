@@ -5734,6 +5734,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSubscriptionDependencySet":
+                    switch(property.Name)
+                    {
+                        case "BaseSubscriptionId":
+                            return "baseSubscriptionId";
+                    }
+                    break;
+                    
                 case "KalturaSubscriptionEntitlement":
                     switch(property.Name)
                     {
@@ -5791,6 +5799,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "SubscriptionIds":
                             return "subscriptionIds";
+                        case "Type":
+                            return "type";
                     }
                     break;
                     

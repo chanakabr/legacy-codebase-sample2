@@ -87,8 +87,9 @@ namespace WebAPI.Controllers
             }
 
             try
-            {                
-                List<long> subscriptionIds = subscriptionSet.SubscriptionIds != null ? subscriptionSet.GetSubscriptionIds() : new List<long>();                
+            {
+                List<long> subscriptionIds = subscriptionSet.SubscriptionIds != null ? subscriptionSet.GetSubscriptionIds() : new List<long>();
+
                 // call client
                 response = ClientsManager.PricingClient().AddSubscriptionSet(groupId, subscriptionSet.Name, subscriptionIds);
             }
@@ -118,8 +119,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                bool shouldUpdateSubscriptionIds = subscriptionSet.SubscriptionIds != null;
                 List<long> subscriptionIds = new List<long>();
+                bool shouldUpdateSubscriptionIds = subscriptionSet.SubscriptionIds != null;
                 if (shouldUpdateSubscriptionIds && !string.IsNullOrEmpty(subscriptionSet.SubscriptionIds))
                 {
                     subscriptionIds = subscriptionSet.GetSubscriptionIds();

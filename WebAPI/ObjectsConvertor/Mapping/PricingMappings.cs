@@ -244,11 +244,47 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.m_relevantSub.m_sObjectCode))
                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode));
 
+            //SubscriptionSet to KalturaSubscriptionSet
+            Mapper.CreateMap<SubscriptionSet, KalturaSubscriptionSet>()
+                .Include<SwitchSet, KalturaSubscriptionSwitchSet>()
+                .Include<DependencySet, KalturaSubscriptionDependencySet>()
+                ;
+
             // KalturaSubscriptionSet
-            Mapper.CreateMap<SubscriptionSet, KalturaSubscriptionSwitchSet>()
+            Mapper.CreateMap<SwitchSet, KalturaSubscriptionSwitchSet>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.SubscriptionIds != null ? string.Join(",", src.SubscriptionIds) : string.Empty));
+                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.SubscriptionIds != null ? string.Join(",", src.SubscriptionIds) : string.Empty))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSetType(src.Type)));
+            
+            Mapper.CreateMap<DependencySet, KalturaSubscriptionDependencySet>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.BaseSubscriptionId, opt => opt.MapFrom(src => src.BaseSubscriptionId))
+                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src. AddOnIds!= null ? string.Join(",", src.AddOnIds) : string.Empty))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSetType(src.Type)));
+                ;
+        }
+
+        private static KalturaSubscriptionSetType ConvertSetType(SubscriptionSetType subscriptionSetType)
+        {
+            KalturaSubscriptionSetType result = KalturaSubscriptionSetType.SWITCH;
+            switch (subscriptionSetType)
+            {
+                case SubscriptionSetType.Dependency:
+                    {
+                        result = KalturaSubscriptionSetType.DEPENDENCY;
+                        break;
+                    }
+                case SubscriptionSetType.Switch:
+                    {
+                        result = KalturaSubscriptionSetType.SWITCH;
+                        break;
+                    }
+                default:
+                    break;
+            }
+            return result;
         }
 
         private static List<KalturaProductCode> ConvertProductCodes(List<KeyValuePair<VerificationPaymentGateway, string>> list)
