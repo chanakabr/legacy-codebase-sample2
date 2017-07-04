@@ -956,6 +956,12 @@ namespace Core.Users
                     // Remove Users
                     usersCache.RemoveUser(userID, m_nGroupID);
                 }
+
+                foreach (int userID in domain.m_DefaultUsersIDs)
+                {
+                    // Remove Users
+                    usersCache.RemoveUser(userID, m_nGroupID);
+                }
             }
 
             // update result
