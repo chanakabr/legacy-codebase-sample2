@@ -855,9 +855,12 @@ namespace Core.Pricing
             Dictionary<long, Dictionary<long, int>> res = new Dictionary<long, Dictionary<long, int>>();
             
             FillSubscriptionsSetsDictionary(res, ds.Tables[8]);
-           
-            // get all base Subscription Sets
-            FillSubscriptionsSetsDictionary(res, ds.Tables[10]); // for subscription that are Base in a dependency set
+
+            if (ds.Tables.Count >= 10)
+            {
+                // get all base Subscription Sets
+                FillSubscriptionsSetsDictionary(res, ds.Tables[10]); // for subscription that are Base in a dependency set
+            }
 
             return res;
         }
@@ -1196,7 +1199,7 @@ namespace Core.Pricing
 
         private bool IsSubsDataSetValid(DataSet ds)
         {
-            return ds != null && ds.Tables != null && ds.Tables.Count == 11;
+            return ds != null && ds.Tables != null && ds.Tables.Count >=10;
         }
 
     }
