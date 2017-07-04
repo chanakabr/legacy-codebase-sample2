@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Billing;
+using ApiObjects.Pricing;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.ConditionalAccess.Modules;
@@ -230,6 +231,16 @@ namespace Core.ConditionalAccess
             log.DebugFormat("Subscription data received. data: {0}", logString);
 
             #endregion
+
+            if (subscription.Type == SubscriptionType.AddOn && subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
+            {
+                ApiObjects.Response.Status status = Utils.CanPurchaseAddOn(groupId, householdId, subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList());
+                if (status.Code != (int)eResponseStatus.OK)
+                {
+                    log.ErrorFormat("failed renew subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", subscription.m_SubscriptionCode,status.Code, status.Message);
+                    return false;
+                }
+            }
 
             // get payment number
             int paymentNumber = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "PAYMENT_NUMBER");

@@ -7642,5 +7642,143 @@ namespace Core.ConditionalAccess
             return res;
         }
 
+
+
+        internal static bool TryGetSubscriptionSets(int groupId, List<long> setIds, ref List<SubscriptionSet> subscriptionSets)
+        {
+            bool res = false;
+            try
+            {
+                if (setIds == null || setIds.Count == 0)
+                {
+                    return res;
+                }
+
+                Dictionary<string, SubscriptionSet> subscriptionSetMap = null;
+                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetSubscriptionSetsKeysMap(groupId, setIds);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetSubscriptionSetsInvalidationKeysMap(groupId, setIds);
+
+                if (!LayeredCache.Instance.GetValues<SubscriptionSet>(keyToOriginalValueMap, ref subscriptionSetMap, GetSubscriptionSets,
+                    new Dictionary<string, object>() { { "groupId", groupId },{ "setIds", setIds } }, 
+                    groupId, LayeredCacheConfigNames.GET_SUBSCRIPTION_SETS_CACHE_CONFIG_NAME,
+                                                                        invalidationKeysMap))
+                {
+                    log.ErrorFormat("Failed getting seriesReminders from LayeredCache, groupId: {0}, setIds", groupId, string.Join(",", setIds));
+                }
+                else if (subscriptionSetMap != null)
+                {
+                    subscriptionSets = subscriptionSetMap.Values.ToList();
+                    res = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetSeriesReminders for groupId: {0}, setIds: {1}", groupId, string.Join(",", setIds)), ex);
+            }
+            return res && subscriptionSets != null && subscriptionSets.Count > 0;
+        }
+
+        private static Tuple<Dictionary<string, SubscriptionSet>, bool> GetSubscriptionSets(Dictionary<string, object> funcParams)
+        {           
+            bool res = false;
+            Dictionary<string, SubscriptionSet> result = new Dictionary<string, SubscriptionSet>();            
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("setIds") && funcParams.ContainsKey("groupId"))
+                {
+                    string key = string.Empty;
+                    long[] setIds;
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                    {
+                        setIds = ((List<long>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => x).ToArray();
+                    }
+                    else
+                    {
+                        setIds = funcParams["setIds"] != null ? funcParams["setIds"] as long[] : null;
+                    }
+
+                    if (setIds != null && groupId.HasValue)
+                    {
+                        List<SubscriptionSet> subscriptionSets = Pricing.Utils.GetSubscriptionSets(groupId.Value, setIds.ToList());
+
+                        List<long> missingKeys = setIds.Where(x => !result.ContainsKey(x.ToString())).ToList();
+                        if (missingKeys != null)
+                        {
+                            SubscriptionSet tempSubscriptionSet = new SwitchSet();
+                            foreach (int missingKey in missingKeys)
+                            {
+                                result.Add(LayeredCacheKeys.GetSetIdKey(missingKey, groupId.Value), tempSubscriptionSet);
+                            }
+                        }
+                    }
+                    res = result.Keys.Count() == setIds.Count();
+
+                    result = result.ToDictionary(x => LayeredCacheKeys.GetSetIdKey(int.Parse(x.Key), groupId.Value), x => x.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetSubscriptionSets failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, SubscriptionSet>, bool>(result, res);
+        }
+
+        internal static ApiObjects.Response.Status CanPurchaseAddOn(int groupId, long householdId, List<long> setIds)
+        {
+            ApiObjects.Response.Status Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            try
+            {
+                DomainEntitlements domainEntitlements = null;
+
+                // get all base set containing this add on 
+                List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
+                if (!TryGetSubscriptionSets(groupId, setIds, ref subscriptionSets))
+                {
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return Status; 
+                }
+
+                if (subscriptionSets != null && subscriptionSets.Count() > 0)
+                {
+                    List<DependencySet> dependencySet = subscriptionSets.Where(x => x.Type == SubscriptionSetType.Dependency).Select(x => (DependencySet)x).ToList();
+
+                    //if (dependencySet == null || dependencySet.Count == 0) -- nedd to ask Chen !!! 
+                    //{
+                    //    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
+                    //    return response;
+                    //}
+
+                    // get all base subscription id 
+                    if (Utils.TryGetDomainEntitlementsFromCache(groupId, (int)householdId, null, ref domainEntitlements))
+                    {
+                        // get all household with base subscription
+                        if (domainEntitlements.DomainBundleEntitlements == null && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions == null
+                            || domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Count() == 0)
+                        {
+                            Status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
+                            return Status;
+                        }
+                        List<long> baseSubscriptionIds = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Select(x => long.Parse(x.Key)).ToList();
+
+                        // try to find if one of this base subscription id is a base in the sets above
+                        if (dependencySet.Where(x => baseSubscriptionIds.Contains(x.BaseSubscriptionId)).Count() == 0)
+                        {
+                            Status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
+                            return Status;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CanPurchaseAddOn  SubscriptionCode: {0}, groupId: {1} setsIds: {2},  ex: {3}", setIds != null ? string.Join(",", setIds) : string.Empty,
+                    groupId, householdId, ex);
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                return Status;
+            }
+            return Status;
+        }
     }
 }

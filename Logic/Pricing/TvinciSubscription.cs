@@ -259,6 +259,7 @@ namespace Core.Pricing
                                 arrUserTypes = dictSubUserTypes[nSubscriptionCode].ToArray();
                             }
 
+
                             tmpSubscription = CreateSubscriptionObject(bShrink, subscriptionRow, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, nFileTypes, GetSubscriptionDescription(nSubscriptionCode),
                                                                        GetSubscriptionsChannels(nSubscriptionCode, m_nGroupID), GetSubscriptionName(nSubscriptionCode), 
                                                                        GetSubscriptionServices(nSubscriptionCode), arrUserTypes, GetSubscriptionCouponsGroup(nSubscriptionCode),
@@ -308,6 +309,7 @@ namespace Core.Pricing
             return arrSubscriptions;
         }
 
+       
        
 
         protected Subscription[] GetTvinciSubscriptionsList(bool bShrink, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, int nIsActive, List<int> userTypesIDsList, int? topRows)
@@ -615,6 +617,17 @@ namespace Core.Pricing
             string sName = ODBCWrapper.Utils.GetSafeStr(subscriptionRow["NAME"]);
             int gracePeriodMinutes = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow["GRACE_PERIOD_MINUTES"]);
             string adsParam = ODBCWrapper.Utils.GetSafeStr(subscriptionRow["ADS_PARAM"]);
+            
+            SubscriptionType type = SubscriptionType.NotApplicable;
+            int subscriptionType = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow, "Type");
+            if (Enum.IsDefined(typeof(SubscriptionType), subscriptionType))
+            {
+                type = (SubscriptionType)subscriptionType;
+            }
+            if (type == SubscriptionType.Base) // get setid for this base subscription - fill subscriptionSetIdsToPriority with details
+            {               
+                GetSetsContainingBaseSubscription(nSubscriptionCode, ref subscriptionSetIdsToPriority);
+            }
 
             int adsPolicyInt = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow["ADS_POLICY"]);
             AdsPolicy? adsPolicy = null;
@@ -652,23 +665,43 @@ namespace Core.Pricing
             string sProductCode = ODBCWrapper.Utils.GetSafeStr(subscriptionRow["Product_Code"]);
             int nSubscriptionGeoCommerceID = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow["geo_commerce_block_id"]);
             long lPreviewModuleID = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow["preview_module_id"]);
-
+                       
             if (bShrink)
             {
                 retSubscription.Initialize(sPriceCode, string.Empty, string.Empty, string.Empty, subscriptionDescription, m_nGroupID, nSubscriptionCode.ToString(),
                                            subscriptionChannels, dStart, dEnd, nFileTypes, bIsRecurring, nNumOfPeriods, subscriptionName, sSubPriceCode, sSubscriptionUsageModuleCode, sName,
                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID,
-                                           gracePeriodMinutes, adsPolicy, adsParam, couponsGroup, subscriptionSetIdsToPriority, externalProductCodes);                                           
+                                           gracePeriodMinutes, adsPolicy, adsParam, couponsGroup, subscriptionSetIdsToPriority, externalProductCodes, type);                                           
             }
             else
             {
                 retSubscription.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, subscriptionDescription, m_nGroupID, nSubscriptionCode.ToString(),
                                            subscriptionChannels, dStart, dEnd, nFileTypes, bIsRecurring, nNumOfPeriods, subscriptionName, sSubPriceCode, sSubscriptionUsageModuleCode, sName,
                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID,
-                                           gracePeriodMinutes, adsPolicy, adsParam, couponsGroup, subscriptionSetIdsToPriority, externalProductCodes);
+                                           gracePeriodMinutes, adsPolicy, adsParam, couponsGroup, subscriptionSetIdsToPriority, externalProductCodes, type);
             }
 
             return retSubscription;
+        }
+
+        protected void GetSetsContainingBaseSubscription(int subscriptionId, ref Dictionary<long, int> setIdsToPriorityMapping)
+        {
+            if (setIdsToPriorityMapping == null)
+            {
+                setIdsToPriorityMapping = new Dictionary<long, int>();
+            }
+
+            Dictionary<long, Dictionary<long, int>> subscriptionIdToSetIdsMap = Core.Pricing.Utils.GetSetsContainingBaseSubscription(m_nGroupID, new List<long>() { (long)subscriptionId });
+            if (subscriptionIdToSetIdsMap != null && subscriptionIdToSetIdsMap.ContainsKey(subscriptionId) && subscriptionIdToSetIdsMap[subscriptionId] != null)
+            {
+                foreach (KeyValuePair<long, int> sets in subscriptionIdToSetIdsMap[subscriptionId])
+                {
+                    if (!setIdsToPriorityMapping.ContainsKey(sets.Key))
+                    {
+                        setIdsToPriorityMapping.Add(sets.Key, sets.Value);
+                    }
+                }
+            }            
         }
 
         private List<Subscription> CreateSubscriptionsListFromDataSet(bool bShrink, DataSet dsSubscriptions, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
@@ -739,8 +772,8 @@ namespace Core.Pricing
                             Dictionary<long, List<ServiceObject>> subsServicesMapping = ExtractSubscriptionsServices(ds);
                             Dictionary<long, List<SubscriptionCouponGroup>> subsCouponsGroup = ExtractSubscriptionsCouponGroup(ds);
                             Dictionary<long, Dictionary<long, int>> subscriptionIdsToSetsMap = ExtractSubscriptionsSets(ds);
-                            Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> subsProductCodes = ExtractSubscriptionsProductCodes(ds);                            
-
+                            Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> subsProductCodes = ExtractSubscriptionsProductCodes(ds);   
+                                                    
                             res = CreateSubscriptions(ds, subsFileTypesMapping, subsDescriptionsMapping, subsChannelsMapping, subsNamesMapping, subsServicesMapping,
                                 sCountryCd, sLanguageCode, sDeviceName, subsCouponsGroup, subscriptionIdsToSetsMap, subsProductCodes).ToArray();
                         }
@@ -818,30 +851,39 @@ namespace Core.Pricing
         }
 
         private Dictionary<long, Dictionary<long, int>> ExtractSubscriptionsSets(DataSet ds)
-        {
+        {           
             Dictionary<long, Dictionary<long, int>> res = new Dictionary<long, Dictionary<long, int>>();
-            DataTable dt = ds.Tables[8];
+            
+            FillSubscriptionsSetsDictionary(res, ds.Tables[8]);
+           
+            // get all base Subscription Sets
+            FillSubscriptionsSetsDictionary(res, ds.Tables[10]); // for subscription that are Base in a dependency set
+
+            return res;
+        }
+
+        private static void FillSubscriptionsSetsDictionary(Dictionary<long, Dictionary<long, int>> res, DataTable dt)
+        {
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {                
+            {
                 foreach (DataRow dr in dt.Rows)
-                {                    
+                {
                     long subscriptionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SUBSCRIPTION_ID", 0);
                     long setId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SET_ID", 0);
                     int priority = ODBCWrapper.Utils.GetIntSafeVal(dr, "PRIORITY", 0);
                     if (subscriptionId > 0 && setId > 0 && priority > 0)
                     {
                         if (res.ContainsKey(subscriptionId))
-                        {                            
+                        {
                             res[subscriptionId][setId] = priority;
                         }
                         else
                         {
-                            res.Add(subscriptionId, new  Dictionary<long, int>() { { setId, priority } });
+                            res.Add(subscriptionId, new Dictionary<long, int>() { { setId, priority } });
                         }
                     }
                 }
             }
-            return res;
         }
 
         private Dictionary<long, List<SubscriptionCouponGroup>> ExtractSubscriptionsCouponGroup(DataSet ds)
@@ -1015,6 +1057,7 @@ namespace Core.Pricing
                         subscriptionSetIdsToPriority = subscriptionIdsToSetsMap[lSubCode];
                     }
 
+                   
                     res.Add(CreateSubscriptionObject(false, subsTable.Rows[i], sCountryCd, sLanguageCode, sDeviceName, nFileTypes, descs,
                             bcc, names, services, arrUserTypes, couponsGroup, subscriptionSetIdsToPriority, productCodes));
                 }
@@ -1153,7 +1196,7 @@ namespace Core.Pricing
 
         private bool IsSubsDataSetValid(DataSet ds)
         {
-            return ds != null && ds.Tables != null && ds.Tables.Count == 10;
+            return ds != null && ds.Tables != null && ds.Tables.Count == 11;
         }
 
     }

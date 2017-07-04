@@ -9642,8 +9642,7 @@ namespace Core.ConditionalAccess
 				}
 				else
 				{
-					if (domain.m_DomainStatus != DomainStatus.OK &&
-						domain.m_DomainStatus != DomainStatus.DomainCreatedWithoutNPVRAccount)
+					if (domain.m_DomainStatus != DomainStatus.OK && domain.m_DomainStatus != DomainStatus.DomainCreatedWithoutNPVRAccount)
 					{
 						if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
 						{
@@ -9750,9 +9749,9 @@ namespace Core.ConditionalAccess
 											dalResult = ppvPurchase.Delete();
 											break;
 										}
-									case eTransactionType.Subscription:
-										{                                            
-											long subscriptionPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
+                                    case eTransactionType.Subscription:
+                                        {
+                                            long subscriptionPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
                                             if (subscriptionPurchaseId > 0)
                                             {
                                                 Dictionary<long, long> purchaseIdToScheduledSubscriptionId = Utils.GetPurchaseIdToScheduledSubscriptionIdMap(m_nGroupID, domainId,
@@ -9763,32 +9762,32 @@ namespace Core.ConditionalAccess
                                                                                                 eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending.ToString());
                                                     return result;
                                                 }
+                                                bool cancelAddOns = CancelAddOnByCancelBaseSubscription(assetID, domainId);
+
+                                                int maxNumberOfViews = ODBCWrapper.Utils.ExtractInteger(userPurchaseRow, "MAX_NUM_OF_USES");
+                                                DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
+                                                DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "CREATE_DATE");
+                                                long billingTransactionId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "BILLING_TRANSACTION_ID");
+
+                                                SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(this.m_nGroupID)
+                                                {
+                                                    siteGuid = purchasingSiteGuid,
+                                                    productId = assetID.ToString(),
+                                                    houseHoldId = domain.m_nDomainID,
+                                                    Id = subscriptionPurchaseId,
+                                                    purchaseId = subscriptionPurchaseId,
+                                                    maxNumberOfViews = maxNumberOfViews,
+                                                    endDate = endDate,
+                                                    startDate = createDate,
+                                                    billingTransactionId = billingTransactionId,
+                                                    billingGuid = billingGuid,
+                                                    entitlementDate = createDate
+                                                };
+
+                                                dalResult = subscriptionPurchase.Delete();
                                             }
-
-											int maxNumberOfViews = ODBCWrapper.Utils.ExtractInteger(userPurchaseRow, "MAX_NUM_OF_USES");
-											DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
-											DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "CREATE_DATE");
-											long billingTransactionId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "BILLING_TRANSACTION_ID");
-
-											SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(this.m_nGroupID)
-											{
-												siteGuid = purchasingSiteGuid,
-												productId = assetID.ToString(),
-												houseHoldId = domain.m_nDomainID,
-												Id = subscriptionPurchaseId,
-												purchaseId = subscriptionPurchaseId,
-												maxNumberOfViews = maxNumberOfViews,
-												endDate = endDate,
-												startDate = createDate,
-												billingTransactionId = billingTransactionId,
-												billingGuid = billingGuid,
-                                                entitlementDate = createDate
-											};
-
-											dalResult = subscriptionPurchase.Delete();
-												
-											break;
-										}
+                                            break;
+                                        }
 									case eTransactionType.Collection:
 										{
 											dalResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(purchasingSiteGuid, assetID, domainId);
@@ -9859,6 +9858,96 @@ namespace Core.ConditionalAccess
 
 			return result;
 		}
+
+        private bool CancelAddOnByCancelBaseSubscription(int subscriptionID, int domainId)
+        {
+            bool res = false;
+            try
+            {
+                List<long> addOnBase = new List<long>();
+                List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
+                
+                // get subscription id ==> check if base 
+                Subscription subscription = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionID.ToString(), string.Empty, string.Empty, string.Empty, false);// check if have in Utils 
+                
+                if (subscription != null && subscription.Type == SubscriptionType.Base)
+                {
+                    List<long> setsIds = subscription.GetSubscriptionSetIdsToPriority() != null ? subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList() : null;
+                    if (setsIds != null && setsIds.Count > 0 && Utils.TryGetSubscriptionSets(m_nGroupID, setsIds, ref subscriptionSets))
+                    {
+                        List<DependencySet> dependencySet = subscriptionSets.Where(x => x.Type == SubscriptionSetType.Dependency).Select(x => (DependencySet)x).ToList();
+                        // get all addons from this DependencySet                        
+                        foreach (DependencySet dSet in dependencySet)
+                        {
+                            addOnBase.AddRange(dSet.AddOnIds);
+                        }
+
+                        DomainEntitlements domainEntitlements = null;
+
+                        // get all household subscriptions
+                        if (Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainId, null, ref domainEntitlements))
+                        {
+                            // get all household with base subscription
+                            if (domainEntitlements.DomainBundleEntitlements != null && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions != null
+                                || domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Count() > 0)
+                            {
+                                List<long> hhSubscriptionIds = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Select(x => long.Parse(x.Key)).ToList();
+                                if (hhSubscriptionIds != null && hhSubscriptionIds.Count() > 0)
+                                {
+                                    //shrink addOnBase to the ones that household entiteled to 
+                                    addOnBase = addOnBase.Where(x1 => hhSubscriptionIds.Any(x => x == x1)).ToList();
+                                    if (addOnBase != null && addOnBase.Count() > 0)
+                                    {
+                                        // get all addon
+                                        Subscription[] subscriptionList = Utils.GetSubscriptionsDataWithCaching(addOnBase, m_nGroupID);
+
+                                        if (subscriptionList != null && subscriptionList.Count() > 0)
+                                        {
+                                            // get all dependency set for base subscription 
+                                            setsIds = new List<long>();
+                                            subscriptionSets = new List<SubscriptionSet>();
+                                            foreach (Subscription sub in subscriptionList)
+                                            {
+                                                // get set for subscription 
+                                                setsIds = sub.GetSubscriptionSetIdsToPriority() != null ? subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList() : null;
+
+                                                if (Utils.TryGetSubscriptionSets(m_nGroupID, setsIds, ref subscriptionSets)) // all sets of all base subscription for household
+                                                {
+                                                    dependencySet = subscriptionSets.Where(x => x.Type == SubscriptionSetType.Dependency).Select(x => (DependencySet)x).ToList();
+                                                    // get all baseSubscription from dependency sets
+                                                    if (dependencySet != null)
+                                                    {
+                                                        if (dependencySet.Where(x => x.BaseSubscriptionId != subscriptionID).Count() > 0)
+                                                        {
+                                                            // this addon not for cancel !!!
+                                                            addOnBase.Remove(long.Parse(sub.m_SubscriptionCode));
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        if (addOnBase != null && addOnBase.Count() > 0)
+                                        {
+                                            foreach (long addon in addOnBase)
+                                            {
+                                                bool success = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(string.Empty, addon, domainId, (int)SubscriptionPurchaseStatus.CancelNow);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("ex: {0}", ex);
+                res = false;
+            }
+            return true;
+        }
 
 		/// <summary>
 		/// Fire event that cancellation occurred 

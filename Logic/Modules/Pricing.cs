@@ -1121,6 +1121,23 @@ namespace Core.Pricing
             return response;
         }
 
+        public static SubscriptionSetsResponse GetSubscriptionSetsBySetIds(int groupId, List<long> setIds)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                response.SubscriptionSets = Utils.GetSubscriptionSets(groupId, setIds);
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed GetSubscriptionSetsBySetIds, groupId: {0}, setIds: {1}", groupId, setIds != null ? string.Join(",", setIds) : ""), ex);
+            }
+
+            return response;
+        }
+
         public static SubscriptionSetsResponse AddSubscriptionSet(int groupId, string name, List<long> subscriptionIds)
         {
             SubscriptionSetsResponse response = new SubscriptionSetsResponse();
@@ -1159,7 +1176,8 @@ namespace Core.Pricing
             return response;
         }
 
-        public static SubscriptionSetsResponse UpdateSubscriptionSet(int groupId, long setId, string name, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds)
+        public static SubscriptionSetsResponse UpdateSubscriptionSet(int groupId, long setId, string name, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds,
+            SubscriptionSetType type = SubscriptionSetType.Switch)
         {
             SubscriptionSetsResponse response = new SubscriptionSetsResponse();
             try
@@ -1194,10 +1212,16 @@ namespace Core.Pricing
                         }
                     }
 
-                    subscriptionSet.SubscriptionIds = new List<long>(subscriptionIds);
+                    if (type == SubscriptionSetType.Switch)
+                    {
+                        ((SwitchSet)subscriptionSet).SubscriptionIds = new List<long>(subscriptionIds);
+                    }
+                }
+                if (type == SubscriptionSetType.Switch)
+                {
+                    SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionSet(groupId, subscriptionSet.Id, subscriptionSet.Name, ((SwitchSet)subscriptionSet).SubscriptionIds, shouldUpdateSubscriptionIds);
                 }
 
-                SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionSet(groupId, subscriptionSet.Id, subscriptionSet.Name, subscriptionSet.SubscriptionIds, shouldUpdateSubscriptionIds);
                 if (subscriptionSet != null && subscriptionSet.Id > 0)
                 {
                     response.SubscriptionSets.Clear();

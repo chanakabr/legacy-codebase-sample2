@@ -167,6 +167,7 @@ namespace ApiObjects.Response
         CanNotCancelSubscriptionWhileDowngradeIsPending = 3068,
         CanNotCancelSubscriptionRenewalWhileDowngradeIsPending = 3069,
         SubscriptionNotAllowedForUserType = 3070,
+        MissingBasePackage = 3071,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

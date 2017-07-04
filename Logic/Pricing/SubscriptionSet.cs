@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Pricing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,32 +7,39 @@ using System.Threading.Tasks;
 
 namespace Core.Pricing
 {
-    public class SubscriptionSet
+    public abstract class SubscriptionSet
     {
 
         public long Id { get; set; }
         public string Name { get; set; }
-        public List<long> SubscriptionIds { get; set; }
+        public SubscriptionSetType Type { get; set; }
+                
 
         public SubscriptionSet()
         {
             Id = 0;
-            SubscriptionIds = new List<long>();
+            Name = string.Empty;
+            Type = SubscriptionSetType.Switch;
+        }
+
+        public SubscriptionSet(SubscriptionSetType type)
+        {
+            Id = 0;
+            Name = string.Empty;
+            Type = type;
         }
 
         public SubscriptionSet(long id, string name)
         {
             Id = id;
             Name = name;
-            SubscriptionIds = new List<long>();
+            Type = SubscriptionSetType.Switch;
         }
-
-        public SubscriptionSet(long id, string name, List<long> subscriptionIds)
+        public SubscriptionSet(long id, string name, SubscriptionSetType type)
         {
             Id = id;
             Name = name;
-            SubscriptionIds = new List<long>(subscriptionIds);
+            Type = type;
         }
-
     }
 }
