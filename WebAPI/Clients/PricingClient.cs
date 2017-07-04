@@ -205,16 +205,19 @@ namespace WebAPI.Clients
             return coupon;
         }
 
-        internal KalturaSubscriptionSetListResponse GetSubscriptionSets(int groupId, List<long> ids, KalturaSubscriptionSetOrderBy? orderBy)
+        internal KalturaSubscriptionSetListResponse GetSubscriptionSets(int groupId, List<long> ids, KalturaSubscriptionSetOrderBy? orderBy, KalturaSubscriptionSetType? type)
         {
             KalturaSubscriptionSetListResponse result = new KalturaSubscriptionSetListResponse() { TotalCount = 0 };
             SubscriptionSetsResponse response = null;            
 
             try
             {
+                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type.Value);
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptionSets(groupId, ids);
+
+                    response = Core.Pricing.Module.GetSubscriptionSets(groupId, ids, setType);
                 }
             }
             catch (Exception ex)
@@ -261,16 +264,18 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaSubscriptionSetListResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds, KalturaSubscriptionSetOrderBy? orderBy)
+        internal KalturaSubscriptionSetListResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds, KalturaSubscriptionSetOrderBy? orderBy, KalturaSubscriptionSetType? type)
         {
             KalturaSubscriptionSetListResponse result = new KalturaSubscriptionSetListResponse() { TotalCount = 0 };
             SubscriptionSetsResponse response = null;
 
             try
             {
+                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type.Value);               
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptionSetsBySubscriptionIds(groupId, subscriptionIds);
+                    response = Core.Pricing.Module.GetSubscriptionSetsBySubscriptionIds(groupId, subscriptionIds, setType);
                 }
             }
             catch (Exception ex)

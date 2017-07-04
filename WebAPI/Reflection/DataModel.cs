@@ -5725,6 +5725,8 @@ namespace WebAPI.Reflection
                             return "renewalsNumber";
                         case "StartDate":
                             return "startDate";
+                        case "Type":
+                            return "type";
                         case "UserTypes":
                             return "userTypes";
                         case "ViewLifeCycle":
@@ -5811,6 +5813,8 @@ namespace WebAPI.Reflection
                             return "idIn";
                         case "SubscriptionIdContains":
                             return "subscriptionIdContains";
+                        case "TypeEqual":
+                            return "typeEqual";
                     }
                     break;
                     

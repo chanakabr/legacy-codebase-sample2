@@ -51,12 +51,12 @@ namespace WebAPI.Controllers
                 if (!string.IsNullOrEmpty(filter.SubscriptionIdContains))
                 {
                     // call client
-                    response = ClientsManager.PricingClient().GetSubscriptionSetsBySubscriptionIds(groupId, filter.GetSubscriptionIdContains(), filter.OrderBy);  
+                    response = ClientsManager.PricingClient().GetSubscriptionSetsBySubscriptionIds(groupId, filter.GetSubscriptionIdContains(), filter.OrderBy, filter.TypeEqual);  
                 }
                 else
                 {
                     // call client
-                    response = ClientsManager.PricingClient().GetSubscriptionSets(groupId, filter.GetIdIn(), filter.OrderBy);
+                    response = ClientsManager.PricingClient().GetSubscriptionSets(groupId, filter.GetIdIn(), filter.OrderBy, filter.TypeEqual);
                 }
                 
             }

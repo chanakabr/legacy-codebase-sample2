@@ -39,6 +39,16 @@ namespace WebAPI.Models.Pricing
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string SubscriptionIdContains { get; set; }
 
+        /// <summary>
+        /// Subscription Type
+        /// </summary>
+        [DataMember(Name = "typeEqual")]
+        [JsonProperty("typeEqual")]
+        [XmlArray(ElementName = "typeEqual", IsNullable = true)]
+        [XmlArrayItem(ElementName = "typeEqual")]
+        public KalturaSubscriptionSetType? TypeEqual { get; set; }
+        
+
         public override KalturaSubscriptionSetOrderBy GetDefaultOrderByValue()
         {
             return KalturaSubscriptionSetOrderBy.NAME_ASC;

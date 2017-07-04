@@ -158,7 +158,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_SubscriptionCode))
                .ForMember(dest => dest.UserTypes, opt => opt.MapFrom(src => src.m_UserTypes))
                .ForMember(dest => dest.ProductCodes, opt => opt.MapFrom(src => ConvertProductCodes(src.ExternalProductCodes)))
-               .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)));
+               .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)))
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSubscriptionType(src.Type)));
 
             // KalturaPricePlan
             Mapper.CreateMap<UsageModule, KalturaPricePlan>()
@@ -561,6 +562,117 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return new List<KalturaPremiumService>();
+        }
+
+        private static KalturaSubscriptionType? ConvertSubscriptionType(SubscriptionType? type)
+        {
+            KalturaSubscriptionType? result = null;
+
+            if (type.HasValue)
+            {
+                switch (type.Value)
+                {
+                    case SubscriptionType.AddOn:
+                        {
+                            result = KalturaSubscriptionType.ADDON;
+                            break;
+                        }
+                    case SubscriptionType.Base:
+                        {
+                            result = KalturaSubscriptionType.BASE;
+                            break;
+                        }
+                    case SubscriptionType.NotApplicable:
+                        {
+                            result = KalturaSubscriptionType.NOTAPPLICABLE;
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+            return result;
+        }
+        
+        public static SubscriptionType? ConvertSubscriptionType(KalturaSubscriptionType? type)
+        {
+            SubscriptionType? result = null;
+
+            if (type.HasValue)
+            {
+                switch (type.Value)
+                {
+                    case KalturaSubscriptionType.ADDON:
+                        {
+                            result = SubscriptionType.AddOn;
+                            break;
+                        }
+                    case KalturaSubscriptionType.BASE:
+                        {
+                            result = SubscriptionType.Base;
+                            break;
+                        }
+                    case KalturaSubscriptionType.NOTAPPLICABLE:
+                        {
+                            result = SubscriptionType.NotApplicable;
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+            return result;
+        }
+
+
+        public static KalturaSubscriptionSetType? ConvertSubscriptionSetType(SubscriptionSetType? type)
+        {
+            KalturaSubscriptionSetType? result = null;
+
+            if (type.HasValue)
+            {
+                switch (type.Value)
+                {
+                    case SubscriptionSetType.Switch:
+                        {
+                            result = KalturaSubscriptionSetType.SWITCH;
+                            break;
+                        }
+                    case SubscriptionSetType.Dependency:
+                        {
+                            result = KalturaSubscriptionSetType.DEPENDENCY;
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
+            return result;
+        }
+        public static SubscriptionSetType? ConvertSubscriptionSetType(KalturaSubscriptionSetType? type)
+        {
+            SubscriptionSetType? result = null;
+            if (type.HasValue)
+            {
+                switch (type.Value)
+                {
+                    case KalturaSubscriptionSetType.SWITCH:
+                        {
+                            result = SubscriptionSetType.Switch;
+                            break;
+                        }
+                    case KalturaSubscriptionSetType.DEPENDENCY:
+                        {
+                            result = SubscriptionSetType.Dependency;
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
+            return result;
         }
     }
 }
