@@ -212,7 +212,7 @@ namespace WebAPI.Clients
 
             try
             {
-                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type.Value);
+                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -271,7 +271,7 @@ namespace WebAPI.Clients
 
             try
             {
-                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type.Value);               
+                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type);               
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -479,7 +479,7 @@ namespace WebAPI.Clients
 
             try
             {
-                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type.Value);
+                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
