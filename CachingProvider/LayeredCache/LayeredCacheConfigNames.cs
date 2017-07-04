@@ -43,6 +43,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_ALIAS_MAPPING_FIELDS_CACHE_CONFIG_NAME = "GetAliasMappingFields";
         public const string GET_REMINDERS_CACHE_CONFIG_NAME = "GetReminders";
         public const string GET_ANNOUNCEMENTS_LAYERED_CACHE_CONFIG_NAME = "TryGetAnnouncements";
+        public const string GET_SUBSCRIPTION_SETS_CACHE_CONFIG_NAME = "GetSubscriptionSets";
         #endregion
 
         #region Constant Invalidation Keys

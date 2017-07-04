@@ -1401,12 +1401,13 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static DataTable GetSetsContainingSubscriptionIds(int groupId, List<long> subscriptionIds)
+        public static DataTable GetSetsContainingSubscriptionIds(int groupId, List<long> subscriptionIds, int type = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSetsContainingSubscriptionIds");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter("@SubscriptionIds", subscriptionIds, "id");     
+            sp.AddParameter("@Type", type);
             return sp.Execute();
         }
 
@@ -1472,6 +1473,16 @@ namespace DAL
             sp.AddParameter("@SetId", setId);
 
             return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataTable GetSetsContainingBaseSubscription(int groupId, List<long> subscriptionIds, int type = 1)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSetsContainingBaseSubscription");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@SubscriptionIds", subscriptionIds, "id");
+            sp.AddParameter("@Type", type);
+            return sp.Execute();
         }
     }
 }

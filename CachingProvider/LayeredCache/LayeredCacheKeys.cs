@@ -333,5 +333,45 @@ namespace CachingProvider.LayeredCache
 
         #endregion
 
+
+        public static string GetSetIdKey(int groupId, long setId)
+        {
+            return string.Format("setId_{0}_groupId_{1}", setId, groupId);
+        }
+        public static string GetSubscriptionSetIdInvalidationKey(int groupId, long setId)
+        {
+            return string.Format("invalidationKeySubscriptionSet_groupId_{0}_id_{1}", groupId, setId);
+        }
+
+
+        public static Dictionary<string, string> GetSubscriptionSetsKeysMap(int groupId, List<long> setIds)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (setIds != null && setIds.Count > 0)
+            {
+                setIds = setIds.Distinct().ToList();
+                foreach (long id in setIds)
+                {
+                    result.Add(GetSetIdKey(groupId, id), id.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        public static Dictionary<string, List<string>> GetSubscriptionSetsInvalidationKeysMap(int groupId, List<long> setIds)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (setIds != null && setIds.Count > 0)
+            {
+                setIds = setIds.Distinct().ToList();
+                foreach (long id in setIds)
+                {
+                    result.Add(GetSetIdKey(groupId, id), new List<string>() { GetSubscriptionSetIdInvalidationKey(groupId, id) });
+                }
+            }
+
+            return result;
+        }
     }
 }
