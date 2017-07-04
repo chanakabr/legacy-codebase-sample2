@@ -16,6 +16,7 @@ using ApiObjects.Response;
 using KLogMonitor;
 using System.Reflection;
 using CachingProvider.LayeredCache;
+using ApiObjects.DRM;
 
 namespace Core.Users
 {
@@ -635,6 +636,15 @@ namespace Core.Users
                     return DomainResponseStatus.Error;
                 }
 
+                try
+                {
+                    RemoveDeviceDrmId(sUDID);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove DevicesDrmID from db / cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, sUDID, ex), ex);
+                }
+
                 // if the first update done successfully - remove domain from cache
                 try
                 {
@@ -689,6 +699,70 @@ namespace Core.Users
             }
 
             return bRes;
+        }
+
+        private bool RemoveDeviceDrmId(string sUDID)
+        {
+            DrmPolicy drmPolicy = Utils.GetDrmPolicy(m_nGroupID);
+
+            if (drmPolicy != null)
+            {
+                List<int> deviceIds = new List<int>();
+
+                // check that udid exsits in doimain device list
+                DeviceContainer deviceContainer = this.m_deviceFamilies.Where(x => x.DeviceInstances != null && x.DeviceInstances.Find(u => u.m_deviceUDID == sUDID) != null ? true : false).FirstOrDefault();
+                if (deviceContainer == null || deviceContainer.DeviceInstances == null || deviceContainer.DeviceInstances.Count == 0)
+                {
+                    log.ErrorFormat("udid not exsits in Domain devices list groupId={0}, domainId={1}, udid ={2}", m_nGroupID, this.m_nDomainID, sUDID);
+                    return false; // error 
+                }
+
+                // check that device family in the Family policy roles
+                if (drmPolicy.FamilyLimitation.Contains(deviceContainer.m_deviceFamilyID))
+                {
+                    // get domainDrmId by deviceIds list 
+                    deviceIds = deviceContainer.DeviceInstances.Select(d => int.Parse(d.m_id)).ToList<int>();
+
+                    return ClearDevicesDrmId(deviceIds);
+                }
+
+                switch (drmPolicy.Policy)
+                {
+                    case DrmSecurityPolicy.DeviceLevel: // device - clear only device 
+                        // get specific device by udid 
+                        deviceIds = (this.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Where(f => f.m_deviceUDID == sUDID).
+                            Select(y => int.Parse(y.m_id)).ToList<int>();
+                        break;
+                    case DrmSecurityPolicy.HouseholdLevel:// hh - cleare all devices 
+                        // get all devices for the domain
+                        deviceIds = (this.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Select(y => int.Parse(y.m_id)).ToList<int>();
+                        break;
+                    default:
+                        break;
+                }
+
+                // get all drmId for devices      
+                return ClearDevicesDrmId(deviceIds);
+            }
+            return false;
+        }
+
+        private bool ClearDevicesDrmId(List<int> deviceIds)
+        {
+            Dictionary<int, string> domainDrmId;
+            if (deviceIds != null && deviceIds.Count > 0)
+            {
+                domainDrmId = DomainDal.GetDomainDrmId(m_nDomainID);
+
+                if (DomainDal.ClearDevicesDrmID(m_nGroupID, deviceIds, m_nDomainID))
+                {
+                    if (domainDrmId != null && domainDrmId.Count > 0)
+                    {
+                        return Utils.RemoveDrmId(domainDrmId.Where(x => deviceIds.Contains(x.Key)).Select(x => x.Value).ToList(), m_nGroupID);
+                    }
+                }
+            }
+            return false;
         }
 
         private bool IsDeviceExistInDomain(Domain domain, string sUDID, ref int isActive, ref int nDeviceID, 
@@ -2783,8 +2857,7 @@ namespace Core.Users
             INPVRProvider npvr;
             if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr) && npvr.SynchronizeNpvrWithDomain && Utils.IsServiceAllowed(m_nGroupID, m_nDomainID, eService.NPVR))
             {
-
-                if (npvr != null)
+                try
                 {
                     NPVRUserActionResponse resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString(), Quota = npvrQuotaInSecs });
                     if (resp != null)
@@ -2805,12 +2878,12 @@ namespace Core.Users
                         log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider CreateAccount response is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
+                    m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
+                    log.ErrorFormat("CreateNewDomain. NPVR Provider return with ex from Factory. G ID: {0} , D ID: {1} , ex: {2}", m_nGroupID, m_nDomainID, ex);
                 }
             }
-
 
             return success;
         }

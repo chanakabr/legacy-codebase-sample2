@@ -1217,9 +1217,9 @@ namespace Core.Users
             return domainDrmId;
         }
 
-        public static bool IsDrmIdUnique(string drmId, int domainId, string udid, ref KeyValuePair<int, string> drmValue)
+        public static bool IsDrmIdUnique(string drmId, int domainId, string udid, int groupId, ref KeyValuePair<int, string> drmValue)
         {
-            KeyValuePair<int, string> response = GetDrmId(drmId);
+            KeyValuePair<int, string> response = GetDrmId(drmId, groupId);
             if (response.Key == domainId)
             {
                 drmValue = response;
@@ -1236,11 +1236,11 @@ namespace Core.Users
             }
         }
 
-        private static KeyValuePair<int, string> GetDrmId(string drmId)
+        private static KeyValuePair<int, string> GetDrmId(string drmId, int groupId)
         {
             KeyValuePair<int, string> response = new KeyValuePair<int, string>(0, string.Empty);
 
-            KeyValuePair<string, KeyValuePair<int, string>> drm = DomainDal.GetDrmId(drmId);
+            KeyValuePair<string, KeyValuePair<int, string>> drm = DomainDal.GetDrmId(drmId, groupId);
 
             if (drm.Key == drmId)
             {
@@ -1254,16 +1254,16 @@ namespace Core.Users
 
       
 
-        internal static bool HandleDeviceDrmIdUpdate(int m_nGroupID, string deviceId, string drmId, int domainId, string udid)
+        internal static bool HandleDeviceDrmIdUpdate(int groupID, string deviceId, string drmId, int domainId, string udid)
         {
             bool result = false;
             try
             {
-                result = DomainDal.UpdateDeviceDrmID(m_nGroupID, deviceId, drmId, domainId);
+                result = DomainDal.UpdateDeviceDrmID(groupID, deviceId, drmId, domainId);
                 if (result)
                 {
                     KeyValuePair<string, KeyValuePair<int, string>> document = new KeyValuePair<string, KeyValuePair<int, string>>(drmId, new KeyValuePair<int, string>(domainId, udid));
-                    result = DomainDal.SetDrmId(document, drmId);
+                    result = DomainDal.SetDrmId(document, drmId, groupID);
                     if (!result)
                     {
                         log.ErrorFormat("fail SetDrmId document={0}, drmId={1}", document.ToJSON(), drmId);
@@ -1271,37 +1271,26 @@ namespace Core.Users
                 }
                 else
                 {
-                    log.ErrorFormat("fail UpdateDeviceDrmID groupID={0}, deviceId={1}, drmId={2}, domainId={3}", m_nGroupID, deviceId, drmId, domainId);
+                    log.ErrorFormat("fail UpdateDeviceDrmID groupID={0}, deviceId={1}, drmId={2}, domainId={3}", groupID, deviceId, drmId, domainId);
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("fail HandleDeviceDrmIdUpdate groupID={0}, deviceId={1}, drmId={2}, domainId={3}, udid={4}, ex={5}",
-                    m_nGroupID, deviceId, drmId, domainId, udid, ex);
+                    groupID, deviceId, drmId, domainId, udid, ex);
                 result = false;
             }
             return result;
         }
 
-        internal static bool SetDrmId(string drmId, int domainId, string udid)
+        internal static bool SetDrmId(string drmId, int domainId, string udid, int groupId)
         {
             KeyValuePair<string, KeyValuePair<int, string>> document = new KeyValuePair<string, KeyValuePair<int, string>>(drmId, new KeyValuePair<int, string>(domainId, udid));
-            bool result = DomainDal.SetDrmId(document, drmId);
+            bool result = DomainDal.SetDrmId(document, drmId, groupId);
             return result;
         }
 
         internal static bool IsServiceAllowed(int groupId, int domainId, eService service)
-        {
-            List<int> enforcedGroupServices = Utils.GetGroupEnforcedServices(groupId);
-            //check if service is part of the group enforced services
-            if (enforcedGroupServices == null || enforcedGroupServices.Count == 0 || !enforcedGroupServices.Contains((int)service))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        private static List<int> GetGroupEnforcedServices(int groupId)
         {
             List<int> services;
             string key = string.Format("GroupEnforcedServices_{0}", groupId);
@@ -1318,8 +1307,29 @@ namespace Core.Users
                     log.ErrorFormat("Failed inserting GroupEnforcedServices to cache, key: {0}", key);
                 }
             }
+            //check if service is part of the group enforced services
+            if (services == null || services.Count == 0 || !services.Contains((int)service))
+            {
+                return true;
+            }
+            return false;
+        }
 
-            return services;
+
+
+        internal static bool RemoveDrmId(List<string> drmIds, int groupId)
+        {
+            bool result = true;
+            if (drmIds == null || drmIds.Count == 0)
+            {
+                return result;
+            }
+
+            foreach (string drmId in drmIds)
+            {
+                result = result & DomainDal.RemoveDrmId(drmId, groupId);
+            }
+            return result;
         }
     }
 }
