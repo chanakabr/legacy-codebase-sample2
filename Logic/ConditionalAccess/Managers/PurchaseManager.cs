@@ -1049,7 +1049,7 @@ namespace Core.ConditionalAccess
                 {
                     if (subscription.Type == SubscriptionType.AddOn)
                     {
-                        ApiObjects.Response.Status Status = Utils.CanPurchaseAddOn(groupId, householdId, subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList());
+                        ApiObjects.Response.Status Status = Utils.CanPurchaseAddOn(groupId, householdId, subscription);
                         if (Status.Code != (int)eResponseStatus.OK)
                         {
                             response.Status = Status;

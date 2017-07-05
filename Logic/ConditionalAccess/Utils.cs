@@ -7725,18 +7725,25 @@ namespace Core.ConditionalAccess
             return new Tuple<Dictionary<string, SubscriptionSet>, bool>(result, res);
         }
 
-        internal static ApiObjects.Response.Status CanPurchaseAddOn(int groupId, long householdId, List<long> setIds)
+        internal static ApiObjects.Response.Status CanPurchaseAddOn(int groupId, long householdId, Subscription subscription)
         {
+            
             ApiObjects.Response.Status Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
+                if (subscription == null)
+                {
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Subscription is null");
+                    return Status; 
+                }
+                List<long> setIds = subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
                 DomainEntitlements domainEntitlements = null;
 
                 // get all base set containing this add on 
                 List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
                 if (!TryGetSubscriptionSets(groupId, setIds, ref subscriptionSets))
                 {
-                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No Sets found");
                     return Status; 
                 }
 
@@ -7754,16 +7761,16 @@ namespace Core.ConditionalAccess
                     if (Utils.TryGetDomainEntitlementsFromCache(groupId, (int)householdId, null, ref domainEntitlements))
                     {
                         // get all household with base subscription
-                        if (domainEntitlements.DomainBundleEntitlements == null && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions == null
+                        if (domainEntitlements.DomainBundleEntitlements == null || domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions == null
                             || domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Count() == 0)
                         {
                             Status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
                             return Status;
                         }
-                        List<long> baseSubscriptionIds = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Select(x => long.Parse(x.Key)).ToList();
+                        List<long> subscriptionIds = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Select(x => long.Parse(x.Key)).ToList();
 
                         // try to find if one of this base subscription id is a base in the sets above
-                        if (dependencySet.Where(x => baseSubscriptionIds.Contains(x.BaseSubscriptionId)).Count() == 0)
+                        if (dependencySet.Where(x => subscriptionIds.Contains(x.BaseSubscriptionId)).Count() == 0)
                         {
                             Status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
                             return Status;
@@ -7773,7 +7780,8 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CanPurchaseAddOn  SubscriptionCode: {0}, groupId: {1} setsIds: {2},  ex: {3}", setIds != null ? string.Join(",", setIds) : string.Empty,
+                log.ErrorFormat("CanPurchaseAddOn  SubscriptionCode: {0}, groupId: {1} setsIds: {2},  ex: {3}",
+                    subscription != null ? string.Join(",", subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList()) : string.Empty,
                     groupId, householdId, ex);
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 return Status;

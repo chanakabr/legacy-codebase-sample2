@@ -312,7 +312,7 @@ namespace Core.ConditionalAccess
                 {
                     if (subscription.Type == SubscriptionType.AddOn && subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
                     {
-                        status = Utils.CanPurchaseAddOn(groupId, householdId, subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList());
+                        status = Utils.CanPurchaseAddOn(groupId, householdId, subscription);
                         if (status.Code != (int)eResponseStatus.OK)
                         {
                             return status;

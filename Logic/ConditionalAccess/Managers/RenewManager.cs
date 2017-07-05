@@ -234,11 +234,16 @@ namespace Core.ConditionalAccess
 
             if (subscription.Type == SubscriptionType.AddOn && subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
             {
-                ApiObjects.Response.Status status = Utils.CanPurchaseAddOn(groupId, householdId, subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList());
+                ApiObjects.Response.Status status = Utils.CanPurchaseAddOn(groupId, householdId, subscription);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
+                    // change is recurring to false and call event handle
+                    // renew subscription failed!
+                    bool handleNonRenew = HandleRenewSubscriptionFailed(cas, groupId,
+                        siteguid, purchaseId, logString, productId, subscription, householdId, 0, "AddOn with no BaseSubscription valid");
+
                     log.ErrorFormat("failed renew subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", subscription.m_SubscriptionCode,status.Code, status.Message);
-                    return false;
+                    return true; 
                 }
             }
 

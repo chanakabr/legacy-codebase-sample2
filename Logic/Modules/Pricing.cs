@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web;
 using ApiObjects.Pricing;
 using System.Reflection;
+using CachingProvider.LayeredCache;
 
 namespace Core.Pricing
 {
@@ -1261,6 +1262,12 @@ namespace Core.Pricing
                 if (DAL.PricingDAL.DeleteSubscriptionSet(groupId, setId))
                 {
                     response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    
+                    // call layered cache . setinvalidateion key
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSubscriptionSetIdInvalidationKey(groupId, setId)))
+                    {
+                        log.ErrorFormat("Failed LayeredCache.Instance.SetInvalidationKey, groupId: {0}, setId: {1}", groupId, setId);
+                    }
                 }
             }
             catch (Exception ex)
@@ -1395,6 +1402,12 @@ namespace Core.Pricing
                     response.SubscriptionSets.Clear();
                     response.SubscriptionSets.Add(subscriptionSet);
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                                        
+                    // call layered cache . setinvalidateion key
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSubscriptionSetIdInvalidationKey(groupId, subscriptionSet.Id)))
+                    {
+                        log.ErrorFormat("Failed LayeredCache.Instance.SetInvalidationKey, groupId: {0}, setId: {1}",groupId, subscriptionSet.Id);                        
+                    }
                 }
             }
             catch (Exception ex)
