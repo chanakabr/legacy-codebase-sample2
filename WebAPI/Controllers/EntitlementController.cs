@@ -312,6 +312,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NotForPurchase)]
         [Throws(eResponseStatus.UnableToPurchaseCollectionPurchased)]
         [Throws(eResponseStatus.UnKnownPPVModule)]
+        [Throws(eResponseStatus.MissingBasePackage)]
         public bool Grant(int productId, KalturaTransactionType productType, bool history, int contentId = 0)
         {
             bool response = false;

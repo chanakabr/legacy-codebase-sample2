@@ -92,7 +92,8 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet)]        
+        [Throws(eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
+        [Throws(eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
         public KalturaSubscriptionSet Add(KalturaSubscriptionSet subscriptionSet)
         {
             KalturaSubscriptionSet response = null;
@@ -141,7 +142,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
         [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
-        [SchemeArgument("id", MinLong=1)]
+        [Throws(eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
+        [SchemeArgument("id", MinLong=1)]       
         public KalturaSubscriptionSet Update(long id, KalturaSubscriptionSet subscriptionSet)
         {
             KalturaSubscriptionSet response = null;
