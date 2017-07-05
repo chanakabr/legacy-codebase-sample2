@@ -1648,12 +1648,12 @@ namespace DAL
             return sp.ExecuteReturnValue<long>() > 0;
         }
 
-        public static bool Update_SubPurchaseNumOfUses(long groupID, string siteGuid, string subCode)
+        public static bool Update_SubPurchaseNumOfUses(long groupID, long domainId, string subCode)
         {
             StoredProcedure sp = new StoredProcedure("Update_SubPurchaseNumOfUses");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
-            sp.AddParameter("@SiteGuid", siteGuid);
+            sp.AddParameter("@DomainId", domainId);
             sp.AddParameter("@SubCode", subCode);
 
             return sp.ExecuteReturnValue<bool>();
