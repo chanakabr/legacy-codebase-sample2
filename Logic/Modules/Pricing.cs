@@ -1322,7 +1322,7 @@ namespace Core.Pricing
             return response;
         }
 
-        public static SubscriptionSetsResponse AddSubscriptionSet(int groupId, string name, long baseSubscriptionId, List<long> subscriptionIds, SubscriptionSetType setType)
+        public static SubscriptionSetsResponse AddSubscriptionDependencySet(int groupId, string name, long baseSubscriptionId, List<long> subscriptionIds, SubscriptionSetType setType)
         {
             SubscriptionSetsResponse response = new SubscriptionSetsResponse();
             try
@@ -1353,7 +1353,7 @@ namespace Core.Pricing
             return response;
         }
 
-        public static SubscriptionSetsResponse UpdateSubscriptionSet(int groupId, long setId, string name, long baseSubscriptionId, List<long> subscriptionIds,
+        public static SubscriptionSetsResponse UpdateSubscriptionDependencySet(int groupId, long setId, string name, long? baseSubscriptionId, List<long> subscriptionIds,
             bool shouldUpdateSubscriptionIds, SubscriptionSetType setType = SubscriptionSetType.Dependency)
         {
             SubscriptionSetsResponse response = new SubscriptionSetsResponse();
@@ -1376,9 +1376,9 @@ namespace Core.Pricing
 
                 if (setType == SubscriptionSetType.Dependency)
                 {
-                    if (baseSubscriptionId > 0) // check that this base not belong to other set
+                    if (baseSubscriptionId.HasValue) // check that this base not belong to other set
                     {
-                        List<SubscriptionSet> baseInSet = Utils.GetSubscriptionSetsByBaseSubscriptionIds(groupId, new List<long>() { baseSubscriptionId }, setType);
+                        List<SubscriptionSet> baseInSet = Utils.GetSubscriptionSetsByBaseSubscriptionIds(groupId, new List<long>() { baseSubscriptionId.Value }, setType);
                         if (baseInSet != null && baseInSet.Count() > 0)
                         {
                             string msg = string.Format("{0} for the following baseSubscriptionId: {1}", eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString(), baseSubscriptionId);
@@ -1393,7 +1393,7 @@ namespace Core.Pricing
                 }
                 if (setType == SubscriptionSetType.Dependency)
                 {
-                    SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionSet(groupId, subscriptionSet.Id, subscriptionSet.Name, baseSubscriptionId ,
+                    SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionDependencySet(groupId, subscriptionSet.Id, subscriptionSet.Name, baseSubscriptionId.Value,
                         subscriptionIds, shouldUpdateSubscriptionIds, setType);
                 }
 

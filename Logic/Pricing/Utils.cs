@@ -1004,7 +1004,7 @@ namespace Core.Pricing
             return subscriptionSet;
         }
 
-        internal static SubscriptionSet UpdateSubscriptionSet(int groupId, long setId, string name, long baseSubscriptionId, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds, SubscriptionSetType type)    
+        internal static SubscriptionSet UpdateSubscriptionDependencySet(int groupId, long setId, string name, long baseSubscriptionId, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds, SubscriptionSetType type)    
         {
             SubscriptionSet subscriptionSet = null;
             try
