@@ -217,6 +217,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("announecements_groupId_{0}", groupId);
         }
 
+        public static string GetSetIdKey(int groupId, long setId)
+        {
+            return string.Format("subscriptionSet_{0}_groupId_{1}", setId, groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -330,20 +335,13 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyAnnounecements_groupId_{0}", groupId);
         }
-
-        #endregion
-
-
-        public static string GetSetIdKey(int groupId, long setId)
-        {
-            return string.Format("setId_{0}_groupId_{1}", setId, groupId);
-        }
+       
         public static string GetSubscriptionSetIdInvalidationKey(int groupId, long setId)
         {
             return string.Format("invalidationKeySubscriptionSet_groupId_{0}_id_{1}", groupId, setId);
         }
-
-
+        #endregion
+                
         public static Dictionary<string, string> GetSubscriptionSetsKeysMap(int groupId, List<long> setIds)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
