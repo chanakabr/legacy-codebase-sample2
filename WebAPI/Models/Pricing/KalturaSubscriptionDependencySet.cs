@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Pricing
 {
@@ -19,7 +21,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "baseSubscriptionId")]
         [JsonProperty("baseSubscriptionId")]
-        [XmlElement(ElementName = "baseSubscriptionId")]      
+        [XmlElement(ElementName = "baseSubscriptionId")]       
         public long BaseSubscriptionId { get; set; }
+
     }
 }

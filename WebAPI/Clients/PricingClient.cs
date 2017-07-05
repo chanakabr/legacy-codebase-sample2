@@ -550,5 +550,85 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaSubscriptionSet AddSubscriptionSet(int groupId, string name, long baseSubscriptionId, List<long> subscriptionIds)
+        {
+            KalturaSubscriptionSet subscriptionSet = null;
+            SubscriptionSetsResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.Pricing.Module.AddSubscriptionSet(groupId, name, baseSubscriptionId, subscriptionIds, SubscriptionSetType.Dependency);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SubscriptionSets != null && response.SubscriptionSets.Count == 1)
+            {
+                // convert response
+                subscriptionSet = AutoMapper.Mapper.Map<KalturaSubscriptionDependencySet>(response.SubscriptionSets.First());
+            }
+
+            return subscriptionSet;
+        }
+
+        internal KalturaSubscriptionSet UpdateSubscriptionSet(int groupId, long setId, string name, long baseSubscriptionId, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds)
+        {
+            KalturaSubscriptionSet subscriptionSet = null;
+            SubscriptionSetsResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.Pricing.Module.UpdateSubscriptionSet(groupId, setId, name, baseSubscriptionId, subscriptionIds, shouldUpdateSubscriptionIds);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SubscriptionSets != null && response.SubscriptionSets.Count == 1)
+            {
+                // convert response
+                subscriptionSet = AutoMapper.Mapper.Map<KalturaSubscriptionDependencySet>(response.SubscriptionSets.First());
+            }
+
+            return subscriptionSet;
+        }
     }
 }

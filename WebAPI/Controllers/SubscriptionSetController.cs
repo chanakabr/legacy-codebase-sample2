@@ -106,9 +106,22 @@ namespace WebAPI.Controllers
             try
             {
                 List<long> subscriptionIds = subscriptionSet.SubscriptionIds != null ? subscriptionSet.GetSubscriptionIds() : new List<long>();
-
-                // call client
-                response = ClientsManager.PricingClient().AddSubscriptionSet(groupId, subscriptionSet.Name, subscriptionIds);
+                
+                if (subscriptionSet is KalturaSubscriptionDependencySet)
+                {
+                    KalturaSubscriptionDependencySet dSubscriptionSet = (KalturaSubscriptionDependencySet)subscriptionSet;
+                    if (dSubscriptionSet.BaseSubscriptionId == 0)
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_STRING_CONTAINED_MIN_VALUE_CROSSED, "BaseSubscriptionId", 1);
+                    }
+                    // call client
+                    response = ClientsManager.PricingClient().AddSubscriptionSet(groupId, dSubscriptionSet.Name, dSubscriptionSet.BaseSubscriptionId, subscriptionIds);
+                }
+                else
+                {
+                    // call client
+                    response = ClientsManager.PricingClient().AddSubscriptionSet(groupId, subscriptionSet.Name, subscriptionIds);
+                }
             }
             catch (ClientException ex)
             {
@@ -142,9 +155,18 @@ namespace WebAPI.Controllers
                 {
                     subscriptionIds = subscriptionSet.GetSubscriptionIds();
                 }
-                
-                // call client
-                response = ClientsManager.PricingClient().UpdateSubscriptionSet(groupId, id, subscriptionSet.Name, subscriptionIds, shouldUpdateSubscriptionIds);
+
+                if (subscriptionSet is KalturaSubscriptionDependencySet)
+                {
+                    KalturaSubscriptionDependencySet dSubscriptionSet = (KalturaSubscriptionDependencySet)subscriptionSet;                    
+                    // call client
+                    response = ClientsManager.PricingClient().UpdateSubscriptionSet(groupId, id, dSubscriptionSet.Name, dSubscriptionSet.BaseSubscriptionId, subscriptionIds, shouldUpdateSubscriptionIds);
+                }
+                else
+                {
+                    // call client
+                    response = ClientsManager.PricingClient().UpdateSubscriptionSet(groupId, id, subscriptionSet.Name, subscriptionIds, shouldUpdateSubscriptionIds);
+                }
             }
             catch (ClientException ex)
             {
