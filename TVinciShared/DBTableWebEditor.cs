@@ -359,22 +359,23 @@ namespace TVinciShared
 
         static public string ClearFromHTML(string sToClean)
         {
-            string sCleaned = sToClean;
-            bool bCont = true;
-            while (bCont == true)
-            {
-                Int32 nLoc = sCleaned.IndexOf('<');
-                Int32 nLocEnd = sCleaned.IndexOf('>');
-                if (nLoc > -1 && nLocEnd > -1 && nLocEnd > nLoc)
-                {
-                    string sToRemove = sCleaned.Substring(nLoc, nLocEnd - nLoc + 1);
-                    sCleaned = sCleaned.Replace(sToRemove, "");
-                }
-                else
-                    bCont = false;
-            }
+            string sCleaned = sToClean.Replace("<", "&lt;").Replace(">", "&gt;");
+            //bool bCont = true;
+            //while (bCont == true)
+            //{
+            //    Int32 nLoc = sCleaned.IndexOf('<');
+            //    Int32 nLocEnd = sCleaned.IndexOf('>');
+            //    if (nLoc > -1 && nLocEnd > -1 && nLocEnd > nLoc)
+            //    {
+            //        string sToRemove = sCleaned.Substring(nLoc, nLocEnd - nLoc + 1);
+            //        sCleaned = sCleaned.Replace(sToRemove, "");
+            //    }
+            //    else
+            //        bCont = false;
+            //}
             return sCleaned;
         }
+
 
         public void SetLinksBefore(bool bLB)
         {
@@ -1329,12 +1330,14 @@ namespace TVinciShared
                     else
                     {
                         string sVal = sValue.ToString();
-                        sVal = ClearFromHTML(sVal);
-                        sVal = sVal.Replace("\r\n", "<br/>");
+
                         if (sVal.Length > 50)
                         {
                             sVal = sVal.Substring(0, 50) + "...";
                         }
+
+                        sVal = ClearFromHTML(sVal);
+                        sVal = sVal.Replace("\r\n", "<br/>");
 
                         // If the page defined this column as a string column: DO NOT reformat it as a number
                         if (!stringColumns.ContainsKey(sName.ToUpper()))
