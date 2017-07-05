@@ -472,7 +472,6 @@ namespace Core.Catalog
             List<int> freeEpgChannelIds = null;
             List<int> purchasedEpgChannelIds = null;
 
-            // TODO: Maybe we won't use this (getting free assets) method eventually!
             if (entitlementSearchDefinitions.shouldGetFreeAssets)
             {
                 entitlementSearchDefinitions.freeAssets =
