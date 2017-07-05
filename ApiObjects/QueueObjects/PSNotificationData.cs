@@ -78,6 +78,7 @@ namespace ApiObjects.MediaIndexingObjects
             
             // dynamic data - third object in args, will be in a nested json object
             this.args.Add(this.Data);
+            this.args.Add(base.RequestId);
         } 
 
         #endregion
