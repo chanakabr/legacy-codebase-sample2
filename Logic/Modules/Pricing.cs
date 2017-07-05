@@ -1314,5 +1314,98 @@ namespace Core.Pricing
 
             return response;
         }
+
+        public static SubscriptionSetsResponse AddSubscriptionSet(int groupId, string name, long baseSubscriptionId, List<long> subscriptionIds, SubscriptionSetType setType)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                // check that base not belong to any other set (ass add on or as base)
+
+                List<SubscriptionSet> baseInSet = Utils.GetSubscriptionSetsByBaseSubscriptionIds(groupId, new List<long>() { baseSubscriptionId }, setType);
+                if (baseInSet != null && baseInSet.Count() > 0)
+                {
+                    string msg = string.Format("{0} for the following baseSubscriptionId: {1}", eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString(), baseSubscriptionId);
+                    response.Status = new Status((int)eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet, msg);
+                    return response;
+                }
+
+                SubscriptionSet subscriptionSet = Utils.InsertSubscriptionDependencySet(groupId, name, baseSubscriptionId, subscriptionIds, setType);
+                if (subscriptionSet != null && subscriptionSet.Id > 0)
+                {
+                    response.SubscriptionSets.Add(subscriptionSet);
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, "Error");
+                log.Error(string.Format("Failed AddSubscriptionSet, groupId: {0}, name: {1}, subscriptionIds: {2}", groupId, name, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
+            }
+
+            return response;
+        }
+
+        public static SubscriptionSetsResponse UpdateSubscriptionSet(int groupId, long setId, string name, long baseSubscriptionId, List<long> subscriptionIds,
+            bool shouldUpdateSubscriptionIds, SubscriptionSetType setType = SubscriptionSetType.Dependency)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                response = GetSubscriptionSets(groupId, new List<long>() { setId });
+                if (response.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return response;
+                }
+                else if (response.SubscriptionSets.Count != 1)
+                {
+                    response.Status = new Status((int)eResponseStatus.SubscriptionSetDoesNotExist, eResponseStatus.SubscriptionSetDoesNotExist.ToString());
+                    return response;
+                }
+                
+                SubscriptionSet subscriptionSet = response.SubscriptionSets[0];        
+        
+                subscriptionSet.Name = !string.IsNullOrEmpty(name) ? name : subscriptionSet.Name;
+
+                if (setType == SubscriptionSetType.Dependency)
+                {
+                    if (baseSubscriptionId > 0) // check that this base not belong to other set
+                    {
+                        List<SubscriptionSet> baseInSet = Utils.GetSubscriptionSetsByBaseSubscriptionIds(groupId, new List<long>() { baseSubscriptionId }, setType);
+                        if (baseInSet != null && baseInSet.Count() > 0)
+                        {
+                            string msg = string.Format("{0} for the following baseSubscriptionId: {1}", eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString(), baseSubscriptionId);
+                            response.Status = new Status((int)eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet, msg);
+                            return response;
+                        }
+                    }
+                    else
+                    {
+                        baseSubscriptionId = ((DependencySet)subscriptionSet).BaseSubscriptionId;
+                    }
+                }
+                if (setType == SubscriptionSetType.Dependency)
+                {
+                    SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionSet(groupId, subscriptionSet.Id, subscriptionSet.Name, baseSubscriptionId ,
+                        subscriptionIds, shouldUpdateSubscriptionIds, setType);
+                }
+
+                if (subscriptionSet != null && subscriptionSet.Id > 0)
+                {
+                    response.SubscriptionSets.Clear();
+                    response.SubscriptionSets.Add(subscriptionSet);
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, "Error");
+                log.Error(string.Format("Failed UpdateSubscriptionSet, groupId: {0}, name: {1}, setId: {2} subscriptionIds: {3}",
+                                        groupId, name, setId, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
+            }
+
+            return response;
+        }
+
     }
 }

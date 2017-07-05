@@ -972,6 +972,67 @@ namespace Core.Pricing
 
             return subscriptionSets;
         }
-        
+
+
+        internal static SubscriptionSet InsertSubscriptionDependencySet(int groupId, string name, long baseSubscriptionId, List<long> subscriptionIds, SubscriptionSetType setType)
+        {
+            SubscriptionSet subscriptionSet = null;
+            try
+            {
+                List<KeyValuePair<long, int>> subscriptionIdsToPriority = new List<KeyValuePair<long, int>>();
+                if (subscriptionIds != null && subscriptionIds.Count > 0)
+                {
+                    int priority = 1;
+                    foreach (long subscriptionId in subscriptionIds)
+                    {
+                        subscriptionIdsToPriority.Add(new KeyValuePair<long, int>(subscriptionId, priority));
+                        priority++;
+                    }
+                }
+                DataSet ds = PricingDAL.InsertSubscriptionDependencySet(groupId, name, baseSubscriptionId, subscriptionIdsToPriority, (int)setType);
+                List<SubscriptionSet> insertResult = CreateSubscriptionSetsFromDataSet(ds);
+                if (insertResult != null && insertResult.Count == 1 && insertResult[0].Id > 0)
+                {
+                    subscriptionSet = insertResult[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed InsertSubscriptionSet, groupId: {0}, name: {1}, subscriptionIds: {2}", groupId, name, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
+            }
+
+            return subscriptionSet;
+        }
+
+        internal static SubscriptionSet UpdateSubscriptionSet(int groupId, long setId, string name, long baseSubscriptionId, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds, SubscriptionSetType type)    
+        {
+            SubscriptionSet subscriptionSet = null;
+            try
+            {
+                List<KeyValuePair<long, int>> subscriptionIdsToPriority = new List<KeyValuePair<long, int>>();
+                if (subscriptionIds != null && subscriptionIds.Count > 0)
+                {
+                    int priority = 1;
+                    foreach (long subscriptionId in subscriptionIds)
+                    {
+                        subscriptionIdsToPriority.Add(new KeyValuePair<long, int>(subscriptionId, priority));
+                        priority++;
+                    }
+                }
+
+                DataSet ds = PricingDAL.UpdateSubscriptionDependencySet(groupId, setId, name, baseSubscriptionId, subscriptionIdsToPriority, shouldUpdateSubscriptionIds, (int)type);
+                List<SubscriptionSet> updateResult = CreateSubscriptionSetsFromDataSet(ds);
+                if (updateResult != null && updateResult.Count == 1 && updateResult[0].Id > 0)
+                {
+                    subscriptionSet = updateResult[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateSubscriptionSet, groupId: {0}, name: {1}, subscriptionIds: {2}", groupId, name, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
+            }
+
+            return subscriptionSet;
+        }
     }
 }
