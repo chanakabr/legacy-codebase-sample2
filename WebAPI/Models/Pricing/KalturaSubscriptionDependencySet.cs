@@ -22,7 +22,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "baseSubscriptionId")]
         [JsonProperty("baseSubscriptionId")]
         [XmlElement(ElementName = "baseSubscriptionId")]       
-        public long BaseSubscriptionId { get; set; }
+        public long? BaseSubscriptionId { get; set; }
 
     }
 }

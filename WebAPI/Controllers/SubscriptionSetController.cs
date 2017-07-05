@@ -111,12 +111,17 @@ namespace WebAPI.Controllers
                 if (subscriptionSet is KalturaSubscriptionDependencySet)
                 {
                     KalturaSubscriptionDependencySet dSubscriptionSet = (KalturaSubscriptionDependencySet)subscriptionSet;
-                    if (dSubscriptionSet.BaseSubscriptionId == 0)
+                    if (!dSubscriptionSet.BaseSubscriptionId.HasValue)
                     {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_STRING_CONTAINED_MIN_VALUE_CROSSED, "BaseSubscriptionId", 1);
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "BaseSubscriptionId");
+                        if (! (dSubscriptionSet.BaseSubscriptionId.Value > 0))
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENT_STRING_CONTAINED_MIN_VALUE_CROSSED, "BaseSubscriptionId", 1);
+                        }
                     }
+                    
                     // call client
-                    response = ClientsManager.PricingClient().AddSubscriptionSet(groupId, dSubscriptionSet.Name, dSubscriptionSet.BaseSubscriptionId, subscriptionIds);
+                    response = ClientsManager.PricingClient().AddSubscriptionDependencySet(groupId, dSubscriptionSet.Name, dSubscriptionSet.BaseSubscriptionId.Value, subscriptionIds);
                 }
                 else
                 {
@@ -160,9 +165,10 @@ namespace WebAPI.Controllers
 
                 if (subscriptionSet is KalturaSubscriptionDependencySet)
                 {
-                    KalturaSubscriptionDependencySet dSubscriptionSet = (KalturaSubscriptionDependencySet)subscriptionSet;                    
+                    KalturaSubscriptionDependencySet dSubscriptionSet = (KalturaSubscriptionDependencySet)subscriptionSet;    
+                    
                     // call client
-                    response = ClientsManager.PricingClient().UpdateSubscriptionSet(groupId, id, dSubscriptionSet.Name, dSubscriptionSet.BaseSubscriptionId, subscriptionIds, shouldUpdateSubscriptionIds);
+                    response = ClientsManager.PricingClient().UpdateSubscriptionDependencySet(groupId, id, dSubscriptionSet.Name, dSubscriptionSet.BaseSubscriptionId, subscriptionIds, shouldUpdateSubscriptionIds);
                 }
                 else
                 {

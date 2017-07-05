@@ -551,7 +551,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaSubscriptionSet AddSubscriptionSet(int groupId, string name, long baseSubscriptionId, List<long> subscriptionIds)
+        internal KalturaSubscriptionSet AddSubscriptionDependencySet(int groupId, string name, long baseSubscriptionId, List<long> subscriptionIds)
         {
             KalturaSubscriptionSet subscriptionSet = null;
             SubscriptionSetsResponse response = null;
@@ -561,7 +561,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = Core.Pricing.Module.AddSubscriptionSet(groupId, name, baseSubscriptionId, subscriptionIds, SubscriptionSetType.Dependency);
+                    response = Core.Pricing.Module.AddSubscriptionDependencySet(groupId, name, baseSubscriptionId, subscriptionIds, SubscriptionSetType.Dependency);
                 }
             }
             catch (Exception ex)
@@ -591,7 +591,7 @@ namespace WebAPI.Clients
             return subscriptionSet;
         }
 
-        internal KalturaSubscriptionSet UpdateSubscriptionSet(int groupId, long setId, string name, long baseSubscriptionId, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds)
+        internal KalturaSubscriptionSet UpdateSubscriptionDependencySet(int groupId, long setId, string name, long? baseSubscriptionId, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds)
         {
             KalturaSubscriptionSet subscriptionSet = null;
             SubscriptionSetsResponse response = null;
@@ -601,7 +601,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = Core.Pricing.Module.UpdateSubscriptionSet(groupId, setId, name, baseSubscriptionId, subscriptionIds, shouldUpdateSubscriptionIds);
+                    response = Core.Pricing.Module.UpdateSubscriptionDependencySet(groupId, setId, name, baseSubscriptionId, subscriptionIds, shouldUpdateSubscriptionIds);
                 }
             }
             catch (Exception ex)
