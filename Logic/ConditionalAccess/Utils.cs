@@ -7687,34 +7687,39 @@ namespace Core.ConditionalAccess
                 if (funcParams != null && funcParams.ContainsKey("setIds") && funcParams.ContainsKey("groupId"))
                 {
                     string key = string.Empty;
-                    long[] setIds;
+                    List<long> setIds;
                     int? groupId = funcParams["groupId"] as int?;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
-                        setIds = ((List<long>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => x).ToArray();
+                        setIds = ((List<long>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => x).ToList();
                     }
                     else
                     {
-                        setIds = funcParams["setIds"] != null ? funcParams["setIds"] as long[] : null;
+                        setIds = funcParams["setIds"] != null ? funcParams["setIds"] as List<long> : null;
                     }
 
                     if (setIds != null && groupId.HasValue)
                     {
-                        List<SubscriptionSet> subscriptionSets = Pricing.Utils.GetSubscriptionSets(groupId.Value, setIds.ToList());
-
-                        List<long> missingKeys = setIds.Where(x => !result.ContainsKey(x.ToString())).ToList();
-                        if (missingKeys != null)
+                        List<SubscriptionSet> subscriptionSets = Pricing.Utils.GetSubscriptionSets(groupId.Value, setIds);
+                        foreach (SubscriptionSet item in subscriptionSets)
                         {
-                            SubscriptionSet tempSubscriptionSet = new SwitchSet();
-                            foreach (int missingKey in missingKeys)
-                            {
-                                result.Add(LayeredCacheKeys.GetSubscriptionSetKey(missingKey, groupId.Value), tempSubscriptionSet);
-                            }
+                             result.Add(LayeredCacheKeys.GetSubscriptionSetKey(groupId.Value, item.Id), item);
                         }
-                    }
-                    res = result.Keys.Count() == setIds.Count();
+                        res = true;
 
-                    result = result.ToDictionary(x => LayeredCacheKeys.GetSubscriptionSetKey(int.Parse(x.Key), groupId.Value), x => x.Value);
+                        //List<long> missingKeys = setIds.Where(x => !(subscriptionSets.Select(s=>s.Id).ToList()).Contains(x)).ToList();
+                        //if (missingKeys != null)
+                        //{
+                        //    SubscriptionSet tempSubscriptionSet = new SwitchSet();
+                        //    foreach (int missingKey in missingKeys)
+                        //    {
+                        //        result.Add(LayeredCacheKeys.GetSubscriptionSetKey(missingKey, groupId.Value), tempSubscriptionSet);
+                        //    }
+                        //}
+                    }
+                    //res = result.Keys.Count() == setIds.Count();
+
+                    //result = result.ToDictionary(x => LayeredCacheKeys.GetSubscriptionSetKey(int.Parse(x.Key), groupId.Value), x => x.Value);
                 }
             }
             catch (Exception ex)
