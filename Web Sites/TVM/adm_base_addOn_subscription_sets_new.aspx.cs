@@ -11,7 +11,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
 
-public partial class adm_subscription_sets_new : System.Web.UI.Page
+public partial class adm_base_addOn_subscription_sets_new : System.Web.UI.Page
 {
     private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());    
 
@@ -49,7 +49,7 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
                     string invalidationKey = LayeredCacheKeys.GetSubscriptionSetInvalidationKey(LoginManager.GetLoginGroupID(), setId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
-                        log.ErrorFormat("Failed to set invalidation key on SubscriptionSet, key = {0}", invalidationKey);
+                        log.ErrorFormat("Failed to set invalidation key on base-addOn SubscriptionSet, key = {0}", invalidationKey);
                     }
 
                     Session["set_id"] = 0;
@@ -121,7 +121,7 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
 
     public void GetHeader()
     {
-        string sRet = PageUtils.GetPreHeader() + ": Subscription Sets";
+        string sRet = PageUtils.GetPreHeader() + ": Base/Add-on Subscription Sets";
         if (Session["set_id"] != null && Session["set_id"].ToString() != "" && Session["set_id"].ToString() != "0")
             sRet += " - Edit";
         else
@@ -144,7 +144,7 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         object t = null; ;
         if (Session["set_id"] != null && Session["set_id"].ToString() != "" && int.Parse(Session["set_id"].ToString()) != 0)
             t = Session["set_id"];
-        string sBack = "adm_subscription_sets.aspx?search_save=1";
+        string sBack = "adm_base_addOn_subscription_sets.aspx?search_save=1";
         DBRecordWebEditor theRecord = new DBRecordWebEditor("sets", "adm_table_pager", sBack, "", "ID", t, sBack, "");
         theRecord.SetConnectionKey("pricing_connection");
 
@@ -152,12 +152,18 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "Name", true);
         theRecord.AddRecord(dr_name);
 
+        DataRecordDropDownField dr_baseSubscription = new DataRecordDropDownField("", "name", "id", "", null, 60, false);
+        string sQuery = "select name as txt, id as id from subscriptions where status=1 and is_active=1 and type=1 and group_id=" + LoginManager.GetLoginGroupID();
+        dr_baseSubscription.SetSelectsQuery(sQuery);
+        dr_baseSubscription.Initialize("Base subscription", "adm_table_header_nbg", "FormInput", "base_subscription_id", true);        
+        theRecord.AddRecord(dr_baseSubscription);
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
 
-        string sTable = theRecord.GetTableHTML("adm_subscription_sets_new.aspx?submited=1");
+        string sTable = theRecord.GetTableHTML("adm_base_addOn_subscription_sets_new.aspx?submited=1");
 
         return sTable;
     }
@@ -184,7 +190,7 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         object[] resultData = null;
         List<object> subscriptionSetsData = new List<object>();
         Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-        DataTable subscriptions = TvmDAL.GetAvailableSubscriptionsBySetId(nLogedInGroupID, setId);
+        DataTable subscriptions = TvmDAL.GetAvailableSubscriptionsBySetId(nLogedInGroupID, setId, (int)ApiObjects.Pricing.SubscriptionType.AddOn);
         if (subscriptions != null && subscriptions.Rows != null)
         {
             Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = new Dictionary<long, SubscriptionSetWithOrder>();
@@ -242,7 +248,7 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         resultData = subscriptionSetsData.ToArray();
 
         dualList.Add("Data", resultData);
-        dualList.Add("pageName", "adm_subscription_sets_new.aspx");
+        dualList.Add("pageName", "adm_base_addOn_subscription_sets_new.aspx");
         dualList.Add("withCalendar", false);
 
         return dualList.ToJSON();

@@ -112,7 +112,8 @@ public partial class adm_multi_pricing_plans : System.Web.UI.Page
         string sGroupLang = GetMainLang();
         theTable.SetConnectionKey("pricing_connection");
         theTable += @"select s.is_active, s.id, s.order_num, s.Name as 'Code', s.id as 'Subscription ID', sn.description as 'Title', sd.description as 'Description', 
-	                CONVERT(VARCHAR(10),s.START_DATE, 104) as 'Start date', CONVERT(VARCHAR(10),s.End_DATE, 104) as 'End date', s.CoGuid as 'External ID', s.status, lcs.description as 'State'
+	                CONVERT(VARCHAR(10),s.START_DATE, 104) as 'Start date', CONVERT(VARCHAR(10),s.End_DATE, 104) as 'End date', s.CoGuid as 'External ID',
+                    case s.type when 1 then 'Base' when 2 then ' AddOn' else 'N/A' end as 'Type', s.status, lcs.description as 'State'
 	                from subscriptions s with (nolock)
 	                left join lu_yes_no lyn1 with (nolock) on (lyn1.id=s.IS_RECURRING)
 	                left join lu_content_status lcs with (nolock) on (lcs.id=s.status)

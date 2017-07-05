@@ -6,7 +6,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
 
-public partial class adm_subscription_sets : System.Web.UI.Page
+public partial class adm_base_addOn_subscription_sets : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;    
@@ -70,7 +70,7 @@ public partial class adm_subscription_sets : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": Subscription Sets");
+        Response.Write(PageUtils.GetPreHeader() + ": Base/Add-on Subscription Sets");
     }
 
     protected void GetMainMenu()
@@ -101,7 +101,7 @@ public partial class adm_subscription_sets : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("pricing_connection");
-        theTable += "select s.is_active,s.id as id, s.name as 'Name', s.status from sets s where s.status<>2 and type=0 and ";
+        theTable += "select s.is_active,s.id as id, s.name as 'Name', s.base_subscription_id as 'BaseSubscriptionId', s.status from sets s where s.status<>2 and type=1 and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("s.group_id", "=", nGroupID);
         if (sOrderBy != "")
         {
@@ -112,11 +112,12 @@ public partial class adm_subscription_sets : System.Web.UI.Page
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("is_active");
         theTable.AddOrderByColumn("Name", "Name");
+        theTable.AddOrderByColumn("BaseSubscriptionId", "BaseSubscriptionId");
         theTable.AddActivationField("sets");              
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
-            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_subscription_sets_new.aspx", "Edit", "");
+            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_base_addOn_subscription_sets_new.aspx", "Edit", "");
             linkColumn1.AddQueryStringValue("set_id", "field=id");
             theTable.AddLinkColumn(linkColumn1);
         }
