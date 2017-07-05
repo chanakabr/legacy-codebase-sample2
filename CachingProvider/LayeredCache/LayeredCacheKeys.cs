@@ -319,7 +319,7 @@ namespace CachingProvider.LayeredCache
                 reminderIds = reminderIds.Distinct().ToList();
                 foreach (long id in reminderIds)
                 {
-                    result.Add(GetRemindersKey(groupId, id), new List<string>() { GetSeriesRemindersInvalidationKey(groupId, id) });
+                    result.Add(GetRemindersKey(groupId, id), new List<string>() { GetRemindersInvalidationKey(groupId, id) });
                 }
             }
 
