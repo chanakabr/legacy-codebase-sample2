@@ -359,7 +359,7 @@ namespace TVinciShared
 
         static public string ClearFromHTML(string sToClean)
         {
-            string sCleaned = sToClean.Replace("<","&lt;").Replace(">","&gt;");
+            string sCleaned = sToClean.Replace("<", "&lt;").Replace(">", "&gt;");
             //bool bCont = true;
             //while (bCont == true)
             //{
@@ -375,6 +375,7 @@ namespace TVinciShared
             //}
             return sCleaned;
         }
+
 
         public void SetLinksBefore(bool bLB)
         {
