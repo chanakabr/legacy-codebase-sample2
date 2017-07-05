@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
@@ -17,15 +18,16 @@ namespace WebAPI.Models.Notification
     public class KalturaPushMessage : KalturaOTTObject
     {
         /// <summary>
-        /// Push text
+        /// The message that will be presented to the user.
         /// </summary>
         [DataMember(Name = "message")]
         [JsonProperty("message")]
         [XmlElement(ElementName = "message")]
+        [SchemeProperty(MinLength = 1)]
         public string Message { get; set; }
 
         /// <summary>
-        /// Push sound 
+        /// Optional. Can be used to change the default push sound on the user device.
         /// </summary>
         [DataMember(Name = "sound")]
         [JsonProperty("sound")]
@@ -33,7 +35,7 @@ namespace WebAPI.Models.Notification
         public string Sound { get; set; }
 
         /// <summary>
-        /// Push action 
+        /// Optional. Used to change the default action of the application when a push is received.
         /// </summary>
         [DataMember(Name = "action")]
         [JsonProperty("action")]
@@ -41,7 +43,7 @@ namespace WebAPI.Models.Notification
         public string Action { get; set; }
 
         /// <summary>
-        /// Push URL 
+        /// Optional. Used to direct the application to the relevant page.
         /// </summary>
         [DataMember(Name = "url")]
         [JsonProperty("url")]
