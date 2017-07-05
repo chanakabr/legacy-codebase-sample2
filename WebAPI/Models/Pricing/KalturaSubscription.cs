@@ -296,5 +296,13 @@ namespace WebAPI.Models.Pricing
         [XmlArrayItem("item")]
         public List<KalturaProductCode> ProductCodes { get; set; }
 
+        /// <summary>
+        /// Product code for the subscription
+        /// </summary>
+        [DataMember(Name = "dependencyType")]
+        [JsonProperty("dependencyType")]
+        [XmlElement(ElementName = "dependencyType")]
+        public KalturaSubscriptionDependencyType DependencyType { get; set; }
+
     }
 }

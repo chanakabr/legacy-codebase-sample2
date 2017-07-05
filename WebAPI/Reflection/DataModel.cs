@@ -5677,6 +5677,8 @@ namespace WebAPI.Reflection
                             return "couponsGroups";
                         case "CouponsGroup":
                             return "couponsGroup";
+                        case "DependencyType":
+                            return "dependencyType";
                         case "Description":
                             return "description";
                         case "Descriptions":
@@ -5731,6 +5733,22 @@ namespace WebAPI.Reflection
                             return "viewLifeCycle";
                         case "WaiverPeriod":
                             return "waiverPeriod";
+                    }
+                    break;
+                    
+                case "KalturaSubscriptionDependencySet":
+                    switch(property.Name)
+                    {
+                        case "BaseSubscriptionId":
+                            return "baseSubscriptionId";
+                    }
+                    break;
+                    
+                case "KalturaSubscriptionDependencySetFilter":
+                    switch(property.Name)
+                    {
+                        case "BaseSubscriptionIdIn":
+                            return "baseSubscriptionIdIn";
                     }
                     break;
                     
@@ -5791,6 +5809,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "SubscriptionIds":
                             return "subscriptionIds";
+                        case "Type":
+                            return "type";
                     }
                     break;
                     
@@ -5801,6 +5821,8 @@ namespace WebAPI.Reflection
                             return "idIn";
                         case "SubscriptionIdContains":
                             return "subscriptionIdContains";
+                        case "TypeEqual":
+                            return "typeEqual";
                     }
                     break;
                     

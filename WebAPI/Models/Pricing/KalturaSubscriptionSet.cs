@@ -39,11 +39,23 @@ namespace WebAPI.Models.Pricing
         public string Name { get; set; }
 
         /// <summary>
+        /// Type of the Subscription Set
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty("type")]
+        [XmlElement(ElementName = "type", IsNullable = true)]
+        public KalturaSubscriptionSetType? Type
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// A list of comma separated subscription ids associated with this set ordered by priority ascending
         /// </summary>
         [DataMember(Name = "subscriptionIds")]
         [JsonProperty("subscriptionIds")]
-        [XmlElement(ElementName = "subscriptionIds", IsNullable = true)]        
+        [XmlElement(ElementName = "subscriptionIds", IsNullable = true)]
         public string SubscriptionIds { get; set; }
 
         public List<long> GetSubscriptionIds()

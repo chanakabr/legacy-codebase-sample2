@@ -170,6 +170,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentMethodNotExist)]
         [Throws(eResponseStatus.CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet)]
         [Throws(eResponseStatus.SubscriptionNotAllowedForUserType)]
+        [Throws(eResponseStatus.MissingBasePackage)]
         public KalturaTransaction Purchase(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();

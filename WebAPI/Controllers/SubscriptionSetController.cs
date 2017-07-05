@@ -48,15 +48,32 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (!string.IsNullOrEmpty(filter.SubscriptionIdContains))
+                if (filter is KalturaSubscriptionDependencySetFilter)
+                {
+                    KalturaSubscriptionDependencySetFilter dfilter = (KalturaSubscriptionDependencySetFilter)filter;
+                    if (!dfilter.TypeEqual.HasValue)
+                    {
+                        dfilter.TypeEqual = KalturaSubscriptionSetType.DEPENDENCY; // default for this filter type
+                    }
+                    // call client
+                    if (!string.IsNullOrEmpty(dfilter.BaseSubscriptionIdIn))
+                    {
+                        response = ClientsManager.PricingClient().GetSubscriptionSetsBySBaseSubscriptionIds(groupId, dfilter.GetBaseSubscriptionIdContains(), dfilter.OrderBy, dfilter.TypeEqual);                        
+                    }
+                    else
+                    {
+                        response = ClientsManager.PricingClient().GetSubscriptionSets(groupId, dfilter.GetIdIn(), dfilter.OrderBy, filter.TypeEqual);
+                    }
+                }
+                else if (!string.IsNullOrEmpty(filter.SubscriptionIdContains))
                 {
                     // call client
-                    response = ClientsManager.PricingClient().GetSubscriptionSetsBySubscriptionIds(groupId, filter.GetSubscriptionIdContains(), filter.OrderBy);  
+                    response = ClientsManager.PricingClient().GetSubscriptionSetsBySubscriptionIds(groupId, filter.GetSubscriptionIdContains(), filter.OrderBy, filter.TypeEqual);  
                 }
                 else
                 {
                     // call client
-                    response = ClientsManager.PricingClient().GetSubscriptionSets(groupId, filter.GetIdIn(), filter.OrderBy);
+                    response = ClientsManager.PricingClient().GetSubscriptionSets(groupId, filter.GetIdIn(), filter.OrderBy, filter.TypeEqual);
                 }
                 
             }
@@ -75,7 +92,8 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet)]        
+        [Throws(eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
+        [Throws(eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
         public KalturaSubscriptionSet Add(KalturaSubscriptionSet subscriptionSet)
         {
             KalturaSubscriptionSet response = null;
@@ -87,10 +105,29 @@ namespace WebAPI.Controllers
             }
 
             try
-            {                
-                List<long> subscriptionIds = subscriptionSet.SubscriptionIds != null ? subscriptionSet.GetSubscriptionIds() : new List<long>();                
-                // call client
-                response = ClientsManager.PricingClient().AddSubscriptionSet(groupId, subscriptionSet.Name, subscriptionIds);
+            {
+                List<long> subscriptionIds = subscriptionSet.SubscriptionIds != null ? subscriptionSet.GetSubscriptionIds() : new List<long>();
+                
+                if (subscriptionSet is KalturaSubscriptionDependencySet)
+                {
+                    KalturaSubscriptionDependencySet dSubscriptionSet = (KalturaSubscriptionDependencySet)subscriptionSet;
+                    if (!dSubscriptionSet.BaseSubscriptionId.HasValue)
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "BaseSubscriptionId");
+                        if (! (dSubscriptionSet.BaseSubscriptionId.Value > 0))
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENT_STRING_CONTAINED_MIN_VALUE_CROSSED, "BaseSubscriptionId", 1);
+                        }
+                    }
+                    
+                    // call client
+                    response = ClientsManager.PricingClient().AddSubscriptionDependencySet(groupId, dSubscriptionSet.Name, dSubscriptionSet.BaseSubscriptionId.Value, subscriptionIds);
+                }
+                else
+                {
+                    // call client
+                    response = ClientsManager.PricingClient().AddSubscriptionSet(groupId, subscriptionSet.Name, subscriptionIds);
+                }
             }
             catch (ClientException ex)
             {
@@ -110,7 +147,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
         [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
-        [SchemeArgument("id", MinLong=1)]
+        [Throws(eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
+        [SchemeArgument("id", MinLong=1)]       
         public KalturaSubscriptionSet Update(long id, KalturaSubscriptionSet subscriptionSet)
         {
             KalturaSubscriptionSet response = null;
@@ -118,15 +156,25 @@ namespace WebAPI.Controllers
 
             try
             {
-                bool shouldUpdateSubscriptionIds = subscriptionSet.SubscriptionIds != null;
                 List<long> subscriptionIds = new List<long>();
+                bool shouldUpdateSubscriptionIds = subscriptionSet.SubscriptionIds != null;
                 if (shouldUpdateSubscriptionIds && !string.IsNullOrEmpty(subscriptionSet.SubscriptionIds))
                 {
                     subscriptionIds = subscriptionSet.GetSubscriptionIds();
                 }
-                
-                // call client
-                response = ClientsManager.PricingClient().UpdateSubscriptionSet(groupId, id, subscriptionSet.Name, subscriptionIds, shouldUpdateSubscriptionIds);
+
+                if (subscriptionSet is KalturaSubscriptionDependencySet)
+                {
+                    KalturaSubscriptionDependencySet dSubscriptionSet = (KalturaSubscriptionDependencySet)subscriptionSet;    
+                    
+                    // call client
+                    response = ClientsManager.PricingClient().UpdateSubscriptionDependencySet(groupId, id, dSubscriptionSet.Name, dSubscriptionSet.BaseSubscriptionId, subscriptionIds, shouldUpdateSubscriptionIds);
+                }
+                else
+                {
+                    // call client
+                    response = ClientsManager.PricingClient().UpdateSubscriptionSet(groupId, id, subscriptionSet.Name, subscriptionIds, shouldUpdateSubscriptionIds);
+                }
             }
             catch (ClientException ex)
             {

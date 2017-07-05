@@ -205,16 +205,19 @@ namespace WebAPI.Clients
             return coupon;
         }
 
-        internal KalturaSubscriptionSetListResponse GetSubscriptionSets(int groupId, List<long> ids, KalturaSubscriptionSetOrderBy? orderBy)
+        internal KalturaSubscriptionSetListResponse GetSubscriptionSets(int groupId, List<long> ids, KalturaSubscriptionSetOrderBy? orderBy, KalturaSubscriptionSetType? type)
         {
             KalturaSubscriptionSetListResponse result = new KalturaSubscriptionSetListResponse() { TotalCount = 0 };
             SubscriptionSetsResponse response = null;            
 
             try
             {
+                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type);
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptionSets(groupId, ids);
+
+                    response = Core.Pricing.Module.GetSubscriptionSets(groupId, ids, setType);
                 }
             }
             catch (Exception ex)
@@ -239,7 +242,14 @@ namespace WebAPI.Clients
                 result.SubscriptionSets = new List<KalturaSubscriptionSet>();
                 foreach (SubscriptionSet subscriptionSet in response.SubscriptionSets)
                 {
-                    result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionSwitchSet>(subscriptionSet));
+                    if (subscriptionSet.Type == SubscriptionSetType.Dependency)
+                    {
+                        result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionDependencySet>(subscriptionSet));
+                    }
+                    else
+                    {
+                        result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionSwitchSet>(subscriptionSet));
+                    }
                 }
             }
 
@@ -261,16 +271,18 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaSubscriptionSetListResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds, KalturaSubscriptionSetOrderBy? orderBy)
+        internal KalturaSubscriptionSetListResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds, KalturaSubscriptionSetOrderBy? orderBy, KalturaSubscriptionSetType? type)
         {
             KalturaSubscriptionSetListResponse result = new KalturaSubscriptionSetListResponse() { TotalCount = 0 };
             SubscriptionSetsResponse response = null;
 
             try
             {
+                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type);               
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptionSetsBySubscriptionIds(groupId, subscriptionIds);
+                    response = Core.Pricing.Module.GetSubscriptionSetsBySubscriptionIds(groupId, subscriptionIds, setType);
                 }
             }
             catch (Exception ex)
@@ -459,12 +471,164 @@ namespace WebAPI.Clients
             }
 
             if (response.SubscriptionSets != null && response.SubscriptionSets.Count == 1)
-            {                
-                result = AutoMapper.Mapper.Map<KalturaSubscriptionSwitchSet>(response.SubscriptionSets[0]);
+            {
+                if (response.SubscriptionSets[0].Type == SubscriptionSetType.Dependency)
+                {
+                    result = AutoMapper.Mapper.Map<KalturaSubscriptionDependencySet>(response.SubscriptionSets[0]);
+                }
+                else
+                {
+                    result = AutoMapper.Mapper.Map<KalturaSubscriptionSwitchSet>(response.SubscriptionSets[0]);
+                }
             }
 
             return result;
         }
 
+
+        internal KalturaSubscriptionSetListResponse GetSubscriptionSetsBySBaseSubscriptionIds(int groupId, List<long> subscriptionIds, KalturaSubscriptionSetOrderBy? orderBy, KalturaSubscriptionSetType? type)
+        {
+            KalturaSubscriptionSetListResponse result = new KalturaSubscriptionSetListResponse() { TotalCount = 0 };
+            SubscriptionSetsResponse response = null;
+
+            try
+            {
+                SubscriptionSetType? setType = PricingMappings.ConvertSubscriptionSetType(type);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetSubscriptionSetsByBaseSubscriptionIds(groupId, subscriptionIds, setType);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SubscriptionSets != null && response.SubscriptionSets.Count > 0)
+            {
+                result.TotalCount = response.SubscriptionSets.Count;
+                result.SubscriptionSets = new List<KalturaSubscriptionSet>();
+                foreach (SubscriptionSet subscriptionSet in response.SubscriptionSets)
+                {
+                    if (subscriptionSet.Type == SubscriptionSetType.Dependency)
+                    {
+                        result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionDependencySet>(subscriptionSet));
+                    }
+                    else
+                    {
+                        result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionSwitchSet>(subscriptionSet));
+                    }
+                }
+            }
+
+            if (result.TotalCount > 0 && orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaSubscriptionSetOrderBy.NAME_ASC:
+                        result.SubscriptionSets = result.SubscriptionSets.OrderBy(x => x.Name).ToList();
+                        break;
+                    case KalturaSubscriptionSetOrderBy.NAME_DESC:
+                        result.SubscriptionSets = result.SubscriptionSets.OrderByDescending(x => x.Name).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        internal KalturaSubscriptionSet AddSubscriptionDependencySet(int groupId, string name, long baseSubscriptionId, List<long> subscriptionIds)
+        {
+            KalturaSubscriptionSet subscriptionSet = null;
+            SubscriptionSetsResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.Pricing.Module.AddSubscriptionDependencySet(groupId, name, baseSubscriptionId, subscriptionIds, SubscriptionSetType.Dependency);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SubscriptionSets != null && response.SubscriptionSets.Count == 1)
+            {
+                // convert response
+                subscriptionSet = AutoMapper.Mapper.Map<KalturaSubscriptionDependencySet>(response.SubscriptionSets.First());
+            }
+
+            return subscriptionSet;
+        }
+
+        internal KalturaSubscriptionSet UpdateSubscriptionDependencySet(int groupId, long setId, string name, long? baseSubscriptionId, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds)
+        {
+            KalturaSubscriptionSet subscriptionSet = null;
+            SubscriptionSetsResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.Pricing.Module.UpdateSubscriptionDependencySet(groupId, setId, name, baseSubscriptionId, subscriptionIds, shouldUpdateSubscriptionIds);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SubscriptionSets != null && response.SubscriptionSets.Count == 1)
+            {
+                // convert response
+                subscriptionSet = AutoMapper.Mapper.Map<KalturaSubscriptionDependencySet>(response.SubscriptionSets.First());
+            }
+
+            return subscriptionSet;
+        }
     }
 }
