@@ -877,7 +877,7 @@ namespace DAL
             return dvMailParameters;
         }
 
-        public static bool UpdateUserActivationToken(string[] arrGroupIDs, int nUserID, string sToken, string sNewToken, int nUserState)
+        public static bool UpdateUserActivationToken(int groupId, int nUserID, string sToken, string sNewToken, int nUserState)
         {
             bool isActivated = false;
 
@@ -892,7 +892,8 @@ namespace DAL
                 updateQuery += " where ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
                 updateQuery += " and ";
-                updateQuery += " group_id in (" + string.Join(",", arrGroupIDs) + ")";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
+
                 updateQuery += " and status=1 and is_active=1 and ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sToken);
 
@@ -936,7 +937,7 @@ namespace DAL
             return res;
         }
 
-        public static int GetUserActivateStatus(int nUserID, string[] arrGroupIDs)
+        public static int GetUserActivateStatus(int nUserID, int groupId)
         {
             int nActivationStatus = -1;
 
@@ -948,7 +949,8 @@ namespace DAL
                 selectQuery += " select ACTIVATE_STATUS from users WITH (nolock) where status=1 and is_active=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nUserID);
                 selectQuery += " and ";
-                selectQuery += " group_id in (" + string.Join(",", arrGroupIDs) + ")";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupId);
+
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -995,38 +997,6 @@ namespace DAL
                 selectQuery.Finish();
                 selectQuery = null;
 
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return nUserID;
-        }
-
-        public static int GetUserIDByUsername(string sUserName, string[] arrGroupIDs)
-        {
-            int nUserID = 0;
-
-            try
-            {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-
-                selectQuery += "SELECT ID FROM USERS WITH (NOLOCK) WHERE STATUS=1 AND IS_ACTIVE = 1 AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
-                selectQuery += " AND ";
-                selectQuery += " GROUP_ID IN (" + string.Join(",", arrGroupIDs) + ")";
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        nUserID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
-                    }
-                }
-                selectQuery.Finish();
-                selectQuery = null;
             }
             catch (Exception ex)
             {
