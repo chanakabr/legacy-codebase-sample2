@@ -7708,13 +7708,13 @@ namespace Core.ConditionalAccess
                             SubscriptionSet tempSubscriptionSet = new SwitchSet();
                             foreach (int missingKey in missingKeys)
                             {
-                                result.Add(LayeredCacheKeys.GetSetIdKey(missingKey, groupId.Value), tempSubscriptionSet);
+                                result.Add(LayeredCacheKeys.GetSubscriptionSetKey(missingKey, groupId.Value), tempSubscriptionSet);
                             }
                         }
                     }
                     res = result.Keys.Count() == setIds.Count();
 
-                    result = result.ToDictionary(x => LayeredCacheKeys.GetSetIdKey(int.Parse(x.Key), groupId.Value), x => x.Value);
+                    result = result.ToDictionary(x => LayeredCacheKeys.GetSubscriptionSetKey(int.Parse(x.Key), groupId.Value), x => x.Value);
                 }
             }
             catch (Exception ex)
