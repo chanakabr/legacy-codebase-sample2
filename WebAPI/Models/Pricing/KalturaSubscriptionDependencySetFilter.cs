@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Pricing
 {
@@ -15,9 +16,9 @@ namespace WebAPI.Models.Pricing
         /// Comma separated identifiers
         /// </summary>
         [DataMember(Name = "baseSubscriptionIdIn")]
-        [JsonProperty("baseSubscriptionIdIn")]
-        [XmlArray(ElementName = "baseSubscriptionIdIn", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
+        [JsonProperty(PropertyName = "baseSubscriptionIdIn")]
+        [XmlElement(ElementName = "baseSubscriptionIdIn", IsNullable = true)]
+        [SchemeProperty(DynamicMinInt = 1)]
         public string BaseSubscriptionIdIn { get; set; }
 
 

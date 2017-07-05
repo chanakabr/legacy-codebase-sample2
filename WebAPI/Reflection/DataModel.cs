@@ -5677,6 +5677,8 @@ namespace WebAPI.Reflection
                             return "couponsGroups";
                         case "CouponsGroup":
                             return "couponsGroup";
+                        case "DependencyType":
+                            return "dependencyType";
                         case "Description":
                             return "description";
                         case "Descriptions":
@@ -5725,8 +5727,6 @@ namespace WebAPI.Reflection
                             return "renewalsNumber";
                         case "StartDate":
                             return "startDate";
-                        case "Type":
-                            return "type";
                         case "UserTypes":
                             return "userTypes";
                         case "ViewLifeCycle":

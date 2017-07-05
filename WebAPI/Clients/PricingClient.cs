@@ -242,7 +242,14 @@ namespace WebAPI.Clients
                 result.SubscriptionSets = new List<KalturaSubscriptionSet>();
                 foreach (SubscriptionSet subscriptionSet in response.SubscriptionSets)
                 {
-                    result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionSwitchSet>(subscriptionSet));
+                    if (subscriptionSet.Type == SubscriptionSetType.Dependency)
+                    {
+                        result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionDependencySet>(subscriptionSet));
+                    }
+                    else
+                    {
+                        result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionSwitchSet>(subscriptionSet));
+                    }
                 }
             }
 
@@ -464,8 +471,15 @@ namespace WebAPI.Clients
             }
 
             if (response.SubscriptionSets != null && response.SubscriptionSets.Count == 1)
-            {                
-                result = AutoMapper.Mapper.Map<KalturaSubscriptionSwitchSet>(response.SubscriptionSets[0]);
+            {
+                if (response.SubscriptionSets[0].Type == SubscriptionSetType.Dependency)
+                {
+                    result = AutoMapper.Mapper.Map<KalturaSubscriptionDependencySet>(response.SubscriptionSets[0]);
+                }
+                else
+                {
+                    result = AutoMapper.Mapper.Map<KalturaSubscriptionSwitchSet>(response.SubscriptionSets[0]);
+                }
             }
 
             return result;
@@ -508,7 +522,14 @@ namespace WebAPI.Clients
                 result.SubscriptionSets = new List<KalturaSubscriptionSet>();
                 foreach (SubscriptionSet subscriptionSet in response.SubscriptionSets)
                 {
-                    result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionSwitchSet>(subscriptionSet));
+                    if (subscriptionSet.Type == SubscriptionSetType.Dependency)
+                    {
+                        result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionDependencySet>(subscriptionSet));
+                    }
+                    else
+                    {
+                        result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionSwitchSet>(subscriptionSet));
+                    }
                 }
             }
 

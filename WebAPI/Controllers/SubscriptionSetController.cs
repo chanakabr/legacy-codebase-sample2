@@ -51,8 +51,19 @@ namespace WebAPI.Controllers
                 if (filter is KalturaSubscriptionDependencySetFilter)
                 {
                     KalturaSubscriptionDependencySetFilter dfilter = (KalturaSubscriptionDependencySetFilter)filter;
+                    if (!dfilter.TypeEqual.HasValue)
+                    {
+                        dfilter.TypeEqual = KalturaSubscriptionSetType.DEPENDENCY; // default for this filter type
+                    }
                     // call client
-                    response = ClientsManager.PricingClient().GetSubscriptionSetsBySBaseSubscriptionIds(groupId, dfilter.GetBaseSubscriptionIdContains(), dfilter.OrderBy, dfilter.TypeEqual);
+                    if (!string.IsNullOrEmpty(dfilter.BaseSubscriptionIdIn))
+                    {
+                        response = ClientsManager.PricingClient().GetSubscriptionSetsBySBaseSubscriptionIds(groupId, dfilter.GetBaseSubscriptionIdContains(), dfilter.OrderBy, dfilter.TypeEqual);                        
+                    }
+                    else
+                    {
+                        response = ClientsManager.PricingClient().GetSubscriptionSets(groupId, dfilter.GetIdIn(), dfilter.OrderBy, filter.TypeEqual);
+                    }
                 }
                 else if (!string.IsNullOrEmpty(filter.SubscriptionIdContains))
                 {

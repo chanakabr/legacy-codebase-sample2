@@ -299,10 +299,10 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// Product code for the subscription
         /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty("type")]
-        [XmlElement(ElementName = "type")]
-        public KalturaSubscriptionSetType Type { get; set; }
+        [DataMember(Name = "dependencyType")]
+        [JsonProperty("dependencyType")]
+        [XmlElement(ElementName = "dependencyType")]
+        public KalturaSubscriptionDependencyType DependencyType { get; set; }
 
     }
 }

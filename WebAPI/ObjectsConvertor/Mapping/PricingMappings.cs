@@ -159,7 +159,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UserTypes, opt => opt.MapFrom(src => src.m_UserTypes))
                .ForMember(dest => dest.ProductCodes, opt => opt.MapFrom(src => ConvertProductCodes(src.ExternalProductCodes)))
                .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)))
-               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSubscriptionType(src.Type)));
+               .ForMember(dest => dest.DependencyType, opt => opt.MapFrom(src => ConvertSubscriptionType(src.Type)));
 
             // KalturaPricePlan
             Mapper.CreateMap<UsageModule, KalturaPricePlan>()
@@ -564,9 +564,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return new List<KalturaPremiumService>();
         }
 
-        private static KalturaSubscriptionType? ConvertSubscriptionType(SubscriptionType? type)
+        private static KalturaSubscriptionDependencyType? ConvertSubscriptionType(SubscriptionType? type)
         {
-            KalturaSubscriptionType? result = null;
+            KalturaSubscriptionDependencyType? result = null;
 
             if (type.HasValue)
             {
@@ -574,17 +574,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     case SubscriptionType.AddOn:
                         {
-                            result = KalturaSubscriptionType.ADDON;
+                            result = KalturaSubscriptionDependencyType.ADDON;
                             break;
                         }
                     case SubscriptionType.Base:
                         {
-                            result = KalturaSubscriptionType.BASE;
+                            result = KalturaSubscriptionDependencyType.BASE;
                             break;
                         }
                     case SubscriptionType.NotApplicable:
                         {
-                            result = KalturaSubscriptionType.NOTAPPLICABLE;
+                            result = KalturaSubscriptionDependencyType.NOTAPPLICABLE;
                             break;
                         }
                     default:
@@ -594,7 +594,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
         
-        public static SubscriptionType? ConvertSubscriptionType(KalturaSubscriptionType? type)
+        public static SubscriptionType? ConvertSubscriptionType(KalturaSubscriptionDependencyType? type)
         {
             SubscriptionType? result = null;
 
@@ -602,17 +602,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 switch (type.Value)
                 {
-                    case KalturaSubscriptionType.ADDON:
+                    case KalturaSubscriptionDependencyType.ADDON:
                         {
                             result = SubscriptionType.AddOn;
                             break;
                         }
-                    case KalturaSubscriptionType.BASE:
+                    case KalturaSubscriptionDependencyType.BASE:
                         {
                             result = SubscriptionType.Base;
                             break;
                         }
-                    case KalturaSubscriptionType.NOTAPPLICABLE:
+                    case KalturaSubscriptionDependencyType.NOTAPPLICABLE:
                         {
                             result = SubscriptionType.NotApplicable;
                             break;

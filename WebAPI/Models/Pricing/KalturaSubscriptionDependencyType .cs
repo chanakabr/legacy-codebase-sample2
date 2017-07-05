@@ -5,7 +5,7 @@ using System.Web;
 
 namespace WebAPI.Models.Pricing
 {
-    public enum KalturaSubscriptionType
+    public enum KalturaSubscriptionDependencyType 
     {
         NOTAPPLICABLE = 0,
         BASE = 1,
