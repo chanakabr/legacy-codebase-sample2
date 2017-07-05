@@ -298,8 +298,9 @@ namespace TVinciShared
         protected long m_nMaxLength;
         protected int m_extID;
         protected string m_filedPrivateName;
+        protected bool isRaw;
 
-        public DataRecordShortTextField(string sDir, bool bEnabled, long nWidth, long nMaxLength)
+        public DataRecordShortTextField(string sDir, bool bEnabled, long nWidth, long nMaxLength, bool raw = false)
             : base()
         {
             m_bEnabled = bEnabled;
@@ -309,6 +310,7 @@ namespace TVinciShared
             m_bIsPass = false;
             m_extID = 0;
             m_filedPrivateName = string.Empty;
+            isRaw = raw;
         }
 
         public DataRecordShortTextField(string sDir, bool bEnabled, long nWidth, long nMaxLength, int extID)
@@ -374,6 +376,8 @@ namespace TVinciShared
             sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_must' value='").Append(m_bMust.ToString()).Append("'/>");
             sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_field' value='").Append(m_sFieldName).Append("'/>");
             sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_fieldName' value='").Append(m_filedPrivateName).Append("'/>");
+            sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_raw' value='").Append(isRaw.ToString()).Append("'/>");
+
             if (m_extID > 0)
             {
                 sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_ext' value='").Append(m_extID).Append("'/>");
