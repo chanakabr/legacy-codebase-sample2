@@ -13,6 +13,7 @@ using QueueWrapper;
 using DAL;
 using Core.Pricing;
 using ApiObjects.ConditionalAccess;
+using ApiObjects.Pricing;
 
 namespace Core.ConditionalAccess
 {
@@ -304,9 +305,20 @@ namespace Core.ConditionalAccess
                     return status;
                 }
 
+                // verify that ths addon can be grant - via household have right base subscription
                 //validate that user have no DLM or Quota - FOR GRANT ONLY 
+                
                 if (context == GrantContext.Grant)
                 {
+                    if (subscription.Type == SubscriptionType.AddOn && subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
+                    {
+                        status = Utils.CanPurchaseAddOn(groupId, householdId, subscription);
+                        if (status.Code != (int)eResponseStatus.OK)
+                        {
+                            return status;
+                        }
+                    }
+
                     status = CheckSubscriptionOverlap(cas, groupId, subscription, userId, (int)householdId);
                     if (status.Code != (int)eResponseStatus.OK)
                     {

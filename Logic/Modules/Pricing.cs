@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web;
 using ApiObjects.Pricing;
 using System.Reflection;
+using CachingProvider.LayeredCache;
 
 namespace Core.Pricing
 {
@@ -1087,12 +1088,12 @@ namespace Core.Pricing
             }
         }        
 
-        public static SubscriptionSetsResponse GetSubscriptionSets(int groupId, List<long> ids)
+        public static SubscriptionSetsResponse GetSubscriptionSets(int groupId, List<long> ids, SubscriptionSetType? type = null)
         {
             SubscriptionSetsResponse response = new SubscriptionSetsResponse();
             try
             {
-                response.SubscriptionSets = Utils.GetSubscriptionSets(groupId, ids);
+                response.SubscriptionSets = Utils.GetSubscriptionSets(groupId, ids, type);
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -1104,18 +1105,35 @@ namespace Core.Pricing
             return response;
         }
 
-        public static SubscriptionSetsResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds)
+        public static SubscriptionSetsResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds, SubscriptionSetType? type = null)
         {
             SubscriptionSetsResponse response = new SubscriptionSetsResponse();
             try
             {
-                response.SubscriptionSets = Utils.GetSubscriptionSetsBySubscriptionIds(groupId, subscriptionIds);
+                response.SubscriptionSets = Utils.GetSubscriptionSetsBySubscriptionIds(groupId, subscriptionIds, type);
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
                 response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed GetSubscriptionSetsBySubscriptionIds, groupId: {0}, subscriptionIds: {1}", groupId, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
+            }
+
+            return response;
+        }
+
+        public static SubscriptionSetsResponse GetSubscriptionSetsBySetIds(int groupId, List<long> setIds)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                response.SubscriptionSets = Utils.GetSubscriptionSets(groupId, setIds);
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed GetSubscriptionSetsBySetIds, groupId: {0}, setIds: {1}", groupId, setIds != null ? string.Join(",", setIds) : ""), ex);
             }
 
             return response;
@@ -1159,7 +1177,8 @@ namespace Core.Pricing
             return response;
         }
 
-        public static SubscriptionSetsResponse UpdateSubscriptionSet(int groupId, long setId, string name, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds)
+        public static SubscriptionSetsResponse UpdateSubscriptionSet(int groupId, long setId, string name, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds,
+            SubscriptionSetType type = SubscriptionSetType.Switch)
         {
             SubscriptionSetsResponse response = new SubscriptionSetsResponse();
             try
@@ -1194,10 +1213,16 @@ namespace Core.Pricing
                         }
                     }
 
-                    subscriptionSet.SubscriptionIds = new List<long>(subscriptionIds);
+                    if (type == SubscriptionSetType.Switch)
+                    {
+                        ((SwitchSet)subscriptionSet).SubscriptionIds = new List<long>(subscriptionIds);
+                    }
+                }
+                if (type == SubscriptionSetType.Switch)
+                {
+                    SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionSet(groupId, subscriptionSet.Id, subscriptionSet.Name, ((SwitchSet)subscriptionSet).SubscriptionIds, shouldUpdateSubscriptionIds);
                 }
 
-                SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionSet(groupId, subscriptionSet.Id, subscriptionSet.Name, subscriptionSet.SubscriptionIds, shouldUpdateSubscriptionIds);
                 if (subscriptionSet != null && subscriptionSet.Id > 0)
                 {
                     response.SubscriptionSets.Clear();
@@ -1237,6 +1262,12 @@ namespace Core.Pricing
                 if (DAL.PricingDAL.DeleteSubscriptionSet(groupId, setId))
                 {
                     response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    
+                    // call layered cache . setinvalidateion key
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSubscriptionSetInvalidationKey(groupId, setId)))
+                    {
+                        log.ErrorFormat("Failed LayeredCache.Instance.SetInvalidationKey, groupId: {0}, setId: {1}", groupId, setId);
+                    }
                 }
             }
             catch (Exception ex)
@@ -1268,6 +1299,122 @@ namespace Core.Pricing
             {
                 response.Status = new Status((int)eResponseStatus.Error, "Error");
                 log.Error(string.Format("Failed GetSubscriptionSet, groupId: {0}, setId: {1}", groupId, setId), ex);
+            }
+
+            return response;
+        }
+
+
+        public static SubscriptionSetsResponse GetSubscriptionSetsByBaseSubscriptionIds(int groupId, List<long> subscriptionIds, SubscriptionSetType? setType)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                response.SubscriptionSets = Utils.GetSubscriptionSetsByBaseSubscriptionIds(groupId, subscriptionIds, setType);
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed GetSubscriptionSetsBySubscriptionIds, groupId: {0}, subscriptionIds: {1}", groupId, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
+            }
+
+            return response;
+        }
+
+        public static SubscriptionSetsResponse AddSubscriptionDependencySet(int groupId, string name, long baseSubscriptionId, List<long> subscriptionIds, SubscriptionSetType setType)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                // check that base not belong to any other set (ass add on or as base)
+
+                List<SubscriptionSet> baseInSet = Utils.GetSubscriptionSetsByBaseSubscriptionIds(groupId, new List<long>() { baseSubscriptionId }, setType);
+                if (baseInSet != null && baseInSet.Count() > 0)
+                {
+                    string msg = string.Format("{0} for the following baseSubscriptionId: {1}", eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString(), baseSubscriptionId);
+                    response.Status = new Status((int)eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet, msg);
+                    return response;
+                }
+
+                SubscriptionSet subscriptionSet = Utils.InsertSubscriptionDependencySet(groupId, name, baseSubscriptionId, subscriptionIds, setType);
+                if (subscriptionSet != null && subscriptionSet.Id > 0)
+                {
+                    response.SubscriptionSets.Add(subscriptionSet);
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, "Error");
+                log.Error(string.Format("Failed AddSubscriptionSet, groupId: {0}, name: {1}, subscriptionIds: {2}", groupId, name, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
+            }
+
+            return response;
+        }
+
+        public static SubscriptionSetsResponse UpdateSubscriptionDependencySet(int groupId, long setId, string name, long? baseSubscriptionId, List<long> subscriptionIds,
+            bool shouldUpdateSubscriptionIds, SubscriptionSetType setType = SubscriptionSetType.Dependency)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                response = GetSubscriptionSets(groupId, new List<long>() { setId });
+                if (response.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return response;
+                }
+                else if (response.SubscriptionSets.Count != 1)
+                {
+                    response.Status = new Status((int)eResponseStatus.SubscriptionSetDoesNotExist, eResponseStatus.SubscriptionSetDoesNotExist.ToString());
+                    return response;
+                }
+                
+                SubscriptionSet subscriptionSet = response.SubscriptionSets[0];        
+        
+                subscriptionSet.Name = !string.IsNullOrEmpty(name) ? name : subscriptionSet.Name;
+
+                if (setType == SubscriptionSetType.Dependency)
+                {
+                    if (baseSubscriptionId.HasValue) // check that this base not belong to other set
+                    {
+                        List<SubscriptionSet> baseInSet = Utils.GetSubscriptionSetsByBaseSubscriptionIds(groupId, new List<long>() { baseSubscriptionId.Value }, setType);
+                        if (baseInSet != null && baseInSet.Count() > 0)
+                        {
+                            string msg = string.Format("{0} for the following baseSubscriptionId: {1}", eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString(), baseSubscriptionId);
+                            response.Status = new Status((int)eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet, msg);
+                            return response;
+                        }
+                    }
+                    else
+                    {
+                        baseSubscriptionId = ((DependencySet)subscriptionSet).BaseSubscriptionId;
+                    }
+                }
+                if (setType == SubscriptionSetType.Dependency)
+                {
+                    SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionDependencySet(groupId, subscriptionSet.Id, subscriptionSet.Name, baseSubscriptionId.Value,
+                        subscriptionIds, shouldUpdateSubscriptionIds, setType);
+                }
+
+                if (subscriptionSet != null && subscriptionSet.Id > 0)
+                {
+                    response.SubscriptionSets.Clear();
+                    response.SubscriptionSets.Add(subscriptionSet);
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                                        
+                    // call layered cache . setinvalidateion key
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSubscriptionSetInvalidationKey(groupId, subscriptionSet.Id)))
+                    {
+                        log.ErrorFormat("Failed LayeredCache.Instance.SetInvalidationKey, groupId: {0}, setId: {1}",groupId, subscriptionSet.Id);                        
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, "Error");
+                log.Error(string.Format("Failed UpdateSubscriptionSet, groupId: {0}, name: {1}, setId: {2} subscriptionIds: {3}",
+                                        groupId, name, setId, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
             }
 
             return response;

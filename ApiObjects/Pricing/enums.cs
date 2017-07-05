@@ -100,4 +100,19 @@ namespace ApiObjects.Pricing
         Apple = 2,
         Roku = 3
     }
+
+    [Serializable]
+    public enum SubscriptionSetType
+    {
+        Switch = 0,
+        Dependency = 1
+    }
+
+    [Serializable]
+    public enum SubscriptionType
+    {
+        NotApplicable  = 0,
+        Base = 1,
+        AddOn = 2
+    }
 }

@@ -1047,17 +1047,30 @@ namespace Core.ConditionalAccess
 
                 if (!isSubscriptionSetModifySubscription && subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
                 {
-                    Subscription subscriptionInTheSameSet = null;
-                    KeyValuePair<long, int> setAndPriority = subscription.GetSubscriptionSetIdsToPriority().First();
-                    DomainSubscriptionPurchaseDetails oldSubscriptionPurchaseDetails = null;
-                    if (IsEntitlementContainSameSetSubscription(groupId, householdId, productId, setAndPriority.Key, ref subscriptionInTheSameSet, ref oldSubscriptionPurchaseDetails))
+                    if (subscription.Type == SubscriptionType.AddOn)
                     {
-                        response.Status = new Status((int)eResponseStatus.CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet,
-                                                    "Can only be entitled to one subscription per subscriptionSet, please use Upgrade or Downgrade");
-                        return response;
+                        ApiObjects.Response.Status Status = Utils.CanPurchaseAddOn(groupId, householdId, subscription);
+                        if (Status.Code != (int)eResponseStatus.OK)
+                        {
+                            response.Status = Status;
+                            return response;
+                        }
+                    }
+                    else
+                    {
+                        Subscription subscriptionInTheSameSet = null;
+                        KeyValuePair<long, int> setAndPriority = subscription.GetSubscriptionSetIdsToPriority().First();
+                        DomainSubscriptionPurchaseDetails oldSubscriptionPurchaseDetails = null;
+                        if (IsEntitlementContainSameSetSubscription(groupId, householdId, productId, setAndPriority.Key, ref subscriptionInTheSameSet, ref oldSubscriptionPurchaseDetails))
+                        {
+                            response.Status = new Status((int)eResponseStatus.CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet,
+                                                        "Can only be entitled to one subscription per subscriptionSet, please use Upgrade or Downgrade");
+                            return response;
+                        }
                     }
                 }
 
+               
                 if (coupon != null && coupon.m_CouponStatus == CouponsStatus.Valid && coupon.m_oCouponGroup != null && coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
                     ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode) ||
                      (subscription.CouponsGroups != null && subscription.CouponsGroups.Count() > 0 && subscription.CouponsGroups.Where(x => x.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode).Count() > 0 )))
@@ -1263,6 +1276,8 @@ namespace Core.ConditionalAccess
             }
             return response;
         }
+
+       
 
         private static void SendReminderEmails(BaseConditionalAccess cas, int groupId, long endDate, DateTime renewDate,
             string siteGuid, long householdId, long purchaseId, string billingGuid)
