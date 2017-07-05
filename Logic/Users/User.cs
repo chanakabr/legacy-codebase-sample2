@@ -627,7 +627,7 @@ namespace Core.Users
 
             this.userId = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName, m_oBasicData.m_sPassword, m_oBasicData.m_sSalt, m_oBasicData.m_sFirstName, m_oBasicData.m_sLastName, m_oBasicData.m_sFacebookID,
                                              m_oBasicData.m_sFacebookImage, m_oBasicData.m_sFacebookToken, bIsFacebookImagePermitted,
-                                             m_oBasicData.m_sEmail, (this.shouldSetUserActive ? 0 : 1), sActivationToken,
+                                             m_oBasicData.m_sEmail, (this.shouldSetUserActive ? 1 : 0), sActivationToken,
                                              m_oBasicData.m_CoGuid, m_oBasicData.m_ExternalToken, m_oBasicData.m_UserType.ID, m_oBasicData.m_sAddress, m_oBasicData.m_sCity,
                                              countryID, stateID, m_oBasicData.m_sZip, m_oBasicData.m_sPhone, m_oBasicData.m_sAffiliateCode,
                                              m_oBasicData.m_sTwitterToken, m_oBasicData.m_sTwitterTokenSecret, this.GroupId);
