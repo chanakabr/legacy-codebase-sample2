@@ -217,6 +217,26 @@ namespace CachingProvider.LayeredCache
             return string.Format("announecements_groupId_{0}", groupId);
         }
 
+        public static string GetSubscriptionSetKey(int groupId, long setId)
+        {
+            return string.Format("subscriptionSet_groupId_{0}_setId_{1}", groupId, setId );
+        }
+
+        public static Dictionary<string, string> GetSubscriptionSetsKeysMap(int groupId, List<long> setIds)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (setIds != null && setIds.Count > 0)
+            {
+                setIds = setIds.Distinct().ToList();
+                foreach (long id in setIds)
+                {
+                    result.Add(GetSubscriptionSetKey(groupId, id), id.ToString());
+                }
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -330,33 +350,10 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyAnnounecements_groupId_{0}", groupId);
         }
-
-        #endregion
-
-
-        public static string GetSetIdKey(int groupId, long setId)
+       
+        public static string GetSubscriptionSetInvalidationKey(int groupId, long setId)
         {
-            return string.Format("setId_{0}_groupId_{1}", setId, groupId);
-        }
-        public static string GetSubscriptionSetIdInvalidationKey(int groupId, long setId)
-        {
-            return string.Format("invalidationKeySubscriptionSet_groupId_{0}_id_{1}", groupId, setId);
-        }
-
-
-        public static Dictionary<string, string> GetSubscriptionSetsKeysMap(int groupId, List<long> setIds)
-        {
-            Dictionary<string, string> result = new Dictionary<string, string>();
-            if (setIds != null && setIds.Count > 0)
-            {
-                setIds = setIds.Distinct().ToList();
-                foreach (long id in setIds)
-                {
-                    result.Add(GetSetIdKey(groupId, id), id.ToString());
-                }
-            }
-
-            return result;
+            return string.Format("invalidationKeySubscriptionSet_groupId_{0}_setId_{1}", groupId, setId);
         }
 
         public static Dictionary<string, List<string>> GetSubscriptionSetsInvalidationKeysMap(int groupId, List<long> setIds)
@@ -367,11 +364,14 @@ namespace CachingProvider.LayeredCache
                 setIds = setIds.Distinct().ToList();
                 foreach (long id in setIds)
                 {
-                    result.Add(GetSetIdKey(groupId, id), new List<string>() { GetSubscriptionSetIdInvalidationKey(groupId, id) });
+                    result.Add(GetSubscriptionSetKey(groupId, id), new List<string>() { GetSubscriptionSetInvalidationKey(groupId, id) });
                 }
             }
 
             return result;
         }
+
+        #endregion        
+
     }
 }
