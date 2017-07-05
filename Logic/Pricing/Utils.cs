@@ -643,15 +643,17 @@ namespace Core.Pricing
             return status;
         }
 
-        internal static List<SubscriptionSet> GetSubscriptionSets(int groupId, List<long> ids)
+        internal static List<SubscriptionSet> GetSubscriptionSets(int groupId, List<long> ids, SubscriptionSetType? type = null)
         {
             List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
             try
             {
-
-                // layerd cache !!!! 
-
-                DataSet ds = PricingDAL.GetSubscriptionSetsByIds(groupId, ids);
+                int? typeId = null;
+                if (type.HasValue)
+                {
+                    typeId = (int)(type.Value);
+                }
+                DataSet ds = PricingDAL.GetSubscriptionSetsByIds(groupId, ids, typeId);
                 subscriptionSets = CreateSubscriptionSetsFromDataSet(ds);
             }
 
@@ -788,7 +790,7 @@ namespace Core.Pricing
             return subscriptionSets;
         }
 
-        internal static List<SubscriptionSet> GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds)
+        internal static List<SubscriptionSet> GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds, SubscriptionSetType? type = null)
         {
             List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
             try
@@ -805,7 +807,7 @@ namespace Core.Pricing
                     return subscriptionSets;
                 }
 
-                subscriptionSets = GetSubscriptionSets(groupId, setIds);                
+                subscriptionSets = GetSubscriptionSets(groupId, setIds, type);                
             }
 
             catch (Exception ex)
@@ -917,7 +919,7 @@ namespace Core.Pricing
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        long subscriptionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SUBSCRIPTION_ID", 0);
+                        long subscriptionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "BASE_SUBSCRIPTION_ID", 0);
                         long setId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SET_ID", 0);
                         int priority = ODBCWrapper.Utils.GetIntSafeVal(dr, "PRIORITY", 0);
                         if (subscriptionId > 0 && setId > 0 && priority > 0)
@@ -942,5 +944,34 @@ namespace Core.Pricing
 
             return subscriptionIdToSetIdsMap;
         }
+
+        internal static List<SubscriptionSet> GetSubscriptionSetsByBaseSubscriptionIds(int groupId, List<long> subscriptionIds, SubscriptionSetType? type = null)
+        {
+            List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
+            try
+            {
+                Dictionary<long, Dictionary<long, int>> subscriptionIdToSetIdsMap = GetSetsContainingBaseSubscription(groupId, subscriptionIds, type.HasValue? type.Value: SubscriptionSetType.Dependency);
+                if (subscriptionIdToSetIdsMap == null || subscriptionIdToSetIdsMap.Count == 0)
+                {
+                    return subscriptionSets;
+                }
+
+                List<long> setIds = subscriptionIdToSetIdsMap.Where(x => x.Value != null).SelectMany(x => x.Value.Keys).Distinct().ToList();
+                if (setIds == null && setIds.Count == 0)
+                {
+                    return subscriptionSets;
+                }
+
+                subscriptionSets = GetSubscriptionSets(groupId, setIds, type);
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetSubscriptionSetsBySubscriptionIds, groupId: {0}, subscriptionIds: {1}", groupId, string.Join(",", subscriptionIds)), ex);
+            }
+
+            return subscriptionSets;
+        }
+        
     }
 }

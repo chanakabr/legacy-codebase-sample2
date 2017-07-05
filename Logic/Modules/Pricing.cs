@@ -1087,12 +1087,12 @@ namespace Core.Pricing
             }
         }        
 
-        public static SubscriptionSetsResponse GetSubscriptionSets(int groupId, List<long> ids)
+        public static SubscriptionSetsResponse GetSubscriptionSets(int groupId, List<long> ids, SubscriptionSetType? type = null)
         {
             SubscriptionSetsResponse response = new SubscriptionSetsResponse();
             try
             {
-                response.SubscriptionSets = Utils.GetSubscriptionSets(groupId, ids);
+                response.SubscriptionSets = Utils.GetSubscriptionSets(groupId, ids, type);
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -1104,12 +1104,12 @@ namespace Core.Pricing
             return response;
         }
 
-        public static SubscriptionSetsResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds)
+        public static SubscriptionSetsResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds, SubscriptionSetType? type = null)
         {
             SubscriptionSetsResponse response = new SubscriptionSetsResponse();
             try
             {
-                response.SubscriptionSets = Utils.GetSubscriptionSetsBySubscriptionIds(groupId, subscriptionIds);
+                response.SubscriptionSets = Utils.GetSubscriptionSetsBySubscriptionIds(groupId, subscriptionIds, type);
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -1297,5 +1297,22 @@ namespace Core.Pricing
             return response;
         }
 
+
+        public static SubscriptionSetsResponse GetSubscriptionSetsByBaseSubscriptionIds(int groupId, List<long> subscriptionIds, SubscriptionSetType? setType)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                response.SubscriptionSets = Utils.GetSubscriptionSetsByBaseSubscriptionIds(groupId, subscriptionIds, setType);
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed GetSubscriptionSetsBySubscriptionIds, groupId: {0}, subscriptionIds: {1}", groupId, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
+            }
+
+            return response;
+        }
     }
 }
