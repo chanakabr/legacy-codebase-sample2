@@ -627,7 +627,7 @@ namespace Core.Users
 
             this.userId = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName, m_oBasicData.m_sPassword, m_oBasicData.m_sSalt, m_oBasicData.m_sFirstName, m_oBasicData.m_sLastName, m_oBasicData.m_sFacebookID,
                                              m_oBasicData.m_sFacebookImage, m_oBasicData.m_sFacebookToken, bIsFacebookImagePermitted,
-                                             m_oBasicData.m_sEmail, (this.shouldSetUserActive ? 1 : 0), sActivationToken,
+                                             m_oBasicData.m_sEmail, (this.shouldSetUserActive ? 0 : 1), sActivationToken,
                                              m_oBasicData.m_CoGuid, m_oBasicData.m_ExternalToken, m_oBasicData.m_UserType.ID, m_oBasicData.m_sAddress, m_oBasicData.m_sCity,
                                              countryID, stateID, m_oBasicData.m_sZip, m_oBasicData.m_sPhone, m_oBasicData.m_sAffiliateCode,
                                              m_oBasicData.m_sTwitterToken, m_oBasicData.m_sTwitterTokenSecret, this.GroupId);
@@ -674,45 +674,58 @@ namespace Core.Users
                 usersCache.RemoveUser(this.userId, this.GroupId);
             }
 
-            bool saved = m_oBasicData.Save(this.userId);
-
-            if (!saved)
+            // activation
+            if (this.shouldSetUserActive)
             {
-                this.userId = -1;
-                return success;
+                success = DAL.UsersDal.UpdateUserActivationToken(GroupId, userId, activationToken, Guid.NewGuid().ToString(), (int)UserState.LoggedOut);
+
+                if (success)
+                {
+                    bool resetSession = DAL.UsersDal.SetUserSessionStatus(userId, 0, 0);
+                }
             }
-
-            if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
+            // update
+            else
             {
-                saved = m_oDynamicData.Save(this.userId);
+                bool saved = m_oBasicData.Save(this.userId);
 
                 if (!saved)
                 {
-                    this.userId = -2;
+                    this.userId = -1;
                     return success;
                 }
-            }
 
-            try
-            {
-                Notifiers.BaseUsersNotifier t = null;
-                Notifiers.Utils.GetBaseUsersNotifierImpl(ref t, this.GroupId);
-
-                if (t != null)
+                if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
                 {
-                    t.NotifyChange(m_sSiteGUID);
+                    saved = m_oDynamicData.Save(this.userId);
+
+                    if (!saved)
+                    {
+                        this.userId = -2;
+                        return success;
+                    }
+                }
+
+                try
+                {
+                    Notifiers.BaseUsersNotifier t = null;
+                    Notifiers.Utils.GetBaseUsersNotifierImpl(ref t, this.GroupId);
+
+                    if (t != null)
+                    {
+                        t.NotifyChange(m_sSiteGUID);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
+                }
+
+                if (this.userId > 0)
+                {
+                    success = true;
                 }
             }
-            catch (Exception ex)
-            {
-                log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
-            }
-
-            if (this.userId > 0)
-            {
-                success = true;
-            }
-
             return success;
         }
 
@@ -1200,16 +1213,20 @@ namespace Core.Users
         public int m_nSSOOperatorID;
         public bool IsActivationGracePeriod;
 
-        // Save method members
+        // Save / Update method members
 
         [System.Xml.Serialization.XmlIgnore]
         [JsonIgnore()]
-        protected bool shouldSetUserActive;
+        public bool shouldSetUserActive;
         [System.Xml.Serialization.XmlIgnore]
         [JsonIgnore()]
-        protected bool shouldRemoveFromCache;
+        public bool shouldRemoveFromCache;
         [System.Xml.Serialization.XmlIgnore]
         [JsonIgnore()]
         protected int userId;
+        [System.Xml.Serialization.XmlIgnore]
+        [JsonIgnore()]
+        public string activationToken;
+
     }
 }

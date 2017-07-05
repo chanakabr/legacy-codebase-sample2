@@ -300,10 +300,7 @@ namespace Core.Users
 
         protected Int32 GetUserIDByUserName(string sUserName)
         {
-            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
-            string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
-
-            int userID = DAL.UsersDal.GetUserIDByUsername(sUserName, arrGroupIDs);
+            int userID = DAL.UsersDal.GetUserIDByUsername(sUserName, m_nGroupID);
 
             return userID;
         }
@@ -381,46 +378,41 @@ namespace Core.Users
             {
                 u.Initialize(nID, m_nGroupID, false);
 
-
-                List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
-                string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
-                bool isActivated = DAL.UsersDal.UpdateUserActivationToken(arrGroupIDs, nID, sToken, Guid.NewGuid().ToString(), (int)UserState.LoggedOut);
-
-                if (isActivated)
+                bool resetSession = DAL.UsersDal.SetUserSessionStatus(nID, 0, 0);
+                u.activationToken = sToken;
+                u.shouldRemoveFromCache = true;
+                u.shouldSetUserActive = true;
+                u.GroupId = m_nGroupID;
+                if (u.Update())
                 {
-                    bool resetSession = DAL.UsersDal.SetUserSessionStatus(nID, 0, 0);
-                    // remove user from cache
-                    UsersCache usersCache = UsersCache.Instance();
-                    usersCache.RemoveUser(nID, m_nGroupID);
-                }
-                try
-                {
-                    Notifiers.BaseUsersNotifier t = null;
-                    Notifiers.Utils.GetBaseUsersNotifierImpl(ref t, m_nGroupID);
-                    if (t != null)
+                    try
                     {
-                        t.NotifyChange(nID.ToString());
+                        Notifiers.BaseUsersNotifier t = null;
+                        Notifiers.Utils.GetBaseUsersNotifierImpl(ref t, m_nGroupID);
+                        if (t != null)
+                        {
+                            t.NotifyChange(nID.ToString());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("exception - " + nID.ToString() + " : " + ex.Message, ex);
+                    }
+
+
+                    int nActivationStatus = DAL.UsersDal.GetUserActivateStatus(nID, m_nGroupID);
+
+                    if (nActivationStatus == 1)
+                    {
+                        resp.m_user = u;
+                        resp.m_RespStatus = ResponseStatus.OK;
+                    }
+                    else
+                    {
+                        resp.m_user = null;
+                        resp.m_RespStatus = ResponseStatus.UserNotActivated;
                     }
                 }
-                catch (Exception ex)
-                {
-                    log.Error("exception - " + nID.ToString() + " : " + ex.Message, ex);
-                }
-
-
-                int nActivationStatus = DAL.UsersDal.GetUserActivateStatus(nID, arrGroupIDs);
-
-                if (nActivationStatus == 1)
-                {
-                    resp.m_user = u;
-                    resp.m_RespStatus = ResponseStatus.OK;
-                }
-                else
-                {
-                    resp.m_user = null;
-                    resp.m_RespStatus = ResponseStatus.UserNotActivated;
-                }
-
             }
             else
             {

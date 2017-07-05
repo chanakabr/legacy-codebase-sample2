@@ -141,11 +141,8 @@ namespace Core.Users
 
             if (tokenUserID > 0 && nUserID == tokenUserID)  //(u.m_isDomainMaster)
             {
-                List<int> lGroupIDs = DAL.UtilsDal.GetAllRelatedGroups(m_nGroupID);
-                string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
-
                 string sNewGuid = Guid.NewGuid().ToString();
-                bool isActivated = DAL.UsersDal.UpdateUserActivationToken(arrGroupIDs, nUserID, sToken, sNewGuid, (int)UserState.LoggedOut);
+                bool isActivated = DAL.UsersDal.UpdateUserActivationToken(m_nGroupID, nUserID, sToken, sNewGuid, (int)UserState.LoggedOut);
 
                 if (isActivated)
                 {
@@ -154,7 +151,7 @@ namespace Core.Users
 
                 bNotify = true;
 
-                int nActivationStatus = DAL.UsersDal.GetUserActivateStatus(nUserID, arrGroupIDs);
+                int nActivationStatus = DAL.UsersDal.GetUserActivateStatus(nUserID, m_nGroupID);
 
                 resp.m_user = (nActivationStatus == 1) ? u : null;
                 resp.m_RespStatus = (nActivationStatus == 1) ? ResponseStatus.OK : ResponseStatus.UserNotActivated;

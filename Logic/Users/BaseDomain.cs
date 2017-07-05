@@ -465,10 +465,7 @@ namespace Core.Users
             DomainResponseObject resp = new DomainResponseObject();
 
             // Check the Master User
-            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
-            string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
-
-            int masterUserID = DAL.UsersDal.GetUserIDByUsername(sMasterUN, arrGroupIDs);
+            int masterUserID = DAL.UsersDal.GetUserIDByUsername(sMasterUN, m_nGroupID);
 
             User masterUser = new User();
             bool bInit = masterUser.Initialize(masterUserID, m_nGroupID, false);
