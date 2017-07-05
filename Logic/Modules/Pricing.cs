@@ -1264,7 +1264,7 @@ namespace Core.Pricing
                     response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     
                     // call layered cache . setinvalidateion key
-                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSubscriptionSetIdInvalidationKey(groupId, setId)))
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSubscriptionSetInvalidationKey(groupId, setId)))
                     {
                         log.ErrorFormat("Failed LayeredCache.Instance.SetInvalidationKey, groupId: {0}, setId: {1}", groupId, setId);
                     }
@@ -1404,7 +1404,7 @@ namespace Core.Pricing
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                                         
                     // call layered cache . setinvalidateion key
-                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSubscriptionSetIdInvalidationKey(groupId, subscriptionSet.Id)))
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSubscriptionSetInvalidationKey(groupId, subscriptionSet.Id)))
                     {
                         log.ErrorFormat("Failed LayeredCache.Instance.SetInvalidationKey, groupId: {0}, setId: {1}",groupId, subscriptionSet.Id);                        
                     }
