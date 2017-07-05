@@ -1211,12 +1211,16 @@ namespace DAL
             return  sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataTable GetAvailableSubscriptionsBySetId(int groupId, long setId)
+        public static DataTable GetAvailableSubscriptionsBySetId(int groupId, long setId, int? subscriptionType = 0)
         {
             StoredProcedure sp = new StoredProcedure("GetAvailableSubscriptionsBySetId");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@SetId", setId);
+            if (subscriptionType.HasValue)
+            {
+                sp.AddParameter("@SubscriptionType", subscriptionType.Value);
+            }
 
             return sp.Execute();
         }
@@ -1232,9 +1236,6 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
-
-
-
 
         public static bool SetTopicInterests(string xml, int groupId, int updaterId)
         {
