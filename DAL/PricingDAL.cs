@@ -1431,13 +1431,17 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet GetSubscriptionSetsByIds(int groupId, List<long> ids)
+        public static DataSet GetSubscriptionSetsByIds(int groupId, List<long> ids, int? typeId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSubscriptionSetsByIds");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter("@Ids", ids, "id");
             sp.AddParameter("@IdsExist", ids != null && ids.Count > 0);
+            if (typeId.HasValue )
+            {
+                sp.AddParameter("@Type", typeId.Value);
+            }
             return sp.ExecuteDataSet();
         }
 
@@ -1483,6 +1487,35 @@ namespace DAL
             sp.AddIDListParameter("@SubscriptionIds", subscriptionIds, "id");
             sp.AddParameter("@Type", type);
             return sp.Execute();
+        }
+
+        public static DataSet InsertSubscriptionDependencySet(int groupId, string name, long baseSubscriptionId, List<KeyValuePair<long, int>> subscriptionIdsToPriority, int setType = 1)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertSubscriptionDependencySet");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Name", name);
+            sp.AddParameter("@BaseSubscriptionId", baseSubscriptionId);
+            sp.AddParameter("@Type", setType);
+            sp.AddKeyValueListParameter<long, int>("@SubscriptionsIdsToPriority", subscriptionIdsToPriority, "key", "value");
+            sp.AddParameter("@SubscriptionsIdsToPriorityExist", subscriptionIdsToPriority != null && subscriptionIdsToPriority.Count > 0);
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet UpdateSubscriptionDependencySet(int groupId, long setId, string name, long baseSubscriptionId, List<KeyValuePair<long, int>> subscriptionIdsToPriority, 
+            bool shouldUpdateSubscriptionIds, int type = 1)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateSubscriptionDependencySet");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@SetId", setId);
+            sp.AddParameter("@Name", string.IsNullOrEmpty(name) ? null : name);
+            sp.AddKeyValueListParameter<long, int>("@SubscriptionsIdsToPriority", subscriptionIdsToPriority, "key", "value");
+            sp.AddParameter("@SubscriptionsIdsToPriorityExist", shouldUpdateSubscriptionIds);
+            sp.AddParameter("@Type", type);
+            sp.AddParameter("@BaseSubscriptionId", baseSubscriptionId);
+
+            return sp.ExecuteDataSet();
         }
     }
 }
