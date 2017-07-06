@@ -235,14 +235,22 @@ namespace ElasticSearch.Searcher
             StringBuilder filteredQueryBuilder = new StringBuilder();
 
             filteredQueryBuilder.Append("{");
-            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
+
+            int pageSize = this.PageSize;
+
+            if (this.SearchDefinitions.shouldGetTopHits)
+            {
+                pageSize = 0;
+            }
+
+            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", pageSize);
             filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
 
             // TODO - find if the search is exact or not!
             bool bExact = false;
 
             // If not exact, order by score, and vice versa
-            string sSort = GetSort(this.SearchDefinitions.order, !bExact);
+            string sSort = GetSort(this.SearchDefinitions.order, !bExact, this.ReturnFields);
 
             // Join return fields with commas
             if (ReturnFields.Count > 0)
@@ -300,15 +308,38 @@ namespace ElasticSearch.Searcher
                 {
                     if (currentAggregation == null)
                     {
+                        int size = 0;
+
+                        if (this.SearchDefinitions.shouldGetTopHits)
+                        {
+                            size = this.SearchDefinitions.pageSize * (this.SearchDefinitions.pageIndex + 1);
+
+
+                        }
+
                         currentAggregation = new ESBaseAggsItem()
                         {
                             Field = groupBy.Value.ToLower(),
                             Name = groupBy.Key,
-                            Size = 0,
+                            Size = size,
                             Type = eElasticAggregationType.terms,
                             Order = aggregationsOrder,
                             OrderDirection = aggregationsOrderDirection
                         };
+
+                        // Get top hit as well if necessary
+                        if (this.SearchDefinitions.shouldGetTopHits)
+                        {
+                            currentAggregation.SubAggrgations = new List<ESBaseAggsItem>()
+                            {
+                                new ESBaseAggsItem()
+                                {
+                                    Type = eElasticAggregationType.top_hits,
+                                    Name = "top_hits_assets",
+                                    Size = 1
+                                }
+                            };
+                        }
 
                         this.Aggregations.Add(currentAggregation);
                     }
@@ -1433,7 +1464,7 @@ namespace ElasticSearch.Searcher
             bool bExact = false;
 
             // If not exact, order by score, and vice versa
-            string sSort = GetSort(this.SearchDefinitions.order, !bExact);
+            string sort = GetSort(this.SearchDefinitions.order, !bExact, this.ReturnFields);
 
             // Join return fields with commas
             if (ReturnFields.Count > 0)
@@ -1445,7 +1476,7 @@ namespace ElasticSearch.Searcher
                 filteredQueryBuilder.Append("], ");
             }
 
-            filteredQueryBuilder.AppendFormat("{0}, ", sSort);
+            filteredQueryBuilder.AppendFormat("{0}, ", sort);
             filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
 
             if (filteredQuery.Query != null && !filteredQuery.Query.IsEmpty())
@@ -2230,8 +2261,13 @@ namespace ElasticSearch.Searcher
         /// <param name="order"></param>
         /// <param name="shouldOrderByScore"></param>
         /// <returns></returns>
-        protected string GetSort(OrderObj order, bool shouldOrderByScore)
+        public static string GetSort(OrderObj order, bool shouldOrderByScore, List<string> returnFields)
         {
+            if (returnFields == null)
+            {
+                returnFields = new List<string>();
+            }
+
             StringBuilder sortBuilder = new StringBuilder();
             sortBuilder.Append(" \"sort\": [{");
 
@@ -2239,7 +2275,7 @@ namespace ElasticSearch.Searcher
             {
                 string sAnalyzedMeta = string.Format("metas.{0}", order.m_sOrderValue.ToLower());
                 sortBuilder.AppendFormat("\"{0}\": ", sAnalyzedMeta);
-                ReturnFields.Add(string.Format("\"{0}\"", sAnalyzedMeta));
+                returnFields.Add(string.Format("\"{0}\"", sAnalyzedMeta));
             }
             else if (order.m_eOrderBy == OrderBy.ID)
             {

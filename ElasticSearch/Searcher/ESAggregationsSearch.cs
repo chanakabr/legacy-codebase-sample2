@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.SearchObjects;
+using KLogMonitor;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,8 @@ namespace ElasticSearch.Searcher
         value_count,
         terms,
         filter,
-        filters
+        filters,
+        top_hits
     }
 
     #region Aggregations
@@ -47,6 +49,8 @@ namespace ElasticSearch.Searcher
 
         public string Order;
         public string OrderDirection;
+
+        public OrderObj Sort;
 
         #endregion
 
@@ -118,7 +122,11 @@ namespace ElasticSearch.Searcher
 
             sb.AppendFormat("\"{0}\":", this.Type);
             sb.Append("{");
-            sb.AppendFormat("\"field\": \"{0}\"", this.Field);
+
+            if (!string.IsNullOrEmpty(this.Field))
+            {
+                sb.AppendFormat("\"field\": \"{0}\",", this.Field);
+            }
 
             if (!string.IsNullOrEmpty(this.Order))
             {
@@ -128,28 +136,38 @@ namespace ElasticSearch.Searcher
                     this.OrderDirection = "desc";
                 }
 
-                sb.Append(",\"order\": { \"");
+                sb.Append("\"order\": { \"");
                 sb.AppendFormat("{0}\" : \"{1}\"", this.Order, this.OrderDirection);
-                sb.Append("}");
+                sb.Append("},");
             }
 
             if (this.Size > -1 && this.IsSizeable())
             {
-                sb.AppendFormat(",\"size\": {0}", this.Size);
+                sb.AppendFormat("\"size\": {0},", this.Size);
             }
 
             if (this.ShardSize != null && this.ShardSize.HasValue)
             {
-                sb.AppendFormat(",\"shard_size\": {0}", this.ShardSize.Value);
+                sb.AppendFormat("\"shard_size\": {0},", this.ShardSize.Value);
             }
 
             if (this.AdditionalInnerParameters != null && this.AdditionalInnerParameters.Count > 0)
             {
                 foreach (var item in this.AdditionalInnerParameters)
                 {
-                    sb.AppendFormat(",\"{0}\": \"{1}\"", item.Key, item.Value);
+                    sb.AppendFormat("\"{0}\": \"{1}\",", item.Key, item.Value);
                 }
             }
+
+            if (this.Sort != null && this.Sort.m_eOrderBy != OrderBy.NONE)
+            {
+                string sort = ESUnifiedQueryBuilder.GetSort(this.Sort, true, new List<string>());
+
+                sb.AppendFormat("{0},", sort);
+            }
+
+            // remove last comma
+            sb.Remove(sb.Length - 1, 1);
 
             sb.Append("}");
 
@@ -186,6 +204,7 @@ namespace ElasticSearch.Searcher
                 case eElasticAggregationType.terms:
                 case eElasticAggregationType.filter:
                 case eElasticAggregationType.filters:
+                case eElasticAggregationType.top_hits:
                 {
                     result = true;
                     break;

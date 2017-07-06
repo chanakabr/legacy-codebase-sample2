@@ -264,5 +264,223 @@ namespace ElasticSearch.Common
             return result;
         }
 
+        /// <summary>
+        /// Parses a string to an enum, regardless of upper/lowercase issues
+        /// </summary>
+        /// <param name="typeString"></param>
+        /// <returns></returns>
+        public static ApiObjects.eAssetTypes ParseAssetType(string typeString)
+        {
+            ApiObjects.eAssetTypes typeEnum = ApiObjects.eAssetTypes.UNKNOWN;
+
+            if (typeString.ToLower().StartsWith("media"))
+            {
+                typeEnum = ApiObjects.eAssetTypes.MEDIA;
+            }
+            else if (typeString.ToLower().StartsWith("epg"))
+            {
+                typeEnum = ApiObjects.eAssetTypes.EPG;
+            }
+            else if (typeString.ToLower().StartsWith("recording"))
+            {
+                typeEnum = ApiObjects.eAssetTypes.NPVR;
+            }
+
+            return typeEnum;
+        }
+
+        public static List<ElasticSearchApi.ESAssetDocument> DecodeAssetSearchJsonObject(string sObj, ref int totalItems,
+            List<string> extraReturnFields = null, string prefix = "fields")
+        {
+            List<ElasticSearchApi.ESAssetDocument> documents = null;
+            try
+            {
+                var jsonObj = JObject.Parse(sObj);
+
+                if (jsonObj != null)
+                {
+                    JToken tempToken;
+                    totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+                    if (totalItems > 0)
+                    {
+                        documents = new List<ElasticSearchApi.ESAssetDocument>();
+
+                        foreach (var item in jsonObj.SelectToken("hits.hits"))
+                        {
+                            var newDocument = DecodeSingleAssetJsonObject(item, prefix, extraReturnFields);
+
+                            documents.Add(newDocument);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch search request. Execption={0}", ex.Message), ex);
+            }
+
+            return documents;
+        }
+
+        public static ElasticSearchApi.ESAssetDocument DecodeSingleAssetJsonObject(JToken item, string fieldNamePrefix, List<string> extraReturnFields = null)
+        {
+            JToken tempToken = null;
+            string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
+            ApiObjects.eAssetTypes assetType = ParseAssetType(typeString);
+
+            string assetIdField = string.Empty;
+
+            switch (assetType)
+            {
+                case ApiObjects.eAssetTypes.MEDIA:
+                {
+                    assetIdField = AddPrefixToFieldName("media_id", fieldNamePrefix);
+                    break;
+                }
+                case ApiObjects.eAssetTypes.EPG:
+                {
+                    assetIdField = AddPrefixToFieldName("epg_id", fieldNamePrefix);
+                    break;
+                }
+                case ApiObjects.eAssetTypes.NPVR:
+                {
+                    assetIdField = AddPrefixToFieldName("recording_id", fieldNamePrefix);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+
+            string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
+            string index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken);
+            int assetId = 0;
+            int groupId = 0;
+            string name = string.Empty;
+            DateTime cacheDate = new DateTime(1970, 1, 1, 0, 0, 0);
+            DateTime updateDate = new DateTime(1970, 1, 1, 0, 0, 0);
+            DateTime startDate = new DateTime(1970, 1, 1, 0, 0, 0);
+            DateTime endDate = new DateTime(1970, 1, 1, 0, 0, 0);
+
+            int mediaTypeId = 0;
+            string epgIdentifier = string.Empty;
+
+            assetId = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, assetIdField);
+            groupId = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, AddPrefixToFieldName("group_id", fieldNamePrefix));
+
+            var subItem = item;
+
+            if (!string.IsNullOrEmpty(fieldNamePrefix))
+            {
+                subItem = item.SelectToken(fieldNamePrefix);
+            }
+
+            foreach (var subSubItem in subItem)
+            {
+                JProperty property = subSubItem as JProperty;
+
+                if (property != null && property.Name.Contains("name"))
+                {
+                    name = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(subItem, property.Name);
+
+                    break;
+                }
+            }
+
+            cacheDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("cache_date", fieldNamePrefix));
+            updateDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("update_date", fieldNamePrefix));
+            startDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("start_date", fieldNamePrefix));
+            mediaTypeId = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, AddPrefixToFieldName("media_type_id", fieldNamePrefix));
+            epgIdentifier = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(item, AddPrefixToFieldName("epg_identifier", fieldNamePrefix));
+            endDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("end_date", fieldNamePrefix));
+
+            var newDocument = new ElasticSearchApi.ESAssetDocument()
+            {
+                id = id,
+                index = index,
+                type = typeString,
+                asset_id = assetId,
+                group_id = groupId,
+                name = name,
+                cache_date = cacheDate,
+                update_date = updateDate,
+                start_date = startDate,
+                end_date = endDate,
+                media_type_id = mediaTypeId,
+                epg_identifier = epgIdentifier,
+            };
+
+            if (extraReturnFields != null)
+            {
+                newDocument.extraReturnFields = new Dictionary<string, string>();
+
+                foreach (var fieldName in extraReturnFields)
+                {
+                    string fieldValue = null;
+
+                    if (fieldName.Contains("."))
+                    {
+                        var fieldsToken = item["fields"];
+
+                        if (fieldsToken != null)
+                        {
+                            var specificFieldToken = fieldsToken[fieldName];
+
+                            if (specificFieldToken != null)
+                            {
+                                fieldValue = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(specificFieldToken);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        fieldValue = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(item, AddPrefixToFieldName(fieldName, fieldNamePrefix));
+                    }
+
+                    if (!string.IsNullOrEmpty(fieldValue))
+                    {
+                        newDocument.extraReturnFields.Add(fieldName, fieldValue);
+                    }
+                }
+            }
+
+            return newDocument;
+        }
+
+        public static ElasticSearchApi.ESAssetDocument DecodeSingleJsonObject(string sObj)
+        {
+            ElasticSearchApi.ESAssetDocument doc = null;
+
+            try
+            {
+                var jsonObj = JObject.Parse(sObj);
+
+                if (jsonObj != null)
+                {
+                    doc = DecodeSingleAssetJsonObject(jsonObj, "_source");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch request. Exception={0}", ex.Message), ex);
+                doc = null;
+            }
+
+            return doc;
+        }
+
+        public static string AddPrefixToFieldName(string fieldName, string prefix)
+        {
+            string result = fieldName;
+
+            if (!string.IsNullOrEmpty(prefix))
+            {
+                result = string.Format("{0}.{1}", prefix, fieldName);
+            }
+
+            return result;
+        }
+
     }
 }
