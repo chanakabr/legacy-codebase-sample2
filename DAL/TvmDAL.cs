@@ -1255,5 +1255,16 @@ namespace DAL
             DataSet ds = sp.ExecuteDataSet();
             return ds;
         }
+
+        public static DataTable GetAvailableBaseSubscriptionsBySetId(int groupId, long setId)
+        {
+            StoredProcedure sp = new StoredProcedure("GetAvailableBaseSubscriptionsBySetId");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@SetId", setId);
+
+            return sp.Execute();
+        }
+
     }    
 }
