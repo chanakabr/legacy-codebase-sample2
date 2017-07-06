@@ -297,7 +297,7 @@ namespace WebAPI.Models.Pricing
         public List<KalturaProductCode> ProductCodes { get; set; }
 
         /// <summary>
-        /// Product code for the subscription
+        ///Dependency Type
         /// </summary>
         [DataMember(Name = "dependencyType")]
         [JsonProperty("dependencyType")]
