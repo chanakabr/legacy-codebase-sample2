@@ -34,6 +34,7 @@ public partial class adm_base_addOn_subscription_sets : System.Web.UI.Page
             {
                 Session["search_save"] = "1";
                 Session["set_id"] = 0;
+                Session["max_order_num"] = 0;
                 Session["subscriptionsInSetMap"] = null;
                 Session["availableSubscriptionsMap"] = null;
             }
