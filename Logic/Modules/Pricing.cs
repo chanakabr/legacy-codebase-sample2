@@ -1379,7 +1379,7 @@ namespace Core.Pricing
                     if (baseSubscriptionId.HasValue) // check that this base not belong to other set
                     {
                         List<SubscriptionSet> baseInSet = Utils.GetSubscriptionSetsByBaseSubscriptionIds(groupId, new List<long>() { baseSubscriptionId.Value }, setType);
-                        if (baseInSet != null && baseInSet.Count() > 0)
+                        if (baseInSet != null && baseInSet.Count() > 0 && baseInSet.Where(x=>x.Id != setId).Count() > 0)
                         {
                             string msg = string.Format("{0} for the following baseSubscriptionId: {1}", eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString(), baseSubscriptionId);
                             response.Status = new Status((int)eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet, msg);
