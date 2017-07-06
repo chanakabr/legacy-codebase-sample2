@@ -88,6 +88,9 @@ namespace Core.Catalog.Request
         [DataMember]
         public AggregationOrder? groupByOrder;
 
+        [DataMember]
+        public bool shouldGetTopHits;
+
         #endregion
 
         #region Ctor

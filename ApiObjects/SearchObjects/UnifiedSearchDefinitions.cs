@@ -343,6 +343,14 @@ namespace ApiObjects.SearchObjects
 
         [JsonProperty()]
         [DataMember]
+        public bool shouldGetTopHits
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
+        [DataMember]
         public bool shouldGetUserPreferences
         {
             get;

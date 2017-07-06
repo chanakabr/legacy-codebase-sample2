@@ -85,7 +85,7 @@ namespace Core.Catalog
                 if (nStatus == STATUS_OK)
                 {
                     int nTotalItems = 0;
-                    List<ElasticSearchApi.ESAssetDocument> lMediaDocs = DecodeAssetSearchJsonObject(retObj, ref nTotalItems);
+                    List<ElasticSearchApi.ESAssetDocument> lMediaDocs = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(retObj, ref nTotalItems);
                     if (lMediaDocs != null && lMediaDocs.Count > 0)
                     {
                         oRes.m_resultIDs = new List<SearchResult>();
@@ -183,7 +183,7 @@ namespace Core.Catalog
                 string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, oSearch.m_oLangauge);
                 string retObj = m_oESApi.Search(nGroupID.ToString(), sType, ref sQuery);
 
-                List<ElasticSearchApi.ESAssetDocument> lMediaDocs = DecodeAssetSearchJsonObject(retObj, ref nTotalItems);
+                List<ElasticSearchApi.ESAssetDocument> lMediaDocs = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(retObj, ref nTotalItems);
                 if (lMediaDocs != null && lMediaDocs.Count > 0)
                 {
                     foreach (ElasticSearchApi.ESAssetDocument doc in lMediaDocs)
@@ -299,7 +299,7 @@ namespace Core.Catalog
 
                 string sRetVal = m_oESApi.Search(oGroup.m_nParentGroupID.ToString(), ES_MEDIA_TYPE, ref sSearchQuery);
 
-                lSearchResults = DecodeAssetSearchJsonObject(sRetVal, ref nTotalItems);
+                lSearchResults = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(sRetVal, ref nTotalItems);
 
                 if (lSearchResults != null && lSearchResults.Count > 0)
                 {
@@ -410,7 +410,7 @@ namespace Core.Catalog
                 string searchResultString = m_oESApi.Search(group.m_nParentGroupID.ToString(), ES_MEDIA_TYPE, ref searchQuery);
 
                 int temporaryTotalItems = 0;
-                searchResults = DecodeAssetSearchJsonObject(searchResultString, ref temporaryTotalItems);
+                searchResults = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(searchResultString, ref temporaryTotalItems);
 
                 #region Process results
 
@@ -439,7 +439,7 @@ namespace Core.Catalog
                                 finalSearchResults.Add(new UnifiedSearchResult()
                                 {
                                     AssetId = temporaryDocument.asset_id.ToString(),
-                                    AssetType = UnifiedSearchResult.ParseType(temporaryDocument.type),
+                                    AssetType = ElasticSearch.Common.Utils.ParseAssetType(temporaryDocument.type),
                                     m_dUpdateDate = temporaryDocument.update_date
                                 });
                             }
@@ -450,7 +450,7 @@ namespace Core.Catalog
                         finalSearchResults = searchResults.Select(item => new UnifiedSearchResult()
                         {
                             AssetId = item.asset_id.ToString(),
-                            AssetType = UnifiedSearchResult.ParseType(item.type),
+                            AssetType = ElasticSearch.Common.Utils.ParseAssetType(item.type),
                             m_dUpdateDate = item.update_date
                         }).ToList();
                     }
@@ -634,7 +634,7 @@ namespace Core.Catalog
 
             if (!string.IsNullOrEmpty(sRetVal))
             {
-                ElasticSearchApi.ESAssetDocument mediaDoc = DecodeSingleJsonObject(sRetVal);
+                ElasticSearchApi.ESAssetDocument mediaDoc = ElasticSearch.Common.Utils.DecodeSingleJsonObject(sRetVal);
                 if (mediaDoc != null)
                 {
                     oResult.assetID = mediaDoc.asset_id;
@@ -693,7 +693,7 @@ namespace Core.Catalog
                 {
                     string sQuery = queries[0];
                     searchRes = m_oESApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
-                    lDocs = DecodeAssetSearchJsonObject(searchRes, ref nTotalRecords);
+                    lDocs = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(searchRes, ref nTotalRecords);
                         //DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
                 }
                 else
@@ -797,7 +797,7 @@ namespace Core.Catalog
             string searchRes = m_oESApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
 
             int nTotalRecords = 0;
-            List<ElasticSearchApi.ESAssetDocument> lDocs = DecodeAssetSearchJsonObject(searchRes, ref nTotalRecords);
+            List<ElasticSearchApi.ESAssetDocument> lDocs = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(searchRes, ref nTotalRecords);
 
             if (lDocs != null)
             {
@@ -807,28 +807,6 @@ namespace Core.Catalog
 
 
             return resultFinalList;
-        }
-
-        protected ElasticSearchApi.ESAssetDocument DecodeSingleJsonObject(string sObj)
-        {
-            ElasticSearchApi.ESAssetDocument doc = null;
-
-            try
-            {
-                var jsonObj = JObject.Parse(sObj);
-
-                if (jsonObj != null)
-                {
-                    doc = DecodeSingleAssetJsonObject(jsonObj, "_source");
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch request. Exception={0}", ex.Message), ex);
-                doc = null;
-            }
-
-            return doc;
         }
 
         private List<ElasticSearchApi.ESAssetDocument> DecodeMediaMultiSearchJsonObject(string sObj, ref int totalItems)
@@ -845,7 +823,7 @@ namespace Core.Catalog
                     List<ElasticSearchApi.ESAssetDocument> tempDocs;
                     List<List<ElasticSearchApi.ESAssetDocument>> l = jsonObj.SelectToken("responses").Select(item =>
                     {
-                        tempDocs = DecodeAssetSearchJsonObject(item.ToString(), ref tempTotal);
+                        tempDocs = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(item.ToString(), ref tempTotal);
                         nTotalItems += tempTotal;
                         if (tempDocs != null && tempDocs.Count > 0)
                             documents.AddRange(tempDocs);
@@ -877,7 +855,7 @@ namespace Core.Catalog
                     List<ElasticSearchApi.ESAssetDocument> tempDocs;
                     List<List<ElasticSearchApi.ESAssetDocument>> l = jsonObj.SelectToken("responses").Select(item =>
                     {
-                        tempDocs = DecodeAssetSearchJsonObject(item.ToString(), ref tempTotal);
+                        tempDocs = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(item.ToString(), ref tempTotal);
                         nTotalItems += tempTotal;
                         if (tempDocs != null && tempDocs.Count > 0)
                             documents.AddRange(tempDocs);
@@ -893,177 +871,6 @@ namespace Core.Catalog
             }
 
             return documents;
-        }
-
-        public static List<ElasticSearchApi.ESAssetDocument> DecodeAssetSearchJsonObject(string sObj, ref int totalItems, 
-            List<string> extraReturnFields = null, string prefix = "fields")
-        {
-            List<ElasticSearchApi.ESAssetDocument> documents = null;
-            try
-            {
-                var jsonObj = JObject.Parse(sObj);
-
-                if (jsonObj != null)
-                {
-                    JToken tempToken;
-                    totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
-                    if (totalItems > 0)
-                    {
-                        documents = new List<ElasticSearchApi.ESAssetDocument>();
-
-                        foreach (var item in jsonObj.SelectToken("hits.hits"))
-                        {
-                            var newDocument = DecodeSingleAssetJsonObject(item, prefix, extraReturnFields);
-
-                            documents.Add(newDocument);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch search request. Execption={0}", ex.Message), ex);
-            }
-
-            return documents;
-        }
-
-        private static ElasticSearchApi.ESAssetDocument DecodeSingleAssetJsonObject(JToken item, string fieldNamePrefix, List<string> extraReturnFields = null)
-        {
-            JToken tempToken = null;
-            string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
-            eAssetTypes assetType = UnifiedSearchResult.ParseType(typeString);
-
-            string assetIdField = string.Empty;
-
-            switch (assetType)
-            {
-                case eAssetTypes.MEDIA:
-                {
-                    assetIdField = AddPrefixToFieldName("media_id", fieldNamePrefix);
-                    break;
-                }
-                case eAssetTypes.EPG:
-                {
-                    assetIdField = AddPrefixToFieldName("epg_id", fieldNamePrefix);
-                    break;
-                }
-                case eAssetTypes.NPVR:
-                {
-                    assetIdField = AddPrefixToFieldName("recording_id", fieldNamePrefix);
-                    break;
-                }
-                default:
-                {
-                    break;
-                }
-            }
-
-            string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
-            string index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken);
-            int assetId = 0;
-            int groupId = 0;
-            string name = string.Empty;
-            DateTime cacheDate = new DateTime(1970, 1, 1, 0, 0, 0);
-            DateTime updateDate = new DateTime(1970, 1, 1, 0, 0, 0);
-            DateTime startDate = new DateTime(1970, 1, 1, 0, 0, 0);
-            DateTime endDate = new DateTime(1970, 1, 1, 0, 0, 0);
-
-            int mediaTypeId = 0;
-            string epgIdentifier = string.Empty;
-
-            assetId = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, assetIdField);
-            groupId = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, AddPrefixToFieldName("group_id", fieldNamePrefix));
-
-            var subItem = item;
-
-            if (!string.IsNullOrEmpty(fieldNamePrefix))
-            {
-                subItem = item.SelectToken(fieldNamePrefix);
-            }
-
-            foreach (var subSubItem in subItem)
-            {
-                JProperty property = subSubItem as JProperty;
-
-                if (property != null && property.Name.Contains("name"))
-                {
-                    name = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(subItem, property.Name);
-
-                    break;
-                }
-            }
-
-            cacheDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("cache_date", fieldNamePrefix));
-            updateDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("update_date", fieldNamePrefix));
-            startDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("start_date", fieldNamePrefix));
-            mediaTypeId = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, AddPrefixToFieldName("media_type_id", fieldNamePrefix));
-            epgIdentifier = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(item, AddPrefixToFieldName("epg_identifier", fieldNamePrefix));
-            endDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("end_date", fieldNamePrefix));
-
-            var newDocument = new ElasticSearchApi.ESAssetDocument()
-            {
-                id = id,
-                index = index,
-                type = typeString,
-                asset_id = assetId,
-                group_id = groupId,
-                name = name,
-                cache_date = cacheDate,
-                update_date = updateDate,
-                start_date = startDate,
-                end_date = endDate,
-                media_type_id = mediaTypeId,
-                epg_identifier = epgIdentifier,
-            };
-
-            if (extraReturnFields != null)
-            {
-                newDocument.extraReturnFields = new Dictionary<string, string>();
-
-                foreach (var fieldName in extraReturnFields)
-                {
-                    string fieldValue = null;
-
-                    if (fieldName.Contains("."))
-                    {
-                        var fieldsToken = item["fields"];
-
-                        if (fieldsToken != null)
-                        {
-                            var specificFieldToken = fieldsToken[fieldName];
-
-                            if (specificFieldToken != null)
-                            {
-                                fieldValue = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(specificFieldToken);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        fieldValue = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(item, AddPrefixToFieldName(fieldName, fieldNamePrefix));
-                    }
-
-                    if (!string.IsNullOrEmpty(fieldValue))
-                    {
-                        newDocument.extraReturnFields.Add(fieldName, fieldValue);
-                    }
-                }
-            }
-
-            return newDocument;
-        }
-
-        private static string AddPrefixToFieldName(string fieldName, string prefix)
-        {
-            string result = fieldName;
-
-            if (!string.IsNullOrEmpty(prefix))
-            {
-                result = string.Format("{0}.{1}", prefix, fieldName);
-            }
-
-            return result;
         }
 
         private List<ElasticSearchApi.ESAssetDocument> DecodeEpgSearchJsonObject(string sObj, ref int totalItems)
@@ -1187,7 +994,7 @@ namespace Core.Catalog
                     if (sESAnswer.Length > 0)
                     {
                         int nTotalItems = 0;
-                        List<ElasticSearchApi.ESAssetDocument> lMediaDocs = DecodeAssetSearchJsonObject(sESAnswer, ref nTotalItems);
+                        List<ElasticSearchApi.ESAssetDocument> lMediaDocs = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(sESAnswer, ref nTotalItems);
 
                         UpdateDictionaryAccordingToESResults(lMediaDocs, ref res);
 
@@ -1348,13 +1155,52 @@ namespace Core.Catalog
                 {
                     #region Process ElasticSearch result
 
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = null;
+
                     if (queryParser.Aggregations != null)
                     {
                         aggregationResult = ESAggregationsResult.FullParse(queryResultString, queryParser.Aggregations);
                     }
 
-                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = 
-                        DecodeAssetSearchJsonObject(queryResultString, ref totalItems, unifiedSearchDefinitions.extraReturnFields);
+                    // If we want to get the top hits of the aggregations instead of the normal results
+                    if (unifiedSearchDefinitions.shouldGetTopHits && aggregationResult != null)
+                    {
+                        assetsDocumentsDecoded = new List<ElasticSearchApi.ESAssetDocument>();
+
+                        // Go over all aggregations (though there should be one)
+                        foreach (var aggregation in aggregationResult.Aggregations.Values)
+                        {
+                            // Go over each "bucket", which is basically a term
+                            var buckets = aggregation.buckets;
+
+                            foreach (var bucket in buckets)
+                            {
+                                // append the
+                                if (bucket.Aggregations.ContainsKey("top_hits_assets"))
+                                {
+                                    var topHitsAggregations = bucket.Aggregations["top_hits_assets"];
+
+                                    if (topHitsAggregations.hits != null && topHitsAggregations.hits.hits != null)
+                                    {
+                                        assetsDocumentsDecoded.AddRange(topHitsAggregations.hits.hits);
+                                    }
+                                }
+                            }
+                        }
+
+                        var jsonObj = JObject.Parse(queryResultString);
+
+                        if (jsonObj != null)
+                        {
+                            JToken tempToken;
+                            totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+                        }
+                    }
+                    else
+                    {
+                        assetsDocumentsDecoded =
+                           ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(queryResultString, ref totalItems, unifiedSearchDefinitions.extraReturnFields);
+                    }
 
                     if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
                     {
@@ -1370,7 +1216,7 @@ namespace Core.Catalog
                                     {
                                         AssetId = assetId,
                                         m_dUpdateDate = doc.update_date,
-                                        AssetType = UnifiedSearchResult.ParseType(doc.type),
+                                        AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),
                                         EndDate = doc.end_date,
                                         StartDate = doc.start_date
                                     };
@@ -1393,7 +1239,7 @@ namespace Core.Catalog
                             }
                             else
                             {
-                                var assetType = UnifiedSearchResult.ParseType(doc.type);
+                                var assetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type);
 
                                 if (assetType == eAssetTypes.NPVR)
                                 {
@@ -1443,7 +1289,7 @@ namespace Core.Catalog
                                         {
                                             AssetId = assetId,
                                             m_dUpdateDate = doc.update_date,
-                                            AssetType = UnifiedSearchResult.ParseType(doc.type),
+                                            AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),
                                             EpgId = epgId
                                         });
                                     }
@@ -1454,7 +1300,7 @@ namespace Core.Catalog
                                     {
                                         AssetId = assetId,
                                         m_dUpdateDate = doc.update_date,
-                                        AssetType = UnifiedSearchResult.ParseType(doc.type)
+                                        AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type)
                                     });
                                 }
                             }
@@ -2216,7 +2062,7 @@ namespace Core.Catalog
                 {
                     #region Process ElasticSearch result
 
-                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
 
                     if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
                     {
@@ -2228,7 +2074,7 @@ namespace Core.Catalog
                             {
                                 AssetId = doc.asset_id.ToString(),
                                 m_dUpdateDate = doc.update_date,
-                                AssetType = UnifiedSearchResult.ParseType(doc.type)
+                                AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type)
                             });
                         }
                     }
@@ -2315,7 +2161,7 @@ namespace Core.Catalog
                         foreach (var item in jsonObj.SelectToken("hits.hits"))
                         {
                             string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
-                            eAssetTypes assetType = UnifiedSearchResult.ParseType(typeString);
+                            eAssetTypes assetType = ElasticSearch.Common.Utils.ParseAssetType(typeString);
 
                             string assetIdField = string.Empty;
 
@@ -2413,7 +2259,7 @@ namespace Core.Catalog
                     #region Process ElasticSearch result
 
                     int totalItems = 0;
-                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
 
                     if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
                     {

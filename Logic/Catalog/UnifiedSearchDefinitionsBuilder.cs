@@ -383,6 +383,8 @@ namespace Core.Catalog
                     }
                     
                     definitions.groupByOrder = request.groupByOrder;
+
+                    definitions.shouldGetTopHits = request.shouldGetTopHits;
                 }
 
                 #endregion
