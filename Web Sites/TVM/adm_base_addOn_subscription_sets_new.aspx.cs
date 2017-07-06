@@ -141,21 +141,25 @@ public partial class adm_base_addOn_subscription_sets_new : System.Web.UI.Page
             Session["error_msg"] = "";
             return Session["last_page_html"].ToString();
         }
-        object t = null; ;
-        if (Session["set_id"] != null && Session["set_id"].ToString() != "" && int.Parse(Session["set_id"].ToString()) != 0)
-            t = Session["set_id"];
+        long? fieldIndexValue = null;
+        long setId = 0;
+        if (Session["set_id"] != null && Session["set_id"].ToString() != "" && long.TryParse(Session["set_id"].ToString(), out setId) && setId > 0)
+        {
+            fieldIndexValue = setId;
+        }
+
         string sBack = "adm_base_addOn_subscription_sets.aspx?search_save=1";
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("sets", "adm_table_pager", sBack, "", "ID", t, sBack, "");
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("sets", "adm_table_pager", sBack, "", "ID", fieldIndexValue, sBack, "");
         theRecord.SetConnectionKey("pricing_connection");
 
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "Name", true);
         theRecord.AddRecord(dr_name);
-
+        
         DataRecordDropDownField dr_baseSubscription = new DataRecordDropDownField("", "name", "id", "", null, 60, false);
-        string sQuery = "select name as txt, id as id from subscriptions where status=1 and is_active=1 and type=1 and group_id=" + LoginManager.GetLoginGroupID();
-        dr_baseSubscription.SetSelectsQuery(sQuery);
+        dr_baseSubscription.SetSelectsDT(TvmDAL.GetAvailableBaseSubscriptionsBySetId(LoginManager.GetLoginGroupID(), setId));
         dr_baseSubscription.Initialize("Base subscription", "adm_table_header_nbg", "FormInput", "base_subscription_id", true);        
+        dr_baseSubscription.SetDefault(0);
         theRecord.AddRecord(dr_baseSubscription);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
