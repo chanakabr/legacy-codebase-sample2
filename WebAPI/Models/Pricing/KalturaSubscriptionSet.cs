@@ -44,6 +44,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         [XmlElement(ElementName = "type", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaSubscriptionSetType? Type
         {
             get;
