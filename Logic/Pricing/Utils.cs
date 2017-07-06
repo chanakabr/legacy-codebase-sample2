@@ -737,51 +737,17 @@ namespace Core.Pricing
                                                     SubscriptionSetToSubscriptionsMap[subscriptionId] = priority;
                                                 }
                                             }
-                                            if (SubscriptionSetToSubscriptionsMap != null && SubscriptionSetToSubscriptionsMap.Count() > 0)
-                                            {
-                                                switchSet.SubscriptionIds.AddRange(SubscriptionSetToSubscriptionsMap.OrderBy(x => x.Value).Select(x => x.Key).ToList());
-                                            }
+                                        }
+                                        if (SubscriptionSetToSubscriptionsMap != null && SubscriptionSetToSubscriptionsMap.Count() > 0)
+                                        {
+                                            switchSet.SubscriptionIds.AddRange(SubscriptionSetToSubscriptionsMap.OrderBy(x => x.Value).Select(x => x.Key).ToList());
                                         }
                                     }
                                 }
                                 subscriptionSetsMap.Add(id, (SubscriptionSet)(switchSet));
                             }
                         }
-                    }
-
-                    //if (ds.Tables.Count == 2)
-                    //{
-                    //    dt = ds.Tables[1];
-                    //    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                    //    {
-                    //        Dictionary<long, Dictionary<long, int>> SubscriptionSetToSubscriptionsMap = new Dictionary<long, Dictionary<long, int>>();
-                    //        foreach (DataRow dr in dt.Rows)
-                    //        {
-                    //            long setId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SET_ID", 0);
-                    //            long subscriptionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SUBSCRIPTION_ID", 0);
-                    //            int priority = ODBCWrapper.Utils.GetIntSafeVal(dr, "PRIORITY", 0);
-                    //            if (setId > 0 && subscriptionSetsMap.ContainsKey(setId) && subscriptionId > 0 && priority > 0)
-                    //            {
-                    //                if (!SubscriptionSetToSubscriptionsMap.ContainsKey(setId))
-                    //                {
-                    //                    SubscriptionSetToSubscriptionsMap.Add(setId, new Dictionary<long, int>() { { subscriptionId, priority } });
-                    //                }
-                    //                else
-                    //                {
-                    //                    SubscriptionSetToSubscriptionsMap[setId][subscriptionId] = priority;
-                    //                }
-                    //            }
-                    //        }
-
-                    //        foreach (KeyValuePair<long, Dictionary<long, int>> pair in SubscriptionSetToSubscriptionsMap)
-                    //        {
-                    //            if (subscriptionSetsMap.ContainsKey(pair.Key))
-                    //            {
-                    //                subscriptionSetsMap[pair.Key].SubscriptionIds.AddRange(SubscriptionSetToSubscriptionsMap[pair.Key].OrderBy(x => x.Value).Select(x => x.Key).ToList());
-                    //            }
-                    //        }
-                    //    }
-                    //}
+                    }                   
 
                     subscriptionSets = subscriptionSetsMap.Values.ToList();
                 }
