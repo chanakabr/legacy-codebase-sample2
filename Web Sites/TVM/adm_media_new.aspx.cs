@@ -542,11 +542,14 @@ public partial class adm_media_new : System.Web.UI.Page
                 foreach(DataRow row in selectQuery.Table("query").Rows)
                 {
                     string name = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
-                    string value = ODBCWrapper.Utils.GetSafeStr(row, "VALUE");
-                    DataRecordDateTimeField dr_date = new DataRecordDateTimeField(true);
-                    dr_date.SetIgnore(true);
-                    dr_date.Initialize(name, "adm_table_header_nbg", "FormInput", "", value, false);
-                    theRecord.AddRecord(dr_date);
+                    DateTime value;
+                    if (DateTime.TryParse(ODBCWrapper.Utils.GetSafeStr(row, "VALUE"), out value))
+                    {
+                        DataRecordDateTimeField dr_date = new DataRecordDateTimeField(true);
+                        dr_date.SetIgnore(true);
+                        dr_date.Initialize(name, "adm_table_header_nbg", "FormInput", "", value.ToString("dd/MM/yyyy HH:mm"), false);
+                        theRecord.AddRecord(dr_date);
+                    }
                 }
             }
         }
