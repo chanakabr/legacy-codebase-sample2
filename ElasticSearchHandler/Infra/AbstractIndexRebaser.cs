@@ -114,7 +114,7 @@ namespace ElasticSearchHandler
                 int totalItems = 0;
                 List<string> extraField = new List<string>() { "is_active" };
 
-                searchResults = ElasticsearchWrapper.DecodeAssetSearchJsonObject(searchResultString, ref totalItems, extraField);
+                searchResults = ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(searchResultString, ref totalItems, extraField);
 
 
                 if (searchResults != null)
