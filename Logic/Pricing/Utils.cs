@@ -919,7 +919,7 @@ namespace Core.Pricing
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        long subscriptionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "BASE_SUBSCRIPTION_ID", 0);
+                        long subscriptionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SUBSCRIPTION_ID", 0);
                         long setId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SET_ID", 0);
                         int priority = ODBCWrapper.Utils.GetIntSafeVal(dr, "PRIORITY", 0);
                         if (subscriptionId > 0 && setId > 0 && priority > 0)
