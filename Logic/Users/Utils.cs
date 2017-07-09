@@ -1175,7 +1175,7 @@ namespace Core.Users
             Dictionary<int, string> domainDrmId = new Dictionary<int, string>();
             try
             {
-                domainDrmId = DomainDal.GetDomainDrmId(domainId);
+                domainDrmId = Utils.GetDomainDrmId(groupId, domainId);
 
                 if (domainDrmId == null || domainDrmId.Count == 0 || (deviceIds != null && deviceIds.Count > 0
                     && (deviceIds.Where(d => !domainDrmId.Keys.Contains(d)).Count() > 0)))
@@ -1195,6 +1195,26 @@ namespace Core.Users
             }
 
             return domainDrmId;
+        }
+
+        public static Dictionary<int, string> GetDomainDrmId(int groupId, int domainId)
+        {
+            Dictionary<int, string> response = null;
+            try
+            {
+                response = DomainDal.GetDomainDrmId(domainId);
+                if (response == null || response.Count == 0)
+                {
+                    response = BuildDomainDrmId(groupId, domainId);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get domaindrm id, domainId: {0}, groupId: {1}, ex: {2}", domainId, groupId, ex);
+            }
+
+            return response;
         }
 
         private static Dictionary<int, string> BuildDomainDrmId(int groupId, int domainId)
@@ -1226,7 +1246,7 @@ namespace Core.Users
 
         public static bool IsDrmIdUnique(string drmId, int domainId, string udid, int groupId, ref KeyValuePair<int, string> drmValue)
         {
-            KeyValuePair<int, string> response = GetDrmId(drmId, groupId);
+            KeyValuePair<int, string> response = GetDrmId(drmId, groupId, domainId);
             if (response.Key == domainId)
             {
                 drmValue = response;
@@ -1234,21 +1254,36 @@ namespace Core.Users
             }
             else if (response.Key != domainId && response.Key > 0)
             {
-                return false;
+                return false;  // exsits for another domain
             }
             else
             {
                 drmValue = response;
-                return true; // exsits for another domain
+                return true;
             }
         }
 
-        private static KeyValuePair<int, string> GetDrmId(string drmId, int groupId)
+        private static KeyValuePair<int, string> GetDrmId(string drmId, int groupId, int domainId)
         {
             KeyValuePair<int, string> response = new KeyValuePair<int, string>(0, string.Empty);
 
-            KeyValuePair<string, KeyValuePair<int, string>> drm = DomainDal.GetDrmId(drmId, groupId);
+            bool res = false;
+            KeyValuePair<string, KeyValuePair<int, string>> drm = DomainDal.GetDrmId(drmId, groupId, ref res);
 
+            if (!res)
+            {
+                // find device of this drmId
+                // check that udid exsits in doimain device list
+                DataTable dt = DomainDal.Get_DomainDevices(groupId, domainId);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    string udid = dt.AsEnumerable().Where(x => x.Field<string>("drm_id") == drmId).Select(x => x.Field<string>("UDID")).FirstOrDefault();
+
+                    drm = new KeyValuePair<string, KeyValuePair<int, string>>(drmId, new KeyValuePair<int, string>(domainId, udid));
+                    bool result = DomainDal.SetDrmId(drm, drmId, groupId);
+
+                }
+            }
             if (drm.Key == drmId)
             {
                 response = drm.Value;

@@ -608,11 +608,18 @@ namespace Core.Users
             Device device = null;
 
             bool bDeviceExist = IsDeviceExistInDomain(this, sUDID, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);
-
-            //int nDomainDeviceID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);
-            //if (nDomainDeviceID > 0)
+                      
             if (bDeviceExist)
             {
+                try
+                {
+                    RemoveDeviceDrmId(sUDID);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove DevicesDrmID from db / cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, sUDID, ex), ex);
+                }
+
                 // set is_Active = 2; status = 2
                 DomainDevice domainDevice = new DomainDevice()
                 {
@@ -627,23 +634,13 @@ namespace Core.Users
                     DeviceFamilyId = device.m_deviceFamilyID
                 };
 
-                bool deleted = domainDevice.Delete();
-                //bool bUpdate = DomainDal.UpdateDomainsDevicesStatus(m_nDomainID, m_nGroupID, sUDID, 2, 2);
+                bool deleted = domainDevice.Delete();               
 
                 if (!deleted)
                 {
                     log.Debug("RemoveDeviceFromDomain - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, sUDID));
                     return DomainResponseStatus.Error;
-                }
-
-                try
-                {
-                    RemoveDeviceDrmId(sUDID);
-                }
-                catch (Exception ex)
-                {
-                    log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove DevicesDrmID from db / cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, sUDID, ex), ex);
-                }
+                }           
 
                 // if the first update done successfully - remove domain from cache
                 try
@@ -752,7 +749,7 @@ namespace Core.Users
             Dictionary<int, string> domainDrmId;
             if (deviceIds != null && deviceIds.Count > 0)
             {
-                domainDrmId = DomainDal.GetDomainDrmId(m_nDomainID);
+                domainDrmId = Utils.GetDomainDrmId(m_nGroupID, m_nDomainID); 
 
                 if (DomainDal.ClearDevicesDrmID(m_nGroupID, deviceIds, m_nDomainID))
                 {
