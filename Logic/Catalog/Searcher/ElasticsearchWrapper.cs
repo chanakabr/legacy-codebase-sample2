@@ -1163,7 +1163,7 @@ namespace Core.Catalog
                     }
 
                     // If we want to get the top hits of the aggregations instead of the normal results
-                    if (unifiedSearchDefinitions.shouldGetTopHits && aggregationResult != null)
+                    if (aggregationResult != null && (unifiedSearchDefinitions.topHitsCount > 0))
                     {
                         assetsDocumentsDecoded = new List<ElasticSearchApi.ESAssetDocument>();
 

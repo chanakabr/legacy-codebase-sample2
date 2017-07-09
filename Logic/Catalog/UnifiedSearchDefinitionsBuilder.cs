@@ -384,7 +384,13 @@ namespace Core.Catalog
                     
                     definitions.groupByOrder = request.groupByOrder;
 
-                    definitions.shouldGetTopHits = request.shouldGetTopHits;
+                    definitions.topHitsCount = request.topHitsCount;
+
+                    // Validate that we have a distinct group and that it is one of the fields listed in "group by"
+                    if (!string.IsNullOrEmpty(request.distinctGroup) && request.groupBy.Contains(request.distinctGroup))
+                    {
+                        definitions.distinctGroup = request.distinctGroup;
+                    }
                 }
 
                 #endregion
