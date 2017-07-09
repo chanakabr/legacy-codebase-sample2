@@ -1803,7 +1803,7 @@ namespace Core.Users
                 {
                     return false; // drmid exsits in ANOTHER domain
                 }
-                else if (drmValue.Key == domain.m_nDomainID && drmValue.Value == udid)
+                else if (drmValue.Key == domain.m_nDomainID && drmValue.Value == udid && !string.IsNullOrEmpty(udid))
                 {
                     return true;
                 }// else - drmId unique in domain or not exsits at all continue 
