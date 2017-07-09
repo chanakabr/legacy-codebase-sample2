@@ -2390,7 +2390,7 @@ namespace DAL
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            CouchbaseManager.eResultStatus getResult = new CouchbaseManager.eResultStatus();
             string drmIdKey = UtilsDal.GetDrmIdKey(drmId, groupId);
             if (string.IsNullOrEmpty(drmIdKey))
             {
@@ -2405,14 +2405,14 @@ namespace DAL
                     {
                         object document = cbClient.Get<object>(drmIdKey, out getResult);
 
-                        if (getResult == Couchbase.IO.ResponseStatus.Success)
+                        if (getResult == CouchbaseManager.eResultStatus.SUCCESS)
                         {
                             // Deserialize to known class - for comfortable access
                             response = JsonConvert.DeserializeObject<KeyValuePair<string, KeyValuePair<int, string>>>(document.ToString());
                             res = true;
                             break;
                         }
-                        else if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        else if (getResult == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                         {
                             response = new KeyValuePair<string, KeyValuePair<int, string>>();
                             res = false;
