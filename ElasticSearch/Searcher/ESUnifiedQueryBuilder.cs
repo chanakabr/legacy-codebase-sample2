@@ -238,7 +238,7 @@ namespace ElasticSearch.Searcher
 
             int pageSize = this.PageSize;
 
-            if (this.SearchDefinitions.shouldGetTopHits)
+            if (this.SearchDefinitions.topHitsCount > 0)
             {
                 pageSize = 0;
             }
@@ -310,11 +310,9 @@ namespace ElasticSearch.Searcher
                     {
                         int size = 0;
 
-                        if (this.SearchDefinitions.shouldGetTopHits)
+                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup))
                         {
                             size = this.SearchDefinitions.pageSize * (this.SearchDefinitions.pageIndex + 1);
-
-
                         }
 
                         currentAggregation = new ESBaseAggsItem()
@@ -328,15 +326,28 @@ namespace ElasticSearch.Searcher
                         };
 
                         // Get top hit as well if necessary
-                        if (this.SearchDefinitions.shouldGetTopHits)
+                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup))
                         {
+                            int topHitsSize = -1;
+
+                            if (this.SearchDefinitions.topHitsCount > 0)
+                            {
+                                topHitsSize = this.SearchDefinitions.topHitsCount;
+                            }
+
                             currentAggregation.SubAggrgations = new List<ESBaseAggsItem>()
                             {
                                 new ESBaseAggsItem()
                                 {
                                     Type = eElasticAggregationType.top_hits,
                                     Name = "top_hits_assets",
-                                    Size = 1
+                                    Size = topHitsSize,
+                                    // order from newest to oldest by default (?)
+                                    Sort = new OrderObj()
+                                    {
+                                        m_eOrderDir = OrderDir.DESC,
+                                        m_eOrderBy = OrderBy.ID
+                                    }
                                 }
                             };
                         }
