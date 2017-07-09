@@ -2383,5 +2383,56 @@ namespace DAL
             }
             return result;
         }
+                
+        public static KeyValuePair<string, KeyValuePair<int, string>> GetDrmId(string drmId, int groupId, ref bool res)
+        {
+            KeyValuePair<string, KeyValuePair<int, string>> response = new KeyValuePair<string, KeyValuePair<int, string>>();
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            string drmIdKey = UtilsDal.GetDrmIdKey(drmId, groupId);
+            if (string.IsNullOrEmpty(drmIdKey))
+            {
+                log.ErrorFormat("Failed getting drmIdKey for drmId: {0}", drmId);
+            }
+            else
+            {
+                try
+                {
+                    int numOfRetries = 0;
+                    while (numOfRetries < limitRetries)
+                    {
+                        object document = cbClient.Get<object>(drmIdKey, out getResult);
+
+                        if (getResult == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            // Deserialize to known class - for comfortable access
+                            response = JsonConvert.DeserializeObject<KeyValuePair<string, KeyValuePair<int, string>>>(document.ToString());
+                            res = true;
+                            break;
+                        }
+                        else if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            response = new KeyValuePair<string, KeyValuePair<int, string>>();
+                            res = false;
+                            break;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Retrieving drmId by key: {0} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", drmIdKey, getResult, numOfRetries, limitRetries);
+                            numOfRetries++;
+                            System.Threading.Thread.Sleep(r.Next(50));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to get drm : {0}, ex: {1}", drmId, ex);
+                }
+            }
+
+            return response;
+        }
     }
 }
