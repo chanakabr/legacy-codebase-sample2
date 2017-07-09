@@ -1336,7 +1336,7 @@ namespace Core.Pricing
                     response.Status = new Status((int)eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet, msg);
                     return response;
                 }
-
+                
                 SubscriptionSet subscriptionSet = Utils.InsertSubscriptionDependencySet(groupId, name, baseSubscriptionId, subscriptionIds, setType);
                 if (subscriptionSet != null && subscriptionSet.Id > 0)
                 {
