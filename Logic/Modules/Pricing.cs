@@ -1379,7 +1379,7 @@ namespace Core.Pricing
                     if (baseSubscriptionId.HasValue) // check that this base not belong to other set
                     {
                         List<SubscriptionSet> baseInSet = Utils.GetSubscriptionSetsByBaseSubscriptionIds(groupId, new List<long>() { baseSubscriptionId.Value }, setType);
-                        if (baseInSet != null && baseInSet.Count() > 0 && baseInSet.Where(x=>x.Id != setId).Count() > 0)
+                        if (baseInSet != null && baseInSet.Count() > 0 && baseInSet.Where(x => x.Id != setId).Count() > 0)
                         {
                             string msg = string.Format("{0} for the following baseSubscriptionId: {1}", eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString(), baseSubscriptionId);
                             response.Status = new Status((int)eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet, msg);
@@ -1390,23 +1390,21 @@ namespace Core.Pricing
                     {
                         baseSubscriptionId = ((DependencySet)subscriptionSet).BaseSubscriptionId;
                     }
-                }
-                if (setType == SubscriptionSetType.Dependency)
-                {
+
                     SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionDependencySet(groupId, subscriptionSet.Id, subscriptionSet.Name, baseSubscriptionId.Value,
                         subscriptionIds, shouldUpdateSubscriptionIds, setType);
-                }
 
-                if (subscriptionSet != null && subscriptionSet.Id > 0)
-                {
-                    response.SubscriptionSets.Clear();
-                    response.SubscriptionSets.Add(subscriptionSet);
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                                        
-                    // call layered cache . setinvalidateion key
-                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSubscriptionSetInvalidationKey(groupId, subscriptionSet.Id)))
+                    if (updatedSubscriptionSet != null && updatedSubscriptionSet.Id > 0)
                     {
-                        log.ErrorFormat("Failed LayeredCache.Instance.SetInvalidationKey, groupId: {0}, setId: {1}",groupId, subscriptionSet.Id);                        
+                        response.SubscriptionSets.Clear();
+                        response.SubscriptionSets.Add(updatedSubscriptionSet);
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                        // call layered cache . setinvalidateion key
+                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSubscriptionSetInvalidationKey(groupId, updatedSubscriptionSet.Id)))
+                        {
+                            log.ErrorFormat("Failed LayeredCache.Instance.SetInvalidationKey, groupId: {0}, setId: {1}", groupId, updatedSubscriptionSet.Id);
+                        }
                     }
                 }
             }
