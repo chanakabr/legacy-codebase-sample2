@@ -981,6 +981,8 @@ namespace Core.Pricing
                 List<KeyValuePair<long, int>> subscriptionIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (subscriptionIds != null && subscriptionIds.Count > 0)
                 {
+                    // remove duplicates subscriptionIds
+                    subscriptionIds = subscriptionIds.Distinct().ToList();
                     int priority = 1;
                     foreach (long subscriptionId in subscriptionIds)
                     {
