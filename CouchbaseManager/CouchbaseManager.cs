@@ -34,7 +34,8 @@ namespace CouchbaseManager
         DOMAIN_CONCURRENCY = 12,
         EPG_MARKS = 13,
         MEDIA_HITS = 14,
-        MEMCACHED = 15
+        MEMCACHED = 15,
+        OTT_APPS = 16
     }
 
     public class CouchbaseManager
