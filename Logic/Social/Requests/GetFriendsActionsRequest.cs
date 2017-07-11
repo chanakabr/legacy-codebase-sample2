@@ -44,8 +44,8 @@ namespace Core.Social.Requests
                 {
                     response.m_nStatus = STATUS_OK;
 
-                    lUserActions = lUserActions.Where(x => x.SocialPlatform == (int)m_eSocialPlatform && (x.ActivityObject.AssetType == m_eAssetType || m_eAssetType == eAssetType.UNKNOWN)
-                        && lActions.Contains(x.ActivityVerb.ActionType)).ToList();
+                    lUserActions = lUserActions.Where(x => (m_eSocialPlatform == SocialPlatform.UNKNOWN || x.SocialPlatform == (int)m_eSocialPlatform) && (x.ActivityObject.AssetType == m_eAssetType || m_eAssetType == eAssetType.UNKNOWN)
+                        && lActions.Contains(x.ActivityVerb.ActionType)).OrderByDescending(ua => ua.LastUpdate).ToList();
 
                     response.TotalCount = lUserActions.Count;
                     response.m_lUserActionObj = Utils.GetTopRecords<SocialActivityDoc>(m_nNumOfRecords, m_nStartIndex, lUserActions);
