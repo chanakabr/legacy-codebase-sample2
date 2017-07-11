@@ -268,6 +268,7 @@ namespace ElasticSearch.Searcher
             {
                 this.Aggregations = new List<ESBaseAggsItem>();
                 ESBaseAggsItem currentAggregation = null;
+                ESBaseAggsItem orderAggregation = null;
 
                 string aggregationsOrder = string.Empty;
                 string aggregationsOrderDirection = string.Empty;
@@ -301,8 +302,8 @@ namespace ElasticSearch.Searcher
                         default:
                         break;
                     }
-
                 }
+                
 
                 foreach (var groupBy in this.SearchDefinitions.groupBy)
                 {
@@ -350,6 +351,16 @@ namespace ElasticSearch.Searcher
                                     }
                                 }
                             };
+
+                            string distinctOrder;
+                            string distinctOrderDirection;
+
+                            GetAggregationsOrder(this.SearchDefinitions.order,
+                                out distinctOrder, out distinctOrderDirection, out orderAggregation);
+
+                            currentAggregation.SubAggrgations.Add(orderAggregation);
+                            currentAggregation.Order = distinctOrder;
+                            currentAggregation.OrderDirection = distinctOrderDirection;
                         }
 
                         this.Aggregations.Add(currentAggregation);
@@ -2324,6 +2335,63 @@ namespace ElasticSearch.Searcher
             sortBuilder.Append(" ]");
 
             return sortBuilder.ToString();
+        }
+
+        public static void GetAggregationsOrder(OrderObj orderObj, 
+            out string aggregationsOrder, out string aggregationsOrderDirection, out ESBaseAggsItem orderAggregation)
+        {
+            aggregationsOrder = "order_aggregation";
+            aggregationsOrderDirection = "asc";
+            orderAggregation = null;
+
+            eElasticAggregationType aggregationType = eElasticAggregationType.min;
+            string field = string.Empty;
+            string script = null;
+
+            if (orderObj.m_eOrderDir == OrderDir.DESC)
+            {
+                aggregationType = eElasticAggregationType.max;
+                aggregationsOrderDirection = "desc";
+            }
+
+            if (orderObj.m_eOrderBy == OrderBy.META)
+            {
+                field = string.Format("metas.{0}", orderObj.m_sOrderValue.ToLower());                
+            }
+            else if (orderObj.m_eOrderBy == OrderBy.ID)
+            {
+                field = "_uid";
+            }
+            else if (orderObj.m_eOrderBy == OrderBy.RELATED || orderObj.m_eOrderBy == OrderBy.NONE)
+            {
+                script = "doc.score";
+            }
+            else
+            {
+                field = Enum.GetName(typeof(OrderBy), orderObj.m_eOrderBy).ToLower();
+            }
+
+            ////we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
+            //if (order.m_eOrderBy != OrderBy.ID &&
+            //    shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
+            //{
+            //    sortBuilder.Append(", \"_score\"");
+            //}
+
+            //if (order.m_eOrderBy != OrderBy.ID)
+            //{
+            //    // Always add sort by _id to avoid ES weirdness of same sort-value 
+            //    sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
+            //}
+
+            orderAggregation = new ESBaseAggsItem()
+            {
+                Field = field,
+                Name = aggregationsOrder,
+                Type = aggregationType,
+                Size = 0,
+                Script = script,
+            };
         }
 
         #endregion

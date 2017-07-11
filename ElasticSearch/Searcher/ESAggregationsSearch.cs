@@ -41,7 +41,7 @@ namespace ElasticSearch.Searcher
         public string Meta;
 
         public string Field;
-        List<KeyValuePair<string, string>> AdditionalInnerParameters;
+        public List<KeyValuePair<string, string>> AdditionalInnerParameters;
 
         public bool IsNumeric;
         public int Size;
@@ -51,6 +51,8 @@ namespace ElasticSearch.Searcher
         public string OrderDirection;
 
         public OrderObj Sort;
+
+        public string Script;
 
         #endregion
 
@@ -130,7 +132,6 @@ namespace ElasticSearch.Searcher
 
             if (!string.IsNullOrEmpty(this.Order))
             {
-
                 if (string.IsNullOrEmpty(this.OrderDirection))
                 {
                     this.OrderDirection = "desc";
@@ -164,6 +165,11 @@ namespace ElasticSearch.Searcher
                 string sort = ESUnifiedQueryBuilder.GetSort(this.Sort, true, new List<string>());
 
                 sb.AppendFormat("{0},", sort);
+            }
+
+            if (!string.IsNullOrEmpty(this.Script))
+            {
+                sb.AppendFormat("\"script\": {0},", this.Script);
             }
 
             // remove last comma
