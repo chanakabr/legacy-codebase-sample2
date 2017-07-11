@@ -169,6 +169,7 @@ namespace ApiObjects.Response
         SubscriptionNotAllowedForUserType = 3070,
         MissingBasePackage = 3071,
         BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet = 3072,
+        WrongSubscriptionType = 3073,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
