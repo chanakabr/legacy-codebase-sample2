@@ -1864,8 +1864,8 @@ namespace Core.Users
 
                 switch (drmPolicy.Policy)
                 {
-                    case DrmSecurityPolicy.DeviceLevel:
-                        if (drmValue.Key == domain.m_nDomainID && drmValue.Value != udid)
+                    case DrmSecurityPolicy.DeviceLevel:                        
+                        if (drmValue.Key == domain.m_nDomainID && drmValue.Value != udid && !string.IsNullOrEmpty(udid) && !string.IsNullOrEmpty(drmValue.Value))
                         {
                             return false;
                         }
