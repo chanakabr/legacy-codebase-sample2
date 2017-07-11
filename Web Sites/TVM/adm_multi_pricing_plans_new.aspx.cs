@@ -1487,13 +1487,12 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         dr_adsParam.Initialize("Ads Param", "adm_table_header_nbg", "FormInput", "ADS_PARAM", false);
         theRecord.AddRecord(dr_adsParam);
 
-        DataRecordDropDownField dr_type = new DataRecordDropDownField("lu_subscription_types", "NAME", "ID", "", null, 60, true);
+        DataRecordDropDownField dr_type = new DataRecordDropDownField("lu_subscription_types", "NAME", "ID", "", null, 60, false);
         dr_type.SetConnectionKey("main_connection");
         dr_type.SetFieldType("string");
         dr_type.Initialize("Type", "adm_table_header_nbg", "FormInput", "TYPE", false);
         dr_type.SetOrderBy("name");
-        dr_type.SetNoSelectStr("---");
-
+        dr_type.SetDefaultVal("NotApplicable");
         theRecord.AddRecord(dr_type);
 
         m.Dispose();
