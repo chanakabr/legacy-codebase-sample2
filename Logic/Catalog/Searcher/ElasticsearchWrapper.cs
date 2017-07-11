@@ -1163,40 +1163,41 @@ namespace Core.Catalog
                     }
 
                     // If we want to get the top hits of the aggregations instead of the normal results
-                    if (aggregationResult != null && (unifiedSearchDefinitions.topHitsCount > 0))
-                    {
-                        assetsDocumentsDecoded = new List<ElasticSearchApi.ESAssetDocument>();
+                    if (aggregationResult != null)
+                        //&& (unifiedSearchDefinitions.topHitsCount > 0))
+                    //{
+                    //    //assetsDocumentsDecoded = new List<ElasticSearchApi.ESAssetDocument>();
 
-                        // Go over all aggregations (though there should be one)
-                        foreach (var aggregation in aggregationResult.Aggregations.Values)
-                        {
-                            // Go over each "bucket", which is basically a term
-                            var buckets = aggregation.buckets;
+                    //    //// Go over all aggregations (though there should be one)
+                    //    //foreach (var aggregation in aggregationResult.Aggregations.Values)
+                    //    //{
+                    //    //    // Go over each "bucket", which is basically a term
+                    //    //    var buckets = aggregation.buckets;
 
-                            foreach (var bucket in buckets)
-                            {
-                                // append the
-                                if (bucket.Aggregations.ContainsKey("top_hits_assets"))
-                                {
-                                    var topHitsAggregations = bucket.Aggregations["top_hits_assets"];
+                    //    //    foreach (var bucket in buckets)
+                    //    //    {
+                    //    //        // append the
+                    //    //        if (bucket.Aggregations.ContainsKey("top_hits_assets"))
+                    //    //        {
+                    //    //            var topHitsAggregations = bucket.Aggregations["top_hits_assets"];
 
-                                    if (topHitsAggregations.hits != null && topHitsAggregations.hits.hits != null)
-                                    {
-                                        assetsDocumentsDecoded.AddRange(topHitsAggregations.hits.hits);
-                                    }
-                                }
-                            }
-                        }
+                    //    //            if (topHitsAggregations.hits != null && topHitsAggregations.hits.hits != null)
+                    //    //            {
+                    //    //                assetsDocumentsDecoded.AddRange(topHitsAggregations.hits.hits);
+                    //    //            }
+                    //    //        }
+                    //    //    }
+                    //    //}
 
-                        var jsonObj = JObject.Parse(queryResultString);
+                    //    //var jsonObj = JObject.Parse(queryResultString);
 
-                        if (jsonObj != null)
-                        {
-                            JToken tempToken;
-                            totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
-                        }
-                    }
-                    else
+                    //    //if (jsonObj != null)
+                    //    //{
+                    //    //    JToken tempToken;
+                    //    //    totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+                    //    //}
+                    //}
+                    //else
                     {
                         assetsDocumentsDecoded =
                            ElasticSearch.Common.Utils.DecodeAssetSearchJsonObject(queryResultString, ref totalItems, unifiedSearchDefinitions.extraReturnFields);
