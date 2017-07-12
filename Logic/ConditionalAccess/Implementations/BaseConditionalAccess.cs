@@ -9929,10 +9929,15 @@ namespace Core.ConditionalAccess
                                                     // get all baseSubscription from dependency sets
                                                     if (dependencySetList != null && dependencySetList.Count > 0)
                                                     {
-                                                        if (dependencySetList.Where(x => x.BaseSubscriptionId != subscriptionId).Count() > 0)
+                                                        dependencySetList = dependencySetList.Where(x => x.BaseSubscriptionId != subscriptionId).ToList();
+                                                        if (dependencySetList.Count() > 0)
                                                         {
-                                                            // this addon not for cancel !!!
-                                                            addOnBase.Remove(long.Parse(sub.m_SubscriptionCode));
+                                                            hhSubscriptionIds = hhSubscriptionIds.Where(x1 => dependencySetList.Any(x => x1 == x.BaseSubscriptionId)).ToList();
+                                                            if (hhSubscriptionIds != null && hhSubscriptionIds.Count() > 0)
+                                                            {
+                                                                // this addon not for cancel !!!
+                                                                addOnBase.Remove(long.Parse(sub.m_SubscriptionCode));
+                                                            }
                                                         }
                                                     }
                                                 }
