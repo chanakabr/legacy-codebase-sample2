@@ -7691,7 +7691,7 @@ namespace Core.ConditionalAccess
                     int? groupId = funcParams["groupId"] as int?;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
-                        setIds = ((List<long>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => x).ToList();
+                        setIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();    
                     }
                     else
                     {
