@@ -9921,7 +9921,7 @@ namespace Core.ConditionalAccess
                                             foreach (Subscription sub in subscriptionList)
                                             {
                                                 // get set for subscription 
-                                                setsIds = sub.GetSubscriptionSetIdsToPriority() != null ? subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList() : null;
+                                                setsIds = sub.GetSubscriptionSetIdsToPriority() != null ? sub.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList() : null;
 
                                                 if (Utils.TryGetSubscriptionSets(m_nGroupID, setsIds, ref subscriptionSets)) // all sets of all base subscription for household
                                                 {
