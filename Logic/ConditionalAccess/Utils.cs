@@ -7663,7 +7663,7 @@ namespace Core.ConditionalAccess
                     groupId, LayeredCacheConfigNames.GET_SUBSCRIPTION_SETS_CACHE_CONFIG_NAME,
                                                                         invalidationKeysMap))
                 {
-                    log.ErrorFormat("Failed getting seriesReminders from LayeredCache, groupId: {0}, setIds", groupId, string.Join(",", setIds));
+                    log.ErrorFormat("Failed getting SubscriptionSets from LayeredCache, groupId: {0}, setIds", groupId, string.Join(",", setIds));
                 }
                 else if (subscriptionSetMap != null)
                 {
@@ -7673,7 +7673,7 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetSeriesReminders for groupId: {0}, setIds: {1}", groupId, string.Join(",", setIds)), ex);
+                log.Error(string.Format("Failed TryGetSubscriptionSets for groupId: {0}, setIds: {1}", groupId, string.Join(",", setIds)), ex);
             }
             return res && subscriptionSets != null && subscriptionSets.Count > 0;
         }
