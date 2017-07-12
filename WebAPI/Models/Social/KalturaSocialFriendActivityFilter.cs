@@ -77,12 +77,13 @@ namespace WebAPI.Models.Social
 
         public override KalturaSocialFriendActivityOrderBy GetDefaultOrderByValue()
         {
-            return KalturaSocialFriendActivityOrderBy.NONE;
+            return KalturaSocialFriendActivityOrderBy.UPDATE_DATE_DESC;
         }
     }
 
     public enum KalturaSocialFriendActivityOrderBy
     {
-        NONE
+        NONE,
+        UPDATE_DATE_DESC
     }
 }
