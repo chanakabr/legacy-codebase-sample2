@@ -303,7 +303,6 @@ namespace ElasticSearch.Searcher
                         break;
                     }
                 }
-                
 
                 foreach (var groupBy in this.SearchDefinitions.groupBy)
                 {
@@ -358,9 +357,12 @@ namespace ElasticSearch.Searcher
                             GetAggregationsOrder(this.SearchDefinitions.order,
                                 out distinctOrder, out distinctOrderDirection, out orderAggregation);
 
-                            currentAggregation.SubAggrgations.Add(orderAggregation);
-                            currentAggregation.Order = distinctOrder;
-                            currentAggregation.OrderDirection = distinctOrderDirection;
+                            if (orderAggregation != null)
+                            {
+                                currentAggregation.SubAggrgations.Add(orderAggregation);
+                                currentAggregation.Order = distinctOrder;
+                                currentAggregation.OrderDirection = distinctOrderDirection;
+                            }
                         }
 
                         this.Aggregations.Add(currentAggregation);
@@ -2354,22 +2356,68 @@ namespace ElasticSearch.Searcher
                 aggregationsOrderDirection = "desc";
             }
 
-            if (orderObj.m_eOrderBy == OrderBy.META)
+            switch (orderObj.m_eOrderBy)
             {
-                field = string.Format("metas.{0}", orderObj.m_sOrderValue.ToLower());                
+                case OrderBy.ID:
+                {
+                    field = "_uid";
+                    break;
+                }
+                case OrderBy.VIEWS:
+                break;
+                case OrderBy.RATING:
+                break;
+                case OrderBy.VOTES_COUNT:
+                break;
+                case OrderBy.LIKE_COUNTER:
+                break;
+                case OrderBy.START_DATE:
+                {
+                    field = "start_date";
+                    break;
+                }
+                case OrderBy.NAME:
+                break;
+                case OrderBy.CREATE_DATE:
+                {
+                    field = "create_date";
+                    break;
+                }
+                case OrderBy.META:
+                break;
+                case OrderBy.RANDOM:
+                break;
+                case OrderBy.RELATED:
+                {
+                    script = "doc.score";
+                    break;
+                }
+                case OrderBy.NONE:
+                {
+                    script = "doc.score";
+                    break;
+                }
+                case OrderBy.RECOMMENDATION:
+                break;
+                default:
+                break;
             }
-            else if (orderObj.m_eOrderBy == OrderBy.ID)
-            {
-                field = "_uid";
-            }
-            else if (orderObj.m_eOrderBy == OrderBy.RELATED || orderObj.m_eOrderBy == OrderBy.NONE)
-            {
-                script = "doc.score";
-            }
-            else
-            {
-                field = Enum.GetName(typeof(OrderBy), orderObj.m_eOrderBy).ToLower();
-            }
+            //if (orderObj.m_eOrderBy == OrderBy.META)
+            //{
+            //    field = string.Format("metas.{0}", orderObj.m_sOrderValue.ToLower());                
+            //}
+            //else 
+            //if (orderObj.m_eOrderBy == OrderBy.ID)
+            //{
+            //}
+            //else if (orderObj.m_eOrderBy == OrderBy.RELATED || orderObj.m_eOrderBy == OrderBy.NONE)
+            //{
+            //}
+            //else if (orderObj.m_eOrderBy != OrderBy.META &&
+                    
+            //{
+            //    field = Enum.GetName(typeof(OrderBy), orderObj.m_eOrderBy).ToLower();
+            //}
 
             ////we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
             //if (order.m_eOrderBy != OrderBy.ID &&
@@ -2384,14 +2432,17 @@ namespace ElasticSearch.Searcher
             //    sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
             //}
 
-            orderAggregation = new ESBaseAggsItem()
+            if (!string.IsNullOrEmpty(field) || !string.IsNullOrEmpty(script))
             {
-                Field = field,
-                Name = aggregationsOrder,
-                Type = aggregationType,
-                Size = 0,
-                Script = script,
-            };
+                orderAggregation = new ESBaseAggsItem()
+                {
+                    Field = field,
+                    Name = aggregationsOrder,
+                    Type = aggregationType,
+                    Size = 0,
+                    Script = script,
+                };
+            }
         }
 
         #endregion
