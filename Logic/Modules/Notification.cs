@@ -552,12 +552,9 @@ namespace Core.Notification
             return res;
         }
 
-        public static bool InitiateNotificationAction(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken, ContextData cd = null)
+        public static bool InitiateNotificationAction(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken)
         {
             bool result = false;
-
-            if (cd != null)
-                cd.Load();
 
             try
             {
