@@ -162,6 +162,11 @@ public partial class adm_base_addOn_subscription_sets_new : System.Web.UI.Page
         dr_baseSubscription.SetDefault(0);
         theRecord.AddRecord(dr_baseSubscription);
 
+        DataRecordShortIntField dr_typeSet = new DataRecordShortIntField(false, 9, 9);
+        dr_typeSet.Initialize("Type", "adm_table_header_nbg", "FormInput", "TYPE", false);
+        dr_typeSet.SetValue("1"); // dependency
+        theRecord.AddRecord(dr_typeSet);      
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
