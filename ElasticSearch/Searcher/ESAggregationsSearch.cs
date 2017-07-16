@@ -50,8 +50,6 @@ namespace ElasticSearch.Searcher
         public string Order;
         public string OrderDirection;
 
-        public OrderObj Sort;
-
         public string Script;
 
         #endregion
@@ -160,16 +158,9 @@ namespace ElasticSearch.Searcher
                 }
             }
 
-            if (this.Sort != null && this.Sort.m_eOrderBy != OrderBy.NONE)
-            {
-                string sort = ESUnifiedQueryBuilder.GetSort(this.Sort, true, new List<string>());
-
-                sb.AppendFormat("{0},", sort);
-            }
-
             if (!string.IsNullOrEmpty(this.Script))
             {
-                sb.AppendFormat("\"script\": {0},", this.Script);
+                sb.AppendFormat("\"script\": \"{0}\",", this.Script);
             }
 
             // remove last comma
@@ -248,6 +239,59 @@ namespace ElasticSearch.Searcher
                 sb.Append(this.Filter.ToString());
             }
             
+            result = sb.ToString();
+
+            return result;
+        }
+    }
+
+    public class ESTopHitsAggregation : ESBaseAggsItem
+    {
+        public OrderObj Sort;
+        public List<string> SourceIncludes;
+
+        public ESTopHitsAggregation(OrderObj sort = null, List<string> sourceIncludes = null)
+            : base()
+        {
+            this.Type = eElasticAggregationType.top_hits;
+
+            this.Sort = sort;
+            this.SourceIncludes = sourceIncludes;
+        }
+
+        protected override string InnerToString()
+        {
+            string result = string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendFormat("\"{0}\":", this.Type);
+            sb.Append("{");
+
+            if (this.Sort != null && this.Sort.m_eOrderBy != OrderBy.NONE)
+            {
+                string sort = ESUnifiedQueryBuilder.GetSort(this.Sort, true, new List<string>());
+
+                sb.AppendFormat("{0},", sort);
+            }
+
+            if (this.Size > -1 && this.IsSizeable())
+            {
+                sb.AppendFormat("\"size\": {0},", this.Size);
+            }
+
+            if (this.SourceIncludes != null && this.SourceIncludes.Count > 0)
+            {
+                sb.Append("\"_source\" : { \"includes\": [ ");
+                sb.Append(this.SourceIncludes.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
+                sb.Append("]},");
+            }
+
+            // remove last comma
+            sb.Remove(sb.Length - 1, 1);
+
+            sb.Append("}");
+
             result = sb.ToString();
 
             return result;

@@ -337,17 +337,17 @@ namespace ElasticSearch.Searcher
 
                             currentAggregation.SubAggrgations = new List<ESBaseAggsItem>()
                             {
-                                new ESBaseAggsItem()
+                                new ESTopHitsAggregation()
                                 {
-                                    Type = eElasticAggregationType.top_hits,
                                     Name = "top_hits_assets",
                                     Size = topHitsSize,
-                                    // order from newest to oldest by default (?)
+                                    // order just like regular search
                                     Sort = new OrderObj()
                                     {
-                                        m_eOrderDir = OrderDir.DESC,
-                                        m_eOrderBy = OrderBy.ID
-                                    }
+                                        m_eOrderDir = this.SearchDefinitions.order.m_eOrderDir,
+                                        m_eOrderBy = this.SearchDefinitions.order.m_eOrderBy
+                                    },
+                                    SourceIncludes = this.ReturnFields,
                                 }
                             };
 
