@@ -29,7 +29,7 @@
 <script language="JavaScript" src="js/calendar.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/AnchorPosition.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/dom-drag.js" type="text/javascript"></script>
-<script language="JavaScript" src="js/FCKeditor/fckeditor.js" type="text/javascript"></script>
+
 <!-- dual list -->
 <script type="text/javascript" src="components/duallist/js/script.js"></script>
 <script type="text/javascript" src="components/duallist/js/info.js"></script>
