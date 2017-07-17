@@ -38,7 +38,6 @@ namespace WebAPI.Controllers
 
             KalturaSubscriptionListResponse response = new KalturaSubscriptionListResponse();
             
-
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
@@ -57,10 +56,16 @@ namespace WebAPI.Controllers
                         response.TotalCount = response.Subscriptions.Count;
                     }
                 }
-                else if (filter.SubscriptionIdIn != null)
+                else if (!string.IsNullOrEmpty(filter.SubscriptionIdIn))
                 {
                     // call client
                     response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, filter.getSubscriptionIdIn(), udid, language, filter.OrderBy);
+                    response.TotalCount = response.Subscriptions.Count;
+                }
+                else if (!string.IsNullOrEmpty(filter.ExternalIdIn))
+                {
+                    // call client
+                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsDataByProductCodes(groupId, filter.getExternalIdIn(), filter.OrderBy);
                     response.TotalCount = response.Subscriptions.Count;
                 }
                 

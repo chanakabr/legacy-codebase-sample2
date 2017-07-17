@@ -642,6 +642,26 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.PriceDetailsController.List(WebAPI.Models.Pricing.KalturaPriceDetailsFilter)">
+            <summary>
+            Returns the list of available prices, can be filtered by price IDs
+            </summary>
+            <param name="filter">Filter</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.PricePlanController.List(WebAPI.Models.Pricing.KalturaPricePlanFilter)">
+            <summary>
+            Returns a list of price plans by IDs
+            </summary>
+            <param name="filter">Filter request</param>
+        </member>
+        <member name="M:WebAPI.Controllers.PricePlanController.Update(System.Int64,WebAPI.Models.Pricing.KalturaPricePlan)">
+            <summary>
+            Updates a price plan
+            </summary>
+            <param name="pricePlan">Price plan to update</param>
+            <param name="id">Price plan ID</param>
+        </member>
         <member name="M:WebAPI.Controllers.SubscriptionSetController.List(WebAPI.Models.Pricing.KalturaSubscriptionSetFilter)">
             <summary>
             Returns a list of subscriptionSets requested by ids or subscription ids
@@ -1033,6 +1053,16 @@
             Currency codes
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPricePlanFilter.IdIn">
+            <summary>
+            Comma separated price plans identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetailsFilter.IdIn">
+            <summary>
+            Comma separated price identifiers 
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionDependencySet">
             <summary>
             Subscription Dependency Set
@@ -1066,6 +1096,26 @@
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionDependencySet.BaseSubscriptionId">
             <summary>
             Base Subscription identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.IdIn">
+            <summary>
+            Comma separated identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.SubscriptionIdContains">
+            <summary>
+            Comma separated subscription identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.TypeEqual">
+            <summary>
+            Subscription Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionDependencySetFilter.BaseSubscriptionIdIn">
+            <summary>
+            Comma separated identifiers
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaUserInterestListResponse">
@@ -7843,22 +7893,22 @@
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Message">
             <summary>
-            Push text
+            The message that will be presented to the user.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Sound">
             <summary>
-            Push sound 
+            Optional. Can be used to change the default push sound on the user device.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Action">
             <summary>
-            Push action 
+            Optional. Used to change the default action of the application when a push is received.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Url">
             <summary>
-            Push URL 
+            Optional. Used to direct the application to the relevant page.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaReminderFilter`1.KSql">
@@ -8395,21 +8445,6 @@
             Subscription details
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.IdIn">
-            <summary>
-            Comma separated identifiers
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.SubscriptionIdContains">
-            <summary>
-            Comma separated subscription identifiers
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.TypeEqual">
-            <summary>
-            Subscription Type
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSetListResponse">
             <summary>
             SubscriptionSets list
@@ -8546,6 +8581,11 @@
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.MediaFileIdEqual">
+            <summary>
+            Media-file identifier to get the subscriptions by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.ExternalIdIn">
             <summary>
             Media-file identifier to get the subscriptions by
             </summary>
@@ -8885,9 +8925,19 @@
             The price 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.MultiCurrencyPrice">
+            <summary>
+            Multi currency prices for all countries and currencies
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.Descriptions">
             <summary>
             A list of the descriptions for this price on different languages (language code and translation)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPriceDetailsListResponse.Prices">
+            <summary>
+            A list of price details
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaPricePlan">
@@ -8963,6 +9013,11 @@
         <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.DiscountId">
             <summary>
             The discount module identifier of the price plan
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPricePlanListResponse.PricePlans">
+            <summary>
+            A list of price plans
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionListResponse">
@@ -9280,6 +9335,11 @@
             Currency Sign
              </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPrice.CountryId">
+             <summary>
+            Currency
+             </summary>
+        </member>
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdWithHolder">
             <summary>
             Holder object for Household With enum
@@ -9385,6 +9445,11 @@
             Subscription price plans
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.PricePlanIds">
+            <summary>
+            Comma separated subscription price plan IDs
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscription.PreviewModule">
             <summary>
             Subscription preview module
@@ -9440,9 +9505,14 @@
             List of Subscription product codes
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Type">
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.DependencyType">
+             <summary>
+            Dependency Type
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.ExternalId">
             <summary>
-            Product code for the subscription
+            External ID
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialCommentFilter.AssetIdEqual">

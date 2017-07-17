@@ -40,5 +40,14 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "currencySign")]
         [OldStandardProperty("currency_sign")]
         public string CurrencySign { get; set; }
+
+
+        /// <summary>
+        ///Currency
+        /// </summary>
+        [DataMember(Name = "countryId")]
+        [JsonProperty("countryId")]
+        [XmlElement(ElementName = "countryId")]
+        public long CountryId { get; set; }
     }
 }

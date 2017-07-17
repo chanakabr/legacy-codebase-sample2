@@ -189,7 +189,17 @@ namespace WebAPI.Models.Pricing
         [XmlArray(ElementName = "pricePlans", IsNullable = true)]
         [XmlArrayItem("item")]
         [OldStandardProperty("price_plans")]
+        [Deprecated("4.5.0.0")]
         public List<KalturaPricePlan> PricePlans { get; set; }
+
+        /// <summary>
+        /// Comma separated subscription price plan IDs
+        /// </summary>
+        [DataMember(Name = "pricePlanIds")]
+        [JsonProperty("pricePlanIds")]
+        [XmlElement(ElementName = "pricePlanIds")]
+        [Deprecated("4.5.0.0")]
+        public string PricePlanIds { get; set; }
 
         /// <summary>
         /// Subscription preview module
@@ -303,6 +313,14 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("dependencyType")]
         [XmlElement(ElementName = "dependencyType")]
         public KalturaSubscriptionDependencyType DependencyType { get; set; }
+
+        /// <summary>
+        /// External ID
+        /// </summary>
+        [DataMember(Name = "externalId")]
+        [JsonProperty("externalId")]
+        [XmlElement(ElementName = "externalId")]
+        public string ExternalId{ get; set; }
 
     }
 }

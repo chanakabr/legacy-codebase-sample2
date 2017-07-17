@@ -24,8 +24,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "subscriptionIdIn")]
         [JsonProperty("subscriptionIdIn")]
-        [XmlArray(ElementName = "subscriptionIdIn", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
+        [XmlElement(ElementName = "subscriptionIdIn", IsNullable = true)]
         public string SubscriptionIdIn { get; set; }
 
         /// <summary>
@@ -33,9 +32,16 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "mediaFileIdEqual")]
         [JsonProperty("mediaFileIdEqual")]
-        [XmlArray(ElementName = "mediaFileIdEqual", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
+        [XmlElement(ElementName = "mediaFileIdEqual", IsNullable = true)]
         public int? MediaFileIdEqual { get; set; }
+
+        /// <summary>
+        /// Media-file identifier to get the subscriptions by
+        /// </summary>
+        [DataMember(Name = "externalIdIn")]
+        [JsonProperty("externalIdIn")]
+        [XmlElement(ElementName = "externalIdIn", IsNullable = true)]
+        public string ExternalIdIn { get; set; }
 
         public override KalturaSubscriptionOrderBy GetDefaultOrderByValue()
         {
@@ -44,14 +50,19 @@ namespace WebAPI.Models.Pricing
 
         internal void Validate()
         {
-            if (string.IsNullOrEmpty(SubscriptionIdIn) && !MediaFileIdEqual.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaSubscriptionFilter.subscriptionIdIn, KalturaSubscriptionFilter.mediaFileIdEqual");
-            }
-
-            if (!string.IsNullOrEmpty(SubscriptionIdIn) && MediaFileIdEqual.HasValue)
+            if (MediaFileIdEqual.HasValue && (!string.IsNullOrEmpty(SubscriptionIdIn) || !string.IsNullOrEmpty(ExternalIdIn)))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
+            }
+
+            if (!string.IsNullOrEmpty(SubscriptionIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(ExternalIdIn)))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
+            }
+
+            if (!string.IsNullOrEmpty(ExternalIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(SubscriptionIdIn)))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.productCodeIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
             }
         }
 
@@ -61,6 +72,14 @@ namespace WebAPI.Models.Pricing
                 return null;
 
             return SubscriptionIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        internal List<string> getExternalIdIn()
+        {
+            if (string.IsNullOrEmpty(ExternalIdIn))
+                return null;
+
+            return ExternalIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
     }
 }
