@@ -194,7 +194,9 @@ namespace ElasticSearch.Searcher
         public static ESAggregationResult SingleAggregationParse(JToken currentToken, ESBaseAggsItem aggregationItem)
         {
             ESAggregationResult result = new ESAggregationResult();
-            
+
+            #region basic stats
+
             int doc_count = 0;
             int doc_count_error_upper_bound = 0;
             int sum_other_doc_count = 0;
@@ -281,6 +283,10 @@ namespace ElasticSearch.Searcher
             result.sum_as_string = sum_as_string;
             result.sum_other_doc_count = sum_other_doc_count;
 
+            #endregion
+
+            #region sub aggregations
+
             Dictionary<string, ESAggregationResult> subs = new Dictionary<string, ESAggregationResult>();
             List<ESAggregationBucket> buckets = new List<ESAggregationBucket>();
 
@@ -298,6 +304,10 @@ namespace ElasticSearch.Searcher
                     }
                 }
             }
+
+            #endregion
+
+            #region buckets
 
             JToken bucketsToken = currentToken["buckets"];
 
@@ -343,6 +353,61 @@ namespace ElasticSearch.Searcher
                 }
             }
 
+            #endregion
+
+            #region hits
+
+            JToken hitsToken = currentToken["hits"];
+
+            if (hitsToken != null)
+            {
+                int totalItems = 0;
+                int? maxScore = null;
+                List<ElasticSearch.Common.ElasticSearchApi.ESAssetDocument> documents = null;
+
+                try
+                {
+                    JToken totalHitsToken = hitsToken["total"];
+
+                    if (totalHitsToken != null)
+                    {
+                        totalItems = totalHitsToken.Value<int>();
+                    }
+
+                    JToken maxScoreToken = hitsToken["max_score"];
+
+                    if (maxScoreToken != null)
+                    {
+                        maxScore = maxScoreToken.Value<int?>();
+                    }
+
+                    if (totalItems > 0)
+                    {
+                        documents = new List<ElasticSearch.Common.ElasticSearchApi.ESAssetDocument>();
+
+                        foreach (var item in hitsToken.SelectToken("hits"))
+                        {
+                            var newDocument = ElasticSearch.Common.Utils.DecodeSingleAssetJsonObject(item, "_source");
+
+                            documents.Add(newDocument);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch search request. Execption={0}", ex.Message), ex);
+                }
+
+                result.hits = new ESHits()
+                {
+                    hits = documents,
+                    max_score = maxScore,
+                    total = totalItems
+                };
+            }
+
+            #endregion
+
             result.Aggregations = subs;
             result.buckets = buckets;
 
@@ -372,6 +437,8 @@ namespace ElasticSearch.Searcher
         public string max_as_string;
         public string avg_as_string;
         public string sum_as_string;
+
+        public ESHits hits;
     }
 
     public class ESAggregationBucket

@@ -235,14 +235,22 @@ namespace ElasticSearch.Searcher
             StringBuilder filteredQueryBuilder = new StringBuilder();
 
             filteredQueryBuilder.Append("{");
-            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
+
+            int pageSize = this.PageSize;
+
+            if (this.SearchDefinitions.topHitsCount > 0)
+            {
+                pageSize = 0;
+            }
+
+            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", pageSize);
             filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
 
             // TODO - find if the search is exact or not!
             bool bExact = false;
 
             // If not exact, order by score, and vice versa
-            string sSort = GetSort(this.SearchDefinitions.order, !bExact);
+            string sSort = GetSort(this.SearchDefinitions.order, !bExact, this.ReturnFields);
 
             // Join return fields with commas
             if (ReturnFields.Count > 0)
@@ -260,6 +268,7 @@ namespace ElasticSearch.Searcher
             {
                 this.Aggregations = new List<ESBaseAggsItem>();
                 ESBaseAggsItem currentAggregation = null;
+                ESBaseAggsItem orderAggregation = null;
 
                 string aggregationsOrder = string.Empty;
                 string aggregationsOrderDirection = string.Empty;
@@ -293,22 +302,68 @@ namespace ElasticSearch.Searcher
                         default:
                         break;
                     }
-
                 }
 
                 foreach (var groupBy in this.SearchDefinitions.groupBy)
                 {
                     if (currentAggregation == null)
                     {
+                        int size = 0;
+
+                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup))
+                        {
+                            size = this.SearchDefinitions.pageSize * (this.SearchDefinitions.pageIndex + 1);
+                        }
+
                         currentAggregation = new ESBaseAggsItem()
                         {
                             Field = groupBy.Value.ToLower(),
                             Name = groupBy.Key,
-                            Size = 0,
+                            Size = size,
                             Type = eElasticAggregationType.terms,
                             Order = aggregationsOrder,
                             OrderDirection = aggregationsOrderDirection
                         };
+
+                        // Get top hit as well if necessary
+                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup))
+                        {
+                            int topHitsSize = -1;
+
+                            if (this.SearchDefinitions.topHitsCount > 0)
+                            {
+                                topHitsSize = this.SearchDefinitions.topHitsCount;
+                            }
+
+                            currentAggregation.SubAggrgations = new List<ESBaseAggsItem>()
+                            {
+                                new ESTopHitsAggregation()
+                                {
+                                    Name = "top_hits_assets",
+                                    Size = topHitsSize,
+                                    // order just like regular search
+                                    Sort = new OrderObj()
+                                    {
+                                        m_eOrderDir = this.SearchDefinitions.order.m_eOrderDir,
+                                        m_eOrderBy = this.SearchDefinitions.order.m_eOrderBy
+                                    },
+                                    SourceIncludes = this.ReturnFields,
+                                }
+                            };
+
+                            string distinctOrder;
+                            string distinctOrderDirection;
+
+                            GetAggregationsOrder(this.SearchDefinitions.order,
+                                out distinctOrder, out distinctOrderDirection, out orderAggregation);
+
+                            if (orderAggregation != null)
+                            {
+                                currentAggregation.SubAggrgations.Add(orderAggregation);
+                                currentAggregation.Order = distinctOrder;
+                                currentAggregation.OrderDirection = distinctOrderDirection;
+                            }
+                        }
 
                         this.Aggregations.Add(currentAggregation);
                     }
@@ -1433,7 +1488,7 @@ namespace ElasticSearch.Searcher
             bool bExact = false;
 
             // If not exact, order by score, and vice versa
-            string sSort = GetSort(this.SearchDefinitions.order, !bExact);
+            string sort = GetSort(this.SearchDefinitions.order, !bExact, this.ReturnFields);
 
             // Join return fields with commas
             if (ReturnFields.Count > 0)
@@ -1445,7 +1500,7 @@ namespace ElasticSearch.Searcher
                 filteredQueryBuilder.Append("], ");
             }
 
-            filteredQueryBuilder.AppendFormat("{0}, ", sSort);
+            filteredQueryBuilder.AppendFormat("{0}, ", sort);
             filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
 
             if (filteredQuery.Query != null && !filteredQuery.Query.IsEmpty())
@@ -2230,8 +2285,13 @@ namespace ElasticSearch.Searcher
         /// <param name="order"></param>
         /// <param name="shouldOrderByScore"></param>
         /// <returns></returns>
-        protected string GetSort(OrderObj order, bool shouldOrderByScore)
+        public static string GetSort(OrderObj order, bool shouldOrderByScore, List<string> returnFields)
         {
+            if (returnFields == null)
+            {
+                returnFields = new List<string>();
+            }
+
             StringBuilder sortBuilder = new StringBuilder();
             sortBuilder.Append(" \"sort\": [{");
 
@@ -2239,7 +2299,7 @@ namespace ElasticSearch.Searcher
             {
                 string sAnalyzedMeta = string.Format("metas.{0}", order.m_sOrderValue.ToLower());
                 sortBuilder.AppendFormat("\"{0}\": ", sAnalyzedMeta);
-                ReturnFields.Add(string.Format("\"{0}\"", sAnalyzedMeta));
+                returnFields.Add(string.Format("\"{0}\"", sAnalyzedMeta));
             }
             else if (order.m_eOrderBy == OrderBy.ID)
             {
@@ -2277,6 +2337,112 @@ namespace ElasticSearch.Searcher
             sortBuilder.Append(" ]");
 
             return sortBuilder.ToString();
+        }
+
+        public static void GetAggregationsOrder(OrderObj orderObj, 
+            out string aggregationsOrder, out string aggregationsOrderDirection, out ESBaseAggsItem orderAggregation)
+        {
+            aggregationsOrder = "order_aggregation";
+            aggregationsOrderDirection = "asc";
+            orderAggregation = null;
+
+            eElasticAggregationType aggregationType = eElasticAggregationType.min;
+            string field = string.Empty;
+            string script = null;
+
+            if (orderObj.m_eOrderDir == OrderDir.DESC)
+            {
+                aggregationType = eElasticAggregationType.max;
+                aggregationsOrderDirection = "desc";
+            }
+
+            switch (orderObj.m_eOrderBy)
+            {
+                case OrderBy.ID:
+                {
+                    field = "_uid";
+                    break;
+                }
+                case OrderBy.VIEWS:
+                break;
+                case OrderBy.RATING:
+                break;
+                case OrderBy.VOTES_COUNT:
+                break;
+                case OrderBy.LIKE_COUNTER:
+                break;
+                case OrderBy.START_DATE:
+                {
+                    field = "start_date";
+                    break;
+                }
+                case OrderBy.NAME:
+                break;
+                case OrderBy.CREATE_DATE:
+                {
+                    field = "create_date";
+                    break;
+                }
+                case OrderBy.META:
+                break;
+                case OrderBy.RANDOM:
+                break;
+                case OrderBy.RELATED:
+                {
+                    script = "doc.score";
+                    break;
+                }
+                case OrderBy.NONE:
+                {
+                    script = "doc.score";
+                    break;
+                }
+                case OrderBy.RECOMMENDATION:
+                break;
+                default:
+                break;
+            }
+            //if (orderObj.m_eOrderBy == OrderBy.META)
+            //{
+            //    field = string.Format("metas.{0}", orderObj.m_sOrderValue.ToLower());                
+            //}
+            //else 
+            //if (orderObj.m_eOrderBy == OrderBy.ID)
+            //{
+            //}
+            //else if (orderObj.m_eOrderBy == OrderBy.RELATED || orderObj.m_eOrderBy == OrderBy.NONE)
+            //{
+            //}
+            //else if (orderObj.m_eOrderBy != OrderBy.META &&
+                    
+            //{
+            //    field = Enum.GetName(typeof(OrderBy), orderObj.m_eOrderBy).ToLower();
+            //}
+
+            ////we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
+            //if (order.m_eOrderBy != OrderBy.ID &&
+            //    shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
+            //{
+            //    sortBuilder.Append(", \"_score\"");
+            //}
+
+            //if (order.m_eOrderBy != OrderBy.ID)
+            //{
+            //    // Always add sort by _id to avoid ES weirdness of same sort-value 
+            //    sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
+            //}
+
+            if (!string.IsNullOrEmpty(field) || !string.IsNullOrEmpty(script))
+            {
+                orderAggregation = new ESBaseAggsItem()
+                {
+                    Field = field,
+                    Name = aggregationsOrder,
+                    Type = aggregationType,
+                    Size = 0,
+                    Script = script,
+                };
+            }
         }
 
         #endregion

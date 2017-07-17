@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.SearchObjects;
+using KLogMonitor;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,8 @@ namespace ElasticSearch.Searcher
         value_count,
         terms,
         filter,
-        filters
+        filters,
+        top_hits
     }
 
     #region Aggregations
@@ -39,7 +41,7 @@ namespace ElasticSearch.Searcher
         public string Meta;
 
         public string Field;
-        List<KeyValuePair<string, string>> AdditionalInnerParameters;
+        public List<KeyValuePair<string, string>> AdditionalInnerParameters;
 
         public bool IsNumeric;
         public int Size;
@@ -47,6 +49,8 @@ namespace ElasticSearch.Searcher
 
         public string Order;
         public string OrderDirection;
+
+        public string Script;
 
         #endregion
 
@@ -118,38 +122,49 @@ namespace ElasticSearch.Searcher
 
             sb.AppendFormat("\"{0}\":", this.Type);
             sb.Append("{");
-            sb.AppendFormat("\"field\": \"{0}\"", this.Field);
+
+            if (!string.IsNullOrEmpty(this.Field))
+            {
+                sb.AppendFormat("\"field\": \"{0}\",", this.Field);
+            }
 
             if (!string.IsNullOrEmpty(this.Order))
             {
-
                 if (string.IsNullOrEmpty(this.OrderDirection))
                 {
                     this.OrderDirection = "desc";
                 }
 
-                sb.Append(",\"order\": { \"");
+                sb.Append("\"order\": { \"");
                 sb.AppendFormat("{0}\" : \"{1}\"", this.Order, this.OrderDirection);
-                sb.Append("}");
+                sb.Append("},");
             }
 
             if (this.Size > -1 && this.IsSizeable())
             {
-                sb.AppendFormat(",\"size\": {0}", this.Size);
+                sb.AppendFormat("\"size\": {0},", this.Size);
             }
 
             if (this.ShardSize != null && this.ShardSize.HasValue)
             {
-                sb.AppendFormat(",\"shard_size\": {0}", this.ShardSize.Value);
+                sb.AppendFormat("\"shard_size\": {0},", this.ShardSize.Value);
             }
 
             if (this.AdditionalInnerParameters != null && this.AdditionalInnerParameters.Count > 0)
             {
                 foreach (var item in this.AdditionalInnerParameters)
                 {
-                    sb.AppendFormat(",\"{0}\": \"{1}\"", item.Key, item.Value);
+                    sb.AppendFormat("\"{0}\": \"{1}\",", item.Key, item.Value);
                 }
             }
+
+            if (!string.IsNullOrEmpty(this.Script))
+            {
+                sb.AppendFormat("\"script\": \"{0}\",", this.Script);
+            }
+
+            // remove last comma
+            sb.Remove(sb.Length - 1, 1);
 
             sb.Append("}");
 
@@ -186,6 +201,7 @@ namespace ElasticSearch.Searcher
                 case eElasticAggregationType.terms:
                 case eElasticAggregationType.filter:
                 case eElasticAggregationType.filters:
+                case eElasticAggregationType.top_hits:
                 {
                     result = true;
                     break;
@@ -223,6 +239,59 @@ namespace ElasticSearch.Searcher
                 sb.Append(this.Filter.ToString());
             }
             
+            result = sb.ToString();
+
+            return result;
+        }
+    }
+
+    public class ESTopHitsAggregation : ESBaseAggsItem
+    {
+        public OrderObj Sort;
+        public List<string> SourceIncludes;
+
+        public ESTopHitsAggregation(OrderObj sort = null, List<string> sourceIncludes = null)
+            : base()
+        {
+            this.Type = eElasticAggregationType.top_hits;
+
+            this.Sort = sort;
+            this.SourceIncludes = sourceIncludes;
+        }
+
+        protected override string InnerToString()
+        {
+            string result = string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendFormat("\"{0}\":", this.Type);
+            sb.Append("{");
+
+            if (this.Sort != null && this.Sort.m_eOrderBy != OrderBy.NONE)
+            {
+                string sort = ESUnifiedQueryBuilder.GetSort(this.Sort, true, new List<string>());
+
+                sb.AppendFormat("{0},", sort);
+            }
+
+            if (this.Size > -1 && this.IsSizeable())
+            {
+                sb.AppendFormat("\"size\": {0},", this.Size);
+            }
+
+            if (this.SourceIncludes != null && this.SourceIncludes.Count > 0)
+            {
+                sb.Append("\"_source\" : { \"includes\": [ ");
+                sb.Append(this.SourceIncludes.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
+                sb.Append("]},");
+            }
+
+            // remove last comma
+            sb.Remove(sb.Length - 1, 1);
+
+            sb.Append("}");
+
             result = sb.ToString();
 
             return result;

@@ -50,6 +50,7 @@ namespace ElasticSearch.Common
 
         public ESSerializerV2()
         {
+            shouldLowerCase = false;
         }
 
         /// <summary>
