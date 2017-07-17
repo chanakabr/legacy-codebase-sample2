@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using ApiObjects;
+using Core.Catalog.Response;
 
 namespace Catalog.Response
 {
@@ -27,5 +28,11 @@ namespace Catalog.Response
         public int count;
         [DataMember]
         public List<AggregationsResult> subs;
+
+        /// <summary>
+        /// List of top hits for this aggregation, if requested
+        /// </summary>
+        [DataMember]
+        public List<UnifiedSearchResult> topHits;
     }
 }

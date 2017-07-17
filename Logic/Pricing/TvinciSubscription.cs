@@ -857,7 +857,7 @@ namespace Core.Pricing
             
             FillSubscriptionsSetsDictionary(res, ds.Tables[8]);
 
-            if (ds.Tables.Count >= 10)
+            if (ds.Tables.Count > 10)
             {
                 // get all base Subscription Sets
                 FillSubscriptionsSetsDictionary(res, ds.Tables[10]); // for subscription that are Base in a dependency set

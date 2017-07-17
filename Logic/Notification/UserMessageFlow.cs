@@ -27,6 +27,12 @@ namespace Core.Notification
             DeviceNotificationData deviceData = null;
             UserNotification userNotificationData = null;
 
+            if (!NotificationSettings.IsPartnerPushEnabled(groupId))
+            {
+                log.DebugFormat("partner push is disabled. partner ID: {0}", groupId);
+                return true;
+            }
+
             try
             {
                 // get user notification data

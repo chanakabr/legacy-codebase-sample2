@@ -120,14 +120,7 @@ namespace Core.Users
 
         public override UserResponseObject PreSignIn(ref Int32 siteGuid, ref string userName, ref string password, ref int maxFailCount, ref int lockMin, ref int groupId, ref string sessionId, ref string ip, ref string deviceId, ref bool preventDoubleLogin, ref List<KeyValuePair> keyValueList)
         {
-            if (userName.Contains("liorfinegoldgoldisfine"))
-            {
-                return new UserResponseObject() { m_RespStatus = ResponseStatus.ExternalError, m_user = new User(), m_userInstanceID = "123", ExternalCode = 666, ExternalMessage = "lior faingold gold is fine for login" };
-            }
-            else
-            {
-                return new UserResponseObject(); 
-            }
+            return new UserResponseObject(); 
         }
 
         /// <summary>
@@ -225,14 +218,7 @@ namespace Core.Users
 
         public override UserResponseObject PreAddNewUser(ref UserBasicData basicData, ref UserDynamicData dynamicData, ref string password, ref DomainInfo domainInfo, ref List<KeyValuePair> keyValueList)
         {
-            if (basicData.m_sUserName.Contains("liorfinegoldgoldisfine"))
-            {
-                return new UserResponseObject() { m_RespStatus = ResponseStatus.ExternalError, m_user = new User(), m_userInstanceID = "123", ExternalCode = 6666, ExternalMessage = "lior faingold gold is fine for add new user" };
-            }
-            else
-            {
-                return new UserResponseObject();
-            }
+            return new UserResponseObject();
         }
 
         internal override UserResponseObject MidAddNewUser(UserBasicData basicData, UserDynamicData dynamicData, string password, ref List<KeyValuePair> keyValueList, DomainInfo domainInfo = null)

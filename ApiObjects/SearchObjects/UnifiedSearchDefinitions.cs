@@ -343,6 +343,22 @@ namespace ApiObjects.SearchObjects
 
         [JsonProperty()]
         [DataMember]
+        public int topHitsCount
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
+        [DataMember]
+        public string distinctGroup
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
+        [DataMember]
         public bool shouldGetUserPreferences
         {
             get;

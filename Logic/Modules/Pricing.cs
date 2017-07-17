@@ -1340,6 +1340,20 @@ namespace Core.Pricing
                     return response;
                 }
 
+                // check validate subscription type 
+                Status typeBase = ValidateSubscriptionsType(groupId, new List<long>(){baseSubscriptionId}, SubscriptionType.Base);
+                if (typeBase.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = typeBase;
+                    return response;
+                }
+                typeBase = ValidateSubscriptionsType(groupId, subscriptionIds, SubscriptionType.AddOn);
+                if (typeBase.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = typeBase;
+                    return response;
+                }
+                
                 SubscriptionSet subscriptionSet = Utils.InsertSubscriptionDependencySet(groupId, name, baseSubscriptionId, subscriptionIds, setType);
                 if (subscriptionSet != null && subscriptionSet.Id > 0)
                 {
@@ -1355,6 +1369,51 @@ namespace Core.Pricing
 
             return response;
         }
+
+        private static Status ValidateSubscriptionsType(int groupId, List<long> subscriptionIds, SubscriptionType subscriptionType)
+        {
+            Status status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            try
+            {
+                switch (subscriptionType)
+                {
+                    case SubscriptionType.NotApplicable:
+                        status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());            
+                        break;
+                    case SubscriptionType.Base:
+                    case SubscriptionType.AddOn:
+                        if (subscriptionIds != null && subscriptionIds.Count() > 0)
+                        {
+                            SubscriptionsResponse subscriptionsResponse = GetSubscriptions(groupId, subscriptionIds.Select(x => x.ToString()).ToArray(), string.Empty, string.Empty, string.Empty);
+                            if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions != null && subscriptionsResponse.Subscriptions.Count() > 0)
+                            {
+                                foreach (Subscription sub in subscriptionsResponse.Subscriptions)
+                                {
+                                    if (sub.Type != subscriptionType)
+                                    {
+                                        string msg = string.Format("{0} for the following subscriptionId: {1}", eResponseStatus.WrongSubscriptionType.ToString(), sub.m_SubscriptionCode);
+                                        status = new Status((int)eResponseStatus.WrongSubscriptionType, msg);
+                                        return status;
+                                    }                                    
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                return status;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail in ValidateSubscriptionsType subscriptionIds :{0}, subscriptionType: {1}, ex: {2}", string.Join(",", subscriptionIds), subscriptionType.ToString(), ex);
+                status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return status;
+        }
+
+       
 
         public static SubscriptionSetsResponse UpdateSubscriptionDependencySet(int groupId, long setId, string name, long? baseSubscriptionId, List<long> subscriptionIds,
             bool shouldUpdateSubscriptionIds, SubscriptionSetType setType = SubscriptionSetType.Dependency)
@@ -1382,7 +1441,7 @@ namespace Core.Pricing
                     if (baseSubscriptionId.HasValue) // check that this base not belong to other set
                     {
                         List<SubscriptionSet> baseInSet = Utils.GetSubscriptionSetsByBaseSubscriptionIds(groupId, new List<long>() { baseSubscriptionId.Value }, setType);
-                        if (baseInSet != null && baseInSet.Count() > 0 && baseInSet.Where(x=>x.Id != setId).Count() > 0)
+                        if (baseInSet != null && baseInSet.Count() > 0 && baseInSet.Where(x => x.Id != setId).Count() > 0)
                         {
                             string msg = string.Format("{0} for the following baseSubscriptionId: {1}", eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString(), baseSubscriptionId);
                             response.Status = new Status((int)eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet, msg);
@@ -1393,23 +1452,35 @@ namespace Core.Pricing
                     {
                         baseSubscriptionId = ((DependencySet)subscriptionSet).BaseSubscriptionId;
                     }
-                }
-                if (setType == SubscriptionSetType.Dependency)
-                {
+
+                    // check validate subscription type 
+                    Status typeBase = ValidateSubscriptionsType(groupId, new List<long>() { baseSubscriptionId.Value }, SubscriptionType.Base);
+                    if (typeBase.Code != (int)eResponseStatus.OK)
+                    {
+                        response.Status = typeBase;
+                        return response;
+                    }
+                    typeBase = ValidateSubscriptionsType(groupId, subscriptionIds, SubscriptionType.AddOn);
+                    if (typeBase.Code != (int)eResponseStatus.OK)
+                    {
+                        response.Status = typeBase;
+                        return response;
+                    }
+
                     SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionDependencySet(groupId, subscriptionSet.Id, subscriptionSet.Name, baseSubscriptionId.Value,
                         subscriptionIds, shouldUpdateSubscriptionIds, setType);
-                }
 
-                if (subscriptionSet != null && subscriptionSet.Id > 0)
-                {
-                    response.SubscriptionSets.Clear();
-                    response.SubscriptionSets.Add(subscriptionSet);
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                                        
-                    // call layered cache . setinvalidateion key
-                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSubscriptionSetInvalidationKey(groupId, subscriptionSet.Id)))
+                    if (updatedSubscriptionSet != null && updatedSubscriptionSet.Id > 0)
                     {
-                        log.ErrorFormat("Failed LayeredCache.Instance.SetInvalidationKey, groupId: {0}, setId: {1}",groupId, subscriptionSet.Id);                        
+                        response.SubscriptionSets.Clear();
+                        response.SubscriptionSets.Add(updatedSubscriptionSet);
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                        // call layered cache . setinvalidateion key
+                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSubscriptionSetInvalidationKey(groupId, updatedSubscriptionSet.Id)))
+                        {
+                            log.ErrorFormat("Failed LayeredCache.Instance.SetInvalidationKey, groupId: {0}, setId: {1}", groupId, updatedSubscriptionSet.Id);
+                        }
                     }
                 }
             }

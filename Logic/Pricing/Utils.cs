@@ -708,7 +708,7 @@ namespace Core.Pricing
 
                                 if (isSetExsits)
                                 {
-                                    dependencySet.AddOnIds = dtSet.AsEnumerable().Where(x => x.Field<long>("SET_ID") == id).Select(x => x.Field<long>("SUBSCRIPTION_ID")).ToList();
+                                    dependencySet.AddOnIds = dtSet.AsEnumerable().Where(x => x.Field<long>("SET_ID") == id).Select(x => x.Field<long>("SUBSCRIPTION_ID")).Distinct().ToList();
                                 }
                                 subscriptionSetsMap.Add(id, (SubscriptionSet)(dependencySet));
                             }
@@ -948,6 +948,9 @@ namespace Core.Pricing
                 List<KeyValuePair<long, int>> subscriptionIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (subscriptionIds != null && subscriptionIds.Count > 0)
                 {
+                    // remove duplicates subscriptionIds
+                    subscriptionIds = subscriptionIds.Distinct().ToList();
+
                     int priority = 1;
                     foreach (long subscriptionId in subscriptionIds)
                     {
@@ -978,6 +981,8 @@ namespace Core.Pricing
                 List<KeyValuePair<long, int>> subscriptionIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (subscriptionIds != null && subscriptionIds.Count > 0)
                 {
+                    // remove duplicates subscriptionIds
+                    subscriptionIds = subscriptionIds.Distinct().ToList();
                     int priority = 1;
                     foreach (long subscriptionId in subscriptionIds)
                     {

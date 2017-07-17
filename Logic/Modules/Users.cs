@@ -1505,7 +1505,7 @@ namespace Core.Users
                 else
                 {
                     // convert response status
-                    response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus);
+                    response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus, false, response.user.ExternalCode, response.user.ExternalMessage);
                 }
             }
             return response;

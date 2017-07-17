@@ -88,6 +88,12 @@ namespace Core.Catalog.Request
         [DataMember]
         public AggregationOrder? groupByOrder;
 
+        [DataMember]
+        public int topHitsCount;
+
+        [DataMember]
+        public string distinctGroup;
+
         #endregion
 
         #region Ctor
@@ -347,7 +353,7 @@ namespace Core.Catalog.Request
                     value = bucket.key,
                     count = bucket.doc_count,
                 };
-
+                
                 // go for sub aggregations, if there are
                 if (this.groupBy.Count > 1)
                 {
@@ -360,6 +366,26 @@ namespace Core.Catalog.Request
                     if (sub != null)
                     {
                         bucketResult.subs.Add(sub);
+                    }
+                }
+
+                if (bucket.Aggregations != null && bucket.Aggregations.ContainsKey("top_hits_assets"))
+                {
+                    var topHitsAggregation = bucket.Aggregations["top_hits_assets"];
+                    
+                    if (topHitsAggregation.hits != null && topHitsAggregation.hits.hits != null)
+                    {
+                        bucketResult.topHits = new List<UnifiedSearchResult>();
+
+                        foreach (var doc in topHitsAggregation.hits.hits)
+                        {
+                            bucketResult.topHits.Add(new UnifiedSearchResult()
+                            {
+                                AssetId = doc.asset_id.ToString(),
+                                AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),
+                                m_dUpdateDate = doc.update_date,
+                            });
+                        }
                     }
                 }
 
@@ -409,6 +435,26 @@ namespace Core.Catalog.Request
                     if (sub != null)
                     {
                         bucketResult.subs.Add(sub);
+                    }
+                }
+
+                if (bucket.Aggregations != null && bucket.Aggregations.ContainsKey("top_hits_assets"))
+                {
+                    var topHitsAggregation = bucket.Aggregations["top_hits_assets"];
+
+                    if (topHitsAggregation.hits != null && topHitsAggregation.hits.hits != null)
+                    {
+                        bucketResult.topHits = new List<UnifiedSearchResult>();
+
+                        foreach (var doc in topHitsAggregation.hits.hits)
+                        {
+                            bucketResult.topHits.Add(new UnifiedSearchResult()
+                            {
+                                AssetId = doc.asset_id.ToString(),
+                                AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),
+                                m_dUpdateDate = doc.update_date,
+                            });
+                        }
                     }
                 }
 

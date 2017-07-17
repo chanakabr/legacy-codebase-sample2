@@ -7663,7 +7663,7 @@ namespace Core.ConditionalAccess
                     groupId, LayeredCacheConfigNames.GET_SUBSCRIPTION_SETS_CACHE_CONFIG_NAME,
                                                                         invalidationKeysMap))
                 {
-                    log.ErrorFormat("Failed getting seriesReminders from LayeredCache, groupId: {0}, setIds", groupId, string.Join(",", setIds));
+                    log.ErrorFormat("Failed getting SubscriptionSets from LayeredCache, groupId: {0}, setIds", groupId, string.Join(",", setIds));
                 }
                 else if (subscriptionSetMap != null)
                 {
@@ -7673,7 +7673,7 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetSeriesReminders for groupId: {0}, setIds: {1}", groupId, string.Join(",", setIds)), ex);
+                log.Error(string.Format("Failed TryGetSubscriptionSets for groupId: {0}, setIds: {1}", groupId, string.Join(",", setIds)), ex);
             }
             return res && subscriptionSets != null && subscriptionSets.Count > 0;
         }
@@ -7691,7 +7691,7 @@ namespace Core.ConditionalAccess
                     int? groupId = funcParams["groupId"] as int?;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
-                        setIds = ((List<long>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => x).ToList();
+                        setIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();    
                     }
                     else
                     {

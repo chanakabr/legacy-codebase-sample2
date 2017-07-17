@@ -5117,36 +5117,40 @@ namespace Core.Api
                     }
                     else if (mediaRuleIds != null && mediaRuleIds.Count > 0)
                     {
-                        List<string> userParentalRulesInvalidationKeys = new List<string>();
-                        userParentalRulesInvalidationKeys.Add(GetUserParentalRuleInvalidationKey(siteGuid));
-
-                        // user rules 
-                        key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
-                        cacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(key, ref userParentalRules,
-                            APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", siteGuid } },
-                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, userParentalRulesInvalidationKeys);
-
-                        if (!cacheResult || userParentalRules == null)
+                        if (!string.IsNullOrEmpty(siteGuid) && siteGuid != "0")
                         {
-                            log.Error(string.Format("GetParentalMediaRules - GetUserParentalRules - Failed get data from cache groupId = {0}, userId = {1}", groupId, siteGuid));
-                            return null;
+                            List<string> userParentalRulesInvalidationKeys = new List<string>();
+                            userParentalRulesInvalidationKeys.Add(GetUserParentalRuleInvalidationKey(siteGuid));
+
+                            // user rules 
+                            key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
+                            cacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(key, ref userParentalRules,
+                                APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", siteGuid } },
+                                groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, userParentalRulesInvalidationKeys);
+
+                            if (!cacheResult || userParentalRules == null)
+                            {
+                                log.Error(string.Format("GetParentalMediaRules - GetUserParentalRules - Failed get data from cache groupId = {0}, userId = {1}", groupId, siteGuid));
+                                return null;
+                            }
+
+                            // if user has at least one rule applied on him on user or domain level
+                            if (userParentalRules.Count > 0)
+                            {
+                                // If user ignored group's default rules - and if this is the only one - user has 0 parental rules for this media, he's free.
+                                if (userParentalRules.Count == 1 && userParentalRules.FirstOrDefault().Key < 0)
+                                {
+                                    response.rules = new List<ParentalRule>();
+                                }
+                                else
+                                {
+                                    // User does have rules. Let's see which of the rules that are relevant to the media are also relevant to the user (intersection)
+                                    rules = groupsParentalRules.Where(x => mediaRuleIds.Contains(x.id) && userParentalRules.ContainsKey(x.id)).ToList();
+                                }
+                            }
                         }
 
-                        // if user has at least one rule applied on him on user or domain level
-                        if (userParentalRules.Count > 0)
-                        {
-                            // If user ignored group's default rules - and if this is the only one - user has 0 parental rules for this media, he's free.
-                            if (userParentalRules.Count == 1 && userParentalRules.FirstOrDefault().Key < 0)
-                            {
-                                response.rules = new List<ParentalRule>();
-                            }
-                            else
-                            {
-                                // User does have rules. Let's see which of the rules that are relevant to the media are also relevant to the user (intersection)
-                                rules = groupsParentalRules.Where(x => mediaRuleIds.Contains(x.id) && userParentalRules.ContainsKey(x.id)).ToList();
-                            }
-                        }
-                        else if (groupsParentalRules.Count > 0) // check on group rules 
+                        if ((userParentalRules == null || userParentalRules.Count == 0) && groupsParentalRules.Count > 0) // check on group rules 
                         {
                             // check if media related to user parental rules - if needed 
                             rules = groupsParentalRules.Where(x => mediaRuleIds.Contains(x.id) && x.isDefault).ToList();
