@@ -95,4 +95,11 @@ namespace Core.Pricing
         public bool m_bIsOfflinePlayBack;
 
     }
+
+    public class UsageModulesResponse
+    {
+        public List<UsageModule> UsageModules { get; set; }
+
+        public ApiObjects.Response.Status Status { get; set; }
+    }
 }

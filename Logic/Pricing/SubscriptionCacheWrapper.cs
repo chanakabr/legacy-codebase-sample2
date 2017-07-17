@@ -115,9 +115,13 @@ namespace Core.Pricing
             return res;
         }
 
-        public override Subscription[] GetSubscriptionsDataByProductCodes(List<string> productCodes, bool getAlsoUnactive)
+        public override SubscriptionsResponse GetSubscriptionsDataByProductCodes(List<string> productCodes, bool getAlsoUnactive, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc)
         {
-            Subscription[] subscriptions = null;
+            SubscriptionsResponse response = new SubscriptionsResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
             if (productCodes != null && productCodes.Count > 0)
             {
                 Dictionary<string, Subscription> subscriptionsMapping = new Dictionary<string,Subscription>();
@@ -169,10 +173,26 @@ namespace Core.Pricing
                     }
                 }
 
-                subscriptions = subscriptionsMapping.Values.ToArray();
+                if (subscriptionsMapping != null && subscriptionsMapping.Count > 0)
+                {
+                    switch (orderBy)
+                    {
+                        case SubscriptionOrderBy.StartDateAsc:
+                            response.Subscriptions = subscriptionsMapping.Values.OrderBy(s => s.m_dStartDate).ToArray();
+                            break;
+                        case SubscriptionOrderBy.StartDateDesc:
+                            response.Subscriptions = subscriptionsMapping.Values.OrderByDescending(s => s.m_dStartDate).ToArray();
+                            break;
+                        default:
+                            response.Subscriptions = subscriptionsMapping.Values.ToArray();
+                            break;
+                    }
+                    
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
 
-            return subscriptions;
+            return response;
         }
 
         public override Subscription[] GetSubscriptionsData(string[] oSubCodes, string sCountryCd, string sLanguageCode, string sDeviceName, SubscriptionOrderBy orderBy)
@@ -360,7 +380,5 @@ namespace Core.Pricing
                 return Index.CompareTo(other.Index);
             }
         }
-
-
     }
 }

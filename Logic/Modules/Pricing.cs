@@ -741,19 +741,22 @@ namespace Core.Pricing
                 return null;
             }
         }
-        
-        public static Subscription[] GetSubscriptionsByProductCodes(int nGroupID, string[] productCodes)
+
+        public static SubscriptionsResponse GetSubscriptionsByProductCodes(int nGroupID, List<string> productCodes, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc)
         {
+            SubscriptionsResponse response = new SubscriptionsResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
             BaseSubscription t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return (new SubscriptionCacheWrapper(t)).GetSubscriptionsDataByProductCodes(productCodes.ToList(), false);
+                response = (new SubscriptionCacheWrapper(t)).GetSubscriptionsDataByProductCodes(productCodes, false, orderBy);
             }
-            else
-            {
-                return null;
-            }
+
+            return response;
         }
         
         public static PPVModule[] GetPPVModulesByProductCodes(int nGroupID, string[] productCodes)
@@ -1420,5 +1423,38 @@ namespace Core.Pricing
             return response;
         }
 
+        public static UsageModulesResponse GetPricePlans(int groupId, List<long> pricePlanIds)
+        {
+            UsageModulesResponse response = new UsageModulesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            BaseSubscription t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.GetPricePlans(pricePlanIds);
+            }
+
+            return response;
+        }
+
+        public static UsageModulesResponse UpdatePricePlan(int groupId, UsageModule usageModule)
+        {
+            UsageModulesResponse response = new UsageModulesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            BaseSubscription t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.UpdatePricePlan(usageModule);
+            }
+
+            return response;
+        }
     }
 }

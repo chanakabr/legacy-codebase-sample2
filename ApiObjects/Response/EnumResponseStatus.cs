@@ -358,6 +358,7 @@ namespace ApiObjects.Response
         InvalidCouponGroup = 9014,
         InvalidCurrency = 9015,
         ModuleNotExists = 9016,
+        PricePlanDoesNotExist = 9017,
 
         // Adapters 10000-10999
         AdapterNotExists = 10000,

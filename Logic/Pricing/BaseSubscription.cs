@@ -59,7 +59,7 @@ namespace Core.Pricing
 
         public abstract Subscription[] GetSubscriptionsData(string[] oSubCodes, string sCountryCd, string sLanguageCode, string sDeviceName, SubscriptionOrderBy orderBy);
 
-        public abstract Subscription[] GetSubscriptionsDataByProductCodes(List<string> productCodes, bool getAlsoUnactive);
+        public abstract SubscriptionsResponse GetSubscriptionsDataByProductCodes(List<string> productCodes, bool getAlsoUnactive, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc);
 
         #endregion
 
@@ -551,5 +551,56 @@ namespace Core.Pricing
             return pcList;
         }
 
+
+        internal UsageModulesResponse GetPricePlans(List<long> pricePlanIds)
+        {
+            UsageModulesResponse response = new UsageModulesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            DataTable usageModules = PricingDAL.GetPricePlans(m_nGroupID, pricePlanIds);
+
+            if (usageModules != null)
+            {
+                response.UsageModules = Utils.BuildUsageModulesFromDataTable(usageModules);
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
+
+        internal UsageModulesResponse UpdatePricePlan(UsageModule usageModule)
+        {
+            UsageModulesResponse response = new UsageModulesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            DataTable usageModules = PricingDAL.GetPricePlans(m_nGroupID, new List<long>() { usageModule.m_nObjectID });
+
+            if (usageModules != null)
+            {
+                if (usageModules.Rows == null || usageModules.Rows.Count == 0)
+                {
+                    response.Status = new Status((int)eResponseStatus.PricePlanDoesNotExist, "Price plan does not exist");
+                    return response;
+                }
+
+                response.UsageModules = Utils.BuildUsageModulesFromDataTable(usageModules);
+
+                if (response.UsageModules != null && response.UsageModules.Count > 0)
+                {
+                    // update only price code ID
+                    if (PricingDAL.UpdatePricePlan(m_nGroupID, usageModule.m_nObjectID, usageModule.m_pricing_id))
+                    {
+                        response.UsageModules[0].m_pricing_id = usageModule.m_pricing_id;
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                }
+            }
+
+            return response;
+        }
     }
 }
