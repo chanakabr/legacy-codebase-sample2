@@ -109,8 +109,9 @@ namespace WebAPI.Clients
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                requestId = requestId
+                requestId = requestId               
             };
+           
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
@@ -155,7 +156,8 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null)
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
+            List<string> groupBy = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -202,7 +204,16 @@ namespace WebAPI.Clients
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId
+                // add SearchAggregationGroupBy searchGroupBy here by the filter
             };
+            if (groupBy != null && groupBy.Count > 0)
+            {
+                request.searchGroupBy = new SearchAggregationGroupBy()
+                {
+                    groupBy = groupBy,
+                    distinctGroup = groupBy[0]// mabye will send string.empty - and Backend will fill it if nessecery
+                };
+            }
 
             // fire unified search request
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
@@ -217,7 +228,13 @@ namespace WebAPI.Clients
                 // Bad response received from WS
                 throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
             }
-
+            // check if aggragation result have values 
+            //if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0)
+            // build the assetsBaseDataList from the hit array 
+            //after call to new  CatalogUtils.GetAggregatedAssets(assetsBaseDataList, request, CacheDuration, managementData);
+            // complite the count property 
+            //
+            //else continue as it used to be 
             if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
             {
                 // get base objects list
@@ -284,8 +301,11 @@ namespace WebAPI.Clients
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                groupBy = groupBy,
-                groupByOrder = AggregationOrder.Value_Asc
+                searchGroupBy = new SearchAggregationGroupBy()
+                {
+                    groupBy = groupBy,
+                    groupByOrder = AggregationOrder.Value_Asc
+                }
             };
 
             // fire unified search request
