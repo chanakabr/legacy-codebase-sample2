@@ -1657,7 +1657,7 @@ namespace WebAPI.Reflection
                 case "AnnouncementController":
                     ret = new Dictionary<string, string>() { 
                         {"addOldStandard", "add"},
-                        {"enableSystemAnnouncements", "createAnnouncement"},
+                        {"enableSystemAnnouncements", "createannouncement"},
                         {"listOldStandard", "list"},
                         {"updateOldStandard", "update"},
                     };
@@ -1804,9 +1804,9 @@ namespace WebAPI.Reflection
                     ret = new Dictionary<string, string>() { 
                         {"getOldStandard", "get"},
                         {"register", "add"},
-                        {"resetPassword", "sendPassword"},
-                        {"setPassword", "resetPassword"},
-                        {"updateLoginData", "changePassword"},
+                        {"resetPassword", "sendpassword"},
+                        {"setPassword", "resetpassword"},
+                        {"updateLoginData", "changepassword"},
                     };
                     break;
                     
@@ -1880,7 +1880,7 @@ namespace WebAPI.Reflection
                     
                 case "SocialController":
                     ret = new Dictionary<string, string>() { 
-                        {"getByTokenOldStandard", "getByToken"},
+                        {"getByTokenOldStandard", "getbytoken"},
                         {"getConfiguration", "config"},
                         {"mergeOldStandard", "merge"},
                         {"registerOldStandard", "register"},
@@ -1903,7 +1903,7 @@ namespace WebAPI.Reflection
                 case "TransactionController":
                     ret = new Dictionary<string, string>() { 
                         {"purchaseOldStandard", "purchase"},
-                        {"purchaseSessionIdOldStandard", "purchaseSessionId"},
+                        {"purchaseSessionIdOldStandard", "purchasesessionid"},
                         {"setWaiver", "waiver"},
                     };
                     break;
