@@ -723,7 +723,7 @@ namespace Reflector
                     newName = route.Template;
                 }
 
-                file.WriteLine("                        {\"" + newName + "\", \"" + oldStandardAction.oldName + "\"},");
+                file.WriteLine("                        {\"" + newName + "\", \"" + oldStandardAction.oldName.ToLower() + "\"},");
             }
             file.WriteLine("                    };");
             file.WriteLine("                    break;");
