@@ -21,7 +21,7 @@ namespace WebAPI.Models.Pricing
     public class KalturaSubscriptionFilter : KalturaFilter<KalturaSubscriptionOrderBy>
     {
         /// <summary>
-        /// Comma separated subscription identifiers to get the subscriptions by
+        /// Comma separated subscription IDs to get the subscriptions by
         /// </summary>
         [DataMember(Name = "subscriptionIdIn")]
         [JsonProperty("subscriptionIdIn")]
@@ -30,7 +30,7 @@ namespace WebAPI.Models.Pricing
         public string SubscriptionIdIn { get; set; }
 
         /// <summary>
-        /// Media-file identifier to get the subscriptions by
+        /// Media-file ID to get the subscriptions by
         /// </summary>
         [DataMember(Name = "mediaFileIdEqual")]
         [JsonProperty("mediaFileIdEqual")]
@@ -38,7 +38,7 @@ namespace WebAPI.Models.Pricing
         public int? MediaFileIdEqual { get; set; }
 
         /// <summary>
-        /// Media-file identifier to get the subscriptions by
+        /// Comma separated subscription external IDs to get the subscriptions by
         /// </summary>
         [DataMember(Name = "externalIdIn")]
         [JsonProperty("externalIdIn")]

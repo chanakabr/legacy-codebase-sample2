@@ -36,15 +36,8 @@ namespace WebAPI.Controllers
             try
             {
                 List<long> priceIds = null;
-                if (filter != null)
-                {
-                    priceIds = filter.GetIdIn();
-                }
-
-                if (!string.IsNullOrEmpty(currency) && currency == "*")
-                {
-                    prices = ClientsManager.PricingClient().GetPrices(groupId, filter.GetIdIn(), currency);
-                }
+                
+                prices = ClientsManager.PricingClient().GetPrices(groupId, filter != null ? filter.GetIdIn() : null, currency);
             }
             catch (ClientException ex)
             {

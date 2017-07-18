@@ -39,7 +39,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<SubscriptionCouponGroup, KalturaCouponsGroup>()
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => (!src.endDate.HasValue || src.m_dEndDate < src.endDate.Value) ? 
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => (!src.endDate.HasValue || src.m_dEndDate < src.endDate.Value) ?
                    SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate) : SerializationUtils.ConvertToUnixTimestamp(src.endDate.Value)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sGroupCode))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sGroupName))
@@ -47,7 +47,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                    SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate) : SerializationUtils.ConvertToUnixTimestamp(src.startDate.HasValue ? src.startDate.Value : src.m_dStartDate)))
                .ForMember(dest => dest.MaxUsesNumber, opt => opt.MapFrom(src => src.m_nMaxUseCountForCoupon))
                .ForMember(dest => dest.MaxUsesNumberOnRenewableSub, opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon))
-               .ForMember(dest => dest.CouponGroupType, opt => opt.MapFrom(src => ConvertCouponGroupType(src.couponGroupType)))             
+               .ForMember(dest => dest.CouponGroupType, opt => opt.MapFrom(src => ConvertCouponGroupType(src.couponGroupType)))
                ;
 
             // Price
@@ -55,8 +55,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
                .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3))
                .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencySign))
-               .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.m_oCurrency.m_nCurrencyID))
-               ; 
+               .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.countryId != 0 ? (long?)src.countryId : null))
+               ;
 
             // PriceCode
             Mapper.CreateMap<PriceCode, KalturaPriceDetails>()
@@ -83,7 +83,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.CouponId, opt => opt.MapFrom(src => src.m_coupon_id))
                .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.m_tsMaxUsageModuleLifeCycle))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjectID))
-               .ForMember(dest => dest.IsOfflinePlayback, opt => opt.MapFrom(src => src.m_bIsOfflinePlayBack))               
+               .ForMember(dest => dest.IsOfflinePlayback, opt => opt.MapFrom(src => src.m_bIsOfflinePlayBack))
                .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_bWaiver))
                .ForMember(dest => dest.MaxViewsNumber, opt => opt.MapFrom(src => src.m_nMaxNumberOfViews))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sVirtualName))
@@ -171,8 +171,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.DependencyType, opt => opt.MapFrom(src => ConvertSubscriptionType(src.Type)))
                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_ProductCode))
                .ForMember(dest => dest.PricePlanIds, opt => opt.MapFrom(src =>
-                   src.m_MultiSubscriptionUsageModule != null && src.m_MultiSubscriptionUsageModule.Length > 0 ? 
-                   string.Join(",", src.m_MultiSubscriptionUsageModule.Select(um => um.m_nObjectID).ToArray()) : 
+                   src.m_MultiSubscriptionUsageModule != null && src.m_MultiSubscriptionUsageModule.Length > 0 ?
+                   string.Join(",", src.m_MultiSubscriptionUsageModule.Select(um => um.m_nObjectID).ToArray()) :
                    string.Empty))
                ;
 
@@ -182,7 +182,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.CouponId, opt => opt.MapFrom(src => src.m_coupon_id))
                .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.m_tsMaxUsageModuleLifeCycle))
                .ForMember(dest => dest.IsOfflinePlayback, opt => opt.MapFrom(src => src.m_bIsOfflinePlayBack))
-               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.m_is_renew))               
+               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.m_is_renew))
                .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_bWaiver))
                .ForMember(dest => dest.MaxViewsNumber, opt => opt.MapFrom(src => src.m_nMaxNumberOfViews))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sVirtualName))
@@ -238,7 +238,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UsageModule, opt => opt.MapFrom(src => src.m_oUsageModule))
                .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.m_bFirstDeviceLimitation));
 
-             //KalturaPpvPrice
+            //KalturaPpvPrice
             Mapper.CreateMap<ItemPriceContainer, KalturaPpvPrice>()
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sProductCode))
                .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.m_relevantCol))
@@ -272,13 +272,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.SubscriptionIds != null ? string.Join(",", src.SubscriptionIds) : string.Empty))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSetType(src.Type)));
-            
+
             Mapper.CreateMap<DependencySet, KalturaSubscriptionDependencySet>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.BaseSubscriptionId, opt => opt.MapFrom(src => src.BaseSubscriptionId))
-                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src. AddOnIds!= null ? string.Join(",", src.AddOnIds) : string.Empty))
+                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.AddOnIds != null ? string.Join(",", src.AddOnIds) : string.Empty))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSetType(src.Type)));
+            ;
+
+            Mapper.CreateMap<PriceDetails, KalturaPriceDetails>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.MultiCurrencyPrice, opt => opt.MapFrom(src => src.Prices))
                 ;
         }
 

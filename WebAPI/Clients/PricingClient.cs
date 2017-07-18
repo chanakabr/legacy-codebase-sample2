@@ -631,16 +631,16 @@ namespace WebAPI.Clients
             return subscriptionSet;
         }
 
-        internal List<KalturaPriceDetails> GetPrices(int groupId, List<long> priceIds, string currency, string ip = null)
+        internal List<KalturaPriceDetails> GetPrices(int groupId, List<long> priceIds, string currency)
         {
-            PriceCodesResponse response = null;
+            PriceDetailsResponse response = null;
             List<KalturaPriceDetails> prices = new List<KalturaPriceDetails>();
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetPriceCodesDataByCountyAndCurrency(groupId, priceIds, currency, ip);
+                    response = Core.Pricing.Module.GetPriceCodesDataByCountyAndCurrency(groupId, priceIds, currency);
                 }
             }
             catch (Exception ex)

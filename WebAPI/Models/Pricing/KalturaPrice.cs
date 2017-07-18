@@ -42,7 +42,6 @@ namespace WebAPI.Models.Pricing
         [OldStandardProperty("currency_sign")]
         public string CurrencySign { get; set; }
 
-
         /// <summary>
         ///Currency
         /// </summary>
@@ -50,6 +49,6 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("countryId")]
         [XmlElement(ElementName = "countryId")]
         [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
-        public long CountryId { get; set; }
+        public long? CountryId { get; set; }
     }
 }
