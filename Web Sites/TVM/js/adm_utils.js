@@ -393,32 +393,32 @@ function callback_page_content(result)
 	window.scroll(0,0);
 }
 
-function BuiltEditors()
-{
-    var oInp = document.getElementsByTagName('textarea');
-    var oRad = new Array();
-    var j=0;
-    for(var i=0;i<oInp.length;i++)
-    {
-        if(oInp[i].getAttribute('type')=='textarea')
-        {
-            var oFCKeditor = null;
-            theID = oInp[i].getAttribute('id');
-            oFCKeditor = new FCKeditor( theID );
-            oFCKeditor.BasePath = "js/FCKeditor/" ;
-	        oFCKeditor.Config[ "AutoDetectLanguage" ] = false ;
-	        oFCKeditor.Config[ "DefaultLanguage" ] = "he" ;
-	        oFCKeditor.Config[ "ContentLangDirection" ]	= "rtl" ;
-	        oFCKeditor.Height = "300px"
-	        oFCKeditor.ReplaceTextarea() ;
-            j++;
-        }
-    }
-}
+//function BuiltEditors()
+//{
+//    var oInp = document.getElementsByTagName('textarea');
+//    var oRad = new Array();
+//    var j=0;
+//    for(var i=0;i<oInp.length;i++)
+//    {
+//        if(oInp[i].getAttribute('type')=='textarea')
+//        {
+//            var oFCKeditor = null;
+//            theID = oInp[i].getAttribute('id');
+//            oFCKeditor = new FCKeditor( theID );
+//            oFCKeditor.BasePath = "js/FCKeditor/" ;
+//	        oFCKeditor.Config[ "AutoDetectLanguage" ] = false ;
+//	        oFCKeditor.Config[ "DefaultLanguage" ] = "he" ;
+//	        oFCKeditor.Config[ "ContentLangDirection" ]	= "rtl" ;
+//	        oFCKeditor.Height = "300px"
+//	        oFCKeditor.ReplaceTextarea() ;
+//            j++;
+//        }
+//    }
+//}
 
 function callback_page_content_with_editor(result) {
     callback_page_content(result);
-    BuiltEditors();
+    //BuiltEditors();
 }
 
 function callback_page_content_sc(result)

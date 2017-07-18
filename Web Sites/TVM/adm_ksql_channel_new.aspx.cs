@@ -536,6 +536,10 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         dr_filter.Initialize("KSQL Expression", "adm_table_header_nbg", "FormInput", "KSQL_FILTER", false);
         theRecord.AddRecord(dr_filter);
 
+        DataRecordShortTextField dr_groupBy = new DataRecordShortTextField("ltr", true, 60, 20, true);
+        dr_groupBy.Initialize("Group By (Meta)", "adm_table_header_nbg", "FormInput", "group_by", false);
+        theRecord.AddRecord(dr_groupBy);
+
         DataRecordShortIntField dr_channel_type = new DataRecordShortIntField(false, 3, 3);
         dr_channel_type.Initialize("Channel type", "adm_table_header_nbg", "FormInput", "CHANNEL_TYPE", false);
         dr_channel_type.SetValue("4");

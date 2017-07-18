@@ -18,7 +18,7 @@
 <script language="JavaScript" src="js/calendar.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/AnchorPosition.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/dom-drag.js" type="text/javascript"></script>
-<script language="JavaScript" src="js/FCKeditor/fckeditor.js" type="text/javascript"></script>
+
 	<script type="text/javascript" src="js/SWFObj.js" language="javascript"></script>
 <script type="text/javascript">
 	function GetPageTable(orderBy, pageNum) {

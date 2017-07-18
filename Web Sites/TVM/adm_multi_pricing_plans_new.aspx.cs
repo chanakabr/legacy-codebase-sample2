@@ -1492,6 +1492,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         dr_type.SetFieldType("string");
         dr_type.Initialize("Type", "adm_table_header_nbg", "FormInput", "TYPE", false);
         dr_type.SetOrderBy("name");
+        dr_type.SetDefaultVal("NotApplicable");
         theRecord.AddRecord(dr_type);
 
         m.Dispose();

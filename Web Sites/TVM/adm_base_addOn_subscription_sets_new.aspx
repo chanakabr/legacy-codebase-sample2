@@ -16,7 +16,7 @@
 <link href="components/duallist/css/duallist.css" type="text/css" rel="stylesheet" />
 <script language="JavaScript" src="js/jquery-1.10.2.min.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/jquery-placeholder.js" type="text/javascript"></script>
-<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<script src="js/jquery-ui.js"></script>
 <script language="JavaScript" src="js/rs.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/adm_utils.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/ajaxFuncs.js" type="text/javascript"></script>
@@ -29,7 +29,7 @@
 <script language="JavaScript" src="js/calendar.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/AnchorPosition.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/dom-drag.js" type="text/javascript"></script>
-<script language="JavaScript" src="js/FCKeditor/fckeditor.js" type="text/javascript"></script>
+
 <!-- dual list -->
 <script type="text/javascript" src="components/duallist/js/script.js"></script>
 <script type="text/javascript" src="components/duallist/js/info.js"></script>
