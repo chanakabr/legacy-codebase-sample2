@@ -170,6 +170,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.m_nIsActive))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
+                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.searchGroupBy)))
+
                 ;
 
             //CategoryResponse to Category
@@ -348,6 +350,31 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SubCounts, opt => opt.MapFrom(src => src.subs))
                 ;
 
+        }
+
+        private static KalturaAssetGroupBy ConvertToGroupBy(SearchAggregationGroupBy searchAggregationGroupBy)
+        {            
+             KalturaAssetGroupBy kalturaAssetGroupBy = null;
+
+             if (searchAggregationGroupBy != null && searchAggregationGroupBy.groupBy != null && searchAggregationGroupBy.groupBy.Count() > 0)
+             {
+
+                 if (Enum.IsDefined(typeof(KalturaGroupByField), searchAggregationGroupBy.groupBy.FirstOrDefault()))
+                 {
+                     kalturaAssetGroupBy = new KalturaAssetFieldGroupBy();
+
+                     KalturaGroupByField groupByField = (KalturaGroupByField)Enum.Parse(typeof(KalturaGroupByField), searchAggregationGroupBy.groupBy.FirstOrDefault());
+
+                     ((KalturaAssetFieldGroupBy)kalturaAssetGroupBy).Value = groupByField;
+                 }
+                 else
+                 {
+                     kalturaAssetGroupBy = new KalturaAssetMetaOrTagGroupBy();
+                     ((KalturaAssetMetaOrTagGroupBy)kalturaAssetGroupBy).Value = searchAggregationGroupBy.groupBy.FirstOrDefault();
+                 }              
+             }
+
+             return kalturaAssetGroupBy;
         }
 
         //eAssetTypes to KalturaAssetType

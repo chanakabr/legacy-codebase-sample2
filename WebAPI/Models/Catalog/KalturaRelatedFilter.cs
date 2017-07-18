@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaRelatedFilter : KalturaAssetFilter
+    public class KalturaRelatedFilter : KalturaBaseSearchAssetFilter
     {
         /// <summary>
         /// <![CDATA[

@@ -161,7 +161,7 @@ namespace WebAPI.Clients
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
-            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
+            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);            
 
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
@@ -203,9 +203,9 @@ namespace WebAPI.Clients
                 order = order,
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
-                domainId = domainId
-                // add SearchAggregationGroupBy searchGroupBy here by the filter
+                domainId = domainId                
             };
+
             if (groupBy != null && groupBy.Count > 0)
             {
                 request.searchGroupBy = new SearchAggregationGroupBy()
@@ -229,13 +229,14 @@ namespace WebAPI.Clients
                 throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
             }
             // check if aggragation result have values 
-            //if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0)
-            // build the assetsBaseDataList from the hit array 
-            //after call to new  CatalogUtils.GetAggregatedAssets(assetsBaseDataList, request, CacheDuration, managementData);
-            // complite the count property 
-            //
-            //else continue as it used to be 
-            if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+            if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 && 
+                searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0)
+            {
+                // build the assetsBaseDataList from the hit array 
+                result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, CacheDuration, managementData);
+                result.TotalCount = searchResponse.m_nTotalItems;
+            }
+            else if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
             {
                 // get base objects list
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();

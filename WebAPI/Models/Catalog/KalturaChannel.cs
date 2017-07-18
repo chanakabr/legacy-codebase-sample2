@@ -89,6 +89,20 @@ namespace WebAPI.Models.Catalog
             set;
         }
 
+        /// <summary>
+        /// Channel group by
+        /// </summary>
+        [DataMember(Name = "groupBy")]
+        [JsonProperty("groupBy")]
+        [XmlElement(ElementName = "groupBy")]
+        public KalturaAssetGroupBy GroupBy
+        {
+            get;
+            set;
+        }
+
+
+
         public int[] getAssetTypes()
         {
             if (AssetTypes == null && MediaTypes != null)

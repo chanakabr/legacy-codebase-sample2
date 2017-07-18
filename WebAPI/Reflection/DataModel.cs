@@ -2428,6 +2428,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBaseSearchAssetFilter":
+                    switch(property.Name)
+                    {
+                        case "GroupBy":
+                            return "groupBy";
+                    }
+                    break;
+                    
                 case "KalturaBillingPartnerConfig":
                     switch(property.Name)
                     {
@@ -2621,6 +2629,8 @@ namespace WebAPI.Reflection
                             return "description";
                         case "FilterExpression":
                             return "filterExpression";
+                        case "GroupBy":
+                            return "groupBy";
                         case "Images":
                             return "images";
                         case "IsActive":

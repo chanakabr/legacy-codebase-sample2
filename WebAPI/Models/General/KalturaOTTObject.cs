@@ -28,10 +28,8 @@ namespace WebAPI.Models.General
         [XmlElement(ElementName = "relatedObjects")]
         public SerializableDictionary<string, KalturaListResponse> relatedObjects
         {
-            get
-            {
-                return null;
-            }
+            get;
+            set;
         }
 
         public virtual void AfterRequestParsed(string service, string action, string language, int groupId, string userId, string deviceId, JObject json = null)

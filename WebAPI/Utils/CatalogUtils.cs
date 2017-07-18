@@ -20,6 +20,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using ApiObjects.SearchObjects;
 using ApiObjects;
+using Catalog.Response;
 
 namespace WebAPI.Utils
 {
@@ -598,5 +599,53 @@ namespace WebAPI.Utils
         //    }
         //    return result;
         //}
+
+        internal static List<KalturaAsset> GetAssets(List<AggregationResult> results, UnifiedSearchRequest request, int cacheDuration, bool managementData)
+        {
+            // get base objects list            
+
+
+            List<BaseObject> assetsBaseDataList = new List<BaseObject>();
+            foreach (AggregationResult aggregationResult in results)
+            {
+                if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
+                {
+                    assetsBaseDataList.Add(aggregationResult.topHits[0] as BaseObject);
+                }                
+            }         
+           
+            var assets = GetOrderedAssets(assetsBaseDataList, request, cacheDuration, managementData);
+
+            if (assets != null)
+            {
+                List<KalturaAsset> tempAssets = Mapper.Map<List<KalturaAsset>>(assets);
+
+                Dictionary<string, int> res = results.Where(x => x.topHits != null && x.topHits.Count > 0).ToDictionary(x => (x.topHits[0] as BaseObject).AssetId, x => x.count);
+                foreach (KeyValuePair<string, int> item in res)
+                {
+                    foreach (KalturaAsset asset in tempAssets)
+                    {
+                        if (asset.Id.HasValue && asset.Id.Value.ToString().Equals(item.Key))
+                        {
+
+                            asset.relatedObjects = new SerializableDictionary<string, KalturaListResponse>();
+                            KalturaIntegerValueListResponse kiv = new KalturaIntegerValueListResponse();
+                            kiv.Values = new List<KalturaIntegerValue>();
+                            kiv.Values.Add(new KalturaIntegerValue() { value = item.Value });
+                            asset.relatedObjects.Add(asset.GetType().Name, kiv);
+                            break;
+                        }
+                    }
+
+                }
+
+                return tempAssets;
+            }
+            else
+            {
+                return null;
+            }
+            return null;
+        }        
     }
 }

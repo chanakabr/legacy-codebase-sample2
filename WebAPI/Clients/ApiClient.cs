@@ -2547,9 +2547,7 @@ namespace WebAPI.Clients
         internal KalturaChannel InsertKSQLChannel(int groupId, KalturaChannel channel)
         {
             KSQLChannelResponse response = null;
-            KalturaChannel profile = null;
-
-            
+            KalturaChannel profile = null;            
 
             try
             {

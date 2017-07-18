@@ -192,7 +192,7 @@ namespace WebAPI.Controllers
                 {
                     KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                     response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
-                        regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy);
+                        regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy, regularAssetFilter.getGroupByValue());
                 }
                 //Return list of media assets that are related to a provided asset ID (of type VOD). 
                 //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 
@@ -934,7 +934,7 @@ namespace WebAPI.Controllers
         [Route("count"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaAssetCount Count(List<KalturaAssetGroupBy> groupBy, KalturaSearchAssetFilter filter = null)
+        public KalturaAssetCount Count(KalturaSearchAssetFilter filter = null)//List<KalturaAssetGroupBy> groupBy, 
         {
             KalturaAssetCount response = null;
 
@@ -955,13 +955,13 @@ namespace WebAPI.Controllers
 
             List<string> groupByValuesList = null;
 
-            if (groupBy == null)
+            if (filter.GroupBy == null)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
             }
             else
             {
-                groupByValuesList = groupBy.Select(group => group.GetValue()).ToList();
+                groupByValuesList = filter.GroupBy.Select(group => group.GetValue()).ToList();
 
                 if (groupByValuesList == null || groupByValuesList.Count == 0)
                 {

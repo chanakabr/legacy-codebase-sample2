@@ -307,6 +307,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.FilterExpression))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToInt32(src.IsActive)))
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertAssetOrderToOrderObj(src.Order)))
+                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ApiMappings.ConvertAssetGroupByToGroupBy(src.GroupBy)))
+
                ;
 
             Mapper.CreateMap<KSQLChannel, KalturaChannel>()
@@ -317,7 +319,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterQuery))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.IsActive)))
-               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderObjToAssetOrder(src.Order)))
+                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderObjToAssetOrder(src.Order)))
+               .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ApiMappings.ConvertGroupByToAssetGroupBy(src.GroupBy)))
                ;
 
             #endregion
@@ -507,6 +510,35 @@ namespace WebAPI.ObjectsConvertor.Mapping
               ;
 
             #endregion            
+        }
+
+        private static string ConvertAssetGroupByToGroupBy(KalturaAssetGroupBy groupBy)
+        {
+            if (groupBy == null)
+            {
+                return string.Empty;
+            }
+            return groupBy.GetValue();
+        }
+
+        private static KalturaAssetGroupBy ConvertGroupByToAssetGroupBy(string groupBy)
+        {
+            KalturaAssetGroupBy kalturaAssetGroupBy;
+
+            if (Enum.IsDefined(typeof(KalturaGroupByField), groupBy))
+            {
+                kalturaAssetGroupBy = new KalturaAssetFieldGroupBy();
+                KalturaGroupByField groupByField = (KalturaGroupByField)Enum.Parse(typeof(KalturaGroupByField), groupBy);
+
+                ((KalturaAssetFieldGroupBy)kalturaAssetGroupBy).Value = groupByField;
+       
+            }
+            else
+            {
+                kalturaAssetGroupBy = new KalturaAssetMetaOrTagGroupBy();
+                ((KalturaAssetMetaOrTagGroupBy)kalturaAssetGroupBy).Value = groupBy;                
+            }
+            return kalturaAssetGroupBy;
         }
 
         private static bool ConvertIsTag(KalturaMetaType kalturaMetaType)

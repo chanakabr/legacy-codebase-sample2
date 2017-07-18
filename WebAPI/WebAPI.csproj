@@ -279,6 +279,8 @@
     <Compile Include="Models\API\KalturaCurrency.cs" />
     <Compile Include="Models\API\KalturaCurrencyFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaBaseSearchAssetFilter.cs" />
+    <Compile Include="Models\General\KalturaIntegerValueListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySet.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySetFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetType.cs" />
