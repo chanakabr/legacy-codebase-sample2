@@ -53,21 +53,20 @@ namespace WebAPI.Controllers
                     if (subscriptionsIds != null && subscriptionsIds.Count > 0)
                     {
                         response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy);
-                        response.TotalCount = response.Subscriptions.Count;
                     }
                 }
                 else if (!string.IsNullOrEmpty(filter.SubscriptionIdIn))
                 {
                     // call client
                     response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, filter.getSubscriptionIdIn(), udid, language, filter.OrderBy);
-                    response.TotalCount = response.Subscriptions.Count;
                 }
                 else if (!string.IsNullOrEmpty(filter.ExternalIdIn))
                 {
                     // call client
                     response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsDataByProductCodes(groupId, filter.getExternalIdIn(), filter.OrderBy);
-                    response.TotalCount = response.Subscriptions.Count;
                 }
+
+                response.TotalCount = response.Subscriptions != null ? response.Subscriptions.Count : 0;
                 
             }
             catch (ClientException ex)

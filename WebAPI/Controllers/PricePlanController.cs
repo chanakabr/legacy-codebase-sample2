@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter request</param>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaPricePlanListResponse List(KalturaPricePlanFilter filter)
+        public KalturaPricePlanListResponse List(KalturaPricePlanFilter filter = null)
         {
             int groupId = KS.GetFromRequest().GroupId;
             
