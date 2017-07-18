@@ -602,5 +602,71 @@ namespace Core.Pricing
 
             return response;
         }
+
+         internal PriceCodesResponse GetPriceCodesDataByCountyAndCurrency(List<long> priceCodeIds, string currencyCode, string ip)
+        {
+            PriceCodesResponse response = new PriceCodesResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            // get prices with specific currency 
+            if (!string.IsNullOrEmpty(currencyCode) && !string.IsNullOrEmpty(ip))
+            {
+                string countryCode = !string.IsNullOrEmpty(ip) ? Core.ConditionalAccess.Utils.GetIP2CountryCode(m_nGroupID, ip) : string.Empty;
+                bool isValidCurrencyCode = false;
+                
+                if (!Core.ConditionalAccess.Utils.IsValidCurrencyCode(m_nGroupID, currencyCode))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidCurrency, "Invalid currency");
+                    return response;
+                }
+                isValidCurrencyCode = true;
+
+
+                if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || Core.ConditionalAccess.Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode)))
+                {
+                    if (priceCodeIds == null)
+                    {
+                        priceCodeIds = PricingDAL.GetGroupPriceCodeIds(m_nGroupID);
+                    }
+
+                    if (priceCodeIds != null && priceCodeIds.Count > 0)
+                    {
+                        response.PriceCodes = new List<PriceCode>();
+                        foreach (var priceCodeId in priceCodeIds)
+                        {
+                            PriceCode priceCode = null;
+                            string key = CachingProvider.LayeredCache.LayeredCacheKeys.GetPriceCodeByCountryAndCurrencyKey(m_nGroupID, (int)priceCodeId, countryCode, currencyCode);
+                            if (!CachingProvider.LayeredCache.LayeredCache.Instance.Get<PriceCode>(key, ref priceCode, Utils.GetPriceCodeByCountryAndCurrency, new Dictionary<string, object>() { { "groupId", m_nGroupID },
+                                                            { "priceCodeId", priceCodeId }, { "countryCode", countryCode }, { "currencyCode", currencyCode } },
+                                                               m_nGroupID, CachingProvider.LayeredCache.LayeredCacheConfigNames.PRICE_CODE_LOCALE_LAYERED_CACHE_CONFIG_NAME))
+                            {
+                                log.ErrorFormat("Failed getting PriceCode by countryCode and currencyCode from LayeredCache, priceCodeId: {0}, countryCode: {1},currencyCode: {2}, key: {3}",
+                                                priceCodeId, countryCode, currencyCode, key);
+                            }
+                            else
+                            {
+                                response.PriceCodes.Add(priceCode);
+                            }
+                        }
+
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                }
+            }
+            // get all currencies
+            else
+            {
+                DataSet priceCodes = PricingDAL.GetPriceCodes(m_nGroupID, priceCodeIds);
+
+                if (priceCodes != null)
+                {
+                    response.PriceCodes = Utils.BuildPriceCodesFromDataSet(priceCodes);
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            return response;
+        }
     }
 }

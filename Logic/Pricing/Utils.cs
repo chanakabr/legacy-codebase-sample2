@@ -1043,5 +1043,47 @@ namespace Core.Pricing
             }
             return null;
         }
+
+        internal static List<PriceCode> BuildPriceCodesFromDataSet(DataSet priceCodes)
+        {
+            List<PriceCode> response = null;
+
+            DataTable dt = null;
+            if (priceCodes != null && priceCodes.Tables != null && priceCodes.Tables.Count > 0)
+            {
+                if (priceCodes.Tables.Count == 2)
+                {
+                    dt = priceCodes.Tables[1].Rows != null && priceCodes.Tables[1].Rows.Count > 0 ? priceCodes.Tables[1] : null;
+                }
+                else
+                {
+                    dt = priceCodes.Tables[0].Rows != null && priceCodes.Tables[0].Rows.Count > 0 ? priceCodes.Tables[0] : null;
+                }
+            }
+            if (dt != null)
+            {
+                response = new List<PriceCode>();
+                int priceCodeId = 0, currencyId;
+                double price;
+                Price localePrice;
+                PriceCode priceCode;
+                string priceCodeName;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    currencyId = ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_CD");
+                    priceCodeName = ODBCWrapper.Utils.GetSafeStr(dr, "CODE");
+                    if (currencyId > 0 && !string.IsNullOrEmpty(priceCodeName))
+                    {
+                        price = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "PRICE");
+                        localePrice = new Price();
+                        localePrice.InitializeByCodeID(currencyId, price);
+                        priceCode = new PriceCode();
+                        priceCode.Initialize(priceCodeName, localePrice, TvinciPricing.GetPriceCodeDescription(priceCodeId), priceCodeId);
+                        response.Add(priceCode);
+                    }
+                }
+            }
+            return response;
+        }
     }
 }

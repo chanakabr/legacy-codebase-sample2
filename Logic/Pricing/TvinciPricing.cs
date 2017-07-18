@@ -12,6 +12,7 @@ using System.Data;
 using ApiObjects.Pricing;
 using System.Xml;
 using ApiObjects.IngestBusinessModules;
+using DAL;
 
 namespace Core.Pricing
 {
@@ -34,7 +35,7 @@ namespace Core.Pricing
         {
         }
 
-        static protected LanguageContainer[] GetPriceCodeDescription(Int32 nPriceCodeID)
+        static public LanguageContainer[] GetPriceCodeDescription(Int32 nPriceCodeID)
         {
             LanguageContainer[] theContainer = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -781,10 +782,10 @@ namespace Core.Pricing
 
                 int Id = 0;
                 string Message = string.Empty;
-                
+
                 if ((int)status.Code == (int)eResponseStatus.OK && priceCodeID == 0) // create new price code in DB
                 {
-                    string code = string.Format("{0}-{1}", ppv.PriceCode.Price, ppv.PriceCode.Currency);                    
+                    string code = string.Format("{0}-{1}", ppv.PriceCode.Price, ppv.PriceCode.Currency);
                     priceCodeID = DAL.PricingDAL.InsertPriceCode(m_nGroupID, currencyID, ppv.PriceCode.Price, code);
                     if (priceCodeID == 0)
                     {
@@ -862,7 +863,7 @@ namespace Core.Pricing
                 int previewModuleID = 0;
                 int internalDiscountID = 0;
                 string Message = string.Empty;
-                
+
                 Status status = ValidateMPP(mpp, eIngestAction.Insert, ref pricePlansCodes, ref channels, ref fileTypes, ref previewModuleID, ref internalDiscountID, ref groupCoupon, ref productCodeVerificationPGW);
                 int Id = 0;
                 if ((int)status.Code == (int)eResponseStatus.OK)
@@ -887,7 +888,7 @@ namespace Core.Pricing
                         XmlNode rootNode = xmlDocProductCodes.CreateElement("root");
                         xmlDocProductCodes.AppendChild(rootNode);
                         // insert it to XML   
-                        foreach (KeyValuePair<string,string> pc in mpp.productCodes)
+                        foreach (KeyValuePair<string, string> pc in mpp.productCodes)
                         {
                             Utils.BuildProductCodesXML(rootNode, xmlDocProductCodes, productCodeVerificationPGW, pc);
                         }
@@ -934,7 +935,7 @@ namespace Core.Pricing
                 if ((int)status.Code == (int)eResponseStatus.OK)
                 {
 
-                     // build xml with group coupons + dates 
+                    // build xml with group coupons + dates 
                     XmlDocument xmlDocCouponGroups = new XmlDocument();
                     if (mpp.couponGroups != null && mpp.couponGroups.Count > 0)
                     {
@@ -1146,7 +1147,7 @@ namespace Core.Pricing
         private Status ValidatePricePlan(IngestPricePlan pricePlan, eIngestAction action, ref int priceCodeID, ref int currencyID, ref int fullLifeCycleID, ref int viewLifeCycleID, ref int discountID)
         {
             Status status = new Status((int)eResponseStatus.Error, "unexpected error");
-            try 
+            try
             {
                 string errorMessage = string.Empty;
 
@@ -1157,9 +1158,9 @@ namespace Core.Pricing
                 }
 
                 status = new Status((int)eResponseStatus.Error, "unexpected error");
-                                
+
                 DataTable result = DAL.PricingDAL.ValidatePricePlan(m_nGroupID, pricePlan.Code, pricePlan.FullLifeCycle, pricePlan.ViewLifeCycle,
-                    pricePlan.PriceCode != null ? pricePlan.PriceCode.Currency: null, pricePlan.PriceCode != null ? pricePlan.PriceCode.Price: null, pricePlan.Discount);
+                    pricePlan.PriceCode != null ? pricePlan.PriceCode.Currency : null, pricePlan.PriceCode != null ? pricePlan.PriceCode.Price : null, pricePlan.Discount);
 
                 string tableName = string.Empty;
                 int id = 0;
@@ -1168,14 +1169,14 @@ namespace Core.Pricing
                     status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                     foreach (DataRow dr in result.Rows)
-                    {                                             
+                    {
                         errorMessage = string.Empty;
                         tableName = ODBCWrapper.Utils.GetSafeStr(dr, "tableName");
                         id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
-                            switch (tableName)
-                            {
-                                case "Code":
-                                    if (id == 0 && action != eIngestAction.Insert)
+                        switch (tableName)
+                        {
+                            case "Code":
+                                if (id == 0 && action != eIngestAction.Insert)
                                 {
                                     errorMessage = string.Format(INGEST_ERROR_NOT_EXISTS_FORMAT, "code", pricePlan.Code);
                                     status = new Status((int)eResponseStatus.CodeNotExist, errorMessage);
@@ -1185,67 +1186,67 @@ namespace Core.Pricing
                                     errorMessage = string.Format(INGEST_ERROR_ALREADY_EXISTS_FORMAT, "code", pricePlan.Code);
                                     status = new Status((int)eResponseStatus.CodeMustBeUnique, errorMessage);
                                 }
-                                    break;
-                                case "PriceCode":
-                                    if (pricePlan.PriceCode != null && pricePlan.PriceCode.Price != null)
-                                    {
-                                        priceCodeID = id;
-                                    }
-                                    break;
-                                case "Currency":
-                                    if (id == 0 && pricePlan.PriceCode != null && !string.IsNullOrEmpty(pricePlan.PriceCode.Currency))
-                                    {
-                                        errorMessage = string.Format(INGEST_ERROR_NOT_EXISTS_FORMAT, "currency", pricePlan.PriceCode.Currency);
-                                        status = new Status((int)eResponseStatus.InvalidCurrency, errorMessage);
-                                    }
-                                    if (pricePlan.PriceCode != null && pricePlan.PriceCode.Currency != null) // if Currency is null no need to insert value for currencyID
-                                    {
-                                        currencyID = id;
-                                    }
-                                    break;
-                                case "FullLifeCycle":
-                                    if (id == 0 && !string.IsNullOrEmpty(pricePlan.FullLifeCycle))
-                                    {
-                                        errorMessage = string.Format(INGEST_ERROR_NOT_EXISTS_FORMAT, "full_life_cycle", pricePlan.FullLifeCycle);
-                                        status = new Status((int)eResponseStatus.InvalidValue, errorMessage);
-                                    }
-                                    if (pricePlan.FullLifeCycle != null) // if FullLifeCycle is null no need to insert value for fullLifeCycleID
-                                    {
-                                        fullLifeCycleID = id;
-                                    }
-                                    break;
-                                case "ViewLifeCycle":
-                                    if (id == 0 && !string.IsNullOrEmpty(pricePlan.ViewLifeCycle))
-                                    {
-                                        errorMessage = string.Format(INGEST_ERROR_NOT_EXISTS_FORMAT, "view_life_cycle", pricePlan.ViewLifeCycle);
-                                        status = new Status((int)eResponseStatus.InvalidValue, errorMessage);
-                                    }
-                                    if (pricePlan.ViewLifeCycle != null) // if ViewLifeCycle is null no need to insert value for viewLifeCycleID
-                                    {
-                                        viewLifeCycleID = id;
-                                    }
-                                    break;
-                                case "Discount":
-                                    if (id == 0 && !string.IsNullOrEmpty(pricePlan.Discount))
-                                    {
-                                        errorMessage = string.Format(INGEST_ERROR_NOT_EXISTS_FORMAT, "discount", pricePlan.Discount);
-                                        status = new Status((int)eResponseStatus.InvalidDiscountCode, errorMessage);
-                                    }
-                                    if (pricePlan.Discount != null) // if discount is null no need to insert value for discountID
-                                    {
-                                        discountID = id;
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                            if ((int)status.Code != (int)eResponseStatus.OK)
-                            {
-                                return status;
-                            }
+                                break;
+                            case "PriceCode":
+                                if (pricePlan.PriceCode != null && pricePlan.PriceCode.Price != null)
+                                {
+                                    priceCodeID = id;
+                                }
+                                break;
+                            case "Currency":
+                                if (id == 0 && pricePlan.PriceCode != null && !string.IsNullOrEmpty(pricePlan.PriceCode.Currency))
+                                {
+                                    errorMessage = string.Format(INGEST_ERROR_NOT_EXISTS_FORMAT, "currency", pricePlan.PriceCode.Currency);
+                                    status = new Status((int)eResponseStatus.InvalidCurrency, errorMessage);
+                                }
+                                if (pricePlan.PriceCode != null && pricePlan.PriceCode.Currency != null) // if Currency is null no need to insert value for currencyID
+                                {
+                                    currencyID = id;
+                                }
+                                break;
+                            case "FullLifeCycle":
+                                if (id == 0 && !string.IsNullOrEmpty(pricePlan.FullLifeCycle))
+                                {
+                                    errorMessage = string.Format(INGEST_ERROR_NOT_EXISTS_FORMAT, "full_life_cycle", pricePlan.FullLifeCycle);
+                                    status = new Status((int)eResponseStatus.InvalidValue, errorMessage);
+                                }
+                                if (pricePlan.FullLifeCycle != null) // if FullLifeCycle is null no need to insert value for fullLifeCycleID
+                                {
+                                    fullLifeCycleID = id;
+                                }
+                                break;
+                            case "ViewLifeCycle":
+                                if (id == 0 && !string.IsNullOrEmpty(pricePlan.ViewLifeCycle))
+                                {
+                                    errorMessage = string.Format(INGEST_ERROR_NOT_EXISTS_FORMAT, "view_life_cycle", pricePlan.ViewLifeCycle);
+                                    status = new Status((int)eResponseStatus.InvalidValue, errorMessage);
+                                }
+                                if (pricePlan.ViewLifeCycle != null) // if ViewLifeCycle is null no need to insert value for viewLifeCycleID
+                                {
+                                    viewLifeCycleID = id;
+                                }
+                                break;
+                            case "Discount":
+                                if (id == 0 && !string.IsNullOrEmpty(pricePlan.Discount))
+                                {
+                                    errorMessage = string.Format(INGEST_ERROR_NOT_EXISTS_FORMAT, "discount", pricePlan.Discount);
+                                    status = new Status((int)eResponseStatus.InvalidDiscountCode, errorMessage);
+                                }
+                                if (pricePlan.Discount != null) // if discount is null no need to insert value for discountID
+                                {
+                                    discountID = id;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        if ((int)status.Code != (int)eResponseStatus.OK)
+                        {
+                            return status;
                         }
                     }
                 }
+            }
             catch (Exception ex)
             {
                 log.ErrorFormat("failed ex = {0}", ex.Message);
@@ -1286,11 +1287,11 @@ namespace Core.Pricing
                     return new Status((int)eResponseStatus.MandatoryField, string.Format(INGEST_ERROR_MANDATORY_FORMAT, "price_code price must be greater than 0"));
                 }
             }
-            if (pricePlan.PriceCode != null && pricePlan.PriceCode.Currency!= null && pricePlan.PriceCode.Currency.Count() != 3) //currency must have 3 characters 
+            if (pricePlan.PriceCode != null && pricePlan.PriceCode.Currency != null && pricePlan.PriceCode.Currency.Count() != 3) //currency must have 3 characters 
             {
                 return new ApiObjects.Response.Status((int)eResponseStatus.MandatoryField, string.Format(INGEST_ERROR_MANDATORY_FORMAT, "price_code currency must have 3 characters"));
             }
-            if (pricePlan.PriceCode != null && pricePlan.PriceCode.Price!= null &&  pricePlan.PriceCode.Price <= 0.0)
+            if (pricePlan.PriceCode != null && pricePlan.PriceCode.Price != null && pricePlan.PriceCode.Price <= 0.0)
             {
                 return new Status((int)eResponseStatus.MandatoryField, string.Format(INGEST_ERROR_MANDATORY_FORMAT, "price_code price must be greater than 0"));
             }
@@ -1322,15 +1323,15 @@ namespace Core.Pricing
                 if (mpp.couponGroups != null && mpp.couponGroups.Count > 0)
                 {
                     couponGroupCodes = mpp.couponGroups.Select(x => x.Code).ToList();
-                }   
+                }
                 List<string> verificationPGW = new List<string>();
                 if (mpp.productCodes != null && mpp.productCodes.Count > 0)
                 {
                     verificationPGW = mpp.productCodes.Select(x => x.Key).ToList();
-                }   
+                }
 
                 DataTable result = DAL.PricingDAL.ValidateMPP(m_nGroupID, mpp.Code, mpp.InternalDiscount, mpp.PricePlansCodes, mpp.Channels, mpp.FileTypes, mpp.PreviewModule, couponGroupCodes, verificationPGW);
-                
+
                 if (result != null && result.Rows != null)
                 {
                     status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -1391,16 +1392,16 @@ namespace Core.Pricing
                             return status;
                         }
                     }
-                                       
+
                     List<string> missingPricePlans = result.AsEnumerable()
                         .Where<DataRow>(r => r.Field<string>("tableName") == "PricePlan" && r.Field<long>("id") == 0)
-                         .Select(r => r.Field<string>("code")).ToList<string>();                    
+                         .Select(r => r.Field<string>("code")).ToList<string>();
                     if (missingPricePlans.Count() > 0)
-                    { 
+                    {
                         errorMessage = string.Format(INGEST_ERROR_NOT_EXIST_FORMAT, "price_plans", string.Join("', '", missingPricePlans));
                         return new Status((int)eResponseStatus.InvalidPricePlan, errorMessage);
                     }
-                    
+
                     DataRow[] drPricePlan = result.Select("tableName = 'PricePlan'");
                     foreach (DataRow dr in drPricePlan)
                     {
@@ -1422,9 +1423,9 @@ namespace Core.Pricing
                        .Where<DataRow>(r => r.Field<string>("tableName") == "Channels")
                         .Select(r => r.Field<long>("id")).ToList();
 
-                   List<string> missingFileTypes = result.AsEnumerable()
-                      .Where<DataRow>(r => r.Field<string>("tableName") == "FileTypes" && r.Field<long>("id") == 0)
-                       .Select(r => r.Field<string>("code")).ToList<string>();
+                    List<string> missingFileTypes = result.AsEnumerable()
+                       .Where<DataRow>(r => r.Field<string>("tableName") == "FileTypes" && r.Field<long>("id") == 0)
+                        .Select(r => r.Field<string>("code")).ToList<string>();
                     if (missingFileTypes.Count() > 0)
                     {
                         errorMessage = string.Format(INGEST_ERROR_NOT_EXIST_FORMAT, "file_types", string.Join("', '", missingFileTypes));
@@ -1445,7 +1446,7 @@ namespace Core.Pricing
                         return new Status((int)eResponseStatus.InvalidFileTypes, errorMessage);
                     }
                     groupCoupon = result.AsEnumerable()
-                       .Where<DataRow>(r => r.Field<string>("tableName") == "CouponGroups").ToDictionary(x=> x.Field<long>("id"), x=>x.Field<string>("code"));
+                       .Where<DataRow>(r => r.Field<string>("tableName") == "CouponGroups").ToDictionary(x => x.Field<long>("id"), x => x.Field<string>("code"));
 
                     List<string> missingVerificationPGW = result.AsEnumerable()
                        .Where<DataRow>(r => r.Field<string>("tableName") == "ProductCodes" && r.Field<long>("id") == 0)
@@ -1591,7 +1592,7 @@ namespace Core.Pricing
                                 }
                                 break;
                             case "Currency":
-                                if (id == 0 && ppv.PriceCode!= null && !string.IsNullOrEmpty(ppv.PriceCode.Currency))
+                                if (id == 0 && ppv.PriceCode != null && !string.IsNullOrEmpty(ppv.PriceCode.Currency))
                                 {
                                     errorMessage = string.Format(INGEST_ERROR_NOT_EXISTS_FORMAT, "currency", ppv.PriceCode.Currency);
                                     status = new Status((int)eResponseStatus.InvalidCurrency, errorMessage);
@@ -1628,7 +1629,7 @@ namespace Core.Pricing
                         .Select(r => r.Field<string>("code")).ToList();
                     if (missingFileTypes.Count > 0)
                     {
-                        errorMessage = string.Format(INGEST_ERROR_NOT_EXIST_FORMAT, "file_types" , string.Join("', '", missingFileTypes));
+                        errorMessage = string.Format(INGEST_ERROR_NOT_EXIST_FORMAT, "file_types", string.Join("', '", missingFileTypes));
                         return new Status((int)eResponseStatus.InvalidFileTypes, errorMessage);
                     }
 
@@ -1673,7 +1674,7 @@ namespace Core.Pricing
                 return new ApiObjects.Response.Status((int)eResponseStatus.MandatoryField, string.Format(INGEST_ERROR_MANDATORY_FORMAT, "price_code currency must have 3 characters"));
             }
 
-            if (ppv.PriceCode != null &&  ppv.PriceCode.Price!= null && ppv.PriceCode.Price <= 0.0)
+            if (ppv.PriceCode != null && ppv.PriceCode.Price != null && ppv.PriceCode.Price <= 0.0)
             {
                 return new Status((int)eResponseStatus.MandatoryField, string.Format(INGEST_ERROR_MANDATORY_FORMAT, "price_code price must be greater than 0"));
             }
@@ -1682,7 +1683,7 @@ namespace Core.Pricing
             {
                 return new Status((int)eResponseStatus.MandatoryField, string.Format(INGEST_ERROR_MANDATORY_FORMAT, "price_code must have all members"));
             }
-           
+
             // go over the list remove empty values
             if (ppv.FileTypes != null && ppv.FileTypes.Count > 0)
             {
@@ -1691,7 +1692,7 @@ namespace Core.Pricing
             if (ppv.Descriptions != null && ppv.Descriptions.Count > 0)
             {
                 ppv.Descriptions.RemoveAll(item => string.IsNullOrEmpty(item.key) || string.IsNullOrEmpty(item.value));
-            }          
+            }
             return status;
         }
 
@@ -1713,7 +1714,7 @@ namespace Core.Pricing
                 }
                 return isUniqe;
             }
-            catch 
+            catch
             {
                 return false;
             }

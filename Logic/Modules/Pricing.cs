@@ -1527,5 +1527,19 @@ namespace Core.Pricing
 
             return response;
         }
+
+        public static PriceCodesResponse GetPriceCodesDataByCountyAndCurrency(int groupId, List<long> priceCodeIds, string currencyCode, string ip)
+        {
+            BaseSubscription t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                return t.GetPriceCodesDataByCountyAndCurrency(priceCodeIds, currencyCode, ip);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }
