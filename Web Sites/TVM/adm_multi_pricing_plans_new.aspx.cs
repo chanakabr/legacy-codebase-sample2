@@ -1438,7 +1438,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
 
 
         DataRecordShortTextField dr_Product_Code = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_Product_Code.Initialize("Product Code", "adm_table_header_nbg", "FormInput", "Product_Code", false);
+        dr_Product_Code.Initialize("External ID", "adm_table_header_nbg", "FormInput", "Product_Code", false);
         theRecord.AddRecord(dr_Product_Code);
 
 
