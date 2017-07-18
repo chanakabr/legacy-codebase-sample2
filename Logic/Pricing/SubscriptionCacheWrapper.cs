@@ -119,7 +119,7 @@ namespace Core.Pricing
         {
             SubscriptionsResponse response = new SubscriptionsResponse()
             {
-                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
             if (productCodes != null && productCodes.Count > 0)
@@ -187,8 +187,6 @@ namespace Core.Pricing
                             response.Subscriptions = subscriptionsMapping.Values.ToArray();
                             break;
                     }
-                    
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
 

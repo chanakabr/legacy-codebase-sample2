@@ -33,11 +33,4 @@ namespace Core.Pricing
             return String.Concat("PriceCode: ", m_sCode);
         }
     }
-
-    public class PriceCodesResponse
-    {
-        public List<PriceCode> PriceCodes { get; set; }
-
-        public ApiObjects.Response.Status Status { get; set; }
-    }
 }

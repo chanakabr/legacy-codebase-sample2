@@ -1044,46 +1044,40 @@ namespace Core.Pricing
             return null;
         }
 
-        internal static List<PriceCode> BuildPriceCodesFromDataSet(DataSet priceCodes)
+        internal static List<PriceDetails> BuildPriceCodesFromDataTable(DataTable priceCodes)
         {
-            List<PriceCode> response = null;
+            Dictionary<long, PriceDetails> priceDetailsMap = new Dictionary<long, PriceDetails>();
+            
+            if (priceCodes != null && priceCodes.Rows != null && priceCodes.Rows.Count > 0)
+            {
+                foreach (DataRow dr in priceCodes.Rows)
+                {
+                    long id  = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
 
-            DataTable dt = null;
-            if (priceCodes != null && priceCodes.Tables != null && priceCodes.Tables.Count > 0)
-            {
-                if (priceCodes.Tables.Count == 2)
-                {
-                    dt = priceCodes.Tables[1].Rows != null && priceCodes.Tables[1].Rows.Count > 0 ? priceCodes.Tables[1] : null;
-                }
-                else
-                {
-                    dt = priceCodes.Tables[0].Rows != null && priceCodes.Tables[0].Rows.Count > 0 ? priceCodes.Tables[0] : null;
-                }
-            }
-            if (dt != null)
-            {
-                response = new List<PriceCode>();
-                int priceCodeId = 0, currencyId;
-                double price;
-                Price localePrice;
-                PriceCode priceCode;
-                string priceCodeName;
-                foreach (DataRow dr in dt.Rows)
-                {
-                    currencyId = ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_CD");
-                    priceCodeName = ODBCWrapper.Utils.GetSafeStr(dr, "CODE");
-                    if (currencyId > 0 && !string.IsNullOrEmpty(priceCodeName))
+                    if (!priceDetailsMap.ContainsKey(id))
                     {
-                        price = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "PRICE");
-                        localePrice = new Price();
-                        localePrice.InitializeByCodeID(currencyId, price);
-                        priceCode = new PriceCode();
-                        priceCode.Initialize(priceCodeName, localePrice, TvinciPricing.GetPriceCodeDescription(priceCodeId), priceCodeId);
-                        response.Add(priceCode);
+                        PriceDetails pd = new PriceDetails()
+                        {
+                            Id = id,
+                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "code"),
+                            Prices = new List<Price>()
+                        };
+                        priceDetailsMap.Add(id, pd);
                     }
+                    Price price = new Price()
+                    {
+                        countryId = ODBCWrapper.Utils.GetIntSafeVal(dr, "country_id"),
+                        m_dPrice = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "price"),
+                        m_oCurrency = new Currency()
+                    };
+
+                    price.m_oCurrency.InitializeById(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_CD"));
+
+                    priceDetailsMap[id].Prices.Add(price);
+
                 }
             }
-            return response;
+            return priceDetailsMap != null ? priceDetailsMap.Values.ToList() : null;
         }
     }
 }

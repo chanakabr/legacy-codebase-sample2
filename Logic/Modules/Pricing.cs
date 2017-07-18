@@ -1501,8 +1501,8 @@ namespace Core.Pricing
                 Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
-            BaseSubscription t = null;
-            Utils.GetBaseImpl(ref t, groupId);
+            BasePricing t = null;
+            t = Utils.GetBasePricing(groupId, "GetPricePlans");
             if (t != null)
             {
                 response = t.GetPricePlans(pricePlanIds);
@@ -1518,8 +1518,8 @@ namespace Core.Pricing
                 Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
-            BaseSubscription t = null;
-            Utils.GetBaseImpl(ref t, groupId);
+            BasePricing t = null;
+            t = Utils.GetBasePricing(groupId, "UpdatePricePlan");
             if (t != null)
             {
                 response = t.UpdatePricePlan(usageModule);
@@ -1528,18 +1528,21 @@ namespace Core.Pricing
             return response;
         }
 
-        public static PriceCodesResponse GetPriceCodesDataByCountyAndCurrency(int groupId, List<long> priceCodeIds, string currencyCode, string ip)
+        public static PriceDetailsResponse GetPriceCodesDataByCountyAndCurrency(int groupId, List<long> priceCodeIds, string currencyCode)
         {
-            BaseSubscription t = null;
-            Utils.GetBaseImpl(ref t, groupId);
+            PriceDetailsResponse response = new PriceDetailsResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            BasePricing t = null;
+            t = Utils.GetBasePricing(groupId, "GetPriceCodesDataByCountyAndCurrency");
             if (t != null)
             {
-                return t.GetPriceCodesDataByCountyAndCurrency(priceCodeIds, currencyCode, ip);
+                return t.GetPriceCodesDataByCurrency(priceCodeIds, currencyCode);
             }
-            else
-            {
-                return null;
-            }
+
+            return response;
         }
     }
 }

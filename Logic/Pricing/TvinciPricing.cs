@@ -1732,5 +1732,105 @@ namespace Core.Pricing
                 return GenerateUniqueAlias(groupID, "price_codes", ref alias);
             }
         }
+
+        public override UsageModulesResponse GetPricePlans(List<long> pricePlanIds)
+        {
+            UsageModulesResponse response = new UsageModulesResponse()
+            {
+                Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+            };
+
+            DataTable usageModules = PricingDAL.GetPricePlans(m_nGroupID, pricePlanIds);
+
+            if (usageModules != null && usageModules.Rows != null && usageModules.Rows.Count > 0)
+            {
+                response.UsageModules = Utils.BuildUsageModulesFromDataTable(usageModules);
+            }
+
+            return response;
+        }
+
+        public override UsageModulesResponse UpdatePricePlan(UsageModule usageModule)
+        {
+            UsageModulesResponse response = new UsageModulesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            DataTable usageModules = PricingDAL.GetPricePlans(m_nGroupID, new List<long>() { usageModule.m_nObjectID });
+
+            if (usageModules != null)
+            {
+                if (usageModules.Rows == null || usageModules.Rows.Count == 0)
+                {
+                    response.Status = new Status((int)eResponseStatus.PricePlanDoesNotExist, "Price plan does not exist");
+                    return response;
+                }
+
+                response.UsageModules = Utils.BuildUsageModulesFromDataTable(usageModules);
+
+                if (response.UsageModules != null && response.UsageModules.Count > 0)
+                {
+                    // update only price code ID
+                    if (PricingDAL.UpdatePricePlan(m_nGroupID, usageModule.m_nObjectID, usageModule.m_pricing_id))
+                    {
+                        response.UsageModules[0].m_pricing_id = usageModule.m_pricing_id;
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                }
+            }
+
+            return response;
+        }
+
+        public override PriceDetailsResponse GetPriceCodesDataByCurrency(List<long> priceCodeIds, string currencyCode)
+        {
+            PriceDetailsResponse response = new PriceDetailsResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            // get prices with specific currency 
+
+            if (!string.IsNullOrEmpty(currencyCode))
+            {
+                if (!Core.ConditionalAccess.Utils.IsValidCurrencyCode(m_nGroupID, currencyCode))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidCurrency, "Invalid currency");
+                    return response;
+                }
+            }
+
+            if (string.IsNullOrEmpty(currencyCode) && !Core.ConditionalAccess.Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
+            {
+                return response;
+            }
+
+            DataTable priceCodesDt = PricingDAL.GetPriceCodes(m_nGroupID);
+            var priceCodes = Utils.BuildPriceCodesFromDataTable(priceCodesDt);
+
+            if (priceCodesDt != null && !currencyCode.Trim().Equals("*"))
+            {
+                // filter by currency 
+                if (response.PriceCodes != null)
+                {
+                    foreach (var pc in response.PriceCodes)
+                    {
+                        // filter by IDs
+                        if (priceCodeIds != null && priceCodeIds.Count > 0 && !priceCodeIds.Contains(pc.Id))
+                            continue;
+
+                        pc.Prices = pc.Prices != null ? pc.Prices.Where(p => p.m_oCurrency.m_sCurrencyCD3 == currencyCode).ToList() : null;
+                        response.PriceCodes.Add(pc);
+
+                    }
+
+                    response.PriceCodes.OrderBy(pc => pc.Name);
+                }
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            }
+            return response;
+        }
     }
 }
