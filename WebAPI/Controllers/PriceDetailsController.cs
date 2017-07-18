@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -25,9 +26,11 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.InvalidCurrency)]
         public KalturaPriceDetailsListResponse List(KalturaPriceDetailsFilter filter = null)
         {
             int groupId = KS.GetFromRequest().GroupId;
+            string currency = Utils.Utils.GetCurrencyFromRequest();
             List<KalturaPriceDetails> prices = null;
 
             try
@@ -38,7 +41,10 @@ namespace WebAPI.Controllers
                     priceIds = filter.GetIdIn();
                 }
 
-                prices = ClientsManager.PricingClient().GetPrices(groupId, priceIds);
+                if (!string.IsNullOrEmpty(currency) && currency == "*")
+                {
+                    prices = ClientsManager.PricingClient().GetPrices(groupId, filter.GetIdIn(), currency);
+                }
             }
             catch (ClientException ex)
             {

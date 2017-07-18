@@ -197,8 +197,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "pricePlanIds")]
         [JsonProperty("pricePlanIds")]
-        [XmlElement(ElementName = "pricePlanIds")]
-        [Deprecated("4.5.0.0")]
+        [XmlArray(ElementName = "pricePlanIds", IsNullable = true)]
+        [XmlArrayItem("item")]
         public string PricePlanIds { get; set; }
 
         /// <summary>

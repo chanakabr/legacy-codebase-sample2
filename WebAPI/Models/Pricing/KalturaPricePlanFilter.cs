@@ -18,7 +18,8 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "idIn")]
         [JsonProperty("idIn")]
-        [XmlElement(ElementName = "idIn")]   
+        [XmlElement(ElementName = "idIn")]
+        [SchemeProperty(DynamicMinInt = 1)]
         public string IdIn { get; set; }
                 
         internal List<long> GetIdIn()

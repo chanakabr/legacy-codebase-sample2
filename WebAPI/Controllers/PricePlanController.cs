@@ -16,6 +16,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;
+using ApiObjects.Response;
 
 namespace WebAPI.Controllers
 {
@@ -33,7 +34,6 @@ namespace WebAPI.Controllers
         public KalturaPricePlanListResponse List(KalturaPricePlanFilter filter)
         {
             int groupId = KS.GetFromRequest().GroupId;
-            string language = Utils.Utils.GetLanguageFromRequest(); // TODO: do we need language here?
             
             List<KalturaPricePlan> pricePlans = null;
 
@@ -62,6 +62,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Price plan ID</param>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.PricePlanDoesNotExist)]
         public KalturaPricePlan Update(long id, KalturaPricePlan pricePlan)
         {
             int groupId = KS.GetFromRequest().GroupId;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -48,6 +49,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "countryId")]
         [JsonProperty("countryId")]
         [XmlElement(ElementName = "countryId")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
         public long CountryId { get; set; }
     }
 }

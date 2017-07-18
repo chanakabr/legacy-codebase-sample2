@@ -8577,7 +8577,7 @@
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.SubscriptionIdIn">
             <summary>
-            Comma separated subscription identifiers or file identifier (only 1) to get the subscriptions by
+            Comma separated subscription identifiers to get the subscriptions by
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.MediaFileIdEqual">

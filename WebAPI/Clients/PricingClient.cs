@@ -631,9 +631,37 @@ namespace WebAPI.Clients
             return subscriptionSet;
         }
 
-        internal List<KalturaPriceDetails> GetPrices(int groupId, List<long> priceIds)
+        internal List<KalturaPriceDetails> GetPrices(int groupId, List<long> priceIds, string currency, string ip = null)
         {
-            throw new NotImplementedException();
+            PriceCodesResponse response = null;
+            List<KalturaPriceDetails> prices = new List<KalturaPriceDetails>();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetPriceCodesDataByCountyAndCurrency(groupId, priceIds, currency, ip);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            prices = AutoMapper.Mapper.Map<List<KalturaPriceDetails>>(response.PriceCodes);
+
+            return prices;
         }
 
         internal List<KalturaPricePlan> GetPricePlans(int groupId, List<long> pricePlanIds)

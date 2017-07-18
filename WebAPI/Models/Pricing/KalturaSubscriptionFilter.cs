@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 
@@ -20,11 +21,12 @@ namespace WebAPI.Models.Pricing
     public class KalturaSubscriptionFilter : KalturaFilter<KalturaSubscriptionOrderBy>
     {
         /// <summary>
-        /// Comma separated subscription identifiers or file identifier (only 1) to get the subscriptions by
+        /// Comma separated subscription identifiers to get the subscriptions by
         /// </summary>
         [DataMember(Name = "subscriptionIdIn")]
         [JsonProperty("subscriptionIdIn")]
         [XmlElement(ElementName = "subscriptionIdIn", IsNullable = true)]
+        [SchemeProperty(DynamicMinInt = 1)]
         public string SubscriptionIdIn { get; set; }
 
         /// <summary>
