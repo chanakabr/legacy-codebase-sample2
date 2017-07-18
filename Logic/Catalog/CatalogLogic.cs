@@ -108,6 +108,13 @@ namespace Core.Catalog
                         "epg_id",
 		            };
 
+        private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
+        {
+            "media_type_id",
+            "name",
+            "crid"
+        };
+
         private static int maxNGram = -1;
 
         internal static int GetCurrentRequestDaysOffset()
@@ -7086,7 +7093,7 @@ namespace Core.Catalog
         }
 
         public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
-        {
+        {           
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
             #region Basic
@@ -7223,6 +7230,87 @@ namespace Core.Catalog
                     //return error - meta not erxsits
                     log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, searcherOrderObj.m_sOrderValue);
                     throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, searcherOrderObj.m_sOrderValue));
+                }
+
+                #endregion
+
+                #region Group By
+
+                if (channel.searchGroupBy != null && channel.searchGroupBy.groupBy != null && channel.searchGroupBy.groupBy.Count > 0)
+                {
+                    HashSet<string> allMetas = new HashSet<string>();
+                    HashSet<string> allTags = new HashSet<string>();
+
+                    foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
+                    {
+                        foreach (var meta in metasInGroup)
+                        {
+                            allMetas.Add(meta.Value.ToLower());
+                        }
+                    }
+
+                    foreach (var tagInGroup in group.m_oGroupTags.Values)
+                    {
+                        allTags.Add(tagInGroup.ToLower());
+                    }
+
+                    foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                    {
+                        allMetas.Add(meta);
+                    }
+
+                    foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+                    {
+                        allTags.Add(tag);
+                    }
+
+                    definitions.groupBy = new List<KeyValuePair<string, string>>();
+
+                    foreach (var groupBy in channel.searchGroupBy.groupBy)
+                    {
+                        string lowered = groupBy.ToLower();
+                        string requestGroupBy = lowered;
+                        bool valid = false;
+
+                        if (allMetas.Contains(lowered))
+                        {
+                            valid = true;
+                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
+                        }
+                        else if (allTags.Contains(lowered))
+                        {
+                            valid = true;
+                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
+                        }
+                        else if (reservedGroupByFields.Contains(lowered))
+                        {
+                            valid = true;
+                        }
+
+                        if (!valid)
+                        {
+                            throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy), (int)eResponseStatus.BadSearchRequest);
+                        }
+                        else
+                        {
+                            // Transform the list of group bys to metas/tags list
+                            definitions.groupBy.Add(new KeyValuePair<string, string>(groupBy, requestGroupBy));
+                        }
+                    }
+
+                    definitions.groupByOrder = channel.searchGroupBy.groupByOrder;
+
+                    definitions.topHitsCount = channel.searchGroupBy.topHitsCount;
+
+                    // Validate that we have a distinct group and that it is one of the fields listed in "group by"
+                    if (!string.IsNullOrEmpty(channel.searchGroupBy.distinctGroup) && channel.searchGroupBy.groupBy.Contains(channel.searchGroupBy.distinctGroup))
+                    {
+                        definitions.distinctGroup = channel.searchGroupBy.distinctGroup;
+                    }
+                    else if (string.IsNullOrEmpty(channel.searchGroupBy.distinctGroup)) // channel not contain definition for distinct ==> as default insert first groupBy in the list
+                    {
+                        definitions.distinctGroup = channel.searchGroupBy.groupBy[0];
+                    }
                 }
 
                 #endregion

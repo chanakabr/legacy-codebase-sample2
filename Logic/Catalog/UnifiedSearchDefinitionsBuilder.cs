@@ -20,7 +20,8 @@ namespace Core.Catalog
         private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
         {
             "media_type_id",
-            "name",
+            "name"
+            // ,"crid"
         };
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -320,7 +321,7 @@ namespace Core.Catalog
 
                 #region Group By
 
-                if (request.groupBy != null && request.groupBy.Count > 0)
+                if (request.searchGroupBy != null && request.searchGroupBy.groupBy != null && request.searchGroupBy.groupBy.Count > 0)
                 {
                     HashSet<string> allMetas = new HashSet<string>();
                     HashSet<string> allTags = new HashSet<string>();
@@ -350,7 +351,7 @@ namespace Core.Catalog
 
                     definitions.groupBy = new List<KeyValuePair<string, string>>();
 
-                    foreach (var groupBy in request.groupBy)
+                    foreach (var groupBy in request.searchGroupBy.groupBy)
                     {
                         string lowered = groupBy.ToLower();
                         string requestGroupBy = lowered;
@@ -381,15 +382,15 @@ namespace Core.Catalog
                             definitions.groupBy.Add(new KeyValuePair<string, string>(groupBy, requestGroupBy));
                         }
                     }
-                    
-                    definitions.groupByOrder = request.groupByOrder;
 
-                    definitions.topHitsCount = request.topHitsCount;
+                    definitions.groupByOrder = request.searchGroupBy.groupByOrder;
+
+                    definitions.topHitsCount = request.searchGroupBy.topHitsCount;
 
                     // Validate that we have a distinct group and that it is one of the fields listed in "group by"
-                    if (!string.IsNullOrEmpty(request.distinctGroup) && request.groupBy.Contains(request.distinctGroup))
+                    if (!string.IsNullOrEmpty(request.searchGroupBy.distinctGroup) && request.searchGroupBy.groupBy.Contains(request.searchGroupBy.distinctGroup))
                     {
-                        definitions.distinctGroup = request.distinctGroup;
+                        definitions.distinctGroup = request.searchGroupBy.distinctGroup;
                     }
                 }
 

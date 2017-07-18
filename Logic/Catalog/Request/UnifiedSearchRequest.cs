@@ -83,16 +83,7 @@ namespace Core.Catalog.Request
         public bool hasPredefinedRecordings;
 
         [DataMember]
-        public List<string> groupBy;
-
-        [DataMember]
-        public AggregationOrder? groupByOrder;
-
-        [DataMember]
-        public int topHitsCount;
-
-        [DataMember]
-        public string distinctGroup;
+        public SearchAggregationGroupBy searchGroupBy;
 
         #endregion
 
@@ -240,6 +231,12 @@ namespace Core.Catalog.Request
 
                 ESAggregationsResult aggregationsResult;
 
+                //request.searchGroupBy = new SearchAggregationGroupBy();
+                //request.searchGroupBy.distinctGroup = "season_num";
+                //request.searchGroupBy.groupBy = new List<string>();
+                //request.searchGroupBy.groupBy.Add("season_num");
+
+
                 List<UnifiedSearchResult> assetsResults = CatalogLogic.GetAssetIdFromSearcher(request, ref totalItems, ref to, out aggregationsResult);
 
                 response.m_nTotalItems = totalItems;
@@ -336,7 +333,7 @@ namespace Core.Catalog.Request
 
         private AggregationsResult ConvertAggregationsResponse(ESAggregationsResult aggregationsResult)
         {
-            string currentGroupBy = this.groupBy[0];
+            string currentGroupBy = this.searchGroupBy.groupBy[0];
 
             var esAggregation = aggregationsResult.Aggregations[currentGroupBy];
 
@@ -353,13 +350,13 @@ namespace Core.Catalog.Request
                     value = bucket.key,
                     count = bucket.doc_count,
                 };
-                
+
                 // go for sub aggregations, if there are
-                if (this.groupBy.Count > 1)
+                if (this.searchGroupBy.groupBy.Count > 1)
                 {
                     bucketResult.subs = new List<AggregationsResult>();
 
-                    string nextGroupBy = this.groupBy[1];
+                    string nextGroupBy = this.searchGroupBy.groupBy[1];
 
                     var sub = ConvertAggregationsResponse(bucket.Aggregations[nextGroupBy], 1);
 
@@ -372,7 +369,7 @@ namespace Core.Catalog.Request
                 if (bucket.Aggregations != null && bucket.Aggregations.ContainsKey("top_hits_assets"))
                 {
                     var topHitsAggregation = bucket.Aggregations["top_hits_assets"];
-                    
+
                     if (topHitsAggregation.hits != null && topHitsAggregation.hits.hits != null)
                     {
                         bucketResult.topHits = new List<UnifiedSearchResult>();
@@ -391,7 +388,6 @@ namespace Core.Catalog.Request
 
                 result.results.Add(bucketResult);
             }
-
             return result;
         }
 
@@ -404,16 +400,16 @@ namespace Core.Catalog.Request
         private AggregationsResult ConvertAggregationsResponse(ESAggregationResult aggregationsResult, int groupByIndex)
         {
             // validate parameter
-            if (groupByIndex > this.groupBy.Count)
+            if (groupByIndex > this.searchGroupBy.groupBy.Count)
             {
                 return null;
             }
 
-            string currentGroupBy = this.groupBy[groupByIndex];
+            string currentGroupBy = this.searchGroupBy.groupBy[groupByIndex];
 
             var result = new AggregationsResult()
             {
-                field = this.groupBy[groupByIndex],
+                field = this.searchGroupBy.groupBy[groupByIndex],
                 results = new List<AggregationResult>()
             };
 
@@ -426,9 +422,9 @@ namespace Core.Catalog.Request
                 };
 
                 // go for sub aggregations
-                if (this.groupBy.Count > groupByIndex + 1)
+                if (this.searchGroupBy.groupBy.Count > groupByIndex + 1)
                 {
-                    string nextGroupBy = this.groupBy[groupByIndex + 1];
+                    string nextGroupBy = this.searchGroupBy.groupBy[groupByIndex + 1];
 
                     var sub = ConvertAggregationsResponse(bucket.Aggregations[nextGroupBy], 1);
 

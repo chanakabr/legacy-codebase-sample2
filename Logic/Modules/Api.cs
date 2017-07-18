@@ -1456,8 +1456,7 @@ namespace Core.Api
         }
 
         #region KSQL Channel
-        public static KSQLChannelResponse
-            InsertKSQLChannel(int groupId, KSQLChannel channel)
+        public static KSQLChannelResponse InsertKSQLChannel(int groupId, KSQLChannel channel)
         {
             return APILogic.CRUD.KSQLChannelsManager.Insert(groupId, channel);
         }

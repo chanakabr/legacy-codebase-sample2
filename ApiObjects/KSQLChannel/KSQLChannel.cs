@@ -95,6 +95,16 @@ namespace ApiObjects
             set;
         }
 
+        /// <summary>
+        /// GroupBy - for KSQL channels
+        /// </summary>
+        [DataMember]
+        public string GroupBy
+        {
+            get;
+            set;
+        }
+
         #endregion
     }
 }
