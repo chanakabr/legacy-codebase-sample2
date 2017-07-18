@@ -1524,6 +1524,7 @@ namespace DAL
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
             sp.AddIDListParameter("@usageModulesIds", pricePlanIds, "ID");
+            sp.AddParameter("@shouldGetAll", pricePlanIds == null || pricePlanIds.Count == 0 ? 1 : 0);
             return sp.Execute();
         }
 
@@ -1535,6 +1536,36 @@ namespace DAL
             sp.AddParameter("@usageModuleId", usageModuleId);
             sp.AddParameter("@priceCode", priceCode);
             return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataSet GetPriceCodes(int groupId, List<long> priceCodeIds)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPriceCodes");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter("@priceCodeIds", priceCodeIds, "ID");
+            sp.AddParameter("@shouldGetAll", priceCodeIds == null || priceCodeIds.Count == 0 ? 1 : 0);
+            return sp.ExecuteDataSet();
+        }
+
+        public static List<long> GetGroupPriceCodeIds(int groupId)
+        {
+            List<long> response = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupPriceCodeIds");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            DataTable dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                response = new List<long>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    response.Add(ODBCWrapper.Utils.GetLongSafeVal(dr, "id"));
+                }
+            }
+
+            return response;
         }
     }
 }
