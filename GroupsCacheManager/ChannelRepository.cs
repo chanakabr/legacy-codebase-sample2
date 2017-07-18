@@ -533,6 +533,10 @@ namespace GroupsCacheManager
                     case ChannelType.KSQL:
                         {
                             channel.filterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_FILTER");
+                            channel.searchGroupBy = new SearchAggregationGroupBy()
+                            {
+                                groupBy = new List<string>() { ODBCWrapper.Utils.ExtractString(rowData, "GROUP_BY") }
+                            };
 
                             BooleanPhraseNode node = null;
                             var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref node);

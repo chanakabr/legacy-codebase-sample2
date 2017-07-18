@@ -321,6 +321,7 @@ namespace ElasticSearch.Searcher
                             Name = groupBy.Key,
                             Size = size,
                             Type = eElasticAggregationType.terms,
+                            
                             Order = aggregationsOrder,
                             OrderDirection = aggregationsOrderDirection
                         };
@@ -345,7 +346,8 @@ namespace ElasticSearch.Searcher
                                     Sort = new OrderObj()
                                     {
                                         m_eOrderDir = this.SearchDefinitions.order.m_eOrderDir,
-                                        m_eOrderBy = this.SearchDefinitions.order.m_eOrderBy
+                                        m_eOrderBy = this.SearchDefinitions.order.m_eOrderBy,
+                                        m_sOrderValue = this.SearchDefinitions.order.m_sOrderValue
                                     },
                                     SourceIncludes = this.ReturnFields,
                                 }
@@ -353,8 +355,7 @@ namespace ElasticSearch.Searcher
 
                             string distinctOrder;
                             string distinctOrderDirection;
-
-                            GetAggregationsOrder(this.SearchDefinitions.order,
+                          GetAggregationsOrder(this.SearchDefinitions.order,
                                 out distinctOrder, out distinctOrderDirection, out orderAggregation);
 
                             if (orderAggregation != null)
@@ -411,7 +412,7 @@ namespace ElasticSearch.Searcher
             filteredQueryBuilder.Append(filterPart.ToString());
             filteredQueryBuilder.Append(" } } }");
             fullQuery = filteredQueryBuilder.ToString();
-
+           
             return fullQuery;
         }
 
@@ -2384,7 +2385,10 @@ namespace ElasticSearch.Searcher
                     break;
                 }
                 case OrderBy.META:
-                break;
+                {
+                    field = string.Format("metas.{0}", orderObj.m_sOrderValue.ToLower());
+                    break;
+                }
                 case OrderBy.RANDOM:
                 break;
                 case OrderBy.RELATED:
