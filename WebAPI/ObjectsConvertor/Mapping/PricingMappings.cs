@@ -190,7 +190,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.RenewalsNumber, opt => opt.MapFrom(src => src.m_num_of_rec_periods))
                .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.m_tsViewLifeCycle))
                .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.m_nWaiverPeriod))
-               .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => src.m_ext_discount_id));
+               .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => src.m_ext_discount_id))
+               .ForMember(dest => dest.PriceDetailsId, opt => opt.MapFrom(src => src.m_pricing_id))
+               ;
 
             // ItemPriceContainer to PPVItemPriceDetails
             Mapper.CreateMap<ItemPriceContainer, KalturaPPVItemPriceDetails>()
@@ -286,6 +288,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.MultiCurrencyPrice, opt => opt.MapFrom(src => src.Prices))
                 ;
+
+            // KalturaPricePlan
+            Mapper.CreateMap<KalturaPricePlan, UsageModule>()
+               .ForMember(dest => dest.m_nObjectID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.m_coupon_id, opt => opt.MapFrom(src => src.CouponId))
+               .ForMember(dest => dest.m_tsMaxUsageModuleLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
+               .ForMember(dest => dest.m_bIsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayback))
+               .ForMember(dest => dest.m_is_renew, opt => opt.MapFrom(src => src.IsRenewable))
+               .ForMember(dest => dest.m_bWaiver, opt => opt.MapFrom(src => src.IsWaiverEnabled))
+               .ForMember(dest => dest.m_nMaxNumberOfViews, opt => opt.MapFrom(src => src.MaxViewsNumber))
+               .ForMember(dest => dest.m_sVirtualName, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.m_num_of_rec_periods, opt => opt.MapFrom(src => src.RenewalsNumber))
+               .ForMember(dest => dest.m_tsViewLifeCycle, opt => opt.MapFrom(src => src.ViewLifeCycle))
+               .ForMember(dest => dest.m_nWaiverPeriod, opt => opt.MapFrom(src => src.WaiverPeriod))
+               .ForMember(dest => dest.m_ext_discount_id, opt => opt.MapFrom(src => src.DiscountId))
+               .ForMember(dest => dest.m_pricing_id, opt => opt.MapFrom(src => src.PriceDetailsId.HasValue ? src.PriceDetailsId : src.PriceId))
+               ;
         }
 
         private static KalturaSubscriptionSetType ConvertSetType(SubscriptionSetType subscriptionSetType)

@@ -63,6 +63,7 @@ namespace WebAPI.Controllers
         [Route("update"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.PricePlanDoesNotExist)]
+        [Throws(eResponseStatus.PriceDetailsDoesNotExist)]
         public KalturaPricePlan Update(long id, KalturaPricePlan pricePlan)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -74,7 +75,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                ClientsManager.PricingClient().UpdatePricePlan(groupId, pricePlan);
+                pricePlan = ClientsManager.PricingClient().UpdatePricePlan(groupId, id, pricePlan);
             }
             catch (ClientException ex)
             {

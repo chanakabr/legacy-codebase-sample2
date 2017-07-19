@@ -9015,6 +9015,11 @@
             The discount module identifier of the price plan
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.PriceDetailsId">
+            <summary>
+            The ID of the price details associated with this price plan
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaPricePlanListResponse.PricePlans">
             <summary>
             A list of price plans

@@ -15,6 +15,14 @@ namespace WebAPI.Reflection
         {
             switch (type.Name)
             {
+                case "KalturaPricePlan":
+                    switch (propertyName)
+                    {
+                        case "PriceId":
+                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
+                    };
+                    break;
+                    
                 case "KalturaSubscription":
                     switch (propertyName)
                     {
@@ -24,8 +32,6 @@ namespace WebAPI.Reflection
                             return DeprecatedAttribute.IsDeprecated("3.6.287.27312");
                         case "Names":
                             return DeprecatedAttribute.IsDeprecated("3.6.287.27312");
-                        case "PricePlanIds":
-                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
                         case "PricePlans":
                             return DeprecatedAttribute.IsDeprecated("4.5.0.0");
                         case "ProductCode":
@@ -4883,6 +4889,8 @@ namespace WebAPI.Reflection
                             return "discountId";
                         case "IsRenewable":
                             return "isRenewable";
+                        case "PriceDetailsId":
+                            return "priceDetailsId";
                         case "PriceId":
                             return "priceId";
                         case "RenewalsNumber":

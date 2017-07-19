@@ -697,12 +697,13 @@ namespace WebAPI.Clients
             return pricePlans;
         }
 
-        internal KalturaPricePlan UpdatePricePlan(int groupId, KalturaPricePlan pricePlan)
+        internal KalturaPricePlan UpdatePricePlan(int groupId, long id, KalturaPricePlan pricePlan)
         {
             KalturaPricePlan pricePlanResponse = null;
             UsageModulesResponse response = null;
 
             UsageModule usageModule = AutoMapper.Mapper.Map<UsageModule>(pricePlan);
+            usageModule.m_nObjectID = (int)id;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

@@ -47,14 +47,14 @@ namespace WebAPI.Models.Pricing
         }
         public override KalturaPricePlanOrderBy GetDefaultOrderByValue()
         {
-            return KalturaPricePlanOrderBy.NONE;
+            return KalturaPricePlanOrderBy.CREATE_DATE_DESC;
         }
     }
 
 
     public enum KalturaPricePlanOrderBy
     {
-        NONE   
+        CREATE_DATE_DESC   
     }
     
 }
