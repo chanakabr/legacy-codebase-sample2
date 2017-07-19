@@ -47,14 +47,14 @@ namespace WebAPI.Models.Pricing
         }
         public override KalturaPriceDetailsOrderBy GetDefaultOrderByValue()
         {
-            return KalturaPriceDetailsOrderBy.NONE;
+            return KalturaPriceDetailsOrderBy.NAME_ASC;
         }
     }
 
 
     public enum KalturaPriceDetailsOrderBy
     {
-        NONE   
+        NAME_ASC   
     }
     
 }
