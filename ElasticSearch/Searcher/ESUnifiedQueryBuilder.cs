@@ -335,6 +335,10 @@ namespace ElasticSearch.Searcher
                             {
                                 topHitsSize = this.SearchDefinitions.topHitsCount;
                             }
+                            else if (this.SearchDefinitions.topHitsCount == 0)
+                            {
+                                topHitsSize = MAX_RESULTS;
+                            }
 
                             currentAggregation.SubAggrgations = new List<ESBaseAggsItem>()
                             {
