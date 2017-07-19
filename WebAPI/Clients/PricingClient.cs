@@ -640,7 +640,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetPriceCodesDataByCountyAndCurrency(groupId, priceIds, currency);
+                    response = Core.Pricing.Module.GetPriceCodesDataByCurrency(groupId, priceIds, currency);
                 }
             }
             catch (Exception ex)
