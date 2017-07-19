@@ -360,6 +360,7 @@ namespace ApiObjects.Response
         InvalidCurrency = 9015,
         ModuleNotExists = 9016,
         PricePlanDoesNotExist = 9017,
+        PriceDetailsDoesNotExist = 9018,
 
         // Adapters 10000-10999
         AdapterNotExists = 10000,

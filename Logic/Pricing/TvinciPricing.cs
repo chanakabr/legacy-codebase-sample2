@@ -1759,24 +1759,27 @@ namespace Core.Pricing
 
             DataTable usageModules = PricingDAL.GetPricePlans(m_nGroupID, new List<long>() { usageModule.m_nObjectID });
 
-            if (usageModules != null)
+            if (usageModules == null || usageModules.Rows == null || usageModules.Rows.Count == 0)
             {
-                if (usageModules.Rows == null || usageModules.Rows.Count == 0)
-                {
-                    response.Status = new Status((int)eResponseStatus.PricePlanDoesNotExist, "Price plan does not exist");
-                    return response;
-                }
+                response.Status = new Status((int)eResponseStatus.PricePlanDoesNotExist, "Price plan does not exist");
+                return response;
+            }
 
-                response.UsageModules = Utils.BuildUsageModulesFromDataTable(usageModules);
+            if (!PricingDAL.IsPriceCodeExistsById(m_nGroupID, usageModule.m_pricing_id))
+            {
+                response.Status = new Status((int)eResponseStatus.PriceDetailsDoesNotExist, "Price details does not exist");
+                return response;
+            }
 
-                if (response.UsageModules != null && response.UsageModules.Count > 0)
+            response.UsageModules = Utils.BuildUsageModulesFromDataTable(usageModules);
+
+            if (response.UsageModules != null && response.UsageModules.Count > 0)
+            {
+                // update only price code ID
+                if (PricingDAL.UpdatePricePlan(m_nGroupID, usageModule.m_nObjectID, usageModule.m_pricing_id))
                 {
-                    // update only price code ID
-                    if (PricingDAL.UpdatePricePlan(m_nGroupID, usageModule.m_nObjectID, usageModule.m_pricing_id))
-                    {
-                        response.UsageModules[0].m_pricing_id = usageModule.m_pricing_id;
-                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    }
+                    response.UsageModules[0].m_pricing_id = usageModule.m_pricing_id;
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
 
