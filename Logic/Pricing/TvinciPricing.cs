@@ -1795,7 +1795,7 @@ namespace Core.Pricing
 
             // get prices with specific currency 
 
-            if (!string.IsNullOrEmpty(currencyCode))
+            if (!string.IsNullOrEmpty(currencyCode) && !currencyCode.Trim().Equals("*"))
             {
                 if (!Core.ConditionalAccess.Utils.IsValidCurrencyCode(m_nGroupID, currencyCode))
                 {
@@ -1809,30 +1809,36 @@ namespace Core.Pricing
                 return response;
             }
 
+            List<PriceDetails> priceCodes = null;
             DataTable priceCodesDt = PricingDAL.GetPriceCodes(m_nGroupID);
-            var priceCodes = Utils.BuildPriceCodesFromDataTable(priceCodesDt);
-
-            if (priceCodesDt != null && !currencyCode.Trim().Equals("*"))
+            if (priceCodesDt != null)
             {
-                // filter by currency 
-                if (response.PriceCodes != null)
+                priceCodes = Utils.BuildPriceCodesFromDataTable(priceCodesDt);
+            }
+
+            if (priceCodes != null)
+            {
+                response.PriceCodes = new List<PriceDetails>();
+
+                foreach (var pc in priceCodes)
                 {
-                    foreach (var pc in response.PriceCodes)
+                    // filter by IDs
+                    if (priceCodeIds != null && priceCodeIds.Count > 0 && !priceCodeIds.Contains(pc.Id))
+                        continue;
+
+                    // filter by currency 
+                    if (!currencyCode.Trim().Equals("*"))
                     {
-                        // filter by IDs
-                        if (priceCodeIds != null && priceCodeIds.Count > 0 && !priceCodeIds.Contains(pc.Id))
-                            continue;
-
                         pc.Prices = pc.Prices != null ? pc.Prices.Where(p => p.m_oCurrency.m_sCurrencyCD3 == currencyCode).ToList() : null;
-                        response.PriceCodes.Add(pc);
-
                     }
 
-                    response.PriceCodes.OrderBy(pc => pc.Name);
+                    response.PriceCodes.Add(pc);
                 }
-                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
+                response.PriceCodes.OrderBy(pc => pc.Name);
             }
+            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
             return response;
         }
     }

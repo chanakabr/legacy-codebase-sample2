@@ -1528,7 +1528,7 @@ namespace Core.Pricing
             return response;
         }
 
-        public static PriceDetailsResponse GetPriceCodesDataByCountyAndCurrency(int groupId, List<long> priceCodeIds, string currencyCode)
+        public static PriceDetailsResponse GetPriceCodesDataByCurrency(int groupId, List<long> priceCodeIds, string currencyCode)
         {
             PriceDetailsResponse response = new PriceDetailsResponse()
             {
