@@ -3842,6 +3842,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaIntegerValueListResponse":
+                    switch(property.Name)
+                    {
+                        case "Values":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaItemPrice":
                     switch(property.Name)
                     {

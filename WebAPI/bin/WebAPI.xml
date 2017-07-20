@@ -299,7 +299,7 @@
             <param name="assetType">Asset type</param>
             <param name="contextDataParams">Parameters for the request</param>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.Count(System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaAssetGroupBy},WebAPI.Models.Catalog.KalturaSearchAssetFilter)">
+        <member name="M:WebAPI.Controllers.AssetController.Count(WebAPI.Models.Catalog.KalturaSearchAssetFilter)">
             <summary>
             Returns a group-by result for media or EPG according to given filter. Lists values of each field and their respective count.
             </summary>
@@ -1031,6 +1031,32 @@
         <member name="P:WebAPI.Models.API.KalturaCurrencyFilter.CodeIn">
             <summary>
             Currency codes
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:WebAPI.Models.Catalog.KalturaBaseSearchAssetFilter" -->
+        <member name="P:WebAPI.Models.General.KalturaPersistedFilter`1.Name">
+            <summary>
+            Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFilter.DynamicOrderBy">
+            <summary>
+            dynamicOrderBy - order by Meta
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBaseSearchAssetFilter.GroupBy">
+            <summary>
+            groupBy
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaIntegerValueListResponse">
+            <summary>
+            Integer list wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaIntegerValueListResponse.Values">
+            <summary>
+            Interger value items
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionDependencySet">
@@ -2196,16 +2222,6 @@
         <member name="P:WebAPI.Models.DMS.KalturaConfigurationIdentifier.Name">
             <summary>
             Name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaPersistedFilter`1.Name">
-            <summary>
-            Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFilter.DynamicOrderBy">
-            <summary>
-            dynamicOrderBy - order by Meta
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaScheduledRecordingProgramFilter.RecordingTypeEqual">
@@ -10233,6 +10249,11 @@
         <member name="P:WebAPI.Models.Catalog.KalturaChannel.Order">
             <summary>
             Channel order
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.GroupBy">
+            <summary>
+            Channel group by
             </summary>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdController.Get(System.Nullable{System.Int32})">
