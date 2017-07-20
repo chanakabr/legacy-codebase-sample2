@@ -297,7 +297,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType INVALID_COUPON_GROUP = new ClientExceptionType(eResponseStatus.InvalidCouponGroup, "Invalid Coupon Group", "Invalid coupon group: The coupon group specified doesn't exist in this account");
         public static ClientExceptionType INVALID_CURRENCY = new ClientExceptionType(eResponseStatus.InvalidCurrency, "Invalid Currency", "Invalid currency: The currency specified is not configured for this account");
         public static ClientExceptionType MODULE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.ModuleNotExists, "Module Not Exists", "The PPV module doesn't exist in the database");
-
+        public static ClientExceptionType PRICE_PLAN_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PricePlanDoesNotExist, "Price plan does not exist", "The price plan doesn't exist in the database");
+        public static ClientExceptionType PRICE_DETAILS_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PriceDetailsDoesNotExist, "Price details does not exist", "The price details doesn't exist in the database");
+                
         // Adapters 10000-10999
         public static ClientExceptionType ADAPTER_NOT_EXISTS = new ClientExceptionType(eResponseStatus.AdapterNotExists, "Adapter Not Exists", "The adapter you're trying to connect doesn't exist");
         public static ClientExceptionType ADAPTER_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.AdapterIdentifierRequired, "Adapter Identifier Required", "The mandatory adapter ID field is missing from the request");

@@ -1282,20 +1282,26 @@ namespace WS_Pricing
         }
 
         [WebMethod]
-        public virtual Subscription[] GetSubscriptionsByProductCodes(string sWSUserName, string sWSPassword, string[] productCodes)
+        public virtual Subscription[] GetSubscriptionsByProductCodes(string sWSUserName, string sWSPassword, List<string> productCodes)
         {
+            Subscription[] response = null;
 
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.GetSubscriptionsByProductCodes(nGroupID, productCodes);
+                var res = Core.Pricing.Module.GetSubscriptionsByProductCodes(nGroupID, productCodes);
+                if (res != null)
+                {
+                    response = res.Subscriptions;
+                }
             }
             else
             {
                 if (nGroupID == 0)
                     HttpContext.Current.Response.StatusCode = 404;
-                return null;
             }
+
+            return response;
         }
 
         [WebMethod]

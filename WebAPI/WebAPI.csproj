@@ -234,6 +234,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Controllers\PriceDetailsController.cs" />
+    <Compile Include="Controllers\PricePlanController.cs" />
     <Compile Include="Controllers\SubscriptionSetController.cs" />
     <Compile Include="Controllers\CurrencyController.cs" />
     <Compile Include="Controllers\EngagementController.cs" />
@@ -281,6 +283,8 @@
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
     <Compile Include="Models\Catalog\KalturaBaseSearchAssetFilter.cs" />
     <Compile Include="Models\General\KalturaIntegerValueListResponse.cs" />
+    <Compile Include="Models\Pricing\KalturaPricePlanFilter.cs" />
+    <Compile Include="Models\Pricing\KalturaPriceDetailsFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySet.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySetFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetType.cs" />

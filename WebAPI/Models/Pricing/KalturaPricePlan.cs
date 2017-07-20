@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
@@ -21,6 +22,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("isRenewable")]
         [XmlElement(ElementName = "isRenewable")]
         [OldStandardProperty("is_renewable")]
+        [SchemeProperty(ReadOnly=true)]
         public bool? IsRenewable { get; set; }
 
         /// <summary>
@@ -30,6 +32,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("renewalsNumber")]
         [XmlElement(ElementName = "renewalsNumber")]
         [OldStandardProperty("renewals_number")]
+        [SchemeProperty(ReadOnly = true)]
         public int? RenewalsNumber { get; set; }
 
         /// <summary>
@@ -39,6 +42,8 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("priceId")]
         [XmlElement(ElementName = "priceId")]
         [OldStandardProperty("price_id")]
+        [SchemeProperty(ReadOnly = true)]
+        [Deprecated("4.5.0.0")]
         public int? PriceId { get; set; }
 
         /// <summary>
@@ -48,6 +53,28 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("discountId")]
         [XmlElement(ElementName = "discountId")]
         [OldStandardProperty("discount_id")]
+        [SchemeProperty(ReadOnly = true)]
         public long? DiscountId { get; set; }
+
+        /// <summary>
+        /// The ID of the price details associated with this price plan
+        /// </summary>
+        [DataMember(Name = "priceDetailsId")]
+        [JsonProperty("priceDetailsId")]
+        [XmlElement(ElementName = "priceDetailsId")]
+        [SchemeProperty(MinInteger=1)]
+        public long? PriceDetailsId { get; set; }
+    }
+
+    public class KalturaPricePlanListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// A list of price plans
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaPricePlan> PricePlans { get; set; }
     }
 }

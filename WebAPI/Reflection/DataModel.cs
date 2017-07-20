@@ -15,6 +15,14 @@ namespace WebAPI.Reflection
         {
             switch (type.Name)
             {
+                case "KalturaPricePlan":
+                    switch (propertyName)
+                    {
+                        case "PriceId":
+                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
+                    };
+                    break;
+                    
                 case "KalturaSubscription":
                     switch (propertyName)
                     {
@@ -24,6 +32,8 @@ namespace WebAPI.Reflection
                             return DeprecatedAttribute.IsDeprecated("3.6.287.27312");
                         case "Names":
                             return DeprecatedAttribute.IsDeprecated("3.6.287.27312");
+                        case "PricePlans":
+                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
                         case "ProductCode":
                             return DeprecatedAttribute.IsDeprecated("4.3.0.0");
                     };
@@ -4851,6 +4861,8 @@ namespace WebAPI.Reflection
                     {
                         case "Amount":
                             return "amount";
+                        case "CountryId":
+                            return "countryId";
                         case "Currency":
                             return "currency";
                         case "CurrencySign":
@@ -4865,8 +4877,26 @@ namespace WebAPI.Reflection
                             return "descriptions";
                         case "Id":
                             return "id";
+                        case "MultiCurrencyPrice":
+                            return "multiCurrencyPrice";
                         case "Price":
                             return "price";
+                    }
+                    break;
+                    
+                case "KalturaPriceDetailsFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaPriceDetailsListResponse":
+                    switch(property.Name)
+                    {
+                        case "Prices":
+                            return "objects";
                     }
                     break;
                     
@@ -4877,10 +4907,28 @@ namespace WebAPI.Reflection
                             return "discountId";
                         case "IsRenewable":
                             return "isRenewable";
+                        case "PriceDetailsId":
+                            return "priceDetailsId";
                         case "PriceId":
                             return "priceId";
                         case "RenewalsNumber":
                             return "renewalsNumber";
+                    }
+                    break;
+                    
+                case "KalturaPricePlanFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaPricePlanListResponse":
+                    switch(property.Name)
+                    {
+                        case "PricePlans":
+                            return "objects";
                     }
                     break;
                     
@@ -5705,6 +5753,8 @@ namespace WebAPI.Reflection
                             return "discountModule";
                         case "EndDate":
                             return "endDate";
+                        case "ExternalId":
+                            return "externalId";
                         case "FileTypes":
                             return "fileTypes";
                         case "GracePeriodMinutes":
@@ -5733,6 +5783,8 @@ namespace WebAPI.Reflection
                             return "previewModule";
                         case "Price":
                             return "price";
+                        case "PricePlanIds":
+                            return "pricePlanIds";
                         case "PricePlans":
                             return "pricePlans";
                         case "ProductCode":
@@ -5793,6 +5845,8 @@ namespace WebAPI.Reflection
                 case "KalturaSubscriptionFilter":
                     switch(property.Name)
                     {
+                        case "ExternalIdIn":
+                            return "externalIdIn";
                         case "MediaFileIdEqual":
                             return "mediaFileIdEqual";
                         case "SubscriptionIdIn":

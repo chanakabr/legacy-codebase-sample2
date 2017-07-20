@@ -630,5 +630,146 @@ namespace WebAPI.Clients
 
             return subscriptionSet;
         }
+
+        internal List<KalturaPriceDetails> GetPrices(int groupId, List<long> priceIds, string currency)
+        {
+            PriceDetailsResponse response = null;
+            List<KalturaPriceDetails> prices = new List<KalturaPriceDetails>();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetPriceCodesDataByCurrency(groupId, priceIds, currency);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            prices = AutoMapper.Mapper.Map<List<KalturaPriceDetails>>(response.PriceCodes);
+
+            return prices;
+        }
+
+        internal List<KalturaPricePlan> GetPricePlans(int groupId, List<long> pricePlanIds)
+        {
+            UsageModulesResponse response = null;
+            List<KalturaPricePlan> pricePlans = new List<KalturaPricePlan>();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetPricePlans(groupId, pricePlanIds);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            pricePlans = AutoMapper.Mapper.Map<List<KalturaPricePlan>>(response.UsageModules);
+
+            return pricePlans;
+        }
+
+        internal KalturaPricePlan UpdatePricePlan(int groupId, long id, KalturaPricePlan pricePlan)
+        {
+            KalturaPricePlan pricePlanResponse = null;
+            UsageModulesResponse response = null;
+
+            UsageModule usageModule = AutoMapper.Mapper.Map<UsageModule>(pricePlan);
+            usageModule.m_nObjectID = (int)id;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.UpdatePricePlan(groupId, usageModule);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.UsageModules != null && response.UsageModules.Count > 0)
+            {
+                // convert response
+                pricePlanResponse = AutoMapper.Mapper.Map<KalturaPricePlan>(response.UsageModules[0]);
+            }
+            return pricePlanResponse;
+        }
+
+        
+        internal List<KalturaSubscription> GetSubscriptionsDataByProductCodes(int groupId, List<string> productCodes, KalturaSubscriptionOrderBy orderBy)
+        {
+            SubscriptionsResponse response = null;
+            List<KalturaSubscription> subscriptions = new List<KalturaSubscription>();
+            SubscriptionOrderBy wsOrderBy = AutoMapper.Mapper.Map<SubscriptionOrderBy>(orderBy);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetSubscriptionsByProductCodes(groupId, productCodes, wsOrderBy);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            subscriptions = AutoMapper.Mapper.Map<List<KalturaSubscription>>(response.Subscriptions);
+
+            return subscriptions;
+        }
     }
 }

@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 
@@ -20,22 +21,29 @@ namespace WebAPI.Models.Pricing
     public class KalturaSubscriptionFilter : KalturaFilter<KalturaSubscriptionOrderBy>
     {
         /// <summary>
-        /// Comma separated subscription identifiers or file identifier (only 1) to get the subscriptions by
+        /// Comma separated subscription IDs to get the subscriptions by
         /// </summary>
         [DataMember(Name = "subscriptionIdIn")]
         [JsonProperty("subscriptionIdIn")]
-        [XmlArray(ElementName = "subscriptionIdIn", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
+        [XmlElement(ElementName = "subscriptionIdIn", IsNullable = true)]
+        [SchemeProperty(DynamicMinInt = 1)]
         public string SubscriptionIdIn { get; set; }
 
         /// <summary>
-        /// Media-file identifier to get the subscriptions by
+        /// Media-file ID to get the subscriptions by
         /// </summary>
         [DataMember(Name = "mediaFileIdEqual")]
         [JsonProperty("mediaFileIdEqual")]
-        [XmlArray(ElementName = "mediaFileIdEqual", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
+        [XmlElement(ElementName = "mediaFileIdEqual", IsNullable = true)]
         public int? MediaFileIdEqual { get; set; }
+
+        /// <summary>
+        /// Comma separated subscription external IDs to get the subscriptions by
+        /// </summary>
+        [DataMember(Name = "externalIdIn")]
+        [JsonProperty("externalIdIn")]
+        [XmlElement(ElementName = "externalIdIn", IsNullable = true)]
+        public string ExternalIdIn { get; set; }
 
         public override KalturaSubscriptionOrderBy GetDefaultOrderByValue()
         {
@@ -44,14 +52,19 @@ namespace WebAPI.Models.Pricing
 
         internal void Validate()
         {
-            if (string.IsNullOrEmpty(SubscriptionIdIn) && !MediaFileIdEqual.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaSubscriptionFilter.subscriptionIdIn, KalturaSubscriptionFilter.mediaFileIdEqual");
-            }
-
-            if (!string.IsNullOrEmpty(SubscriptionIdIn) && MediaFileIdEqual.HasValue)
+            if (MediaFileIdEqual.HasValue && (!string.IsNullOrEmpty(SubscriptionIdIn) || !string.IsNullOrEmpty(ExternalIdIn)))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
+            }
+
+            if (!string.IsNullOrEmpty(SubscriptionIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(ExternalIdIn)))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
+            }
+
+            if (!string.IsNullOrEmpty(ExternalIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(SubscriptionIdIn)))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.productCodeIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
             }
         }
 
@@ -61,6 +74,14 @@ namespace WebAPI.Models.Pricing
                 return null;
 
             return SubscriptionIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        internal List<string> getExternalIdIn()
+        {
+            if (string.IsNullOrEmpty(ExternalIdIn))
+                return null;
+
+            return ExternalIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
     }
 }
