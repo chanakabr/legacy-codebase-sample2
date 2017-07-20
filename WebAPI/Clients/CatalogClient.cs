@@ -211,7 +211,8 @@ namespace WebAPI.Clients
                 request.searchGroupBy = new SearchAggregationGroupBy()
                 {
                     groupBy = groupBy,
-                    distinctGroup = groupBy[0]// mabye will send string.empty - and Backend will fill it if nessecery
+                    distinctGroup = groupBy[0], // mabye will send string.empty - and Backend will fill it if nessecery
+                    topHitsCount = 1
                 };
             }
 

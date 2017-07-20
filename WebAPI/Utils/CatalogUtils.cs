@@ -620,23 +620,33 @@ namespace WebAPI.Utils
             {
                 List<KalturaAsset> tempAssets = Mapper.Map<List<KalturaAsset>>(assets);
 
-                Dictionary<string, int> res = results.Where(x => x.topHits != null && x.topHits.Count > 0).ToDictionary(x => (x.topHits[0] as BaseObject).AssetId, x => x.count);
-                foreach (KeyValuePair<string, int> item in res)
+                Dictionary<string, int> assetIdToCount = 
+                    results.Where(x => x.topHits != null && x.topHits.Count > 0).
+                            ToDictionary(x => (x.topHits[0] as BaseObject).AssetId, x => x.count);
+
+                foreach (KalturaAsset asset in tempAssets)
                 {
-                    foreach (KalturaAsset asset in tempAssets)
+                    if (asset.Id.HasValue && 
+                        assetIdToCount.ContainsKey(asset.Id.Value.ToString()))
                     {
-                        if (asset.Id.HasValue && asset.Id.Value.ToString().Equals(item.Key))
+                        var item = assetIdToCount[asset.Id.Value.ToString()];
+
+                        asset.relatedObjects = new SerializableDictionary<string, KalturaListResponse>();
+                        KalturaIntegerValueListResponse kiv = new KalturaIntegerValueListResponse()
                         {
+                            Values = new List<KalturaIntegerValue>()
+                            {
+                                new KalturaIntegerValue()
+                                {
+                                    value = item
+                                }
+                            },
+                            TotalCount = item
+                        };
 
-                            asset.relatedObjects = new SerializableDictionary<string, KalturaListResponse>();
-                            KalturaIntegerValueListResponse kiv = new KalturaIntegerValueListResponse();
-                            kiv.Values = new List<KalturaIntegerValue>();
-                            kiv.Values.Add(new KalturaIntegerValue() { value = item.Value });
-                            asset.relatedObjects.Add(asset.GetType().Name, kiv);
-                            break;
-                        }
+                        asset.relatedObjects.Add(asset.GetType().Name, kiv);
+                        break;
                     }
-
                 }
 
                 return tempAssets;
