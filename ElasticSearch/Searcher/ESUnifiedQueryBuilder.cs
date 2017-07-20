@@ -106,6 +106,12 @@ namespace ElasticSearch.Searcher
             set;
         }
 
+        public bool GetAllDocuments
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Ctor
@@ -214,9 +220,15 @@ namespace ElasticSearch.Searcher
                 FilterSettings = filterRoot
             };
 
-            if (PageSize <= 0 && this.SearchDefinitions.groupBy == null)
+            int pageSize = this.PageSize;
+
+            if (this.GetAllDocuments)
             {
-                PageSize = MAX_RESULTS;
+                pageSize = MAX_RESULTS;
+            }
+            else if (this.SearchDefinitions.topHitsCount > 0)
+            {
+                pageSize = 0;
             }
 
             int fromIndex = 0;
@@ -236,12 +248,6 @@ namespace ElasticSearch.Searcher
 
             filteredQueryBuilder.Append("{");
 
-            int pageSize = this.PageSize;
-
-            if (this.SearchDefinitions.topHitsCount > 0 && this.PageSize != MAX_RESULTS)
-            {
-                pageSize = 0;
-            }
 
             filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", pageSize);
             filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
@@ -310,7 +316,7 @@ namespace ElasticSearch.Searcher
                     {
                         int size = 0;
 
-                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup))
+                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup.Key))
                         {
                             size = this.SearchDefinitions.pageSize * (this.SearchDefinitions.pageIndex + 1);
                         }
@@ -327,7 +333,7 @@ namespace ElasticSearch.Searcher
                         };
 
                         // Get top hit as well if necessary
-                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup))
+                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup.Key))
                         {
                             int topHitsSize = -1;
 
