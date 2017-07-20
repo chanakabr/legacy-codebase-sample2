@@ -366,14 +366,14 @@ namespace Core.ConditionalAccess
                 try
                 {
                     // get the subscriptions modules
-                    var subscriptions = Core.Pricing.Module.GetSubscriptionsByProductCodes(groupId, subscriptionEntitlementsToInsert.Select(se => se.ProductCode).ToArray());
+                    var subscriptionsResponse = Core.Pricing.Module.GetSubscriptionsByProductCodes(groupId, subscriptionEntitlementsToInsert.Select(se => se.ProductCode).ToList());
 
-                    if (subscriptions != null)
+                    if (subscriptionsResponse != null && subscriptionsResponse.Status != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK)
                     {
                         // set the subscription for each entitlement
                         foreach (var entitlement in subscriptionEntitlementsToInsert)
                         {
-                            var subscription = subscriptions.Where(s => s.m_ProductCode == entitlement.ProductCode).FirstOrDefault();
+                            var subscription = subscriptionsResponse.Subscriptions.Where(s => s.m_ProductCode == entitlement.ProductCode).FirstOrDefault();
                             if (subscription != null)
                             {
                                 entitlement.ProductId = int.Parse(subscription.m_SubscriptionCode);

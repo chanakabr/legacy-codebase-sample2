@@ -1394,6 +1394,12 @@ namespace Core.Users
                     Utils.GetBaseImpl(ref kUser, nGroupID, operatorId);
                     if (kUser != null)
                     {
+                        if (keyValueList == null)
+                        {
+                            keyValueList = new List<KeyValuePair>();
+                        }
+                        keyValueList.Add(new KeyValuePair("pin", PIN));
+
                         // execute Sign in
                         response.user = FlowManager.SignIn(int.Parse(response.user.m_user.m_sSiteGUID), kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList, response.user.m_user.m_oBasicData.m_sUserName, string.Empty);
                         if (response.user != null)

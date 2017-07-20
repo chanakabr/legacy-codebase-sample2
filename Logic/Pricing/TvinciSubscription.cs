@@ -9,6 +9,7 @@ using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Pricing;
+using ApiObjects.Response;
 
 namespace Core.Pricing
 {
@@ -932,19 +933,24 @@ namespace Core.Pricing
             return res;
         }
 
-        public override Subscription[] GetSubscriptionsDataByProductCodes(List<string> productCodes, bool getAlsoUnactive)
+        public override SubscriptionsResponse GetSubscriptionsDataByProductCodes(List<string> productCodes, bool getAlsoUnactive, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc)
         {
-            Subscription[] subscriptions = null;
+            SubscriptionsResponse response = new SubscriptionsResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
             if (productCodes != null && productCodes.Count > 0)
             {
                 string[] subscriptionsCodes = DAL.PricingDAL.Get_SubscriptionsFromProductCodes(productCodes.Distinct().ToList(), m_nGroupID).Keys.ToArray();
                 if (subscriptionsCodes != null && subscriptionsCodes.Length > 0)
                 {
-                    subscriptions = GetSubscriptionsData(subscriptionsCodes, string.Empty, string.Empty, string.Empty, SubscriptionOrderBy.StartDateAsc);
+                    response.Subscriptions = GetSubscriptionsData(subscriptionsCodes, string.Empty, string.Empty, string.Empty, orderBy);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
 
-            return subscriptions;
+            return response;
         }            
 
         private Dictionary<long, List<ServiceObject>> ExtractSubscriptionsServices(DataSet ds)

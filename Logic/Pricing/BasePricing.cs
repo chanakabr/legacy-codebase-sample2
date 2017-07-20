@@ -32,7 +32,7 @@ namespace Core.Pricing
 
         public abstract PriceCode[] GetPriceCodeList(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
         public abstract PriceCode GetPriceCodeData(string sPC, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
-        public abstract PriceCode GetPriceCodeDataByCountyAndCurrency(int priceCodeId, string countryCode, string currencyCode);        
+        public abstract PriceCode GetPriceCodeDataByCountyAndCurrency(int priceCodeId, string countryCode, string currencyCode);
 
 
         public virtual ApiObjects.Response.Status InsertPriceCode(int groupID, string code, Price price)
@@ -54,7 +54,7 @@ namespace Core.Pricing
         {
             throw new NotImplementedException();
         }
-        
+
 
         public virtual ApiObjects.Response.Status UpdatetUsageModule(int groupID, UsageModule usageModule)
         {
@@ -110,5 +110,19 @@ namespace Core.Pricing
             throw new NotImplementedException();
         }
 
+        public virtual UsageModulesResponse GetPricePlans(List<long> pricePlanIds)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual UsageModulesResponse UpdatePricePlan(UsageModule usageModule)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual PriceDetailsResponse GetPriceCodesDataByCurrency(List<long> priceCodeIds, string currencyCode)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

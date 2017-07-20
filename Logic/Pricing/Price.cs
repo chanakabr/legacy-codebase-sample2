@@ -10,11 +10,13 @@ namespace Core.Pricing
     {
         public double m_dPrice;
         public Currency m_oCurrency;
+        public int countryId;
 
         public Price()
         {
             m_dPrice = 0.0;
             m_oCurrency = new Currency();
+            countryId = 0;
         }
 
         public void InitializeByCD3(string sCurrencyCode3, double dP)
@@ -34,7 +36,5 @@ namespace Core.Pricing
             m_oCurrency.InitializeByCode2(sCurrencyCode2);
             m_dPrice = dP;
         }
-
-       
     }
 }

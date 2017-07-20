@@ -59,7 +59,7 @@ namespace Core.Pricing
 
         public abstract Subscription[] GetSubscriptionsData(string[] oSubCodes, string sCountryCd, string sLanguageCode, string sDeviceName, SubscriptionOrderBy orderBy);
 
-        public abstract Subscription[] GetSubscriptionsDataByProductCodes(List<string> productCodes, bool getAlsoUnactive);
+        public abstract SubscriptionsResponse GetSubscriptionsDataByProductCodes(List<string> productCodes, bool getAlsoUnactive, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc);
 
         #endregion
 
@@ -550,6 +550,5 @@ namespace Core.Pricing
             List<KeyValuePair<VerificationPaymentGateway, string>> pcList = Core.Pricing.Utils.GetSubscriptionExternalProductCodes((long)subscriptionId, m_nGroupID);
             return pcList;
         }
-
     }
 }

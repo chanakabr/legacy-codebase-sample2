@@ -1005,5 +1005,79 @@ namespace Core.Pricing
 
             return subscriptionSet;
         }
+
+        internal static List<UsageModule> BuildUsageModulesFromDataTable(DataTable usageModulesTable)
+        {
+            List<UsageModule> response = new List<UsageModule>();
+            if (usageModulesTable.Rows != null && usageModulesTable.Rows.Count > 0)
+            {
+                foreach (DataRow row in usageModulesTable.Rows)
+                {
+                    response.Add(BuildUsageModuleFromDataRow(row));
+                }
+                   
+            }
+            return response;
+        }
+
+        internal static UsageModule BuildUsageModuleFromDataRow(DataRow usageModuleRow)
+        {
+            if (usageModuleRow != null)
+            {
+                return new UsageModule()
+                            {
+                                m_bIsOfflinePlayBack = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "OFFLINE_PLAYBACK") == 1 ? true : false,
+                                m_bWaiver = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "WAIVER") == 1 ? true : false,
+                                m_coupon_id = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "coupon_id"),
+                                m_ext_discount_id = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "ext_discount_id"),
+                                m_is_renew = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "is_renew"),
+                                m_nMaxNumberOfViews = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "MAX_VIEWS_NUMBER"),
+                                m_nObjectID = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "ID"),
+                                m_num_of_rec_periods = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "num_of_rec_periods"),
+                                m_nWaiverPeriod = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "WAIVER_PERIOD"),
+                                m_pricing_id = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "pricing_id"),
+                                m_sVirtualName = ODBCWrapper.Utils.GetSafeStr(usageModuleRow, "NAME"),
+                                m_tsMaxUsageModuleLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "FULL_LIFE_CYCLE_MIN"),
+                                m_tsViewLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "VIEW_LIFE_CYCLE_MIN")
+                            };
+            }
+            return null;
+        }
+
+        internal static List<PriceDetails> BuildPriceCodesFromDataTable(DataTable priceCodes)
+        {
+            Dictionary<long, PriceDetails> priceDetailsMap = new Dictionary<long, PriceDetails>();
+            
+            if (priceCodes != null && priceCodes.Rows != null && priceCodes.Rows.Count > 0)
+            {
+                foreach (DataRow dr in priceCodes.Rows)
+                {
+                    long id  = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
+
+                    if (!priceDetailsMap.ContainsKey(id))
+                    {
+                        PriceDetails pd = new PriceDetails()
+                        {
+                            Id = id,
+                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "code"),
+                            Prices = new List<Price>()
+                        };
+                        priceDetailsMap.Add(id, pd);
+                    }
+                    Price price = new Price()
+                    {
+                        countryId = ODBCWrapper.Utils.GetIntSafeVal(dr, "country_id"),
+                        m_dPrice = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "price"),
+                        m_oCurrency = new Currency()
+                    };
+
+                    price.m_oCurrency.InitializeById(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_CD"));
+
+                    priceDetailsMap[id].Prices.Add(price);
+
+                }
+            }
+            return priceDetailsMap != null ? priceDetailsMap.Values.ToList() : null;
+        }
     }
 }
