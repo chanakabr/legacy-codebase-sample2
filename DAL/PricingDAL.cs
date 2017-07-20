@@ -1545,5 +1545,14 @@ namespace DAL
             sp.AddParameter("@groupId", groupId);
             return sp.Execute();
         }
+
+        public static bool IsPriceCodeExistsById(int groupId, long id)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("IsPriceCodeExistsById");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+            return sp.ExecuteReturnValue<long>() > 0;
+        }
     }
 }
