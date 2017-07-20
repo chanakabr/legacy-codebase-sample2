@@ -8034,7 +8034,8 @@ namespace Core.Api
                         m_sSignString = catalogSignString,
                         m_nPageIndex = pageIndex,
                         m_nPageSize = pageSize,
-                        m_bIgnoreDeviceRuleID = true
+                        m_bIgnoreDeviceRuleID = true,
+                        m_dServerTime = DateTime.UtcNow
                     };
 
                     BaseResponse response = channelRequest.GetResponse(channelRequest);

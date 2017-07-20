@@ -51,6 +51,11 @@ namespace Core.Catalog.Request
                     this.m_sUserIP, this.m_sSignature, this.m_sSignString, this.m_oFilter, this.filterQuery, this.order);
             }
 
+            if (request.m_dServerTime == default(DateTime) || request.m_dServerTime == DateTime.MinValue)
+            {
+                request.m_dServerTime = DateTime.UtcNow;
+            }
+
             return CatalogLogic.GetInternalChannelAssets(internalRequest, out totalItems, out searchResults);
         }
     }
