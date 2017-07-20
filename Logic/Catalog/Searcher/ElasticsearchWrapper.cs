@@ -1111,6 +1111,10 @@ namespace Core.Catalog
                 }
 
                 isOrderedByStat = true;
+
+                // if ordered by stats, we don't want the top hits
+                unifiedSearchDefinitions.distinctGroup = null;
+                unifiedSearchDefinitions.topHitsCount = 0;
             }
             else
             {
