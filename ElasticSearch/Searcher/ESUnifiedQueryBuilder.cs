@@ -359,12 +359,16 @@ namespace ElasticSearch.Searcher
 
                             string distinctOrder;
                             string distinctOrderDirection;
-                          GetAggregationsOrder(this.SearchDefinitions.order,
-                                out distinctOrder, out distinctOrderDirection, out orderAggregation);
+                            GetAggregationsOrder(this.SearchDefinitions.order,
+                                  out distinctOrder, out distinctOrderDirection, out orderAggregation);
 
                             if (orderAggregation != null)
                             {
                                 currentAggregation.SubAggrgations.Add(orderAggregation);
+                            }
+                            
+                            if (!string.IsNullOrEmpty(distinctOrder))
+                            {
                                 currentAggregation.Order = distinctOrder;
                                 currentAggregation.OrderDirection = distinctOrderDirection;
                             }
@@ -2365,7 +2369,9 @@ namespace ElasticSearch.Searcher
             {
                 case OrderBy.ID:
                 {
-                    field = "_uid";
+                    aggregationsOrder = "_term";
+                    aggregationsOrderDirection = "asc";
+
                     break;
                 }
                 case OrderBy.VIEWS:
