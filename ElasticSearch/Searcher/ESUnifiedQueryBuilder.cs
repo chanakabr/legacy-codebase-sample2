@@ -238,7 +238,7 @@ namespace ElasticSearch.Searcher
 
             int pageSize = this.PageSize;
 
-            if (this.SearchDefinitions.topHitsCount > 0)
+            if (this.SearchDefinitions.topHitsCount > 0 && this.PageSize != MAX_RESULTS)
             {
                 pageSize = 0;
             }
