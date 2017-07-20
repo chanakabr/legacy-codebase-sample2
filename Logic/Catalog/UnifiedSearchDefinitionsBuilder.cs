@@ -350,6 +350,7 @@ namespace Core.Catalog
                     }
 
                     definitions.groupBy = new List<KeyValuePair<string, string>>();
+                    string distinctGroupByFormatted = string.Empty;
 
                     foreach (var groupBy in request.searchGroupBy.groupBy)
                     {
@@ -380,17 +381,22 @@ namespace Core.Catalog
                         {
                             // Transform the list of group bys to metas/tags list
                             definitions.groupBy.Add(new KeyValuePair<string, string>(groupBy, requestGroupBy));
+
+                            if (groupBy == request.searchGroupBy.distinctGroup)
+                            {
+                                distinctGroupByFormatted = requestGroupBy;
+                            }
                         }
                     }
 
                     definitions.groupByOrder = request.searchGroupBy.groupByOrder;
-
                     definitions.topHitsCount = request.searchGroupBy.topHitsCount;
 
                     // Validate that we have a distinct group and that it is one of the fields listed in "group by"
                     if (!string.IsNullOrEmpty(request.searchGroupBy.distinctGroup) && request.searchGroupBy.groupBy.Contains(request.searchGroupBy.distinctGroup))
                     {
-                        definitions.distinctGroup = request.searchGroupBy.distinctGroup;
+                        definitions.distinctGroup = new KeyValuePair<string, string>(request.searchGroupBy.distinctGroup, distinctGroupByFormatted);
+                        definitions.extraReturnFields.Add(distinctGroupByFormatted);
                     }
                 }
 

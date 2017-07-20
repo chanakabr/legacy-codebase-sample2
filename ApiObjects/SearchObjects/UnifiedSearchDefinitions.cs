@@ -351,7 +351,7 @@ namespace ApiObjects.SearchObjects
 
         [JsonProperty()]
         [DataMember]
-        public string distinctGroup
+        public KeyValuePair<string, string> distinctGroup
         {
             get;
             set;
@@ -410,6 +410,8 @@ namespace ApiObjects.SearchObjects
 
             shouldUseSearchEndDate = false;
             shouldDateSearchesApplyToAllTypes = false;
+
+            distinctGroup = new KeyValuePair<string, string>();
         }
 
 

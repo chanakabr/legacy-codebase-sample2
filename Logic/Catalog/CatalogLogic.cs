@@ -7265,6 +7265,7 @@ namespace Core.Catalog
                     }
 
                     definitions.groupBy = new List<KeyValuePair<string, string>>();
+                    string distinctGroupByFormatted = string.Empty;
 
                     foreach (var groupBy in channel.searchGroupBy.groupBy)
                     {
@@ -7295,6 +7296,11 @@ namespace Core.Catalog
                         {
                             // Transform the list of group bys to metas/tags list
                             definitions.groupBy.Add(new KeyValuePair<string, string>(groupBy, requestGroupBy));
+
+                            if (groupBy == channel.searchGroupBy.distinctGroup)
+                            {
+                                distinctGroupByFormatted = requestGroupBy;
+                            }
                         }
                     }
 
@@ -7305,11 +7311,11 @@ namespace Core.Catalog
                     // Validate that we have a distinct group and that it is one of the fields listed in "group by"
                     if (!string.IsNullOrEmpty(channel.searchGroupBy.distinctGroup) && channel.searchGroupBy.groupBy.Contains(channel.searchGroupBy.distinctGroup))
                     {
-                        definitions.distinctGroup = channel.searchGroupBy.distinctGroup;
+                        definitions.distinctGroup = new KeyValuePair<string, string>(channel.searchGroupBy.distinctGroup, distinctGroupByFormatted);
                     }
                     else if (string.IsNullOrEmpty(channel.searchGroupBy.distinctGroup)) // channel not contain definition for distinct ==> as default insert first groupBy in the list
                     {
-                        definitions.distinctGroup = channel.searchGroupBy.groupBy[0];
+                        definitions.distinctGroup = definitions.groupBy[0];
                     }
                 }
 
