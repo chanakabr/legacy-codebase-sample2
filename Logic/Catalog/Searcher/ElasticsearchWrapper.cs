@@ -1362,6 +1362,8 @@ namespace Core.Catalog
                             else
                             {
                                 var bucketMapping = new Dictionary<string, ESAggregationBucket>();
+                                var orderedBuckets = new List<ESAggregationBucket>();
+                                var alreadyContainedBuckets = new HashSet<ESAggregationBucket>();
 
                                 // first map all buckets by their grouping value
                                 foreach (var bucket in aggregationResult.Aggregations[distinctGroup.Key].buckets)
@@ -1369,9 +1371,8 @@ namespace Core.Catalog
                                     bucketMapping.Add(bucket.key, bucket);
                                 }
 
-                                int currentOrder = 0;
 
-                                // go over all the ordered IDs and give the buckets the order of the specific documents
+                                // go over all the ordered IDs and reorder the buckets by the specific documents' order
                                 foreach (var id in orderedIds)
                                 {
                                     var doc = idToDocument[id.ToString()];
@@ -1384,10 +1385,10 @@ namespace Core.Catalog
                                         {
                                             var bucket = bucketMapping[groupingValue];
 
-                                            if (bucket.manual_order == 0)
+                                            if (!alreadyContainedBuckets.Contains(bucket))
                                             {
-                                                currentOrder++;
-                                                bucket.manual_order = currentOrder;
+                                                alreadyContainedBuckets.Add(bucket);
+                                                orderedBuckets.Add(bucket);
 
                                                 // Fake the top hit to be the first asset after sorting
                                                 bucket.Aggregations.Add("top_hits_assets", new ESAggregationResult()
@@ -1406,9 +1407,8 @@ namespace Core.Catalog
                                     }
                                 }
 
-                                // order by the manual order we did a second ago
-                                aggregationResult.Aggregations[distinctGroup.Key].buckets =
-                                    aggregationResult.Aggregations[distinctGroup.Key].buckets.OrderBy(bucket => bucket.manual_order).ToList();
+                                // replace the original list with the ordered list
+                                aggregationResult.Aggregations[distinctGroup.Key].buckets = orderedBuckets;
                             }
 
                             #endregion
