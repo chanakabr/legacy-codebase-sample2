@@ -446,7 +446,6 @@ namespace ElasticSearch.Searcher
         public string key;
         public int doc_count;
         public Dictionary<string, ESAggregationResult> Aggregations;
-        public int manual_order;
     }
 
     public class ESAggregationBucketStatistics
