@@ -1115,9 +1115,11 @@ namespace Core.Catalog
 
                 isOrderedByStat = true;
 
-                // if ordered by stats, we don't want the top hits
-                unifiedSearchDefinitions.distinctGroup = new KeyValuePair<string, string>();
-                unifiedSearchDefinitions.topHitsCount = 0;
+                // if ordered by stats, we want at least one top hit count
+                if (unifiedSearchDefinitions.topHitsCount < 1)
+                {
+                    unifiedSearchDefinitions.topHitsCount = 1;
+                }
             }
             else if (!string.IsNullOrEmpty(distinctGroup.Key) && 
                 (orderBy == OrderBy.META || orderBy == OrderBy.NAME))
@@ -1130,8 +1132,11 @@ namespace Core.Catalog
                 queryParser.PageSize = 0;
                 queryParser.GetAllDocuments = true;
 
-                unifiedSearchDefinitions.distinctGroup = new KeyValuePair<string, string>();
-                unifiedSearchDefinitions.topHitsCount = 0;
+                // if ordered by stats, we want at least one top hit count
+                if (unifiedSearchDefinitions.topHitsCount < 1)
+                {
+                    unifiedSearchDefinitions.topHitsCount = 1;
+                }
             }
             else
             {
@@ -1434,20 +1439,44 @@ namespace Core.Catalog
                             alreadyContainedBuckets.Add(bucket);
                             orderedBuckets.Add(bucket);
 
-                            // Fake the top hit to be the first asset after sorting
-                            bucket.Aggregations.Add("top_hits_assets", new ESAggregationResult()
+                            if (!bucket.Aggregations.ContainsKey(ESTopHitsAggregation.DEFAULT_NAME))
                             {
-                                hits = new ESHits()
+                                // Fake the top hit to be the first asset after sorting
+                                bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME] = new ESAggregationResult()
                                 {
-                                    hits = new List<ElasticSearchApi.ESAssetDocument>()
-                                                        {
-                                                            doc
-                                                        },
-                                    total = bucket.doc_count
+                                    hits = new ESHits()
+                                    {
+                                        hits = new List<ElasticSearchApi.ESAssetDocument>()
+                                                    {
+                                                        doc
+                                                    },
+                                        total = bucket.doc_count
+                                    }
+                                };
+                            }
+                            else
+                            {
+                                var hits = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME].hits;
+
+                                // bother doing this only if document isn't contained already
+                                if (!hits.hits.Contains(doc))
+                                {
+                                    hits.hits.Clear();
+                                    hits.hits.Add(doc);
                                 }
-                            });
+                            }
                         }
                     }
+                }
+            }
+
+            // Add the leftovers - the buckets that weren't included previously for some reason
+            foreach (var bucket in aggregationResult.Aggregations[distinctGroup.Key].buckets)
+            {
+                if (!alreadyContainedBuckets.Contains(bucket))
+                {
+                    alreadyContainedBuckets.Add(bucket);
+                    orderedBuckets.Add(bucket);
                 }
             }
 
