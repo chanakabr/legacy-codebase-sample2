@@ -1814,8 +1814,8 @@ namespace Core.Pricing
 
             Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", m_nGroupID } };
             List<PriceDetails> priceCodes = null;
-            bool res = LayeredCache.Instance.Get<List<PriceDetails>>(key, ref priceCodes, GetGroupPriceCodes, funcParams, m_nGroupID, 
-                LayeredCacheConfigNames.GET_GROUP_PRICE_CODES_LAYERED_CACHE_CONFIG_NAME, null);
+            bool res = LayeredCache.Instance.Get<List<PriceDetails>>(key, ref priceCodes, GetGroupPriceCodes, funcParams, m_nGroupID,
+                LayeredCacheConfigNames.GET_GROUP_PRICE_CODES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetPricingSettingsInvalidationKey(m_nGroupID) });
 
             if (priceCodes != null)
             {

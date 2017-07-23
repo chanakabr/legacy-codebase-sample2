@@ -60,7 +60,7 @@ namespace Core.Pricing
                 string key = LayeredCacheKeys.GetPriceCodeByCountryAndCurrencyKey(originalBasePricing.GroupID, priceCodeId, countryCode, currencyCode);
                 if (!LayeredCache.Instance.Get<PriceCode>(key, ref res, Utils.GetPriceCodeByCountryAndCurrency, new Dictionary<string, object>() { { "groupId", m_nGroupID },
                                                             { "priceCodeId", priceCodeId }, { "countryCode", countryCode }, { "currencyCode", currencyCode } },
-                                                            m_nGroupID, LayeredCacheConfigNames.PRICE_CODE_LOCALE_LAYERED_CACHE_CONFIG_NAME))
+                                                            m_nGroupID, LayeredCacheConfigNames.PRICE_CODE_LOCALE_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetPriceCodeInvalidationKey(m_nGroupID, priceCodeId) }))
                 {
                     log.ErrorFormat("Failed getting PriceCode by countryCode and currencyCode from LayeredCache, priceCodeId: {0}, countryCode: {1},currencyCode: {2}, key: {3}",
                                     priceCodeId, countryCode, currencyCode, key);
