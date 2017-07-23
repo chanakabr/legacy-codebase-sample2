@@ -1,6 +1,9 @@
-﻿using System;
+﻿using CachingProvider.LayeredCache;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -8,6 +11,8 @@ using TVinciShared;
 
 public partial class adm_price_codes : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -186,5 +191,22 @@ public partial class adm_price_codes : System.Web.UI.Page
     public void GetHeader()
     {
         Response.Write(PageUtils.GetPreHeader() + ": Price Codes");
+    }
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        int groupId = LoginManager.GetLoginGroupID();
+        // invalidation keys
+        string invalidationKey = LayeredCacheKeys.GetGroupPriceCodesInvalidationKey(groupId);
+        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+        {
+            log.ErrorFormat("Failed to set invalidation key for group price codes. key = {0}", invalidationKey);
+        }
+
+        invalidationKey = LayeredCacheKeys.GetPriceCodeInvalidationKey(groupId, int.Parse(sID));
+        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+        {
+            log.ErrorFormat("Failed to set invalidation key for Price code. key = {0}", invalidationKey);
+        }
     }
 }

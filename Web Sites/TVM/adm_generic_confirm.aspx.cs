@@ -14,6 +14,7 @@ using ApiObjects;
 using System.Collections.Generic;
 using KLogMonitor;
 using System.Reflection;
+using CachingProvider.LayeredCache;
 
 public partial class adm_generic_confirm : System.Web.UI.Page
 {
@@ -443,7 +444,40 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         }
                     }
                     break;
+                case "price_codes":
+                    {
+                        // invalidation keys
+                        int groupId = LoginManager.GetLoginGroupID();
+                        string invalidationKey = LayeredCacheKeys.GetGroupPriceCodesInvalidationKey(groupId);
+                        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key for group price codes. key = {0}", invalidationKey);
+                        }
 
+                        invalidationKey = LayeredCacheKeys.GetPriceCodeInvalidationKey(groupId, m_nID);
+                        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key for Price code. key = {0}", invalidationKey);
+                        }
+                    }
+                    break;
+                case "price_codes_locales":
+                    {
+                        // invalidation keys
+                        int groupId = LoginManager.GetLoginGroupID();
+                        string invalidationKey = LayeredCacheKeys.GetGroupPriceCodesInvalidationKey(groupId);
+                        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key for group price codes. key = {0}", invalidationKey);
+                        }
+
+                        invalidationKey = LayeredCacheKeys.GetPriceCodeInvalidationKey(groupId, m_nID);
+                        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key for Price code. key = {0}", invalidationKey);
+                        }
+                    }
+                    break;
                 default:
                     break;
             }

@@ -57,12 +57,21 @@ public partial class adm_price_codes_new : System.Web.UI.Page
             Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                DBManipulator.DoTheWork("pricing_connection");
+                int id = DBManipulator.DoTheWork("pricing_connection");
+
+                // invalidation keys
                 string invalidationKey = LayeredCacheKeys.GetGroupPriceCodesInvalidationKey(nLogedInGroupID);
                 if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
-                    log.ErrorFormat("Failed to set invalidation key on User.Save key = {0}", invalidationKey);
+                   log.ErrorFormat("Failed to set invalidation key for group price codes. key = {0}", invalidationKey);
                 }
+
+                invalidationKey = LayeredCacheKeys.GetPriceCodeInvalidationKey(nLogedInGroupID, id);
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for Price code. key = {0}", invalidationKey);
+                }
+
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
