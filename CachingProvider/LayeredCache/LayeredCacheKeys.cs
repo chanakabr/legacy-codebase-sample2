@@ -237,6 +237,11 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+        public static string GetGroupPriceCodesKey(int groupId)
+        {
+            return string.Format("priceCodes_groupId_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -369,6 +374,11 @@ namespace CachingProvider.LayeredCache
             }
 
             return result;
+        }
+
+        public static string GetGroupPriceCodesInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyGroupPriceCodes_groupId_{0}", groupId);
         }
 
         #endregion        
