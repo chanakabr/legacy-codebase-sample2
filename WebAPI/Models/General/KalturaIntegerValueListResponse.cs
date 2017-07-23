@@ -12,7 +12,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Integer list wrapper
     /// </summary>
-      [DataContract(Name = "KalturaIntegerValueListResponse", Namespace = "")]
+    [DataContract(Name = "KalturaIntegerValueListResponse", Namespace = "")]
     [XmlRoot("KalturaIntegerValueListResponse")]
     public class KalturaIntegerValueListResponse : KalturaListResponse
     {
@@ -20,9 +20,9 @@ namespace WebAPI.Models.General
         /// Interger value items
         /// </summary>
         [DataMember(Name = "objects")]
-        [JsonProperty(PropertyName = "objects")]        
+        [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]       
+        [XmlArrayItem(ElementName = "item")]
         public List<KalturaIntegerValue> Values { get; set; }
 
     }
