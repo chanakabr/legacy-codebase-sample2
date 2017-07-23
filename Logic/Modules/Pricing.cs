@@ -1502,10 +1502,10 @@ namespace Core.Pricing
             };
 
             BasePricing t = null;
-            t = Utils.GetBasePricing(groupId, "GetPricePlans");
+            Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                response = t.GetPricePlans(pricePlanIds);
+                return (new PricingCacheWrapper(t)).GetPricePlans(pricePlanIds);
             }
 
             return response;

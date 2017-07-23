@@ -13,7 +13,7 @@ namespace Core.Pricing
     {
         protected BasePricing originalBasePricing;
 
-        public BasePricingDecorator(BasePricing originalBasePricing)
+        public BasePricingDecorator(BasePricing originalBasePricing) : base(originalBasePricing.GroupID)
         {
             this.originalBasePricing = originalBasePricing;
         }
