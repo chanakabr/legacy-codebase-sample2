@@ -381,7 +381,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeyGroupPriceCodes_groupId_{0}", groupId);
         }
 
-        #endregion        
+        public static string GetPriceCodeInvalidationKey(int groupId, int id)
+        {
+            return string.Format("invalidationKeyPriceCode_id_{0}_groupId_{1}", id, groupId);
+        }
 
+        #endregion        
     }
 }
