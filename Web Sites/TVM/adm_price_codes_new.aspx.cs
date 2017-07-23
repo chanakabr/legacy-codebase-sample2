@@ -1,6 +1,9 @@
-﻿using System;
+﻿using CachingProvider.LayeredCache;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -8,6 +11,8 @@ using TVinciShared;
 
 public partial class adm_price_codes_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -49,10 +54,15 @@ public partial class adm_price_codes_new : System.Web.UI.Page
                 Server.Transfer("adm_module_not_implemented.aspx");
                 return;
             }
-
+            Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork("pricing_connection");
+                string invalidationKey = LayeredCacheKeys.GetGroupPriceCodesInvalidationKey(nLogedInGroupID);
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on User.Save key = {0}", invalidationKey);
+                }
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
@@ -62,7 +72,6 @@ public partial class adm_price_codes_new : System.Web.UI.Page
             {
                 Session["price_code_id"] = int.Parse(Request.QueryString["price_code_id"].ToString());
                 Int32 nOwnerGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("price_codes", "group_id", int.Parse(Session["price_code_id"].ToString()), "pricing_connection").ToString());
-                Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
                 if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
                 {
                     LoginManager.LogoutFromSite("login.html");
