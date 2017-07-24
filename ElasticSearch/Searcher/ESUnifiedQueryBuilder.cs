@@ -350,7 +350,7 @@ namespace ElasticSearch.Searcher
                             {
                                 new ESTopHitsAggregation()
                                 {
-                                    Name = "top_hits_assets",
+                                    Name = ESTopHitsAggregation.DEFAULT_NAME,
                                     Size = topHitsSize,
                                     // order just like regular search
                                     Sort = new OrderObj()
@@ -2394,7 +2394,12 @@ namespace ElasticSearch.Searcher
                     break;
                 }
                 case OrderBy.NAME:
-                break;
+                {
+                    aggregationsOrder = "_term";
+                    aggregationsOrderDirection = "asc";
+
+                    break;
+                }
                 case OrderBy.CREATE_DATE:
                 {
                     field = "create_date";
@@ -2402,7 +2407,9 @@ namespace ElasticSearch.Searcher
                 }
                 case OrderBy.META:
                 {
-                    field = string.Format("metas.{0}", orderObj.m_sOrderValue.ToLower());
+                    aggregationsOrder = "_term";
+                    aggregationsOrderDirection = "asc";
+
                     break;
                 }
                 case OrderBy.RANDOM:
@@ -2419,38 +2426,10 @@ namespace ElasticSearch.Searcher
                 }
                 case OrderBy.RECOMMENDATION:
                 break;
+
                 default:
                 break;
             }
-            //if (orderObj.m_eOrderBy == OrderBy.META)
-            //{
-            //    field = string.Format("metas.{0}", orderObj.m_sOrderValue.ToLower());                
-            //}
-            //else 
-            //if (orderObj.m_eOrderBy == OrderBy.ID)
-            //{
-            //}
-            //else if (orderObj.m_eOrderBy == OrderBy.RELATED || orderObj.m_eOrderBy == OrderBy.NONE)
-            //{
-            //}
-            //else if (orderObj.m_eOrderBy != OrderBy.META &&
-                    
-            //{
-            //    field = Enum.GetName(typeof(OrderBy), orderObj.m_eOrderBy).ToLower();
-            //}
-
-            ////we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
-            //if (order.m_eOrderBy != OrderBy.ID &&
-            //    shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
-            //{
-            //    sortBuilder.Append(", \"_score\"");
-            //}
-
-            //if (order.m_eOrderBy != OrderBy.ID)
-            //{
-            //    // Always add sort by _id to avoid ES weirdness of same sort-value 
-            //    sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
-            //}
 
             if (!string.IsNullOrEmpty(field) || !string.IsNullOrEmpty(script))
             {

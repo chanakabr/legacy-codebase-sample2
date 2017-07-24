@@ -247,6 +247,8 @@ namespace ElasticSearch.Searcher
 
     public class ESTopHitsAggregation : ESBaseAggsItem
     {
+        public const string DEFAULT_NAME = "top_hits_assets";
+
         public OrderObj Sort;
         public List<string> SourceIncludes;
 
