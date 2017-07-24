@@ -322,5 +322,14 @@ namespace WebAPI.Models.Catalog
             get;
             set;
         }
+
+        /// <summary>
+        /// Recording Type: single/season/series
+        /// </summary>
+        [DataMember(Name = "recordingType")]
+        [JsonProperty(PropertyName = "recordingType")]
+        [XmlElement(ElementName = "recordingType", IsNullable = true)]
+        public WebAPI.Models.ConditionalAccess.KalturaRecordingType RecordingType { get; set; }
     }
+    
 }

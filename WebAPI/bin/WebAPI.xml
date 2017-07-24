@@ -5492,6 +5492,11 @@
             Recording identifier
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRecordingAsset.RecordingType">
+            <summary>
+            Recording Type: single/season/series
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBundleFilter.IdEqual">
              <summary>
             Bundle Id. 

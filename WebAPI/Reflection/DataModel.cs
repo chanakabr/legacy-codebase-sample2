@@ -5127,6 +5127,8 @@ namespace WebAPI.Reflection
                     {
                         case "RecordingId":
                             return "recordingId";
+                        case "RecordingType":
+                            return "recordingType";
                     }
                     break;
                     
