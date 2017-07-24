@@ -144,6 +144,13 @@ namespace WebAPI.Utils
             return format != null ? format.ToString() : null;
         }
 
+        internal static WebAPI.Models.General.KalturaBaseResponseProfile GetResponseProfileFromRequest()
+        {
+            object responseProfile= HttpContext.Current.Items[RequestParser.REQUEST_RESPONSE_PROFILE];
+
+            return responseProfile != null ? responseProfile as WebAPI.Models.General.KalturaBaseResponseProfile : null;
+        }
+
         public static bool ConvertStringToDateTimeByFormat(string dateInString, string convertToFormat, out DateTime dateTime)
         {
             return DateTime.TryParseExact(dateInString, convertToFormat, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dateTime);

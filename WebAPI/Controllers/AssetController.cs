@@ -161,6 +161,7 @@ namespace WebAPI.Controllers
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
             string format = Utils.Utils.GetFormatFromRequest();
+            KalturaBaseResponseProfile responseProfile = Utils.Utils.GetResponseProfileFromRequest();
       
             // parameters validation
             if (pager == null)
@@ -192,7 +193,8 @@ namespace WebAPI.Controllers
                 {
                     KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                     response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
-                        regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy, regularAssetFilter.getGroupByValue());
+                        regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy, 
+                        regularAssetFilter.getGroupByValue(), responseProfile);
                 }
                 //Return list of media assets that are related to a provided asset ID (of type VOD). 
                 //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 
@@ -201,7 +203,8 @@ namespace WebAPI.Controllers
                 {
                     KalturaRelatedFilter relatedFilter = (KalturaRelatedFilter)filter;
                     response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, domainId, udid,
-                    language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(), relatedFilter.OrderBy, relatedFilter.DynamicOrderBy);
+                    language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(), relatedFilter.OrderBy, relatedFilter.DynamicOrderBy,
+                    relatedFilter.getGroupByValue(), responseProfile);
                 }
                 //Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. 
                 //Support on-demand, per asset enrichment. Related assets are provided from the external source (e.g. external recommendation engine). 
@@ -241,7 +244,8 @@ namespace WebAPI.Controllers
                         pager = new KalturaFilterPager();
 
                     response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(),
-                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy);
+                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy, 
+                        responseProfile);
                 }
                 else if (filter is KalturaBundleFilter)
                 {

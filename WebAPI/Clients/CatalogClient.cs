@@ -20,6 +20,7 @@ using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
@@ -157,7 +158,7 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
-            List<string> groupBy = null)
+            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -234,7 +235,7 @@ namespace WebAPI.Clients
                 searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0)
             {
                 // build the assetsBaseDataList from the hit array 
-                result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, CacheDuration, managementData);
+                result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, CacheDuration, managementData, responseProfile);
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
             else if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
@@ -657,8 +658,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, 
-            KalturaAssetOrderBy orderBy,  KalturaDynamicOrderBy assetOrder = null)
+        public KalturaAssetListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes,
+            KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null, List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -691,13 +692,21 @@ namespace WebAPI.Clients
                 m_sFilter = filter, 
                 OrderObj = order
             };
-
+            if (groupBy != null && groupBy.Count > 0)
+            {
+                request.searchGroupBy = new SearchAggregationGroupBy()
+                {
+                    groupBy = groupBy,
+                    distinctGroup = groupBy[0], // mabye will send string.empty - and Backend will fill it if nessecery
+                    topHitsCount = 1
+                };
+            }
             // build failover cache key
             StringBuilder key = new StringBuilder();
             key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMedia(request, key.ToString(), CacheDuration);
+            result = CatalogUtils.GetMedia(request, key.ToString(), CacheDuration, responseProfile);
 
             return result;
         }
@@ -1893,7 +1902,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
-            KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null)
+            KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -1955,8 +1964,15 @@ namespace WebAPI.Clients
                 // Bad response received from WS
                 throw new ClientException(channelResponse.status.Code, channelResponse.status.Message);
             }
-
-            if (channelResponse.searchResults != null && channelResponse.searchResults.Count > 0)
+            
+            if (channelResponse.aggregationResults != null && channelResponse.aggregationResults.Count > 0 && 
+                channelResponse.aggregationResults[0].results != null && channelResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
+            {
+                // build the assetsBaseDataList from the hit array 
+                result.Objects = CatalogUtils.GetAssets(channelResponse.aggregationResults[0].results, request, CacheDuration, false, responseProfile);
+                result.TotalCount = channelResponse.m_nTotalItems;
+            }            
+            else if (channelResponse.searchResults != null && channelResponse.searchResults.Count > 0)
             {
                 // get base objects list
                 List<BaseObject> assetsBaseDataList = channelResponse.searchResults.Select(x => x as BaseObject).ToList();

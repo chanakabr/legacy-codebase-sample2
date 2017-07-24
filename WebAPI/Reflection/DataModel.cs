@@ -2438,6 +2438,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBaseResponseProfile":
+                    switch(property.Name)
+                    {
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
                 case "KalturaBaseSearchAssetFilter":
                     switch(property.Name)
                     {
@@ -5339,6 +5347,8 @@ namespace WebAPI.Reflection
                             return "language";
                         case "PartnerID":
                             return "partnerId";
+                        case "ResponseProfile":
+                            return "responseProfile";
                         case "UserID":
                             return "userId";
                     }

@@ -453,7 +453,7 @@ namespace WebAPI.Utils
             return result;
         }
 
-        public static KalturaAssetListResponse GetMedia(BaseRequest request, string key, int cacheDuration)
+        public static KalturaAssetListResponse GetMedia(BaseRequest request, string key, int cacheDuration, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -464,8 +464,15 @@ namespace WebAPI.Utils
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
+            if (mediaIdsResponse.aggregationResults != null && mediaIdsResponse.aggregationResults.Count > 0 &&
+                mediaIdsResponse.aggregationResults[0].results != null && mediaIdsResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
+            {
+                // build the assetsBaseDataList from the hit array 
+                result.Objects = CatalogUtils.GetAssets(mediaIdsResponse.aggregationResults[0].results, request, cacheDuration, false, responseProfile);
+                result.TotalCount = mediaIdsResponse.m_nTotalItems;
+            }
 
-            if (mediaIdsResponse.searchResults != null && mediaIdsResponse.searchResults.Count > 0)
+            else if (mediaIdsResponse.searchResults != null && mediaIdsResponse.searchResults.Count > 0)
             {
                 // get base objects list
                 List<BaseObject> assetsBaseDataList = mediaIdsResponse.searchResults.Select(x => x as BaseObject).ToList();
@@ -600,7 +607,7 @@ namespace WebAPI.Utils
         //    return result;
         //}
 
-        internal static List<KalturaAsset> GetAssets(List<AggregationResult> results, UnifiedSearchRequest request, int cacheDuration, bool managementData)
+        internal static List<KalturaAsset> GetAssets(List<AggregationResult> results, BaseRequest request, int cacheDuration, bool managementData, KalturaBaseResponseProfile responseProfile)
         {
             // get base objects list            
 
@@ -620,32 +627,35 @@ namespace WebAPI.Utils
             {
                 List<KalturaAsset> tempAssets = Mapper.Map<List<KalturaAsset>>(assets);
 
-                Dictionary<string, int> assetIdToCount = 
-                    results.Where(x => x.topHits != null && x.topHits.Count > 0).
-                            ToDictionary(x => (x.topHits[0] as BaseObject).AssetId, x => x.count);
-
-                foreach (KalturaAsset asset in tempAssets)
+                if (responseProfile != null)
                 {
-                    if (asset.Id.HasValue && 
-                        assetIdToCount.ContainsKey(asset.Id.Value.ToString()))
-                    {
-                        var item = assetIdToCount[asset.Id.Value.ToString()];
+                    Dictionary<string, int> assetIdToCount =
+                        results.Where(x => x.topHits != null && x.topHits.Count > 0).
+                                ToDictionary(x => (x.topHits[0] as BaseObject).AssetId, x => x.count);
 
-                        asset.relatedObjects = new SerializableDictionary<string, KalturaListResponse>();
-                        KalturaIntegerValueListResponse kiv = new KalturaIntegerValueListResponse()
+                    foreach (KalturaAsset asset in tempAssets)
+                    {
+                        if (asset.Id.HasValue &&
+                            assetIdToCount.ContainsKey(asset.Id.Value.ToString()))
                         {
-                            Values = new List<KalturaIntegerValue>()
+                            var item = assetIdToCount[asset.Id.Value.ToString()];
+
+                            asset.relatedObjects = new SerializableDictionary<string, KalturaListResponse>();
+                            KalturaIntegerValueListResponse kiv = new KalturaIntegerValueListResponse()
+                            {
+                                Values = new List<KalturaIntegerValue>()
                             {
                                 new KalturaIntegerValue()
                                 {
                                     value = item
                                 }
                             },
-                            TotalCount = item
-                        };
+                                TotalCount = item
+                            };
 
-                        asset.relatedObjects.Add(asset.GetType().Name, kiv);
-                        break;
+                            asset.relatedObjects.Add(responseProfile.Name, kiv);
+                            break;
+                        }
                     }
                 }
 

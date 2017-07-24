@@ -121,6 +121,8 @@ namespace WebAPI.Filters
         public const string REQUEST_TYPE = "requestType";
         public const string REQUEST_SERVE_CONTENT_TYPE = "requestServeContentType";
         public const string REQUEST_PATH_DATA = "pathData";
+        public const string REQUEST_RESPONSE_PROFILE = "responseProfile";
+
 
         public static object GetRequestPayload()
         {
@@ -203,7 +205,7 @@ namespace WebAPI.Filters
             }
 
             // impersonated user_id
-            HttpContext.Current.Items.Remove(REQUEST_USER_ID); 
+            HttpContext.Current.Items.Remove(REQUEST_USER_ID);
             if ((requestParams.ContainsKey("user_id") && requestParams["user_id"] != null) || (requestParams.ContainsKey("userId") && requestParams["userId"] != null))
             {
                 object userIdObject = requestParams.ContainsKey("userId") ? requestParams["userId"] : requestParams["user_id"];
@@ -273,10 +275,10 @@ namespace WebAPI.Filters
             }
 
             // format                        
-            if (!string.IsNullOrEmpty( HttpContext.Current.Request.QueryString[REQUEST_FORMAT]))
+            if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[REQUEST_FORMAT]))
             {
-                HttpContext.Current.Items.Add(REQUEST_FORMAT, HttpContext.Current.Request.QueryString[REQUEST_FORMAT]);                
-            }            
+                HttpContext.Current.Items.Add(REQUEST_FORMAT, HttpContext.Current.Request.QueryString[REQUEST_FORMAT]);
+            }
 
             if (HttpContext.Current.Items[REQUEST_TYPE] != null)
                 HttpContext.Current.Items.Remove(REQUEST_TYPE);
@@ -286,7 +288,7 @@ namespace WebAPI.Filters
                 switch (action)
                 {
                     case "register":
-                    case "add":                    
+                    case "add":
                         HttpContext.Current.Items[REQUEST_TYPE] = RequestType.INSERT;
                         break;
 
@@ -303,7 +305,34 @@ namespace WebAPI.Filters
                         break;
                 }
             }
+            // response profile
+            if (requestParams.ContainsKey("responseProfile") && requestParams["responseProfile"] != null)
+            {
+
+                //If object
+                KalturaOTTObject responseProfile = null;
+                Type type = typeof(KalturaBaseResponseProfile);
+                if (requestParams["responseProfile"] is JObject)
+                {
+                    responseProfile = buildObject(type,
+                        ((JObject)requestParams["responseProfile"]).ToObject<Dictionary<string, object>>());
+                }
+                else if (requestParams["responseProfile"] is Dictionary<string, object>)
+                {                    
+                     responseProfile = buildObject(type,
+                        ((JObject)requestParams["responseProfile"]).ToObject<Dictionary<string, object>>());
+                }
+                //property.SetValue(instance, classRes, null);                
+
+                if (globalScope && HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE] == null)
+                    HttpContext.Current.Items.Add(REQUEST_RESPONSE_PROFILE, responseProfile);
+            }
+            else if (HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE] != null)
+            {
+                HttpContext.Current.Items.Add(REQUEST_RESPONSE_PROFILE, (KalturaBaseResponseProfile)HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE]);
+            }
         }
+        
 
         public async Task<NameValueCollection> ParseFormData(HttpActionContext actionContext)
         {
@@ -755,7 +784,7 @@ namespace WebAPI.Filters
                         string userId = Convert.ToString(HttpContext.Current.Items[REQUEST_USER_ID]);
                         string deviceId = KSUtils.ExtractKSPayload().UDID;
                         int groupId = Convert.ToInt32(HttpContext.Current.Items[REQUEST_GROUP_ID]);
-
+                        
                         object ksObject = HttpContext.Current.Items[REQUEST_KS];
                         KS ks = null;
 
@@ -777,10 +806,12 @@ namespace WebAPI.Filters
                             }
                         }
 
+
                         res.AfterRequestParsed(service, action, language, groupId, userId, deviceId, jObject);
 
                         value = res;
                     }
+                   
                     else if (t.IsArray || t.IsGenericType) // array or list
                     {
                         Type dictType = typeof(SerializableDictionary<,>);
@@ -1202,5 +1233,6 @@ namespace WebAPI.Filters
         {
             return ksVal.Length > accessTokenLength;
         }
+     
     }
 }

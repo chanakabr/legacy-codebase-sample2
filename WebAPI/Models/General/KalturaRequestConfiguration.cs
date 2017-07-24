@@ -44,5 +44,14 @@ namespace WebAPI.Models.General
         [JsonProperty("ks")]
         [XmlElement(ElementName = "ks")]
         public string KS { get; set; }
+
+        /// <summary>
+        /// Kaltura response profile object
+        /// </summary>
+        [DataMember(Name = "responseProfile")]
+        [JsonProperty("responseProfile")]
+        [XmlElement(ElementName = "responseProfile")]
+        public KalturaBaseResponseProfile ResponseProfile { get; set; }
+        
     }
 }
