@@ -195,7 +195,10 @@ namespace Core.Catalog.Request
                             }
                         }
                     }
+                    scheduledSearchResults.Add(scheduledRecording);
                 }
+
+                response.searchResults = scheduledSearchResults.Select(x => (UnifiedSearchResult)x).ToList();
             }
         }
 
