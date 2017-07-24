@@ -1069,6 +1069,7 @@ namespace Core.Catalog
             OrderObj order = unifiedSearchDefinitions.order;
             ApiObjects.SearchObjects.OrderBy orderBy = order.m_eOrderBy;
             bool isOrderedByStat = false;
+            bool isOrderedByString = false;
 
             ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(unifiedSearchDefinitions);
 
@@ -1114,9 +1115,28 @@ namespace Core.Catalog
 
                 isOrderedByStat = true;
 
-                // if ordered by stats, we don't want the top hits
-                unifiedSearchDefinitions.distinctGroup = new KeyValuePair<string, string>();
-                unifiedSearchDefinitions.topHitsCount = 0;
+                // if ordered by stats, we want at least one top hit count
+                if (unifiedSearchDefinitions.topHitsCount < 1)
+                {
+                    unifiedSearchDefinitions.topHitsCount = 1;
+                }
+            }
+            else if (!string.IsNullOrEmpty(distinctGroup.Key) && 
+                (orderBy == OrderBy.META || orderBy == OrderBy.NAME))
+            {
+                isOrderedByString = true;
+
+                pageIndex = unifiedSearchDefinitions.pageIndex;
+                pageSize = unifiedSearchDefinitions.pageSize;
+                queryParser.PageIndex = 0;
+                queryParser.PageSize = 0;
+                queryParser.GetAllDocuments = true;
+
+                // if ordered by stats, we want at least one top hit count
+                if (unifiedSearchDefinitions.topHitsCount < 1)
+                {
+                    unifiedSearchDefinitions.topHitsCount = 1;
+                }
             }
             else
             {
@@ -1361,57 +1381,17 @@ namespace Core.Catalog
                             }
                             else
                             {
-                                var bucketMapping = new Dictionary<string, ESAggregationBucket>();
-
-                                // first map all buckets by their grouping value
-                                foreach (var bucket in aggregationResult.Aggregations[distinctGroup.Key].buckets)
-                                {
-                                    bucketMapping.Add(bucket.key, bucket);
-                                }
-
-                                int currentOrder = 0;
-
-                                // go over all the ordered IDs and give the buckets the order of the specific documents
-                                foreach (var id in orderedIds)
-                                {
-                                    var doc = idToDocument[id.ToString()];
-
-                                    if (doc.extraReturnFields.ContainsKey(distinctGroup.Value))
-                                    {
-                                        var groupingValue = doc.extraReturnFields[distinctGroup.Value];
-
-                                        if (bucketMapping.ContainsKey(groupingValue))
-                                        {
-                                            var bucket = bucketMapping[groupingValue];
-
-                                            if (bucket.manual_order == 0)
-                                            {
-                                                currentOrder++;
-                                                bucket.manual_order = currentOrder;
-
-                                                // Fake the top hit to be the first asset after sorting
-                                                bucket.Aggregations.Add("top_hits_assets", new ESAggregationResult()
-                                                {
-                                                    hits = new ESHits()
-                                                    {
-                                                        hits = new List<ElasticSearchApi.ESAssetDocument>()
-                                                        {
-                                                            doc
-                                                        },
-                                                        total = bucket.doc_count
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // order by the manual order we did a second ago
-                                aggregationResult.Aggregations[distinctGroup.Key].buckets =
-                                    aggregationResult.Aggregations[distinctGroup.Key].buckets.OrderBy(bucket => bucket.manual_order).ToList();
+                                ReorderBuckets(aggregationResult, pageIndex, pageSize, distinctGroup, idToDocument, orderedIds);
                             }
 
                             #endregion
+                        }
+
+                        if (isOrderedByString)
+                        {
+                            // in this case the assets are already ordered in original search results, so we will simply use it
+                            List<long> orderedIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
+                            ReorderBuckets(aggregationResult, pageIndex, pageSize, distinctGroup, idToDocument, orderedIds);
                         }
                     }
 
@@ -1424,6 +1404,87 @@ namespace Core.Catalog
             }
 
             return (searchResultsList);
+        }
+
+        private static void ReorderBuckets(
+            ESAggregationsResult aggregationResult, int pageIndex, int pageSize, 
+            KeyValuePair<string, string> distinctGroup, Dictionary<string, 
+            ElasticSearchApi.ESAssetDocument> idToDocument, List<long> orderedIds)
+        {
+            var bucketMapping = new Dictionary<string, ESAggregationBucket>();
+            var orderedBuckets = new List<ESAggregationBucket>();
+            var alreadyContainedBuckets = new HashSet<ESAggregationBucket>();
+
+            // first map all buckets by their grouping value
+            foreach (var bucket in aggregationResult.Aggregations[distinctGroup.Key].buckets)
+            {
+                bucketMapping.Add(bucket.key, bucket);
+            }
+
+            // go over all the ordered IDs and reorder the buckets by the specific documents' order
+            foreach (var id in orderedIds)
+            {
+                var doc = idToDocument[id.ToString()];
+
+                if (doc.extraReturnFields.ContainsKey(distinctGroup.Value))
+                {
+                    var groupingValue = doc.extraReturnFields[distinctGroup.Value];
+
+                    if (bucketMapping.ContainsKey(groupingValue))
+                    {
+                        var bucket = bucketMapping[groupingValue];
+
+                        if (!alreadyContainedBuckets.Contains(bucket))
+                        {
+                            alreadyContainedBuckets.Add(bucket);
+                            orderedBuckets.Add(bucket);
+
+                            if (!bucket.Aggregations.ContainsKey(ESTopHitsAggregation.DEFAULT_NAME))
+                            {
+                                // Fake the top hit to be the first asset after sorting
+                                bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME] = new ESAggregationResult()
+                                {
+                                    hits = new ESHits()
+                                    {
+                                        hits = new List<ElasticSearchApi.ESAssetDocument>()
+                                                    {
+                                                        doc
+                                                    },
+                                        total = bucket.doc_count
+                                    }
+                                };
+                            }
+                            else
+                            {
+                                var hits = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME].hits;
+
+                                // bother doing this only if document isn't contained already
+                                if (!hits.hits.Contains(doc))
+                                {
+                                    hits.hits.Clear();
+                                    hits.hits.Add(doc);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Add the leftovers - the buckets that weren't included previously for some reason
+            foreach (var bucket in aggregationResult.Aggregations[distinctGroup.Key].buckets)
+            {
+                if (!alreadyContainedBuckets.Contains(bucket))
+                {
+                    alreadyContainedBuckets.Add(bucket);
+                    orderedBuckets.Add(bucket);
+                }
+            }
+
+            bool illegalRequest = false;
+            var pagedBuckets = TVinciShared.ListUtils.Page<ESAggregationBucket>(orderedBuckets, pageSize, pageIndex, out illegalRequest).ToList();
+
+            // replace the original list with the ordered list
+            aggregationResult.Aggregations[distinctGroup.Key].buckets = orderedBuckets;
         }
 
         private List<long> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets,
