@@ -6423,7 +6423,7 @@ namespace Core.ConditionalAccess
 							List<ItemPriceContainer> itemPriceCont = new List<ItemPriceContainer>();
 
 							Int32 nLowestIndex = 0;
-							double dLowest = -1;
+                            double dLowest = double.MaxValue;
 							Price pLowest = null;
 							PriceReason theLowestReason = PriceReason.UnKnown;
                             bool hasValidPpv = false;
@@ -6523,7 +6523,7 @@ namespace Core.ConditionalAccess
 										}
 										else
 										{
-											if (p != null && (p.m_dPrice < dLowest || j == 0))
+											if (p != null && p.m_dPrice < dLowest)
 											{
 												#region insert lowest price parameters
 												nLowestIndex = j;
