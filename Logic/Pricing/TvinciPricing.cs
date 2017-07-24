@@ -13,6 +13,7 @@ using ApiObjects.Pricing;
 using System.Xml;
 using ApiObjects.IngestBusinessModules;
 using DAL;
+using CachingProvider.LayeredCache;
 
 namespace Core.Pricing
 {
@@ -1809,12 +1810,12 @@ namespace Core.Pricing
                 return response;
             }
 
+            string key = LayeredCacheKeys.GetGroupPriceCodesKey(m_nGroupID);
+
+            Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", m_nGroupID } };
             List<PriceDetails> priceCodes = null;
-            DataTable priceCodesDt = PricingDAL.GetPriceCodes(m_nGroupID);
-            if (priceCodesDt != null)
-            {
-                priceCodes = Utils.BuildPriceCodesFromDataTable(priceCodesDt);
-            }
+            bool res = LayeredCache.Instance.Get<List<PriceDetails>>(key, ref priceCodes, GetGroupPriceCodes, funcParams, m_nGroupID,
+                LayeredCacheConfigNames.GET_GROUP_PRICE_CODES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetPricingSettingsInvalidationKey(m_nGroupID) });
 
             if (priceCodes != null)
             {
@@ -1840,6 +1841,33 @@ namespace Core.Pricing
             response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             return response;
+        }
+
+        private Tuple<List<PriceDetails>, bool> GetGroupPriceCodes(Dictionary<string, object> funcParams)
+        {
+            List<PriceDetails> priceCodes = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    DataTable priceCodesDt = PricingDAL.GetPriceCodes(m_nGroupID);
+                    if (priceCodesDt != null)
+                    {
+                        priceCodes = Utils.BuildPriceCodesFromDataTable(priceCodesDt);
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupPriceCodes failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            bool res = priceCodes != null;
+
+            return new Tuple<List<PriceDetails>, bool>(priceCodes, res);
         }
     }
 }

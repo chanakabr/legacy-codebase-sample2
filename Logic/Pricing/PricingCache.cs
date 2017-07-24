@@ -311,5 +311,28 @@ namespace Core.Pricing
 
             return values;
         }
+
+        static internal bool TryGetGroupPricePlans(string key, out List<UsageModule> pricePlans)
+        {
+            bool res = false;
+            List<UsageModule> temp = Get<List<UsageModule>>(key);
+            if (temp != null)
+            {
+                pricePlans = temp;
+                res = true;
+            }
+            else
+            {
+                pricePlans = null;
+                res = false;
+            }
+
+            return res;
+        }
+
+        static internal bool TryAddGroupPricePlans(string key, List<UsageModule> pricePlans)
+        {
+            return pricePlans != null && Add(key, pricePlans);
+        }
     }
 }

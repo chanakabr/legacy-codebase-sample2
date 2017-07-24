@@ -1,7 +1,10 @@
-﻿using CachingProvider.LayeredCache;
+﻿using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -57,7 +60,7 @@ namespace Core.Pricing
                 string key = LayeredCacheKeys.GetPriceCodeByCountryAndCurrencyKey(originalBasePricing.GroupID, priceCodeId, countryCode, currencyCode);
                 if (!LayeredCache.Instance.Get<PriceCode>(key, ref res, Utils.GetPriceCodeByCountryAndCurrency, new Dictionary<string, object>() { { "groupId", m_nGroupID },
                                                             { "priceCodeId", priceCodeId }, { "countryCode", countryCode }, { "currencyCode", currencyCode } },
-                                                            m_nGroupID, LayeredCacheConfigNames.PRICE_CODE_LOCALE_LAYERED_CACHE_CONFIG_NAME))
+                                                            m_nGroupID, LayeredCacheConfigNames.PRICE_CODE_LOCALE_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetPriceCodeInvalidationKey(m_nGroupID, priceCodeId) }))
                 {
                     log.ErrorFormat("Failed getting PriceCode by countryCode and currencyCode from LayeredCache, priceCodeId: {0}, countryCode: {1},currencyCode: {2}, key: {3}",
                                     priceCodeId, countryCode, currencyCode, key);
@@ -75,6 +78,51 @@ namespace Core.Pricing
         public override PriceCode[] GetPriceCodeList(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             return originalBasePricing.GetPriceCodeList(sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+        }
+
+        public override UsageModulesResponse GetPricePlans(List<long> pricePlanIds)
+        {
+            UsageModulesResponse response = new UsageModulesResponse()
+            {
+                Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+            };
+
+            string cacheKey = GetGroupPricePlansKey(m_nGroupID);
+            List<UsageModule> temp = null;
+            if (!PricingCache.TryGetGroupPricePlans(cacheKey, out temp) || temp == null)
+            {
+                DataTable usageModules = PricingDAL.GetPricePlans(m_nGroupID, pricePlanIds);
+
+                if (usageModules != null && usageModules.Rows != null && usageModules.Rows.Count > 0)
+                {
+                    response.UsageModules = Utils.BuildUsageModulesFromDataTable(usageModules);
+                }
+
+                if (response.UsageModules != null)
+                {
+                    if (!PricingCache.TryAddGroupPricePlans(cacheKey, response.UsageModules))
+                    {
+                        PricingCache.LogCachingError("Failed to insert entry into cache. ", cacheKey, response.UsageModules, "GetPricePlans",
+                            PRICING_CACHE_WRAPPER_LOG_FILE);
+                    }
+                }
+            }
+            else
+            {
+                response.UsageModules = temp;
+            }
+
+            if (pricePlanIds != null && pricePlanIds.Count > 0 && response.UsageModules != null && response.UsageModules.Count > 0)
+            {
+                response.UsageModules.Where(pp => pricePlanIds.Contains(pp.m_nObjectID)).ToList();
+            }
+
+            return response;
+        }
+
+        private string GetGroupPricePlansKey(int m_nGroupID)
+        {
+            return String.Concat("GroupPricePlan_{0}", m_nGroupID);
         }
     }
 }

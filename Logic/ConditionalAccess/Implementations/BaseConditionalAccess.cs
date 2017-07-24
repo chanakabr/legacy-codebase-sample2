@@ -6450,9 +6450,10 @@ namespace Core.ConditionalAccess
 							List<ItemPriceContainer> itemPriceCont = new List<ItemPriceContainer>();
 
 							Int32 nLowestIndex = 0;
-							double dLowest = -1;
+							double dLowest = double.MaxValue;
 							Price pLowest = null;
 							PriceReason theLowestReason = PriceReason.UnKnown;
+                            bool hasValidPpv = false;
 							Subscription relevantLowestSub = null;
 							Collection relevantLowestCol = null;
 							PrePaidModule relevantLowestPrePaid = null;
@@ -6468,6 +6469,7 @@ namespace Core.ConditionalAccess
 							for (int j = 0; j < ppvModules.Length; j++)
 							{
 								string sPPVCode = GetPPVCodeForGetItemsPrices(ppvModules[j].PPVModule.m_sObjectCode, ppvModules[j].PPVModule.m_sObjectVirtualName);
+                                hasValidPpv = hasValidPpv ? hasValidPpv : ppvModules[j].IsValidForPurchase;
 								// Get PPV price code according to country and currency (if exists on the request)
 								if (!string.IsNullOrEmpty(countryCode)  && (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode)))
 								{
@@ -6506,7 +6508,7 @@ namespace Core.ConditionalAccess
 								List<int> relatedMediaFileIDs = new List<int>();
 								DateTime? dtEntitlementStartDate = null;
 								DateTime? dtEntitlementEndDate = null;
-								DateTime? dtDiscountEndDate = null;
+								DateTime? dtDiscountEndDate = null;                                
 
 								Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, userId, couponCode, m_nGroupID,
 									ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, countryCode, languageCode, udid,
@@ -6548,7 +6550,7 @@ namespace Core.ConditionalAccess
 										}
 										else
 										{
-											if (p != null && (p.m_dPrice < dLowest || j == 0))
+											if (p != null && p.m_dPrice < dLowest)
 											{
 												#region insert lowest price parameters
 												nLowestIndex = j;
@@ -6576,13 +6578,21 @@ namespace Core.ConditionalAccess
 								if (onlyLowest)
 								{
 									var tempItemPriceContainer = new ItemPriceContainer();
+                                    // in case ppv to media file connection has expired and no other valid ppv exists on the media file
+                                    if (!hasValidPpv && theLowestReason == PriceReason.UnKnown)
+                                    {
+                                        tempItemPriceContainer = GetFreeItemPriceContainer();
+                                    }
+                                    else
+                                    {
+                                        tempItemPriceContainer.Initialize(pLowest, ppvModules[nLowestIndex].PPVModule.m_oPriceCode.m_oPrise,
+                                            ppvModules[nLowestIndex].PPVModule.m_sObjectCode, ppvModules[nLowestIndex].PPVModule.m_sDescription,
+                                            theLowestReason, relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].PPVModule.m_bSubscriptionOnly,
+                                            relevantLowestPrePaid, sFirstDeviceNameFound, tempCancellationWindow, lowestPurchasedBySiteGuid,
+                                            lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs, ppvModules[nLowestIndex].PPVModule.m_Product_Code,
+                                            dtLowestStartDate, dtLowestEndDate);
+                                    }
 
-									tempItemPriceContainer.Initialize(pLowest, ppvModules[nLowestIndex].PPVModule.m_oPriceCode.m_oPrise,
-										ppvModules[nLowestIndex].PPVModule.m_sObjectCode, ppvModules[nLowestIndex].PPVModule.m_sDescription,
-										theLowestReason, relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].PPVModule.m_bSubscriptionOnly,
-										relevantLowestPrePaid, sFirstDeviceNameFound, tempCancellationWindow, lowestPurchasedBySiteGuid,
-										lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs, ppvModules[nLowestIndex].PPVModule.m_Product_Code,
-										dtLowestStartDate, dtLowestEndDate);
 									itemPriceCont.Insert(0, tempItemPriceContainer);
 								}
 								else
