@@ -230,13 +230,6 @@ namespace Core.Catalog.Request
                 int to = 0;
 
                 ESAggregationsResult aggregationsResult;
-
-                //request.searchGroupBy = new SearchAggregationGroupBy();
-                //request.searchGroupBy.distinctGroup = "season_num";
-                //request.searchGroupBy.groupBy = new List<string>();
-                //request.searchGroupBy.groupBy.Add("season_num");
-
-
                 List<UnifiedSearchResult> assetsResults = CatalogLogic.GetAssetIdFromSearcher(request, ref totalItems, ref to, out aggregationsResult);
 
                 response.m_nTotalItems = totalItems;

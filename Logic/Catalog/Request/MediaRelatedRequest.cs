@@ -34,6 +34,9 @@ namespace Core.Catalog.Request
 
         [DataMember]
         public OrderObj OrderObj;
+        
+        [DataMember]
+        public SearchAggregationGroupBy searchGroupBy;
 
         public MediaRelatedRequest()
             : base()
@@ -57,6 +60,7 @@ namespace Core.Catalog.Request
             m_nMediaTypes = m.m_nMediaTypes;
             m_nMediaTypes = new List<Int32>();
             OrderObj = m.OrderObj;
+            searchGroupBy = m.searchGroupBy;
         }
 
         public override BaseResponse GetResponse(BaseRequest oBaseRequest)

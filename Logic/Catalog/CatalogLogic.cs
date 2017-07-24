@@ -6579,8 +6579,18 @@ namespace Core.Catalog
 
             #endregion
 
+            #region Group By
+
+            Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields);
+
+            #endregion
+
+
+
             return status;
         }
+
+        
 
         /// <summary>
         /// Update filter tree fields for specific fields/values.
@@ -7236,89 +7246,8 @@ namespace Core.Catalog
 
                 #region Group By
 
-                if (channel.searchGroupBy != null && channel.searchGroupBy.groupBy != null && channel.searchGroupBy.groupBy.Count > 0)
-                {
-                    HashSet<string> allMetas = new HashSet<string>();
-                    HashSet<string> allTags = new HashSet<string>();
-
-                    foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
-                    {
-                        foreach (var meta in metasInGroup)
-                        {
-                            allMetas.Add(meta.Value.ToLower());
-                        }
-                    }
-
-                    foreach (var tagInGroup in group.m_oGroupTags.Values)
-                    {
-                        allTags.Add(tagInGroup.ToLower());
-                    }
-
-                    foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
-                    {
-                        allMetas.Add(meta);
-                    }
-
-                    foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
-                    {
-                        allTags.Add(tag);
-                    }
-
-                    definitions.groupBy = new List<KeyValuePair<string, string>>();
-                    string distinctGroupByFormatted = string.Empty;
-
-                    foreach (var groupBy in channel.searchGroupBy.groupBy)
-                    {
-                        string lowered = groupBy.ToLower();
-                        string requestGroupBy = lowered;
-                        bool valid = false;
-
-                        if (allMetas.Contains(lowered))
-                        {
-                            valid = true;
-                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
-                        }
-                        else if (allTags.Contains(lowered))
-                        {
-                            valid = true;
-                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
-                        }
-                        else if (reservedGroupByFields.Contains(lowered))
-                        {
-                            valid = true;
-                        }
-
-                        if (!valid)
-                        {
-                            throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy), (int)eResponseStatus.BadSearchRequest);
-                        }
-                        else
-                        {
-                            // Transform the list of group bys to metas/tags list
-                            definitions.groupBy.Add(new KeyValuePair<string, string>(groupBy, requestGroupBy));
-
-                            if (groupBy == channel.searchGroupBy.distinctGroup)
-                            {
-                                distinctGroupByFormatted = requestGroupBy;
-                            }
-                        }
-                    }
-
-                    definitions.groupByOrder = channel.searchGroupBy.groupByOrder;
-
-                    definitions.topHitsCount = channel.searchGroupBy.topHitsCount;
-
-                    // Validate that we have a distinct group and that it is one of the fields listed in "group by"
-                    if (!string.IsNullOrEmpty(channel.searchGroupBy.distinctGroup) && channel.searchGroupBy.groupBy.Contains(channel.searchGroupBy.distinctGroup))
-                    {
-                        definitions.distinctGroup = new KeyValuePair<string, string>(channel.searchGroupBy.distinctGroup, distinctGroupByFormatted);
-                    }
-                    else if (string.IsNullOrEmpty(channel.searchGroupBy.distinctGroup)) // channel not contain definition for distinct ==> as default insert first groupBy in the list
-                    {
-                        definitions.distinctGroup = definitions.groupBy[0];
-                    }
-                }
-
+                Utils.BuildSearchGroupBy(channel.searchGroupBy, group, definitions, reservedGroupByFields);
+                
                 #endregion
             }
             else
