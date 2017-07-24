@@ -668,6 +668,8 @@ namespace Core.Users
         {
             bool success = false;
 
+            this.userId = int.Parse(this.m_sSiteGUID);
+
             if (this.shouldRemoveFromCache)
             {
                 UsersCache usersCache = UsersCache.Instance();
@@ -726,6 +728,7 @@ namespace Core.Users
                     success = true;
                 }
             }
+
             return success;
         }
 

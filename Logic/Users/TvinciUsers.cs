@@ -383,6 +383,7 @@ namespace Core.Users
                 u.shouldRemoveFromCache = true;
                 u.shouldSetUserActive = true;
                 u.GroupId = m_nGroupID;
+                
                 if (u.Update())
                 {
                     try
