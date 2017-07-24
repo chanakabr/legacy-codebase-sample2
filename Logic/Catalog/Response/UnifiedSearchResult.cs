@@ -23,5 +23,21 @@ namespace Core.Catalog.Response
             get;
             set;
         }
+
+        [DataMember]
+        public RecordingType? RecordingType { get; set; }
+
+        public RecordingSearchResult()
+            : base() { }
+
+        public RecordingSearchResult(ExtendedSearchResult extendedSearchResult)
+            : base()
+        {
+            AssetId = string.Empty;
+            EpgId = extendedSearchResult.AssetId;
+            m_dUpdateDate = extendedSearchResult.m_dUpdateDate;
+            AssetType = eAssetTypes.NPVR;
+        }
     }
+
 }
