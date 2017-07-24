@@ -2165,7 +2165,7 @@ namespace Core.Catalog
 
         /*Build the right MediaSearchRequest for a Search Related Media */
         public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest,
-            ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid, OrderObj orderObj)
+            ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid, OrderObj orderObj, SearchAggregationGroupBy searchGroupBy)
         {
             try
             {
@@ -2192,6 +2192,7 @@ namespace Core.Catalog
                 oMediasRequest.m_nGroupID = nGroupID;
                 oMediasRequest.m_sSiteGuid = sSiteGuid;
                 oMediasRequest.m_oOrderObj = orderObj;
+                oMediasRequest.searchGroupBy = searchGroupBy;
 
                 if (ds.Tables.Count == 4)
                 {
@@ -6353,7 +6354,8 @@ namespace Core.Catalog
             bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
 
             MediaSearchRequest mediaSearchRequest =
-                BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj);
+                BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj, 
+                request.searchGroupBy);
             if (mediaSearchRequest == null)
             {
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.AssetDoseNotExists, ApiObjects.Response.eResponseStatus.AssetDoseNotExists.ToString());

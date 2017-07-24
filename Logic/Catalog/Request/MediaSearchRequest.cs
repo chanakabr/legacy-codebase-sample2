@@ -27,6 +27,8 @@ namespace Core.Catalog.Request
         public List<KeyValue> m_lMetas;
         [DataMember]
         public List<KeyValue> m_lTags;
+        [DataMember]
+        public SearchAggregationGroupBy searchGroupBy;
 
        
         public MediaSearchRequest() : base()
@@ -37,16 +39,17 @@ namespace Core.Catalog.Request
             Int32 nPageSize, Int32 nPageIndex, string sName, string sDescription, List<Int32> nMediaTypes, Int32 nMediaID, Int32 nGroupID, string sUserIP, Filter oFilter, string sSignature, string sSignString)
             : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString)           
         {
-            Initialize(bExact, bAnd, oOrderObj, Metas, Tags, sName, sDescription, nMediaTypes, nMediaID);
+            Initialize(bExact, bAnd, oOrderObj, Metas, Tags, sName, sDescription, nMediaTypes, nMediaID, null);
         }
 
         public MediaSearchRequest(MediaSearchRequest m)
             : base(m)
         {
-            Initialize(m.m_bExact, m.m_bAnd, m.m_oOrderObj, m.m_lMetas, m.m_lTags, m.m_sName, m.m_sDescription, m.m_nMediaTypes, m.m_nMediaID);
+            Initialize(m.m_bExact, m.m_bAnd, m.m_oOrderObj, m.m_lMetas, m.m_lTags, m.m_sName, m.m_sDescription, m.m_nMediaTypes, m.m_nMediaID, m.searchGroupBy);
         }
 
-        private void Initialize(bool bExact, bool bAnd, OrderObj oOrderObj, List<KeyValue> Metas, List<KeyValue> Tags, string sName, string sDescription, List<Int32> nMediaTypes, Int32 nMediaID)
+        private void Initialize(bool bExact, bool bAnd, OrderObj oOrderObj, List<KeyValue> Metas, List<KeyValue> Tags, string sName, string sDescription, List<Int32> nMediaTypes, Int32 nMediaID,
+            SearchAggregationGroupBy searchGroupBy)
         {
             m_bExact = bExact;
             m_bAnd = bAnd;
@@ -61,6 +64,7 @@ namespace Core.Catalog.Request
 
             m_lMetas = new List<KeyValue>(Metas);
             m_lTags = new List<KeyValue>(Tags);
+            this.searchGroupBy = searchGroupBy;
         }
     }  
 }
