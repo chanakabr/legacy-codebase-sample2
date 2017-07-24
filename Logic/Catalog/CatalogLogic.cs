@@ -38,6 +38,7 @@ using System.Web;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using Core.Notification;
+using Catalog.Response;
 
 namespace Core.Catalog
 {
@@ -2165,7 +2166,7 @@ namespace Core.Catalog
 
         /*Build the right MediaSearchRequest for a Search Related Media */
         public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest,
-            ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid, OrderObj orderObj, SearchAggregationGroupBy searchGroupBy)
+            ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid, OrderObj orderObj)
         {
             try
             {
@@ -2192,7 +2193,6 @@ namespace Core.Catalog
                 oMediasRequest.m_nGroupID = nGroupID;
                 oMediasRequest.m_sSiteGuid = sSiteGuid;
                 oMediasRequest.m_oOrderObj = orderObj;
-                oMediasRequest.searchGroupBy = searchGroupBy;
 
                 if (ds.Tables.Count == 4)
                 {
@@ -6132,11 +6132,12 @@ namespace Core.Catalog
 
         #region Internal Channel Request
 
-        internal static ApiObjects.Response.Status GetInternalChannelAssets(InternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        internal static ApiObjects.Response.Status GetInternalChannelAssets(InternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults, out List<AggregationsResult> aggregationsResult)
         {
             // Set default values for out parameters
             totalItems = 0;
             searchResults = new List<UnifiedSearchResult>();
+            aggregationsResult = null;
 
             ApiObjects.Response.Status status = null;
 
@@ -6188,8 +6189,20 @@ namespace Core.Catalog
 
             int to = 0;
 
+
             // Perform initial search of channel
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to);
+            ESAggregationsResult esAggregationsResult = null;
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out esAggregationsResult);
+
+            if (esAggregationsResult != null && esAggregationsResult.Aggregations != null)
+            {
+                if (aggregationsResult == null)
+                {
+                    aggregationsResult = new List<AggregationsResult>();
+                }
+
+                aggregationsResult.Add(Utils.ConvertAggregationsResponse(esAggregationsResult, channel.searchGroupBy));
+            }
 
             if (searchResults == null)
             {
@@ -6281,8 +6294,9 @@ namespace Core.Catalog
             return status;
         }
 
-        internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults, out ESAggregationsResult aggregationsResult)
         {
+            aggregationsResult = null;
             // Set default values for out parameters
             totalItems = 0;
             searchResults = new List<UnifiedSearchResult>();
@@ -6320,8 +6334,8 @@ namespace Core.Catalog
 
             int to = 0;
 
-            // Perform initial search of channel
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to);
+            // Perform initial search of channel            
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult);
 
             if (searchResults == null)
             {
@@ -6354,8 +6368,8 @@ namespace Core.Catalog
             bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
 
             MediaSearchRequest mediaSearchRequest =
-                BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj, 
-                request.searchGroupBy);
+                BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj);
+             
             if (mediaSearchRequest == null)
             {
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.AssetDoseNotExists, ApiObjects.Response.eResponseStatus.AssetDoseNotExists.ToString());

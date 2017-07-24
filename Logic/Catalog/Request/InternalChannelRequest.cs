@@ -1,4 +1,7 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.SearchObjects;
+using Catalog.Response;
+using ElasticSearch.Searcher;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +23,7 @@ namespace Core.Catalog.Request
         public ApiObjects.SearchObjects.OrderObj order;
         [DataMember]
         public bool m_bIgnoreDeviceRuleID;
-
+        
         #endregion
 
         #region Ctor
@@ -41,7 +44,7 @@ namespace Core.Catalog.Request
 
         #endregion
 
-        protected override ApiObjects.Response.Status GetAssets(BaseChannelRequest request, out int totalItems, out List<Response.UnifiedSearchResult> searchResults)
+        protected override ApiObjects.Response.Status GetAssets(BaseChannelRequest request, out int totalItems, out List<Response.UnifiedSearchResult> searchResults, out List<AggregationsResult> aggregationsResult)
         {
             InternalChannelRequest internalRequest = request as InternalChannelRequest;
             
@@ -55,8 +58,9 @@ namespace Core.Catalog.Request
             {
                 request.m_dServerTime = DateTime.UtcNow;
             }
-
-            return CatalogLogic.GetInternalChannelAssets(internalRequest, out totalItems, out searchResults);
+            return CatalogLogic.GetInternalChannelAssets(internalRequest, out totalItems, out searchResults, out aggregationsResult);
+                      
+            
         }
     }
 }
