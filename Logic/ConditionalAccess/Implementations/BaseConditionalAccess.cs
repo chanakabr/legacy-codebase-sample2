@@ -2549,95 +2549,105 @@ namespace Core.ConditionalAccess
 			return true;
 		}
 
-		protected internal void GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
-				int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
-				ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, Compensation compensation = null,
-				string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null)
-		{
-			if (subscription == null)
-			{
-				throw new Exception("Subscription returned from pricing module is null");
-			}
-			else
-			{
-				UsageModule AppUsageModule = GetAppropriateMultiSubscriptionUsageModule(subscription, paymentNumber, purchaseId, totalPaymentsNumber, numOfPayments, isPurchasedWithPreviewModule);
-				priceValue = 0;
-				Currency oCurrency = null;
-				sCurrency = "n/a";
-				if (AppUsageModule != null)
-				{
-					// price data and discount code data
-					try
-					{
-						PriceCode price = null;
-						DiscountModule externalDisount = null;
-						if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(m_nGroupID, previousPurchaseCurrencyCode))
-						{                            
-							price = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
-							if (AppUsageModule.m_ext_discount_id > 0)
-							{                                
-								DiscountModule externalDisountByCountryAndCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, AppUsageModule.m_ext_discount_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
-								externalDisount = externalDisountByCountryAndCurrency != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>(externalDisountByCountryAndCurrency) : Core.Pricing.Module.GetDiscountCodeData(m_nGroupID, AppUsageModule.m_ext_discount_id.ToString());
-							}
-						}
-						else
-						{
-							price = Core.Pricing.Module.GetPriceCodeData(m_nGroupID, AppUsageModule.m_pricing_id.ToString(), string.Empty, string.Empty, string.Empty);
-						}
+        protected internal bool GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
+                int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
+                ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, Compensation compensation = null,
+                string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null)
+        {
+            bool isSuccess = false;
 
-						if (price == null)
-						{
-							throw new Exception(string.Format("PriceCode is null for priceCodeId: {0}, previousPurchaseCurrencyCode: {1}", AppUsageModule.m_pricing_id,
-																!string.IsNullOrEmpty(previousPurchaseCurrencyCode) ? previousPurchaseCurrencyCode : string.Empty));
-						}
+            if (subscription == null)
+            {
+                return isSuccess;
+            }
 
-						PriceCode clonedPrice = TVinciShared.ObjectCopier.Clone<PriceCode>(price);
-						if (externalDisount != null)
-						{
-							Price priceAfterDiscount = Utils.GetPriceAfterDiscount(clonedPrice.m_oPrise, externalDisount, 1);
-							priceValue = priceAfterDiscount.m_dPrice;
-							oCurrency = priceAfterDiscount.m_oCurrency;
-							sCurrency = priceAfterDiscount.m_oCurrency.m_sCurrencyCD3;
-						}
-						else
-						{
-							priceValue = clonedPrice.m_oPrise.m_dPrice;
-							oCurrency = clonedPrice.m_oPrise.m_oCurrency;
-							sCurrency = clonedPrice.m_oPrise.m_oCurrency.m_sCurrencyCD3;
-						}
+            // price data and discount code data
+            try
+            {
+                UsageModule AppUsageModule = GetAppropriateMultiSubscriptionUsageModule(subscription, paymentNumber, purchaseId, totalPaymentsNumber, numOfPayments, isPurchasedWithPreviewModule);
 
-						HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode);
+                if (AppUsageModule == null)
+                {
+                    log.Error("Error trying GetAppropriateMultiSubscriptionUsageModule");
+                    return isSuccess;
+                }
 
-						if (compensation != null)
-						{
-							switch (compensation.CompensationType)
-							{
-								case CompensationType.Percentage:
-									priceValue = priceValue - (priceValue * compensation.Amount / 100);
-									break;
-								case CompensationType.FixedAmount:
-									priceValue = Math.Max(priceValue - compensation.Amount, 0);
-									break;
-								default:
-									break;
-							}
-						}
+                priceValue = 0;
+                Currency oCurrency = null;
+                sCurrency = "n/a";
 
-						nRecPeriods = subscription.m_nNumberOfRecPeriods;
-						isMPPRecurringInfinitely = subscription.m_bIsInfiniteRecurring;
-						maxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
+                PriceCode price = null;
+                DiscountModule externalDisount = null;
+                if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(m_nGroupID, previousPurchaseCurrencyCode))
+                {
+                    price = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
+                    if (AppUsageModule.m_ext_discount_id > 0)
+                    {
+                        DiscountModule externalDisountByCountryAndCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, AppUsageModule.m_ext_discount_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
+                        externalDisount = externalDisountByCountryAndCurrency != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>(externalDisountByCountryAndCurrency) : Core.Pricing.Module.GetDiscountCodeData(m_nGroupID, AppUsageModule.m_ext_discount_id.ToString());
+                    }
+                }
+                else
+                {
+                    price = Core.Pricing.Module.GetPriceCodeData(m_nGroupID, AppUsageModule.m_pricing_id.ToString(), string.Empty, string.Empty, string.Empty);
+                }
 
-						customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode,
-							siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryName : string.Empty,
-							string.Empty, string.Empty, compensation);
-					}
-					catch (Exception ex)
-					{
-						log.Error(string.Empty, ex);
-					}
-				}
-			}
-		}
+                if (price == null)
+                {
+                    log.ErrorFormat("PriceCode is null for priceCodeId: {0}, previousPurchaseCurrencyCode: {1}", AppUsageModule.m_pricing_id,
+                                                        !string.IsNullOrEmpty(previousPurchaseCurrencyCode) ? previousPurchaseCurrencyCode : string.Empty);
+                    return isSuccess;
+                }
+
+                PriceCode clonedPrice = TVinciShared.ObjectCopier.Clone<PriceCode>(price);
+                if (externalDisount != null)
+                {
+                    Price priceAfterDiscount = Utils.GetPriceAfterDiscount(clonedPrice.m_oPrise, externalDisount, 1);
+                    priceValue = priceAfterDiscount.m_dPrice;
+                    oCurrency = priceAfterDiscount.m_oCurrency;
+                    sCurrency = priceAfterDiscount.m_oCurrency.m_sCurrencyCD3;
+                }
+                else
+                {
+                    priceValue = clonedPrice.m_oPrise.m_dPrice;
+                    oCurrency = clonedPrice.m_oPrise.m_oCurrency;
+                    sCurrency = clonedPrice.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                }
+
+                HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode);
+
+                if (compensation != null)
+                {
+                    switch (compensation.CompensationType)
+                    {
+                        case CompensationType.Percentage:
+                            priceValue = priceValue - (priceValue * compensation.Amount / 100);
+                            break;
+                        case CompensationType.FixedAmount:
+                            priceValue = Math.Max(priceValue - compensation.Amount, 0);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                nRecPeriods = subscription.m_nNumberOfRecPeriods;
+                isMPPRecurringInfinitely = subscription.m_bIsInfiniteRecurring;
+                maxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
+
+                customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode,
+                    siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryName : string.Empty,
+                    string.Empty, string.Empty, compensation);
+
+                isSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+            }
+
+            return isSuccess;
+        }
 
 
 		/// <summary>
@@ -3049,12 +3059,18 @@ namespace Core.ConditionalAccess
 		private UsageModule GetAppropriateMultiSubscriptionUsageModule(Subscription thesub, int nPaymentNumber, int nPurchaseID, int nTotalNumOfPayments, int nNumOfPayments, bool bIsPurchasedWithPreviewModule)
 		{
 			UsageModule u = null;
-			object oSub_StartDate = ODBCWrapper.Utils.GetTableSingleVal("subscriptions_purchases", "START_DATE", nPurchaseID, "CA_CONNECTION_STRING");
+            DataRow dr = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("subscriptions_purchases", "ID", nPurchaseID.ToString(), new List<string>() { "END_DATE", "START_DATE" }, "CA_CONNECTION_STRING");
+            if (dr == null)
+            {
+                log.ErrorFormat("Failed to get subscriptions_purchases start and end dates. purchaseId = {0}", nPurchaseID);
+                return null;
+            }
+                //ODBCWrapper.Utils.GetTableSingleVal("subscriptions_purchases", ""END_DATE"", nPurchaseID, "CA_CONNECTION_STRING");
 			object oSub_EndDate = ODBCWrapper.Utils.GetTableSingleVal("subscriptions_purchases", "END_DATE", nPurchaseID, "CA_CONNECTION_STRING");
 
-			DateTime dt_statdate = Convert.ToDateTime(oSub_StartDate.ToString());
-			DateTime sub_enddate = Convert.ToDateTime(oSub_EndDate.ToString());
-			DateTime tempsub_enddate = Convert.ToDateTime(oSub_EndDate.ToString());
+            DateTime dt_statdate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
+            DateTime sub_enddate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+            DateTime tempsub_enddate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
 			if (thesub.m_nNumberOfRecPeriods != 0)
 			{
 				int npm = nPaymentNumber % thesub.m_nNumberOfRecPeriods;
