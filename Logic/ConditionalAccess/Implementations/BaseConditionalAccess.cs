@@ -2552,7 +2552,7 @@ namespace Core.ConditionalAccess
         protected internal bool GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
                 int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
                 ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, Compensation compensation = null,
-                string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null)
+                string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null, DateTime? endDate = null)
         {
             bool isSuccess = false;
 
@@ -2564,7 +2564,7 @@ namespace Core.ConditionalAccess
             // price data and discount code data
             try
             {
-                UsageModule AppUsageModule = GetAppropriateMultiSubscriptionUsageModule(subscription, paymentNumber, purchaseId, totalPaymentsNumber, numOfPayments, isPurchasedWithPreviewModule);
+                UsageModule AppUsageModule = GetAppropriateMultiSubscriptionUsageModule(subscription, paymentNumber, purchaseId, totalPaymentsNumber, numOfPayments, isPurchasedWithPreviewModule, endDate);
 
                 if (AppUsageModule == null)
                 {
@@ -2581,7 +2581,7 @@ namespace Core.ConditionalAccess
                 if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(m_nGroupID, previousPurchaseCurrencyCode))
                 {
                     price = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
-                    if (AppUsageModule.m_ext_discount_id > 0)
+                    if (price != null && AppUsageModule.m_ext_discount_id > 0)
                     {
                         DiscountModule externalDisountByCountryAndCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, AppUsageModule.m_ext_discount_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
                         externalDisount = externalDisountByCountryAndCurrency != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>(externalDisountByCountryAndCurrency) : Core.Pricing.Module.GetDiscountCodeData(m_nGroupID, AppUsageModule.m_ext_discount_id.ToString());
@@ -3056,21 +3056,25 @@ namespace Core.ConditionalAccess
 			return ret;
 		}
 
-		private UsageModule GetAppropriateMultiSubscriptionUsageModule(Subscription thesub, int nPaymentNumber, int nPurchaseID, int nTotalNumOfPayments, int nNumOfPayments, bool bIsPurchasedWithPreviewModule)
+		private UsageModule GetAppropriateMultiSubscriptionUsageModule(Subscription thesub, int nPaymentNumber, int nPurchaseID, int nTotalNumOfPayments,
+            int nNumOfPayments, bool bIsPurchasedWithPreviewModule, DateTime? endDate = null)
 		{
 			UsageModule u = null;
-            DataRow dr = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("subscriptions_purchases", "ID", nPurchaseID.ToString(), new List<string>() { "END_DATE", "START_DATE" }, "CA_CONNECTION_STRING");
-            if (dr == null)
-            {
-                log.ErrorFormat("Failed to get subscriptions_purchases start and end dates. purchaseId = {0}", nPurchaseID);
-                return null;
-            }
-                //ODBCWrapper.Utils.GetTableSingleVal("subscriptions_purchases", ""END_DATE"", nPurchaseID, "CA_CONNECTION_STRING");
-			object oSub_EndDate = ODBCWrapper.Utils.GetTableSingleVal("subscriptions_purchases", "END_DATE", nPurchaseID, "CA_CONNECTION_STRING");
 
-            DateTime dt_statdate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
-            DateTime sub_enddate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
-            DateTime tempsub_enddate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+            if (!endDate.HasValue)
+            {
+                DataRow dr = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("subscriptions_purchases", "ID", nPurchaseID.ToString(), new List<string>() { "END_DATE" }, "CA_CONNECTION_STRING");
+                if (dr == null)
+                {
+                    log.ErrorFormat("Failed to get subscriptions_purchases end date. purchaseId = {0}", nPurchaseID);
+                    return null;
+                }
+
+                endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+            }
+
+            DateTime tempDate = endDate.Value;
+           
 			if (thesub.m_nNumberOfRecPeriods != 0)
 			{
 				int npm = nPaymentNumber % thesub.m_nNumberOfRecPeriods;
@@ -3091,7 +3095,7 @@ namespace Core.ConditionalAccess
 				for (int i = 0; i < thesub.m_MultiSubscriptionUsageModule.Length; i++)
 				{
 					int umtotal = uList[i].m_tsViewLifeCycle * (uList[i].m_num_of_rec_periods + 1);
-					tempsub_enddate = tempsub_enddate.AddMinutes(umtotal);
+                    tempDate = tempDate.AddMinutes(umtotal);
 
 					totalperiod += uList[i].m_num_of_rec_periods + 1;
 					if (/*i == 0 && uList[i].m_is_renew == 0*/ IsSkipOnFirstUsageModule(i, uList[i].m_is_renew == 1, nTotalNumOfPayments, nNumOfPayments, bIsPurchasedWithPreviewModule))
@@ -3115,7 +3119,7 @@ namespace Core.ConditionalAccess
 					}
 					else if (nPaymentNumber <= totalperiod)
 					{
-						if (sub_enddate < tempsub_enddate)
+                        if (endDate < tempDate)
 						{
 							u = thesub.m_MultiSubscriptionUsageModule[i];
 							break;

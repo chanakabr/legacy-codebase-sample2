@@ -285,7 +285,7 @@ namespace Core.ConditionalAccess
 
             if (!cas.GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
                     ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
-                    ref couponCode, subscription, compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode))
+                    ref couponCode, subscription, compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode, endDate))
             {
                 // "Error while trying to get Price plan
                 log.Error("Error while trying to get Price plan to renew");
