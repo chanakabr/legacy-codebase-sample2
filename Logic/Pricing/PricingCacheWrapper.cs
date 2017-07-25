@@ -91,7 +91,7 @@ namespace Core.Pricing
             List<UsageModule> temp = null;
             if (!PricingCache.TryGetGroupPricePlans(cacheKey, out temp) || temp == null)
             {
-                DataTable usageModules = PricingDAL.GetPricePlans(m_nGroupID, pricePlanIds);
+                DataTable usageModules = PricingDAL.GetPricePlans(m_nGroupID);
 
                 if (usageModules != null && usageModules.Rows != null && usageModules.Rows.Count > 0)
                 {
@@ -114,7 +114,7 @@ namespace Core.Pricing
 
             if (pricePlanIds != null && pricePlanIds.Count > 0 && response.UsageModules != null && response.UsageModules.Count > 0)
             {
-                response.UsageModules.Where(pp => pricePlanIds.Contains(pp.m_nObjectID)).ToList();
+                response.UsageModules = response.UsageModules.Where(pp => pricePlanIds.Contains(pp.m_nObjectID)).ToList();
             }
 
             return response;
