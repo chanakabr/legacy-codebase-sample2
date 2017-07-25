@@ -1069,6 +1069,16 @@
             groupBy
             </summary>
         </member>
+        <member name="T:WebAPI.Models.General.KalturaAggregationCountFilter">
+            <summary>
+            Kaltura Aggregation CountFilter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaRelatedObjectFilter">
+            <summary>
+            Define KalturaRelatedObjectFilter
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaDetachedResponseProfile">
             <summary>
             Define specific base profile response
@@ -1079,9 +1089,19 @@
             Define base profile response -  optional configurations
             </summary>
         </member>
-        <member name="P:WebAPI.Models.General.KalturaBaseResponseProfile.Name">
+        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.Name">
             <summary>
             name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.Filter">
+            <summary>
+            filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaDetachedResponseProfile.RelatedProfiles">
+            <summary>
+            relatedProfiles
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaIntegerValueListResponse">

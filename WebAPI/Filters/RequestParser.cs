@@ -329,7 +329,7 @@ namespace WebAPI.Filters
             }
             else if (HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE] != null)
             {
-                HttpContext.Current.Items.Add(REQUEST_RESPONSE_PROFILE, (KalturaBaseResponseProfile)HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE]);
+                HttpContext.Current.Items.Add(REQUEST_RESPONSE_PROFILE, HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE]);
             }
         }
         

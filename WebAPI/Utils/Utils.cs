@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
+using WebAPI.Models.General;
 
 namespace WebAPI.Utils
 {
@@ -146,8 +148,8 @@ namespace WebAPI.Utils
 
         internal static WebAPI.Models.General.KalturaBaseResponseProfile GetResponseProfileFromRequest()
         {
-            object responseProfile= HttpContext.Current.Items[RequestParser.REQUEST_RESPONSE_PROFILE];
-
+            KalturaBaseResponseProfile responseProfile = (KalturaBaseResponseProfile)HttpContext.Current.Items[RequestParser.REQUEST_RESPONSE_PROFILE];
+                        
             return responseProfile != null ? responseProfile as WebAPI.Models.General.KalturaBaseResponseProfile : null;
         }
 

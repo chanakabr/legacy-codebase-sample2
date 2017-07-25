@@ -14,12 +14,6 @@ namespace WebAPI.Models.General
     [JsonObject]
     public abstract class KalturaBaseResponseProfile : KalturaOTTObject
     {
-        /// <summary>
-        /// name
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty("name")]
-        [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
+        
     }
 }

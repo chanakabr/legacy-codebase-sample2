@@ -609,8 +609,7 @@ namespace WebAPI.Utils
 
         internal static List<KalturaAsset> GetAssets(List<AggregationResult> results, BaseRequest request, int cacheDuration, bool managementData, KalturaBaseResponseProfile responseProfile)
         {
-            // get base objects list            
-
+            // get base objects list
 
             List<BaseObject> assetsBaseDataList = new List<BaseObject>();
             foreach (AggregationResult aggregationResult in results)
@@ -629,14 +628,24 @@ namespace WebAPI.Utils
 
                 if (responseProfile != null)
                 {
+                    string profileName = string.Empty;
+                    KalturaDetachedResponseProfile profile = (KalturaDetachedResponseProfile)responseProfile; // always KalturaDetachedResponseProfile
+                    if (profile != null)
+                    {
+                        List<KalturaDetachedResponseProfile> profiles = profile.RelatedProfiles;
+                        if (profiles != null && profiles.Count > 0)
+                        {
+                            profileName = profiles.Where(x => x.Filter is KalturaAggregationCountFilter).Select(x => x.Name).FirstOrDefault();
+                        }
+                    }
+
                     Dictionary<string, int> assetIdToCount =
                         results.Where(x => x.topHits != null && x.topHits.Count > 0).
                                 ToDictionary(x => (x.topHits[0] as BaseObject).AssetId, x => x.count);
 
                     foreach (KalturaAsset asset in tempAssets)
                     {
-                        if (asset.Id.HasValue &&
-                            assetIdToCount.ContainsKey(asset.Id.Value.ToString()))
+                        if (asset.Id.HasValue && assetIdToCount.ContainsKey(asset.Id.Value.ToString()))
                         {
                             var item = assetIdToCount[asset.Id.Value.ToString()];
 
@@ -653,11 +662,11 @@ namespace WebAPI.Utils
                                 TotalCount = item
                             };
 
-                            asset.relatedObjects.Add(responseProfile.Name, kiv);
-                            break;
+                            asset.relatedObjects.Add(profileName, kiv);
                         }
+                        break;
                     }
-                }
+                }                
 
                 return tempAssets;
             }

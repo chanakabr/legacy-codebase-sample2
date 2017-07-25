@@ -282,8 +282,11 @@
     <Compile Include="Models\API\KalturaCurrencyFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
     <Compile Include="Models\Catalog\KalturaBaseSearchAssetFilter.cs" />
+    <Compile Include="Models\General\KalturaAggregationCountFilter.cs" />
+    <Compile Include="Models\General\KalturaAggregationCountOrderBy.cs" />
     <Compile Include="Models\General\KalturaDetachedResponseProfile.cs" />
     <Compile Include="Models\General\KalturaIntegerValueListResponse.cs" />
+    <Compile Include="Models\General\KalturaRelatedObjectFilter.cs" />
     <Compile Include="Models\Pricing\KalturaPricePlanFilter.cs" />
     <Compile Include="Models\Pricing\KalturaPriceDetailsFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySet.cs" />
