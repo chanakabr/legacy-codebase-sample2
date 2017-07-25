@@ -663,8 +663,7 @@ namespace WebAPI.Utils
                             };
 
                             asset.relatedObjects.Add(profileName, kiv);
-                        }
-                        break;
+                        }                      
                     }
                 }                
 
