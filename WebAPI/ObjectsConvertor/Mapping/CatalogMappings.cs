@@ -217,9 +217,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //BaseObject to KalturaAsset
             Mapper.CreateMap<BaseObject, KalturaAsset>()
                 .Include<ProgramObj, KalturaProgramAsset>()
-                .Include<MediaObj, KalturaMediaAsset>()
-                //.Include<RecordingObj, KalturaRecordingAsset>()
-                ;
+                .Include<MediaObj, KalturaMediaAsset>();
 
             //EPG to KalturaProgramAsset
             Mapper.CreateMap<EPGChannelProgrammeObject, KalturaProgramAsset>()
@@ -283,8 +281,30 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.program.m_oProgram.ENABLE_TRICK_PLAY == 1))
                 .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.program.m_oProgram.CRID))
                 .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.program.m_oProgram.LINEAR_MEDIA_ID > 0 ? (long?)src.program.m_oProgram.LINEAR_MEDIA_ID : null))
+                .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.recordingId));
+
+            //EPG to KalturaRecordingAsset
+            Mapper.CreateMap<ScheduledRecordingObj, KalturaRecordingAsset>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.program.AssetId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.program.m_oProgram.ProgrammeName)))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.program.m_oProgram.ProgrammeDescription)))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.program.m_oProgram.START_DATE, "dd/MM/yyyy HH:mm:ss", null))))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.program.m_oProgram.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))
+                .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.program.m_oProgram.EPG_Meta)))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.program.m_oProgram.EPG_TAGS)))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.program.m_oProgram.EPG_PICTURES))
+                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.program.m_oProgram.EPG_CHANNEL_ID))
+                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.program.m_oProgram.EPG_IDENTIFIER))
+                .ForMember(dest => dest.RelatedMediaId, opt => opt.MapFrom(src => src.program.m_oProgram.media_id))
+                .ForMember(dest => dest.EnableCdvr, opt => opt.MapFrom(src => src.program.m_oProgram.ENABLE_CDVR == 1))
+                .ForMember(dest => dest.EnableCatchUp, opt => opt.MapFrom(src => src.program.m_oProgram.ENABLE_CATCH_UP == 1))
+                .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.program.m_oProgram.ENABLE_START_OVER == 1))
+                .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.program.m_oProgram.ENABLE_TRICK_PLAY == 1))
+                .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.program.m_oProgram.CRID))
+                .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.program.m_oProgram.LINEAR_MEDIA_ID > 0 ? (long?)src.program.m_oProgram.LINEAR_MEDIA_ID : null))
                 .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.recordingId))
-                ;
+                .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => src.recordingType));
 
             //Media to KalturaMediaAsset
             Mapper.CreateMap<MediaObj, KalturaMediaAsset>()

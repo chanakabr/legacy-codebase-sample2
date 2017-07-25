@@ -12,4 +12,9 @@ namespace WebAPI.ObjectsConvertor
 
         public ProgramObj program;
     }
+
+    public class ScheduledRecordingObj : RecordingObj
+    {
+        public WebAPI.Models.ConditionalAccess.KalturaRecordingType recordingType;
+    }
 }

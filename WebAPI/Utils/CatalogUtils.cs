@@ -21,6 +21,7 @@ using Core.Catalog.Response;
 using ApiObjects.SearchObjects;
 using ApiObjects;
 using Catalog.Response;
+using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Utils
 {
@@ -357,11 +358,13 @@ namespace WebAPI.Utils
                     case eAssetTypes.NPVR:
                     {
                         string epgId = string.Empty;
+                        RecordingType? scheduledRecordingType = null;
                         var searchResult = item as RecordingSearchResult;
 
                         if (searchResult != null)
                         {
                             epgId = searchResult.EpgId;
+                            scheduledRecordingType = searchResult.RecordingType;
                         }
                         else
                         {
@@ -382,13 +385,27 @@ namespace WebAPI.Utils
 
                             long.TryParse(item.AssetId, out recordingId);
 
-                            RecordingObj recordingObject = new RecordingObj()
+                            if (scheduledRecordingType.HasValue)
                             {
-                                recordingId = recordingId,
-                                program = programObject
-                            };
+                                ScheduledRecordingObj scheduledRecordingObj = new ScheduledRecordingObj()
+                                {
+                                    recordingId = recordingId,
+                                    recordingType = ConditionalAccessMappings.ConvertRecordingType(scheduledRecordingType.Value),
+                                    program = programObject
+                                };
 
-                            finalResult.Add(recordingObject);
+                                finalResult.Add(scheduledRecordingObj);
+                            }
+                            else
+                            {
+                                RecordingObj recordingObject = new RecordingObj()
+                                {
+                                    recordingId = recordingId,
+                                    program = programObject
+                                };
+
+                                finalResult.Add(recordingObject);
+                            }
                         }
                         break;
                     }
