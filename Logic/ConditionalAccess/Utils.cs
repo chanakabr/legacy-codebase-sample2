@@ -5339,7 +5339,7 @@ namespace Core.ConditionalAccess
                         m_bOnlyActiveMedia = true
                     },
                     excludedCrids = excludedCrids != null ? excludedCrids : null,
-                    ExtraReturnFields = new List<string> { "epg_id", "crid", "epg_channel_id", seriesId, seasonNumber },
+                    ExtraReturnFields = new List<string> { "epg_id", "crid", "epg_channel_id" },
                     ShouldUseSearchEndDate = true
                 };
                 FillCatalogSignature(request);
@@ -5520,7 +5520,7 @@ namespace Core.ConditionalAccess
 
             if (extendedResult != null && extendedResult.ExtraFields != null)
             {
-                var field = extendedResult.ExtraFields.Where(ef => ef.key == paramName).FirstOrDefault();
+                var field = extendedResult.ExtraFields.Where(ef => ef.key.ToLower() == paramName.ToLower()).FirstOrDefault();
                 if (field != null)
                 {
                     long.TryParse(field.value, out result);
@@ -5535,7 +5535,7 @@ namespace Core.ConditionalAccess
 
             if (extendedResult != null && extendedResult.ExtraFields != null)
             {
-                var field = extendedResult.ExtraFields.Where(ef => ef.key == paramName).FirstOrDefault();
+                var field = extendedResult.ExtraFields.Where(ef => ef.key.ToLower() == paramName.ToLower()).FirstOrDefault();
                 if (field != null)
                 {
                     result = field.value;

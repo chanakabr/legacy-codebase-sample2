@@ -1777,7 +1777,7 @@ namespace Core.Pricing
             if (response.UsageModules != null && response.UsageModules.Count > 0)
             {
                 // update only price code ID
-                if (PricingDAL.UpdatePricePlan(m_nGroupID, usageModule.m_nObjectID, usageModule.m_pricing_id))
+                if (response.UsageModules[0].m_pricing_id == usageModule.m_pricing_id || PricingDAL.UpdatePricePlanAndSubscriptiopnsPriceCode(m_nGroupID, usageModule.m_nObjectID, usageModule.m_pricing_id))
                 {
                     response.UsageModules[0].m_pricing_id = usageModule.m_pricing_id;
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

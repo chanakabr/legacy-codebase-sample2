@@ -92,6 +92,7 @@ namespace Core.Catalog.Request
                 {
                     List<long> epgIdsToOrderAndPage = new List<long>();
                     List<string> excludedCrids = new List<string>();
+                    Dictionary<long, string> epgIdToSingleRecordingIdMap = new Dictionary<long,string>();
                     if (domainRecordings.TotalItems > 0)
                     {
                         if (channelIds != null && channelIds.Count > 0)
@@ -105,7 +106,7 @@ namespace Core.Catalog.Request
                             List<RecordingType> recordingTypesToExcludeCrids = new List<RecordingType>() { RecordingType.Season, RecordingType.Series };
                             excludedCrids = domainRecordings.Recordings.Where(x => recordingTypesToExcludeCrids.Contains(x.Type)).Select(x => x.Crid).ToList();
                         }
-                        
+                                                
                         // get SINGLE scheduled recordings assets
                         if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SERIES)
                         {
@@ -120,14 +121,24 @@ namespace Core.Catalog.Request
                                 domainRecordings.Recordings = domainRecordings.Recordings.Where(x => x.EpgEndDate < endDate.Value).Select(x => x).ToList();
                             }
 
-                            epgIdsToOrderAndPage = domainRecordings.Recordings.Select(x => x.EpgId).ToList();                            
+                            epgIdsToOrderAndPage = domainRecordings.Recordings.Select(x => x.EpgId).ToList();
+                            epgIdToSingleRecordingIdMap = domainRecordings.Recordings.ToDictionary(x => x.EpgId, x => x.Id.ToString());
                         }
                     }
 
                     // if we need to get series episodes or if we have specific single episodes that need to be ordered and paged
                     if ((series != null && series.Length > 0) || epgIdsToOrderAndPage.Count > 0)
                     {
-                        response = SearchScheduledRecordings(m_nGroupID, epgIdsToOrderAndPage, excludedCrids, series, startDate, endDate);
+                        string seriesIdMetaOrTag, seasonNumberMetaOrTag, episodeNumber;
+
+                        if (!ConditionalAccess.Utils.GetSeriesMetaTagsFieldsNamesForSearch(m_nGroupID, out seriesIdMetaOrTag, out seasonNumberMetaOrTag, out episodeNumber))
+                        {
+                            log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", m_nGroupID);
+                            return response;
+                        }
+
+                        response = SearchScheduledRecordings(m_nGroupID, epgIdsToOrderAndPage, excludedCrids, series, seriesIdMetaOrTag, seasonNumberMetaOrTag, startDate, endDate);
+                        HandleScheduledRecordingsSearchResults(response, series, epgIdToSingleRecordingIdMap, seriesIdMetaOrTag, seasonNumberMetaOrTag);
                     }
                     else
                     {
@@ -147,6 +158,48 @@ namespace Core.Catalog.Request
             }
 
             return response;
+        }
+
+        private static void HandleScheduledRecordingsSearchResults(UnifiedSearchResponse response, SeriesRecording[] series, Dictionary<long, string> epgIdToSingleRecordingIdMap,
+                                                                    string seriesIdMetaOrTag, string seasonNumberMetaOrTag)
+        {
+            if (response != null && response.status != null && response.status.Code == (int)eResponseStatus.OK && response.searchResults != null)
+            {
+                List<RecordingSearchResult> scheduledSearchResults = new List<RecordingSearchResult>();
+                foreach (ExtendedSearchResult extendedResult in response.searchResults.Select(sr => (ExtendedSearchResult)sr).ToList())
+                {
+                    RecordingSearchResult scheduledRecording = new RecordingSearchResult(extendedResult);
+                    long epgId;
+                    if (long.TryParse(extendedResult.AssetId, out epgId) && epgId > 0)
+                    {
+                        if (epgIdToSingleRecordingIdMap.ContainsKey(epgId))
+                        {
+                            scheduledRecording.RecordingType = RecordingType.Single;
+                            scheduledRecording.AssetId = epgIdToSingleRecordingIdMap[epgId];
+                        }
+                        else
+                        {
+                            long epgChannelId = ConditionalAccess.Utils.GetLongParamFromExtendedSearchResult(extendedResult, "epg_channel_id");
+                            long seasonNumber = ConditionalAccess.Utils.GetLongParamFromExtendedSearchResult(extendedResult, seasonNumberMetaOrTag);
+                            string seriesId = ConditionalAccess.Utils.GetStringParamFromExtendedSearchResult(extendedResult, seriesIdMetaOrTag);
+                            if (epgChannelId > 0 && seasonNumber > 0 && !string.IsNullOrEmpty(seriesId))
+                            {
+                                SeriesRecording seriesRecording = null;
+                                seriesRecording = series.Where(x => x.EpgChannelId == epgChannelId && x.SeriesId == seriesId
+                                                               && (x.SeasonNumber == seasonNumber || (x.SeasonNumber == 0 && !x.ExcludedSeasons.Contains((int)seasonNumber)))).FirstOrDefault();
+                                if (seriesRecording != null && seriesRecording.Id > 0)
+                                {
+                                    scheduledRecording.RecordingType = seriesRecording.Type;
+                                    scheduledRecording.AssetId = seriesRecording.Id.ToString();
+                                }
+                            }
+                        }
+                    }
+                    scheduledSearchResults.Add(scheduledRecording);
+                }
+
+                response.searchResults = scheduledSearchResults.Select(x => (UnifiedSearchResult)x).ToList();
+            }
         }
 
         private RecordingResponse GetCurrentRecordings(string wsUserName, string wsPassword)
@@ -201,13 +254,10 @@ namespace Core.Catalog.Request
             }
         }
 
-        private UnifiedSearchResponse SearchScheduledRecordings(int groupID, List<long> epgIdsToOrderAndPage, List<string> cridsToExclude, SeriesRecording[] series, DateTime? startDate, DateTime? endDate)
+        private UnifiedSearchResponse SearchScheduledRecordings(int groupID, List<long> epgIdsToOrderAndPage, List<string> cridsToExclude, SeriesRecording[] series,
+                                                                string seriesIdMetaOrTag, string seasonNumberMetaOrTag, DateTime? startDate, DateTime? endDate)
         {
             UnifiedSearchResponse response = null;
-
-            // build the KSQL for the series
-            string seriesId = "series_id";
-            string seasonNumber = "season_number";
 
             // build the filter query for the search
             StringBuilder ksql = new StringBuilder("(and (or ");
@@ -217,17 +267,17 @@ namespace Core.Catalog.Request
             {
                 foreach (SeriesRecording serie in series)
                 {
-                    season = (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumber)) ? string.Format("{0} = '{1}' ", seasonNumber, serie.SeasonNumber) : string.Empty;
+                    season = (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumberMetaOrTag)) ? string.Format("{0} = '{1}' ", seasonNumberMetaOrTag, serie.SeasonNumber) : string.Empty;
                     seasonsToExclude = new StringBuilder();
                     if (serie.ExcludedSeasons != null && serie.ExcludedSeasons.Count > 0)
                     {
                         foreach (int seasonNumberToExclude in serie.ExcludedSeasons)
                         {
-                            seasonsToExclude.AppendFormat("{0} != '{1}' ", seasonNumber, seasonNumberToExclude);
+                            seasonsToExclude.AppendFormat("{0} != '{1}' ", seasonNumberMetaOrTag, seasonNumberToExclude);
                         }
                     }
 
-                    ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4})", seriesId, serie.SeriesId, serie.EpgChannelId, season, seasonsToExclude.ToString());
+                    ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4})", seriesIdMetaOrTag, serie.SeriesId, serie.EpgChannelId, season, seasonsToExclude.ToString());
                 }
             }
 
@@ -255,9 +305,12 @@ namespace Core.Catalog.Request
             // get program ids
             try
             {
-                UnifiedSearchRequest searchRequest = new UnifiedSearchRequest(m_nPageSize, m_nPageIndex, m_nGroupID, m_sSignature, m_sSignString, orderBy,
-                                                                        new List<int>() { 0 }, ksql.ToString(), string.Empty) { excludedCrids = cridsToExclude };
-
+                ExtendedSearchRequest searchRequest = new ExtendedSearchRequest(m_nPageSize, m_nPageIndex, m_nGroupID, m_sSignature, m_sSignString, orderBy,
+                                                                        new List<int>() { 0 }, ksql.ToString(), string.Empty)
+                                                                        {
+                                                                            excludedCrids = cridsToExclude,
+                                                                            ExtraReturnFields = new List<string> { "epg_channel_id", seriesIdMetaOrTag, seasonNumberMetaOrTag }
+                                                                        };
                 BaseResponse baseResponse = searchRequest.GetResponse(searchRequest);
                 response = baseResponse as UnifiedSearchResponse;
             }

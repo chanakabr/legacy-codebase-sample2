@@ -116,7 +116,7 @@ namespace Core.ConditionalAccess
                     bool isDummy = XmlUtils.IsNodeExists(ref theRequest, BaseConditionalAccess.DUMMY);
                     if (isDummy)
                     {
-                        return HandleDummySubsciptionRenewal(cas, groupId, siteguid, purchaseId, billingGuid, logString, householdId, userIp, productId, theRequest, 
+                        return HandleDummySubsciptionRenewal(cas, groupId, siteguid, purchaseId, billingGuid, logString, householdId, userIp, productId, theRequest,
                             endDate, customData);
                     }
                 }
@@ -242,8 +242,8 @@ namespace Core.ConditionalAccess
                     bool handleNonRenew = HandleRenewSubscriptionFailed(cas, groupId,
                         siteguid, purchaseId, logString, productId, subscription, householdId, 0, "AddOn with no BaseSubscription valid");
 
-                    log.ErrorFormat("failed renew subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", subscription.m_SubscriptionCode,status.Code, status.Message);
-                    return true; 
+                    log.ErrorFormat("failed renew subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", subscription.m_SubscriptionCode, status.Code, status.Message);
+                    return true;
                 }
             }
 
@@ -283,16 +283,12 @@ namespace Core.ConditionalAccess
             double price = 0;
             string currency = "n/a";
 
-            try
+            if (!cas.GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
+                    ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
+                    ref couponCode, subscription, compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode, endDate))
             {
-                cas.GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
-                        ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
-                        ref couponCode, subscription, compensation,previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
-            }
-            catch (Exception ex)
-            {
-                // "Error while trying to get MPP
-                log.Error("Error while trying to get MPP", ex);
+                // "Error while trying to get Price plan
+                log.Error("Error while trying to get Price plan to renew");
                 return false;
             }
 
@@ -386,70 +382,6 @@ namespace Core.ConditionalAccess
             }
             return res;
         }
-
-        //protected internal static bool HandleDummySubsciptionRenewal(BaseConditionalAccess cas, int groupId, string siteguid, long purchaseId, string billingGuid,
-        //    string logString, long householdId, string userIp, long productId, XmlNode theRequest)
-        //{
-        //    bool saveHistory = XmlUtils.IsNodeExists(ref theRequest, HISTORY);
-        //    string deviceName = XmlUtils.GetSafeValue(DEVICE_NAME, ref theRequest);
-        //    int recurringNumber = 0;
-        //    int numOfPayments = 0;
-        //    if (!int.TryParse(XmlUtils.GetSafeValue(RECURRING_NUMBER, ref theRequest), out recurringNumber))
-        //    {
-        //        // Subscription ended
-        //        log.ErrorFormat("Renew Dummy GrantSubscription failed, error at parse recurringNumber,  data: {0}", logString);
-        //        cas.WriteToUserLog(userId, string.Format("Subscription ended. subscriptionID = {0}, numOfPayments={1}, paymentNumber={2}, numOfPayments={3}, billingGuid={4}",
-        //            productId, numOfPayments, recurringNumber, numOfPayments, billingGuid));
-        //        return false;
-        //    }
-
-        //    if (!int.TryParse(XmlUtils.GetSafeParValue("//p", "o", ref theRequest), out numOfPayments))
-        //    {
-        //        // Subscription ended
-        //        log.ErrorFormat("Renew Dummy GrantSubscription failed, error at parse //p o,  data: {0}", logString);
-        //        cas.WriteToUserLog(userId, string.Format("Subscription ended. subscriptionID = {0}, numOfPayments={1}, paymentNumber={2}, numOfPayments={3}, billingGuid={4}",
-        //            productId, numOfPayments, recurringNumber, numOfPayments, billingGuid));
-        //        return false;
-
-        //    }
-        //    recurringNumber = Utils.CalcPaymentNumber(numOfPayments, recurringNumber, false);
-        //    if (numOfPayments > 0 && recurringNumber > numOfPayments)
-        //    {
-        //        // Subscription ended
-        //        log.ErrorFormat("Subscription ended. numOfPayments={0}, paymentNumber={1}, numOfPayments={2}", numOfPayments, recurringNumber, numOfPayments);
-        //        cas.WriteToUserLog(userId, string.Format("Subscription ended. subscriptionID = {0}, numOfPayments={1}, paymentNumber={2}, numOfPayments={3}, billingGuid={4}",
-        //            productId, numOfPayments, recurringNumber, numOfPayments, billingGuid));
-        //        return true;
-        //    }
-
-        //    // calculate payment (recurring) number
-        //    recurringNumber++;
-
-        //    /// call GrantSubsription
-        //    var res = GrantManager.GrantSubscription(cas, groupId, userId, householdId, (int)productId, userIp, deviceName, saveHistory, recurringNumber, null, null, GrantContext.Renew);
-        //    if (res.Code == (int)eResponseStatus.OK)
-        //    {
-        //        log.DebugFormat("Renew Dummy GrantSubscription Succeeded, data: {0}", logString);
-
-        //        // Try to cancel subscription
-        //        if (ConditionalAccessDAL.CancelSubscription((int)purchaseId, groupId, userId, productId.ToString()) == 0)
-        //        {
-        //            log.Error("Error while trying to update subscription");
-        //            return false;
-        //        }
-        //        else
-        //        {
-        //            log.Debug("Subscription was updated");
-        //        }
-
-        //        return true;
-        //    }
-        //    else
-        //    {
-        //        log.DebugFormat("Renew Dummy GrantSubscription failed, data: {0}", logString);
-        //        return true;
-        //    }
-        //}
 
         protected internal static bool HandleRenewSubscriptionFailed(BaseConditionalAccess cas, int groupId,
             string siteguid, long purchaseId, string logString, long productId,
