@@ -1518,7 +1518,7 @@ namespace DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataTable GetPricePlans(int groupId, List<long> pricePlanIds)
+        public static DataTable GetPricePlans(int groupId, List<long> pricePlanIds = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPricePlans");
             sp.SetConnectionKey("pricing_connection");
