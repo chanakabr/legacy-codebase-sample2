@@ -1518,7 +1518,7 @@ namespace DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataTable GetPricePlans(int groupId, List<long> pricePlanIds)
+        public static DataTable GetPricePlans(int groupId, List<long> pricePlanIds = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPricePlans");
             sp.SetConnectionKey("pricing_connection");
@@ -1526,16 +1526,6 @@ namespace DAL
             sp.AddIDListParameter("@usageModulesIds", pricePlanIds, "ID");
             sp.AddParameter("@shouldGetAll", pricePlanIds == null || pricePlanIds.Count == 0 ? 1 : 0);
             return sp.Execute();
-        }
-
-        public static bool UpdatePricePlan(int groupId, int usageModuleId, int priceCode)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdatePricePlan");
-            sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@usageModuleId", usageModuleId);
-            sp.AddParameter("@priceCode", priceCode);
-            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         public static DataTable GetPriceCodes(int groupId)
@@ -1553,6 +1543,16 @@ namespace DAL
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@id", id);
             return sp.ExecuteReturnValue<long>() > 0;
+        }
+
+        public static bool UpdatePricePlanAndSubscriptiopnsPriceCode(int groupId, int pricePlanId, int priceCodeId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdatePricePlanAndSubscriptiopnsPriceCode");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@pricePlanId", pricePlanId);
+            sp.AddParameter("@priceCodeId", priceCodeId);
+            return sp.ExecuteReturnValue<int>() > 0;
         }
     }
 }
