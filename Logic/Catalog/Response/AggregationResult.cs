@@ -16,6 +16,9 @@ namespace Catalog.Response
         public string field;
 
         [DataMember]
+        public int totalItems;
+
+        [DataMember]
         public List<AggregationResult> results;
     }
 
