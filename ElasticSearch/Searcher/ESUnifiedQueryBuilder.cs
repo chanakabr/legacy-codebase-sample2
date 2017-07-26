@@ -327,7 +327,6 @@ namespace ElasticSearch.Searcher
                             Name = groupBy.Key,
                             Size = size,
                             Type = eElasticAggregationType.terms,
-                            
                             Order = aggregationsOrder,
                             OrderDirection = aggregationsOrderDirection
                         };
@@ -378,6 +377,15 @@ namespace ElasticSearch.Searcher
                                 currentAggregation.Order = distinctOrder;
                                 currentAggregation.OrderDirection = distinctOrderDirection;
                             }
+
+                            ESBaseAggsItem cardinality = new ESBaseAggsItem()
+                            {
+                                Field = groupBy.Value.ToLower(),
+                                Name = string.Format("{0}_count", groupBy.Key),
+                                Type = eElasticAggregationType.cardinality,
+                            };
+
+                            this.Aggregations.Add(cardinality);
                         }
 
                         this.Aggregations.Add(currentAggregation);

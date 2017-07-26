@@ -209,6 +209,7 @@ namespace ElasticSearch.Searcher
             string max_as_string = string.Empty;
             string avg_as_string = string.Empty;
             string sum_as_string = string.Empty;
+            object value = null;
 
             if (currentToken["doc_count"] != null)
             {
@@ -270,6 +271,11 @@ namespace ElasticSearch.Searcher
                 sum_as_string = currentToken["sum_as_string"].Value<string>();
             }
 
+            if (currentToken["value"] != null)
+            {
+                value = currentToken["value"].Value<string>();
+            }
+
             result.avg = avg;
             result.avg_as_string = avg_as_string;
             result.count = count;
@@ -282,6 +288,7 @@ namespace ElasticSearch.Searcher
             result.sum = sum;
             result.sum_as_string = sum_as_string;
             result.sum_other_doc_count = sum_other_doc_count;
+            result.value = value;
 
             #endregion
 
@@ -437,8 +444,11 @@ namespace ElasticSearch.Searcher
         public string max_as_string;
         public string avg_as_string;
         public string sum_as_string;
+        public object value;
 
         public ESHits hits;
+
+        public int totalItems;
     }
 
     public class ESAggregationBucket
