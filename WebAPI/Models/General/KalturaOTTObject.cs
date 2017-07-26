@@ -13,10 +13,14 @@ using WebAPI.Exceptions;
 
 namespace WebAPI.Models.General
 {
+    public interface IKalturaOTTObject
+    {
+    }
+
     /// <summary>
     /// Base class
     /// </summary>
-    public class KalturaOTTObject
+    public class KalturaOTTObject : IKalturaOTTObject
     {
         [DataMember(Name = "objectType")]
         [JsonProperty(PropertyName = "objectType")]

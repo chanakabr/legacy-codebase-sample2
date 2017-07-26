@@ -9,7 +9,7 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.General
 {
-    public interface IKalturaFilter
+    public interface IKalturaFilter : IKalturaOTTObject
     {
     }
 

@@ -268,16 +268,26 @@ namespace Validator.Managers.Scheme
             }
 
             string typeName = getTypeName(type);
-            if (type.IsSubclassOf(typeof(KalturaOTTObject)) && !Field.loadedTypes.ContainsKey(typeName))
+            if (typeof(IKalturaOTTObject).IsAssignableFrom(type) && !Field.loadedTypes.ContainsKey(typeName))
             {
                 Field.loadedTypes.Add(typeName, new Field(type));
-                LoadType(type.BaseType);
 
-                var subClasses = assembly.GetTypes().Where(myType => IsSubclassOfRawGeneric(type, myType));
-                foreach (Type subClass in subClasses)
-                    LoadType(subClass);
+                SchemeBaseAttribute schemeBaseAttribute = type.GetCustomAttribute<SchemeBaseAttribute>();
+                if (schemeBaseAttribute != null)
+                {
+                    LoadType(schemeBaseAttribute.BaseType);
+                }
 
-                LoadTypeProperties(type);
+                if (type.IsClass)
+                {
+                    LoadType(type.BaseType);
+
+                    var subClasses = assembly.GetTypes().Where(myType => IsSubclassOfRawGeneric(type, myType));
+                    foreach (Type subClass in subClasses)
+                        LoadType(subClass);
+
+                    LoadTypeProperties(type);
+                }
                 return;
             }
 
@@ -531,6 +541,12 @@ namespace Validator.Managers.Scheme
             writer.WriteAttributeString("alias", "sessionId");
             writer.WriteAttributeString("description", "Kaltura API session");
             writer.WriteEndElement(); // ks
+
+            writer.WriteStartElement("responseProfile");
+            writer.WriteAttributeString("type", "KalturaBaseResponseProfile");
+            writer.WriteAttributeString("volatile", "1");
+            writer.WriteAttributeString("description", "Response profile - this attribute will be automatically unset after every API call");
+            writer.WriteEndElement(); // responseProfile
 
             writer.WriteEndElement(); // request
 
@@ -833,7 +849,12 @@ namespace Validator.Managers.Scheme
             writer.WriteAttributeString("name", typeName);
             writer.WriteAttributeString("description", getDescription(type));
 
-            if (type.BaseType != null && type.BaseType != typeof(KalturaOTTObject))
+            SchemeBaseAttribute schemeBaseAttribute = type.GetCustomAttribute<SchemeBaseAttribute>();
+            if (schemeBaseAttribute != null)
+            {
+                writer.WriteAttributeString("base", getTypeName(schemeBaseAttribute.BaseType));
+            }
+            else if (type.BaseType != null && type.BaseType != typeof(KalturaOTTObject))
             {
                 writer.WriteAttributeString("base", getTypeName(type.BaseType));
             }
@@ -844,11 +865,14 @@ namespace Validator.Managers.Scheme
 
             List<PropertyInfo> properties = type.GetProperties().ToList();
 
-            //Remove properties from base
-            List<PropertyInfo> baseProps = type.BaseType.GetProperties().ToList();
-            baseProps.RemoveAll(myProperty => myProperty.GetCustomAttribute<ObsoleteAttribute>(false) != null);
-            List<string> basePropsNames = baseProps.Select(myProperty => myProperty.Name).ToList();
-            properties.RemoveAll(myProperty => basePropsNames.Contains(myProperty.Name));
+            if (type.BaseType != null)
+            {
+                //Remove properties from base
+                List<PropertyInfo> baseProps = type.BaseType.GetProperties().ToList();
+                baseProps.RemoveAll(myProperty => myProperty.GetCustomAttribute<ObsoleteAttribute>(false) != null);
+                List<string> basePropsNames = baseProps.Select(myProperty => myProperty.Name).ToList();
+                properties.RemoveAll(myProperty => basePropsNames.Contains(myProperty.Name));
+            }
 
             foreach (var property in properties)
             {
