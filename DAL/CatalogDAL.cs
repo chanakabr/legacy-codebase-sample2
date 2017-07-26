@@ -4102,6 +4102,15 @@ namespace Tvinci.Core.DAL
             sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
             sp.AddParameter("@groupBy", channel.GroupBy);
 
+            int assetTypesValuesInd = 0;
+
+            if (channel.AssetTypes != null && channel.AssetTypes.Count > 0)
+            {
+                assetTypesValuesInd = 1;
+            }
+
+            sp.AddParameter("@AssetTypesValuesInd", assetTypesValuesInd);
+
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
@@ -4123,31 +4132,34 @@ namespace Tvinci.Core.DAL
         {
             KSQLChannel result = null;
 
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_KSQLChannel");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@channelId", channel.ID);
-            sp.AddParameter("@groupId", groupID);
-            sp.AddParameter("@name", channel.Name);
-            sp.AddParameter("@isActive", channel.IsActive);
-            sp.AddParameter("@description", channel.Description);
-            sp.AddParameter("@Filter", channel.FilterQuery);
-            sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
-            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
-            sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
-            sp.AddParameter("@groupBy", channel.GroupBy);
-
-            DataSet ds = sp.ExecuteDataSet();
-
-            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            if (channel != null && channel.ID > 0)
             {
-                DataTable assetTypes = null;
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_KSQLChannel");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@channelId", channel.ID);
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@name", channel.Name);
+                sp.AddParameter("@isActive", channel.IsActive);
+                sp.AddParameter("@description", channel.Description);
+                sp.AddParameter("@Filter", channel.FilterQuery);
+                sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
+                sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
+                sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
+                sp.AddParameter("@groupBy", channel.GroupBy);
 
-                if (ds.Tables.Count > 1)
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
-                    assetTypes = ds.Tables[1];
-                }
+                    DataTable assetTypes = null;
 
-                result = CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas);
+                    if (ds.Tables.Count > 1)
+                    {
+                        assetTypes = ds.Tables[1];
+                    }
+
+                    result = CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas);
+                }
             }
 
             return result;
