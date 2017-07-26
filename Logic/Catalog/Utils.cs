@@ -1399,11 +1399,20 @@ namespace Core.Catalog
             string currentGroupBy = searchGroupBy.groupBy[0];
 
             var esAggregation = aggregationsResult.Aggregations[currentGroupBy];
+            int totalItems = 0;
+
+            string cardinalityKey = string.Format("{0}_count", currentGroupBy);
+            
+            if (aggregationsResult.Aggregations.ContainsKey(cardinalityKey))
+            {
+                totalItems = Convert.ToInt32(aggregationsResult.Aggregations[cardinalityKey].value);
+            }
 
             var result = new AggregationsResult()
             {
                 field = currentGroupBy,
-                results = new List<AggregationResult>()
+                results = new List<AggregationResult>(),
+                totalItems = totalItems
             };
 
             foreach (var bucket in esAggregation.buckets)
@@ -1470,10 +1479,19 @@ namespace Core.Catalog
 
             string currentGroupBy = searchGroupBy.groupBy[groupByIndex];
 
+            int totalItems = 0;
+            string cardinalityKey = string.Format("{0}_count", currentGroupBy);
+
+            if (aggregationsResult.Aggregations.ContainsKey(cardinalityKey))
+            {
+                totalItems = Convert.ToInt32(aggregationsResult.Aggregations[cardinalityKey].value);
+            }
+
             var result = new AggregationsResult()
             {
                 field = searchGroupBy.groupBy[groupByIndex],
-                results = new List<AggregationResult>()
+                results = new List<AggregationResult>(),
+                totalItems = totalItems
             };
 
             foreach (var bucket in aggregationsResult.buckets)
