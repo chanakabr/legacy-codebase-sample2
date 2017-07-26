@@ -1143,6 +1143,11 @@ namespace Core.Catalog
                 queryParser.PageIndex = unifiedSearchDefinitions.pageIndex;
                 queryParser.PageSize = unifiedSearchDefinitions.pageSize;
                 queryParser.From = unifiedSearchDefinitions.from;
+
+                if (queryParser.PageSize == 0)
+                {
+                    queryParser.GetAllDocuments = true;
+                }
             }
 
             // ES index is on parent group id
