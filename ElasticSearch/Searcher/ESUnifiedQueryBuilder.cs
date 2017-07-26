@@ -106,6 +106,12 @@ namespace ElasticSearch.Searcher
             set;
         }
 
+        public bool GetAllDocuments
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Ctor
@@ -214,9 +220,15 @@ namespace ElasticSearch.Searcher
                 FilterSettings = filterRoot
             };
 
-            if (PageSize <= 0 && this.SearchDefinitions.groupBy == null)
+            int pageSize = this.PageSize;
+
+            if (this.GetAllDocuments)
             {
-                PageSize = MAX_RESULTS;
+                pageSize = MAX_RESULTS;
+            }
+            else if (this.SearchDefinitions.topHitsCount > 0)
+            {
+                pageSize = 0;
             }
 
             int fromIndex = 0;
@@ -236,12 +248,6 @@ namespace ElasticSearch.Searcher
 
             filteredQueryBuilder.Append("{");
 
-            int pageSize = this.PageSize;
-
-            if (this.SearchDefinitions.topHitsCount > 0)
-            {
-                pageSize = 0;
-            }
 
             filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", pageSize);
             filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
@@ -310,7 +316,7 @@ namespace ElasticSearch.Searcher
                     {
                         int size = 0;
 
-                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup))
+                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup.Key))
                         {
                             size = this.SearchDefinitions.pageSize * (this.SearchDefinitions.pageIndex + 1);
                         }
@@ -321,12 +327,13 @@ namespace ElasticSearch.Searcher
                             Name = groupBy.Key,
                             Size = size,
                             Type = eElasticAggregationType.terms,
+                            
                             Order = aggregationsOrder,
                             OrderDirection = aggregationsOrderDirection
                         };
 
                         // Get top hit as well if necessary
-                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup))
+                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup.Key))
                         {
                             int topHitsSize = -1;
 
@@ -343,13 +350,14 @@ namespace ElasticSearch.Searcher
                             {
                                 new ESTopHitsAggregation()
                                 {
-                                    Name = "top_hits_assets",
+                                    Name = ESTopHitsAggregation.DEFAULT_NAME,
                                     Size = topHitsSize,
                                     // order just like regular search
                                     Sort = new OrderObj()
                                     {
                                         m_eOrderDir = this.SearchDefinitions.order.m_eOrderDir,
-                                        m_eOrderBy = this.SearchDefinitions.order.m_eOrderBy
+                                        m_eOrderBy = this.SearchDefinitions.order.m_eOrderBy,
+                                        m_sOrderValue = this.SearchDefinitions.order.m_sOrderValue
                                     },
                                     SourceIncludes = this.ReturnFields,
                                 }
@@ -357,13 +365,16 @@ namespace ElasticSearch.Searcher
 
                             string distinctOrder;
                             string distinctOrderDirection;
-
                             GetAggregationsOrder(this.SearchDefinitions.order,
-                                out distinctOrder, out distinctOrderDirection, out orderAggregation);
+                                  out distinctOrder, out distinctOrderDirection, out orderAggregation);
 
                             if (orderAggregation != null)
                             {
                                 currentAggregation.SubAggrgations.Add(orderAggregation);
+                            }
+                            
+                            if (!string.IsNullOrEmpty(distinctOrder))
+                            {
                                 currentAggregation.Order = distinctOrder;
                                 currentAggregation.OrderDirection = distinctOrderDirection;
                             }
@@ -415,7 +426,7 @@ namespace ElasticSearch.Searcher
             filteredQueryBuilder.Append(filterPart.ToString());
             filteredQueryBuilder.Append(" } } }");
             fullQuery = filteredQueryBuilder.ToString();
-
+           
             return fullQuery;
         }
 
@@ -2364,7 +2375,9 @@ namespace ElasticSearch.Searcher
             {
                 case OrderBy.ID:
                 {
-                    field = "_uid";
+                    aggregationsOrder = "_term";
+                    aggregationsOrderDirection = "asc";
+
                     break;
                 }
                 case OrderBy.VIEWS:
@@ -2381,14 +2394,24 @@ namespace ElasticSearch.Searcher
                     break;
                 }
                 case OrderBy.NAME:
-                break;
+                {
+                    aggregationsOrder = "_term";
+                    aggregationsOrderDirection = "asc";
+
+                    break;
+                }
                 case OrderBy.CREATE_DATE:
                 {
                     field = "create_date";
                     break;
                 }
                 case OrderBy.META:
-                break;
+                {
+                    aggregationsOrder = "_term";
+                    aggregationsOrderDirection = "asc";
+
+                    break;
+                }
                 case OrderBy.RANDOM:
                 break;
                 case OrderBy.RELATED:
@@ -2403,38 +2426,10 @@ namespace ElasticSearch.Searcher
                 }
                 case OrderBy.RECOMMENDATION:
                 break;
+
                 default:
                 break;
             }
-            //if (orderObj.m_eOrderBy == OrderBy.META)
-            //{
-            //    field = string.Format("metas.{0}", orderObj.m_sOrderValue.ToLower());                
-            //}
-            //else 
-            //if (orderObj.m_eOrderBy == OrderBy.ID)
-            //{
-            //}
-            //else if (orderObj.m_eOrderBy == OrderBy.RELATED || orderObj.m_eOrderBy == OrderBy.NONE)
-            //{
-            //}
-            //else if (orderObj.m_eOrderBy != OrderBy.META &&
-                    
-            //{
-            //    field = Enum.GetName(typeof(OrderBy), orderObj.m_eOrderBy).ToLower();
-            //}
-
-            ////we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
-            //if (order.m_eOrderBy != OrderBy.ID &&
-            //    shouldOrderByScore && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE)
-            //{
-            //    sortBuilder.Append(", \"_score\"");
-            //}
-
-            //if (order.m_eOrderBy != OrderBy.ID)
-            //{
-            //    // Always add sort by _id to avoid ES weirdness of same sort-value 
-            //    sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
-            //}
 
             if (!string.IsNullOrEmpty(field) || !string.IsNullOrEmpty(script))
             {

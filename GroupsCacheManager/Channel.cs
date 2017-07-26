@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json;
+using ApiObjects.SearchObjects;
 
 namespace GroupsCacheManager
 {
@@ -81,6 +82,12 @@ namespace GroupsCacheManager
             set;
         }
 
+        /// <summary>
+        /// Aggregation groupby option - for KSQL channels
+        /// </summary>
+        [DataMember]
+        public SearchAggregationGroupBy searchGroupBy;
+
         #endregion
 
         #region CTOR
@@ -101,6 +108,7 @@ namespace GroupsCacheManager
             m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
             filterQuery = string.Empty;
             filterTree = null;
+            searchGroupBy = null;
         }
 
         #endregion

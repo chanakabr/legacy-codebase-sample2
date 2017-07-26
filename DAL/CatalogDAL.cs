@@ -4067,6 +4067,7 @@ namespace Tvinci.Core.DAL
                 #endregion
 
                 channel.FilterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_FILTER");
+                channel.GroupBy = ODBCWrapper.Utils.ExtractString(rowData, "GROUP_BY");
 
                 BooleanPhraseNode node = null;
                 var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.FilterQuery, ref node);
@@ -4099,6 +4100,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
             sp.AddParameter("@Filter", channel.FilterQuery);
             sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
+            sp.AddParameter("@groupBy", channel.GroupBy);
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -4132,6 +4134,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
             sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
             sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
+            sp.AddParameter("@groupBy", channel.GroupBy);
 
             DataSet ds = sp.ExecuteDataSet();
 
