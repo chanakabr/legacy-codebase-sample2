@@ -2393,12 +2393,12 @@ namespace ElasticSearch.Searcher
                 break;
                 case OrderBy.RELATED:
                 {
-                    script = "doc.score";
+                    script = "_score";
                     break;
                 }
                 case OrderBy.NONE:
                 {
-                    script = "doc.score";
+                    script = "_score";
                     break;
                 }
                 case OrderBy.RECOMMENDATION:
