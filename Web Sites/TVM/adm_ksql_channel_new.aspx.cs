@@ -537,7 +537,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         theRecord.AddRecord(dr_filter);
 
         DataRecordShortTextField dr_groupBy = new DataRecordShortTextField("ltr", true, 60, 20, true);
-        dr_groupBy.Initialize("Group By (Meta)", "adm_table_header_nbg", "FormInput", "group_by", false);
+        dr_groupBy.Initialize("Group By (Meta or Tag)", "adm_table_header_nbg", "FormInput", "group_by", false);
         theRecord.AddRecord(dr_groupBy);
 
         DataRecordShortIntField dr_channel_type = new DataRecordShortIntField(false, 3, 3);
