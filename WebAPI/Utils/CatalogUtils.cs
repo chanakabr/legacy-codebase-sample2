@@ -486,7 +486,7 @@ namespace WebAPI.Utils
             {
                 // build the assetsBaseDataList from the hit array 
                 result.Objects = CatalogUtils.GetAssets(mediaIdsResponse.aggregationResults[0].results, request, cacheDuration, false, responseProfile);
-                result.TotalCount = mediaIdsResponse.m_nTotalItems;
+                result.TotalCount = mediaIdsResponse.aggregationResults[0].totalItems;
             }
 
             else if (mediaIdsResponse.searchResults != null && mediaIdsResponse.searchResults.Count > 0)

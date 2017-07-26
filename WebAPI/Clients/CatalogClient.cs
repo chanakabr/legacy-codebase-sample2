@@ -236,7 +236,7 @@ namespace WebAPI.Clients
             {
                 // build the assetsBaseDataList from the hit array 
                 result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, CacheDuration, managementData, responseProfile);
-                result.TotalCount = searchResponse.m_nTotalItems;
+                result.TotalCount = searchResponse.aggregationResults[0].totalItems;
             }
             else if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
             {
@@ -1970,7 +1970,7 @@ namespace WebAPI.Clients
             {
                 // build the assetsBaseDataList from the hit array 
                 result.Objects = CatalogUtils.GetAssets(channelResponse.aggregationResults[0].results, request, CacheDuration, false, responseProfile);
-                result.TotalCount = channelResponse.m_nTotalItems;
+                result.TotalCount = channelResponse.aggregationResults[0].totalItems;
             }            
             else if (channelResponse.searchResults != null && channelResponse.searchResults.Count > 0)
             {
