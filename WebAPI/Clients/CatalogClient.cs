@@ -231,8 +231,8 @@ namespace WebAPI.Clients
                 throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
             }
             // check if aggragation result have values 
-            if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 && 
-                searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0)
+            if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
+                searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
             {
                 // build the assetsBaseDataList from the hit array 
                 result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, CacheDuration, managementData, responseProfile);
