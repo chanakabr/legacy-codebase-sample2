@@ -6360,8 +6360,8 @@ namespace Core.Catalog
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             definitions = new UnifiedSearchDefinitions();
-            definitions.shouldSearchEpg = true;
-            definitions.shouldSearchMedia = true;
+            definitions.shouldSearchEpg = false;
+            definitions.shouldSearchMedia = false;
 
             Filter filter = new Filter();
 
@@ -6469,7 +6469,41 @@ namespace Core.Catalog
             #region Media Types, Permitted Watch Rules, Language
 
             // BEO-1338: Related media types is from the Media Search Request object - it knows the best!
-            definitions.mediaTypes = mediaSearchRequest.m_nMediaTypes;
+            if (mediaSearchRequest.m_nMediaTypes == null || mediaSearchRequest.m_nMediaTypes.Count == 0)
+            {
+                definitions.shouldSearchEpg = true;
+                definitions.shouldSearchMedia = true;
+            }
+            else
+            {
+                definitions.mediaTypes = mediaSearchRequest.m_nMediaTypes;
+                // 0 - hard coded for EPG
+                if (definitions.mediaTypes.Remove(UnifiedSearchDefinitions.EPG_ASSET_TYPE))
+                {
+                    definitions.shouldSearchEpg = true;
+                }
+                // If there are items left in media types after removing 0, we are searching for media
+                if (definitions.mediaTypes.Count > 0)
+                {
+                    definitions.shouldSearchMedia = true;
+                }
+
+                HashSet<int> mediaTypes = new HashSet<int>(group.GetMediaTypes());
+
+                if (mediaTypes != null)
+                {
+                    // Validate that the media types in the "assetTypes" list exist in the group's list of media types
+                    foreach (var mediaType in definitions.mediaTypes)
+                    {
+                        // If one of them doesn't exist, throw an exception that says the request is bad
+                        if (!mediaTypes.Contains(mediaType))
+                        {
+                            throw new KalturaException(string.Format("Invalid media type was sent: {0}", mediaType), (int)eResponseStatus.BadSearchRequest);
+                        }
+                    }
+                }
+
+            }
 
             if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
             {
