@@ -184,7 +184,7 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         object[] resultData = null;
         List<object> subscriptionSetsData = new List<object>();
         Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-        DataTable subscriptions = TvmDAL.GetAvailableSubscriptionsBySetId(nLogedInGroupID, setId);
+        DataTable subscriptions = TvmDAL.GetAvailableSubscriptionsBySetId(nLogedInGroupID, setId, (int)ApiObjects.Pricing.SubscriptionType.NotApplicable);
         if (subscriptions != null && subscriptions.Rows != null)
         {
             Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = new Dictionary<long, SubscriptionSetWithOrder>();
