@@ -383,7 +383,7 @@ namespace WebAPI.Utils
                             RecordingObj recordingObject = new RecordingObj()
                             {
                                 RecordingId = recordingId,
-                                RecordingType = ConditionalAccessMappings.ConvertRecordingType(scheduledRecordingType.Value),
+                                RecordingType = ConditionalAccessMappings.ConvertNullableRecordingType(scheduledRecordingType),
                                 Program = programObject
                             };
 

@@ -660,6 +660,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
+        public static KalturaRecordingType? ConvertNullableRecordingType(RecordingType? recordingType)
+        {
+            KalturaRecordingType? result = null;
+            if (recordingType.HasValue)
+            {
+                switch (recordingType)
+                {
+                    case RecordingType.Single:
+                        result = KalturaRecordingType.SINGLE;
+                        break;
+                    case RecordingType.Season:
+                        result = KalturaRecordingType.SEASON;
+                        break;
+                    case RecordingType.Series:
+                        result = KalturaRecordingType.SERIES;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
+                }
+            }
+            return result;
+        }
+
         public static ApiObjects.SearchObjects.OrderObj ConvertOrderToOrderObj(KalturaRecordingOrderBy order)
         {
             ApiObjects.SearchObjects.OrderObj result = new ApiObjects.SearchObjects.OrderObj();
