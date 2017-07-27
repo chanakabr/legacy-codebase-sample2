@@ -6361,7 +6361,7 @@ namespace Core.Catalog
             ApiObjects.Response.Status status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             definitions = new UnifiedSearchDefinitions();
             definitions.shouldSearchEpg = false;
-            definitions.shouldSearchMedia = false;
+            definitions.shouldSearchMedia = true; // related media search MEDIA ONLY
 
             Filter filter = new Filter();
 
@@ -6369,7 +6369,7 @@ namespace Core.Catalog
 
             MediaSearchRequest mediaSearchRequest =
                 BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj);
-             
+
             if (mediaSearchRequest == null)
             {
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.AssetDoseNotExists, ApiObjects.Response.eResponseStatus.AssetDoseNotExists.ToString());
@@ -6468,42 +6468,11 @@ namespace Core.Catalog
 
             #region Media Types, Permitted Watch Rules, Language
 
-            // BEO-1338: Related media types is from the Media Search Request object - it knows the best!
-            if (mediaSearchRequest.m_nMediaTypes == null || mediaSearchRequest.m_nMediaTypes.Count == 0)
-            {
-                definitions.shouldSearchEpg = true;
-                definitions.shouldSearchMedia = true;
-            }
-            else
-            {
-                definitions.mediaTypes = mediaSearchRequest.m_nMediaTypes;
-                // 0 - hard coded for EPG
-                if (definitions.mediaTypes.Remove(UnifiedSearchDefinitions.EPG_ASSET_TYPE))
-                {
-                    definitions.shouldSearchEpg = true;
-                }
-                // If there are items left in media types after removing 0, we are searching for media
-                if (definitions.mediaTypes.Count > 0)
-                {
-                    definitions.shouldSearchMedia = true;
-                }
+            // BEO-1338: Related media types is from the Media Search Request object - it knows the best!          
+            definitions.mediaTypes = mediaSearchRequest.m_nMediaTypes;
+           
 
-                HashSet<int> mediaTypes = new HashSet<int>(group.GetMediaTypes());
-
-                if (mediaTypes != null)
-                {
-                    // Validate that the media types in the "assetTypes" list exist in the group's list of media types
-                    foreach (var mediaType in definitions.mediaTypes)
-                    {
-                        // If one of them doesn't exist, throw an exception that says the request is bad
-                        if (!mediaTypes.Contains(mediaType))
-                        {
-                            throw new KalturaException(string.Format("Invalid media type was sent: {0}", mediaType), (int)eResponseStatus.BadSearchRequest);
-                        }
-                    }
-                }
-
-            }
+           
 
             if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
             {
