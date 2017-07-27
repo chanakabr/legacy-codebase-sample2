@@ -933,7 +933,6 @@ namespace WebAPI.Controllers
         /// Returns a group-by result for media or EPG according to given filter. Lists values of each field and their respective count.
         /// </summary>
         /// <param name="filter">Filtering the assets request</param>
-        /// <param name="groupBy">List of asset parameters to group by</param>
         /// <returns></returns>
         [Route("count"), HttpPost]
         [ApiAuthorize]

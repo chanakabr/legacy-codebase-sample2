@@ -465,6 +465,12 @@ namespace WebAPI.Utils
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
+            if (mediaIdsResponse.status != null && mediaIdsResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(mediaIdsResponse.status.Code, mediaIdsResponse.status.Message);
+            }
+
             if (mediaIdsResponse.aggregationResults != null && mediaIdsResponse.aggregationResults.Count > 0 &&
                 mediaIdsResponse.aggregationResults[0].results != null && mediaIdsResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
             {
