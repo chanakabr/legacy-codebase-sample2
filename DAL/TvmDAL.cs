@@ -1211,16 +1211,13 @@ namespace DAL
             return  sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataTable GetAvailableSubscriptionsBySetId(int groupId, long setId, int? subscriptionType = null)
+        public static DataTable GetAvailableSubscriptionsBySetId(int groupId, long setId, int subscriptionType)
         {
             StoredProcedure sp = new StoredProcedure("GetAvailableSubscriptionsBySetId");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@SetId", setId);
-            if (subscriptionType.HasValue)
-            {
-                sp.AddParameter("@SubscriptionType", subscriptionType.Value);
-            }
+            sp.AddParameter("@SubscriptionType", subscriptionType);
 
             return sp.Execute();
         }
