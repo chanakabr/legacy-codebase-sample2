@@ -1274,11 +1274,8 @@ namespace Core.Catalog
         {
             if (searchGroupBy != null && searchGroupBy.groupBy != null && searchGroupBy.groupBy.Count > 0)
             {
-                HashSet<string> allMediaMetas = new HashSet<string>();
-                HashSet<string> allMediaTags = new HashSet<string>();
-
-                HashSet<string> allEpgMetas = new HashSet<string>();
-                HashSet<string> allEpgTags = new HashSet<string>();
+                HashSet<string> allMetas = new HashSet<string>();
+                HashSet<string> allTags = new HashSet<string>();
 
                 if (definitions.shouldSearchMedia)
                 {
@@ -1286,13 +1283,13 @@ namespace Core.Catalog
                     {
                         foreach (var meta in metasInGroup)
                         {
-                            allMediaMetas.Add(meta.Value.ToLower());
+                            allMetas.Add(meta.Value.ToLower());
                         }
                     }
 
                     foreach (var tagInGroup in group.m_oGroupTags.Values)
                     {
-                        allMediaTags.Add(tagInGroup.ToLower());
+                        allTags.Add(tagInGroup.ToLower());
                     }
                 }
 
@@ -1300,12 +1297,12 @@ namespace Core.Catalog
                 {
                     foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
                     {
-                        allEpgMetas.Add(meta);
+                        allMetas.Add(meta);
                     }
 
                     foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
                     {
-                        allEpgTags.Add(tag);
+                        allTags.Add(tag);
                     }
                 }
 
@@ -1318,44 +1315,15 @@ namespace Core.Catalog
                     string requestGroupBy = lowered;
                     bool valid = false;
 
-                    if (definitions.shouldSearchMedia && definitions.shouldSearchEpg)
+                    if (allMetas.Contains(lowered))
                     {
-                        if (allMediaMetas.Contains(lowered) && allEpgMetas.Contains(lowered))
-                        {
-                            valid = true;
-                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
-                        }
-                        else if (allMediaTags.Contains(lowered) && allEpgTags.Contains(lowered))
-                        {
-                            valid = true;
-                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
-                        }
+                        valid = true;
+                        requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
                     }
-                    else if (definitions.shouldSearchMedia)
+                    else if (allTags.Contains(lowered))
                     {
-                        if (allMediaMetas.Contains(lowered))
-                        {
-                            valid = true;
-                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
-                        }
-                        else if (allMediaTags.Contains(lowered))
-                        {
-                            valid = true;
-                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
-                        }
-                    }
-                    else if (definitions.shouldSearchEpg)
-                    {
-                        if (allEpgMetas.Contains(lowered))
-                        {
-                            valid = true;
-                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
-                        }
-                        else if (allEpgTags.Contains(lowered))
-                        {
-                            valid = true;
-                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
-                        }
+                        valid = true;
+                        requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
                     }
                     else if (reservedGroupByFields.Contains(lowered))
                     {

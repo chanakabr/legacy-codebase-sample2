@@ -6376,6 +6376,7 @@ namespace Core.Catalog
             }
 
             LanguageObj language = null;
+
             if (filter == null)
             {
                 language = GetLanguage(request.m_nGroupID, -1);
