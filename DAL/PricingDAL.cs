@@ -70,7 +70,16 @@ namespace DAL
             spSubscriptionData.AddParameter("@IsActive", nIsActive);
             spSubscriptionData.AddParameter("@SubscriptionID", nSubscriptionID);
             spSubscriptionData.AddParameter("@ProductCode", sProductCode);
+
+            int UserTypesIdIn = 0;
+            if (userTypesIDsList != null && userTypesIDsList.Count > 0)
+            {
+                UserTypesIdIn = 1;
+            }
+
+            spSubscriptionData.AddParameter("@UserTypesIdIn", UserTypesIdIn);
             spSubscriptionData.AddIDListParameter("@UserTypesIdList", userTypesIDsList, "id");
+            
             spSubscriptionData.AddParameter("@TopRows", nTopRows);
 
             DataSet ds = spSubscriptionData.ExecuteDataSet();
