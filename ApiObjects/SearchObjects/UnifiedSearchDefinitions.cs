@@ -297,19 +297,7 @@ namespace ApiObjects.SearchObjects
 
         [JsonProperty()]
         [DataMember]
-        public Dictionary<string, string> recordingsToDomainRecordingsMapping
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty()]
-        [DataMember]
-        public Dictionary<string, string> recordingsToEpgMapping
-        {
-            get;
-            set;
-        }
+        public Dictionary<string, ApiObjects.TimeShiftedTv.SearchableRecording> recordingIdToSearchableRecordingMapping { get; set; }
 
         /// <summary>
         /// Defines if this service asks CAS to get the domain/user's recordings or not
@@ -412,6 +400,8 @@ namespace ApiObjects.SearchObjects
             shouldDateSearchesApplyToAllTypes = false;
 
             distinctGroup = new KeyValuePair<string, string>();
+
+            recordingIdToSearchableRecordingMapping = new Dictionary<string, TimeShiftedTv.SearchableRecording>();
         }
 
 

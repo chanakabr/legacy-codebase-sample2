@@ -7936,7 +7936,7 @@ namespace Core.Catalog
                             shouldAddActive = true
                         };
 
-                        var listOfMedia = unFilteredresult.Where(
+                        List<string> listOfMedia = unFilteredresult.Where(
                             x => x.AssetTypeId != (int)eAssetTypes.EPG && x.AssetTypeId != (int)eAssetTypes.NPVR)
                                 .Select(x => x.AssetId).ToList();
 
@@ -7946,14 +7946,17 @@ namespace Core.Catalog
                             searchDefinitions.shouldSearchMedia = true;
                         }
 
-                        searchDefinitions.recordingsToDomainRecordingsMapping = new Dictionary<string, string>();
-                        searchDefinitions.recordingsToEpgMapping = new Dictionary<string, string>();
-
-                        var listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
+                        List<string> listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
                             .Select(x =>
                                 {
                                     // map the recording to its domain recording id
-                                    searchDefinitions.recordingsToDomainRecordingsMapping[x.RecordingId.ToString()] = x.AssetId;
+                                    searchDefinitions.recordingIdToSearchableRecordingMapping[x.RecordingId.ToString()] = new ApiObjects.TimeShiftedTv.SearchableRecording() 
+                                    { 
+                                        DomainRecordingId = x.AssetId,
+                                        EpgId = x.EpgId,
+                                        RecordingId = x.RecordingId,
+                                        RecordingType = null
+                                    };
                                     return x.RecordingId.ToString();
                                 }).ToList();
 

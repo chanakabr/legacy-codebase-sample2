@@ -1239,40 +1239,27 @@ namespace Core.Catalog
                                 if (assetType == eAssetTypes.NPVR)
                                 {
                                     // After we searched for recordings, we need to replace their ID (recording ID) with the personal ID (domain recording)
-                                    if (unifiedSearchDefinitions.recordingsToDomainRecordingsMapping != null &&
-                                        unifiedSearchDefinitions.recordingsToEpgMapping != null)
+                                    if (unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping != null)
                                     {
-                                        var recordingsMapping = unifiedSearchDefinitions.recordingsToDomainRecordingsMapping;
-                                        var epgMapping = unifiedSearchDefinitions.recordingsToEpgMapping;
-
-                                        string recordingId = assetId;
-                                        string domainRecordingId = string.Empty;
-
-                                        if (recordingsMapping.ContainsKey(recordingId))
+                                        RecordingSearchResult recordingSearchResult = new RecordingSearchResult();
+                                        recordingSearchResult.AssetType = eAssetTypes.NPVR;
+                                        if (unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping.ContainsKey(assetId))
                                         {
                                             // Replace ID
-                                            domainRecordingId = recordingsMapping[recordingId];
-                                        }
-
-                                        string epgId = string.Empty;
-
-                                        if (epgMapping.ContainsKey(recordingId))
-                                        {
-                                            epgId = epgMapping[recordingId];
+                                            recordingSearchResult.AssetId = unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping[assetId].DomainRecordingId.ToString();
+                                            recordingSearchResult.EpgId = unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping[assetId].EpgId.ToString();
+                                            recordingSearchResult.RecordingType = unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping[assetId].RecordingType;
                                         }
                                         else if (doc.extraReturnFields.ContainsKey("epg_id"))
                                         {
-                                            epgId = doc.extraReturnFields["epg_id"];
+                                            recordingSearchResult.EpgId = doc.extraReturnFields["epg_id"];
                                         }
-                                        searchResultsList.Add(new RecordingSearchResult()
-                                        {
-                                            AssetId = domainRecordingId,
-                                            AssetType = eAssetTypes.NPVR,
-                                            EpgId = epgId
-                                        });
+
+                                        searchResultsList.Add(recordingSearchResult);
                                     }
                                     else
                                     {
+                                        log.WarnFormat("unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping is null, assetId: {0}", assetId);
                                         string epgId = string.Empty;
 
                                         if (doc.extraReturnFields.ContainsKey("epg_id"))
@@ -1284,7 +1271,7 @@ namespace Core.Catalog
                                         {
                                             AssetId = assetId,
                                             m_dUpdateDate = doc.update_date,
-                                            AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),
+                                            AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),                                            
                                             EpgId = epgId
                                         });
                                     }

@@ -15657,7 +15657,7 @@ namespace Core.ConditionalAccess
 
 				if (domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
 				{
-					result = domainRecordingIdToRecordingMap.Select(x => new SearchableRecording(x.Key, x.Value.Id, x.Value.EpgId)).ToArray();
+					result = domainRecordingIdToRecordingMap.Select(x => new SearchableRecording(x.Key, x.Value.Id, x.Value.EpgId, x.Value.Type)).ToArray();
 				}
 			}
 			catch (Exception ex)

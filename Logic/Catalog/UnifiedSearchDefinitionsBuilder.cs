@@ -376,18 +376,11 @@ namespace Core.Catalog
                 throw new Exception("WS_CAS GetDomainRecordingsMapping returned invalid response");
             }
 
-            var recordingsToDomainRecordingsMapping = new Dictionary<string,string>();
-            var recordingsToEpgMapping = new Dictionary<string, string>();
-
-            foreach (var recording in casResponse)
+            foreach (ApiObjects.TimeShiftedTv.SearchableRecording recording in casResponse)
             {
-                recordingsToDomainRecordingsMapping.Add(recording.RecordingId.ToString(), recording.DomainRecordingId.ToString());
-                recordingsToEpgMapping.Add(recording.RecordingId.ToString(), recording.EpgId.ToString());
+                definitions.recordingIdToSearchableRecordingMapping.Add(recording.RecordingId.ToString(), recording);
                 result.Add(recording.RecordingId.ToString());
             }
-
-            definitions.recordingsToDomainRecordingsMapping = recordingsToDomainRecordingsMapping;
-            definitions.recordingsToEpgMapping = recordingsToEpgMapping;
 
             return result;
         }

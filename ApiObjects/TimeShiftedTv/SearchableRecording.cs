@@ -8,19 +8,23 @@ namespace ApiObjects.TimeShiftedTv
 {
     public class SearchableRecording
     {
-        public long DomainRecordingId { get; set; }
+        public string DomainRecordingId { get; set; }
 
         public long RecordingId { get; set; }
 
         public long EpgId { get; set; }
 
+        public RecordingType? RecordingType { get; set; }
+
         public SearchableRecording() { }
 
-        public SearchableRecording(long domainRecordingId, long recordingId, long epgId)
+        public SearchableRecording(long domainRecordingId, long recordingId, long epgId, RecordingType recordingType)
         {
-            this.DomainRecordingId = domainRecordingId;
+            this.DomainRecordingId = domainRecordingId.ToString();
             this.RecordingId = recordingId;
             this.EpgId = epgId;
+            this.RecordingType = recordingType;
         }
+
     }
 }
