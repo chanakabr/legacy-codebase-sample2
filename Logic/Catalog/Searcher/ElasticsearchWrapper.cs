@@ -1144,7 +1144,9 @@ namespace Core.Catalog
                 queryParser.PageSize = unifiedSearchDefinitions.pageSize;
                 queryParser.From = unifiedSearchDefinitions.from;
 
-                if (queryParser.PageSize == 0)
+                if (queryParser.PageSize == 0 && 
+                    (unifiedSearchDefinitions.groupBy == null ||
+                    unifiedSearchDefinitions.groupBy.Count == 0))
                 {
                     queryParser.GetAllDocuments = true;
                 }

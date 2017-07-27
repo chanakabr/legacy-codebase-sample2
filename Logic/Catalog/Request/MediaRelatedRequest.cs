@@ -14,6 +14,7 @@ using Core.Catalog.Response;
 using KLogMonitor;
 using ElasticSearch.Searcher;
 using Catalog.Response;
+using ApiObjects.Response;
 
 namespace Core.Catalog.Request
 {
@@ -96,9 +97,23 @@ namespace Core.Catalog.Request
                     searchResponse.aggregationResults.Add(Utils.ConvertAggregationsResponse(aggregationsResult, this.searchGroupBy));
                 }
 
-
-
-                return searchResponse;               
+                return searchResponse;
+            }
+            catch (KalturaException kex)
+            {       // This is a specific exception we created.
+                // If this specific KalturaException has StatusCode in its data, use it instead of the general code
+                log.Error("GetMediaRelated", kex);
+                if (kex.Data.Contains("StatusCode"))
+                {
+                    searchResponse.status.Code = (int)kex.Data["StatusCode"];
+                    searchResponse.status.Message = kex.Message;
+                }
+                else
+                {
+                    searchResponse.status.Code = (int)eResponseStatus.Error;
+                    searchResponse.status.Message = "Failed getting assets of channel";
+                }
+                return searchResponse;
             }
             catch (Exception ex)
             {

@@ -6360,8 +6360,8 @@ namespace Core.Catalog
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             definitions = new UnifiedSearchDefinitions();
-            definitions.shouldSearchEpg = true;
-            definitions.shouldSearchMedia = true;
+            definitions.shouldSearchEpg = false;
+            definitions.shouldSearchMedia = true; // related media search MEDIA ONLY
 
             Filter filter = new Filter();
 
@@ -6369,13 +6369,14 @@ namespace Core.Catalog
 
             MediaSearchRequest mediaSearchRequest =
                 BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj);
-             
+
             if (mediaSearchRequest == null)
             {
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.AssetDoseNotExists, ApiObjects.Response.eResponseStatus.AssetDoseNotExists.ToString());
             }
 
             LanguageObj language = null;
+
             if (filter == null)
             {
                 language = GetLanguage(request.m_nGroupID, -1);
@@ -6468,8 +6469,11 @@ namespace Core.Catalog
 
             #region Media Types, Permitted Watch Rules, Language
 
-            // BEO-1338: Related media types is from the Media Search Request object - it knows the best!
+            // BEO-1338: Related media types is from the Media Search Request object - it knows the best!          
             definitions.mediaTypes = mediaSearchRequest.m_nMediaTypes;
+           
+
+           
 
             if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
             {
