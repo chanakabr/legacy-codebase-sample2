@@ -360,7 +360,6 @@ namespace WebAPI.Utils
                         string epgId = string.Empty;
                         RecordingType? scheduledRecordingType = null;
                         var searchResult = item as RecordingSearchResult;
-
                         if (searchResult != null)
                         {
                             epgId = searchResult.EpgId;
@@ -377,38 +376,23 @@ namespace WebAPI.Utils
                         }
 
                         baseObject = epgs.Where(p => p != null && p.AssetId.ToString() == epgId).FirstOrDefault();
-
-                        if (baseObject != null)
+                        long recordingId;
+                        if (baseObject != null && long.TryParse(item.AssetId, out recordingId) && recordingId > 0)
                         {
                             ProgramObj programObject = baseObject as ProgramObj;
-                            long recordingId;
-
-                            long.TryParse(item.AssetId, out recordingId);
-
-                            if (scheduledRecordingType.HasValue)
+                            RecordingObj recordingObject = new RecordingObj()
                             {
-                                ScheduledRecordingObj scheduledRecordingObj = new ScheduledRecordingObj()
-                                {
-                                    recordingId = recordingId,
-                                    recordingType = ConditionalAccessMappings.ConvertRecordingType(scheduledRecordingType.Value),
-                                    program = programObject
-                                };
+                                RecordingId = recordingId,
+                                RecordingType = ConditionalAccessMappings.ConvertRecordingType(scheduledRecordingType.Value),
+                                Program = programObject
+                            };
 
-                                finalResult.Add(scheduledRecordingObj);
-                            }
-                            else
-                            {
-                                RecordingObj recordingObject = new RecordingObj()
-                                {
-                                    recordingId = recordingId,
-                                    program = programObject
-                                };
-
-                                finalResult.Add(recordingObject);
-                            }
+                            finalResult.Add(recordingObject);
                         }
+
                         break;
                     }
+
                     case eAssetTypes.MEDIA:
                     {
                         baseObject = medias.Where(m => m != null && m.AssetId.ToString() == item.AssetId).FirstOrDefault();

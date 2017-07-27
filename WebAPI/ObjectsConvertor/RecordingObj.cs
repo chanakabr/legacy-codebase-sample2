@@ -3,18 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using WebAPI.Models.ConditionalAccess;
 
 namespace WebAPI.ObjectsConvertor
 {
     public class RecordingObj : BaseObject
     {
-        public long recordingId;
+        public long RecordingId { get; set; }
 
-        public ProgramObj program;
+        public KalturaRecordingType RecordingType { get; set; }
+
+        public ProgramObj Program { get; set; }
     }
 
-    public class ScheduledRecordingObj : RecordingObj
-    {
-        public WebAPI.Models.ConditionalAccess.KalturaRecordingType recordingType;
-    }
 }
