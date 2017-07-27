@@ -1068,7 +1068,10 @@ namespace WebAPI.Filters
                     //if Dictionary
                     else if (property.PropertyType.GetGenericArguments().Count() == 2)
                     {
-                        res = buildDictionary(property.PropertyType, ((JObject)parameters[parameterName]).ToObject<Dictionary<string, object>>());
+                        if (!parameters[parameterName].Equals(string.Empty))
+                        {
+                            res = buildDictionary(property.PropertyType, ((JObject)parameters[parameterName]).ToObject<Dictionary<string, object>>());
+                        }
                     }
 
                     property.SetValue(instance, res, null);
