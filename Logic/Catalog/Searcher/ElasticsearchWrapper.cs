@@ -1422,7 +1422,7 @@ namespace Core.Catalog
 
                 if (doc.extraReturnFields.ContainsKey(distinctGroup.Value))
                 {
-                    var groupingValue = doc.extraReturnFields[distinctGroup.Value];
+                    var groupingValue = doc.extraReturnFields[distinctGroup.Value].ToLower();
 
                     if (bucketMapping.ContainsKey(groupingValue))
                     {
