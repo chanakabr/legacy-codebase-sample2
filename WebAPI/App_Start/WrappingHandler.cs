@@ -19,6 +19,23 @@ using Newtonsoft.Json;
 
 namespace WebAPI.App_Start
 {
+    public class KalturaApiExceptionArg : KalturaOTTObject
+    {
+        /// <summary>
+        /// Argument name
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty(PropertyName = "name")]
+        public string name { get; set; }
+
+        /// <summary>
+        /// Argument value
+        /// </summary>
+        [DataMember(Name = "value")]
+        [JsonProperty(PropertyName = "value")]
+        public string value { get; set; }
+    }
+
     public class WrappingHandler : DelegatingHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -123,23 +140,10 @@ namespace WebAPI.App_Start
             public string message { get; set; }
 
             [JsonProperty(PropertyName = "args")]
-            public KalturaAPIExceptionArg[] args { get; set; }
+            public KalturaApiExceptionArg[] args { get; set; }
         }
 
-        public class KalturaAPIExceptionArg
-        {
-            [JsonProperty(PropertyName = "objectType")]
-            [DataMember(Name = "objectType")]
-            public string objectType { get { return this.GetType().Name; } set { } }
-
-            [JsonProperty(PropertyName = "name")]
-            public string name { get; set; }
-
-            [JsonProperty(PropertyName = "value")]
-            public string value { get; set; }
-        }
-
-        public static KalturaAPIExceptionWrapper prepareExceptionResponse(int statusCode, string msg, KalturaAPIExceptionArg[] arguments = null)
+        public static KalturaAPIExceptionWrapper prepareExceptionResponse(int statusCode, string msg, KalturaApiExceptionArg[] arguments = null)
         {
             return new KalturaAPIExceptionWrapper() { error = new KalturaAPIException() { message = msg, code = statusCode.ToString(), args = arguments } };
         }
