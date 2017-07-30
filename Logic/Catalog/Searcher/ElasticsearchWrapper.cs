@@ -1402,8 +1402,7 @@ namespace Core.Catalog
 
         private static void ReorderBuckets(
             ESAggregationsResult aggregationResult, int pageIndex, int pageSize, 
-            KeyValuePair<string, string> distinctGroup, Dictionary<string, 
-            ElasticSearchApi.ESAssetDocument> idToDocument, List<long> orderedIds)
+            KeyValuePair<string, string> distinctGroup, Dictionary<string, ElasticSearchApi.ESAssetDocument> idToDocument, List<long> orderedIds)
         {
             var bucketMapping = new Dictionary<string, ESAggregationBucket>();
             var orderedBuckets = new List<ESAggregationBucket>();
@@ -1422,6 +1421,7 @@ namespace Core.Catalog
 
                 if (doc.extraReturnFields.ContainsKey(distinctGroup.Value))
                 {
+                    // Pay attention! We use "to lower" because the bucket value is lowercased because it uses the analyzer. 
                     var groupingValue = doc.extraReturnFields[distinctGroup.Value].ToLower();
 
                     if (bucketMapping.ContainsKey(groupingValue))
@@ -1464,7 +1464,8 @@ namespace Core.Catalog
                 }
             }
 
-            // Add the leftovers - the buckets that weren't included previously for some reason
+            // Add the leftovers - the buckets that weren't included previously for some reason 
+            // (shouldn't happen, will happen if something went wrong or if we have more than MAX_RESULTS)
             foreach (var bucket in aggregationResult.Aggregations[distinctGroup.Key].buckets)
             {
                 if (!alreadyContainedBuckets.Contains(bucket))
