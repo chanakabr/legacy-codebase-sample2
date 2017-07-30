@@ -29,6 +29,7 @@ namespace WebAPI.Models.Catalog
     /// Asset info
     /// </summary>
     [Serializable]
+    [XmlInclude(typeof(KalturaRecordingAsset))]
     [XmlInclude(typeof(KalturaProgramAsset))]
     [XmlInclude(typeof(KalturaMediaAsset))]
     abstract public class KalturaAsset : KalturaOTTObject, KalturaIAssetable
@@ -329,7 +330,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "recordingType")]
         [JsonProperty(PropertyName = "recordingType")]
         [XmlElement(ElementName = "recordingType", IsNullable = true)]
-        public WebAPI.Models.ConditionalAccess.KalturaRecordingType RecordingType { get; set; }
+        public WebAPI.Models.ConditionalAccess.KalturaRecordingType? RecordingType { get; set; }
     }
     
 }
