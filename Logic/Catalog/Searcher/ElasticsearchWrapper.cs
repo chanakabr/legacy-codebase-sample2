@@ -1337,44 +1337,43 @@ namespace Core.Catalog
                                 orderedIds = SortAssetsByStats(assetIds, parentGroupId, orderBy, order.m_eOrderDir);
                             }
 
-                            // check which results should be returned
-
-                            if (string.IsNullOrEmpty(distinctGroup.Key))
-                            {
-                                Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
-
-                                // Map all results in dictionary
-                                searchResultsList.ForEach(item =>
-                                {
-                                    int assetId = int.Parse(item.AssetId);
-
-                                    if (!idToResultDictionary.ContainsKey(assetId))
-                                    {
-                                        idToResultDictionary.Add(assetId, item);
-                                    }
-                                });
-
-                                searchResultsList.Clear();
-
-                                bool illegalRequest = false;
-                                assetIds = TVinciShared.ListUtils.Page<long>(orderedIds, pageSize, pageIndex, out illegalRequest).ToList();
-
-                                if (!illegalRequest)
-                                {
-                                    UnifiedSearchResult temporaryResult;
-
-                                    foreach (int id in assetIds)
-                                    {
-                                        if (idToResultDictionary.TryGetValue(id, out temporaryResult))
-                                        {
-                                            searchResultsList.Add(temporaryResult);
-                                        }
-                                    }
-                                }
-                            }
-                            else
+                            if (!string.IsNullOrEmpty(distinctGroup.Key))
                             {
                                 ReorderBuckets(aggregationResult, pageIndex, pageSize, distinctGroup, idToDocument, orderedIds);
+                            }
+
+
+                            // check which results should be returned
+
+                            Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
+
+                            // Map all results in dictionary
+                            searchResultsList.ForEach(item =>
+                            {
+                                int assetId = int.Parse(item.AssetId);
+
+                                if (!idToResultDictionary.ContainsKey(assetId))
+                                {
+                                    idToResultDictionary.Add(assetId, item);
+                                }
+                            });
+
+                            searchResultsList.Clear();
+
+                            bool illegalRequest = false;
+                            assetIds = TVinciShared.ListUtils.Page<long>(orderedIds, pageSize, pageIndex, out illegalRequest).ToList();
+
+                            if (!illegalRequest)
+                            {
+                                UnifiedSearchResult temporaryResult;
+
+                                foreach (int id in assetIds)
+                                {
+                                    if (idToResultDictionary.TryGetValue(id, out temporaryResult))
+                                    {
+                                        searchResultsList.Add(temporaryResult);
+                                    }
+                                }
                             }
 
                             #endregion
