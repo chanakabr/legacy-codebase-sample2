@@ -1338,10 +1338,14 @@ namespace Core.Catalog
                                 orderedIds = SortAssetsByStats(assetIds, parentGroupId, orderBy, order.m_eOrderDir);
                             }
 
-                            Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
+                            // check which results should be returned
 
-                            // Map all results in dictionary
-                            searchResultsList.ForEach(item =>
+                            if (string.IsNullOrEmpty(distinctGroup.Key))
+                            {
+                                Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
+
+                                // Map all results in dictionary
+                                searchResultsList.ForEach(item =>
                                 {
                                     int assetId = int.Parse(item.AssetId);
 
@@ -1351,12 +1355,8 @@ namespace Core.Catalog
                                     }
                                 });
 
-                            searchResultsList.Clear();
+                                searchResultsList.Clear();
 
-                            // check which results should be returned
-
-                            if (string.IsNullOrEmpty(distinctGroup.Key))
-                            {
                                 bool illegalRequest = false;
                                 assetIds = TVinciShared.ListUtils.Page<long>(orderedIds, pageSize, pageIndex, out illegalRequest).ToList();
 
