@@ -1201,11 +1201,12 @@ namespace Core.Catalog
                     if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
                     {
                         searchResultsList = new List<UnifiedSearchResult>();
-                        Dictionary<string, ElasticSearchApi.ESAssetDocument> idToDocument = new Dictionary<string, ElasticSearchApi.ESAssetDocument>();
+                        var idToDocument = new Dictionary<string, ElasticSearchApi.ESAssetDocument>();
 
                         foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
                         {
                             string assetId = doc.asset_id.ToString();
+                            var assetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type);
 
                             if (unifiedSearchDefinitions.shouldReturnExtendedSearchResult)
                             {
@@ -1213,7 +1214,7 @@ namespace Core.Catalog
                                     {
                                         AssetId = assetId,
                                         m_dUpdateDate = doc.update_date,
-                                        AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),
+                                        AssetType = assetType,
                                         EndDate = doc.end_date,
                                         StartDate = doc.start_date
                                     };
@@ -1236,8 +1237,6 @@ namespace Core.Catalog
                             }
                             else
                             {
-                                var assetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type);
-
                                 if (assetType == eAssetTypes.NPVR)
                                 {
                                     // After we searched for recordings, we need to replace their ID (recording ID) with the personal ID (domain recording)
@@ -1273,7 +1272,7 @@ namespace Core.Catalog
                                         {
                                             AssetId = assetId,
                                             m_dUpdateDate = doc.update_date,
-                                            AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),                                            
+                                            AssetType = assetType,                                        
                                             EpgId = epgId
                                         });
                                     }
@@ -1284,7 +1283,7 @@ namespace Core.Catalog
                                     {
                                         AssetId = assetId,
                                         m_dUpdateDate = doc.update_date,
-                                        AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type)
+                                        AssetType = assetType,
                                     });
                                 }
                             }
