@@ -10810,6 +10810,16 @@
             User type description
             </summary>
         </member>
+        <member name="P:WebAPI.App_Start.KalturaApiExceptionArg.name">
+            <summary>
+            Argument name
+            </summary>
+        </member>
+        <member name="P:WebAPI.App_Start.KalturaApiExceptionArg.value">
+            <summary>
+            Argument value
+            </summary>
+        </member>
         <member name="T:WebAPI.Controllers.OttUserController">
             <summary>
             
