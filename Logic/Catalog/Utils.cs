@@ -1358,7 +1358,7 @@ namespace Core.Catalog
                 else if (string.IsNullOrEmpty(searchGroupBy.distinctGroup)) // channel not contain definition for distinct ==> as default insert first groupBy in the list
                 {
                     definitions.distinctGroup = definitions.groupBy[0];
-                }
+                    definitions.extraReturnFields.Add(definitions.distinctGroup.Value);                }
             }
         }
 
