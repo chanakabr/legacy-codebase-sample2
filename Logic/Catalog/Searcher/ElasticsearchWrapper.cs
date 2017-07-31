@@ -1342,8 +1342,7 @@ namespace Core.Catalog
                                 ReorderBuckets(aggregationResult, pageIndex, pageSize, distinctGroup, idToDocument, orderedIds);
                             }
 
-
-                            // check which results should be returned
+                            // Page results: check which results should be returned
 
                             Dictionary<int, UnifiedSearchResult> idToResultDictionary = new Dictionary<int, UnifiedSearchResult>();
 
