@@ -5795,7 +5795,8 @@ namespace Core.Catalog
                                                                                                 request.m_nPageIndex,
                                                                                                 enrichments,
                                                                                                 request.m_sFreeParam,
-                                                                                                out requestId);
+                                                                                                out requestId,
+                                                                                                out totalItems);
                 }
                 catch (KalturaException ex)
                 {
@@ -5818,7 +5819,7 @@ namespace Core.Catalog
                 }
 
                 resultsList = recommendations;
-                totalItems = recommendations.Count;
+                //totalItems = recommendations.Count;
 
                 if (recommendations == null)
                 {
@@ -5889,7 +5890,8 @@ namespace Core.Catalog
                                                                                                 request.m_nPageSize,
                                                                                                 request.m_nPageIndex,
                                                                                                 enrichments,
-                                                                                                out requestId);
+                                                                                                out requestId,
+                                                                                                out totalItems);
                 }
                 catch (KalturaException ex)
                 {
@@ -5912,7 +5914,7 @@ namespace Core.Catalog
                 }
 
                 resultsList = recommendations;
-                totalItems = recommendations.Count;
+                //totalItems = recommendations.Count;
 
                 if (recommendations == null)
                 {

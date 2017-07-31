@@ -59,9 +59,9 @@ namespace Core.Catalog.Request
                 request.m_dServerTime = DateTime.UtcNow;
             }
 
+
             return CatalogLogic.GetInternalChannelAssets(internalRequest, out totalItems, out searchResults, out aggregationsResult);
-                      
-            
+
         }
     }
 }
