@@ -103,10 +103,11 @@ namespace Core.Catalog.Request
 					).ToList();
                 
                 List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
-                
+
+                int tempTotalItems = 0;
                 if (allRecommendations != null && allRecommendations.Count > 0)
-				    searchResultsList = 
-					    searcher.FillUpdateDates(mediaRelatedRequest.m_nGroupID, allRecommendations, ref totalItems, mediaRelatedRequest.m_nPageSize, mediaRelatedRequest.m_nPageIndex);
+				    searchResultsList =
+                        searcher.FillUpdateDates(mediaRelatedRequest.m_nGroupID, allRecommendations, ref tempTotalItems, mediaRelatedRequest.m_nPageSize, mediaRelatedRequest.m_nPageIndex);
 
                 mediaResponse.m_nTotalItems = totalItems;
                 mediaResponse.m_nMediaIds = searchResultsList.Select(result => new SearchResult() { assetID = int.Parse(result.AssetId), UpdateDate = result.m_dUpdateDate }).ToList();
