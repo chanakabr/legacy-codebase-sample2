@@ -39,6 +39,7 @@ using Tvinci.Core.DAL;
 using TVinciShared;
 using Core.Notification;
 using Catalog.Response;
+using ElasticSearch.Common;
 
 namespace Core.Catalog
 {
@@ -1259,10 +1260,12 @@ namespace Core.Catalog
         /// <param name="totalItems"></param>
         /// <returns></returns>
         public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems, ref int to,
-            out ESAggregationsResult aggregationResult)
+            out ESAggregationsResult aggregationResult,
+            out Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping)
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
             aggregationResult = null;
+            topHitsMapping = null;
 
             totalItems = 0;
 
@@ -1284,7 +1287,8 @@ namespace Core.Catalog
 
             if (searcher != null)
             {
-                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to, out aggregationResult);
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to, 
+                    out aggregationResult, out topHitsMapping);
 
                 if (searchResults != null)
                 {
@@ -6191,10 +6195,11 @@ namespace Core.Catalog
 
             int to = 0;
 
-
             // Perform initial search of channel
             ESAggregationsResult esAggregationsResult = null;
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out esAggregationsResult);
+            Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping;
+
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out esAggregationsResult, out topHitsMapping);
 
             if (esAggregationsResult != null && esAggregationsResult.Aggregations != null)
             {
@@ -6203,7 +6208,7 @@ namespace Core.Catalog
                     aggregationsResult = new List<AggregationsResult>();
                 }
 
-                aggregationsResult.Add(Utils.ConvertAggregationsResponse(esAggregationsResult, channel.searchGroupBy));
+                aggregationsResult.Add(Utils.ConvertAggregationsResponse(esAggregationsResult, channel.searchGroupBy, topHitsMapping));
             }
 
             if (searchResults == null)
@@ -6296,10 +6301,13 @@ namespace Core.Catalog
             return status;
         }
 
-        internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults, out ESAggregationsResult aggregationsResult)
+        internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems,
+            out List<UnifiedSearchResult> searchResults, out ESAggregationsResult aggregationsResult, 
+            out Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping)
         {
-            aggregationsResult = null;
             // Set default values for out parameters
+            aggregationsResult = null;
+            topHitsMapping = null;
             totalItems = 0;
             searchResults = new List<UnifiedSearchResult>();
 
@@ -6337,7 +6345,7 @@ namespace Core.Catalog
             int to = 0;
 
             // Perform initial search of channel            
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult);
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult, out topHitsMapping);
 
             if (searchResults == null)
             {

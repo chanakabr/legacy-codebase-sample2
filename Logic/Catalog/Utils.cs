@@ -24,6 +24,7 @@ using KlogMonitorHelper;
 using ApiObjects.Response;
 using Catalog.Response;
 using Core.Catalog.Response;
+using ElasticSearch.Common;
 
 namespace Core.Catalog
 {
@@ -1362,7 +1363,10 @@ namespace Core.Catalog
             }
         }
 
-        public static AggregationsResult ConvertAggregationsResponse(ESAggregationsResult aggregationsResult, SearchAggregationGroupBy searchGroupBy)
+        public static AggregationsResult ConvertAggregationsResponse(
+            ESAggregationsResult aggregationsResult, 
+            SearchAggregationGroupBy searchGroupBy,
+            Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping)
         {
             string currentGroupBy = searchGroupBy.groupBy[0];
 
@@ -1398,7 +1402,7 @@ namespace Core.Catalog
 
                     string nextGroupBy = searchGroupBy.groupBy[1];
 
-                    var sub = ConvertAggregationsResponse(bucket.Aggregations[nextGroupBy], 1, searchGroupBy);
+                    var sub = ConvertAggregationsResponse(bucket.Aggregations[nextGroupBy], 1, searchGroupBy, topHitsMapping);
 
                     if (sub != null)
                     {
@@ -1416,12 +1420,23 @@ namespace Core.Catalog
 
                         foreach (var doc in topHitsAggregation.hits.hits)
                         {
-                            bucketResult.topHits.Add(new UnifiedSearchResult()
+                            UnifiedSearchResult unifiedSearchResult = null;
+
+                            if (topHitsMapping != null && topHitsMapping.ContainsKey(doc))
                             {
-                                AssetId = doc.asset_id.ToString(),
-                                AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),
-                                m_dUpdateDate = doc.update_date,
-                            });
+                                unifiedSearchResult = topHitsMapping[doc];
+                            }
+                            else
+                            {
+                                unifiedSearchResult = new UnifiedSearchResult()
+                               {
+                                   AssetId = doc.asset_id.ToString(),
+                                   AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),
+                                   m_dUpdateDate = doc.update_date,
+                               };
+                            }
+
+                            bucketResult.topHits.Add(unifiedSearchResult);
                         }
                     }
                 }
@@ -1437,7 +1452,11 @@ namespace Core.Catalog
         /// <param name="aggregationsResult"></param>
         /// <param name="groupByIndex"></param>
         /// <returns></returns>
-        public static AggregationsResult ConvertAggregationsResponse(ESAggregationResult aggregationsResult, int groupByIndex, SearchAggregationGroupBy searchGroupBy)
+        public static AggregationsResult ConvertAggregationsResponse(
+            ESAggregationResult aggregationsResult, 
+            int groupByIndex, 
+            SearchAggregationGroupBy searchGroupBy,
+            Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping)
         {
             // validate parameter
             if (groupByIndex > searchGroupBy.groupBy.Count)
@@ -1475,7 +1494,7 @@ namespace Core.Catalog
                 {
                     string nextGroupBy = searchGroupBy.groupBy[groupByIndex + 1];
 
-                    var sub = ConvertAggregationsResponse(bucket.Aggregations[nextGroupBy], 1, searchGroupBy);
+                    var sub = ConvertAggregationsResponse(bucket.Aggregations[nextGroupBy], 1, searchGroupBy, topHitsMapping);
 
                     if (sub != null)
                     {
@@ -1493,12 +1512,23 @@ namespace Core.Catalog
 
                         foreach (var doc in topHitsAggregation.hits.hits)
                         {
-                            bucketResult.topHits.Add(new UnifiedSearchResult()
+                            UnifiedSearchResult unifiedSearchResult = null;
+
+                            if (topHitsMapping != null && topHitsMapping.ContainsKey(doc))
                             {
-                                AssetId = doc.asset_id.ToString(),
-                                AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),
-                                m_dUpdateDate = doc.update_date,
-                            });
+                                unifiedSearchResult = topHitsMapping[doc];
+                            }
+                            else
+                            {
+                                unifiedSearchResult = new UnifiedSearchResult()
+                                {
+                                    AssetId = doc.asset_id.ToString(),
+                                    AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),
+                                    m_dUpdateDate = doc.update_date,
+                                };
+                            }
+
+                            bucketResult.topHits.Add(unifiedSearchResult);
                         }
                     }
                 }

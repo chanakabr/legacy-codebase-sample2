@@ -66,7 +66,9 @@ namespace Core.Catalog
         List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to);
 
         [OperationContract]
-        List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to, out ElasticSearch.Searcher.ESAggregationsResult aggregationResult);
+        List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to,
+            out ElasticSearch.Searcher.ESAggregationsResult aggregationResult,
+            out Dictionary<ElasticSearch.Common.ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping);
 
         [OperationContract]
         List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex);

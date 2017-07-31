@@ -1050,8 +1050,9 @@ namespace Core.Catalog
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int to)
         {
             ESAggregationsResult aggregationResult;
+            Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping;
 
-            return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationResult);
+            return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationResult, out topHitsMapping);
         }
 
         /// <summary>
@@ -1060,10 +1061,11 @@ namespace Core.Catalog
         /// <param name="unifiedSearchDefinitions"></param>
         /// <returns></returns>
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int to, 
-            out ESAggregationsResult aggregationResult)
+            out ESAggregationsResult aggregationResult, out Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping)
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
             aggregationResult = null;
+            topHitsMapping = null;
             totalItems = 0;
 
             OrderObj order = unifiedSearchDefinitions.order;
@@ -1193,6 +1195,7 @@ namespace Core.Catalog
                     if (queryParser.Aggregations != null)
                     {
                         aggregationResult = ESAggregationsResult.FullParse(queryResultString, queryParser.Aggregations);
+                        topHitsMapping = MapTopHits(aggregationResult, unifiedSearchDefinitions);
                     }
 
                     List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = 
@@ -1205,92 +1208,13 @@ namespace Core.Catalog
 
                         foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
                         {
-                            string assetId = doc.asset_id.ToString();
-                            var assetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type);
+                            UnifiedSearchResult result = CreateUnifiedSearchResultFromESDocument(unifiedSearchDefinitions, doc);
 
-                            if (unifiedSearchDefinitions.shouldReturnExtendedSearchResult)
-                            {
-                                var result = new ExtendedSearchResult()
-                                    {
-                                        AssetId = assetId,
-                                        m_dUpdateDate = doc.update_date,
-                                        AssetType = assetType,
-                                        EndDate = doc.end_date,
-                                        StartDate = doc.start_date
-                                    };
-
-                                if (doc.extraReturnFields != null)
-                                {
-                                    result.ExtraFields = new List<KeyValuePair>();
-
-                                    foreach (var field in doc.extraReturnFields)
-                                    {
-                                        result.ExtraFields.Add(new KeyValuePair()
-                                        {
-                                            key = field.Key,
-                                            value = field.Value
-                                        });
-                                    }
-                                }
-
-                                searchResultsList.Add(result);
-                            }
-                            else
-                            {
-                                if (assetType == eAssetTypes.NPVR)
-                                {
-                                    // After we searched for recordings, we need to replace their ID (recording ID) with the personal ID (domain recording)
-                                    if (unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping != null)
-                                    {
-                                        RecordingSearchResult recordingSearchResult = new RecordingSearchResult();
-                                        recordingSearchResult.AssetType = eAssetTypes.NPVR;
-                                        if (unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping.ContainsKey(assetId))
-                                        {
-                                            // Replace ID
-                                            recordingSearchResult.AssetId = unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping[assetId].DomainRecordingId.ToString();
-                                            recordingSearchResult.EpgId = unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping[assetId].EpgId.ToString();
-                                            recordingSearchResult.RecordingType = unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping[assetId].RecordingType;
-                                        }
-                                        else if (doc.extraReturnFields.ContainsKey("epg_id"))
-                                        {
-                                            recordingSearchResult.EpgId = doc.extraReturnFields["epg_id"];
-                                        }
-
-                                        searchResultsList.Add(recordingSearchResult);
-                                    }
-                                    else
-                                    {
-                                        log.WarnFormat("unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping is null, assetId: {0}", assetId);
-                                        string epgId = string.Empty;
-
-                                        if (doc.extraReturnFields.ContainsKey("epg_id"))
-                                        {
-                                            epgId = doc.extraReturnFields["epg_id"];
-                                        }
-
-                                        searchResultsList.Add(new RecordingSearchResult()
-                                        {
-                                            AssetId = assetId,
-                                            m_dUpdateDate = doc.update_date,
-                                            AssetType = assetType,                                        
-                                            EpgId = epgId
-                                        });
-                                    }
-                                }
-                                else
-                                {
-                                    searchResultsList.Add(new UnifiedSearchResult()
-                                    {
-                                        AssetId = assetId,
-                                        m_dUpdateDate = doc.update_date,
-                                        AssetType = assetType,
-                                    });
-                                }
-                            }
+                            searchResultsList.Add(result);
 
                             if (!string.IsNullOrEmpty(distinctGroup.Key))
                             {
-                                idToDocument.Add(assetId, doc);
+                                idToDocument.Add(result.AssetId, doc);
                             }
                         }
 
@@ -1378,7 +1302,7 @@ namespace Core.Catalog
                             #endregion
                         }
 
-                        if (isOrderedByString)
+                        if (aggregationResult != null && isOrderedByString)
                         {
                             // in this case the assets are already ordered in original search results, so we will simply use it
                             List<long> orderedIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
@@ -1395,6 +1319,138 @@ namespace Core.Catalog
             }
 
             return (searchResultsList);
+        }
+
+        private Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> MapTopHits(
+            ESAggregationsResult aggregationResult, UnifiedSearchDefinitions definitions)
+        {
+            var result = new Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult>();
+
+            Stack<ESAggregationResult> stack = new Stack<ESAggregationResult>();
+
+            foreach (var aggregation in aggregationResult.Aggregations.Values)
+            {
+                stack.Push(aggregation);
+            }
+
+            while (stack.Count > 0)
+            {
+                var aggregation = stack.Pop();
+
+                if (aggregation.hits != null && aggregation.hits.hits != null)
+                {
+                    foreach (var hit in aggregation.hits.hits)
+                    {
+                        var unifiedSearchResult = CreateUnifiedSearchResultFromESDocument(definitions, hit);
+
+                        result[hit] = unifiedSearchResult;
+                    }
+                }
+
+                foreach (var sub in aggregation.Aggregations.Values)
+                {
+                    stack.Push(sub);
+                }
+
+                if (aggregation.buckets != null && aggregation.buckets.Count > 0)
+                {
+                    foreach (var bucket in aggregation.buckets)
+                    {
+                        foreach (var sub in bucket.Aggregations.Values)
+                        {
+                            stack.Push(sub);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static UnifiedSearchResult CreateUnifiedSearchResultFromESDocument(
+            UnifiedSearchDefinitions definitions, ElasticSearchApi.ESAssetDocument doc)
+        {
+            UnifiedSearchResult result = null;
+            string assetId = doc.asset_id.ToString();
+            var assetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type);
+            
+            if (definitions.shouldReturnExtendedSearchResult)
+            {
+                result = new ExtendedSearchResult()
+                {
+                    AssetId = assetId,
+                    m_dUpdateDate = doc.update_date,
+                    AssetType = assetType,
+                    EndDate = doc.end_date,
+                    StartDate = doc.start_date
+                };
+
+                if (doc.extraReturnFields != null)
+                {
+                    (result as ExtendedSearchResult).ExtraFields = new List<KeyValuePair>();
+
+                    foreach (var field in doc.extraReturnFields)
+                    {
+                        (result as ExtendedSearchResult).ExtraFields.Add(new KeyValuePair()
+                        {
+                            key = field.Key,
+                            value = field.Value
+                        });
+                    }
+                }
+            }
+            else
+            {
+                if (assetType == eAssetTypes.NPVR)
+                {
+                    // After we searched for recordings, we need to replace their ID (recording ID) with the personal ID (domain recording)
+                    if (definitions != null && definitions.recordingIdToSearchableRecordingMapping != null)
+                    {
+                        result = new RecordingSearchResult();
+                        result.AssetType = eAssetTypes.NPVR;
+                        if (definitions.recordingIdToSearchableRecordingMapping.ContainsKey(assetId))
+                        {
+                            // Replace ID
+                            (result as RecordingSearchResult).AssetId = definitions.recordingIdToSearchableRecordingMapping[assetId].DomainRecordingId.ToString();
+                            (result as RecordingSearchResult).EpgId = definitions.recordingIdToSearchableRecordingMapping[assetId].EpgId.ToString();
+                            (result as RecordingSearchResult).RecordingType = definitions.recordingIdToSearchableRecordingMapping[assetId].RecordingType;
+                        }
+                        else if (doc.extraReturnFields.ContainsKey("epg_id"))
+                        {
+                            (result as RecordingSearchResult).EpgId = doc.extraReturnFields["epg_id"];
+                        }
+                    }
+                    else
+                    {
+                        log.WarnFormat("unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping is null, assetId: {0}", assetId);
+                        string epgId = string.Empty;
+
+                        if (doc.extraReturnFields.ContainsKey("epg_id"))
+                        {
+                            epgId = doc.extraReturnFields["epg_id"];
+                        }
+
+                        result = new RecordingSearchResult()
+                        {
+                            AssetId = assetId,
+                            m_dUpdateDate = doc.update_date,
+                            AssetType = assetType,
+                            EpgId = epgId
+                        };
+                    }
+                }
+                else
+                {
+                    result = new UnifiedSearchResult()
+                    {
+                        AssetId = assetId,
+                        m_dUpdateDate = doc.update_date,
+                        AssetType = assetType,
+                    };
+                }
+            }
+
+            return result;
         }
 
         private static void ReorderBuckets(

@@ -15,6 +15,7 @@ using Core.Catalog.Attributes;
 using Core.Catalog.Cache;
 using Catalog.Response;
 using ElasticSearch.Searcher;
+using ElasticSearch.Common;
 
 namespace Core.Catalog.Request
 {
@@ -230,7 +231,10 @@ namespace Core.Catalog.Request
                 int to = 0;
 
                 ESAggregationsResult aggregationsResult;
-                List<UnifiedSearchResult> assetsResults = CatalogLogic.GetAssetIdFromSearcher(request, ref totalItems, ref to, out aggregationsResult);
+                Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping;
+
+                List<UnifiedSearchResult> assetsResults =
+                    CatalogLogic.GetAssetIdFromSearcher(request, ref totalItems, ref to, out aggregationsResult, out topHitsMapping);
 
                 response.m_nTotalItems = totalItems;
 
@@ -251,7 +255,7 @@ namespace Core.Catalog.Request
                         response.aggregationResults = new List<AggregationsResult>();
                     }
 
-                    response.aggregationResults.Add(Utils.ConvertAggregationsResponse(aggregationsResult, this.searchGroupBy));
+                    response.aggregationResults.Add(Utils.ConvertAggregationsResponse(aggregationsResult, this.searchGroupBy, topHitsMapping));
                 }
 
                 // Response request Id is identical to request's request Id

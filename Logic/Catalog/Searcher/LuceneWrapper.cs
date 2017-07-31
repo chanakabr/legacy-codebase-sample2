@@ -311,7 +311,7 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to, out ElasticSearch.Searcher.ESAggregationsResult aggregationResult)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to, out ElasticSearch.Searcher.ESAggregationsResult aggregationResult, out Dictionary<ElasticSearch.Common.ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping)
         {
             throw new NotImplementedException();
         }
