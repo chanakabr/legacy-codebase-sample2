@@ -652,9 +652,23 @@ namespace WebAPI.Utils
 
                     foreach (KalturaAsset asset in tempAssets)
                     {
-                        if (asset.Id.HasValue && assetIdToCount.ContainsKey(asset.Id.Value.ToString()))
+                        string id = string.Empty;
+
+                        if (asset is KalturaRecordingAsset)
                         {
-                            var item = assetIdToCount[asset.Id.Value.ToString()];
+                            id = (asset as KalturaRecordingAsset).RecordingId;
+                        }
+                        else
+                        {
+                            if (asset.Id.HasValue)
+                            {
+                                id = asset.Id.Value.ToString();
+                            }
+                        }
+
+                        if (assetIdToCount.ContainsKey(id))
+                        {
+                            var item = assetIdToCount[id];
 
                             asset.relatedObjects = new SerializableDictionary<string, KalturaListResponse>();
                             KalturaIntegerValueListResponse kiv = new KalturaIntegerValueListResponse()
