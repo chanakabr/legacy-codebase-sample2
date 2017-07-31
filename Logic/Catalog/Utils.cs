@@ -1293,7 +1293,7 @@ namespace Core.Catalog
                     }
                 }
 
-                if (definitions.shouldSearchEpg)
+                if (definitions.shouldSearchEpg || definitions.shouldSearchRecordings)
                 {
                     foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
                     {
