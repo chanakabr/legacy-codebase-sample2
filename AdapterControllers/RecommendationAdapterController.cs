@@ -221,8 +221,9 @@ namespace AdapterControllers
 
         public List<RecommendationResult> GetRelatedRecommendations(int recommendationEngineId, Int32 nMediaID, Int32 nMediaTypeID, Int32 nGroupID, string siteGuid, string deviceId, 
                                                                     string language, int utcOffset, string sUserIP, string sSignature, string sSignString, List<Int32> filterTypeIDs, Int32 nPageSize,
-                                                                    Int32 nPageIndex, Dictionary<string, string> enrichments, string freeParam, out string requestId)
+                                                                    Int32 nPageIndex, Dictionary<string, string> enrichments, string freeParam, out string requestId, out int totalItems)
         {
+            totalItems = 0;
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
 
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(nGroupID, recommendationEngineId);
@@ -328,6 +329,7 @@ namespace AdapterControllers
                                     type = (eAssetTypes)result.AssetType
                                 }).ToList();
                     }
+                    totalItems = adapterResponse.TotalResults;
                 }
             }
             catch (Exception ex)
@@ -341,8 +343,9 @@ namespace AdapterControllers
 
         public List<RecommendationResult> GetSearchRecommendations(int recommendationEngineId, string query, Int32 nGroupID, string siteGuid, string deviceId,
                                                                     string language, int utcOffset, string sUserIP, string sSignature, string sSignString, List<Int32> filterTypeIDs, Int32 nPageSize,
-                                                                    Int32 nPageIndex, Dictionary<string, string> enrichments, out string requestId)
+                                                                    Int32 nPageIndex, Dictionary<string, string> enrichments, out string requestId, out int totalItems)
         {
+            totalItems = 0;
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
 
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(nGroupID, recommendationEngineId);
@@ -449,6 +452,7 @@ namespace AdapterControllers
                                     type = (eAssetTypes)result.AssetType
                                 }).ToList();
                     }
+                    totalItems = adapterResponse.TotalResults;
                 }
             }
             catch (Exception ex)
