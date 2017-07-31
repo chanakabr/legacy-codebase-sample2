@@ -316,7 +316,11 @@ namespace ElasticSearch.Searcher
                     {
                         int size = 0;
 
-                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup.Key))
+                        if (this.GetAllDocuments)
+                        {
+                            size = -1;
+                        }
+                        else if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup.Key))
                         {
                             size = this.SearchDefinitions.pageSize * (this.SearchDefinitions.pageIndex + 1);
                         }
