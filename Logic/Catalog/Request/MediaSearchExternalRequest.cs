@@ -99,10 +99,10 @@ namespace Core.Catalog.Request
                     ).ToList();
 
                 List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
-
+                int tempTotalItems = 0;
                 if (allRecommendations != null && allRecommendations.Count > 0)
                     searchResultsList =
-                        searcher.FillUpdateDates(mediaSearchRequest.m_nGroupID, allRecommendations, ref totalItems, mediaSearchRequest.m_nPageSize, mediaSearchRequest.m_nPageIndex);
+                        searcher.FillUpdateDates(mediaSearchRequest.m_nGroupID, allRecommendations, ref tempTotalItems, mediaSearchRequest.m_nPageSize, mediaSearchRequest.m_nPageIndex);
 
                 mediaResponse.m_nTotalItems = totalItems;
                 mediaResponse.assetIds = searchResultsList;
