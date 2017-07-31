@@ -1476,7 +1476,7 @@ namespace Core.Catalog
             var pagedBuckets = TVinciShared.ListUtils.Page<ESAggregationBucket>(orderedBuckets, pageSize, pageIndex, out illegalRequest).ToList();
 
             // replace the original list with the ordered list
-            aggregationResult.Aggregations[distinctGroup.Key].buckets = orderedBuckets;
+            aggregationResult.Aggregations[distinctGroup.Key].buckets = pagedBuckets;
         }
 
         private List<long> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets,
