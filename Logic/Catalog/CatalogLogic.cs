@@ -1260,13 +1260,10 @@ namespace Core.Catalog
         /// <param name="totalItems"></param>
         /// <returns></returns>
         public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems, ref int to,
-            out ESAggregationsResult aggregationResult,
-            out Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping)
+            out List<AggregationsResult> aggregationsResults)
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
-            aggregationResult = null;
-            topHitsMapping = null;
-
+            aggregationsResults = null;
             totalItems = 0;
 
             // Group have user types per media  +  siteGuid != empty
@@ -1287,8 +1284,8 @@ namespace Core.Catalog
 
             if (searcher != null)
             {
-                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to, 
-                    out aggregationResult, out topHitsMapping);
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to,
+                    out aggregationsResults);
 
                 if (searchResults != null)
                 {
@@ -6196,21 +6193,10 @@ namespace Core.Catalog
             int to = 0;
 
             // Perform initial search of channel
-            ESAggregationsResult esAggregationsResult = null;
-            Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping;
+            List<AggregationsResult> aggregationsResults = null;
 
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out esAggregationsResult, out topHitsMapping);
-
-            if (esAggregationsResult != null && esAggregationsResult.Aggregations != null)
-            {
-                if (aggregationsResult == null)
-                {
-                    aggregationsResult = new List<AggregationsResult>();
-                }
-
-                aggregationsResult.Add(Utils.ConvertAggregationsResponse(esAggregationsResult, channel.searchGroupBy, topHitsMapping));
-            }
-
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResults);
+            
             if (searchResults == null)
             {
                 return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
@@ -6302,12 +6288,10 @@ namespace Core.Catalog
         }
 
         internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems,
-            out List<UnifiedSearchResult> searchResults, out ESAggregationsResult aggregationsResult, 
-            out Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping)
+            out List<UnifiedSearchResult> searchResults, out List<AggregationsResult> aggregationsResults)
         {
             // Set default values for out parameters
-            aggregationsResult = null;
-            topHitsMapping = null;
+            aggregationsResults = null;
             totalItems = 0;
             searchResults = new List<UnifiedSearchResult>();
 
@@ -6345,7 +6329,7 @@ namespace Core.Catalog
             int to = 0;
 
             // Perform initial search of channel            
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult, out topHitsMapping);
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResults);
 
             if (searchResults == null)
             {

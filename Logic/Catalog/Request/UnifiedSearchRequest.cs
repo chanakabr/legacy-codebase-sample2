@@ -230,11 +230,10 @@ namespace Core.Catalog.Request
                 int totalItems = 0;
                 int to = 0;
 
-                ESAggregationsResult aggregationsResult;
-                Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping;
+                List<AggregationsResult> aggregationsResults;
 
                 List<UnifiedSearchResult> assetsResults =
-                    CatalogLogic.GetAssetIdFromSearcher(request, ref totalItems, ref to, out aggregationsResult, out topHitsMapping);
+                    CatalogLogic.GetAssetIdFromSearcher(request, ref totalItems, ref to, out aggregationsResults);
 
                 response.m_nTotalItems = totalItems;
 
@@ -243,19 +242,11 @@ namespace Core.Catalog.Request
                     response.searchResults = assetsResults;
                 }
 
+                response.aggregationResults = aggregationsResults;
+
                 if (to > 0)
                 {
                     response.to = to;
-                }
-
-                if (aggregationsResult != null && aggregationsResult.Aggregations != null)
-                {
-                    if (response.aggregationResults == null)
-                    {
-                        response.aggregationResults = new List<AggregationsResult>();
-                    }
-
-                    response.aggregationResults.Add(Utils.ConvertAggregationsResponse(aggregationsResult, this.searchGroupBy, topHitsMapping));
                 }
 
                 // Response request Id is identical to request's request Id

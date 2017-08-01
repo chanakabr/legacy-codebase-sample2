@@ -85,21 +85,9 @@ namespace Core.Catalog.Request
                 {
                     request.m_dServerTime = DateTime.UtcNow;
                 }
-                ESAggregationsResult aggregationsResult;
-                Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> topHitsMapping;
-
-                searchResponse.status = CatalogLogic.GetRelatedAssets(request, out searchResponse.m_nTotalItems, 
-                    out searchResponse.searchResults, out aggregationsResult, out topHitsMapping);
-
-                if (aggregationsResult != null && aggregationsResult.Aggregations != null)
-                {
-                    if (searchResponse.aggregationResults == null)
-                    {
-                        searchResponse.aggregationResults = new List<AggregationsResult>();
-                    }
-
-                    searchResponse.aggregationResults.Add(Utils.ConvertAggregationsResponse(aggregationsResult, this.searchGroupBy, topHitsMapping));
-                }
+                
+                searchResponse.status = CatalogLogic.GetRelatedAssets(request, out searchResponse.m_nTotalItems,
+                    out searchResponse.searchResults, out searchResponse.aggregationResults);
 
                 return searchResponse;
             }
