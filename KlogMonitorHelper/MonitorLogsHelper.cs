@@ -86,6 +86,7 @@ namespace KlogMonitorHelper
                     // get group ID
                     XmlNodeList xmlUserName = doc.GetElementsByTagName("sWSUserName");
                     XmlNodeList xmlPassword = doc.GetElementsByTagName("sWSPassword");
+                    module = GetWsModuleByUserName(xmlUserName[0].InnerText);
                     if (xmlUserName.Count > 0 && xmlPassword.Count > 0)
                         HttpContext.Current.Items[Constants.GROUP_ID] = GetGroupID(module, xmlUserName[0].InnerText, xmlPassword[0].InnerText);
                 }
@@ -124,6 +125,21 @@ namespace KlogMonitorHelper
                 else
                     log.Debug("REQUEST STRING: " + Environment.NewLine + requestString);
             }
+        }
+
+        private static eWSModules GetWsModuleByUserName(string userName)
+        {
+            string[] splitedUserName = userName.Split('_');
+            if (splitedUserName != null && splitedUserName.Length > 0 && !string.IsNullOrEmpty(splitedUserName[0]))
+            {
+                eWSModules module;
+                if (Enum.TryParse(splitedUserName[0].ToUpper(), out module))
+                {
+                    return module;
+                }
+            }
+
+            return eWSModules.USERS;
         }
 
         public static void InitMonitorLogsDataWCF(Message requestMessage)
