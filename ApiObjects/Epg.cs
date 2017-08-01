@@ -89,6 +89,13 @@ namespace ApiObjects
         [JsonProperty("crid", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public string Crid { get; set; }
 
+        [JsonIgnore()]
+        public string DocumentId
+        {
+            get;
+            set;
+        }
+
         public EpgCB()
         {
             EpgID = 0;
@@ -124,6 +131,7 @@ namespace ApiObjects
             EnableTrickPlay = 0;
 
             Crid = string.Empty;
+            DocumentId = string.Empty;
         }
 
 
