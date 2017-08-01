@@ -1404,7 +1404,7 @@ namespace Core.Catalog
                 if (assetType == eAssetTypes.NPVR)
                 {
                     // After we searched for recordings, we need to replace their ID (recording ID) with the personal ID (domain recording)
-                    if (definitions != null && definitions.recordingIdToSearchableRecordingMapping != null)
+                    if (definitions != null && definitions.recordingIdToSearchableRecordingMapping != null && definitions.recordingIdToSearchableRecordingMapping.Count > 0)
                     {
                         result = new RecordingSearchResult();
                         result.AssetType = eAssetTypes.NPVR;
