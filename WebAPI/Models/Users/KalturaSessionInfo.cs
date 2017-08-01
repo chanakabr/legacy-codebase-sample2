@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 
@@ -30,6 +31,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "sessionType")]
         [JsonProperty(PropertyName = "sessionType")]
         [XmlElement("sessionType")]
+        [Deprecated("4.5.0.0")]
         public KalturaSessionType sessionType { get; set; }
 
         /// <summary>

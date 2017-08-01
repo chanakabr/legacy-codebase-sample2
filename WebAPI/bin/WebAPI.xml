@@ -128,14 +128,13 @@
             </remarks>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.AppTokenController.StartSession(System.String,System.String,System.String,System.Nullable{WebAPI.Models.General.KalturaSessionType},System.Nullable{System.Int32},System.String)">
+        <member name="M:WebAPI.Controllers.AppTokenController.StartSession(System.String,System.String,System.String,System.Nullable{System.Int32},System.String)">
             <summary>
             Starts a new KS (Kaltura Session) based on application authentication token id
             </summary>
             <param name="id">application token id</param>
             <param name="tokenHash">hashed token - current KS concatenated with the application token hashed using the application token ‘hashType’</param>
             <param name="userId">session user id, will be ignored if a different user id already defined on the application token</param>
-            <param name="type">session type, will be ignored if a different session type already defined on the application token</param>
             <param name="expiry">session expiry (in seconds), could be overwritten by shorter expiry of the application token and the session-expiry that defined on the application token</param>
             <param name="udid">Device UDID</param>
             <remarks>
