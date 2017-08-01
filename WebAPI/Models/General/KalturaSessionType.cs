@@ -8,7 +8,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// KS type
     /// </summary>
-    [KalturaIntEnum]
+    [Obsolete]
     public enum KalturaSessionType
     {
         USER = 0, ADMIN = 2

@@ -65,6 +65,7 @@ namespace WebAPI.Managers.Models
         [DataMember(Name = "sessionType")]
         [JsonProperty("sessionType")]
         [XmlElement(ElementName = "sessionType")]
+        [Obsolete]
         public KalturaSessionType SessionType { get; set; }
 
         /// <summary>
@@ -73,6 +74,7 @@ namespace WebAPI.Managers.Models
         [DataMember(Name = "status")]
         [JsonProperty("status")]
         [XmlElement(ElementName = "status")]
+        [Obsolete]
         public KalturaAppTokenStatus Status { get; set; }
 
         /// <summary>

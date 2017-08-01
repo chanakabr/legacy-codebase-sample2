@@ -74,6 +74,7 @@ namespace WebAPI.Models.General
         [JsonProperty("sessionType")]
         [XmlElement(ElementName = "sessionType")]
         [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        [Deprecated("4.5.0.0")]
         public KalturaSessionType? SessionType { get; set; }
 
         /// <summary>
@@ -83,6 +84,7 @@ namespace WebAPI.Models.General
         [JsonProperty("status")]
         [XmlElement(ElementName = "status")]
         [SchemeProperty(ReadOnly = true)]
+        [Deprecated("4.5.0.0")]
         public KalturaAppTokenStatus Status { get; set; }
 
         /// <summary>
