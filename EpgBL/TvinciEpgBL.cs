@@ -140,14 +140,24 @@ namespace EpgBL
 
         public override bool UpdateEpg(EpgCB newEpgItem, ulong? cas = null)
         {
-            bool bRes = false;
-            for (int i = 0; i < 3 && !bRes; i++)
+            bool result = false;
+
+            for (int i = 0; i < 3 && !result; i++)
             {
-                bRes = (cas.HasValue) ? m_oEpgCouchbase.UpdateProgram(newEpgItem.EpgID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) :
-                                        m_oEpgCouchbase.UpdateProgram(newEpgItem.EpgID.ToString(), newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+                string documentId = newEpgItem.DocumentId;
+
+                if (string.IsNullOrEmpty(documentId))
+                {
+                    documentId = newEpgItem.EpgID.ToString();
+                }
+                
+                var expiresAt = newEpgItem.EndDate.AddDays(EXPIRY_DATE);
+
+                result = (cas.HasValue) ? m_oEpgCouchbase.UpdateProgram(documentId, newEpgItem, expiresAt, cas.Value) :
+                                        m_oEpgCouchbase.UpdateProgram(documentId, newEpgItem, expiresAt);
             }
 
-            return bRes;
+            return result;
         }
 
         public override bool UpdateEpg(EpgCB newEpgItem, bool isMainLang, out string docID, ulong? cas = null)
