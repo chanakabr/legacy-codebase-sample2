@@ -48,7 +48,7 @@ namespace ElasticSearchHandler
                     else if (rebuildResult)
                     {
                         res = "success";
-                        log.DebugFormat("Successfully rebuilding {0} index for group id {1} has failed.", request.Type.ToString(), request.GroupID);
+                        log.DebugFormat("Rebuilding {0} index for group id {1} has succeeded.", request.Type.ToString(), request.GroupID);
                     }
                     else
                     {
