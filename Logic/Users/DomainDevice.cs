@@ -1,9 +1,12 @@
 ﻿using ApiObjects;
 using Core.Users;
+using Core.Users.Cache;
 using DAL;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +14,8 @@ namespace Core.Users
 {
     public class DomainDevice : CoreObject
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public int DomainId { get; set; }
 
         public int DeviceId { get; set; }
@@ -50,27 +55,76 @@ namespace Core.Users
                     Id = 0;
                     break;
             }
+
+            try
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                oDomainCache.RemoveDomain(this.DomainId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Insert domain device - Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", this.DomainId, this.Udid, ex);
+            }
+
             return Id > 0;
         }
 
         protected override bool DoUpdate()
         {
+            bool result = false;
+
             switch (ActivataionStatus)
             {
                 case DeviceState.Pending:
-                    return DomainDal.UpdateDomainsDevicesStatus((int)Id, 3, 3);
+                {
+                    result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 3, 3);
+                    break;
+                }
                 case DeviceState.Activated:
-                    return DomainDal.UpdateDomainsDevicesStatus((int)Id, 1, 1);
+                {
+                    result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 1, 1);
+                    break;
+                }
                 case DeviceState.UnActivated:
-                    return DomainDal.UpdateDomainsDevicesStatus((int)Id, 0, 1);
+                {
+                    result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 0, 1);
+                    break;
+                }
                 default:
-                    return false;
+                {
+                    break;
+                }
             }
+
+            try
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                oDomainCache.RemoveDomain(this.DomainId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Update domain device - Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", this.DomainId, this.Udid, ex);
+            }
+
+            return result;
         }
 
         protected override bool DoDelete()
         {
-            return DomainDal.UpdateDomainsDevicesStatus(DomainId, GroupId, Udid, 2, 2);
+            bool result = DomainDal.UpdateDomainsDevicesStatus(DomainId, GroupId, Udid, 2, 2);
+
+            // if the first update done successfully - remove domain from cache
+            try
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                oDomainCache.RemoveDomain(this.DomainId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("RemoveDeviceFromDomain - Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", this.DomainId, this.Udid, ex);
+            }
+
+            return result;
         }
 
         public override CoreObject CoreClone()
