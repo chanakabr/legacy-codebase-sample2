@@ -1424,7 +1424,7 @@ namespace Core.Catalog
                             (result as RecordingSearchResult).EpgId = definitions.recordingIdToSearchableRecordingMapping[assetId].EpgId.ToString();
                             (result as RecordingSearchResult).RecordingType = definitions.recordingIdToSearchableRecordingMapping[assetId].RecordingType;
                         }
-                        else if (doc.extraReturnFields.ContainsKey("epg_id"))
+                        if (doc.extraReturnFields.ContainsKey("epg_id") && (string.IsNullOrEmpty((result as RecordingSearchResult).EpgId) || (result as RecordingSearchResult).EpgId == "0"))
                         {
                             (result as RecordingSearchResult).EpgId = doc.extraReturnFields["epg_id"];
                         }
