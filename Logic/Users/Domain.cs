@@ -566,17 +566,26 @@ namespace Core.Users
 
         public DomainResponseStatus AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string deviceName, int brandID, ref Device device)
         {
-            DomainResponseStatus eRetVal = DomainResponseStatus.UnKnown;
-            bool bRemove = false;
-            eRetVal = AddDeviceToDomain(nGroupID, nDomainID, sUDID, deviceName, brandID, ref device, out bRemove);
+            DomainResponseStatus responseStatus = DomainResponseStatus.UnKnown;
+            bool removeSuccess = false;
+            responseStatus = AddDeviceToDomain(nGroupID, nDomainID, sUDID, deviceName, brandID, ref device, out removeSuccess);
 
-            if (bRemove) // changes made on the domain - remove it from Cache
+            try
             {
-                //Remove domain from cache
-                DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(nDomainID);
+                // changes made on the domain - remove it from Cache
+                if (removeSuccess) 
+                {
+                    //Remove domain from cache
+                    DomainsCache domainCache = DomainsCache.Instance();
+                    domainCache.RemoveDomain(nDomainID);
+                }
             }
-            return eRetVal;
+            catch (Exception ex)
+            {
+                log.ErrorFormat("AddDeviceToDomain - Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", nDomainID, sUDID, ex);
+            }
+
+            return responseStatus;
         }
 
         public DomainResponseStatus RemoveDeviceFromDomain(string sUDID)
@@ -1149,11 +1158,20 @@ namespace Core.Users
         {
             bool bRemoveDomain = false;
             DomainResponseStatus eDomainResponseStatus = SubmitAddDeviceToDomainRequest(nGroupID, sDeviceUdid, sDeviceName, ref device, out bRemoveDomain);
-            if (bRemoveDomain)
+
+            try
             {
-                DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(m_nDomainID);
+                if (bRemoveDomain)
+                {
+                    DomainsCache oDomainCache = DomainsCache.Instance();
+                    oDomainCache.RemoveDomain(m_nDomainID);
+                }
             }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("SubmitAddDeviceToDomainRequest - Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, sDeviceUdid, ex);
+            }
+
             return eDomainResponseStatus;
         }
 
