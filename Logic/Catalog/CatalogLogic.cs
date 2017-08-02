@@ -6193,9 +6193,7 @@ namespace Core.Catalog
             int to = 0;
 
             // Perform initial search of channel
-            List<AggregationsResult> aggregationsResults = null;
-
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResults);
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult);
             
             if (searchResults == null)
             {
