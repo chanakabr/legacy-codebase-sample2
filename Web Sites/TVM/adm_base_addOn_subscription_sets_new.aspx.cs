@@ -155,12 +155,23 @@ public partial class adm_base_addOn_subscription_sets_new : System.Web.UI.Page
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "Name", true);
         theRecord.AddRecord(dr_name);
-        
-        DataRecordDropDownField dr_baseSubscription = new DataRecordDropDownField("", "name", "id", "", null, 60, false);
-        dr_baseSubscription.SetSelectsDT(TvmDAL.GetAvailableBaseSubscriptionsBySetId(LoginManager.GetLoginGroupID(), setId));
-        dr_baseSubscription.Initialize("Base subscription", "adm_table_header_nbg", "FormInput", "base_subscription_id", true);        
-        dr_baseSubscription.SetDefault(0);
-        theRecord.AddRecord(dr_baseSubscription);
+
+        DataTable dt = TvmDAL.GetAvailableBaseSubscriptionsBySetId(LoginManager.GetLoginGroupID(), setId);
+        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+        {
+            DataRecordDropDownField dr_baseSubscription = new DataRecordDropDownField("", "name", "id", "", null, 60, false);
+            dr_baseSubscription.SetSelectsDT(TvmDAL.GetAvailableBaseSubscriptionsBySetId(LoginManager.GetLoginGroupID(), setId));
+            dr_baseSubscription.Initialize("Base subscription", "adm_table_header_nbg", "FormInput", "base_subscription_id", true);
+            dr_baseSubscription.SetDefault(0);
+            theRecord.AddRecord(dr_baseSubscription);
+        }
+        else
+        {
+            DataRecordDropDownField dr_baseSubscription = new DataRecordDropDownField("", "name", "id", "", null, 60, false);            
+            dr_baseSubscription.Initialize("Base subscription", "adm_table_header_nbg", "FormInput", "base_subscription_id", true);
+            dr_baseSubscription.SetDefaultVal("---");
+            theRecord.AddRecord(dr_baseSubscription);
+        }
 
         DataRecordShortIntField dr_typeSet = new DataRecordShortIntField(false, 9, 9);
         dr_typeSet.Initialize("Type", "adm_table_header_nbg", "FormInput", "TYPE", false);
