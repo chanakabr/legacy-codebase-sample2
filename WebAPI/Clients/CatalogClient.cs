@@ -1896,8 +1896,22 @@ namespace WebAPI.Clients
             key.AppendFormat("search_q={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 query, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMediaWithStatus(request, key.ToString(), CacheDuration);
+            MediaIdsStatusResponse mediaIdsResponse = new MediaIdsStatusResponse();
+            if (!CatalogUtils.GetBaseResponse<MediaIdsStatusResponse>(request, out mediaIdsResponse, true, key.ToString())
+                || mediaIdsResponse == null || mediaIdsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                if (mediaIdsResponse == null)
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
 
+                // general error
+                throw new ClientException((int)mediaIdsResponse.Status.Code, mediaIdsResponse.Status.Message);
+            }
+
+            if (mediaIdsResponse.assetIds != null && mediaIdsResponse.assetIds.Count > 0)
+            {
+                result.Objects = CatalogUtils.GetAssets(mediaIdsResponse.assetIds.Select(a => (BaseObject)a).ToList(), request, CacheDuration);
+                result.TotalCount = mediaIdsResponse.m_nTotalItems;
+            }
             return result;
         }
 

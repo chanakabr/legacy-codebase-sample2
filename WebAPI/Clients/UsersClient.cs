@@ -844,8 +844,6 @@ namespace WebAPI.Clients
             WebAPI.Models.Users.KalturaOTTUser user = null;
             UserResponse response = null;
 
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
