@@ -182,49 +182,51 @@ namespace DalCB
 
         public bool DeleteProgram(string sDocID)
         {
-            bool bRes = false;
+            bool result = false;
             try
             {
-                bRes = cbManager.Remove(sDocID);
+                result = cbManager.Remove(sDocID);
             }
             catch (Exception ex)
             {
                 log.Error("Exception - " + string.Format("Exception at DeleteProgram. Msg: {0} , Doc ID: {1} , Ex Type: {2} , ST: {3}", ex.Message, sDocID, ex.GetType().Name, ex.StackTrace), ex);
             }
 
-            return bRes;
+            return result;
         }
 
         public EpgCB GetProgram(string id)
         {
-            EpgCB oRes = null;
+            EpgCB result = null;
             try
             {
-                oRes = cbManager.GetJsonAsT<EpgCB>(id);
+                result = cbManager.GetJsonAsT<EpgCB>(id);
+                result.DocumentId = id;
             }
             catch (Exception ex)
             {
                 log.Error("Exception 0 " + string.Format("Exception at GetProgram. Msg: {0} , ID: {1} , Ex Type: {2} , ST: {3}", ex.Message, id, ex.GetType().Name, ex.StackTrace), ex);
             }
 
-            return oRes;
+            return result;
         }
 
         public EpgCB GetProgram(string id, out ulong cas)
         {
-            EpgCB oRes = null;
+            EpgCB result = null;
             cas = 0;
             try
             {
                 var cbRes = cbManager.GetWithVersion<string>(id, out cas);
-                oRes = JsonConvert.DeserializeObject<EpgCB>(cbRes);
+                result = JsonConvert.DeserializeObject<EpgCB>(cbRes);
+                result.DocumentId = id;
             }
             catch (Exception ex)
             {
                 log.Error("Exception - " + string.Format("Exception at GetProgram (2 argument overload). Msg: {0} , ID: {1} , Ex Type: {2} , ST: {3}", ex.Message, id, ex.GetType().Name, ex.StackTrace), ex);
             }
 
-            return oRes;
+            return result;
         }
 
         public List<EpgCB> GetProgram(List<string> ids)
@@ -250,6 +252,8 @@ namespace DalCB
 
                                 if (tempEpg != null)
                                 {
+                                    tempEpg.DocumentId = id;
+
                                     if (tempEpg.Status == 1)
                                     {
                                         resultEpgs.Add(tempEpg);
@@ -306,8 +310,11 @@ namespace DalCB
                         if (epgsOnRecordingBucket.ContainsKey(id))
                         {
                             EpgCB tempEpg = BuildEpgCbFromCbObject(epgsOnRecordingBucket[id]);
+
                             if (tempEpg != null && tempEpg.Status == 1)
                             {
+                                tempEpg.DocumentId = id;
+
                                 resultEpgs.Add(tempEpg);
                             }
                         }

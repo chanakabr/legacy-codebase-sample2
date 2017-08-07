@@ -790,7 +790,13 @@ namespace EpgIngest
                 foreach (string sGuid in epgDic.Keys)
                 {
                     // get only the main language
-                    KeyValuePair<string, EpgCB> epg = epgDic[sGuid].Where(x => x.Key == mainLlanguage).First();
+                    KeyValuePair<string, EpgCB> epg = epgDic[sGuid].Where(x => x.Key == mainLlanguage).FirstOrDefault();
+
+                    if (string.IsNullOrEmpty(epg.Key) || epg.Value == null)
+                    {
+                        log.ErrorFormat("InsertEpgsDBBatches - when inserting EPGs in group: {0}, for sGuid {1}, couldn't find epg of main language", groupID, sGuid);
+                        continue;
+                    }
 
                     epgBatch.Add(sGuid, epg.Value);
                     epgCount++;
