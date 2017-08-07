@@ -31,6 +31,7 @@ using TVinciShared;
 using KlogMonitorHelper;
 using ApiObjects.Billing;
 using ApiObjects.SubscriptionSet;
+using APILogic.ConditionalAccess.Managers;
 
 namespace Core.ConditionalAccess
 {
@@ -1101,17 +1102,33 @@ namespace Core.ConditionalAccess
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
                                                         string countryCode, string languageCode, string udid)
         {
-            return GetSubscriptionFinalPrice(groupId, subCode, userId, couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, string.Empty);
+            UnifiedBillingCycle unifiedBillingCycle = null;
+            return GetSubscriptionFinalPrice(groupId, subCode, userId, couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, string.Empty, ref unifiedBillingCycle);
         }
 
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
                                                         string countryCode, string languageCode, string udid, string ip, string currencyCode = null, bool isSubscriptionSetModifySubscription = false)
         {
+            UnifiedBillingCycle unifiedBillingCycle = null;
+            return GetSubscriptionFinalPrice(groupId, subCode, userId, couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, ip, ref unifiedBillingCycle, currencyCode, isSubscriptionSetModifySubscription);
+        }
+
+        internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
+                                                        string countryCode, string languageCode, string udid, string ip, string currencyCode, ref UnifiedBillingCycle unifiedBillingCycle)
+        {
+            return GetSubscriptionFinalPrice(groupId, subCode, userId, couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, ip, ref unifiedBillingCycle, currencyCode);
+        }
+
+
+        internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
+                                string countryCode, string languageCode, string udid, string ip, ref UnifiedBillingCycle unifiedBillingCycle, string currencyCode = null, bool isSubscriptionSetModifySubscription = false)
+        {
+            unifiedBillingCycle = null;
             Price price = null;
             Subscription subscription = null;
             //create web service pricing insatance
             try
-            {
+            {               
                 subscription = Core.Pricing.Module.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false);
                 if (subscription == null)
                 {
@@ -1212,6 +1229,8 @@ namespace Core.ConditionalAccess
                         }
 
                         price = CalculateCouponDiscount(ref price, couponGroups, couponCode, groupId);
+
+                        CalculatePriceByUnifiedBillingCycle(groupId, ref price.m_dPrice, ref unifiedBillingCycle, subscription, domainID);
                     }
                 }
                 else
@@ -1228,6 +1247,124 @@ namespace Core.ConditionalAccess
             return price;
         }
 
+        /// calculate relative price by the time period that left until end of this cycle
+        /// d =  subscription number of days 
+        /// P = subscription price (original + discount)
+        /// AD =  (billingCycle_date - purchase_date ). TotalDays  - Ceiling 
+        /// partialPrice = AD * P/D (2 digit after .)      
+        internal static void CalculatePriceByUnifiedBillingCycle(int groupId, ref double price, ref UnifiedBillingCycle unifiedBillingCycle, Subscription subscription = null , int domainID = 0)
+        {
+            long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
+
+            if (unifiedBillingCycle == null)
+            {
+                if (subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/)
+                {
+                    //check that group configuration set to any unified billing cycle                    
+                    if (groupUnifiedBillingCycle.HasValue)
+                    {
+                        //chcek that subscription contain this group billing cycle 
+                        if ((long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
+                        {
+                            //get key from CB household_renewBillingCycle
+                            unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainID, groupUnifiedBillingCycle.Value);
+                        }
+                    }
+                }
+            }
+            if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > 0)
+            {
+                DateTime nextRenew = Core.Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
+                int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
+                int numOfDaysByBillingCycle = (int)Math.Ceiling((Utils.ConvertEpochTimeToDate(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
+
+                price = Math.Round(numOfDaysByBillingCycle * (price / numOfDaysForSubscription), 2);
+            }
+        }        
+
+        internal static UnifiedBillingCycle TryGetHouseholdUnifiedBillingCycle(int domainId, long renewLifeCycle)
+        {
+            UnifiedBillingCycle unifiedBillingCycle = null;
+            try
+            {
+                // save in CB 
+                unifiedBillingCycle = UnifiedBillingCycleManager.Instance.GetDomainUnifiedBillingCycle(domainId, renewLifeCycle);
+
+                if (unifiedBillingCycle == null)
+                {
+                    log.DebugFormat(string.Format("TryGetHouseholdUnifiedBillingCycle - no billingCycle found for domainId={0} renewLifeCycle={1}", domainId, renewLifeCycle));                   
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("TryGetUnifiedBillingCycle - Failed for domainID = {0}, billingCycle= {1} due ex ={2}", domainId, renewLifeCycle, ex.Message);
+                return null;
+            }
+            return unifiedBillingCycle;
+        }
+
+      
+        public static long? GetGroupUnifiedBillingCycle(int groupId)
+        {
+            long? unifiedBillingCycle = null;
+            try
+            {
+                // get unified billing cycle for group from cach / DB
+                string key = LayeredCacheKeys.GetGroupUnifiedBillingCycleKey(groupId);
+                List<string> inValidationKeys = new List<string>();
+                inValidationKeys.Add(LayeredCacheKeys.GetGroupUnifiedBillingCycleInvalidationKey(groupId));
+
+                // try to get from cache            
+                bool cacheResult = LayeredCache.Instance.Get<long?>(key, ref unifiedBillingCycle, Get_GroupUnifiedBillingCycle, new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                                groupId, LayeredCacheConfigNames.GET_GROUP_UNIFIED_BILLING_CYCLE, inValidationKeys);
+
+                if (!cacheResult)
+                {
+                    log.Error(string.Format("TryGetGroupUnifiedBillingCycle - Failed get data from cache groupId={0}", groupId));
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("TryGetGroupUnifiedBillingCycle - Failed for groupId = {0} due ex = {1}" , groupId ,ex.Message);
+                return null;
+            }
+            return unifiedBillingCycle;
+        }
+
+        private static Tuple<long?, bool> Get_GroupUnifiedBillingCycle(Dictionary<string, object> funcParams)
+        {           
+            bool res = false;
+            long? unifiedBillingCycle = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if(groupId.HasValue)
+                    {
+                        DataRow dr = BillingDAL.GetGroupParameters(groupId.Value);
+                        if (dr != null)
+                        {
+                            unifiedBillingCycle = ODBCWrapper.Utils.GetLongSafeVal(dr, "unified_billing_cycle_period");
+                            if (unifiedBillingCycle == 0)
+                            {
+                                unifiedBillingCycle = null;
+                            }
+                            res = true;
+                        }
+                    }                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_GroupUnifiedBillingCycle failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<long?, bool>(unifiedBillingCycle, res);           
+        }
+
+       
         internal static Price GetCollectionFinalPrice(Int32 nGroupID, string sColCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref Collection theCol,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr)
         {
@@ -2543,6 +2680,12 @@ namespace Core.ConditionalAccess
         internal static long ConvertDateToEpochTimeInMilliseconds(DateTime dateTime)
         {
             return long.Parse((Math.Floor(dateTime.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds).ToString()));
+        }
+
+        internal static DateTime ConvertEpochTimeToDate(long timestamp)
+        {
+            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return origin.AddSeconds(timestamp);
         }
 
         internal static void ReplaceSubStr(ref string url, Dictionary<string, object> oValuesToReplace)
@@ -7085,7 +7228,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        internal static DateTime CalcSubscriptionEndDate(Subscription sub, bool bIsEntitledToPreviewModule, DateTime dtToInitializeWith)
+        internal static DateTime CalcSubscriptionEndDate(Subscription sub, bool bIsEntitledToPreviewModule, DateTime dtToInitializeWith)//, int domainId = 0)
         {
             DateTime res = dtToInitializeWith;
             if (sub != null)
@@ -7097,6 +7240,21 @@ namespace Core.ConditionalAccess
                 }
                 else
                 {
+                    ///*
+                    // * get the key from DB / CB {domainId}_{usagemodule}  if exsits -- get this one as end date  else as it now (it's the first) 
+                    // * and need to insert key to DB / CB
+                    // */
+                    //// get household unified billing cycle doc from CB 
+                    //if (domainId > 0 && sub.m_MultiSubscriptionUsageModule != null && sub.m_MultiSubscriptionUsageModule.Count() > 0)
+                    //{
+                    //    UnifiedBillingCycle unifiedBillingCycle = UnifiedBillingCycleManager.Instance.GetDomainUnifiedBillingCycle(domainId, (long)sub.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle);
+                    //    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate.HasValue)
+                    //    {
+                    //        res = ODBCWrapper.Utils.UnixTimestampToDateTime(unifiedBillingCycle.endDate.Value);
+                    //        return res;
+                    //    }
+                    //}
+
                     if (sub.m_oSubscriptionUsageModule != null)
                     {
                         // calc end date as before.
@@ -7791,5 +7949,8 @@ namespace Core.ConditionalAccess
             }
             return Status;
         }
+
+
+      
     }
 }

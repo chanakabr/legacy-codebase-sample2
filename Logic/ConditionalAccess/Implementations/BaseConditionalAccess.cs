@@ -2550,9 +2550,18 @@ namespace Core.ConditionalAccess
 		}
 
         protected internal bool GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
+        int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
+        ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription)
+        {
+            return GetMultiSubscriptionUsageModule(siteguid, userIp, purchaseId, paymentNumber, totalPaymentsNumber, numOfPayments, isPurchasedWithPreviewModule, ref priceValue,
+                ref customData, ref sCurrency, ref nRecPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule, ref couponCode, subscription);
+        }
+
+        protected internal bool GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
                 int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
-                ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, Compensation compensation = null,
-                string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null, DateTime? endDate = null)
+                ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, ref UnifiedBillingCycle unifiedBillingCycle, 
+                Compensation compensation = null, string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null, DateTime? endDate = null,
+            int groupId = 0, long householdId = 0)
         {
             bool isSuccess = false;
 
@@ -2631,10 +2640,21 @@ namespace Core.ConditionalAccess
                     }
                 }
 
+                // if this is a renew after preview module - need to calculate partial price (if unified billing cycle)      
+                if (paymentNumber == 0 && isPurchasedWithPreviewModule && groupId > 0 && householdId > 0)
+                {                    
+                    unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
+                    // check that end date between next end date and unified billing cycle end date are diffrent
+                    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate.Value))
+                    {
+                        Utils.CalculatePriceByUnifiedBillingCycle(groupId, ref priceValue, ref unifiedBillingCycle);
+                    }
+                }
+
                 nRecPeriods = subscription.m_nNumberOfRecPeriods;
                 isMPPRecurringInfinitely = subscription.m_bIsInfiniteRecurring;
                 maxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
-
+                
                 customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode,
                     siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryName : string.Empty,
                     string.Empty, string.Empty, compensation);
@@ -3140,12 +3160,9 @@ namespace Core.ConditionalAccess
 						}
 						else if (nPaymentNumber <= totalperiod)
 						{
-
 							u = thesub.m_MultiSubscriptionUsageModule[i];
 							break;
 						}
-
-
 					}
 				}
 			}
@@ -6183,12 +6200,17 @@ namespace Core.ConditionalAccess
                         PriceReason theReason = PriceReason.UnKnown;
 
                         Subscription s = null;
-                        // add check if subscription is add on 
-                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, couponCode, ref theReason, ref s, string.Empty, languageCode, udid, ip, currencyCode);
+                        UnifiedBillingCycle unifiedBillingCycle = null;
+                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, couponCode, ref theReason, ref s, string.Empty, languageCode, udid, ip, currencyCode, ref unifiedBillingCycle);
                         if (price != null)
                         {
                             SubscriptionsPricesContainer cont = new SubscriptionsPricesContainer();
-                            cont.Initialize(subscriptionCode, price, theReason);
+                            long? endDate = null;
+                            if (unifiedBillingCycle != null)
+                            {
+                                endDate = unifiedBillingCycle.endDate;
+                            }
+                            cont.Initialize(subscriptionCode, price, theReason, endDate);
                             resp.Add(cont);
                         }
                     }
@@ -7616,7 +7638,7 @@ namespace Core.ConditionalAccess
 		/// </summary>
 		protected internal virtual string GetCustomDataForSubscription(Subscription theSub, Campaign campaign, string sSubscriptionCode, string sCampaignCode, string sSiteGUID,
 			double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, string sPreviewModuleID,
-			bool previewEntitled, bool isDummy = false, int recurringNumber = 0, bool saveHistory = false, int? context = null)
+			bool previewEntitled, bool isDummy = false, int recurringNumber = 0, bool saveHistory = false, int? context = null, bool isPartialPrice = false)
 		{
 			bool bIsRecurring = theSub.m_bIsRecurring;
 
@@ -7707,7 +7729,10 @@ namespace Core.ConditionalAccess
 			{
 				sb.Append(string.Format("<context>{0}</context>", context.Value));
 			}
-
+            if (isPartialPrice) // add to custom data isPartial price - only if it is parcial 
+            {
+                sb.Append(string.Format("<partialPrice>{0}</partialPrice>", isPartialPrice));
+            }
 			sb.Append("</customdata>");
 			return sb.ToString();
 		}

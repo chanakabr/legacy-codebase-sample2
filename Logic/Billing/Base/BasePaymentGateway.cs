@@ -1007,6 +1007,7 @@ namespace Core.Billing
                 {
                     string ItemName = string.Empty;
                     string PreivewEnd = string.Empty;
+                    bool partialPrice = false;
 
                     int SendMail = ODBCWrapper.Utils.GetIntSafeVal(ODBCWrapper.Utils.GetTableSingleVal("payment_gateway", "send_mail", paymentGatewayId, "BILLING_CONNECTION_STRING").ToString());
 
@@ -1015,7 +1016,7 @@ namespace Core.Billing
                         log.DebugFormat("SendMail for payment_gateway id {0} is false - can't send mail", paymentGatewayId);
                         return;
                     }
-                    GetDetailsFromCustomData(customData, ref PreivewEnd, ref price, ref currency);
+                    GetDetailsFromCustomData(customData, ref PreivewEnd, ref price, ref currency, ref partialPrice);
                     ItemName = GetItemName(productType, contentID, productID);
 
                     switch (response.State)
@@ -1024,7 +1025,8 @@ namespace Core.Billing
                         case eTransactionState.Pending:
                             if (successMail)
                             {
-                                Utils.SendMail(response.PaymentMethod, ItemName, siteGuid, response.TransactionID, price.ToString(), currency, response.PGReferenceID, groupID, response.PaymentDetails, PreivewEnd, eMailTemplateType.Purchase);
+                                Utils.SendMail(response.PaymentMethod, ItemName, siteGuid, response.TransactionID, price.ToString(), currency, response.PGReferenceID, groupID, response.PaymentDetails, PreivewEnd, eMailTemplateType.Purchase, 
+                                    null, partialPrice);
                             }
                             break;
                         case eTransactionState.Failed:
@@ -1045,7 +1047,7 @@ namespace Core.Billing
             }
         }
 
-        private void GetDetailsFromCustomData(string customData, ref string PreivewEnd, ref double price, ref string currency)
+        private void GetDetailsFromCustomData(string customData, ref string PreivewEnd, ref double price, ref string currency, ref bool partialPrice)
         {
             try
             {
@@ -1064,6 +1066,10 @@ namespace Core.Billing
                 if (string.IsNullOrEmpty(currency))
                 {
                     currency = Utils.GetSafeValue("cu", ref theRequest);
+                }
+                if (!string.IsNullOrEmpty(Utils.GetSafeValue("partialPrice", ref theRequest)))
+                {
+                    partialPrice = true;
                 }
             }
             catch (Exception ex)

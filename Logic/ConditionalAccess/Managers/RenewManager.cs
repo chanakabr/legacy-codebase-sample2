@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.ConditionalAccess.Managers;
+using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
@@ -248,7 +249,7 @@ namespace Core.ConditionalAccess
             }
 
             // get payment number
-            int paymentNumber = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "PAYMENT_NUMBER");
+            int paymentNumber = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "PAYMENT_NUMBER"); 
 
             // get number of payments
             int numOfPayments = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "number_of_payments");
@@ -282,10 +283,11 @@ namespace Core.ConditionalAccess
             int maxVLCOfSelectedUsageModule = 0;
             double price = 0;
             string currency = "n/a";
+            UnifiedBillingCycle unifiedBillingCycle = null;
 
             if (!cas.GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
                     ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
-                    ref couponCode, subscription, compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode, endDate))
+                    ref couponCode, subscription, ref unifiedBillingCycle, compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode, endDate, groupId, householdId))
             {
                 // "Error while trying to get Price plan
                 log.Error("Error while trying to get Price plan to renew");
@@ -339,7 +341,7 @@ namespace Core.ConditionalAccess
                 case eTransactionState.OK:
                     {
                         res = HandleRenewSubscriptionSuccess(cas, groupId, siteguid, purchaseId, billingGuid, logString, productId, ref endDate, householdId, price, currency, paymentNumber,
-                            totalNumOfPayments, subscription, customData, maxVLCOfSelectedUsageModule, transactionResponse);
+                            totalNumOfPayments, subscription, customData, maxVLCOfSelectedUsageModule, transactionResponse, unifiedBillingCycle);
                         if (res)
                         {
                             string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(householdId);
@@ -498,7 +500,7 @@ namespace Core.ConditionalAccess
         protected static bool HandleRenewSubscriptionSuccess(BaseConditionalAccess cas, int groupId,
             string siteguid, long purchaseId, string billingGuid, string logString, long productId, ref DateTime endDate, long householdId,
             double price, string currency, int paymentNumber, int totalNumOfPayments, Subscription subscription, string customData, int maxVLCOfSelectedUsageModule,
-            TransactResult transactionResponse)
+            TransactResult transactionResponse, UnifiedBillingCycle unifiedBillingCycle)
         {
             // renew subscription success!
             log.DebugFormat("Transaction renew success. data: {0}", logString);
@@ -553,9 +555,24 @@ namespace Core.ConditionalAccess
 
             // update billing_transactions subscriptions_purchased reference  
             if (transactionResponse.TransactionID > 0)
+            {
                 ApiDAL.Update_PurchaseIDInBillingTransactions(transactionResponse.TransactionID, purchaseId);
+            }
             else
+            {
                 log.Error("Error while trying update billing_transactions subscriptions_purchased reference");
+            }
+
+            // update unified billing cycle for domian with next end date
+            long? groupBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
+            if (groupBillingCycle.HasValue && unifiedBillingCycle != null)
+            {
+                 long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate);
+                 if (unifiedBillingCycle.endDate != nextEndDate)
+                 {
+                     UnifiedBillingCycleManager.Instance.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, nextEndDate, unifiedBillingCycle.paymentGatewayIds);
+                 }
+            }
 
             // enqueue renew transaction
             RenewTransactionsQueue queue = new RenewTransactionsQueue();
@@ -573,7 +590,9 @@ namespace Core.ConditionalAccess
                 return true;
             }
             else
+            {
                 log.DebugFormat("New task created (upon renew success response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+            }
 
             // PS message 
             var dicData = new Dictionary<string, object>()

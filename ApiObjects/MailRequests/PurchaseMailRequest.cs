@@ -19,6 +19,7 @@ namespace ApiObjects
         public string m_sExternalTransationNum;
         public string m_sAddress;
         public string m_sUserEmail;
+        public string partialPurchaseText;
 
         public override List<MCGlobalMergeVars> getRequestMergeObj()
         {
@@ -80,6 +81,12 @@ namespace ApiObjects
             userEmailMergeVar.name = "USEREMAIL";
             userEmailMergeVar.content = this.m_sUserEmail;
             retVal.Add(userEmailMergeVar);
+
+            MCGlobalMergeVars partialPurchaseTextMergeVar = new MCGlobalMergeVars();
+            partialPurchaseTextMergeVar.name = "PARTIALPARCHASETEXT";
+            partialPurchaseTextMergeVar.content = this.partialPurchaseText;
+            retVal.Add(partialPurchaseTextMergeVar);
+            
 
             return retVal;
         }

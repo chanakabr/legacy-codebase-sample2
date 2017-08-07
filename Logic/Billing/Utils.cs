@@ -160,8 +160,8 @@ namespace Core.Billing
             SendMail(sPaymentMethod, sItemName, sSiteGUID, lBillingTransID, stotalAmount, scurrency, sExternalNum, nGroupID, string.Empty, sPreviewEnd, templateType);
         }
 
-        public static void SendMail(string sPaymentMethod, string sItemName, string sSiteGUID, long lBillingTransID, string stotalAmount, string scurrency, string sExternalNum, 
-            Int32 nGroupID, string sLast4Digits, string sPreviewEnd, eMailTemplateType templateType, eTransactionType? transactionType = null)
+        public static void SendMail(string sPaymentMethod, string sItemName, string sSiteGUID, long lBillingTransID, string stotalAmount, string scurrency, string sExternalNum,
+            Int32 nGroupID, string sLast4Digits, string sPreviewEnd, eMailTemplateType templateType, eTransactionType? transactionType = null, bool partialPrice = false)
         {
             try
             {                
@@ -171,7 +171,7 @@ namespace Core.Billing
                 User houseHoldUser = GetHHFromSiteGuid(sSiteGUID, nGroupID);
                 MailRequestObj purchaseRequest = 
                     BillingMailTemplateFactory.GetMailTemplate(nGroupID, houseHoldUser.m_sSiteGUID, sExternalNum, double.Parse(stotalAmount),
-                    scurrency, sItemName, sPaymentMethod, sLast4Digits, sPreviewEnd, templateType, lBillingTransID, houseHoldUser);
+                    scurrency, sItemName, sPaymentMethod, sLast4Digits, sPreviewEnd, templateType, lBillingTransID, houseHoldUser, partialPrice);
                 log.DebugFormat("params for purchase mail ws_billing purchaseRequest.m_sSubject={0}, houseHoldUser.m_sSiteGUID={1}, purchaseRequest.m_sTemplateName={2}", purchaseRequest.m_sSubject, houseHoldUser.m_sSiteGUID, purchaseRequest.m_sTemplateName);
                 
                 if (purchaseRequest != null && !string.IsNullOrEmpty(purchaseRequest.m_sTemplateName))

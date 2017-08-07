@@ -357,6 +357,7 @@
     <Compile Include="ConditionalAccess\Managers\PurchaseManager.cs" />
     <Compile Include="ConditionalAccess\Managers\ReconciliationManager.cs" />
     <Compile Include="ConditionalAccess\Managers\RenewManager.cs" />
+    <Compile Include="ConditionalAccess\Managers\UnifiedBillingCycleManager.cs" />
     <Compile Include="ConditionalAccess\Modules\PpvPurchase.cs" />
     <Compile Include="ConditionalAccess\Modules\Purchase.cs" />
     <Compile Include="ConditionalAccess\Modules\SubscriptionPurchase.cs" />

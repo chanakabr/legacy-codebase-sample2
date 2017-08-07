@@ -14,8 +14,8 @@ namespace Core.Billing
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static PurchaseMailRequest GetMailTemplate(Int32 groupId, string siteGuid, string externalTransactionId, double totalAmount, string currency, string itemName, string paymentMethod, string last4Digits, 
-            string previewModuleLifeCycle,  eMailTemplateType templateType, long billingTransID,  User houseHoldUser = null)
+        public static PurchaseMailRequest GetMailTemplate(Int32 groupId, string siteGuid, string externalTransactionId, double totalAmount, string currency, string itemName, string paymentMethod, string last4Digits,
+            string previewModuleLifeCycle, eMailTemplateType templateType, long billingTransID, User houseHoldUser = null, bool partialPrice = false)
         {
             PurchaseMailRequest mailRequest;
 
@@ -75,28 +75,28 @@ namespace Core.Billing
 
                     long lastInvoiceNum = 0;
 
-                        if (oPurchaseMail != null && oPurchaseMail != DBNull.Value)
-                            mailRequest.m_sTemplateName = oPurchaseMail.ToString();
+                    if (oPurchaseMail != null && oPurchaseMail != DBNull.Value)
+                        mailRequest.m_sTemplateName = oPurchaseMail.ToString();
 
-                        if (oPurchaseMailSubject != null && oPurchaseMailSubject != DBNull.Value)
-                            mailRequest.m_sSubject = oPurchaseMailSubject.ToString();
+                    if (oPurchaseMailSubject != null && oPurchaseMailSubject != DBNull.Value)
+                        mailRequest.m_sSubject = oPurchaseMailSubject.ToString();
 
-                        if (oMailFromName != null && oMailFromName != DBNull.Value)
-                            mailRequest.m_sSenderName = oMailFromName.ToString();
+                    if (oMailFromName != null && oMailFromName != DBNull.Value)
+                        mailRequest.m_sSenderName = oMailFromName.ToString();
 
-                        if (oMailFromAdd != null && oMailFromAdd != DBNull.Value)
-                            mailRequest.m_sSenderFrom = oMailFromAdd.ToString();
+                    if (oMailFromAdd != null && oMailFromAdd != DBNull.Value)
+                        mailRequest.m_sSenderFrom = oMailFromAdd.ToString();
 
-                        if (oBccAddress != null && oBccAddress != DBNull.Value)
-                            mailRequest.m_sBCCAddress = oBccAddress.ToString();
+                    if (oBccAddress != null && oBccAddress != DBNull.Value)
+                        mailRequest.m_sBCCAddress = oBccAddress.ToString();
 
-                        if (oLastInvoiceNum != null && oLastInvoiceNum != DBNull.Value)
+                    if (oLastInvoiceNum != null && oLastInvoiceNum != DBNull.Value)
+                    {
+                        lastInvoiceNum = long.Parse(oLastInvoiceNum.ToString()) + 1;
+                        if (lastInvoiceNum > 0)
                         {
-                            lastInvoiceNum = long.Parse(oLastInvoiceNum.ToString()) + 1;
-                            if (lastInvoiceNum > 0)
-                            {
-                                UpdateInvoiceNum(lastInvoiceNum, groupId);
-                            }                           
+                            UpdateInvoiceNum(lastInvoiceNum, groupId);
+                        }
                     }
 
                     int hoursOffset = GetHoursOffset(groupId);
@@ -105,28 +105,33 @@ namespace Core.Billing
 
                     if (templateType == eMailTemplateType.PurchaseWithPreviewModule)
                     {
-                            ((PurchaseWithPreviewModuleRequest)mailRequest).m_sPreviewModuleEndDate = Utils.GetEndDateTime(DateTime.UtcNow.AddHours(hoursOffset), int.Parse(previewModuleLifeCycle)).ToString("dd/MM/yyyy");
-                        }
-                        mailRequest.m_sTransactionNumber = billingTransID.ToString();
-                        mailRequest.m_sInvoiceNum = lastInvoiceNum.ToString();
-                        mailRequest.m_sExternalTransationNum = externalTransactionId;
-                        mailRequest.m_sItemName = itemName;
-                        mailRequest.m_sPaymentMethod = paymentMethod;
-                        mailRequest.m_sPrice = string.Format("{0} {1}", getPriceStrForInvoice(totalAmount), currency);
+                        ((PurchaseWithPreviewModuleRequest)mailRequest).m_sPreviewModuleEndDate = Utils.GetEndDateTime(DateTime.UtcNow.AddHours(hoursOffset), int.Parse(previewModuleLifeCycle)).ToString("dd/MM/yyyy");
+                    }
+                    if (partialPrice && templateType == eMailTemplateType.Purchase)
+                    {
+                        ((PurchaseMailRequest)mailRequest).partialPurchaseText = ODBCWrapper.Utils.GetSafeStr(groupsParameters, "PARTIAL_PURCHASE_TEXT");
+                    }
 
-                        mailRequest.m_sPaymentMethod = GetPaymentMethodMailVar(groupId, siteGuid, paymentMethod, last4Digits, lastInvoiceNum, externalTransactionId);
+                    mailRequest.m_sTransactionNumber = billingTransID.ToString();
+                    mailRequest.m_sInvoiceNum = lastInvoiceNum.ToString();
+                    mailRequest.m_sExternalTransationNum = externalTransactionId;
+                    mailRequest.m_sItemName = itemName;
+                    mailRequest.m_sPaymentMethod = paymentMethod;
+                    mailRequest.m_sPrice = string.Format("{0} {1}", getPriceStrForInvoice(totalAmount), currency);
 
-                        if (oTaxVal != null && oTaxVal != DBNull.Value)
-                        {
-                            double dTaxVal;
-                            double taxDisc = 0;
+                    mailRequest.m_sPaymentMethod = GetPaymentMethodMailVar(groupId, siteGuid, paymentMethod, last4Digits, lastInvoiceNum, externalTransactionId);
 
-                            double.TryParse(oTaxVal.ToString(), out dTaxVal);
-                            double taxPrice = CalcPriceAfterTax(totalAmount, dTaxVal, ref taxDisc);
-                            mailRequest.m_sTaxVal = dTaxVal.ToString();
-                            mailRequest.m_sTaxSubtotal = getPriceStrForInvoice(taxPrice);
-                            mailRequest.m_sTaxAmount = getPriceStrForInvoice(taxDisc);
-                        }
+                    if (oTaxVal != null && oTaxVal != DBNull.Value)
+                    {
+                        double dTaxVal;
+                        double taxDisc = 0;
+
+                        double.TryParse(oTaxVal.ToString(), out dTaxVal);
+                        double taxPrice = CalcPriceAfterTax(totalAmount, dTaxVal, ref taxDisc);
+                        mailRequest.m_sTaxVal = dTaxVal.ToString();
+                        mailRequest.m_sTaxSubtotal = getPriceStrForInvoice(taxPrice);
+                        mailRequest.m_sTaxAmount = getPriceStrForInvoice(taxDisc);
+                    }
                 }
 
                 string sHouseNumber = string.Empty;

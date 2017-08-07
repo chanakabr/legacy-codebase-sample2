@@ -41,15 +41,17 @@ namespace Core.ConditionalAccess
         public string m_sSubscriptionCode;
         public Price m_oPrice;
         public PriceReason m_PriceReason;
+        public long? endDate;
 
         public SubscriptionsPricesContainer()
         { }
 
-        public void Initialize(string sSubscriptionCode, Price oPrice, PriceReason ePriceReason)
+        public void Initialize(string sSubscriptionCode, Price oPrice, PriceReason ePriceReason, long? endDate = null)
         {
             m_sSubscriptionCode = sSubscriptionCode;
             m_oPrice = oPrice;
             m_PriceReason = ePriceReason;
+            this.endDate = endDate;
         }
 
     }
