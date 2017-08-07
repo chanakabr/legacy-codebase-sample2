@@ -7,6 +7,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using KLogMonitor;
 using TVinciShared;
+using CachingProvider.LayeredCache;
 
 public partial class adm_billing_settings : System.Web.UI.Page
 {
@@ -30,6 +31,13 @@ public partial class adm_billing_settings : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork("billing_connection");
+
+                // invalidation keys
+                string invalidationKey = LayeredCacheKeys.GetGroupUnifiedBillingCycleInvalidationKey(LoginManager.GetLoginGroupID());
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for group unified billing cycle. key = {0}", invalidationKey);
+                }
             }
         }
     }
@@ -132,12 +140,7 @@ public partial class adm_billing_settings : System.Web.UI.Page
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
             shortTextField.Initialize("InApp shared secret", "adm_table_header_nbg", "FormInput", "InAppSharedSecret", false);
             theRecord.AddRecord(shortTextField);
-
-            //DataRecordShortIntField shortIntField = null;
-            //shortIntField = new DataRecordShortIntField(true, 9, 9);
-            //shortIntField.Initialize("Multi cc users", "adm_table_header_nbg", "FormInput", "MULTI_USER_CC", false);
-            //theRecord.AddRecord(shortIntField);
-
+            
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
             shortTextField.Initialize("Mail from - name", "adm_table_header_nbg", "FormInput", "MAIL_FROM_NAME", false);
             theRecord.AddRecord(shortTextField);
@@ -202,6 +205,17 @@ public partial class adm_billing_settings : System.Web.UI.Page
             dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
             dr_groups.SetValue(groupId.ToString());
             theRecord.AddRecord(dr_groups);
+            
+            DataRecordShortTextField dr_partialPurchaseText = new DataRecordShortTextField("ltr", true, 60, 128);
+            dr_partialPurchaseText.Initialize("Partial purchase text", "adm_table_header_nbg", "FormInput", "PARTIAL_PURCHASE_TEXT", false);
+            theRecord.AddRecord(dr_partialPurchaseText);
+
+            DataRecordDropDownField dr_billing_cycle_period = new DataRecordDropDownField("", "DESCRIPTION", "id", "", null, 60, true);
+            string sQuery = " select DESCRIPTION as txt,id as id from Pricing.dbo.lu_min_periods  ";
+            dr_billing_cycle_period.SetSelectsQuery(sQuery);            
+            dr_billing_cycle_period.Initialize("Unified billing cycle period", "adm_table_header_nbg", "FormInput", "unified_billing_cycle_period", false);
+            dr_billing_cycle_period.SetNoSelectStr("---");
+            theRecord.AddRecord(dr_billing_cycle_period);
 
             sTable = theRecord.GetTableHTML("adm_billing_settings.aspx?submited=1");
         }
