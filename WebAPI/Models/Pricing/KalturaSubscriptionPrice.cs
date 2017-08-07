@@ -33,5 +33,14 @@ namespace WebAPI.Models.Pricing
         [OldStandardProperty("purchase_status")]
         [Obsolete]
         public KalturaPurchaseStatus PurchaseStatus { get { return base.PurchaseStatus; } set { base.PurchaseStatus = value; } }
+
+        /// <summary>
+        /// If the item related to unified billing cycle purchased - until when the this price is relevant
+        /// </summary>
+        [DataMember(Name = "endDate")]
+        [JsonProperty("endDate")]
+        [XmlElement(ElementName = "endDate")]
+        public long? EndDate { get; set; }
+
     }
 }

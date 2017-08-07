@@ -9104,6 +9104,11 @@
             Product purchase status  
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.EndDate">
+            <summary>
+            If the item related to unified billing cycle purchased - until when the this price is relevant
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionsFilter.Ids">
             <summary>
             Subscription identifiers or file identifier (only 1) to get the subscriptions by

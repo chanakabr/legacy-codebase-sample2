@@ -15,10 +15,36 @@ namespace WebAPI.Reflection
         {
             switch (type.Name)
             {
+                case "KalturaAppToken":
+                    switch (propertyName)
+                    {
+                        case "SessionType":
+                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
+                        case "Status":
+                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
+                    };
+                    break;
+                    
                 case "KalturaPricePlan":
                     switch (propertyName)
                     {
                         case "PriceId":
+                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
+                    };
+                    break;
+                    
+                case "KalturaSession":
+                    switch (propertyName)
+                    {
+                        case "sessionType":
+                            return DeprecatedAttribute.IsDeprecated("4.5.0.0");
+                    };
+                    break;
+                    
+                case "KalturaSessionInfo":
+                    switch (propertyName)
+                    {
+                        case "sessionType":
                             return DeprecatedAttribute.IsDeprecated("4.5.0.0");
                     };
                     break;
@@ -5881,6 +5907,8 @@ namespace WebAPI.Reflection
                 case "KalturaSubscriptionPrice":
                     switch(property.Name)
                     {
+                        case "EndDate":
+                            return "endDate";
                         case "Price":
                             return "price";
                         case "PurchaseStatus":
