@@ -12,6 +12,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Web.Http;
 using System.Xml.Serialization;
+using WebAPI.App_Start;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -326,7 +327,7 @@ namespace WebAPI.Exceptions
         [JsonProperty("args")]
         [XmlArray(ElementName = "args")]
         [XmlArrayItem("item")]
-        new public WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg[] Args { get; set; }
+        new public KalturaApiExceptionArg[] Args { get; set; }
 
         private HttpStatusCode FailureHttpCode;
 
@@ -391,17 +392,17 @@ namespace WebAPI.Exceptions
                 return ret;
             }
 
-            public WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg[] CreateArgs(params object[] values)
+            public KalturaApiExceptionArg[] CreateArgs(params object[] values)
             {
                 if (parameters == null || parameters.Length == 0)
                     return null;
 
-                WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg[] ret = new App_Start.WrappingHandler.KalturaAPIExceptionArg[parameters.Length];
+                KalturaApiExceptionArg[] ret = new KalturaApiExceptionArg[parameters.Length];
                 string token;
                 string value;
                 for (int i = 0; i < parameters.Length; i++)
                 {
-                    WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg args = new App_Start.WrappingHandler.KalturaAPIExceptionArg() { name = parameters[i], value = values[i] != null ? values[i].ToString() : string.Empty };
+                    KalturaApiExceptionArg args = new KalturaApiExceptionArg() { name = parameters[i], value = values[i] != null ? values[i].ToString() : string.Empty };
                     ret[i] = args;
                 }
 
@@ -418,7 +419,7 @@ namespace WebAPI.Exceptions
             public int code { get; set; }            
             public HttpError error { get; set; }
             public HttpStatusCode failureHttpCode { get; set; }
-            public WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg[] arguments { get; set; }
+            public KalturaApiExceptionArg[] arguments { get; set; }
         }
 
         public ApiException()
@@ -464,7 +465,7 @@ namespace WebAPI.Exceptions
         {
         }
 
-        private ApiException(int code, string message, WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionArg[] args = null, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
+        private ApiException(int code, string message, KalturaApiExceptionArg[] args = null, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
             : base(new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.OK,

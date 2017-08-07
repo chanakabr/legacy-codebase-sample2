@@ -13,6 +13,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// PPV price details
     /// </summary>
+    [Obsolete]
     public class KalturaItemPrice : KalturaProductPrice
     {
         /// <summary>

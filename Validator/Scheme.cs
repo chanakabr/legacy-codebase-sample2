@@ -21,6 +21,7 @@ using WebAPI.Exceptions;
 using WebAPI.Models.Renderers;
 using WebAPI.Controllers;
 using System.Text.RegularExpressions;
+using WebAPI.App_Start;
 
 namespace Validator.Managers.Scheme
 {
@@ -141,6 +142,7 @@ namespace Validator.Managers.Scheme
                 loadErrors(exception);
             }
 
+            LoadType(typeof(KalturaApiExceptionArg));
             LoadType(typeof(KalturaClientConfiguration));
             LoadType(typeof(KalturaRequestConfiguration));
 

@@ -8,7 +8,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Application token status
     /// </summary>
-    [KalturaIntEnum]
+    [Obsolete]
     public enum KalturaAppTokenStatus
     {
         DELETED = 0,

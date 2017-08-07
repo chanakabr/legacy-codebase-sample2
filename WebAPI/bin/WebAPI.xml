@@ -128,14 +128,13 @@
             </remarks>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.AppTokenController.StartSession(System.String,System.String,System.String,System.Nullable{WebAPI.Models.General.KalturaSessionType},System.Nullable{System.Int32},System.String)">
+        <member name="M:WebAPI.Controllers.AppTokenController.StartSession(System.String,System.String,System.String,System.Nullable{System.Int32},System.String)">
             <summary>
             Starts a new KS (Kaltura Session) based on application authentication token id
             </summary>
             <param name="id">application token id</param>
             <param name="tokenHash">hashed token - current KS concatenated with the application token hashed using the application token ‘hashType’</param>
             <param name="userId">session user id, will be ignored if a different user id already defined on the application token</param>
-            <param name="type">session type, will be ignored if a different session type already defined on the application token</param>
             <param name="expiry">session expiry (in seconds), could be overwritten by shorter expiry of the application token and the session-expiry that defined on the application token</param>
             <param name="udid">Device UDID</param>
             <remarks>
@@ -304,7 +303,6 @@
             Returns a group-by result for media or EPG according to given filter. Lists values of each field and their respective count.
             </summary>
             <param name="filter">Filtering the assets request</param>
-            <param name="groupBy">List of asset parameters to group by</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
@@ -9106,6 +9104,11 @@
             Product purchase status  
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.EndDate">
+            <summary>
+            If the item related to unified billing cycle purchased - until when the this price is relevant
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionsFilter.Ids">
             <summary>
             Subscription identifiers or file identifier (only 1) to get the subscriptions by
@@ -10808,6 +10811,16 @@
         <member name="P:WebAPI.Models.Users.KalturaOTTUserType.Description">
             <summary>
             User type description
+            </summary>
+        </member>
+        <member name="P:WebAPI.App_Start.KalturaApiExceptionArg.name">
+            <summary>
+            Argument name
+            </summary>
+        </member>
+        <member name="P:WebAPI.App_Start.KalturaApiExceptionArg.value">
+            <summary>
+            Argument value
             </summary>
         </member>
         <member name="T:WebAPI.Controllers.OttUserController">

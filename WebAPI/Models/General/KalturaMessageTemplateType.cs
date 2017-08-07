@@ -4,7 +4,6 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Message template type
     /// </summary>
-    [KalturaIntEnum]
     public enum KalturaMessageTemplateType
     {
         Series = 0,

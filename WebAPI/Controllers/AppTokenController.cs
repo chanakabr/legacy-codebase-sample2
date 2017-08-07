@@ -103,7 +103,6 @@ namespace WebAPI.Controllers
         /// <param name="id">application token id</param>
         /// <param name="tokenHash">hashed token - current KS concatenated with the application token hashed using the application token ‘hashType’</param>
         /// <param name="userId">session user id, will be ignored if a different user id already defined on the application token</param>
-        /// <param name="type">session type, will be ignored if a different session type already defined on the application token</param>
         /// <param name="expiry">session expiry (in seconds), could be overwritten by shorter expiry of the application token and the session-expiry that defined on the application token</param>
         /// <param name="udid">Device UDID</param>
         /// <remarks>
@@ -116,7 +115,7 @@ namespace WebAPI.Controllers
         [Throws(WebAPI.Managers.Models.StatusCode.InvalidAppTokenHash)]
         [Throws(WebAPI.Managers.Models.StatusCode.NotActiveAppToken)]
         [Throws(WebAPI.Managers.Models.StatusCode.ExpiredAppToken)]
-        public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, KalturaSessionType? type = null, int? expiry = null, string udid = null)
+        public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, int? expiry = null, string udid = null)
         {
             KalturaSessionInfo response = null;
 
@@ -124,7 +123,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = AuthorizationManager.StartSessionWithAppToken(groupId, id, tokenHash, userId, udid, type, expiry);
+                response = AuthorizationManager.StartSessionWithAppToken(groupId, id, tokenHash, userId, udid, null, expiry);
                 
             }
             catch (ClientException ex)
