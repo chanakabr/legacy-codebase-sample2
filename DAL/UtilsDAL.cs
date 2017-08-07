@@ -777,5 +777,10 @@ namespace DAL
         {
             return string.Format("groupId_{0}_Id_{1}_type_{2}", groupId, id, type.ToString());
         }
+
+        internal static string GetDomainUnifiedBillingCycle(long domainId, long renewBillingCycle)
+        {
+            return string.Format("unifiedBillingCycle_householdId_{0}_renewBillingCycle_{1}", domainId, renewBillingCycle);
+        }
     }
 }

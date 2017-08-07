@@ -572,7 +572,7 @@ namespace DAL
 
             return res;
         }
-
+               
         public static DataTable Get_SubscriptionsServices(int groupID, List<long> subscriptionsIDs)
         {
             DataTable subscriptionsServices = null;

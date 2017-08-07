@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Billing;
 using KLogMonitor;
+using Newtonsoft.Json;
 using ODBCWrapper;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace DAL
 
         private const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION_STRING";
         private const string SP_IS_DOUBLE_ADYEN_TRANSACTION = "IsDoubleAdyenTransaction";
+        private const int RETRY_LIMIT = 5;
 
         public static DataTable Get_UserToken(int nGroupID, string sSiteGuid)
         {
@@ -2519,6 +2521,126 @@ namespace DAL
             {
                 return -1;
             }
+        }
+
+        public static bool GetDomainUnifiedBillingCycle(int domainId, long billingCycle, out UnifiedBillingCycle unifiedBillingCycle)
+        {
+            bool result = false;
+            unifiedBillingCycle = null;
+
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            CouchbaseManager.eResultStatus getResult = new CouchbaseManager.eResultStatus();
+            string domainUnifiedBillingKey = UtilsDal.GetDomainUnifiedBillingCycle(domainId, billingCycle);
+            if (string.IsNullOrEmpty(domainUnifiedBillingKey))
+            {
+                log.ErrorFormat("Failed getting domainUnifiedBillingKey for domainId = {0}, billingCycle = {1}", domainId, billingCycle);
+            }
+            else
+            {
+                try
+                {
+                    int numOfRetries = 0;
+                    while (numOfRetries < limitRetries)
+                    {
+                        object document = cbClient.Get<object>(domainUnifiedBillingKey, out getResult);
+
+                        if (getResult == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
+                        {
+                            log.DebugFormat("domain: {0} does not have a UnifiedBillingCycle document with key = {1}", domainId, domainUnifiedBillingKey);
+                            break;
+                        }
+                        else if (getResult == CouchbaseManager.eResultStatus.SUCCESS)
+                        {
+                            unifiedBillingCycle = JsonConvert.DeserializeObject<UnifiedBillingCycle>(document.ToString());
+                            result = true;
+                            break;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Retrieving domain UnifiedBillingCycle with domainId = {0} and key {1} failed with status = {2}, retryAttempt = {3}, maxRetries = {4}",
+                                domainId, domainUnifiedBillingKey, getResult, numOfRetries, limitRetries);
+                            numOfRetries++;
+                            System.Threading.Thread.Sleep(r.Next(50));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to get domain UnifiedBillingCycle, domainId = {0}, ex = {1}", domainId, ex);
+                }
+            }
+
+            return result;
+        }
+
+        public static DataRow GetGroupParameters(int groupId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupParameters");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                DataTable dt = sp.Execute();
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    return dt.Rows[0];
+                else
+                    return null;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+                return null;
+            }
+        }
+
+        public static bool SetDomainUnifiedBillingCycle(long domainId, long billingCycle, UnifiedBillingCycle unifiedBillingCycle)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
+           
+            string domainUnifiedBillingKey = UtilsDal.GetDomainUnifiedBillingCycle(domainId, billingCycle);
+            if (string.IsNullOrEmpty(domainUnifiedBillingKey))
+            {
+                log.ErrorFormat("Failed SetDomainUnifiedBillingCycle for domainId = {0}, billingCycle = {1}", domainId, billingCycle);
+            }
+            else
+            {
+                var json = JsonConvert.SerializeObject(unifiedBillingCycle);
+                result = cbClient.Set<object>(domainUnifiedBillingKey, json);
+                if (!result)
+                {
+                    log.ErrorFormat("Failed SetDomainUnifiedBillingCycle. domainId = {0}, billingCycle = {1}", domainId, billingCycle);
+                }              
+            }
+
+            return result;
+        }
+
+        public static bool DeleteDomainUnifiedBillingCycle(long domainId, long billingCycle)
+        {
+            bool result = false;
+
+            string domainUnifiedBillingKey = UtilsDal.GetDomainUnifiedBillingCycle(domainId, billingCycle);
+            if (string.IsNullOrEmpty(domainUnifiedBillingKey))
+            {
+                log.ErrorFormat("Failed getting UnifiedBilling with domainUnifiedBillingKey = {0}", domainUnifiedBillingKey);
+            }
+            else
+            {
+                CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
+
+                result = client.Remove(domainUnifiedBillingKey);
+
+                if (!result)
+                {
+                    log.ErrorFormat("Failed Remove DomainUnifiedBillingCycle in Couchbase domainUnifiedBillingKey = {0}", domainUnifiedBillingKey);
+                }
+            }
+
+            return result;
         }
     }
 }

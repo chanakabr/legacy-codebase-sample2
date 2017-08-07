@@ -2322,8 +2322,7 @@ namespace DAL
             }
             return result;
         }
-
-
+        
         public static bool SetDevicePinToNull(int groupId, string udid, string pin)
         {
             StoredProcedure sp = new StoredProcedure("SetDevicePinToNull");

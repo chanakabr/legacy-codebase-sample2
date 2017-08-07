@@ -242,6 +242,13 @@ namespace CachingProvider.LayeredCache
             return string.Format("priceCodes_groupId_{0}", groupId);
         }
 
+        public static string GetGroupUnifiedBillingCycleKey(int groupId)
+        {
+            return string.Format("unifiedBillingCycle_groupId_{0}", groupId);
+        }
+
+       
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -386,6 +393,16 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeyPriceCode_id_{0}_groupId_{1}", id, groupId);
         }
 
+        public static string GetGroupUnifiedBillingCycleInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyUnifiedBillingCycle_groupId_{0}", groupId);
+        }
+        public static string GetHouseholdUnifiedBillingCycleInvalidationKey(int domainID, long renewLifeCycle)
+        {
+            return string.Format("invalidationKeyUnifiedBillingCycle_domainId_{0}_renewLifeCycle", domainID, renewLifeCycle);
+        }
         #endregion        
+    
+        
     }
 }
