@@ -6464,19 +6464,9 @@ namespace Core.ConditionalAccess
 						userId = string.Empty;
 					}
 
-					// set max amount of concurrent tasks
-					int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
-					if (maxDegreeOfParallelism == 0)
-					{
-						maxDegreeOfParallelism = 5;
-					}
-					ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-
-					ContextData contextData = new ContextData();
 					// loop on all files
-					Parallel.For(0, oModules.Length, options, i =>
-					{
-						contextData.Load();
+					for (int i = 0; i < oModules.Length; i++)
+					{						
 						Int32 nMediaFileID = oModules[i].m_nMediaFileID;
 						int mediaID = 0;
 						//get mediaID
@@ -6658,7 +6648,7 @@ namespace Core.ConditionalAccess
 						}
 
 						ret[i] = mf;
-					});
+                    }
 				}
 				else
 				{

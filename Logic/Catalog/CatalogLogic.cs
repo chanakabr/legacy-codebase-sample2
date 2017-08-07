@@ -39,6 +39,7 @@ using Tvinci.Core.DAL;
 using TVinciShared;
 using Core.Notification;
 using Catalog.Response;
+using ElasticSearch.Common;
 
 namespace Core.Catalog
 {
@@ -1259,11 +1260,10 @@ namespace Core.Catalog
         /// <param name="totalItems"></param>
         /// <returns></returns>
         public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems, ref int to,
-            out ESAggregationsResult aggregationResult)
+            out List<AggregationsResult> aggregationsResults)
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
-            aggregationResult = null;
-
+            aggregationsResults = null;
             totalItems = 0;
 
             // Group have user types per media  +  siteGuid != empty
@@ -1284,7 +1284,8 @@ namespace Core.Catalog
 
             if (searcher != null)
             {
-                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to, out aggregationResult);
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to,
+                    out aggregationsResults);
 
                 if (searchResults != null)
                 {
@@ -6191,21 +6192,9 @@ namespace Core.Catalog
 
             int to = 0;
 
-
             // Perform initial search of channel
-            ESAggregationsResult esAggregationsResult = null;
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out esAggregationsResult);
-
-            if (esAggregationsResult != null && esAggregationsResult.Aggregations != null)
-            {
-                if (aggregationsResult == null)
-                {
-                    aggregationsResult = new List<AggregationsResult>();
-                }
-
-                aggregationsResult.Add(Utils.ConvertAggregationsResponse(esAggregationsResult, channel.searchGroupBy));
-            }
-
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult);
+            
             if (searchResults == null)
             {
                 return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
@@ -6296,10 +6285,11 @@ namespace Core.Catalog
             return status;
         }
 
-        internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults, out ESAggregationsResult aggregationsResult)
+        internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems,
+            out List<UnifiedSearchResult> searchResults, out List<AggregationsResult> aggregationsResults)
         {
-            aggregationsResult = null;
             // Set default values for out parameters
+            aggregationsResults = null;
             totalItems = 0;
             searchResults = new List<UnifiedSearchResult>();
 
@@ -6337,7 +6327,7 @@ namespace Core.Catalog
             int to = 0;
 
             // Perform initial search of channel            
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult);
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResults);
 
             if (searchResults == null)
             {

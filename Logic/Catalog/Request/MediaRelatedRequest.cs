@@ -15,6 +15,7 @@ using KLogMonitor;
 using ElasticSearch.Searcher;
 using Catalog.Response;
 using ApiObjects.Response;
+using ElasticSearch.Common;
 
 namespace Core.Catalog.Request
 {
@@ -84,18 +85,9 @@ namespace Core.Catalog.Request
                 {
                     request.m_dServerTime = DateTime.UtcNow;
                 }
-                ESAggregationsResult aggregationsResult;
-                searchResponse.status = CatalogLogic.GetRelatedAssets(request, out searchResponse.m_nTotalItems, out searchResponse.searchResults, out aggregationsResult);
-
-                if (aggregationsResult != null && aggregationsResult.Aggregations != null)
-                {
-                    if (searchResponse.aggregationResults == null)
-                    {
-                        searchResponse.aggregationResults = new List<AggregationsResult>();
-                    }
-
-                    searchResponse.aggregationResults.Add(Utils.ConvertAggregationsResponse(aggregationsResult, this.searchGroupBy));
-                }
+                
+                searchResponse.status = CatalogLogic.GetRelatedAssets(request, out searchResponse.m_nTotalItems,
+                    out searchResponse.searchResults, out searchResponse.aggregationResults);
 
                 return searchResponse;
             }

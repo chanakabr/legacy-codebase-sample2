@@ -311,7 +311,8 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to, out ElasticSearch.Searcher.ESAggregationsResult aggregationResult)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to, 
+            out List<global::Catalog.Response.AggregationsResult> aggregationsResult)
         {
             throw new NotImplementedException();
         }

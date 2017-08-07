@@ -5482,7 +5482,7 @@ namespace Core.ConditionalAccess
                         m_bOnlyActiveMedia = true
                     },
                     excludedCrids = excludedCrids != null ? excludedCrids : null,
-                    ExtraReturnFields = new List<string> { "epg_id", "crid", "epg_channel_id" },
+                    ExtraReturnFields = new List<string> { "epg_id", "crid", "epg_channel_id", seriesId, seasonNumber },
                     ShouldUseSearchEndDate = true
                 };
                 FillCatalogSignature(request);

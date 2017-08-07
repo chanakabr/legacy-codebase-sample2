@@ -6,6 +6,7 @@ using System.Text;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Response;
 using ApiObjects;
+using Catalog.Response;
 
 namespace Core.Catalog
 {
@@ -66,7 +67,8 @@ namespace Core.Catalog
         List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to);
 
         [OperationContract]
-        List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to, out ElasticSearch.Searcher.ESAggregationsResult aggregationResult);
+        List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to,
+            out List<AggregationsResult> aggregationsResult);
 
         [OperationContract]
         List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex);

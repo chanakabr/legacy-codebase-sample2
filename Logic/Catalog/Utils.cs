@@ -24,6 +24,7 @@ using KlogMonitorHelper;
 using ApiObjects.Response;
 using Catalog.Response;
 using Core.Catalog.Response;
+using ElasticSearch.Common;
 
 namespace Core.Catalog
 {
@@ -1358,155 +1359,9 @@ namespace Core.Catalog
                 else if (string.IsNullOrEmpty(searchGroupBy.distinctGroup)) // channel not contain definition for distinct ==> as default insert first groupBy in the list
                 {
                     definitions.distinctGroup = definitions.groupBy[0];
-                    definitions.extraReturnFields.Add(definitions.distinctGroup.Value);                }
-            }
-        }
-
-        public static AggregationsResult ConvertAggregationsResponse(ESAggregationsResult aggregationsResult, SearchAggregationGroupBy searchGroupBy)
-        {
-            string currentGroupBy = searchGroupBy.groupBy[0];
-
-            var esAggregation = aggregationsResult.Aggregations[currentGroupBy];
-            int totalItems = 0;
-
-            string cardinalityKey = string.Format("{0}_count", currentGroupBy);
-            
-            if (aggregationsResult.Aggregations.ContainsKey(cardinalityKey))
-            {
-                totalItems = Convert.ToInt32(aggregationsResult.Aggregations[cardinalityKey].value);
-            }
-
-            var result = new AggregationsResult()
-            {
-                field = currentGroupBy,
-                results = new List<AggregationResult>(),
-                totalItems = totalItems
-            };
-
-            foreach (var bucket in esAggregation.buckets)
-            {
-                var bucketResult = new AggregationResult()
-                {
-                    value = bucket.key,
-                    count = bucket.doc_count,
-                };
-
-                // go for sub aggregations, if there are
-                if (searchGroupBy.groupBy.Count > 1)
-                {
-                    bucketResult.subs = new List<AggregationsResult>();
-
-                    string nextGroupBy = searchGroupBy.groupBy[1];
-
-                    var sub = ConvertAggregationsResponse(bucket.Aggregations[nextGroupBy], 1, searchGroupBy);
-
-                    if (sub != null)
-                    {
-                        bucketResult.subs.Add(sub);
-                    }
+                    definitions.extraReturnFields.Add(definitions.distinctGroup.Value);
                 }
-
-                if (bucket.Aggregations != null && bucket.Aggregations.ContainsKey("top_hits_assets"))
-                {
-                    var topHitsAggregation = bucket.Aggregations["top_hits_assets"];
-
-                    if (topHitsAggregation.hits != null && topHitsAggregation.hits.hits != null)
-                    {
-                        bucketResult.topHits = new List<UnifiedSearchResult>();
-
-                        foreach (var doc in topHitsAggregation.hits.hits)
-                        {
-                            bucketResult.topHits.Add(new UnifiedSearchResult()
-                            {
-                                AssetId = doc.asset_id.ToString(),
-                                AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),
-                                m_dUpdateDate = doc.update_date,
-                            });
-                        }
-                    }
-                }
-
-                result.results.Add(bucketResult);
             }
-            return result;
-        }
-
-        /// <summary>
-        /// Converts the inner ESAggregationResult to the formal AggregationsResult
-        /// </summary>
-        /// <param name="aggregationsResult"></param>
-        /// <param name="groupByIndex"></param>
-        /// <returns></returns>
-        public static AggregationsResult ConvertAggregationsResponse(ESAggregationResult aggregationsResult, int groupByIndex, SearchAggregationGroupBy searchGroupBy)
-        {
-            // validate parameter
-            if (groupByIndex > searchGroupBy.groupBy.Count)
-            {
-                return null;
-            }
-
-            string currentGroupBy = searchGroupBy.groupBy[groupByIndex];
-
-            int totalItems = 0;
-            string cardinalityKey = string.Format("{0}_count", currentGroupBy);
-
-            if (aggregationsResult.Aggregations.ContainsKey(cardinalityKey))
-            {
-                totalItems = Convert.ToInt32(aggregationsResult.Aggregations[cardinalityKey].value);
-            }
-
-            var result = new AggregationsResult()
-            {
-                field = searchGroupBy.groupBy[groupByIndex],
-                results = new List<AggregationResult>(),
-                totalItems = totalItems
-            };
-
-            foreach (var bucket in aggregationsResult.buckets)
-            {
-                var bucketResult = new AggregationResult()
-                {
-                    value = bucket.key,
-                    count = bucket.doc_count
-                };
-
-                // go for sub aggregations
-                if (searchGroupBy.groupBy.Count > groupByIndex + 1)
-                {
-                    string nextGroupBy = searchGroupBy.groupBy[groupByIndex + 1];
-
-                    var sub = ConvertAggregationsResponse(bucket.Aggregations[nextGroupBy], 1, searchGroupBy);
-
-                    if (sub != null)
-                    {
-                        bucketResult.subs.Add(sub);
-                    }
-                }
-
-                if (bucket.Aggregations != null && bucket.Aggregations.ContainsKey("top_hits_assets"))
-                {
-                    var topHitsAggregation = bucket.Aggregations["top_hits_assets"];
-
-                    if (topHitsAggregation.hits != null && topHitsAggregation.hits.hits != null)
-                    {
-                        bucketResult.topHits = new List<UnifiedSearchResult>();
-
-                        foreach (var doc in topHitsAggregation.hits.hits)
-                        {
-                            bucketResult.topHits.Add(new UnifiedSearchResult()
-                            {
-                                AssetId = doc.asset_id.ToString(),
-                                AssetType = ElasticSearch.Common.Utils.ParseAssetType(doc.type),
-                                m_dUpdateDate = doc.update_date,
-                            });
-                        }
-                    }
-                }
-
-                result.results.Add(bucketResult);
-            }
-
-            return result;
         }
     }
 }
