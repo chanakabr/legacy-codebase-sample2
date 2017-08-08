@@ -263,7 +263,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.paymentMethodExtraDetails, opt => opt.MapFrom(src => src.m_sPaymentMethodExtraDetails))
                .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.m_Price))
                .ForMember(dest => dest.UserID, opt => opt.MapFrom(src => src.SiteGuid))
-               .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.UserFullName));
+               .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.UserFullName))
+               .ForMember(dest => dest.billingPriceInfo, opt => opt.MapFrom(src => src.billingPriceInfo))
+               ;
+
 
             #endregion
 

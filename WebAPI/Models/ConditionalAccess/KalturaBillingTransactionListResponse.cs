@@ -180,6 +180,16 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "remarks")]
         [SchemeProperty(ReadOnly = true)]
         public string remarks { get; set; }
+
+
+        /// <summary>
+        ///Billing Price Info
+        /// </summary>
+        [DataMember(Name = "billingPriceInfo")]
+        [JsonProperty("billingPriceInfo")]
+        [XmlElement(ElementName = "billingPriceInfo")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaBillingPriceInfo billingPriceInfo { get; set; }
     }
 
     /// <summary>

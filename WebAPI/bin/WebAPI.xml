@@ -7160,6 +7160,11 @@
             Remarks
              </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.billingPriceInfo">
+             <summary>
+            Billing Price Info
+             </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaUserBillingTransaction">
             <summary>
             Billing transactions of single user
