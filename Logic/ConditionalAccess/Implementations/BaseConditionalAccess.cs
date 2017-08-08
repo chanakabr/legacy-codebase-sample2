@@ -2641,14 +2641,17 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                // if this is a renew after preview module - need to calculate partial price (if unified billing cycle)      
-                if (paymentNumber == 0 && isPurchasedWithPreviewModule && groupId > 0 && householdId > 0)
+                // if this is a renew after preview module - need to calculate partial price (if unified billing cycle)  
+                bool isPartialPrice = false;
+                if (paymentNumber == 0 && isPurchasedWithPreviewModule && groupId > 0 && householdId > 0 && endDate.HasValue)
                 {                    
                     unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
                     // check that end date between next end date and unified billing cycle end date are diffrent
-                    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate.Value))
+                    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow) &&
+                        unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate.Value))
                     {
                         Utils.CalculatePriceByUnifiedBillingCycle(groupId, ref priceValue, ref unifiedBillingCycle);
+                        isPartialPrice = true;
                     }
                 }
 
@@ -2658,7 +2661,7 @@ namespace Core.ConditionalAccess
                 
                 customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode,
                     siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryName : string.Empty,
-                    string.Empty, string.Empty, compensation);
+                    string.Empty, string.Empty, compensation, isPartialPrice);
 
                 isSuccess = true;
             }
@@ -8907,7 +8910,7 @@ namespace Core.ConditionalAccess
 
 		protected virtual string GetCustomDataForMPPRenewal(Subscription theSub, UsageModule theUsageModule,
 		   PriceCode p, string sSubscriptionCode, string sSiteGUID, double dPrice, string sCurrency,
-		   string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, Compensation compensation)
+           string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, Compensation compensation, bool isPartialPrice = false)
 		{
 
 			bool bIsRecurring = theSub.m_bIsRecurring;
@@ -8957,6 +8960,12 @@ namespace Core.ConditionalAccess
 				sb.AppendFormat("<compensation type=\"{0}\" amount=\"{1}\" totalRenewals=\"{2}\" renewalNumber=\"{3}\" />", 
 					compensation.CompensationType, compensation.Amount, compensation.TotalRenewals, compensation.Renewals + 1);
 			}
+
+            if (isPartialPrice) // add to custom data isPartial price - only if it is parcial 
+            {
+                sb.Append(string.Format("<partialPrice>{0}</partialPrice>", isPartialPrice));
+            }
+
 			sb.Append("</customdata>");
 
 			return sb.ToString();
@@ -9943,7 +9952,7 @@ namespace Core.ConditionalAccess
                                 Subscription[] subscriptionList = Utils.GetSubscriptionsDataWithCaching(subscriptionCodes, m_nGroupID);
                                 if (subscriptionList != null && subscriptionList.Count() > 0)
                                 {
-                                    UnifiedBillingCycle unifiedBillingCycle = UnifiedBillingCycleManager.Instance.GetDomainUnifiedBillingCycle(domainId, (long)billingCycle);
+                                    UnifiedBillingCycle unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle(domainId, (long)billingCycle);
                                     if (subscriptionList.Where(x => x.m_MultiSubscriptionUsageModule != null && x.m_MultiSubscriptionUsageModule.Count() > 0 &&
                                         x.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == billingCycle).Count() == 0) // no more subscription with this cycle
                                     {
@@ -9967,7 +9976,7 @@ namespace Core.ConditionalAccess
 
                         if (deleteDomainUnifiedBillingCycle)
                         {
-                            UnifiedBillingCycleManager.Instance.DeleteDomainUnifiedBillingCycle(domainId, billingCycle);
+                            UnifiedBillingCycleManager.DeleteDomainUnifiedBillingCycle(domainId, billingCycle);
                         }
                     }
                 }

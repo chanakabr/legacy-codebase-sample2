@@ -570,7 +570,7 @@ namespace Core.ConditionalAccess
                  long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate);
                  if (unifiedBillingCycle.endDate != nextEndDate)
                  {
-                     UnifiedBillingCycleManager.Instance.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, nextEndDate, unifiedBillingCycle.paymentGatewayIds);
+                     UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, nextEndDate, unifiedBillingCycle.paymentGatewayIds);
                  }
             }
 

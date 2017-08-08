@@ -1229,7 +1229,7 @@ namespace Core.ConditionalAccess
                         }
 
                         price = CalculateCouponDiscount(ref price, couponGroups, couponCode, groupId);
-
+                        
                         CalculatePriceByUnifiedBillingCycle(groupId, ref price.m_dPrice, ref unifiedBillingCycle, subscription, domainID);
                     }
                 }
@@ -1255,30 +1255,27 @@ namespace Core.ConditionalAccess
         internal static void CalculatePriceByUnifiedBillingCycle(int groupId, ref double price, ref UnifiedBillingCycle unifiedBillingCycle, Subscription subscription = null , int domainID = 0)
         {
             long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
-
-            if (unifiedBillingCycle == null)
+            if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
             {
-                if (subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/)
+                if (unifiedBillingCycle == null)
                 {
-                    //check that group configuration set to any unified billing cycle                    
-                    if (groupUnifiedBillingCycle.HasValue)
+                    //chcek that subscription contain this group billing cycle                                                 
+                    if (subscription != null && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
+                        && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
                     {
-                        //chcek that subscription contain this group billing cycle 
-                        if ((long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
-                        {
-                            //get key from CB household_renewBillingCycle
-                            unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainID, groupUnifiedBillingCycle.Value);
-                        }
+                        //get key from CB household_renewBillingCycle
+                        unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainID, groupUnifiedBillingCycle.Value);
                     }
                 }
-            }
-            if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > 0)
-            {
-                DateTime nextRenew = Core.Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
-                int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
-                int numOfDaysByBillingCycle = (int)Math.Ceiling((Utils.ConvertEpochTimeToDate(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
 
-                price = Math.Round(numOfDaysByBillingCycle * (price / numOfDaysForSubscription), 2);
+                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow))
+                {
+                    DateTime nextRenew = Core.Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
+                    int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
+                    int numOfDaysByBillingCycle = (int)Math.Ceiling((Utils.ConvertEpochTimeToDate(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
+
+                    price = Math.Round(numOfDaysByBillingCycle * (price / numOfDaysForSubscription), 2);
+                }
             }
         }        
 
@@ -1288,7 +1285,7 @@ namespace Core.ConditionalAccess
             try
             {
                 // save in CB 
-                unifiedBillingCycle = UnifiedBillingCycleManager.Instance.GetDomainUnifiedBillingCycle(domainId, renewLifeCycle);
+                unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle(domainId, renewLifeCycle);
 
                 if (unifiedBillingCycle == null)
                 {

@@ -1144,6 +1144,7 @@ namespace Core.ConditionalAccess
                                 {
                                     endDate = CalculateGiftCardEndDate(cas, coupon, subscription, entitlementDate);
                                 }
+
                                 if (partialPrice)
                                 {
                                     // calculate end date by unified billing cycle
@@ -1332,7 +1333,7 @@ namespace Core.ConditionalAccess
                     if (setDomainUnifiedBillingCycle)
                     {
                         // update unified billing by endDate or paymentGatewatId                  
-                        bool setResult = UnifiedBillingCycleManager.Instance.SetDomainUnifiedBillingCycle(householdId, groupUnifiedBillingCycle.Value, nextEndDate, paymentGWIds);
+                        bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupUnifiedBillingCycle.Value, nextEndDate, paymentGWIds);
                     }
                 }
             }

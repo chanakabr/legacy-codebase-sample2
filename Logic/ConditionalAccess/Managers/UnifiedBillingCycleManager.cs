@@ -10,39 +10,13 @@ using System.Threading.Tasks;
 
 namespace APILogic.ConditionalAccess.Managers
 {
-    public class UnifiedBillingCycleManager
+    public static class UnifiedBillingCycleManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 3;
 
-        #region SingleTon
-
-        private static object locker = new object();
-        private static UnifiedBillingCycleManager instance;
-
-        public static UnifiedBillingCycleManager Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    lock (locker)
-                    {
-                        if (instance == null)
-                        {
-                            instance = new UnifiedBillingCycleManager();
-                        }
-                    }
-                }
-
-                return instance;
-            }
-        }
-        
-        #endregion  
-
         #region Public Methods
-        public UnifiedBillingCycle GetDomainUnifiedBillingCycle(int domainId, long billingCycle)
+        public static UnifiedBillingCycle GetDomainUnifiedBillingCycle(int domainId, long billingCycle)
         {
             UnifiedBillingCycle unifiedBillingCycle = null;
             try
@@ -60,7 +34,7 @@ namespace APILogic.ConditionalAccess.Managers
 
              
 
-        public bool SetDomainUnifiedBillingCycle(long domainId, long billingCycle, long endDate, List<int> paymentGateway)
+        public static bool SetDomainUnifiedBillingCycle(long domainId, long billingCycle, long endDate, List<int> paymentGateway)
         {            
             bool result = false;
             UnifiedBillingCycle unifiedBillingCycle = new UnifiedBillingCycle()
@@ -73,11 +47,8 @@ namespace APILogic.ConditionalAccess.Managers
           
             return result;
         }
-        #endregion
-
-        #region Private Methods
-
-        public bool DeleteDomainUnifiedBillingCycle(int domainId, long billingCycle)
+      
+        public static bool DeleteDomainUnifiedBillingCycle(int domainId, long billingCycle)
         {
             bool result = false;
             try
