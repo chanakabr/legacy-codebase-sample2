@@ -2532,7 +2532,7 @@ namespace DAL
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
             CouchbaseManager.eResultStatus getResult = new CouchbaseManager.eResultStatus();
-            string domainUnifiedBillingKey = UtilsDal.GetDomainUnifiedBillingCycle(domainId, billingCycle);
+            string domainUnifiedBillingKey = UtilsDal.GetDomainUnifiedBillingCycleKey(domainId, billingCycle);
             if (string.IsNullOrEmpty(domainUnifiedBillingKey))
             {
                 log.ErrorFormat("Failed getting domainUnifiedBillingKey for domainId = {0}, billingCycle = {1}", domainId, billingCycle);
@@ -2601,7 +2601,7 @@ namespace DAL
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
            
-            string domainUnifiedBillingKey = UtilsDal.GetDomainUnifiedBillingCycle(domainId, billingCycle);
+            string domainUnifiedBillingKey = UtilsDal.GetDomainUnifiedBillingCycleKey(domainId, billingCycle);
             if (string.IsNullOrEmpty(domainUnifiedBillingKey))
             {
                 log.ErrorFormat("Failed SetDomainUnifiedBillingCycle for domainId = {0}, billingCycle = {1}", domainId, billingCycle);
@@ -2623,7 +2623,7 @@ namespace DAL
         {
             bool result = false;
 
-            string domainUnifiedBillingKey = UtilsDal.GetDomainUnifiedBillingCycle(domainId, billingCycle);
+            string domainUnifiedBillingKey = UtilsDal.GetDomainUnifiedBillingCycleKey(domainId, billingCycle);
             if (string.IsNullOrEmpty(domainUnifiedBillingKey))
             {
                 log.ErrorFormat("Failed getting UnifiedBilling with domainUnifiedBillingKey = {0}", domainUnifiedBillingKey);
