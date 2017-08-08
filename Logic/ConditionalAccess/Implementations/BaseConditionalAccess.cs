@@ -9924,7 +9924,7 @@ namespace Core.ConditionalAccess
                 Subscription cancelSubscription = Utils.GetSubscription(m_nGroupID, assetId);
 
                 // if dalResult ==  true check if any othe subscription transaction exsists with the same cycle if not delete doc 
-                if (cancelSubscription.m_MultiSubscriptionUsageModule != null && cancelSubscription.m_MultiSubscriptionUsageModule.Count() > 1)
+                if (cancelSubscription.m_MultiSubscriptionUsageModule != null && cancelSubscription.m_MultiSubscriptionUsageModule.Count() == 1)
                 {
                     int billingCycle = cancelSubscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle;
 

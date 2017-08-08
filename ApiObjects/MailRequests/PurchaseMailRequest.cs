@@ -83,8 +83,8 @@ namespace ApiObjects
             retVal.Add(userEmailMergeVar);
 
             MCGlobalMergeVars partialPurchaseTextMergeVar = new MCGlobalMergeVars();
-            partialPurchaseTextMergeVar.name = "PARTIALPARCHASETEXT";
-            partialPurchaseTextMergeVar.content = this.partialPurchaseText;
+            partialPurchaseTextMergeVar.name = "PARTIALPURCHASETEXT";
+            partialPurchaseTextMergeVar.content = string.IsNullOrEmpty(this.partialPurchaseText) ? string.Empty : this.partialPurchaseText;
             retVal.Add(partialPurchaseTextMergeVar);
             
 
