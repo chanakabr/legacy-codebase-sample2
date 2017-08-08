@@ -9934,7 +9934,7 @@ namespace Core.ConditionalAccess
                         bool deleteDomainUnifiedBillingCycle = false;
                         // get all household with base subscription
                         if (domainEntitlements.DomainBundleEntitlements != null && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions != null
-                            || domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Count() > 0)
+                            && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Count() > 0)
                         {
                             List<long> subscriptionCodes = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Where(x => int.Parse(x.Key) != assetId).Select(x => long.Parse(x.Key)).ToList();
 
@@ -9954,6 +9954,10 @@ namespace Core.ConditionalAccess
                                 {
                                     deleteDomainUnifiedBillingCycle = true;
                                 }
+                            }
+                            else
+                            {
+                                deleteDomainUnifiedBillingCycle = true;
                             }
                         }
                         else // no more subscription (at all)
