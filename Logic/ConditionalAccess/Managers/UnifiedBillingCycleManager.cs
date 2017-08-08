@@ -77,7 +77,7 @@ namespace APILogic.ConditionalAccess.Managers
 
         #region Private Methods
 
-        private bool DeleteDomainUnifiedBillingCycle(long domainId, long billingCycle)
+        public bool DeleteDomainUnifiedBillingCycle(int domainId, long billingCycle)
         {
             bool result = false;
             try
