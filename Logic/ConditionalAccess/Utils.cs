@@ -7948,6 +7948,49 @@ namespace Core.ConditionalAccess
         }
 
 
-      
+
+
+        internal static void HandleUpdateDomainUnifiedBillingCycle(long domainId, long billingCycle, long? endDate = null, List<int> paymentGatewayIds = null)
+        {
+            try
+            {
+                bool needToSet = false;
+                UnifiedBillingCycle unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)domainId, billingCycle);
+                if (unifiedBillingCycle != null)
+                {
+                    if (endDate.HasValue && unifiedBillingCycle.endDate != endDate.Value)
+                    {
+                        unifiedBillingCycle.endDate = endDate.Value;
+                        needToSet = true;
+                    }
+
+                    if (unifiedBillingCycle.paymentGatewayIds != null)
+                    {
+                        foreach (int pgid in paymentGatewayIds)
+                        {
+                            if (!unifiedBillingCycle.paymentGatewayIds.Contains(pgid))
+                            {
+                                unifiedBillingCycle.paymentGatewayIds.Add(pgid);
+                                needToSet = true;
+                            }
+                        }
+                    }
+                    else if (paymentGatewayIds != null && paymentGatewayIds.Count() > 0)
+                    {
+                        unifiedBillingCycle.paymentGatewayIds = paymentGatewayIds;
+                        needToSet = true;
+                    }
+
+                    if (needToSet)
+                    {
+                        UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(domainId, billingCycle, unifiedBillingCycle.endDate, unifiedBillingCycle.paymentGatewayIds);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("HandleUpdateDomainUnifiedBillingCycle failed domainId : {0},billingCycle : {1} ", domainId, billingCycle,  ex));
+            }
+        }
     }
 }

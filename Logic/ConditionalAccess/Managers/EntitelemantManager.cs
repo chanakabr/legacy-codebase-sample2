@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.ConditionalAccess.Managers;
+using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
@@ -365,6 +366,14 @@ namespace Core.ConditionalAccess
                     subscriptionEntitlement.paymentGatewayId = entitlement.paymentGatewayId;
                     subscriptionEntitlement.paymentMethodId = entitlement.paymentMethodId;
                     response.entitelments.Add(subscriptionEntitlement);
+
+                    // update unified billing cycle (if exsits) with new paymentGatewayId
+                    // get group unified billing cycle - and see if any document exsits for this domain 
+                    long? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
+                    if (groupUnifiedBillingCycle.HasValue)
+                    {
+                        Utils.HandleUpdateDomainUnifiedBillingCycle(domainID, groupUnifiedBillingCycle.Value, null, new List<int>() { entitlement.paymentGatewayId });
+                    }
                 }
                 response.status = changeStatus;
 
