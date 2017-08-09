@@ -2624,7 +2624,8 @@ namespace Core.ConditionalAccess
                     sCurrency = clonedPrice.m_oPrise.m_oCurrency.m_sCurrencyCD3;
                 }
 
-                HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode);
+                bool isCouponGiftCard = false;
+                HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode, ref isCouponGiftCard);
 
                 if (compensation != null)
                 {
@@ -2641,9 +2642,9 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                // if this is a renew after preview module - need to calculate partial price (if unified billing cycle)  
+                // if this is a renew after preview module / gift card - need to calculate partial price (if unified billing cycle)  
                 bool isPartialPrice = false;
-                if (paymentNumber == 0 && isPurchasedWithPreviewModule && groupId > 0 && householdId > 0 && endDate.HasValue)
+                if ( (isCouponGiftCard || (paymentNumber == 0 && isPurchasedWithPreviewModule)) && groupId > 0 && householdId > 0 && endDate.HasValue)
                 {                    
                     unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
                     // check that end date between next end date and unified billing cycle end date are diffrent
@@ -3269,8 +3270,10 @@ namespace Core.ConditionalAccess
 		/// <summary>
 		/// Checks if there is recurring coupon definition on the subscription and if yes 
 		/// activate the discount of the coupon on the price and return the updated price and the coupon code. 
+        /// if coupon is gift card return coupon card and isCouponGiftCard = true
 		/// </summary> 
-		private void HandleRecurringCoupon(int nPurchaseID, Subscription theSub, int nTotalPaymentsNumber, Currency oCurrency, bool bIsPurchasedWithPreviewModule, ref double dPrice, ref string retCouponCode)
+		private void HandleRecurringCoupon(int nPurchaseID, Subscription theSub, int nTotalPaymentsNumber, Currency oCurrency, bool bIsPurchasedWithPreviewModule, ref double dPrice, ref string retCouponCode, 
+            ref bool isCouponGiftCard)
 		{
 			try
 			{               
@@ -3282,26 +3285,42 @@ namespace Core.ConditionalAccess
 				{                   
                         /*check if 
                          * coupon related to subscription 
-                         * the type is coupon (not gift)                         
+                         * the type is coupon gift card or coupon                        
                          * */
 
                     long couponGroupId = 0;
                     string couponCode = Utils.GetSubscriptiopnPurchaseCoupon(nPurchaseID, m_nGroupID, out couponGroupId); // return only if valid 
 
-                    // look ig this coupon group id exsits in coupon list 
-                    CouponsGroup cg = theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString() && theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.Coupon ? theSub.m_oCouponsGroup :
-                        allCoupons.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.Coupon).Select(x => x).FirstOrDefault();
-                    
-                    if (cg != null && !string.IsNullOrEmpty(cg.m_sGroupCode))
+                    if (theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString())
                     {
-                        if (IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, cg.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber))
+                        // look if this coupon group id is a gift card in the subscription list 
+                        CouponsGroup cg = theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.GiftCard ? theSub.m_oCouponsGroup :
+                            allCoupons.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.GiftCard).Select(x => x).FirstOrDefault();
+                        
+                        if (cg != null)
                         {
-                            Price priceBeforeCouponDiscount = new Price();
-                            priceBeforeCouponDiscount.m_dPrice = dPrice;
-                            priceBeforeCouponDiscount.m_oCurrency = oCurrency;
-                            Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, cg.m_oDiscountCode, 0);
-                            dPrice = priceResult.m_dPrice;
                             retCouponCode = couponCode;
+                            isCouponGiftCard = true;
+                        }
+
+                        else // this is not a gift card
+                        {
+                            // look if this coupon group id exsits in coupon list 
+                            cg = theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.Coupon ? theSub.m_oCouponsGroup :
+                                allCoupons.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.Coupon).Select(x => x).FirstOrDefault();
+
+                            if (cg != null && !string.IsNullOrEmpty(cg.m_sGroupCode))
+                            {
+                                if (IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, cg.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber))
+                                {
+                                    Price priceBeforeCouponDiscount = new Price();
+                                    priceBeforeCouponDiscount.m_dPrice = dPrice;
+                                    priceBeforeCouponDiscount.m_oCurrency = oCurrency;
+                                    Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, cg.m_oDiscountCode, 0);
+                                    dPrice = priceResult.m_dPrice;
+                                    retCouponCode = couponCode;
+                                }
+                            }
                         }
                     }
 				}

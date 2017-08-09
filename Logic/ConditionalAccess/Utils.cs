@@ -1211,7 +1211,7 @@ namespace Core.ConditionalAccess
 
                         long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
 
-                        // look ig this coupon group id exsits in coupon list 
+                        // look if this coupon group id exsits in coupon list 
                         CouponsGroup couponGroups = null;
                         if (theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString())
                         {
