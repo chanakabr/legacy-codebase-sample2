@@ -2561,8 +2561,7 @@ namespace DAL
                         {
                             log.ErrorFormat("Retrieving domain UnifiedBillingCycle with domainId = {0} and key {1} failed with status = {2}, retryAttempt = {3}, maxRetries = {4}",
                                 domainId, domainUnifiedBillingKey, getResult, numOfRetries, limitRetries);
-                            numOfRetries++;
-                            System.Threading.Thread.Sleep(r.Next(50));
+                            numOfRetries++;                           
                         }
                     }
                 }
@@ -2608,8 +2607,7 @@ namespace DAL
             }
             else
             {
-                var json = JsonConvert.SerializeObject(unifiedBillingCycle);
-                result = cbClient.Set<object>(domainUnifiedBillingKey, json);
+                result = cbClient.Set(domainUnifiedBillingKey, unifiedBillingCycle);//json);
                 if (!result)
                 {
                     log.ErrorFormat("Failed SetDomainUnifiedBillingCycle. domainId = {0}, billingCycle = {1}", domainId, billingCycle);
