@@ -185,11 +185,11 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         ///Billing Price Info
         /// </summary>
-        [DataMember(Name = "billingPriceInfo")]
-        [JsonProperty("billingPriceInfo")]
-        [XmlElement(ElementName = "billingPriceInfo")]
+        [DataMember(Name = "billingPriceType")]
+        [JsonProperty("billingPriceType")]
+        [XmlElement(ElementName = "billingPriceType")]
         [SchemeProperty(ReadOnly = true)]
-        public KalturaBillingPriceInfo billingPriceInfo { get; set; }
+        public KalturaBillingPriceType billingPriceType { get; set; }
     }
 
     /// <summary>

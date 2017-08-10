@@ -6,7 +6,7 @@ using System.Web;
 namespace WebAPI.Models.ConditionalAccess
 {
     [Serializable]
-    public enum KalturaBillingPriceInfo
+    public enum KalturaBillingPriceType
     {
         FullPeriod = 0,
         PartialPeriod = 1

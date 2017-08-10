@@ -264,7 +264,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.m_Price))
                .ForMember(dest => dest.UserID, opt => opt.MapFrom(src => src.SiteGuid))
                .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.UserFullName))
-               .ForMember(dest => dest.billingPriceInfo, opt => opt.MapFrom(src => src.billingPriceInfo))
+               .ForMember(dest => dest.billingPriceType, opt => opt.MapFrom(src => src.billingPriceType))
                ;
 
 

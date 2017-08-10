@@ -7160,7 +7160,7 @@
             Remarks
              </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.billingPriceInfo">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaBillingTransaction.billingPriceType">
              <summary>
             Billing Price Info
              </summary>
