@@ -1194,7 +1194,10 @@ namespace Core.ConditionalAccess
                                                 {
                                                     nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
 
-                                                    HandleDomainUnifiedBillingCycle(groupId, householdId, (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, unifiedBillingCycle, endDate.Value, paymentGatewayResponse.ID);
+                                                    if (!entitleToPreview)
+                                                    {
+                                                        HandleDomainUnifiedBillingCycle(groupId, householdId, (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, unifiedBillingCycle, endDate.Value, paymentGatewayResponse.ID);
+                                                    }
                                                 }
 
                                             }
