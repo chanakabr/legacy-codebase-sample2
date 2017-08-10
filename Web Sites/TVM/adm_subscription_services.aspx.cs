@@ -208,8 +208,8 @@ public partial class adm_subscription_services : System.Web.UI.Page
     public string initDualObj()
     {
         Dictionary<string, object> dualList = new Dictionary<string, object>();
-        dualList.Add("FirstListTitle", "Device Families");
-        dualList.Add("SecondListTitle", "Available Device Families");
+        dualList.Add("FirstListTitle", "Services");
+        dualList.Add("SecondListTitle", "Available Services");
 
         object[] resultData = null;
         List<object> premiumServices = new List<object>();
