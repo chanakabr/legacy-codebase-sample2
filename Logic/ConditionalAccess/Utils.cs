@@ -7994,7 +7994,7 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("HandleUpdateDomainUnifiedBillingCycle failed domainId : {0}, ex : {1}", householdId, ex));
+                log.Error(string.Format("HandleUpdateDomainUnifiedBillingCycle failed groupId : {0}, householdId : {1}, ex : {2}", groupId, householdId, ex));
             }
         }
     }

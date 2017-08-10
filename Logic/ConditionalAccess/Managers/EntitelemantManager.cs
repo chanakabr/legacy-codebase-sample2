@@ -367,13 +367,7 @@ namespace Core.ConditionalAccess
                     subscriptionEntitlement.paymentMethodId = entitlement.paymentMethodId;
                     response.entitelments.Add(subscriptionEntitlement);
 
-                    // update unified billing cycle (if exsits) with new paymentGatewayId
-                    // get group unified billing cycle - and see if any document exsits for this domain 
-                    long? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-                    if (groupUnifiedBillingCycle.HasValue)
-                    {
-                        Utils.HandleUpdateDomainUnifiedBillingCycle(domainID, groupUnifiedBillingCycle.Value, null, new List<int>() { entitlement.paymentGatewayId });
-                    }
+                    Utils.HandleDomainUnifiedBillingCycle(groupId, domainID, null, new List<int>() { entitlement.paymentGatewayId });
                 }
                 response.status = changeStatus;
 
