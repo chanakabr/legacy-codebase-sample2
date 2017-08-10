@@ -237,7 +237,7 @@ namespace Core.ConditionalAccess
             string sDeviceName, BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode,
             string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
         {
-            bool res = true;
+            bool result = true;
             HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, true, 0, 0);
 
             long lPreviewModuleID = 0;
@@ -311,7 +311,7 @@ namespace Core.ConditionalAccess
                     else
                     {
                         // no id in billing_transactions
-                        res = false;
+                        result = false;
                         #region Logging
                         log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + string.Format("No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Sub Code: {2} , Coupon Code: {3}", sSiteGUID, lPurchaseID, sSubscriptionCode, sCouponCode));
                         WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForSubscriptionBillingSuccess. Failed to update billing_transactions. Purchase ID: {0} , Sub Code: {1} , Coupon Code: {2}", lPurchaseID, sSubscriptionCode, sCouponCode));
@@ -321,7 +321,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     // writing to subscription_purchases failed
-                    res = false;
+                    result = false;
                     #region Logging
                     log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + string.Format("No ID in subscriptions_purchases. Site Guid: {0} , Sub Code: {1} , Coupon Code: {2} , User IP: {3}", sSiteGUID, sSubscriptionCode, sCouponCode, sUserIP));
                     WriteToUserLog(sSiteGUID, string.Format("Failed to write to subscription_purchases. Sub Code: {0} , Coupon Code: {1}", sSubscriptionCode, sCouponCode));
@@ -331,14 +331,14 @@ namespace Core.ConditionalAccess
             else
             {
                 // writing to subscription_purchases failed
-                res = false;
+                result = false;
                 #region Logging
                 log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + string.Format("No ID in subscriptions_purchases. Site Guid: {0} , Sub Code: {1} , Coupon Code: {2} , User IP: {3}", sSiteGUID, sSubscriptionCode, sCouponCode, sUserIP));
                 WriteToUserLog(sSiteGUID, string.Format("Failed to write to subscription_purchases. Sub Code: {0} , Coupon Code: {1}", sSubscriptionCode, sCouponCode));
                 #endregion
             }
 
-            return res;
+            return result;
         }
 
         protected override bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, int domianID, Collection theCol,
@@ -891,6 +891,7 @@ namespace Core.ConditionalAccess
             {
                 log.Error("fail HandleSubscriptionBillingSuccess ", ex);
             }
+
             return purchaseId > 0;
         }
 
