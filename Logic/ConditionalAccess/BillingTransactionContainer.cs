@@ -38,7 +38,7 @@ namespace Core.ConditionalAccess
         public Int32 m_nBillingProviderRef;
         public Int32 m_nPurchaseID;
         public string m_sRemarks;
-        public BillingPriceInfo billingPriceInfo;
+        public BillingPriceType billingPriceType;
 
         public BillingTransactionContainer()
         {
@@ -57,7 +57,7 @@ namespace Core.ConditionalAccess
             m_ePaymentMethod = ePaymentMethod.Unknown;
             m_sPaymentMethodExtraDetails = "";
             m_bIsRecurring = false;
-            billingPriceInfo = BillingPriceInfo.FullPeriod;
+            billingPriceType = BillingPriceType.FullPeriod;
         }
 
         public void Initialize(string sRecieptCode, string sPurchasedItemName, string sPurchasedItemCode ,

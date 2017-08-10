@@ -158,7 +158,7 @@ namespace ApiObjects.ConditionalAccess
     //    Download = 4
     //}
 
-    public enum BillingPriceInfo
+    public enum BillingPriceType
     {
         FullPeriod = 0,
         PartialPeriod = 1

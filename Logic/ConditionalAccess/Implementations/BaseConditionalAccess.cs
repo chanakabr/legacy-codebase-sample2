@@ -7174,7 +7174,7 @@ namespace Core.ConditionalAccess
                 XmlDocument doc = new XmlDocument();
                 doc.LoadXml(customData);
                 XmlNode customDataRequest = doc.FirstChild;                
-                res.billingPriceInfo = string.IsNullOrEmpty(Utils.GetSafeValue("partialPrice", ref customDataRequest)) ? BillingPriceInfo.FullPeriod : BillingPriceInfo.PartialPeriod;
+                res.billingPriceType = string.IsNullOrEmpty(Utils.GetSafeValue("partialPrice", ref customDataRequest)) ? BillingPriceType.FullPeriod : BillingPriceType.PartialPeriod;
 
 				if (nBILLING_PROVIDER == -1)
 				{

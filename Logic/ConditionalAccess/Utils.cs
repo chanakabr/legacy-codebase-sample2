@@ -7949,47 +7949,52 @@ namespace Core.ConditionalAccess
 
 
 
-
-        internal static void HandleUpdateDomainUnifiedBillingCycle(long domainId, long billingCycle, long? endDate = null, List<int> paymentGatewayIds = null)
+        /// update unified billing cycle (if exsits) with new paymentGatewayId
+        /// get group unified billing cycle - and see if any document exsits for this domain 
+        internal static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, long? endDate = null, List<int> paymentGatewayIds = null)
         {
             try
             {
-                bool needToSet = false;
-                UnifiedBillingCycle unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)domainId, billingCycle);
-                if (unifiedBillingCycle != null)
+                long? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
+                if (groupUnifiedBillingCycle.HasValue)
                 {
-                    if (endDate.HasValue && unifiedBillingCycle.endDate != endDate.Value)
+                    bool setDomainUnifiedBillingCycle = false;
+                    UnifiedBillingCycle unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, groupUnifiedBillingCycle.Value);
+                    if (unifiedBillingCycle != null)
                     {
-                        unifiedBillingCycle.endDate = endDate.Value;
-                        needToSet = true;
-                    }
-
-                    if (unifiedBillingCycle.paymentGatewayIds != null)
-                    {
-                        foreach (int pgid in paymentGatewayIds)
+                        if (endDate.HasValue && unifiedBillingCycle.endDate != endDate.Value)
                         {
-                            if (!unifiedBillingCycle.paymentGatewayIds.Contains(pgid))
+                            unifiedBillingCycle.endDate = endDate.Value;
+                            setDomainUnifiedBillingCycle = true;
+                        }
+
+                        if (unifiedBillingCycle.paymentGatewayIds != null)
+                        {
+                            foreach (int pgid in paymentGatewayIds)
                             {
-                                unifiedBillingCycle.paymentGatewayIds.Add(pgid);
-                                needToSet = true;
+                                if (!unifiedBillingCycle.paymentGatewayIds.Contains(pgid))
+                                {
+                                    unifiedBillingCycle.paymentGatewayIds.Add(pgid);
+                                    setDomainUnifiedBillingCycle = true;
+                                }
                             }
                         }
-                    }
-                    else if (paymentGatewayIds != null && paymentGatewayIds.Count() > 0)
-                    {
-                        unifiedBillingCycle.paymentGatewayIds = paymentGatewayIds;
-                        needToSet = true;
-                    }
+                        else if (paymentGatewayIds != null && paymentGatewayIds.Count() > 0)
+                        {
+                            unifiedBillingCycle.paymentGatewayIds = paymentGatewayIds;
+                            setDomainUnifiedBillingCycle = true;
+                        }
 
-                    if (needToSet)
-                    {
-                        UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(domainId, billingCycle, unifiedBillingCycle.endDate, unifiedBillingCycle.paymentGatewayIds);
+                        if (setDomainUnifiedBillingCycle)
+                        {
+                            UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupUnifiedBillingCycle.Value, unifiedBillingCycle.endDate, unifiedBillingCycle.paymentGatewayIds);
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("HandleUpdateDomainUnifiedBillingCycle failed domainId : {0},billingCycle : {1} ", domainId, billingCycle,  ex));
+                log.Error(string.Format("HandleUpdateDomainUnifiedBillingCycle failed domainId : {0}, ex : {1}", householdId, ex));
             }
         }
     }
