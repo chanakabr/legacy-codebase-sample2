@@ -42,7 +42,7 @@ namespace WebAPI.Managers.Models
             set;
         }
 
-        [JsonProperty("is_async")]
+        [JsonProperty("is_asynch")]
         public bool IsAsync
         {
             get;
