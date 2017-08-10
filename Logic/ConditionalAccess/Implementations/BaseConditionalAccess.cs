@@ -6086,7 +6086,7 @@ namespace Core.ConditionalAccess
 									bool bIsEntitledToPreviewModule, bool bDummy, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, Price p)
 		{
 			string sCustomData = string.Empty;
-			BillingResponse ret = new BillingResponse()
+			BillingResponse result = new BillingResponse()
 			{
 				m_oStatus = BillingResponseStatus.UnKnown
 			};
@@ -6102,28 +6102,30 @@ namespace Core.ConditionalAccess
 
 			if (p.m_dPrice != 0 || bDummy || (p.m_dPrice == 0 && (bIsEntitledToPreviewModule || !string.IsNullOrEmpty(sCouponCode))))
 			{
-				ret = HandleCCChargeUser(sSiteGUID, dPrice, sCurrency, sUserIP,
+				result = HandleCCChargeUser(sSiteGUID, dPrice, sCurrency, sUserIP,
 					sCustomData, 1, nRecPeriods, sExtraParams, sPaymentMethodID, sEncryptedCVV,
 					bDummy, bIsEntitledToPreviewModule);
 			}
 
-			if (ret.m_oStatus == BillingResponseStatus.Success)
+			if (result.m_oStatus == BillingResponseStatus.Success)
 			{
 				long lBillingTransactionID = 0;
 				long lPurchaseID = 0;
 
-				HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, domianID, theSub, dPrice, sCurrency, sCouponCode,
-					sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ret, bIsEntitledToPreviewModule, sBundleCode, sCustomData,
+				bool handleResult = HandleChargeUserForSubscriptionBillingSuccess(sSiteGUID, domianID, theSub, dPrice, sCurrency, sCouponCode,
+					sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, result, bIsEntitledToPreviewModule, sBundleCode, sCustomData,
 					bIsRecurring, ref lBillingTransactionID, ref lPurchaseID, bDummy);
 
-				// Update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
-				if (theSub.m_nDomainLimitationModule != 0)
-				{
-					UpdateDLM(domianID, theSub.m_nDomainLimitationModule);
-				}
+                if (handleResult)
+                {
+                    // Update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
+                    if (theSub.m_nDomainLimitationModule != 0)
+                    {
+                        UpdateDLM(domianID, theSub.m_nDomainLimitationModule);
+                    }
 
-				// Enqueue notification for PS so they know a collection was charged
-				var dicData = new Dictionary<string, object>()
+                    // Enqueue notification for PS so they know a collection was charged
+                    var dicData = new Dictionary<string, object>()
 					{
 						{"SubscriptionCode", sBundleCode},
 						{"BillingTransactionID", lBillingTransactionID},
@@ -6133,14 +6135,23 @@ namespace Core.ConditionalAccess
 						{"CustomData", sCustomData}
 					};
 
-				var isEnqueSuccessful = this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData);
+                    var isEnqueSuccessful = this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData);
+                }
+                else
+                {
+                    result = new BillingResponse()
+                    {
+                        m_oStatus = BillingResponseStatus.ExternalError,
+                        m_sStatusDescription = "Handle charge user for subscription billing failed",
+                    };
+                }
 			}
 			else
 			{
-				WriteToUserLog(sSiteGUID, "while trying to purchase subscription(CC): " + sBundleCode + " error returned: " + ret.m_sStatusDescription);
+				WriteToUserLog(sSiteGUID, "while trying to purchase subscription(CC): " + sBundleCode + " error returned: " + result.m_sStatusDescription);
 			}
 
-			return ret;
+			return result;
 		}
 
 		private BillingResponse ExecuteCCCollectionPurchaseFlow(Collection theCol, string sBundleCode, string sSiteGUID, int domainID, double dPrice,
