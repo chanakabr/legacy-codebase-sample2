@@ -1252,15 +1252,17 @@ namespace Core.ConditionalAccess
         /// P = subscription price (original + discount)
         /// AD =  (billingCycle_date - purchase_date ). TotalDays  - Ceiling 
         /// partialPrice = AD * P/D (2 digit after .)      
-        internal static void CalculatePriceByUnifiedBillingCycle(int groupId, ref double price, ref UnifiedBillingCycle unifiedBillingCycle, Subscription subscription = null , int domainID = 0)
+        internal static void CalculatePriceByUnifiedBillingCycle(int groupId, ref double price, ref UnifiedBillingCycle unifiedBillingCycle, Subscription subscription = null, int domainID = 0)
         {
             long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
             if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
             {
                 if (unifiedBillingCycle == null)
                 {
-                    //chcek that subscription contain this group billing cycle                                                 
-                    if (subscription != null && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
+                    //chcek that subscription contain this group billing cycle and subscription anf usage module are renew                                             
+                    if (subscription != null && subscription.m_bIsRecurring
+                        && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
+                        && subscription.m_MultiSubscriptionUsageModule[0].m_is_renew == 1
                         && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
                     {
                         //get key from CB household_renewBillingCycle
@@ -1277,7 +1279,7 @@ namespace Core.ConditionalAccess
                     price = Math.Round(numOfDaysByBillingCycle * (price / numOfDaysForSubscription), 2);
                 }
             }
-        }        
+        }
 
         internal static UnifiedBillingCycle TryGetHouseholdUnifiedBillingCycle(int domainId, long renewLifeCycle)
         {
