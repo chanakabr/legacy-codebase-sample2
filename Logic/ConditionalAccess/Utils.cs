@@ -1259,10 +1259,9 @@ namespace Core.ConditionalAccess
             {
                 if (unifiedBillingCycle == null)
                 {
-                    //chcek that subscription contain this group billing cycle and subscription anf usage module are renew                                             
+                    //chcek that subscription contain this group billing cycle and subscription is renew                                             
                     if (subscription != null && subscription.m_bIsRecurring
                         && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
-                        && subscription.m_MultiSubscriptionUsageModule[0].m_is_renew == 1
                         && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
                     {
                         //get key from CB household_renewBillingCycle
@@ -7323,7 +7322,8 @@ namespace Core.ConditionalAccess
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-                selectQuery += " select BILLING_METHOD from billing_transactions with (nolock) where status=1 and";
+
+                selectQuery += " select BILLING_METHOD, billing_provider from billing_transactions with (nolock) where status=1  and ";
                 if (billingTransID > 0)
                 {
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", billingTransID);
@@ -7332,27 +7332,28 @@ namespace Core.ConditionalAccess
                 {
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("billing_guid", "=", billingGuid);
                 }
-                if (selectQuery.Execute("query", true) != null)
+
+                DataTable dt = selectQuery.Execute("query", true);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    int count = selectQuery.Table("query").DefaultView.Count;
-                    if (count > 0)
+                    int billingInt = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "BILLING_METHOD");
+                    int billingProvider = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "billing_provider");
+                    if (billingProvider == 1000)
                     {
-                        if (selectQuery.Table("query").DefaultView[0].Row["BILLING_METHOD"] != System.DBNull.Value && selectQuery.Table("query").DefaultView[0].Row["BILLING_METHOD"] != null)
-                        {
-                            int billingInt = int.Parse(selectQuery.Table("query").DefaultView[0].Row["BILLING_METHOD"].ToString());
-                            if (billingInt > 0)
-                            {
-                                if (Enum.IsDefined(typeof(ePaymentMethod), ((ePaymentMethod)billingInt).ToString()))
-                                    retVal = (ePaymentMethod)billingInt;
-                            }
-                        }
+                        retVal = ePaymentMethod.Unknown;
                     }
-                    else if (count == 0)
+                    else if (billingInt > 0)
                     {
-                        retVal = ePaymentMethod.Gift;
+                        if (Enum.IsDefined(typeof(ePaymentMethod), ((ePaymentMethod)billingInt).ToString()))
+                            retVal = (ePaymentMethod)billingInt;
                     }
                 }
+                else 
+                {
+                    retVal = ePaymentMethod.Gift;
+                }
             }
+
             finally
             {
                 if (selectQuery != null)
