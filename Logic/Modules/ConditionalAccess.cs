@@ -2055,7 +2055,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                response = t.GetDomainEntitlements(domainId, type, isExpired, pageSize, pageIndex);
+                response = t.GetDomainEntitlements(domainId, type, isExpired, pageSize, pageIndex, orderBy);
             }
             else
             {

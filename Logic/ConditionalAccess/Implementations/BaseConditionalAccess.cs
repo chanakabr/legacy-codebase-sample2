@@ -11110,7 +11110,7 @@ namespace Core.ConditionalAccess
 		public virtual Entitlements GetDomainEntitlements(int domainId, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc)
 		{
 			List<int> intUsersList = GetDomainsUsers(domainId);
-			return GetUsersEntitlements(domainId, intUsersList, type, isExpired);
+            return GetUsersEntitlements(domainId, intUsersList, type, isExpired, 0, true, 500, 0, orderBy);
 		}
 
 		/// <summary>

@@ -21,7 +21,6 @@ namespace Core.Pricing
             m_tsFullLifeCycle = 0;
             m_tsNonRenewPeriod = 0;
             alias = string.Empty;
-
         }
 
         public PreviewModule(long nID, string sName, int nFullLifeCycle, int nNonRenewingPeriod)
@@ -30,7 +29,6 @@ namespace Core.Pricing
             this.m_sName = sName;
             this.m_tsFullLifeCycle = nFullLifeCycle;
             this.m_tsNonRenewPeriod = nNonRenewingPeriod;
-
         }
 
         public PreviewModule(long nID, string sName, int nFullLifeCycle, int nNonRenewingPeriod, string alias)
@@ -40,7 +38,6 @@ namespace Core.Pricing
             this.m_tsFullLifeCycle = nFullLifeCycle;
             this.m_tsNonRenewPeriod = nNonRenewingPeriod;
             this.alias = alias;
-
         }
     }
 
