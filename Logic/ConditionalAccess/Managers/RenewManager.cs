@@ -522,6 +522,8 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
+            long lastEndDate = DateUtils.DateTimeToUnixTimestamp(endDate);
+
             // update end-date
             if (transactionResponse.EndDateSeconds > 0)
             {
@@ -568,8 +570,9 @@ namespace Core.ConditionalAccess
             if (groupBillingCycle.HasValue && unifiedBillingCycle != null)
             {
                  long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate);
-                 if (unifiedBillingCycle.endDate != nextEndDate)
+                 if (unifiedBillingCycle.endDate == lastEndDate)
                  {
+                     log.DebugFormat("going to update UnifiedBillingCycle. current endDate = {0}, nextEndDate = {1}",unifiedBillingCycle.endDate, nextEndDate);
                      UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, nextEndDate, unifiedBillingCycle.paymentGatewayIds);
                  }
             }

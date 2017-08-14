@@ -2650,8 +2650,10 @@ namespace Core.ConditionalAccess
                 {
                     log.DebugFormat("inside if paymentNumber == 0");
                     unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
-                    log.DebugFormat("unified billing cycle: endDate = {0}", unifiedBillingCycle != null ? unifiedBillingCycle.ToString() : "null");
-                    // check that end date between next end date and unified billing cycle end date are diffrent
+                    log.DebugFormat("unified billing cycle: endDate = {0}, endDate = {1}, utcNow = {2}", 
+                        unifiedBillingCycle != null ? unifiedBillingCycle.endDate.ToString() : "null", endDate, ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow));
+                    
+                    // check that end date between next end date and unified billing cycle end date are different
                     if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow) &&
                         unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate.Value))
                     {
