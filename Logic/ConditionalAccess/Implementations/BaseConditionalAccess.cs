@@ -2645,20 +2645,14 @@ namespace Core.ConditionalAccess
                 // if this is a renew after preview module / gift card - need to calculate partial price (if unified billing cycle)  
                 bool isPartialPrice = false;
 
-                log.DebugFormat("paymentNumber = {0}", paymentNumber);
                 if ((isCouponGiftCard || (paymentNumber == 1 && isPurchasedWithPreviewModule)) && groupId > 0 && householdId > 0 && endDate.HasValue)
                 {
-                    log.DebugFormat("inside if paymentNumber == 0");
                     unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
-                    log.DebugFormat("unified billing cycle: endDate = {0}, endDate = {1}, utcNow = {2}", 
-                        unifiedBillingCycle != null ? unifiedBillingCycle.endDate.ToString() : "null", endDate, ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow));
                     
                     // check that end date between next end date and unified billing cycle end date are different
-                    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow) &&
-                        unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate.Value))
+                    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow))
                     {
                         Utils.CalculatePriceByUnifiedBillingCycle(groupId, ref priceValue, ref unifiedBillingCycle);
-                        log.DebugFormat("after CalculatePriceByUnifiedBillingCycle priceValuew = {0}", priceValue);
                         isPartialPrice = true;
                     }
                 }

@@ -524,18 +524,25 @@ namespace Core.ConditionalAccess
 
             long lastEndDate = DateUtils.DateTimeToUnixTimestamp(endDate);
 
-            // update end-date
-            if (transactionResponse.EndDateSeconds > 0)
+            if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != DateUtils.DateTimeToUnixTimestamp(endDate))
             {
-                // end-date returned: EndDate = PG_End_Date + Configured_PG_Start_Renew_Time
-                endDate = DateUtils.UnixTimeStampToDateTime(transactionResponse.EndDateSeconds);
-                log.DebugFormat("New end-date was updated according to PG. EndDate={0}", endDate);
+                endDate = DateUtils.UnixTimeStampToDateTime(unifiedBillingCycle.endDate);
             }
             else
             {
-                // end wasn't retuned - get next end date from MPP
-                endDate = Utils.GetEndDateTime(endDate, maxVLCOfSelectedUsageModule);
-                log.DebugFormat("New end-date was updated according to MPP. EndDate={0}", endDate);
+                // update end-date
+                if (transactionResponse.EndDateSeconds > 0)
+                {
+                    // end-date returned: EndDate = PG_End_Date + Configured_PG_Start_Renew_Time
+                    endDate = DateUtils.UnixTimeStampToDateTime(transactionResponse.EndDateSeconds);
+                    log.DebugFormat("New end-date was updated according to PG. EndDate={0}", endDate);
+                }
+                else
+                {
+                    // end wasn't retuned - get next end date from MPP
+                    endDate = Utils.GetEndDateTime(endDate, maxVLCOfSelectedUsageModule);
+                    log.DebugFormat("New end-date was updated according to MPP. EndDate={0}", endDate);
+                }
             }
 
             // update MPP renew data
@@ -565,16 +572,26 @@ namespace Core.ConditionalAccess
                 log.Error("Error while trying update billing_transactions subscriptions_purchased reference");
             }
 
+
+            log.DebugFormat("going to update UnifiedBillingCycle.endDate = {0}, lastEndDate = {1}", unifiedBillingCycle != null ? unifiedBillingCycle.endDate.ToString() : "null", lastEndDate);
+
             // update unified billing cycle for domian with next end date
             long? groupBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-            if (groupBillingCycle.HasValue && unifiedBillingCycle != null)
+            if (groupBillingCycle.HasValue)
             {
-                 long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate);
-                 if (unifiedBillingCycle.endDate == lastEndDate)
-                 {
-                     log.DebugFormat("going to update UnifiedBillingCycle. current endDate = {0}, nextEndDate = {1}",unifiedBillingCycle.endDate, nextEndDate);
-                     UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, nextEndDate, unifiedBillingCycle.paymentGatewayIds);
-                 }
+                if (unifiedBillingCycle == null)
+                {
+                    unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupBillingCycle.Value);
+                }
+                if (unifiedBillingCycle != null)
+                {
+                    long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate);
+                    if (unifiedBillingCycle.endDate == lastEndDate)
+                    {
+                        log.DebugFormat("going to update UnifiedBillingCycle. current endDate = {0}, nextEndDate = {1}", unifiedBillingCycle.endDate, nextEndDate);
+                        UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, nextEndDate, unifiedBillingCycle.paymentGatewayIds);
+                    }
+                }
             }
 
             // enqueue renew transaction
