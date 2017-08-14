@@ -2544,7 +2544,7 @@ namespace DAL
                     int numOfRetries = 0;
                     while (numOfRetries < limitRetries)
                     {
-                        object document = cbClient.Get<object>(domainUnifiedBillingKey, out getResult);
+                        unifiedBillingCycle = cbClient.Get<UnifiedBillingCycle>(domainUnifiedBillingKey, out getResult);
 
                         if (getResult == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
                         {
@@ -2553,7 +2553,6 @@ namespace DAL
                         }
                         else if (getResult == CouchbaseManager.eResultStatus.SUCCESS)
                         {
-                            unifiedBillingCycle = JsonConvert.DeserializeObject<UnifiedBillingCycle>(document.ToString());
                             result = true;
                             break;
                         }
@@ -2607,7 +2606,9 @@ namespace DAL
             }
             else
             {
-                result = cbClient.Set(domainUnifiedBillingKey, unifiedBillingCycle);//json);
+                result = cbClient.Set(domainUnifiedBillingKey, unifiedBillingCycle);
+                log.DebugFormat("successfully updated UnifiedBillingCycle. endDate = {0}, key = {1}", unifiedBillingCycle.endDate, domainUnifiedBillingKey);
+
                 if (!result)
                 {
                     log.ErrorFormat("Failed SetDomainUnifiedBillingCycle. domainId = {0}, billingCycle = {1}", domainId, billingCycle);
