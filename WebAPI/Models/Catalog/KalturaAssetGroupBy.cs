@@ -14,6 +14,8 @@ namespace WebAPI.Models.Catalog
     /// Abstarct class - represents an asset parameter that can be used for grouping
     /// </summary>
     [Serializable]
+    [XmlInclude(typeof(KalturaAssetMetaOrTagGroupBy))]
+    [XmlInclude(typeof(KalturaAssetFieldGroupBy))]
     public abstract class KalturaAssetGroupBy : KalturaOTTObject
     {
         public abstract string GetValue();
