@@ -967,7 +967,7 @@ namespace Core.Users
             else
             {
                 result.Code = (int)eResponseStatus.Error;
-                result.Message = "Failed to suspend domain";
+                result.Message = "Failed to resume domain";
             }
 
             return result;
