@@ -1229,8 +1229,11 @@ namespace Core.ConditionalAccess
                         }
 
                         price = CalculateCouponDiscount(ref price, couponGroups, couponCode, groupId);
-                        
-                        CalculatePriceByUnifiedBillingCycle(groupId, ref price.m_dPrice, ref unifiedBillingCycle, subscription, domainID);
+
+                        if (price != null && price.m_dPrice != 0)
+                        {
+                            CalculatePriceByUnifiedBillingCycle(groupId, ref price.m_dPrice, ref unifiedBillingCycle, subscription, domainID);
+                        }
                     }
                 }
                 else
