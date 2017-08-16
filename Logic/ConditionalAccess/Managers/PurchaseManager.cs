@@ -1173,20 +1173,23 @@ namespace Core.ConditionalAccess
 
                                     if (subscription.m_bIsRecurring)
                                     {
-                                        DateTime nextRenewalDate = endDate.Value.AddMinutes(-5); // default  
+                                        //DateTime nextRenewalDate = endDate.Value.AddMinutes(-5); // default  
 
                                         long endDateUnix = 0;
 
-                                        if (endDate != null && endDate.HasValue)
+                                        if (endDate.HasValue)
                                         {
                                             endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
                                         }
+                                        
+                                        DateTime nextRenewalDate = endDate.Value;
 
                                         if (!isGiftCard)
                                         {
                                             // call billing process renewal
                                             try
                                             {
+                                                nextRenewalDate = endDate.Value.AddMinutes(-5);
                                                 PaymentGateway paymentGatewayResponse = Core.Billing.Module.GetPaymentGatewayByBillingGuid(groupId, householdId, billingGuid);
 
                                                 if (paymentGatewayResponse == null)
