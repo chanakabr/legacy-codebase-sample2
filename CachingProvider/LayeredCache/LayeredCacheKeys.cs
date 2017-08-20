@@ -255,42 +255,42 @@ namespace CachingProvider.LayeredCache
 
         public static string GetUserRolesInvalidationKey(string userId)
         {
-            return string.Format("invalidationKeyUserRoles_userId_{0}", userId);
+            return string.Format("add_role_userId_{0}", userId);
         }
 
         public static string GetCancelSubscriptionInvalidationKey(long domainId)
         {
-            return string.Format("invalidationKeyCancelSubscription_domainId_{0}", domainId);
+            return string.Format("cancel_subscription_domainId_{0}", domainId);
         }
 
         public static string GetCancelSubscriptionRenewalInvalidationKey(long domainId)
         {
-            return string.Format("invalidationKeyCancelSubscriptionRenewal_domainId_{0}", domainId);
+            return string.Format("cancel_subscription_renewal_domainId_{0}", domainId);
         }
 
         public static string GetCancelTransactionInvalidationKey(long domainId)
         {
-            return string.Format("invalidationKeyCancelTransaction_domainId_{0}", domainId);
+            return string.Format("cancel_transaction_domainId_{0}", domainId);
         }
 
         public static string GetPurchaseInvalidationKey(long domainId)
         {
-            return string.Format("invalidationKeyPurchase_domainId_{0}", domainId);
+            return string.Format("purchase_domainId_{0}", domainId);
         }
 
         public static string GetGrantEntitlementInvalidationKey(long domainId)
         {
-            return string.Format("invalidationKeyGrant_domainId_{0}", domainId);
+            return string.Format("grant_domainId_{0}", domainId);
         }
 
         public static string GetCancelServiceNowInvalidationKey(int domainId)
         {
-            return string.Format("invalidationKeyCancelServiceNow_domainId_{0}", domainId);
+            return string.Format("cancel_now_domainId_{0}", domainId);
         }
 
         public static string GetRenewInvalidationKey(long domainId)
         {
-            return string.Format("invalidationKeyRenew_domainId_{0}", domainId);
+            return string.Format("renew_domainId_{0}", domainId);
         }
 
         public static string GetRemindersInvalidationKey(int groupId, long reminderId)
@@ -300,17 +300,17 @@ namespace CachingProvider.LayeredCache
 
         public static string GetLastUseWithCreditForDomainInvalidationKey(int groupId, long domainId, int mediaId)
         {
-            return string.Format("invalidationKeyDomainPlayUses_groupId_{0}_domainId_{1}_mediaId_{2}", groupId, domainId, mediaId);
+            return string.Format("domainPlayUses_InvalidationKey_groupId_{0}_domainId_{1}_mediaId_{2}", groupId, domainId, mediaId);
         }
 
         public static string GetGroupChannelsInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKeyGroupChannels_groupId_{0}", groupId);
+            return string.Format("groupChannelsInvalidationKey_groupId_{0}", groupId);
         }
 
         public static string GetMediaInvalidationKey(int groupId, long mediaId)
         {
-            return string.Format("invalidationKeyMedia_groupId_{0}_mediaId_{1}", groupId, mediaId);
+            return string.Format("mediaInvalidationKey_groupId_{0}_mediaId_{1}", groupId, mediaId);
         }
 
         public static string GetSeriesRemindersInvalidationKey(int groupId, long seriesReminderId)
@@ -335,7 +335,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetPricingSettingsInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKeyPricingSettings_groupId_{0}", groupId);
+            return string.Format("PricingSettings_groupId_{0}", groupId);
         }
 
         public static string GetAliasMappingFieldsInvalidationKey(int groupId)
