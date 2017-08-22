@@ -333,7 +333,7 @@ namespace Core.ConditionalAccess
                 // writing to subscription_purchases failed
                 res = false;
                 #region Logging
-                log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + string.Format("No ID in subscriptions_purchases. Site Guid: {0} , Sub Code: {1} , Coupon Code: {2} , User IP: {3}", sSiteGUID, sSubscriptionCode, sCouponCode, sUserIP));
+                log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + string.Format("SubscriptionPurchaseInser failed. Site Guid: {0} , Sub Code: {1} , Coupon Code: {2} , User IP: {3}", sSiteGUID, sSubscriptionCode, sCouponCode, sUserIP));
                 WriteToUserLog(sSiteGUID, string.Format("Failed to write to subscription_purchases. Sub Code: {0} , Coupon Code: {1}", sSubscriptionCode, sCouponCode));
                 #endregion
             }
