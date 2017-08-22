@@ -280,7 +280,7 @@ namespace Core.ConditionalAccess
 
             if (insertResult)
             {
-                long lPurchaseId = subscriptionPurchase.purchaseId;
+                lPurchaseID = subscriptionPurchase.purchaseId;
 
                 if (lPurchaseID > 0)
                 {
