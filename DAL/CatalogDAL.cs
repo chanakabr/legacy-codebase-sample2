@@ -3725,7 +3725,7 @@ namespace Tvinci.Core.DAL
 
             if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
-                result = Utils.ExtractInteger(dataSet.Tables[0].Rows[0], "ROW");
+                result = Utils.ExtractInteger(dataSet.Tables[0].Rows[0], "ID");
             }
 
             return result;
