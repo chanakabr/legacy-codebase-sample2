@@ -1282,6 +1282,26 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="DomainStatusResponse" nillable="true" type="tns:DomainStatusResponse" />
+      <s:element name="DomainResponseStatus" type="tns:DomainResponseStatus" />
+      <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
+      <s:element name="DeviceResponse" nillable="true" type="tns:DeviceResponse" />
+      <s:element name="DomainResponse" nillable="true" type="tns:DomainResponse" />
+      <s:element name="int" type="s:int" />
+      <s:element name="ArrayOfDomain" nillable="true" type="tns:ArrayOfDomain" />
+      <s:element name="DevicePinResponse" nillable="true" type="tns:DevicePinResponse" />
+      <s:element name="Status" nillable="true" type="tns:Status" />
+      <s:element name="DomainResponseObject" nillable="true" type="tns:DomainResponseObject" />
+      <s:element name="ArrayOfInt" nillable="true" type="tns:ArrayOfInt" />
+      <s:element name="DeviceResponseObject" nillable="true" type="tns:DeviceResponseObject" />
+      <s:element name="boolean" type="s:boolean" />
+      <s:element name="NetworkResponseObject" nillable="true" type="tns:NetworkResponseObject" />
+      <s:element name="HomeNetworkResponse" nillable="true" type="tns:HomeNetworkResponse" />
+      <s:element name="HomeNetworksResponse" nillable="true" type="tns:HomeNetworksResponse" />
+      <s:element name="ValidationResponseObject" nillable="true" type="tns:ValidationResponseObject" />
+      <s:element name="ChangeDLMObj" nillable="true" type="tns:ChangeDLMObj" />
+      <s:element name="DLMResponse" nillable="true" type="tns:DLMResponse" />
+      <s:element name="DeviceRegistrationStatusResponse" nillable="true" type="tns:DeviceRegistrationStatusResponse" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="AddDomainSoapIn">
@@ -1578,6 +1598,475 @@
   <wsdl:message name="VerifyDRMDeviceSoapOut">
     <wsdl:part name="parameters" element="tns:VerifyDRMDeviceResponse" />
   </wsdl:message>
+  <wsdl:message name="AddDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sDomainName" type="s:string" />
+    <wsdl:part name="sDomainDescription" type="s:string" />
+    <wsdl:part name="nMasterUserGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainWithCoGuidHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sDomainName" type="s:string" />
+    <wsdl:part name="sDomainDescription" type="s:string" />
+    <wsdl:part name="nMasterUserGuid" type="s:string" />
+    <wsdl:part name="sCoGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainWithCoGuidHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainResponseStatus" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainInfoHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="sDomainName" type="s:string" />
+    <wsdl:part name="sDomainDescription" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainInfoHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddUserToDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="nUserGuid" type="s:string" />
+    <wsdl:part name="nMasterUserGuid" type="s:string" />
+    <wsdl:part name="bIsMaster" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddUserToDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="SubmitAddUserToDomainRequestHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nUserID" type="s:string" />
+    <wsdl:part name="sMasterUsername" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SubmitAddUserToDomainRequestHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainUserListHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainUserListHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfString" />
+  </wsdl:message>
+  <wsdl:message name="RemoveUserFromDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemoveUserFromDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddDeviceToDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="deviceName" type="s:string" />
+    <wsdl:part name="deviceBrandID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddDeviceToDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddDeviceHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="deviceName" type="s:string" />
+    <wsdl:part name="deviceBrandID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddDeviceHttpPostOut">
+    <wsdl:part name="Body" element="tns:DeviceResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDeviceFromDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDeviceFromDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChangeDeviceDomainStatusHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="deviceUDID" type="s:string" />
+    <wsdl:part name="activate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ChangeDeviceDomainStatusHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainInfoHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainInfoHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainIDByCoGuidHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sCoGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainIDByCoGuidHttpPostOut">
+    <wsdl:part name="Body" element="tns:int" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainByCoGuidHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sCoGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainByCoGuidHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceDomainsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceDomainsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfDomain" />
+  </wsdl:message>
+  <wsdl:message name="GetPINForDeviceHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sDeviceUDID" type="s:string" />
+    <wsdl:part name="nBrandID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPINForDeviceHttpPostOut">
+    <wsdl:part name="Body" element="tns:DevicePinResponse" />
+  </wsdl:message>
+  <wsdl:message name="RegisterDeviceToDomainWithPINHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sPID" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RegisterDeviceToDomainWithPINHttpPostOut">
+    <wsdl:part name="Body" element="tns:DeviceResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetDeviceInfoHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sDeviceUDID" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDeviceInfoHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="ResetDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ResetDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="ResetDomainFrequencyHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="nFrequencyType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ResetDomainFrequencyHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChangeDomainMasterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="nCurrentMasterID" type="s:string" />
+    <wsdl:part name="nNewMasterID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ChangeDomainMasterHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainIDsByOperatorCoGuidHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sOperatorCoGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainIDsByOperatorCoGuidHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfInt" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceInfoHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sID" type="s:string" />
+    <wsdl:part name="bIsUDID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceInfoHttpPostOut">
+    <wsdl:part name="Body" element="tns:DeviceResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="SubmitAddDeviceToDomainRequestHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="nUserID" type="s:string" />
+    <wsdl:part name="sDeviceUdid" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="nBrandID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SubmitAddDeviceToDomainRequestHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="ConfirmDeviceByDomainMasterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sMasterUN" type="s:string" />
+    <wsdl:part name="sDeviceUDID" type="s:string" />
+    <wsdl:part name="sToken" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ConfirmDeviceByDomainMasterHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainRestrictionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="nRestriction" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainRestrictionHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="AddHomeNetworkToDomainHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="lDomainID" type="s:string" />
+    <wsdl:part name="sNetworkID" type="s:string" />
+    <wsdl:part name="sNetworkName" type="s:string" />
+    <wsdl:part name="sNetworkDesc" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddHomeNetworkToDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:NetworkResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="UpdateDomainHomeNetworkHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="lDomainID" type="s:string" />
+    <wsdl:part name="sNetworkID" type="s:string" />
+    <wsdl:part name="sNetworkName" type="s:string" />
+    <wsdl:part name="sNetworkDesc" type="s:string" />
+    <wsdl:part name="bIsActive" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateDomainHomeNetworkHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainHomeNetworkHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="lDomainID" type="s:string" />
+    <wsdl:part name="sNetworkID" type="s:string" />
+    <wsdl:part name="sNetworkName" type="s:string" />
+    <wsdl:part name="sNetworkDesc" type="s:string" />
+    <wsdl:part name="bIsActive" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainHomeNetworkHttpPostOut">
+    <wsdl:part name="Body" element="tns:HomeNetworkResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainHomeNetworkHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="lDomainID" type="s:string" />
+    <wsdl:part name="sNetworkID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainHomeNetworkHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainHomeNetworksHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="lDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainHomeNetworksHttpPostOut">
+    <wsdl:part name="Body" element="tns:HomeNetworksResponse" />
+  </wsdl:message>
+  <wsdl:message name="ValidateLimitationModuleHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUDID" type="s:string" />
+    <wsdl:part name="nDeviceBrandID" type="s:string" />
+    <wsdl:part name="lSiteGuid" type="s:string" />
+    <wsdl:part name="lDomainID" type="s:string" />
+    <wsdl:part name="eValidation" type="s:string" />
+    <wsdl:part name="nRuleID" type="s:string" />
+    <wsdl:part name="nMediaConcurrencyLimit" type="s:string" />
+    <wsdl:part name="nMediaID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ValidateLimitationModuleHttpPostOut">
+    <wsdl:part name="Body" element="tns:ValidationResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="ValidateLimitationNpvrHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUDID" type="s:string" />
+    <wsdl:part name="nDeviceBrandID" type="s:string" />
+    <wsdl:part name="lSiteGuid" type="s:string" />
+    <wsdl:part name="lDomainID" type="s:string" />
+    <wsdl:part name="eValidation" type="s:string" />
+    <wsdl:part name="nNpvrConcurrencyLimit" type="s:string" />
+    <wsdl:part name="sNpvrID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ValidateLimitationNpvrHttpPostOut">
+    <wsdl:part name="Body" element="tns:ValidationResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDLMHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDlmID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDLMHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="ChangeDLMHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="nDlmID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ChangeDLMHttpPostOut">
+    <wsdl:part name="Body" element="tns:ChangeDLMObj" />
+  </wsdl:message>
+  <wsdl:message name="GetDLMHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDlmID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDLMHttpPostOut">
+    <wsdl:part name="Body" element="tns:DLMResponse" />
+  </wsdl:message>
+  <wsdl:message name="SuspendDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SuspendDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="ResumeDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ResumeDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainRegionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="extRegionId" type="s:string" />
+    <wsdl:part name="lookupKey" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainRegionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainByUserHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainByUserHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceRegistrationStatusHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceRegistrationStatusHttpPostOut">
+    <wsdl:part name="Body" element="tns:DeviceRegistrationStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetDeviceHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sDeviceUDID" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDeviceHttpPostOut">
+    <wsdl:part name="Body" element="tns:DeviceResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceHttpPostOut">
+    <wsdl:part name="Body" element="tns:DeviceResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainByIdHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainByIdHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainByCoGuidHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="coGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainByCoGuidHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainHomeNetworkHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="lDomainID" type="s:string" />
+    <wsdl:part name="sNetworkID" type="s:string" />
+    <wsdl:part name="sNetworkName" type="s:string" />
+    <wsdl:part name="sNetworkDesc" type="s:string" />
+    <wsdl:part name="isActive" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainHomeNetworkHttpPostOut">
+    <wsdl:part name="Body" element="tns:HomeNetworkResponse" />
+  </wsdl:message>
+  <wsdl:message name="SubmitAddDeviceToDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="userID" type="s:string" />
+    <wsdl:part name="deviceUdid" type="s:string" />
+    <wsdl:part name="deviceName" type="s:string" />
+    <wsdl:part name="brandID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SubmitAddDeviceToDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:DeviceResponse" />
+  </wsdl:message>
+  <wsdl:message name="VerifyDRMDeviceHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="drmId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="VerifyDRMDeviceHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="AddDomain">
       <wsdl:input message="tns:AddDomainSoapIn" />
@@ -1774,6 +2263,204 @@
     <wsdl:operation name="VerifyDRMDevice">
       <wsdl:input message="tns:VerifyDRMDeviceSoapIn" />
       <wsdl:output message="tns:VerifyDRMDeviceSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="moduleHttpPost">
+    <wsdl:operation name="AddDomain">
+      <wsdl:input message="tns:AddDomainHttpPostIn" />
+      <wsdl:output message="tns:AddDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddDomainWithCoGuid">
+      <wsdl:input message="tns:AddDomainWithCoGuidHttpPostIn" />
+      <wsdl:output message="tns:AddDomainWithCoGuidHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomain">
+      <wsdl:input message="tns:RemoveDomainHttpPostIn" />
+      <wsdl:output message="tns:RemoveDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainInfo">
+      <wsdl:input message="tns:SetDomainInfoHttpPostIn" />
+      <wsdl:output message="tns:SetDomainInfoHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddUserToDomain">
+      <wsdl:input message="tns:AddUserToDomainHttpPostIn" />
+      <wsdl:output message="tns:AddUserToDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SubmitAddUserToDomainRequest">
+      <wsdl:input message="tns:SubmitAddUserToDomainRequestHttpPostIn" />
+      <wsdl:output message="tns:SubmitAddUserToDomainRequestHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainUserList">
+      <wsdl:input message="tns:GetDomainUserListHttpPostIn" />
+      <wsdl:output message="tns:GetDomainUserListHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFromDomain">
+      <wsdl:input message="tns:RemoveUserFromDomainHttpPostIn" />
+      <wsdl:output message="tns:RemoveUserFromDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddDeviceToDomain">
+      <wsdl:input message="tns:AddDeviceToDomainHttpPostIn" />
+      <wsdl:output message="tns:AddDeviceToDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddDevice">
+      <wsdl:input message="tns:AddDeviceHttpPostIn" />
+      <wsdl:output message="tns:AddDeviceHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDeviceFromDomain">
+      <wsdl:input message="tns:RemoveDeviceFromDomainHttpPostIn" />
+      <wsdl:output message="tns:RemoveDeviceFromDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeDeviceDomainStatus">
+      <wsdl:input message="tns:ChangeDeviceDomainStatusHttpPostIn" />
+      <wsdl:output message="tns:ChangeDeviceDomainStatusHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainInfo">
+      <wsdl:input message="tns:GetDomainInfoHttpPostIn" />
+      <wsdl:output message="tns:GetDomainInfoHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainIDByCoGuid">
+      <wsdl:input message="tns:GetDomainIDByCoGuidHttpPostIn" />
+      <wsdl:output message="tns:GetDomainIDByCoGuidHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainByCoGuid">
+      <wsdl:input message="tns:GetDomainByCoGuidHttpPostIn" />
+      <wsdl:output message="tns:GetDomainByCoGuidHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceDomains">
+      <wsdl:input message="tns:GetDeviceDomainsHttpPostIn" />
+      <wsdl:output message="tns:GetDeviceDomainsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPINForDevice">
+      <wsdl:input message="tns:GetPINForDeviceHttpPostIn" />
+      <wsdl:output message="tns:GetPINForDeviceHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RegisterDeviceToDomainWithPIN">
+      <wsdl:input message="tns:RegisterDeviceToDomainWithPINHttpPostIn" />
+      <wsdl:output message="tns:RegisterDeviceToDomainWithPINHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDeviceInfo">
+      <wsdl:input message="tns:SetDeviceInfoHttpPostIn" />
+      <wsdl:output message="tns:SetDeviceInfoHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ResetDomain">
+      <wsdl:input message="tns:ResetDomainHttpPostIn" />
+      <wsdl:output message="tns:ResetDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ResetDomainFrequency">
+      <wsdl:input message="tns:ResetDomainFrequencyHttpPostIn" />
+      <wsdl:output message="tns:ResetDomainFrequencyHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeDomainMaster">
+      <wsdl:input message="tns:ChangeDomainMasterHttpPostIn" />
+      <wsdl:output message="tns:ChangeDomainMasterHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainIDsByOperatorCoGuid">
+      <wsdl:input message="tns:GetDomainIDsByOperatorCoGuidHttpPostIn" />
+      <wsdl:output message="tns:GetDomainIDsByOperatorCoGuidHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceInfo">
+      <wsdl:input message="tns:GetDeviceInfoHttpPostIn" />
+      <wsdl:output message="tns:GetDeviceInfoHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SubmitAddDeviceToDomainRequest">
+      <wsdl:input message="tns:SubmitAddDeviceToDomainRequestHttpPostIn" />
+      <wsdl:output message="tns:SubmitAddDeviceToDomainRequestHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ConfirmDeviceByDomainMaster">
+      <wsdl:input message="tns:ConfirmDeviceByDomainMasterHttpPostIn" />
+      <wsdl:output message="tns:ConfirmDeviceByDomainMasterHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainRestriction">
+      <wsdl:input message="tns:SetDomainRestrictionHttpPostIn" />
+      <wsdl:output message="tns:SetDomainRestrictionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddHomeNetworkToDomain">
+      <wsdl:input message="tns:AddHomeNetworkToDomainHttpPostIn" />
+      <wsdl:output message="tns:AddHomeNetworkToDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateDomainHomeNetwork">
+      <wsdl:input message="tns:UpdateDomainHomeNetworkHttpPostIn" />
+      <wsdl:output message="tns:UpdateDomainHomeNetworkHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainHomeNetwork">
+      <wsdl:input message="tns:SetDomainHomeNetworkHttpPostIn" />
+      <wsdl:output message="tns:SetDomainHomeNetworkHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainHomeNetwork">
+      <wsdl:input message="tns:RemoveDomainHomeNetworkHttpPostIn" />
+      <wsdl:output message="tns:RemoveDomainHomeNetworkHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainHomeNetworks">
+      <wsdl:input message="tns:GetDomainHomeNetworksHttpPostIn" />
+      <wsdl:output message="tns:GetDomainHomeNetworksHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidateLimitationModule">
+      <wsdl:input message="tns:ValidateLimitationModuleHttpPostIn" />
+      <wsdl:output message="tns:ValidateLimitationModuleHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidateLimitationNpvr">
+      <wsdl:input message="tns:ValidateLimitationNpvrHttpPostIn" />
+      <wsdl:output message="tns:ValidateLimitationNpvrHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDLM">
+      <wsdl:input message="tns:RemoveDLMHttpPostIn" />
+      <wsdl:output message="tns:RemoveDLMHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeDLM">
+      <wsdl:input message="tns:ChangeDLMHttpPostIn" />
+      <wsdl:output message="tns:ChangeDLMHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDLM">
+      <wsdl:input message="tns:GetDLMHttpPostIn" />
+      <wsdl:output message="tns:GetDLMHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SuspendDomain">
+      <wsdl:input message="tns:SuspendDomainHttpPostIn" />
+      <wsdl:output message="tns:SuspendDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ResumeDomain">
+      <wsdl:input message="tns:ResumeDomainHttpPostIn" />
+      <wsdl:output message="tns:ResumeDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainRegion">
+      <wsdl:input message="tns:SetDomainRegionHttpPostIn" />
+      <wsdl:output message="tns:SetDomainRegionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainByUser">
+      <wsdl:input message="tns:GetDomainByUserHttpPostIn" />
+      <wsdl:output message="tns:GetDomainByUserHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceRegistrationStatus">
+      <wsdl:input message="tns:GetDeviceRegistrationStatusHttpPostIn" />
+      <wsdl:output message="tns:GetDeviceRegistrationStatusHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDevice">
+      <wsdl:input message="tns:SetDeviceHttpPostIn" />
+      <wsdl:output message="tns:SetDeviceHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDevice">
+      <wsdl:input message="tns:GetDeviceHttpPostIn" />
+      <wsdl:output message="tns:GetDeviceHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainById">
+      <wsdl:input message="tns:RemoveDomainByIdHttpPostIn" />
+      <wsdl:output message="tns:RemoveDomainByIdHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainByCoGuid">
+      <wsdl:input message="tns:RemoveDomainByCoGuidHttpPostIn" />
+      <wsdl:output message="tns:RemoveDomainByCoGuidHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddDomainHomeNetwork">
+      <wsdl:input message="tns:AddDomainHomeNetworkHttpPostIn" />
+      <wsdl:output message="tns:AddDomainHomeNetworkHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SubmitAddDeviceToDomain">
+      <wsdl:input message="tns:SubmitAddDeviceToDomainHttpPostIn" />
+      <wsdl:output message="tns:SubmitAddDeviceToDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="VerifyDRMDevice">
+      <wsdl:input message="tns:VerifyDRMDeviceHttpPostIn" />
+      <wsdl:output message="tns:VerifyDRMDeviceHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -2664,12 +3351,459 @@
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
+  <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="AddDomain">
+      <http:operation location="/AddDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddDomainWithCoGuid">
+      <http:operation location="/AddDomainWithCoGuid" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomain">
+      <http:operation location="/RemoveDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainInfo">
+      <http:operation location="/SetDomainInfo" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddUserToDomain">
+      <http:operation location="/AddUserToDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitAddUserToDomainRequest">
+      <http:operation location="/SubmitAddUserToDomainRequest" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainUserList">
+      <http:operation location="/GetDomainUserList" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUserFromDomain">
+      <http:operation location="/RemoveUserFromDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddDeviceToDomain">
+      <http:operation location="/AddDeviceToDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddDevice">
+      <http:operation location="/AddDevice" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDeviceFromDomain">
+      <http:operation location="/RemoveDeviceFromDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeDeviceDomainStatus">
+      <http:operation location="/ChangeDeviceDomainStatus" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainInfo">
+      <http:operation location="/GetDomainInfo" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainIDByCoGuid">
+      <http:operation location="/GetDomainIDByCoGuid" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainByCoGuid">
+      <http:operation location="/GetDomainByCoGuid" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceDomains">
+      <http:operation location="/GetDeviceDomains" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPINForDevice">
+      <http:operation location="/GetPINForDevice" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterDeviceToDomainWithPIN">
+      <http:operation location="/RegisterDeviceToDomainWithPIN" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDeviceInfo">
+      <http:operation location="/SetDeviceInfo" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResetDomain">
+      <http:operation location="/ResetDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResetDomainFrequency">
+      <http:operation location="/ResetDomainFrequency" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeDomainMaster">
+      <http:operation location="/ChangeDomainMaster" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainIDsByOperatorCoGuid">
+      <http:operation location="/GetDomainIDsByOperatorCoGuid" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceInfo">
+      <http:operation location="/GetDeviceInfo" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitAddDeviceToDomainRequest">
+      <http:operation location="/SubmitAddDeviceToDomainRequest" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ConfirmDeviceByDomainMaster">
+      <http:operation location="/ConfirmDeviceByDomainMaster" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainRestriction">
+      <http:operation location="/SetDomainRestriction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddHomeNetworkToDomain">
+      <http:operation location="/AddHomeNetworkToDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateDomainHomeNetwork">
+      <http:operation location="/UpdateDomainHomeNetwork" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainHomeNetwork">
+      <http:operation location="/SetDomainHomeNetwork" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainHomeNetwork">
+      <http:operation location="/RemoveDomainHomeNetwork" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainHomeNetworks">
+      <http:operation location="/GetDomainHomeNetworks" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateLimitationModule">
+      <http:operation location="/ValidateLimitationModule" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateLimitationNpvr">
+      <http:operation location="/ValidateLimitationNpvr" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDLM">
+      <http:operation location="/RemoveDLM" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeDLM">
+      <http:operation location="/ChangeDLM" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDLM">
+      <http:operation location="/GetDLM" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SuspendDomain">
+      <http:operation location="/SuspendDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResumeDomain">
+      <http:operation location="/ResumeDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainRegion">
+      <http:operation location="/SetDomainRegion" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainByUser">
+      <http:operation location="/GetDomainByUser" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceRegistrationStatus">
+      <http:operation location="/GetDeviceRegistrationStatus" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDevice">
+      <http:operation location="/SetDevice" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDevice">
+      <http:operation location="/GetDevice" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainById">
+      <http:operation location="/RemoveDomainById" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainByCoGuid">
+      <http:operation location="/RemoveDomainByCoGuid" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddDomainHomeNetwork">
+      <http:operation location="/AddDomainHomeNetwork" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitAddDeviceToDomain">
+      <http:operation location="/SubmitAddDeviceToDomain" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VerifyDRMDevice">
+      <http:operation location="/VerifyDRMDevice" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://34.249.122.223:8030/DOMAINS_v4_4/ws_domains_module.asmx" />
+      <soap:address location="http://34.249.122.223:8030/Domains_v4_6/ws_domains_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://34.249.122.223:8030/DOMAINS_v4_4/ws_domains_module.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/Domains_v4_6/ws_domains_module.asmx" />
+    </wsdl:port>
+    <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
+      <http:address location="http://34.249.122.223:8030/Domains_v4_6/ws_domains_module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

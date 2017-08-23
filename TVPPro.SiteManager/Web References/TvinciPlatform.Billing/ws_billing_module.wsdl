@@ -1496,6 +1496,25 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="AdyenBillingDetail" nillable="true" type="tns:AdyenBillingDetail" />
+      <s:element name="BillingResponse" nillable="true" type="tns:BillingResponse" />
+      <s:element name="boolean" type="s:boolean" />
+      <s:element name="InAppBillingResponse" nillable="true" type="tns:InAppBillingResponse" />
+      <s:element name="PaymentGatewaySettingsResponse" nillable="true" type="tns:PaymentGatewaySettingsResponse" />
+      <s:element name="Status" nillable="true" type="tns:Status" />
+      <s:element name="PaymentGatewayResponse" nillable="true" type="tns:PaymentGatewayResponse" />
+      <s:element name="PaymentGatewayListResponse" nillable="true" type="tns:PaymentGatewayListResponse" />
+      <s:element name="HouseholdPaymentGatewayResponse" nillable="true" type="tns:HouseholdPaymentGatewayResponse" />
+      <s:element name="PaymentGatewayChargeIDResponse" nillable="true" type="tns:PaymentGatewayChargeIDResponse" />
+      <s:element name="TransactResult" nillable="true" type="tns:TransactResult" />
+      <s:element name="UpdatePendingResponse" nillable="true" type="tns:UpdatePendingResponse" />
+      <s:element name="PaymentGateway" nillable="true" type="tns:PaymentGateway" />
+      <s:element name="PaymentGatewayItemResponse" nillable="true" type="tns:PaymentGatewayItemResponse" />
+      <s:element name="PaymentMethodsResponse" nillable="true" type="tns:PaymentMethodsResponse" />
+      <s:element name="PaymentMethodResponse" nillable="true" type="tns:PaymentMethodResponse" />
+      <s:element name="int" type="s:int" />
+      <s:element name="PaymentMethodIdResponse" nillable="true" type="tns:PaymentMethodIdResponse" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="GetBillingCutomDataSoapIn">
@@ -1870,6 +1889,574 @@
   <wsdl:message name="ChangePaymentDetailsSoapOut">
     <wsdl:part name="parameters" element="tns:ChangePaymentDetailsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetBillingCutomDataHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetBillingCutomDataHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_GetUserCCDigitsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_GetUserCCDigitsHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_DeleteUserCCDigitsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_DeleteUserCCDigitsHttpPostOut" />
+  <wsdl:message name="CC_GetClientCheckSumHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sRandom" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_GetClientCheckSumHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="GetClientMerchantSigHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sParamaters" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetClientMerchantSigHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_GetPopupURLHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="dChargePrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode" type="s:string" />
+    <wsdl:part name="sItemName" type="s:string" />
+    <wsdl:part name="sCustomData" type="s:string" />
+    <wsdl:part name="sPaymentMethod" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_GetPopupURLHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="GetLastBillingUserInfoHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="nBillingMethod" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetLastBillingUserInfoHttpPostOut">
+    <wsdl:part name="Body" element="tns:AdyenBillingDetail" />
+  </wsdl:message>
+  <wsdl:message name="GetLastBillingTypeUserInfoHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetLastBillingTypeUserInfoHttpPostOut">
+    <wsdl:part name="Body" element="tns:AdyenBillingDetail" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dChargePrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sCustomData" type="s:string" />
+    <wsdl:part name="nPaymentNumber" type="s:string" />
+    <wsdl:part name="nNumberOfPayments" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sPaymentMethodID" type="s:string" />
+    <wsdl:part name="sEncryptedCVV" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePurchaseIDInBillingHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="purchaseID" type="s:string" />
+    <wsdl:part name="billingRefTransactionID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePurchaseIDInBillingHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="DD_ChargeUserHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dChargePrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sCustomData" type="s:string" />
+    <wsdl:part name="nPaymentNumber" type="s:string" />
+    <wsdl:part name="nNumberOfPayments" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="nBillingMethod" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DD_ChargeUserHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="InApp_ChargeUserHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dChargePrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sCustomData" type="s:string" />
+    <wsdl:part name="nPaymentNumber" type="s:string" />
+    <wsdl:part name="nNumberOfPayments" type="s:string" />
+    <wsdl:part name="ReceiptData" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="InApp_ChargeUserHttpPostOut">
+    <wsdl:part name="Body" element="tns:InAppBillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="InApp_ReneweInAppPurchaseHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dChargePrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode" type="s:string" />
+    <wsdl:part name="sCustomData" type="s:string" />
+    <wsdl:part name="nPaymentNumber" type="s:string" />
+    <wsdl:part name="nNumberOfPayments" type="s:string" />
+    <wsdl:part name="nInAppTransactionID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="InApp_ReneweInAppPurchaseHttpPostOut">
+    <wsdl:part name="Body" element="tns:InAppBillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="DD_RefundUserHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sPSPReference" type="s:string" />
+    <wsdl:part name="sSiteGuid" type="s:string" />
+    <wsdl:part name="dChargePrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode" type="s:string" />
+    <wsdl:part name="lPurchaseID" type="s:string" />
+    <wsdl:part name="nType" type="s:string" />
+    <wsdl:part name="nHowManyCancelOrRefundAttemptsSoFarNotIncludingThisOne" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DD_RefundUserHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="CC_DummyChargeUserHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dChargePrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sCustomData" type="s:string" />
+    <wsdl:part name="nPaymentNumber" type="s:string" />
+    <wsdl:part name="nNumberOfPayments" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_DummyChargeUserHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="SMS_SendCodeHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sCellPhone" type="s:string" />
+    <wsdl:part name="sReferenceCode" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SMS_SendCodeHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="SMS_CheckCodeHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sCellPhone" type="s:string" />
+    <wsdl:part name="sSMSCode" type="s:string" />
+    <wsdl:part name="sReferenceCode" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SMS_CheckCodeHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendPurchaseMailHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sPaymentMethod" type="s:string" />
+    <wsdl:part name="sItemName" type="s:string" />
+    <wsdl:part name="nBillingTransID" type="s:string" />
+    <wsdl:part name="stotalAmount" type="s:string" />
+    <wsdl:part name="scurrency" type="s:string" />
+    <wsdl:part name="sExternalNum" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SendPurchaseMailHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dChargePrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sCustomData" type="s:string" />
+    <wsdl:part name="nPaymentNumber" type="s:string" />
+    <wsdl:part name="nNumberOfPayments" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewateSettingsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewateSettingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentGatewaySettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeletePaymentGatewayHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGwID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeletePaymentGatewayHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentGatewayResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetHouseholdPaymentGatewayHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGwID" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetHouseholdPaymentGatewayHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="DeleteHouseholdPaymentGatewayHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteHouseholdPaymentGatewayHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetHouseholdPaymentGatewaysHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetHouseholdPaymentGatewaysHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentGatewayListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSelectedHouseholdPaymentGatewayHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSelectedHouseholdPaymentGatewayHttpPostOut">
+    <wsdl:part name="Body" element="tns:HouseholdPaymentGatewayResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetHouseholdChargeIDHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="externalIdentifier" type="s:string" />
+    <wsdl:part name="householdID" type="s:string" />
+    <wsdl:part name="chargeID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetHouseholdChargeIDHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetHouseholdChargeIDHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="externalIdentifier" type="s:string" />
+    <wsdl:part name="householdID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetHouseholdChargeIDHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentGatewayChargeIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="TransactHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGUID" type="s:string" />
+    <wsdl:part name="householdID" type="s:string" />
+    <wsdl:part name="price" type="s:string" />
+    <wsdl:part name="currency" type="s:string" />
+    <wsdl:part name="userIP" type="s:string" />
+    <wsdl:part name="customData" type="s:string" />
+    <wsdl:part name="productID" type="s:string" />
+    <wsdl:part name="productType" type="s:string" />
+    <wsdl:part name="contentID" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="paymentGWId" type="s:string" />
+    <wsdl:part name="paymentGatewayHHPaymentMethodId" type="s:string" />
+    <wsdl:part name="adapterData" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="TransactHttpPostOut">
+    <wsdl:part name="Body" element="tns:TransactResult" />
+  </wsdl:message>
+  <wsdl:message name="SetPaymentGatewayConfigurationHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGWId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetPaymentGatewayConfigurationHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePendingTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="adapterTransactionState" type="s:string" />
+    <wsdl:part name="externalTransactionId" type="s:string" />
+    <wsdl:part name="externalStatus" type="s:string" />
+    <wsdl:part name="externalMessage" type="s:string" />
+    <wsdl:part name="failReason" type="s:string" />
+    <wsdl:part name="signature" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePendingTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:UpdatePendingResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckPendingTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayPendingId" type="s:string" />
+    <wsdl:part name="numberOfRetries" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="paymentGatewayTransactionId" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CheckPendingTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:TransactResult" />
+  </wsdl:message>
+  <wsdl:message name="VerifyReceiptHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGUID" type="s:string" />
+    <wsdl:part name="householdID" type="s:string" />
+    <wsdl:part name="price" type="s:string" />
+    <wsdl:part name="currency" type="s:string" />
+    <wsdl:part name="userIP" type="s:string" />
+    <wsdl:part name="customData" type="s:string" />
+    <wsdl:part name="productID" type="s:string" />
+    <wsdl:part name="productCode" type="s:string" />
+    <wsdl:part name="productType" type="s:string" />
+    <wsdl:part name="contentID" type="s:string" />
+    <wsdl:part name="purchaseToken" type="s:string" />
+    <wsdl:part name="paymentGatewayType" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="VerifyReceiptHttpPostOut">
+    <wsdl:part name="Body" element="tns:TransactResult" />
+  </wsdl:message>
+  <wsdl:message name="ProcessRenewalHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGUID" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="price" type="s:string" />
+    <wsdl:part name="currency" type="s:string" />
+    <wsdl:part name="customData" type="s:string" />
+    <wsdl:part name="productId" type="s:string" />
+    <wsdl:part name="productCode" type="s:string" />
+    <wsdl:part name="paymentNumber" type="s:string" />
+    <wsdl:part name="numberOfPayments" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="gracePeriodMinutes" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ProcessRenewalHttpPostOut">
+    <wsdl:part name="Body" element="tns:TransactResult" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayByBillingGuidHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayByBillingGuidHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentGateway" />
+  </wsdl:message>
+  <wsdl:message name="GeneratePaymentGatewaySharedSecretHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GeneratePaymentGatewaySharedSecretHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentGatewayItemResponse" />
+  </wsdl:message>
+  <wsdl:message name="RecordTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="externalTransactionId" type="s:string" />
+    <wsdl:part name="externalStatus" type="s:string" />
+    <wsdl:part name="productId" type="s:string" />
+    <wsdl:part name="productType" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="contentId" type="s:string" />
+    <wsdl:part name="message" type="s:string" />
+    <wsdl:part name="state" type="s:string" />
+    <wsdl:part name="paymentGatewayID" type="s:string" />
+    <wsdl:part name="failReason" type="s:string" />
+    <wsdl:part name="paymentMethod" type="s:string" />
+    <wsdl:part name="paymentDetails" type="s:string" />
+    <wsdl:part name="customData" type="s:string" />
+    <wsdl:part name="paymentMethodExternalId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RecordTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:TransactResult" />
+  </wsdl:message>
+  <wsdl:message name="SetPaymentGatewayHouseholdPaymentMethodHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="externalIdentifier" type="s:string" />
+    <wsdl:part name="householdID" type="s:string" />
+    <wsdl:part name="paymentMethodName" type="s:string" />
+    <wsdl:part name="paymentDetails" type="s:string" />
+    <wsdl:part name="paymentMethodExternalId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetPaymentGatewayHouseholdPaymentMethodHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="AddPaymentMethodToPaymentGatewayHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="name" type="s:string" />
+    <wsdl:part name="allowMultiInstance" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddPaymentMethodToPaymentGatewayHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentMethodsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePaymentGatewayPaymentMethodHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="paymentMethodId" type="s:string" />
+    <wsdl:part name="name" type="s:string" />
+    <wsdl:part name="allowMultiInstance" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePaymentGatewayPaymentMethodHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePaymentMethodHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentMethodId" type="s:string" />
+    <wsdl:part name="name" type="s:string" />
+    <wsdl:part name="allowMultiInstance" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePaymentMethodHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentMethodResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeletePaymentGatewayPaymentMethodHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="paymentMethodId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeletePaymentGatewayPaymentMethodHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="DeletePaymentMethodHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentMethodId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeletePaymentMethodHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayPaymentMethodsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayPaymentMethodsHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentMethodsResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetPaymentMethodHouseholdPaymentGatewayHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayID" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="paymentMethodId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetPaymentMethodHouseholdPaymentGatewayHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="RemovePaymentMethodHouseholdPaymentGatewayHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayID" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="paymentMethodId" type="s:string" />
+    <wsdl:part name="force" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemovePaymentMethodHouseholdPaymentGatewayHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecordedTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="externalTransactionId" type="s:string" />
+    <wsdl:part name="paymentDetails" type="s:string" />
+    <wsdl:part name="paymentMethod" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="paymentMethodExternalID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecordedTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="AddHouseholdNewPaymentMethodHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="adapterExternalIdentifier" type="s:string" />
+    <wsdl:part name="householdID" type="s:string" />
+    <wsdl:part name="paymentMethodName" type="s:string" />
+    <wsdl:part name="paymentDetails" type="s:string" />
+    <wsdl:part name="paymentMethodExternalId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddHouseholdNewPaymentMethodHttpPostOut">
+    <wsdl:part name="Body" element="tns:int" />
+  </wsdl:message>
+  <wsdl:message name="AddPaymentGatewayHouseholdPaymentMethodHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="externalIdentifier" type="s:string" />
+    <wsdl:part name="householdID" type="s:string" />
+    <wsdl:part name="paymentMethodName" type="s:string" />
+    <wsdl:part name="paymentDetails" type="s:string" />
+    <wsdl:part name="paymentMethodExternalId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddPaymentGatewayHouseholdPaymentMethodHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentMethodIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChangePaymentDetailsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="paymentMethodId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ChangePaymentDetailsHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="GetBillingCutomData">
       <wsdl:input message="tns:GetBillingCutomDataSoapIn" />
@@ -2118,6 +2705,208 @@
     <wsdl:operation name="ChangePaymentDetails">
       <wsdl:input message="tns:ChangePaymentDetailsSoapIn" />
       <wsdl:output message="tns:ChangePaymentDetailsSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="moduleHttpPost">
+    <wsdl:operation name="GetBillingCutomData">
+      <wsdl:input message="tns:GetBillingCutomDataHttpPostIn" />
+      <wsdl:output message="tns:GetBillingCutomDataHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_GetUserCCDigits">
+      <wsdl:input message="tns:CC_GetUserCCDigitsHttpPostIn" />
+      <wsdl:output message="tns:CC_GetUserCCDigitsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_DeleteUserCCDigits">
+      <wsdl:input message="tns:CC_DeleteUserCCDigitsHttpPostIn" />
+      <wsdl:output message="tns:CC_DeleteUserCCDigitsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_GetClientCheckSum">
+      <wsdl:input message="tns:CC_GetClientCheckSumHttpPostIn" />
+      <wsdl:output message="tns:CC_GetClientCheckSumHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetClientMerchantSig">
+      <wsdl:input message="tns:GetClientMerchantSigHttpPostIn" />
+      <wsdl:output message="tns:GetClientMerchantSigHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_GetPopupURL">
+      <wsdl:input message="tns:CC_GetPopupURLHttpPostIn" />
+      <wsdl:output message="tns:CC_GetPopupURLHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLastBillingUserInfo">
+      <wsdl:input message="tns:GetLastBillingUserInfoHttpPostIn" />
+      <wsdl:output message="tns:GetLastBillingUserInfoHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLastBillingTypeUserInfo">
+      <wsdl:input message="tns:GetLastBillingTypeUserInfoHttpPostIn" />
+      <wsdl:output message="tns:GetLastBillingTypeUserInfoHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_ChargeUser">
+      <wsdl:input message="tns:CC_ChargeUserHttpPostIn" />
+      <wsdl:output message="tns:CC_ChargeUserHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePurchaseIDInBilling">
+      <wsdl:input message="tns:UpdatePurchaseIDInBillingHttpPostIn" />
+      <wsdl:output message="tns:UpdatePurchaseIDInBillingHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DD_ChargeUser">
+      <wsdl:input message="tns:DD_ChargeUserHttpPostIn" />
+      <wsdl:output message="tns:DD_ChargeUserHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InApp_ChargeUser">
+      <wsdl:input message="tns:InApp_ChargeUserHttpPostIn" />
+      <wsdl:output message="tns:InApp_ChargeUserHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InApp_ReneweInAppPurchase">
+      <wsdl:input message="tns:InApp_ReneweInAppPurchaseHttpPostIn" />
+      <wsdl:output message="tns:InApp_ReneweInAppPurchaseHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DD_RefundUser">
+      <wsdl:input message="tns:DD_RefundUserHttpPostIn" />
+      <wsdl:output message="tns:DD_RefundUserHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUser">
+      <wsdl:input message="tns:CC_DummyChargeUserHttpPostIn" />
+      <wsdl:output message="tns:CC_DummyChargeUserHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SMS_SendCode">
+      <wsdl:input message="tns:SMS_SendCodeHttpPostIn" />
+      <wsdl:output message="tns:SMS_SendCodeHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SMS_CheckCode">
+      <wsdl:input message="tns:SMS_CheckCodeHttpPostIn" />
+      <wsdl:output message="tns:SMS_CheckCodeHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendPurchaseMail">
+      <wsdl:input message="tns:SendPurchaseMailHttpPostIn" />
+      <wsdl:output message="tns:SendPurchaseMailHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUser">
+      <wsdl:input message="tns:Cellular_ChargeUserHttpPostIn" />
+      <wsdl:output message="tns:Cellular_ChargeUserHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewateSettings">
+      <wsdl:input message="tns:GetPaymentGatewateSettingsHttpPostIn" />
+      <wsdl:output message="tns:GetPaymentGatewateSettingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeletePaymentGateway">
+      <wsdl:input message="tns:DeletePaymentGatewayHttpPostIn" />
+      <wsdl:output message="tns:DeletePaymentGatewayHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGateway">
+      <wsdl:input message="tns:GetPaymentGatewayHttpPostIn" />
+      <wsdl:output message="tns:GetPaymentGatewayHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetHouseholdPaymentGateway">
+      <wsdl:input message="tns:SetHouseholdPaymentGatewayHttpPostIn" />
+      <wsdl:output message="tns:SetHouseholdPaymentGatewayHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteHouseholdPaymentGateway">
+      <wsdl:input message="tns:DeleteHouseholdPaymentGatewayHttpPostIn" />
+      <wsdl:output message="tns:DeleteHouseholdPaymentGatewayHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetHouseholdPaymentGateways">
+      <wsdl:input message="tns:GetHouseholdPaymentGatewaysHttpPostIn" />
+      <wsdl:output message="tns:GetHouseholdPaymentGatewaysHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSelectedHouseholdPaymentGateway">
+      <wsdl:input message="tns:GetSelectedHouseholdPaymentGatewayHttpPostIn" />
+      <wsdl:output message="tns:GetSelectedHouseholdPaymentGatewayHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetHouseholdChargeID">
+      <wsdl:input message="tns:SetHouseholdChargeIDHttpPostIn" />
+      <wsdl:output message="tns:SetHouseholdChargeIDHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetHouseholdChargeID">
+      <wsdl:input message="tns:GetHouseholdChargeIDHttpPostIn" />
+      <wsdl:output message="tns:GetHouseholdChargeIDHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Transact">
+      <wsdl:input message="tns:TransactHttpPostIn" />
+      <wsdl:output message="tns:TransactHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetPaymentGatewayConfiguration">
+      <wsdl:input message="tns:SetPaymentGatewayConfigurationHttpPostIn" />
+      <wsdl:output message="tns:SetPaymentGatewayConfigurationHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePendingTransaction">
+      <wsdl:input message="tns:UpdatePendingTransactionHttpPostIn" />
+      <wsdl:output message="tns:UpdatePendingTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckPendingTransaction">
+      <wsdl:input message="tns:CheckPendingTransactionHttpPostIn" />
+      <wsdl:output message="tns:CheckPendingTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="VerifyReceipt">
+      <wsdl:input message="tns:VerifyReceiptHttpPostIn" />
+      <wsdl:output message="tns:VerifyReceiptHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ProcessRenewal">
+      <wsdl:input message="tns:ProcessRenewalHttpPostIn" />
+      <wsdl:output message="tns:ProcessRenewalHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayByBillingGuid">
+      <wsdl:input message="tns:GetPaymentGatewayByBillingGuidHttpPostIn" />
+      <wsdl:output message="tns:GetPaymentGatewayByBillingGuidHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GeneratePaymentGatewaySharedSecret">
+      <wsdl:input message="tns:GeneratePaymentGatewaySharedSecretHttpPostIn" />
+      <wsdl:output message="tns:GeneratePaymentGatewaySharedSecretHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RecordTransaction">
+      <wsdl:input message="tns:RecordTransactionHttpPostIn" />
+      <wsdl:output message="tns:RecordTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetPaymentGatewayHouseholdPaymentMethod">
+      <wsdl:input message="tns:SetPaymentGatewayHouseholdPaymentMethodHttpPostIn" />
+      <wsdl:output message="tns:SetPaymentGatewayHouseholdPaymentMethodHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddPaymentMethodToPaymentGateway">
+      <wsdl:input message="tns:AddPaymentMethodToPaymentGatewayHttpPostIn" />
+      <wsdl:output message="tns:AddPaymentMethodToPaymentGatewayHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePaymentGatewayPaymentMethod">
+      <wsdl:input message="tns:UpdatePaymentGatewayPaymentMethodHttpPostIn" />
+      <wsdl:output message="tns:UpdatePaymentGatewayPaymentMethodHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePaymentMethod">
+      <wsdl:input message="tns:UpdatePaymentMethodHttpPostIn" />
+      <wsdl:output message="tns:UpdatePaymentMethodHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeletePaymentGatewayPaymentMethod">
+      <wsdl:input message="tns:DeletePaymentGatewayPaymentMethodHttpPostIn" />
+      <wsdl:output message="tns:DeletePaymentGatewayPaymentMethodHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeletePaymentMethod">
+      <wsdl:input message="tns:DeletePaymentMethodHttpPostIn" />
+      <wsdl:output message="tns:DeletePaymentMethodHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayPaymentMethods">
+      <wsdl:input message="tns:GetPaymentGatewayPaymentMethodsHttpPostIn" />
+      <wsdl:output message="tns:GetPaymentGatewayPaymentMethodsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetPaymentMethodHouseholdPaymentGateway">
+      <wsdl:input message="tns:SetPaymentMethodHouseholdPaymentGatewayHttpPostIn" />
+      <wsdl:output message="tns:SetPaymentMethodHouseholdPaymentGatewayHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemovePaymentMethodHouseholdPaymentGateway">
+      <wsdl:input message="tns:RemovePaymentMethodHouseholdPaymentGatewayHttpPostIn" />
+      <wsdl:output message="tns:RemovePaymentMethodHouseholdPaymentGatewayHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecordedTransaction">
+      <wsdl:input message="tns:UpdateRecordedTransactionHttpPostIn" />
+      <wsdl:output message="tns:UpdateRecordedTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddHouseholdNewPaymentMethod">
+      <wsdl:input message="tns:AddHouseholdNewPaymentMethodHttpPostIn" />
+      <wsdl:output message="tns:AddHouseholdNewPaymentMethodHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddPaymentGatewayHouseholdPaymentMethod">
+      <wsdl:input message="tns:AddPaymentGatewayHouseholdPaymentMethodHttpPostIn" />
+      <wsdl:output message="tns:AddPaymentGatewayHouseholdPaymentMethodHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangePaymentDetails">
+      <wsdl:input message="tns:ChangePaymentDetailsHttpPostIn" />
+      <wsdl:output message="tns:ChangePaymentDetailsHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -3242,12 +4031,466 @@
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
+  <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="GetBillingCutomData">
+      <http:operation location="/GetBillingCutomData" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_GetUserCCDigits">
+      <http:operation location="/CC_GetUserCCDigits" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_DeleteUserCCDigits">
+      <http:operation location="/CC_DeleteUserCCDigits" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="CC_GetClientCheckSum">
+      <http:operation location="/CC_GetClientCheckSum" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetClientMerchantSig">
+      <http:operation location="/GetClientMerchantSig" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_GetPopupURL">
+      <http:operation location="/CC_GetPopupURL" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLastBillingUserInfo">
+      <http:operation location="/GetLastBillingUserInfo" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLastBillingTypeUserInfo">
+      <http:operation location="/GetLastBillingTypeUserInfo" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_ChargeUser">
+      <http:operation location="/CC_ChargeUser" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePurchaseIDInBilling">
+      <http:operation location="/UpdatePurchaseIDInBilling" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DD_ChargeUser">
+      <http:operation location="/DD_ChargeUser" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InApp_ChargeUser">
+      <http:operation location="/InApp_ChargeUser" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InApp_ReneweInAppPurchase">
+      <http:operation location="/InApp_ReneweInAppPurchase" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DD_RefundUser">
+      <http:operation location="/DD_RefundUser" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUser">
+      <http:operation location="/CC_DummyChargeUser" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SMS_SendCode">
+      <http:operation location="/SMS_SendCode" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SMS_CheckCode">
+      <http:operation location="/SMS_CheckCode" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendPurchaseMail">
+      <http:operation location="/SendPurchaseMail" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUser">
+      <http:operation location="/Cellular_ChargeUser" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewateSettings">
+      <http:operation location="/GetPaymentGatewateSettings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePaymentGateway">
+      <http:operation location="/DeletePaymentGateway" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGateway">
+      <http:operation location="/GetPaymentGateway" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetHouseholdPaymentGateway">
+      <http:operation location="/SetHouseholdPaymentGateway" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteHouseholdPaymentGateway">
+      <http:operation location="/DeleteHouseholdPaymentGateway" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHouseholdPaymentGateways">
+      <http:operation location="/GetHouseholdPaymentGateways" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSelectedHouseholdPaymentGateway">
+      <http:operation location="/GetSelectedHouseholdPaymentGateway" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetHouseholdChargeID">
+      <http:operation location="/SetHouseholdChargeID" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetHouseholdChargeID">
+      <http:operation location="/GetHouseholdChargeID" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Transact">
+      <http:operation location="/Transact" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetPaymentGatewayConfiguration">
+      <http:operation location="/SetPaymentGatewayConfiguration" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePendingTransaction">
+      <http:operation location="/UpdatePendingTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckPendingTransaction">
+      <http:operation location="/CheckPendingTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="VerifyReceipt">
+      <http:operation location="/VerifyReceipt" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProcessRenewal">
+      <http:operation location="/ProcessRenewal" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayByBillingGuid">
+      <http:operation location="/GetPaymentGatewayByBillingGuid" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GeneratePaymentGatewaySharedSecret">
+      <http:operation location="/GeneratePaymentGatewaySharedSecret" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecordTransaction">
+      <http:operation location="/RecordTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetPaymentGatewayHouseholdPaymentMethod">
+      <http:operation location="/SetPaymentGatewayHouseholdPaymentMethod" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddPaymentMethodToPaymentGateway">
+      <http:operation location="/AddPaymentMethodToPaymentGateway" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePaymentGatewayPaymentMethod">
+      <http:operation location="/UpdatePaymentGatewayPaymentMethod" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePaymentMethod">
+      <http:operation location="/UpdatePaymentMethod" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePaymentGatewayPaymentMethod">
+      <http:operation location="/DeletePaymentGatewayPaymentMethod" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePaymentMethod">
+      <http:operation location="/DeletePaymentMethod" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayPaymentMethods">
+      <http:operation location="/GetPaymentGatewayPaymentMethods" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetPaymentMethodHouseholdPaymentGateway">
+      <http:operation location="/SetPaymentMethodHouseholdPaymentGateway" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemovePaymentMethodHouseholdPaymentGateway">
+      <http:operation location="/RemovePaymentMethodHouseholdPaymentGateway" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecordedTransaction">
+      <http:operation location="/UpdateRecordedTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddHouseholdNewPaymentMethod">
+      <http:operation location="/AddHouseholdNewPaymentMethod" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddPaymentGatewayHouseholdPaymentMethod">
+      <http:operation location="/AddPaymentGatewayHouseholdPaymentMethod" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangePaymentDetails">
+      <http:operation location="/ChangePaymentDetails" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://34.249.122.223:8030/BILLING_v4_4/ws_billing_module.asmx" />
+      <soap:address location="http://34.249.122.223:8030/Billing_V4_6/ws_billing_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://34.249.122.223:8030/BILLING_v4_4/ws_billing_module.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/Billing_V4_6/ws_billing_module.asmx" />
+    </wsdl:port>
+    <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
+      <http:address location="http://34.249.122.223:8030/Billing_V4_6/ws_billing_module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

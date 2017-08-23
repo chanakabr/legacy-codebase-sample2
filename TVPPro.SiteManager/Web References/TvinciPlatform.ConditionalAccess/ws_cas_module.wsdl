@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:s1="http://api.tvinci.com/schemas/eAssetTypes1" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:s1="http://api.tvinci.com/schemas/eAssetTypes1" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s2="http://ca.tvinci.com/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://ca.tvinci.com/">
       <s:import namespace="http://api.tvinci.com/schemas/eAssetTypes1" />
@@ -101,11 +101,19 @@
       </s:complexType>
       <s:complexType name="SearchableRecording">
         <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="DomainRecordingId" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="DomainRecordingId" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="RecordingId" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="EpgId" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="RecordingType" nillable="true" type="tns:RecordingType" />
         </s:sequence>
       </s:complexType>
+      <s:simpleType name="RecordingType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Single" />
+          <s:enumeration value="Season" />
+          <s:enumeration value="Series" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="BulkRecoveryForRenewSubscriptions">
         <s:complexType>
           <s:sequence>
@@ -172,13 +180,6 @@
           <s:enumeration value="SeriesCancel" />
           <s:enumeration value="SeriesDelete" />
           <s:enumeration value="DeletePending" />
-        </s:restriction>
-      </s:simpleType>
-      <s:simpleType name="RecordingType">
-        <s:restriction base="s:string">
-          <s:enumeration value="Single" />
-          <s:enumeration value="Season" />
-          <s:enumeration value="Series" />
         </s:restriction>
       </s:simpleType>
       <s:element name="GetPlaybackContext">
@@ -709,6 +710,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_bIsInGracePeriod" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayId" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="paymentMethodId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ScheduledSubscriptionId" nillable="true" type="s:long" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetUserPermittedSubscriptions">
@@ -910,6 +912,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_nBillingProviderRef" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nPurchaseID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sRemarks" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="billingPriceType" type="tns:BillingPriceType" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="BillingItemsType">
@@ -936,6 +939,7 @@
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="m_dPrice" type="s:double" />
           <s:element minOccurs="0" maxOccurs="1" name="m_oCurrency" type="tns:Currency" />
+          <s:element minOccurs="1" maxOccurs="1" name="countryId" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="Currency">
@@ -948,6 +952,12 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_bIsDefault" type="s:boolean" />
         </s:sequence>
       </s:complexType>
+      <s:simpleType name="BillingPriceType">
+        <s:restriction base="s:string">
+          <s:enumeration value="FullPeriod" />
+          <s:enumeration value="PartialPeriod" />
+        </s:restriction>
+      </s:simpleType>
       <s:complexType name="TransactionHistoryContainer">
         <s:complexContent mixed="false">
           <s:extension base="tns:BillingTransactionContainer">
@@ -1255,6 +1265,7 @@
               <s:element minOccurs="0" maxOccurs="1" name="SubscriptionSetIdsToPriority" type="tns:ArrayOfKeyValuePair" />
               <s:element minOccurs="0" maxOccurs="1" name="CouponsGroups" type="tns:ArrayOfSubscriptionCouponGroup" />
               <s:element minOccurs="0" maxOccurs="1" name="ExternalProductCodes" type="tns:ArrayOfKeyValuePairOfVerificationPaymentGatewayString" />
+              <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:SubscriptionType" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1473,6 +1484,13 @@
         </s:sequence>
       </s:complexType>
       <s:complexType name="KeyValuePairOfVerificationPaymentGatewayString" />
+      <s:simpleType name="SubscriptionType">
+        <s:restriction base="s:string">
+          <s:enumeration value="NotApplicable" />
+          <s:enumeration value="Base" />
+          <s:enumeration value="AddOn" />
+        </s:restriction>
+      </s:simpleType>
       <s:complexType name="PrePaidModule">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_PriceCode" type="tns:PriceCode" />
@@ -1646,6 +1664,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sSubscriptionCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="tns:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_PriceReason" type="tns:PriceReason" />
+          <s:element minOccurs="1" maxOccurs="1" name="endDate" nillable="true" type="s:long" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetCollectionsPrices">
@@ -2908,6 +2927,15 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="ProtectNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="isProtect" type="s:boolean" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="DeleteSeriesNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
@@ -2946,15 +2974,6 @@
       <s:complexType name="RetrieveQuotaNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ProtectNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand">
-            <s:sequence>
-              <s:element minOccurs="1" maxOccurs="1" name="isProtect" type="s:boolean" />
-            </s:sequence>
-          </s:extension>
         </s:complexContent>
       </s:complexType>
       <s:element name="GetNPVRResponseResponse">
@@ -3074,6 +3093,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayId" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="paymentMethodId" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="IsInGracePeriod" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="ScheduledSubscriptionId" nillable="true" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="mediaID" type="s:int" />
         </s:sequence>
       </s:complexType>
@@ -4182,6 +4202,49 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="Status" nillable="true" type="tns:Status" />
+      <s:element name="boolean" type="s:boolean" />
+      <s:element name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
+      <s:element name="ArrayOfSearchableRecording" nillable="true" type="tns:ArrayOfSearchableRecording" />
+      <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="Recording" nillable="true" type="tns:Recording" />
+      <s:element name="PlayManifestResponse" nillable="true" type="tns:PlayManifestResponse" />
+      <s:element name="CompensationResponse" nillable="true" type="tns:CompensationResponse" />
+      <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
+      <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
+      <s:element name="UserCAStatus" type="tns:UserCAStatus" />
+      <s:element name="LicensedLinkResponse" nillable="true" type="tns:LicensedLinkResponse" />
+      <s:element name="ArrayOfPermittedSubscriptionContainer" nillable="true" type="tns:ArrayOfPermittedSubscriptionContainer" />
+      <s:element name="ArrayOfPermittedCollectionContainer" nillable="true" type="tns:ArrayOfPermittedCollectionContainer" />
+      <s:element name="ArrayOfUserBillingTransactionsResponse" nillable="true" type="tns:ArrayOfUserBillingTransactionsResponse" />
+      <s:element name="DomainTransactionsHistoryResponse" nillable="true" type="tns:DomainTransactionsHistoryResponse" />
+      <s:element name="DomainsBillingTransactionsResponse" nillable="true" type="tns:DomainsBillingTransactionsResponse" />
+      <s:element name="BillingTransactions" nillable="true" type="tns:BillingTransactions" />
+      <s:element name="ArrayOfMediaFileItemPricesContainer" nillable="true" type="tns:ArrayOfMediaFileItemPricesContainer" />
+      <s:element name="MediaFileItemPricesContainerResponse" nillable="true" type="tns:MediaFileItemPricesContainerResponse" />
+      <s:element name="ArrayOfSubscriptionsPricesContainer" nillable="true" type="tns:ArrayOfSubscriptionsPricesContainer" />
+      <s:element name="ArrayOfCollectionsPricesContainer" nillable="true" type="tns:ArrayOfCollectionsPricesContainer" />
+      <s:element name="ArrayOfPrePaidPricesContainer" nillable="true" type="tns:ArrayOfPrePaidPricesContainer" />
+      <s:element name="SubscriptionsPricesResponse" nillable="true" type="tns:SubscriptionsPricesResponse" />
+      <s:element name="BillingResponse" nillable="true" type="tns:BillingResponse" />
+      <s:element name="BillingStatusResponse" nillable="true" type="tns:BillingStatusResponse" />
+      <s:element name="int" type="s:int" />
+      <s:element name="PrePaidResponse" nillable="true" type="tns:PrePaidResponse" />
+      <s:element name="UserPrePaidContainer" nillable="true" type="tns:UserPrePaidContainer" />
+      <s:element name="PrePaidHistoryResponse" nillable="true" type="tns:PrePaidHistoryResponse" />
+      <s:element name="EntitlementResponse" nillable="true" type="tns:EntitlementResponse" />
+      <s:element name="ChangeSubscriptionStatus" type="tns:ChangeSubscriptionStatus" />
+      <s:element name="DomainServicesResponse" nillable="true" type="tns:DomainServicesResponse" />
+      <s:element name="Entitlements" nillable="true" type="tns:Entitlements" />
+      <s:element name="TransactionResponse" nillable="true" type="tns:TransactionResponse" />
+      <s:element name="UserBundlesResponse" nillable="true" type="tns:UserBundlesResponse" />
+      <s:element name="UserPurhcasedAssetsResponse" nillable="true" type="tns:UserPurhcasedAssetsResponse" />
+      <s:element name="PurchaseSessionIdResponse" nillable="true" type="tns:PurchaseSessionIdResponse" />
+      <s:element name="CDVRAdapterResponseList" nillable="true" type="tns:CDVRAdapterResponseList" />
+      <s:element name="CDVRAdapterResponse" nillable="true" type="tns:CDVRAdapterResponse" />
+      <s:element name="SeriesRecording" nillable="true" type="tns:SeriesRecording" />
+      <s:element name="RecordingResponse" nillable="true" type="tns:RecordingResponse" />
+      <s:element name="DomainQuotaResponse" nillable="true" type="tns:DomainQuotaResponse" />
     </s:schema>
     <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/schemas/eAssetTypes1">
       <s:simpleType name="eAssetTypes">
@@ -4192,6 +4255,18 @@
           <s:enumeration value="MEDIA" />
         </s:restriction>
       </s:simpleType>
+    </s:schema>
+    <s:schema targetNamespace="http://ca.tvinci.com/AbstractTypes">
+      <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <s:complexType name="StringArray">
+        <s:complexContent mixed="false">
+          <s:restriction base="soapenc:Array">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="unbounded" name="String" type="s:string" />
+            </s:sequence>
+          </s:restriction>
+        </s:complexContent>
+      </s:complexType>
     </s:schema>
   </wsdl:types>
   <wsdl:message name="HandleUserTaskSoapIn">
@@ -5046,6 +5121,1559 @@
   <wsdl:message name="CheckRecordingDuplicateCridsSoapOut">
     <wsdl:part name="parameters" element="tns:CheckRecordingDuplicateCridsResponse" />
   </wsdl:message>
+  <wsdl:message name="HandleUserTaskHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="actionType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="HandleUserTaskHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="DistributeRecordingWithDomainIdsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="epgId" type="s:string" />
+    <wsdl:part name="Id" type="s:string" />
+    <wsdl:part name="epgStartDate" type="s:string" />
+    <wsdl:part name="domainSeriesIds" type="s2:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="DistributeRecordingWithDomainIdsHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetSeriesIdAndSeasonNumberByEpgIdHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="epgId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSeriesIdAndSeasonNumberByEpgIdHttpPostOut">
+    <wsdl:part name="Body" element="tns:KeyValuePair" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainSearchableRecordingsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainSearchableRecordingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSearchableRecording" />
+  </wsdl:message>
+  <wsdl:message name="BulkRecoveryForRenewSubscriptionsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="endDateStartRange" type="s:string" />
+    <wsdl:part name="endDateEndRange" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="BulkRecoveryForRenewSubscriptionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingByDomainRecordingIdHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="domainRecordingID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingByDomainRecordingIdHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="SwapSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="oldSubscription" type="s:string" />
+    <wsdl:part name="newSubscription" type="s:string" />
+    <wsdl:part name="ip" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="history" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SwapSubscriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetPlayManifestHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="assetId" type="s:string" />
+    <wsdl:part name="assetType" type="s:string" />
+    <wsdl:part name="fileId" type="s:string" />
+    <wsdl:part name="ip" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="playContextType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPlayManifestHttpPostOut">
+    <wsdl:part name="Body" element="tns:PlayManifestResponse" />
+  </wsdl:message>
+  <wsdl:message name="GiftCardReminderHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteguid" type="s:string" />
+    <wsdl:part name="purchaseId" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GiftCardReminderHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCompensationHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="compensationId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCompensationHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetCompensationHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="compensationId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCompensationHttpPostOut">
+    <wsdl:part name="Body" element="tns:CompensationResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPermittedItemsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPermittedItemsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPermittedMediaContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedItemsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedItemsHttpPostOut">
+    <wsdl:part name="Body" element="tns:PermittedMediaContainerResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExpiredItemsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="numOfItems" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExpiredItemsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPermittedMediaContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetUserCAStatusHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserCAStatusHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserCAStatus" />
+  </wsdl:message>
+  <wsdl:message name="GetLicensedLinkHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sBasicLink" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sRefferer" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetLicensedLinkHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGLicensedLinkHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="nEPGItemID" type="s:string" />
+    <wsdl:part name="startTime" type="s:string" />
+    <wsdl:part name="sBasicLink" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sRefferer" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="nFormatType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGLicensedLinkHttpPostOut">
+    <wsdl:part name="Body" element="tns:LicensedLinkResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetLicensedLinkWithCouponHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sBasicLink" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sRefferer" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="couponCode" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetLicensedLinkWithCouponHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedSubscriptionsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedSubscriptionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPermittedSubscriptionContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPermittedSubscriptionsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPermittedSubscriptionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPermittedSubscriptionContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedCollectionsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainPermittedCollectionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPermittedCollectionContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPermittedCollectionsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPermittedCollectionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPermittedCollectionContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExpiredSubscriptionsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="numOfItems" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExpiredSubscriptionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPermittedSubscriptionContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExpiredCollectionsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="numOfItems" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExpiredCollectionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPermittedCollectionContainer" />
+  </wsdl:message>
+  <wsdl:message name="IsPermittedItemHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="mediaID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="IsPermittedItemHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersBillingHistoryHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="arrSiteGUIDs" type="s2:StringArray" />
+    <wsdl:part name="dStartDate" type="s:string" />
+    <wsdl:part name="dEndDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersBillingHistoryHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfUserBillingTransactionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainTransactionsHistoryHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="dStartDate" type="s:string" />
+    <wsdl:part name="dEndDate" type="s:string" />
+    <wsdl:part name="pageSize" type="s:string" />
+    <wsdl:part name="pageIndex" type="s:string" />
+    <wsdl:part name="orderBy" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainTransactionsHistoryHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainTransactionsHistoryResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainsBillingHistoryHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainIDs" type="s2:StringArray" />
+    <wsdl:part name="dStartDate" type="s:string" />
+    <wsdl:part name="dEndDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainsBillingHistoryHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainsBillingTransactionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBillingHistoryHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="nStartIndex" type="s:string" />
+    <wsdl:part name="nNumberOfItems" type="s:string" />
+    <wsdl:part name="orderBy" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBillingHistoryHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingTransactions" />
+  </wsdl:message>
+  <wsdl:message name="RenewCancledSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sSubscriptionCode" type="s:string" />
+    <wsdl:part name="nSubscriptionPurchaseID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RenewCancledSubscriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="CancelSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sSubscriptionCode" type="s:string" />
+    <wsdl:part name="nSubscriptionPurchaseID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CancelSubscriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="CancelSubscriptionRenewalHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainId" type="s:string" />
+    <wsdl:part name="sSubscriptionCode" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CancelSubscriptionRenewalHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="ChangeSubscriptionDatesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sSubscriptionCode" type="s:string" />
+    <wsdl:part name="nSubscriptionPurchaseID" type="s:string" />
+    <wsdl:part name="dAdditionInDays" type="s:string" />
+    <wsdl:part name="bNewRenewable" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ChangeSubscriptionDatesHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nMediaFiles" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="bOnlyLowest" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMediaFileItemPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nMediaFiles" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="bOnlyLowest" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesByIPHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMediaFileItemPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesWithCouponsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nMediaFiles" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="bOnlyLowest" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesWithCouponsHttpPostOut">
+    <wsdl:part name="Body" element="tns:MediaFileItemPricesContainerResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesWithCouponsByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nMediaFiles" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="bOnlyLowest" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesWithCouponsByIPHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMediaFileItemPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSubscriptions" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionsPricesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sCollections" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionsPricesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfCollectionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSubscriptions" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesByIPHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetPrePaidPricesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sPrePaids" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPrePaidPricesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPrePaidPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesWithCouponHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSubscriptions" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesWithCouponHttpPostOut">
+    <wsdl:part name="Body" element="tns:SubscriptionsPricesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionsPricesWithCouponHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sCollections" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionsPricesWithCouponHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfCollectionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesWithCouponByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSubscriptions" type="s2:StringArray" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesWithCouponByIPHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSubscriptionsList" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionsPricesSTHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sCollectionsList" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionsPricesSTHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfCollectionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSubscriptionsList" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTByIPHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetPrePaidPricesSTHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sPrePaidList" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPrePaidPricesSTHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPrePaidPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTWithCouponHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSubscriptionsList" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTWithCouponHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionsPricesSTWithCouponHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sCollectionsList" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionsPricesSTWithCouponHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfCollectionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTWithCouponByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSubscriptionsList" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsPricesSTWithCouponByIPHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSubscriptionsPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesSTHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sMediaFilesCommaSeperated" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="bOnlyLowest" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesSTHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMediaFileItemPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesSTByIPHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sMediaFilesCommaSeperated" type="s:string" />
+    <wsdl:part name="sUserGUID" type="s:string" />
+    <wsdl:part name="bOnlyLowest" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sClientIP" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsPricesSTByIPHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMediaFileItemPricesContainer" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserForSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sSubscriptionCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserForSubscriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="CC_DummyChargeUserForSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sSubscriptionCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_DummyChargeUserForSubscriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="CC_DummyChargeUserForCollectionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sCollectionCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_DummyChargeUserForCollectionHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserForPrePaidHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sPrePaidCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserForPrePaidHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="CC_DummyChargeUserForPrePaidHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sPrePaidCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_DummyChargeUserForPrePaidHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="CC_DummyChargeUserForMediaFileHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_DummyChargeUserForMediaFileHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserForMediaFileHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sPaymentMethodID" type="s:string" />
+    <wsdl:part name="sEncryptedCVV" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserForMediaFileHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserForSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sSubscriptionCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sPaymentMethodID" type="s:string" />
+    <wsdl:part name="sEncryptedCVV" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserForSubscriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserForCollectionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sCollectionCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="sPaymentMethodID" type="s:string" />
+    <wsdl:part name="sEncryptedCVV" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CC_ChargeUserForCollectionHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="PU_GetPPVPopupPaymentMethodURLHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sPaymentMethod" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="PU_GetPPVPopupPaymentMethodURLHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="AD_GetCustomDataIDHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="assetID" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCampaignCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sPaymentMethod" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="assetType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AD_GetCustomDataIDHttpPostOut">
+    <wsdl:part name="Body" element="tns:int" />
+  </wsdl:message>
+  <wsdl:message name="GetCustomDataIDHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="assetID" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCampaignCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sPaymentMethod" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="assetType" type="s:string" />
+    <wsdl:part name="sOverrideEndDate" type="s:string" />
+    <wsdl:part name="sPreviewModuleID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCustomDataIDHttpPostOut">
+    <wsdl:part name="Body" element="tns:int" />
+  </wsdl:message>
+  <wsdl:message name="PU_GetSubscriptionPopupPaymentMethodURLHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sSubscriptionCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sPaymentMethod" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="PU_GetSubscriptionPopupPaymentMethodURLHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="SMS_ChargeUserForMediaFileHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sCellPhone" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SMS_ChargeUserForMediaFileHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="SMS_ChargeUserForSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sCellPhone" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sSubscriptionCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SMS_ChargeUserForSubscriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="SMS_CheckCodeForMediaFileHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sCellPhone" type="s:string" />
+    <wsdl:part name="sSMSCode" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SMS_CheckCodeForMediaFileHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="SMS_CheckCodeForSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sCellPhone" type="s:string" />
+    <wsdl:part name="sSMSCode" type="s:string" />
+    <wsdl:part name="sSubscriptionCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SMS_CheckCodeForSubscriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="PP_ChargeUserForMediaFileHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="PP_ChargeUserForMediaFileHttpPostOut">
+    <wsdl:part name="Body" element="tns:PrePaidResponse" />
+  </wsdl:message>
+  <wsdl:message name="PP_ChargeUserForSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sSubscriptionCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="PP_ChargeUserForSubscriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:PrePaidResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPrePaidStatusHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPrePaidStatusHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserPrePaidContainer" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPrePaidHistoryHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="nNumberOfItems" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPrePaidHistoryHttpPostOut">
+    <wsdl:part name="Body" element="tns:PrePaidHistoryResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetItemLeftViewLifeCycleHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sMediaFileID" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="bIsCoGuid" type="s:string" />
+    <wsdl:part name="sCOUNTRY_CODE" type="s:string" />
+    <wsdl:part name="sLANGUAGE_CODE" type="s:string" />
+    <wsdl:part name="sDEVICE_NAME" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetItemLeftViewLifeCycleHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="GetEntitlementHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sMediaFileID" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="bIsCoGuid" type="s:string" />
+    <wsdl:part name="sCOUNTRY_CODE" type="s:string" />
+    <wsdl:part name="sLANGUAGE_CODE" type="s:string" />
+    <wsdl:part name="sDEVICE_NAME" type="s:string" />
+    <wsdl:part name="isRecording" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetEntitlementHttpPostOut">
+    <wsdl:part name="Body" element="tns:EntitlementResponse" />
+  </wsdl:message>
+  <wsdl:message name="InApp_ChargeUserForMediaFileHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="sProductCode" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="ReceiptData" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="InApp_ChargeUserForMediaFileHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="InApp_ChargeUserForSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode" type="s:string" />
+    <wsdl:part name="sProductCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="ReceiptData" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="InApp_ChargeUserForSubscriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGoogleSignatureHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nCustomDataID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetGoogleSignatureHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserForMediaFileHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="dPrice" type="s:string" />
+    <wsdl:part name="sCurrencyCode3" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sPPVModuleCode" type="s:string" />
+    <wsdl:part name="sCouponCode" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sExtraParameters" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="Cellular_ChargeUserForMediaFileHttpPostOut">
+    <wsdl:part name="Body" element="tns:BillingResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChangeSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGuid" type="s:string" />
+    <wsdl:part name="nOldSubscription" type="s:string" />
+    <wsdl:part name="nNewSubscription" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ChangeSubscriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:ChangeSubscriptionStatus" />
+  </wsdl:message>
+  <wsdl:message name="CancelServiceNowHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainId" type="s:string" />
+    <wsdl:part name="nAssetID" type="s:string" />
+    <wsdl:part name="transactionType" type="s:string" />
+    <wsdl:part name="bIsForce" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CancelServiceNowHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="CancelTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGuid" type="s:string" />
+    <wsdl:part name="nAssetID" type="s:string" />
+    <wsdl:part name="transactionType" type="s:string" />
+    <wsdl:part name="bIsForce" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CancelTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="WaiverTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGuid" type="s:string" />
+    <wsdl:part name="nAssetID" type="s:string" />
+    <wsdl:part name="transactionType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="WaiverTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetLicensedLinksHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+    <wsdl:part name="sBasicLink" type="s:string" />
+    <wsdl:part name="sUserIP" type="s:string" />
+    <wsdl:part name="sRefferer" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetLicensedLinksHttpPostOut">
+    <wsdl:part name="Body" element="tns:LicensedLinkResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainServicesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainServicesHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainServicesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSubscriptionsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSubscriptionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:Entitlements" />
+  </wsdl:message>
+  <wsdl:message name="PurchaseHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteguid" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="price" type="s:string" />
+    <wsdl:part name="currency" type="s:string" />
+    <wsdl:part name="contentId" type="s:string" />
+    <wsdl:part name="productId" type="s:string" />
+    <wsdl:part name="transactionType" type="s:string" />
+    <wsdl:part name="coupon" type="s:string" />
+    <wsdl:part name="userIp" type="s:string" />
+    <wsdl:part name="deviceName" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="paymentMethodId" type="s:string" />
+    <wsdl:part name="adapterData" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="PurchaseHttpPostOut">
+    <wsdl:part name="Body" element="tns:TransactionResponse" />
+  </wsdl:message>
+  <wsdl:message name="ProcessReceiptHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteguid" type="s:string" />
+    <wsdl:part name="household" type="s:string" />
+    <wsdl:part name="contentId" type="s:string" />
+    <wsdl:part name="productId" type="s:string" />
+    <wsdl:part name="transactionType" type="s:string" />
+    <wsdl:part name="userIp" type="s:string" />
+    <wsdl:part name="deviceName" type="s:string" />
+    <wsdl:part name="purchaseToken" type="s:string" />
+    <wsdl:part name="paymentGatewayName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ProcessReceiptHttpPostOut">
+    <wsdl:part name="Body" element="tns:TransactionResponse" />
+  </wsdl:message>
+  <wsdl:message name="GrantEntitlementsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteguid" type="s:string" />
+    <wsdl:part name="housholdId" type="s:string" />
+    <wsdl:part name="contentId" type="s:string" />
+    <wsdl:part name="productId" type="s:string" />
+    <wsdl:part name="transactionType" type="s:string" />
+    <wsdl:part name="userIp" type="s:string" />
+    <wsdl:part name="deviceName" type="s:string" />
+    <wsdl:part name="history" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GrantEntitlementsHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePendingTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="adapterTransactionState" type="s:string" />
+    <wsdl:part name="externalTransactionId" type="s:string" />
+    <wsdl:part name="externalStatus" type="s:string" />
+    <wsdl:part name="externalMessage" type="s:string" />
+    <wsdl:part name="failReason" type="s:string" />
+    <wsdl:part name="signature" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePendingTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="CheckPendingTransactionHttpPostIn">
+    <wsdl:part name="wsUserName" type="s:string" />
+    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayPendingId" type="s:string" />
+    <wsdl:part name="numberOfRetries" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="paymentGatewayTransactionId" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="productId" type="s:string" />
+    <wsdl:part name="productType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CheckPendingTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetUserEntitlementsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGUID" type="s:string" />
+    <wsdl:part name="type" type="s:string" />
+    <wsdl:part name="isExpired" type="s:string" />
+    <wsdl:part name="pageSize" type="s:string" />
+    <wsdl:part name="pageIndex" type="s:string" />
+    <wsdl:part name="orderBy" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserEntitlementsHttpPostOut">
+    <wsdl:part name="Body" element="tns:Entitlements" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainEntitlementsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="type" type="s:string" />
+    <wsdl:part name="isExpired" type="s:string" />
+    <wsdl:part name="pageSize" type="s:string" />
+    <wsdl:part name="pageIndex" type="s:string" />
+    <wsdl:part name="orderBy" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainEntitlementsHttpPostOut">
+    <wsdl:part name="Body" element="tns:Entitlements" />
+  </wsdl:message>
+  <wsdl:message name="RenewHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteguid" type="s:string" />
+    <wsdl:part name="purchaseId" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RenewHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="ReconcileEntitlementsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ReconcileEntitlementsHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBundlesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="fileTypeIDs" type="s2:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBundlesHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserBundlesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPurchasedAssetsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="fileTypeIDs" type="s2:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPurchasedAssetsHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserPurhcasedAssetsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPurchaseSessionIDHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="price" type="s:string" />
+    <wsdl:part name="currency" type="s:string" />
+    <wsdl:part name="contentId" type="s:string" />
+    <wsdl:part name="productId" type="s:string" />
+    <wsdl:part name="coupon" type="s:string" />
+    <wsdl:part name="userIP" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="transactionType" type="s:string" />
+    <wsdl:part name="previewModuleID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPurchaseSessionIDHttpPostOut">
+    <wsdl:part name="Body" element="tns:PurchaseSessionIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="RecordTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="state" type="s:string" />
+    <wsdl:part name="paymentGatewayReferenceID" type="s:string" />
+    <wsdl:part name="paymentGatewayResponseCode" type="s:string" />
+    <wsdl:part name="customDataId" type="s:string" />
+    <wsdl:part name="price" type="s:string" />
+    <wsdl:part name="currency" type="s:string" />
+    <wsdl:part name="contentId" type="s:string" />
+    <wsdl:part name="productId" type="s:string" />
+    <wsdl:part name="transactionType" type="s:string" />
+    <wsdl:part name="paymentDetails" type="s:string" />
+    <wsdl:part name="paymentMethod" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="paymentMethodExternalID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RecordTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecordedTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="paymentGatewayReferenceID" type="s:string" />
+    <wsdl:part name="paymentDetails" type="s:string" />
+    <wsdl:part name="paymentMethod" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="paymentMethodExternalID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecordedTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetCDVRAdaptersHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCDVRAdaptersHttpPostOut">
+    <wsdl:part name="Body" element="tns:CDVRAdapterResponseList" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCDVRAdapterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="adapterId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCDVRAdapterHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GenerateCDVRSharedSecretHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="adapterId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GenerateCDVRSharedSecretHttpPostOut">
+    <wsdl:part name="Body" element="tns:CDVRAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendCDVRAdapterConfigurationHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="adapterID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SendCDVRAdapterConfigurationHttpPostOut">
+    <wsdl:part name="Body" element="tns:CDVRAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="RecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userID" type="s:string" />
+    <wsdl:part name="epgID" type="s:string" />
+    <wsdl:part name="recordingType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="CancelRecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CancelRecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="CancelSeriesRecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+    <wsdl:part name="epgId" type="s:string" />
+    <wsdl:part name="seasonNumber" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CancelSeriesRecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:SeriesRecording" />
+  </wsdl:message>
+  <wsdl:message name="DeleteSeriesRecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+    <wsdl:part name="epgId" type="s:string" />
+    <wsdl:part name="seasonNumber" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteSeriesRecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:SeriesRecording" />
+  </wsdl:message>
+  <wsdl:message name="RecordRetryHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RecordRetryHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="QueryRecordsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userID" type="s:string" />
+    <wsdl:part name="epgIDs" type="s2:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="QueryRecordsHttpPostOut">
+    <wsdl:part name="Body" element="tns:RecordingResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingStatusHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingStatusHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingByIDHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="domainRecordingID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingByIDHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="IngestRecordingHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="epgs" type="s2:StringArray" />
+    <wsdl:part name="action" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="IngestRecordingHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="RecoverRecordingMessagesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RecoverRecordingMessagesHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainQuotaHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userID" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainQuotaHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainQuotaResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemovePaymentMethodHouseholdPaymentGatewayHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayID" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="paymentMethodId" type="s:string" />
+    <wsdl:part name="force" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemovePaymentMethodHouseholdPaymentGatewayHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="ProtectRecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userID" type="s:string" />
+    <wsdl:part name="recordID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ProtectRecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="CleanupRecordingsHttpPostIn" />
+  <wsdl:message name="CleanupRecordingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="HandleRecordingsLifetimeHttpPostIn" />
+  <wsdl:message name="HandleRecordingsLifetimeHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="HandleRecordingsScheduledTasksHttpPostIn" />
+  <wsdl:message name="HandleRecordingsScheduledTasksHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="HandleFirstFollowerRecordingHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="channelId" type="s:string" />
+    <wsdl:part name="seriesId" type="s:string" />
+    <wsdl:part name="seasonNumber" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="HandleFirstFollowerRecordingHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="RecordSeasonOrSeriesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userID" type="s:string" />
+    <wsdl:part name="epgID" type="s:string" />
+    <wsdl:part name="recordingType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RecordSeasonOrSeriesHttpPostOut">
+    <wsdl:part name="Body" element="tns:SeriesRecording" />
+  </wsdl:message>
+  <wsdl:message name="DistributeRecordingHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="epgId" type="s:string" />
+    <wsdl:part name="Id" type="s:string" />
+    <wsdl:part name="epgStartDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DistributeRecordingHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="CompleteDomainSeriesRecordingsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CompleteDomainSeriesRecordingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingLicensedLinkHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="userIp" type="s:string" />
+    <wsdl:part name="fileType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingLicensedLinkHttpPostOut">
+    <wsdl:part name="Body" element="tns:LicensedLinkResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckRecordingDuplicateCridsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CheckRecordingDuplicateCridsHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="HandleUserTask">
       <wsdl:input message="tns:HandleUserTaskSoapIn" />
@@ -5614,6 +7242,520 @@
     <wsdl:operation name="CheckRecordingDuplicateCrids">
       <wsdl:input message="tns:CheckRecordingDuplicateCridsSoapIn" />
       <wsdl:output message="tns:CheckRecordingDuplicateCridsSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="moduleHttpPost">
+    <wsdl:operation name="HandleUserTask">
+      <wsdl:input message="tns:HandleUserTaskHttpPostIn" />
+      <wsdl:output message="tns:HandleUserTaskHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DistributeRecordingWithDomainIds">
+      <wsdl:input message="tns:DistributeRecordingWithDomainIdsHttpPostIn" />
+      <wsdl:output message="tns:DistributeRecordingWithDomainIdsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSeriesIdAndSeasonNumberByEpgId">
+      <wsdl:input message="tns:GetSeriesIdAndSeasonNumberByEpgIdHttpPostIn" />
+      <wsdl:output message="tns:GetSeriesIdAndSeasonNumberByEpgIdHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainSearchableRecordings">
+      <wsdl:input message="tns:GetDomainSearchableRecordingsHttpPostIn" />
+      <wsdl:output message="tns:GetDomainSearchableRecordingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="BulkRecoveryForRenewSubscriptions">
+      <wsdl:input message="tns:BulkRecoveryForRenewSubscriptionsHttpPostIn" />
+      <wsdl:output message="tns:BulkRecoveryForRenewSubscriptionsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingByDomainRecordingId">
+      <wsdl:input message="tns:GetRecordingByDomainRecordingIdHttpPostIn" />
+      <wsdl:output message="tns:GetRecordingByDomainRecordingIdHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SwapSubscription">
+      <wsdl:input message="tns:SwapSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:SwapSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPlayManifest">
+      <wsdl:input message="tns:GetPlayManifestHttpPostIn" />
+      <wsdl:output message="tns:GetPlayManifestHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GiftCardReminder">
+      <wsdl:input message="tns:GiftCardReminderHttpPostIn" />
+      <wsdl:output message="tns:GiftCardReminderHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCompensation">
+      <wsdl:input message="tns:DeleteCompensationHttpPostIn" />
+      <wsdl:output message="tns:DeleteCompensationHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCompensation">
+      <wsdl:input message="tns:GetCompensationHttpPostIn" />
+      <wsdl:output message="tns:GetCompensationHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPermittedItems">
+      <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
+      <wsdl:output message="tns:GetUserPermittedItemsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedItems">
+      <wsdl:input message="tns:GetDomainPermittedItemsHttpPostIn" />
+      <wsdl:output message="tns:GetDomainPermittedItemsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExpiredItems">
+      <wsdl:input message="tns:GetUserExpiredItemsHttpPostIn" />
+      <wsdl:output message="tns:GetUserExpiredItemsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserCAStatus">
+      <wsdl:input message="tns:GetUserCAStatusHttpPostIn" />
+      <wsdl:output message="tns:GetUserCAStatusHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLicensedLink">
+      <wsdl:input message="tns:GetLicensedLinkHttpPostIn" />
+      <wsdl:output message="tns:GetLicensedLinkHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGLicensedLink">
+      <wsdl:input message="tns:GetEPGLicensedLinkHttpPostIn" />
+      <wsdl:output message="tns:GetEPGLicensedLinkHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLicensedLinkWithCoupon">
+      <wsdl:input message="tns:GetLicensedLinkWithCouponHttpPostIn" />
+      <wsdl:output message="tns:GetLicensedLinkWithCouponHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedSubscriptions">
+      <wsdl:input message="tns:GetDomainPermittedSubscriptionsHttpPostIn" />
+      <wsdl:output message="tns:GetDomainPermittedSubscriptionsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPermittedSubscriptions">
+      <wsdl:input message="tns:GetUserPermittedSubscriptionsHttpPostIn" />
+      <wsdl:output message="tns:GetUserPermittedSubscriptionsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedCollections">
+      <wsdl:input message="tns:GetDomainPermittedCollectionsHttpPostIn" />
+      <wsdl:output message="tns:GetDomainPermittedCollectionsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPermittedCollections">
+      <wsdl:input message="tns:GetUserPermittedCollectionsHttpPostIn" />
+      <wsdl:output message="tns:GetUserPermittedCollectionsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExpiredSubscriptions">
+      <wsdl:input message="tns:GetUserExpiredSubscriptionsHttpPostIn" />
+      <wsdl:output message="tns:GetUserExpiredSubscriptionsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExpiredCollections">
+      <wsdl:input message="tns:GetUserExpiredCollectionsHttpPostIn" />
+      <wsdl:output message="tns:GetUserExpiredCollectionsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsPermittedItem">
+      <wsdl:input message="tns:IsPermittedItemHttpPostIn" />
+      <wsdl:output message="tns:IsPermittedItemHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUsersBillingHistory">
+      <wsdl:input message="tns:GetUsersBillingHistoryHttpPostIn" />
+      <wsdl:output message="tns:GetUsersBillingHistoryHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainTransactionsHistory">
+      <wsdl:input message="tns:GetDomainTransactionsHistoryHttpPostIn" />
+      <wsdl:output message="tns:GetDomainTransactionsHistoryHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainsBillingHistory">
+      <wsdl:input message="tns:GetDomainsBillingHistoryHttpPostIn" />
+      <wsdl:output message="tns:GetDomainsBillingHistoryHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBillingHistory">
+      <wsdl:input message="tns:GetUserBillingHistoryHttpPostIn" />
+      <wsdl:output message="tns:GetUserBillingHistoryHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RenewCancledSubscription">
+      <wsdl:input message="tns:RenewCancledSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:RenewCancledSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CancelSubscription">
+      <wsdl:input message="tns:CancelSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:CancelSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CancelSubscriptionRenewal">
+      <wsdl:input message="tns:CancelSubscriptionRenewalHttpPostIn" />
+      <wsdl:output message="tns:CancelSubscriptionRenewalHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeSubscriptionDates">
+      <wsdl:input message="tns:ChangeSubscriptionDatesHttpPostIn" />
+      <wsdl:output message="tns:ChangeSubscriptionDatesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsPrices">
+      <wsdl:input message="tns:GetItemsPricesHttpPostIn" />
+      <wsdl:output message="tns:GetItemsPricesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesByIP">
+      <wsdl:input message="tns:GetItemsPricesByIPHttpPostIn" />
+      <wsdl:output message="tns:GetItemsPricesByIPHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesWithCoupons">
+      <wsdl:input message="tns:GetItemsPricesWithCouponsHttpPostIn" />
+      <wsdl:output message="tns:GetItemsPricesWithCouponsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesWithCouponsByIP">
+      <wsdl:input message="tns:GetItemsPricesWithCouponsByIPHttpPostIn" />
+      <wsdl:output message="tns:GetItemsPricesWithCouponsByIPHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPrices">
+      <wsdl:input message="tns:GetSubscriptionsPricesHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionsPrices">
+      <wsdl:input message="tns:GetCollectionsPricesHttpPostIn" />
+      <wsdl:output message="tns:GetCollectionsPricesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesByIP">
+      <wsdl:input message="tns:GetSubscriptionsPricesByIPHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesByIPHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPrePaidPrices">
+      <wsdl:input message="tns:GetPrePaidPricesHttpPostIn" />
+      <wsdl:output message="tns:GetPrePaidPricesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesWithCoupon">
+      <wsdl:input message="tns:GetSubscriptionsPricesWithCouponHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesWithCouponHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionsPricesWithCoupon">
+      <wsdl:input message="tns:GetCollectionsPricesWithCouponHttpPostIn" />
+      <wsdl:output message="tns:GetCollectionsPricesWithCouponHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesWithCouponByIP">
+      <wsdl:input message="tns:GetSubscriptionsPricesWithCouponByIPHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesWithCouponByIPHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesST">
+      <wsdl:input message="tns:GetSubscriptionsPricesSTHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesSTHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionsPricesST">
+      <wsdl:input message="tns:GetCollectionsPricesSTHttpPostIn" />
+      <wsdl:output message="tns:GetCollectionsPricesSTHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTByIP">
+      <wsdl:input message="tns:GetSubscriptionsPricesSTByIPHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesSTByIPHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPrePaidPricesST">
+      <wsdl:input message="tns:GetPrePaidPricesSTHttpPostIn" />
+      <wsdl:output message="tns:GetPrePaidPricesSTHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTWithCoupon">
+      <wsdl:input message="tns:GetSubscriptionsPricesSTWithCouponHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesSTWithCouponHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionsPricesSTWithCoupon">
+      <wsdl:input message="tns:GetCollectionsPricesSTWithCouponHttpPostIn" />
+      <wsdl:output message="tns:GetCollectionsPricesSTWithCouponHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTWithCouponByIP">
+      <wsdl:input message="tns:GetSubscriptionsPricesSTWithCouponByIPHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsPricesSTWithCouponByIPHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesST">
+      <wsdl:input message="tns:GetItemsPricesSTHttpPostIn" />
+      <wsdl:output message="tns:GetItemsPricesSTHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesSTByIP">
+      <wsdl:input message="tns:GetItemsPricesSTByIPHttpPostIn" />
+      <wsdl:output message="tns:GetItemsPricesSTByIPHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForSubscription">
+      <wsdl:input message="tns:Cellular_ChargeUserForSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:Cellular_ChargeUserForSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForSubscription">
+      <wsdl:input message="tns:CC_DummyChargeUserForSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:CC_DummyChargeUserForSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForCollection">
+      <wsdl:input message="tns:CC_DummyChargeUserForCollectionHttpPostIn" />
+      <wsdl:output message="tns:CC_DummyChargeUserForCollectionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_ChargeUserForPrePaid">
+      <wsdl:input message="tns:CC_ChargeUserForPrePaidHttpPostIn" />
+      <wsdl:output message="tns:CC_ChargeUserForPrePaidHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForPrePaid">
+      <wsdl:input message="tns:CC_DummyChargeUserForPrePaidHttpPostIn" />
+      <wsdl:output message="tns:CC_DummyChargeUserForPrePaidHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForMediaFile">
+      <wsdl:input message="tns:CC_DummyChargeUserForMediaFileHttpPostIn" />
+      <wsdl:output message="tns:CC_DummyChargeUserForMediaFileHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_ChargeUserForMediaFile">
+      <wsdl:input message="tns:CC_ChargeUserForMediaFileHttpPostIn" />
+      <wsdl:output message="tns:CC_ChargeUserForMediaFileHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_ChargeUserForSubscription">
+      <wsdl:input message="tns:CC_ChargeUserForSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:CC_ChargeUserForSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CC_ChargeUserForCollection">
+      <wsdl:input message="tns:CC_ChargeUserForCollectionHttpPostIn" />
+      <wsdl:output message="tns:CC_ChargeUserForCollectionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="PU_GetPPVPopupPaymentMethodURL">
+      <wsdl:input message="tns:PU_GetPPVPopupPaymentMethodURLHttpPostIn" />
+      <wsdl:output message="tns:PU_GetPPVPopupPaymentMethodURLHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AD_GetCustomDataID">
+      <wsdl:input message="tns:AD_GetCustomDataIDHttpPostIn" />
+      <wsdl:output message="tns:AD_GetCustomDataIDHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCustomDataID">
+      <wsdl:input message="tns:GetCustomDataIDHttpPostIn" />
+      <wsdl:output message="tns:GetCustomDataIDHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="PU_GetSubscriptionPopupPaymentMethodURL">
+      <wsdl:input message="tns:PU_GetSubscriptionPopupPaymentMethodURLHttpPostIn" />
+      <wsdl:output message="tns:PU_GetSubscriptionPopupPaymentMethodURLHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SMS_ChargeUserForMediaFile">
+      <wsdl:input message="tns:SMS_ChargeUserForMediaFileHttpPostIn" />
+      <wsdl:output message="tns:SMS_ChargeUserForMediaFileHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SMS_ChargeUserForSubscription">
+      <wsdl:input message="tns:SMS_ChargeUserForSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:SMS_ChargeUserForSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SMS_CheckCodeForMediaFile">
+      <wsdl:input message="tns:SMS_CheckCodeForMediaFileHttpPostIn" />
+      <wsdl:output message="tns:SMS_CheckCodeForMediaFileHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SMS_CheckCodeForSubscription">
+      <wsdl:input message="tns:SMS_CheckCodeForSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:SMS_CheckCodeForSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="PP_ChargeUserForMediaFile">
+      <wsdl:input message="tns:PP_ChargeUserForMediaFileHttpPostIn" />
+      <wsdl:output message="tns:PP_ChargeUserForMediaFileHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="PP_ChargeUserForSubscription">
+      <wsdl:input message="tns:PP_ChargeUserForSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:PP_ChargeUserForSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPrePaidStatus">
+      <wsdl:input message="tns:GetUserPrePaidStatusHttpPostIn" />
+      <wsdl:output message="tns:GetUserPrePaidStatusHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPrePaidHistory">
+      <wsdl:input message="tns:GetUserPrePaidHistoryHttpPostIn" />
+      <wsdl:output message="tns:GetUserPrePaidHistoryHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetItemLeftViewLifeCycle">
+      <wsdl:input message="tns:GetItemLeftViewLifeCycleHttpPostIn" />
+      <wsdl:output message="tns:GetItemLeftViewLifeCycleHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEntitlement">
+      <wsdl:input message="tns:GetEntitlementHttpPostIn" />
+      <wsdl:output message="tns:GetEntitlementHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InApp_ChargeUserForMediaFile">
+      <wsdl:input message="tns:InApp_ChargeUserForMediaFileHttpPostIn" />
+      <wsdl:output message="tns:InApp_ChargeUserForMediaFileHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InApp_ChargeUserForSubscription">
+      <wsdl:input message="tns:InApp_ChargeUserForSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:InApp_ChargeUserForSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGoogleSignature">
+      <wsdl:input message="tns:GetGoogleSignatureHttpPostIn" />
+      <wsdl:output message="tns:GetGoogleSignatureHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForMediaFile">
+      <wsdl:input message="tns:Cellular_ChargeUserForMediaFileHttpPostIn" />
+      <wsdl:output message="tns:Cellular_ChargeUserForMediaFileHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeSubscription">
+      <wsdl:input message="tns:ChangeSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:ChangeSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CancelServiceNow">
+      <wsdl:input message="tns:CancelServiceNowHttpPostIn" />
+      <wsdl:output message="tns:CancelServiceNowHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CancelTransaction">
+      <wsdl:input message="tns:CancelTransactionHttpPostIn" />
+      <wsdl:output message="tns:CancelTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="WaiverTransaction">
+      <wsdl:input message="tns:WaiverTransactionHttpPostIn" />
+      <wsdl:output message="tns:WaiverTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLicensedLinks">
+      <wsdl:input message="tns:GetLicensedLinksHttpPostIn" />
+      <wsdl:output message="tns:GetLicensedLinksHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainServices">
+      <wsdl:input message="tns:GetDomainServicesHttpPostIn" />
+      <wsdl:output message="tns:GetDomainServicesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSubscriptions">
+      <wsdl:input message="tns:GetUserSubscriptionsHttpPostIn" />
+      <wsdl:output message="tns:GetUserSubscriptionsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Purchase">
+      <wsdl:input message="tns:PurchaseHttpPostIn" />
+      <wsdl:output message="tns:PurchaseHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ProcessReceipt">
+      <wsdl:input message="tns:ProcessReceiptHttpPostIn" />
+      <wsdl:output message="tns:ProcessReceiptHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GrantEntitlements">
+      <wsdl:input message="tns:GrantEntitlementsHttpPostIn" />
+      <wsdl:output message="tns:GrantEntitlementsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePendingTransaction">
+      <wsdl:input message="tns:UpdatePendingTransactionHttpPostIn" />
+      <wsdl:output message="tns:UpdatePendingTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckPendingTransaction">
+      <wsdl:input message="tns:CheckPendingTransactionHttpPostIn" />
+      <wsdl:output message="tns:CheckPendingTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserEntitlements">
+      <wsdl:input message="tns:GetUserEntitlementsHttpPostIn" />
+      <wsdl:output message="tns:GetUserEntitlementsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainEntitlements">
+      <wsdl:input message="tns:GetDomainEntitlementsHttpPostIn" />
+      <wsdl:output message="tns:GetDomainEntitlementsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Renew">
+      <wsdl:input message="tns:RenewHttpPostIn" />
+      <wsdl:output message="tns:RenewHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ReconcileEntitlements">
+      <wsdl:input message="tns:ReconcileEntitlementsHttpPostIn" />
+      <wsdl:output message="tns:ReconcileEntitlementsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBundles">
+      <wsdl:input message="tns:GetUserBundlesHttpPostIn" />
+      <wsdl:output message="tns:GetUserBundlesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPurchasedAssets">
+      <wsdl:input message="tns:GetUserPurchasedAssetsHttpPostIn" />
+      <wsdl:output message="tns:GetUserPurchasedAssetsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPurchaseSessionID">
+      <wsdl:input message="tns:GetPurchaseSessionIDHttpPostIn" />
+      <wsdl:output message="tns:GetPurchaseSessionIDHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RecordTransaction">
+      <wsdl:input message="tns:RecordTransactionHttpPostIn" />
+      <wsdl:output message="tns:RecordTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecordedTransaction">
+      <wsdl:input message="tns:UpdateRecordedTransactionHttpPostIn" />
+      <wsdl:output message="tns:UpdateRecordedTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCDVRAdapters">
+      <wsdl:input message="tns:GetCDVRAdaptersHttpPostIn" />
+      <wsdl:output message="tns:GetCDVRAdaptersHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCDVRAdapter">
+      <wsdl:input message="tns:DeleteCDVRAdapterHttpPostIn" />
+      <wsdl:output message="tns:DeleteCDVRAdapterHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GenerateCDVRSharedSecret">
+      <wsdl:input message="tns:GenerateCDVRSharedSecretHttpPostIn" />
+      <wsdl:output message="tns:GenerateCDVRSharedSecretHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendCDVRAdapterConfiguration">
+      <wsdl:input message="tns:SendCDVRAdapterConfigurationHttpPostIn" />
+      <wsdl:output message="tns:SendCDVRAdapterConfigurationHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Record">
+      <wsdl:input message="tns:RecordHttpPostIn" />
+      <wsdl:output message="tns:RecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CancelRecord">
+      <wsdl:input message="tns:CancelRecordHttpPostIn" />
+      <wsdl:output message="tns:CancelRecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecord">
+      <wsdl:input message="tns:DeleteRecordHttpPostIn" />
+      <wsdl:output message="tns:DeleteRecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CancelSeriesRecord">
+      <wsdl:input message="tns:CancelSeriesRecordHttpPostIn" />
+      <wsdl:output message="tns:CancelSeriesRecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteSeriesRecord">
+      <wsdl:input message="tns:DeleteSeriesRecordHttpPostIn" />
+      <wsdl:output message="tns:DeleteSeriesRecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RecordRetry">
+      <wsdl:input message="tns:RecordRetryHttpPostIn" />
+      <wsdl:output message="tns:RecordRetryHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecords">
+      <wsdl:input message="tns:QueryRecordsHttpPostIn" />
+      <wsdl:output message="tns:QueryRecordsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingStatus">
+      <wsdl:input message="tns:GetRecordingStatusHttpPostIn" />
+      <wsdl:output message="tns:GetRecordingStatusHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingByID">
+      <wsdl:input message="tns:GetRecordingByIDHttpPostIn" />
+      <wsdl:output message="tns:GetRecordingByIDHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IngestRecording">
+      <wsdl:input message="tns:IngestRecordingHttpPostIn" />
+      <wsdl:output message="tns:IngestRecordingHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RecoverRecordingMessages">
+      <wsdl:input message="tns:RecoverRecordingMessagesHttpPostIn" />
+      <wsdl:output message="tns:RecoverRecordingMessagesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainQuota">
+      <wsdl:input message="tns:GetDomainQuotaHttpPostIn" />
+      <wsdl:output message="tns:GetDomainQuotaHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemovePaymentMethodHouseholdPaymentGateway">
+      <wsdl:input message="tns:RemovePaymentMethodHouseholdPaymentGatewayHttpPostIn" />
+      <wsdl:output message="tns:RemovePaymentMethodHouseholdPaymentGatewayHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ProtectRecord">
+      <wsdl:input message="tns:ProtectRecordHttpPostIn" />
+      <wsdl:output message="tns:ProtectRecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CleanupRecordings">
+      <wsdl:input message="tns:CleanupRecordingsHttpPostIn" />
+      <wsdl:output message="tns:CleanupRecordingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="HandleRecordingsLifetime">
+      <wsdl:input message="tns:HandleRecordingsLifetimeHttpPostIn" />
+      <wsdl:output message="tns:HandleRecordingsLifetimeHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="HandleRecordingsScheduledTasks">
+      <wsdl:input message="tns:HandleRecordingsScheduledTasksHttpPostIn" />
+      <wsdl:output message="tns:HandleRecordingsScheduledTasksHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="HandleFirstFollowerRecording">
+      <wsdl:input message="tns:HandleFirstFollowerRecordingHttpPostIn" />
+      <wsdl:output message="tns:HandleFirstFollowerRecordingHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RecordSeasonOrSeries">
+      <wsdl:input message="tns:RecordSeasonOrSeriesHttpPostIn" />
+      <wsdl:output message="tns:RecordSeasonOrSeriesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DistributeRecording">
+      <wsdl:input message="tns:DistributeRecordingHttpPostIn" />
+      <wsdl:output message="tns:DistributeRecordingHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CompleteDomainSeriesRecordings">
+      <wsdl:input message="tns:CompleteDomainSeriesRecordingsHttpPostIn" />
+      <wsdl:output message="tns:CompleteDomainSeriesRecordingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingLicensedLink">
+      <wsdl:input message="tns:GetRecordingLicensedLinkHttpPostIn" />
+      <wsdl:output message="tns:GetRecordingLicensedLinkHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckRecordingDuplicateCrids">
+      <wsdl:input message="tns:CheckRecordingDuplicateCridsHttpPostIn" />
+      <wsdl:output message="tns:CheckRecordingDuplicateCridsHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -8178,12 +10320,1170 @@
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
+  <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="HandleUserTask">
+      <http:operation location="/HandleUserTask" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DistributeRecordingWithDomainIds">
+      <http:operation location="/DistributeRecordingWithDomainIds" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSeriesIdAndSeasonNumberByEpgId">
+      <http:operation location="/GetSeriesIdAndSeasonNumberByEpgId" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainSearchableRecordings">
+      <http:operation location="/GetDomainSearchableRecordings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BulkRecoveryForRenewSubscriptions">
+      <http:operation location="/BulkRecoveryForRenewSubscriptions" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingByDomainRecordingId">
+      <http:operation location="/GetRecordingByDomainRecordingId" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SwapSubscription">
+      <http:operation location="/SwapSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPlayManifest">
+      <http:operation location="/GetPlayManifest" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GiftCardReminder">
+      <http:operation location="/GiftCardReminder" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCompensation">
+      <http:operation location="/DeleteCompensation" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCompensation">
+      <http:operation location="/GetCompensation" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPermittedItems">
+      <http:operation location="/GetUserPermittedItems" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedItems">
+      <http:operation location="/GetDomainPermittedItems" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExpiredItems">
+      <http:operation location="/GetUserExpiredItems" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserCAStatus">
+      <http:operation location="/GetUserCAStatus" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLicensedLink">
+      <http:operation location="/GetLicensedLink" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGLicensedLink">
+      <http:operation location="/GetEPGLicensedLink" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLicensedLinkWithCoupon">
+      <http:operation location="/GetLicensedLinkWithCoupon" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedSubscriptions">
+      <http:operation location="/GetDomainPermittedSubscriptions" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPermittedSubscriptions">
+      <http:operation location="/GetUserPermittedSubscriptions" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainPermittedCollections">
+      <http:operation location="/GetDomainPermittedCollections" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPermittedCollections">
+      <http:operation location="/GetUserPermittedCollections" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExpiredSubscriptions">
+      <http:operation location="/GetUserExpiredSubscriptions" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExpiredCollections">
+      <http:operation location="/GetUserExpiredCollections" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsPermittedItem">
+      <http:operation location="/IsPermittedItem" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUsersBillingHistory">
+      <http:operation location="/GetUsersBillingHistory" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainTransactionsHistory">
+      <http:operation location="/GetDomainTransactionsHistory" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainsBillingHistory">
+      <http:operation location="/GetDomainsBillingHistory" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBillingHistory">
+      <http:operation location="/GetUserBillingHistory" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RenewCancledSubscription">
+      <http:operation location="/RenewCancledSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelSubscription">
+      <http:operation location="/CancelSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelSubscriptionRenewal">
+      <http:operation location="/CancelSubscriptionRenewal" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeSubscriptionDates">
+      <http:operation location="/ChangeSubscriptionDates" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsPrices">
+      <http:operation location="/GetItemsPrices" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesByIP">
+      <http:operation location="/GetItemsPricesByIP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesWithCoupons">
+      <http:operation location="/GetItemsPricesWithCoupons" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesWithCouponsByIP">
+      <http:operation location="/GetItemsPricesWithCouponsByIP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPrices">
+      <http:operation location="/GetSubscriptionsPrices" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionsPrices">
+      <http:operation location="/GetCollectionsPrices" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesByIP">
+      <http:operation location="/GetSubscriptionsPricesByIP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPrePaidPrices">
+      <http:operation location="/GetPrePaidPrices" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesWithCoupon">
+      <http:operation location="/GetSubscriptionsPricesWithCoupon" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionsPricesWithCoupon">
+      <http:operation location="/GetCollectionsPricesWithCoupon" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesWithCouponByIP">
+      <http:operation location="/GetSubscriptionsPricesWithCouponByIP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesST">
+      <http:operation location="/GetSubscriptionsPricesST" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionsPricesST">
+      <http:operation location="/GetCollectionsPricesST" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTByIP">
+      <http:operation location="/GetSubscriptionsPricesSTByIP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPrePaidPricesST">
+      <http:operation location="/GetPrePaidPricesST" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTWithCoupon">
+      <http:operation location="/GetSubscriptionsPricesSTWithCoupon" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionsPricesSTWithCoupon">
+      <http:operation location="/GetCollectionsPricesSTWithCoupon" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsPricesSTWithCouponByIP">
+      <http:operation location="/GetSubscriptionsPricesSTWithCouponByIP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesST">
+      <http:operation location="/GetItemsPricesST" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetItemsPricesSTByIP">
+      <http:operation location="/GetItemsPricesSTByIP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForSubscription">
+      <http:operation location="/Cellular_ChargeUserForSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForSubscription">
+      <http:operation location="/CC_DummyChargeUserForSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForCollection">
+      <http:operation location="/CC_DummyChargeUserForCollection" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_ChargeUserForPrePaid">
+      <http:operation location="/CC_ChargeUserForPrePaid" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForPrePaid">
+      <http:operation location="/CC_DummyChargeUserForPrePaid" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_DummyChargeUserForMediaFile">
+      <http:operation location="/CC_DummyChargeUserForMediaFile" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_ChargeUserForMediaFile">
+      <http:operation location="/CC_ChargeUserForMediaFile" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_ChargeUserForSubscription">
+      <http:operation location="/CC_ChargeUserForSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CC_ChargeUserForCollection">
+      <http:operation location="/CC_ChargeUserForCollection" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PU_GetPPVPopupPaymentMethodURL">
+      <http:operation location="/PU_GetPPVPopupPaymentMethodURL" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AD_GetCustomDataID">
+      <http:operation location="/AD_GetCustomDataID" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCustomDataID">
+      <http:operation location="/GetCustomDataID" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PU_GetSubscriptionPopupPaymentMethodURL">
+      <http:operation location="/PU_GetSubscriptionPopupPaymentMethodURL" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SMS_ChargeUserForMediaFile">
+      <http:operation location="/SMS_ChargeUserForMediaFile" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SMS_ChargeUserForSubscription">
+      <http:operation location="/SMS_ChargeUserForSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SMS_CheckCodeForMediaFile">
+      <http:operation location="/SMS_CheckCodeForMediaFile" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SMS_CheckCodeForSubscription">
+      <http:operation location="/SMS_CheckCodeForSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PP_ChargeUserForMediaFile">
+      <http:operation location="/PP_ChargeUserForMediaFile" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PP_ChargeUserForSubscription">
+      <http:operation location="/PP_ChargeUserForSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPrePaidStatus">
+      <http:operation location="/GetUserPrePaidStatus" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPrePaidHistory">
+      <http:operation location="/GetUserPrePaidHistory" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetItemLeftViewLifeCycle">
+      <http:operation location="/GetItemLeftViewLifeCycle" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEntitlement">
+      <http:operation location="/GetEntitlement" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InApp_ChargeUserForMediaFile">
+      <http:operation location="/InApp_ChargeUserForMediaFile" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InApp_ChargeUserForSubscription">
+      <http:operation location="/InApp_ChargeUserForSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGoogleSignature">
+      <http:operation location="/GetGoogleSignature" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Cellular_ChargeUserForMediaFile">
+      <http:operation location="/Cellular_ChargeUserForMediaFile" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeSubscription">
+      <http:operation location="/ChangeSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelServiceNow">
+      <http:operation location="/CancelServiceNow" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelTransaction">
+      <http:operation location="/CancelTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="WaiverTransaction">
+      <http:operation location="/WaiverTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLicensedLinks">
+      <http:operation location="/GetLicensedLinks" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainServices">
+      <http:operation location="/GetDomainServices" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSubscriptions">
+      <http:operation location="/GetUserSubscriptions" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Purchase">
+      <http:operation location="/Purchase" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProcessReceipt">
+      <http:operation location="/ProcessReceipt" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GrantEntitlements">
+      <http:operation location="/GrantEntitlements" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePendingTransaction">
+      <http:operation location="/UpdatePendingTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckPendingTransaction">
+      <http:operation location="/CheckPendingTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserEntitlements">
+      <http:operation location="/GetUserEntitlements" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainEntitlements">
+      <http:operation location="/GetDomainEntitlements" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Renew">
+      <http:operation location="/Renew" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReconcileEntitlements">
+      <http:operation location="/ReconcileEntitlements" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserBundles">
+      <http:operation location="/GetUserBundles" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPurchasedAssets">
+      <http:operation location="/GetUserPurchasedAssets" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPurchaseSessionID">
+      <http:operation location="/GetPurchaseSessionID" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecordTransaction">
+      <http:operation location="/RecordTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecordedTransaction">
+      <http:operation location="/UpdateRecordedTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDVRAdapters">
+      <http:operation location="/GetCDVRAdapters" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCDVRAdapter">
+      <http:operation location="/DeleteCDVRAdapter" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GenerateCDVRSharedSecret">
+      <http:operation location="/GenerateCDVRSharedSecret" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendCDVRAdapterConfiguration">
+      <http:operation location="/SendCDVRAdapterConfiguration" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Record">
+      <http:operation location="/Record" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelRecord">
+      <http:operation location="/CancelRecord" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecord">
+      <http:operation location="/DeleteRecord" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelSeriesRecord">
+      <http:operation location="/CancelSeriesRecord" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteSeriesRecord">
+      <http:operation location="/DeleteSeriesRecord" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecordRetry">
+      <http:operation location="/RecordRetry" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecords">
+      <http:operation location="/QueryRecords" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingStatus">
+      <http:operation location="/GetRecordingStatus" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingByID">
+      <http:operation location="/GetRecordingByID" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IngestRecording">
+      <http:operation location="/IngestRecording" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecoverRecordingMessages">
+      <http:operation location="/RecoverRecordingMessages" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainQuota">
+      <http:operation location="/GetDomainQuota" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemovePaymentMethodHouseholdPaymentGateway">
+      <http:operation location="/RemovePaymentMethodHouseholdPaymentGateway" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProtectRecord">
+      <http:operation location="/ProtectRecord" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CleanupRecordings">
+      <http:operation location="/CleanupRecordings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HandleRecordingsLifetime">
+      <http:operation location="/HandleRecordingsLifetime" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HandleRecordingsScheduledTasks">
+      <http:operation location="/HandleRecordingsScheduledTasks" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HandleFirstFollowerRecording">
+      <http:operation location="/HandleFirstFollowerRecording" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecordSeasonOrSeries">
+      <http:operation location="/RecordSeasonOrSeries" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DistributeRecording">
+      <http:operation location="/DistributeRecording" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CompleteDomainSeriesRecordings">
+      <http:operation location="/CompleteDomainSeriesRecordings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingLicensedLink">
+      <http:operation location="/GetRecordingLicensedLink" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckRecordingDuplicateCrids">
+      <http:operation location="/CheckRecordingDuplicateCrids" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://34.249.122.223:8030/CAS_V4_4/ws_cas_module.asmx" />
+      <soap:address location="http://34.249.122.223:8030/CAS_V4_6/ws_cas_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://34.249.122.223:8030/CAS_V4_4/ws_cas_module.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/CAS_V4_6/ws_cas_module.asmx" />
+    </wsdl:port>
+    <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
+      <http:address location="http://34.249.122.223:8030/CAS_V4_6/ws_cas_module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
