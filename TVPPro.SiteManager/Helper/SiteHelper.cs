@@ -1510,7 +1510,7 @@ namespace TVPPro.SiteManager.Helper
 
             if (ip.Contains(':'))
             {
-                ip.Substring(0, ip.IndexOf(':'));
+                ip = ip.Substring(0, ip.IndexOf(':'));
             }
 
             return ip.Trim();
