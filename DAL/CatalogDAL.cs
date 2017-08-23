@@ -3708,11 +3708,16 @@ namespace Tvinci.Core.DAL
         {
             int result = 0;
 
-            object resultObject = ODBCWrapper.Utils.GetTableSingleVal("external_channels", "ID", "external_identifier", "=", externalIdentifier);
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_ExternalChannelByExternalD");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@groupID", groupId);
+            storedProcedure.AddParameter("@external_identifier", externalIdentifier);
 
-            if (resultObject != DBNull.Value)
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
-                result = Convert.ToInt32(resultObject);
+                result = Utils.ExtractInteger(dataSet.Tables[0].Rows[0], "ID");
             }
 
             return result;
