@@ -521,5 +521,138 @@ namespace Core.ConditionalAccess
             //if no such values return empty
             return adsData;
         }
+
+        internal static AdsControlResponse GetAdsContext(BaseConditionalAccess cas, int groupId, string userId, string udid, string ip, string assetId, eAssetTypes assetType,
+            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context)
+        {
+            AdsControlResponse response = new AdsControlResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+            };
+
+            try
+            {
+                Domain domain = null;
+                long domainId = 0;
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(groupId, userId, ref domainId, out domain);
+
+                if (assetType == eAssetTypes.NPVR || assetType == eAssetTypes.EPG)
+                {
+                    if (validationStatus.Code != (int)eResponseStatus.OK)
+                    {
+                        log.DebugFormat("User or domain not valid, groupId = {0}, userId: {1}, domainId = {2}", groupId, userId, domainId);
+                        response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                        return response;
+                    }
+                }
+
+                // EPG
+                if (assetType == eAssetTypes.EPG)
+                {
+                    // services
+                    PlayContextType? allowedContext = cas.FilterNotAllowedServices(domainId, context);
+                    if (!allowedContext.HasValue)
+                    {
+                        log.DebugFormat("Service for domainId = {0}", domainId);
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceNotAllowed, "Service not allowed");
+                        return response;
+                    }
+                }
+
+                if (assetType == eAssetTypes.NPVR && !cas.IsServiceAllowed((int)domainId, eService.NPVR))
+                {
+                    log.DebugFormat("Premium Service not allowed, DomainID: {0}, UserID: {1}, Service: {2}", domainId, userId, eService.NPVR.ToString());
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceNotAllowed, "Service not allowed");
+                    return response;
+                }
+
+                long mediaId;
+                Recording recording = null;
+                EPGChannelProgrammeObject program = null;
+                response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out  recording, out program);
+                if (response.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return response;
+                }
+
+                MediaObj epgChannelLinearMedia = null;
+                // Recording
+                if (assetType == eAssetTypes.NPVR)
+                {
+                    long longAssetId = 0;
+                    long.TryParse(assetId, out longAssetId);
+                    response.Status = Utils.ValidateRecording(groupId, domain, udid, userId, longAssetId, ref recording);
+                    if (response.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        return response;
+                    }
+
+                    epgChannelLinearMedia = Utils.GetMediaById(groupId, (int)mediaId);
+
+                    // get TSTV settings
+                    var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
+
+                    // validate recording channel exists or the settings allow it to not exist
+                    if (epgChannelLinearMedia == null && (!tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value))
+                    {
+                        log.ErrorFormat("EPG channel does not exist and TSTV settings do not allow playback in this case. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, channelId = {4}, recordingId = {5}",
+                            groupId, userId, domainId, assetId, recording.ChannelId, recording.Id);
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording playback is not allowed for non existing EPG channel");
+                        return response;
+                    }
+                }
+
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds);
+                if (files != null && files.Count > 0)
+                {
+                    MediaFileItemPricesContainer[] prices = cas.GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, true, string.Empty, udid, ip);
+                    if (prices != null && prices.Length > 0)
+                    {
+                        response.Sources = new List<AdsControlData>();
+                        AdsControlData adsData;
+
+                        foreach (MediaFileItemPricesContainer price in prices)
+                        {
+                            adsData = null;
+                            if (Utils.IsItemPurchased(price))
+                            {
+                                adsData = GetFileAdsDataFromBusinessModule(groupId, price, udid);
+                                if (adsData == null)
+                                {
+                                    adsData = GetDomainAdsControl(groupId, domainId);
+                                }
+                            }
+                            else if (Utils.IsFreeItem(price))
+                            {
+                                adsData = GetDomainAdsControl(groupId, domainId);
+                            }
+
+                            if (adsData == null)
+                            {
+                                adsData = new AdsControlData();
+                            }
+
+                            adsData.FileId = price.m_nMediaFileID;
+                            adsData.FileType = files.Where(f => f.Id == price.m_nMediaFileID).FirstOrDefault().Type;
+
+                            response.Sources.Add(adsData);
+                        }
+                    }
+                }
+                else
+                {
+                    log.DebugFormat("No files found for asset assetId = {0}, assetType = {1}, streamerType = {2}, protocols = {3}", userId, assetId, assetType, streamerType, mediaProtocol);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoFilesFound, "No files found");
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed to GetAdsContext for userId = {0}, assetId = {1}, assetType = {2}", userId, assetId, assetType), ex);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+
+            return response;
+        }
     }
 }

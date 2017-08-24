@@ -10,8 +10,19 @@ namespace APILogic.ConditionalAccess
 {
     public class AdsControlData
     {
+        public int FileId { get; set; }
+
+        public string FileType { get; set; }
+
         public string AdsParam { get; set; }
 
         public AdsPolicy? AdsPolicy { get; set; }
+    }
+
+    public class AdsControlResponse
+    {
+        public List<AdsControlData> Sources { get; set; }
+
+        public ApiObjects.Response.Status Status { get; set; }
     }
 }

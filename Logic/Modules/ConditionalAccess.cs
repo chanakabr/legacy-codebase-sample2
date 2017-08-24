@@ -3102,5 +3102,23 @@ namespace Core.ConditionalAccess
             return response;
         }
 
+
+        public static APILogic.ConditionalAccess.AdsControlResponse GetAdsContext(int groupId, string userId, string udid, string ip, string assetId, eAssetTypes assetType,
+            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context)
+        {
+            APILogic.ConditionalAccess.AdsControlResponse response = new APILogic.ConditionalAccess.AdsControlResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.GetAdsContext(userId, udid, ip, assetId, assetType, fileIds, streamerType, mediaProtocol, context);
+            }
+           
+            return response;
+        }
     }
 }

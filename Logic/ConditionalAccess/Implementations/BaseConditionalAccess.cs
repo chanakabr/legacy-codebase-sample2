@@ -15945,5 +15945,10 @@ namespace Core.ConditionalAccess
             return EntitelemantManager.CancelScheduledSubscription(groupId, domainId, scheduledSubscriptionId);            
         }
 
+        internal APILogic.ConditionalAccess.AdsControlResponse GetAdsContext(string userId, string udid, string ip, string assetId, eAssetTypes assetType,
+            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context)
+        {
+            return PlaybackManager.GetAdsContext(this, m_nGroupID, userId, udid, ip,  assetId, assetType, fileIds, streamerType, mediaProtocol, context);
+        }
     }
 }
