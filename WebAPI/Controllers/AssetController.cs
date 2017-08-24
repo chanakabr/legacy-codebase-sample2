@@ -985,5 +985,43 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Returns the data for ads control
+        /// </summary>
+        /// <param name="assetId">Asset identifier</param>
+        /// <param name="assetType">Asset type</param>
+        /// <param name="contextDataParams">Parameters for the request</param>
+        [Route("getAdsContext"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.ProgramDoesntExist)]
+        [Throws(eResponseStatus.DeviceNotInDomain)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.ServiceNotAllowed)]
+        [Throws(eResponseStatus.NotEntitled)]
+        [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel)]
+        [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel)]
+        public KalturaAdsContext GetAdsContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        {
+            KalturaAdsContext response = null;
+
+            KS ks = KS.GetFromRequest();
+            string userId = ks.UserId;
+
+            contextDataParams.Validate(assetType);
+
+            try
+            {
+                response = ClientsManager.ConditionalAccessClient().GetAdsContext(ks.GroupId, userId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

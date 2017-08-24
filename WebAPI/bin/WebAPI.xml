@@ -305,6 +305,14 @@
             <param name="filter">Filtering the assets request</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.AssetController.GetAdsContext(System.String,WebAPI.Models.Catalog.KalturaAssetType,WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions)">
+            <summary>
+            Returns the data for ads control
+            </summary>
+            <param name="assetId">Asset identifier</param>
+            <param name="assetType">Asset type</param>
+            <param name="contextDataParams">Parameters for the request</param>
+        </member>
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
             <summary>
             get KalturaAssetFileContext
@@ -1065,6 +1073,31 @@
         <member name="P:WebAPI.Models.Catalog.KalturaBaseSearchAssetFilter.GroupBy">
             <summary>
             groupBy
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsContext.Sources">
+            <summary>
+            Sources
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsSource.Id">
+            <summary>
+            File unique identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsSource.Type">
+            <summary>
+            Device types as defined in the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsSource.AdsPolicy">
+            <summary>
+            Ads policy 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAdsSource.AdsParams">
+            <summary>
+            The parameters to pass to the ads server 
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaAggregationCountFilter">

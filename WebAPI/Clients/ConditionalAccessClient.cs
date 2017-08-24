@@ -26,6 +26,7 @@ using ApiObjects.Billing;
 using Core.ConditionalAccess.Response;
 using ApiObjects.ConditionalAccess;
 using Core.ConditionalAccess;
+using APILogic.ConditionalAccess;
 
 namespace WebAPI.Clients
 {
@@ -1970,8 +1971,6 @@ namespace WebAPI.Clients
             KalturaPlaybackContext kalturaPlaybackContext = null;
             PlaybackContextResponse response = null;
 
-            contextDataParams.Validate();
-
             PlayContextType wsContext = ConditionalAccessMappings.ConvertPlayContextType(contextDataParams.Context.Value);
 
             StreamerType? streamerType = null;
@@ -2261,5 +2260,51 @@ namespace WebAPI.Clients
             return true;
         }
 
+        internal KalturaAdsContext GetAdsContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        {
+            KalturaAdsContext kalturaAdsContext = new KalturaAdsContext();
+            AdsControlResponse response = null;
+
+            PlayContextType wsContext = ConditionalAccessMappings.ConvertPlayContextType(contextDataParams.Context.Value);
+
+            StreamerType? streamerType = null;
+            if (!string.IsNullOrEmpty(contextDataParams.StreamerType))
+            {
+                StreamerType type;
+                if (!Enum.TryParse(contextDataParams.StreamerType, out type))
+                {
+                    throw new ClientException((int)StatusCode.Error, "Unknown streamerType");
+                }
+                streamerType = type;
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.GetAdsContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)eResponseStatus.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            kalturaAdsContext.Sources = Mapper.Map<List<KalturaAdsSource>>(response.Sources);
+
+            return kalturaAdsContext;
+        }
     }
 }

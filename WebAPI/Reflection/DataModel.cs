@@ -1998,6 +1998,28 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAdsContext":
+                    switch(property.Name)
+                    {
+                        case "Sources":
+                            return "sources";
+                    }
+                    break;
+                    
+                case "KalturaAdsSource":
+                    switch(property.Name)
+                    {
+                        case "AdsParams":
+                            return "adsParam";
+                        case "AdsPolicy":
+                            return "adsPolicy";
+                        case "Id":
+                            return "id";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
                 case "KalturaAnnouncement":
                     switch(property.Name)
                     {

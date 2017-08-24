@@ -455,6 +455,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId))
               .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId))
               .ForMember(dest => dest.AppliedRenewalIterations, opt => opt.MapFrom(src => src.Renewals));
+
+            Mapper.CreateMap<APILogic.ConditionalAccess.AdsControlData, KalturaAdsSource>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.FileId))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.FileType))
+              .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParam))
+              .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => ConvertAdsPolicy(src.AdsPolicy)));
         }
 
         private static KalturaAdsPolicy? ConvertAdsPolicy(AdsPolicy? adsPolicy)
