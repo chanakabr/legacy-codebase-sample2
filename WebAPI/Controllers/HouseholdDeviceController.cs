@@ -30,14 +30,23 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.LimitationPeriod)]
+        [Throws(eResponseStatus.DeviceNotExists)]
         public bool Delete(string udid)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
 
             try
             {
-                // call client
-                return ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                var userRoles = RolesManager.GetRoleIds(ks);
+                if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
+                {
+                    return ClientsManager.DomainsClient().DeleteDevice(groupId, udid);
+                }
+                else
+                {
+                    return ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                }
             }
             catch (ClientException ex)
             {
