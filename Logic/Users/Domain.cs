@@ -588,14 +588,14 @@ namespace Core.Users
             return responseStatus;
         }
 
-        public DomainResponseStatus RemoveDeviceFromDomain(string sUDID)
+        public DomainResponseStatus RemoveDeviceFromDomain(string sUDID, bool shouldValidateFrequency = true)
         {
             DomainResponseStatus bRes = DomainResponseStatus.UnKnown;
 
             // if next allowed action is in future, return LimitationPeriod status
             // Since frequency is defined at domain level, and not in device family level, we can pass a fictive (0)
             // device brand id to ValidateFrequency method
-            if (ValidateFrequency(sUDID, 0) == DomainResponseStatus.LimitationPeriod)
+            if (shouldValidateFrequency && ValidateFrequency(sUDID, 0) == DomainResponseStatus.LimitationPeriod)
             {
                 bRes = DomainResponseStatus.LimitationPeriod;
                 return bRes;
