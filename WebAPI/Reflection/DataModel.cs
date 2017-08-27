@@ -298,6 +298,15 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaPlaybackSource":
+                    switch (propertyName)
+                    {
+                        case "AdsParams":
+                        case "AdsPolicy":
+                            return true;
+                    };
+                    break;
+                    
                 case "KalturaPpvEntitlement":
                     switch (propertyName)
                     {
