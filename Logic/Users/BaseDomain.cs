@@ -2031,7 +2031,7 @@ namespace Core.Users
                     {
                         log.DebugFormat("remove device from domainId = {0}", domain.m_nDomainID);
 
-                        DomainResponseStatus domainResponseStatus = domain.RemoveDeviceFromDomain(udid, false);
+                        DomainResponseStatus domainResponseStatus = domain.RemoveDeviceFromDomain(udid, true);
                         response = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                         if (response.Code != (int)eResponseStatus.OK)
                         {

@@ -588,14 +588,14 @@ namespace Core.Users
             return responseStatus;
         }
 
-        public DomainResponseStatus RemoveDeviceFromDomain(string sUDID, bool shouldValidateFrequency = true)
+        public DomainResponseStatus RemoveDeviceFromDomain(string udid, bool forceRemove = false)
         {
             DomainResponseStatus bRes = DomainResponseStatus.UnKnown;
 
             // if next allowed action is in future, return LimitationPeriod status
             // Since frequency is defined at domain level, and not in device family level, we can pass a fictive (0)
             // device brand id to ValidateFrequency method
-            if (shouldValidateFrequency && ValidateFrequency(sUDID, 0) == DomainResponseStatus.LimitationPeriod)
+            if (!forceRemove && ValidateFrequency(udid, 0) == DomainResponseStatus.LimitationPeriod)
             {
                 bRes = DomainResponseStatus.LimitationPeriod;
                 return bRes;
@@ -604,7 +604,7 @@ namespace Core.Users
             int isActive = 0;
             int nDeviceID = 0;
 
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            if (!forceRemove && m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 bRes = DomainResponseStatus.DomainSuspended;
                 return bRes;
@@ -616,23 +616,23 @@ namespace Core.Users
             int brandId = 0;
             Device device = null;
 
-            bool bDeviceExist = IsDeviceExistInDomain(this, sUDID, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);
+            bool bDeviceExist = IsDeviceExistInDomain(this, udid, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);
                       
             if (bDeviceExist)
             {
                 try
                 {
-                    RemoveDeviceDrmId(sUDID);
+                    RemoveDeviceDrmId(udid);
                 }
                 catch (Exception ex)
                 {
-                    log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove DevicesDrmID from db / cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, sUDID, ex), ex);
+                    log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove DevicesDrmID from db / cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, udid, ex), ex);
                 }
 
                 // set is_Active = 2; status = 2
                 DomainDevice domainDevice = new DomainDevice()
                 {
-                    Udid = sUDID,
+                    Udid = udid,
                     DeviceId = nDeviceID,
                     GroupId = m_nGroupID,
                     DomainId = m_nDomainID,
@@ -647,44 +647,31 @@ namespace Core.Users
 
                 if (!deleted)
                 {
-                    log.Debug("RemoveDeviceFromDomain - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, sUDID));
+                    log.Debug("RemoveDeviceFromDomain - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, udid));
                     return DomainResponseStatus.Error;
                 }           
 
-                // if the first update done successfully - remove domain from cache
-                try
-                {
-                    DomainsCache oDomainCache = DomainsCache.Instance();
-                    oDomainCache.RemoveDomain(m_nDomainID);
-                }
-                catch (Exception ex)
-                {
-                    log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, sUDID, ex), ex);
-                }
-
-                int nDomainsDevicesCount = DomainDal.GetDomainsDevicesCount(m_nGroupID, nDeviceID);
-                bool bDeleteDevice = nDomainsDevicesCount == 0;   // No other domains attached to this device
-
-                if (bDeleteDevice)
+                if (DomainDal.GetDomainsDevicesCount(m_nGroupID, nDeviceID) == 0) // No other domains attached to this device
                 {
                     // set is_Active = 2; status = 2
                     deleted = DomainDal.UpdateDeviceStatus(nDeviceID, 2, 2);
 
                     if (!deleted)
                     {
-                        return DomainResponseStatus.Error;
+                        log.ErrorFormat("Failed to update device in devices table. Status=2, Is_Active=2, UDID={0}, deviceId={1}", udid, nDeviceID);
+                        return DomainResponseStatus.OK;
                     }
                 }
 
                 DeviceContainer container = null;
-                device = GetDomainDevice(sUDID, ref container);
+                device = GetDomainDevice(udid, ref container);
                 if (container != null && device != null)
                 {
-                    if (container.RemoveDeviceInstance(sUDID))
+                    if (container.RemoveDeviceInstance(udid))
                     {
                         bRes = DomainResponseStatus.OK;
 
-                        if (m_minPeriodId != 0 && GetDeviceFrequency(sUDID) != 0)
+                        if (!forceRemove && m_minPeriodId != 0 && GetDeviceFrequency(udid) != 0)
                         {
                             SetDomainFlag(m_nDomainID, 1);
                         }
