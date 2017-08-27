@@ -2021,7 +2021,7 @@ namespace Core.Users
             {
                 List<Domain> deviceDomains = Domain.GetDeviceDomains(deviceId, groupId);
 
-                if (deviceDomains == null || deviceDomains.Count > 0)
+                if (deviceDomains == null || deviceDomains.Count == 0)
                 {
                     DomainDal.UpdateDeviceStatus(deviceId, 0, 2);
                 }
