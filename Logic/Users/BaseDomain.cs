@@ -2027,22 +2027,18 @@ namespace Core.Users
                 }
                 else
                 {
-                    foreach (var domain in deviceDomains)
+                    DomainResponseStatus domainResponseStatus = deviceDomains[0].RemoveDeviceFromDomain(udid, true);
+                    response = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
+                    if (response.Code != (int)eResponseStatus.OK)
                     {
-                        log.DebugFormat("remove device from domainId = {0}", domain.m_nDomainID);
-
-                        DomainResponseStatus domainResponseStatus = domain.RemoveDeviceFromDomain(udid, true);
-                        response = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
-                        if (response.Code != (int)eResponseStatus.OK)
-                        {
-                            log.ErrorFormat("Failed to remove device with UDID = {0} and deviceId = {1} from domainId = {2}", udid, deviceId, domain.m_nDomainID);
-                        }
+                        log.ErrorFormat("Failed to remove device with UDID = {0} and deviceId = {1} from domainId = {2}", udid, deviceId, deviceDomains[0].m_nDomainID);
+                    }
+                    else
+                    {
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
-
-                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
-
             return response;
         }
     }
