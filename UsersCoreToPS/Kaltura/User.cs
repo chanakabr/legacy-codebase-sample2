@@ -67,12 +67,12 @@ namespace Kaltura
                             // send mail
                             ApiObjects.DynamicMailRequest request = new ApiObjects.DynamicMailRequest();
                             request.m_emailKey = ODBCWrapper.Utils.GetSafeStr(ODBCWrapper.Utils.GetTableSingleVal("groups", "mail_settings", "id", "=", this.GroupId, "MAIN_CONNECTION_STRING")); // get email key from group table
-                            request.m_sFirstName = "liat";
-                            request.m_sLastName = "regev";
+                            request.m_sFirstName = userName;
+                            request.m_sLastName = userName;
                             request.m_sSenderFrom = "noreply@kaltura.com"; // get from group table sender_mail;
                             request.m_sSenderName = "Kaltura";
-                            request.m_sSenderTo = "liat.regev@kaltura.com";
-                            request.m_sSubject = "new mail with new pin code";
+                            request.m_sSenderTo = userName;
+                            request.m_sSubject = "test pin code generate mail for PS flow";
                             request.m_sTemplateName = "welcome_203.html"; // get this from where 
                             
                             request.values = new List<KeyValuePair>();
