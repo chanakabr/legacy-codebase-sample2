@@ -12,7 +12,7 @@ namespace Mailer
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private static object lck = new object();
         static public string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader)
         {
             //Create the HTTP POST request and the authentication headers
@@ -75,6 +75,29 @@ namespace Mailer
                 log.Error("Mailer - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
+        }
+
+        public string GetGroupMcKey(int groupId)
+        {
+            string mcKey = string.Empty;
+
+            string key = string.Format("mcKeyGroup_{0}", groupId);
+
+            if (string.IsNullOrEmpty(mcKey = TvinciCache.WSCache.Instance.Get<string>(key)))
+            {
+                lock (lck)
+                {
+                    if (string.IsNullOrEmpty(mcKey = TvinciCache.WSCache.Instance.Get<string>(key)))
+                    {
+                        mcKey = ODBCWrapper.Utils.GetSafeStr(ODBCWrapper.Utils.GetTableSingleVal("groups", "mail_settings", groupId, 86400, "MAIN_CONNECTION_STRING"));
+
+                        if (!string.IsNullOrEmpty(mcKey))
+                            TvinciCache.WSCache.Instance.Add(key, mcKey);
+                    }
+                }
+            }
+
+            return mcKey;
         }
 
     }

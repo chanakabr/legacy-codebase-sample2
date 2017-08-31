@@ -14,6 +14,7 @@ namespace Mailer
     public class MCMailer : IMailer
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+       
 
         public bool SendMailTemplate(ApiObjects.MailRequestObj request)
         {
@@ -25,7 +26,18 @@ namespace Mailer
                 MCObjByTemplate mcObj = request.parseRequestToTemplate();
                 mcObj.key = Utils.GetTcmConfigValue("MCKey"); //default key
                 if (!string.IsNullOrEmpty(request.m_emailKey))// specific key to group
+                {
                     mcObj.key = request.m_emailKey;
+                }
+                else if (request != null && request.groupId.HasValue && request.groupId.Value > 0) // try to get mcKey from DB by groupID
+                {
+                    // get from db or from cache 
+                    string mcKey = Utils.GetGroupMcKey(request.groupId.Value);
+                    if (!string.IsNullOrEmpty(mcKey))
+                    {
+                        mcObj.key = mcKey;
+                    }
+                }
 
                 //Patch until going live!!              
                 if (mcObj.template_name.Contains("."))
