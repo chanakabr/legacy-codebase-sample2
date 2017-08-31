@@ -77,7 +77,7 @@ namespace Mailer
             return result;
         }
 
-        public string GetGroupMcKey(int groupId)
+        public static string GetGroupMcKey(int groupId)
         {
             string mcKey = string.Empty;
 
