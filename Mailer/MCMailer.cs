@@ -47,7 +47,7 @@ namespace Mailer
                 string json = jsSer.Serialize(mcObj);
                 log.DebugFormat("SendMailTemplate: mcObj={0} ", json);
                 string sResp = Utils.SendXMLHttpReq(Utils.GetTcmConfigValue("MCURL"), json, null);
-                log.DebugFormat("mailurl={0} response={1} ", Utils.GetTcmConfigValue("MCURL") + " key:" + Utils.GetTcmConfigValue("MCKey"), sResp);
+                log.DebugFormat("mailurl={0} response={1} ", Utils.GetTcmConfigValue("MCURL") + " key:" + mcObj.key, sResp);
                 if (sResp.Contains("sent"))
                 {
                     retVal = true;
