@@ -3705,7 +3705,14 @@
             <remarks>Possible status codes: 
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetHistoryController.Clean(WebAPI.Models.Catalog.KalturaAssetsFilter)">
+        <member name="M:WebAPI.Controllers.AssetHistoryController.CleanOldStandard(WebAPI.Models.Catalog.KalturaAssetsFilter)">
+            <summary>
+            Clean the user’s viewing history
+            </summary>
+            <param name="filter">List of assets identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetHistoryController.Clean(WebAPI.Models.Catalog.KalturaAssetHistoryFilter)">
             <summary>
             Clean the user’s viewing history
             </summary>

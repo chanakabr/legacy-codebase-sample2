@@ -3663,5 +3663,40 @@ namespace WebAPI.Clients
 
             return success;
         }
+
+        internal void CleanUserAssetHistory(int groupId, string userId, List<string> assetIds, List<int> assetTypes, KalturaWatchStatus watchStatus, int days)
+        {
+            bool success = false;
+
+            Status response = null;
+
+            KalturaAssetHistoryListResponse historyResponse = ClientsManager.CatalogClient().getAssetHistory(groupId, userId, string.Empty, string.Empty, 0, 0, watchStatus, days, assetTypes, assetIds);
+
+            if (historyResponse != null && historyResponse.Objects != null && historyResponse.Objects.Count > 0)
+            {
+                try
+                {
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                    {
+                        response = Core.Api.Module.CleanUserHistory(groupId, userId, historyResponse.Objects.Select(o => (int)o.AssetId).ToList());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                    ErrorUtils.HandleWSException(ex);
+                }
+
+                if (response == null)
+                {
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                }
+
+                if (response.Code != (int)StatusCode.OK)
+                {
+                    throw new ClientException(response.Code, response.Message);
+                }
+            }
+        }
     }
 }

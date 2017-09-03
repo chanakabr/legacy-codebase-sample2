@@ -71,13 +71,21 @@ namespace WebAPI.Controllers
             if (filter.DaysLessThanOrEqual == null || (filter.DaysLessThanOrEqual.HasValue && filter.DaysLessThanOrEqual.Value == 0))
                 filter.DaysLessThanOrEqual = 7;
 
+            // validate typeIn - can be multiple only if does not contain recordings!
+            List<int> filterTypes = filter.getTypeIn();
+            if (filterTypes != null && filterTypes.Count > 1 && filterTypes.Contains(1))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                    "KalturaAssetHistoryFilter.typeIn containing recording (1)", "KalturaAssetHistoryFilter.typeIn with single / multiple media types");
+            }
+
             string language = Utils.Utils.GetLanguageFromRequest();
 
             try
             {
                 // call client
                 response = ClientsManager.CatalogClient().getAssetHistory(groupId, userId.ToString(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn());
+                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.getAssetIdIn());
             }
             catch (ClientException ex)
             {
@@ -158,10 +166,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">List of assets identifier</param>
         /// <returns></returns>
-        [Route("clean"), HttpPost]
+        [Route("cleanOldStandard"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool Clean(KalturaAssetsFilter filter = null)
+        public bool CleanOldStandard(KalturaAssetsFilter filter = null)
         {
             var ks = KS.GetFromRequest();
             int groupId = KS.GetFromRequest().GroupId;
@@ -179,6 +187,50 @@ namespace WebAPI.Controllers
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Clean the user’s viewing history
+        /// </summary>
+        /// <param name="filter">List of assets identifier</param>
+        /// <returns></returns>
+        [Route("clean"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public void Clean(KalturaAssetHistoryFilter filter = null)
+        {
+            var ks = KS.GetFromRequest();
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            if (filter == null)
+            {
+                filter = new KalturaAssetHistoryFilter();
+            }
+
+            if (!filter.StatusEqual.HasValue)
+            {
+                filter.StatusEqual = KalturaWatchStatus.all;
+            }
+
+            // validate typeIn - can be multiple only if does not contain recordings!
+            List<int> filterTypes = filter.getTypeIn();
+            if (filterTypes != null && filterTypes.Count > 1 && filterTypes.Contains(1))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                    "KalturaAssetHistoryFilter.typeIn containing recording (1)", "KalturaAssetHistoryFilter.typeIn with single / multiple media types");
+            }
+
+            try
+            {
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                // call client
+                ClientsManager.ApiClient().CleanUserAssetHistory(groupId, userId, filter.getAssetIdIn(), filterTypes, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual());
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
         }
     }
 }
