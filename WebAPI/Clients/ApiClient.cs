@@ -3664,13 +3664,13 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal void CleanUserAssetHistory(int groupId, string userId, List<string> assetIds, List<int> assetTypes, KalturaWatchStatus watchStatus, int days)
+        internal void CleanUserAssetHistory(int groupId, string userId, string udid, List<string> assetIds, List<int> assetTypes, KalturaWatchStatus watchStatus, int days)
         {
             bool success = false;
 
             Status response = null;
 
-            KalturaAssetHistoryListResponse historyResponse = ClientsManager.CatalogClient().getAssetHistory(groupId, userId, string.Empty, string.Empty, 0, 0, watchStatus, days, assetTypes, assetIds);
+            KalturaAssetHistoryListResponse historyResponse = ClientsManager.CatalogClient().getAssetHistory(groupId, userId, udid, string.Empty, 0, 0, watchStatus, days, assetTypes, assetIds);
 
             if (historyResponse != null && historyResponse.Objects != null && historyResponse.Objects.Count > 0)
             {

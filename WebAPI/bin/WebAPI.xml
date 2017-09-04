@@ -3716,7 +3716,7 @@
             <summary>
             Clean the user’s viewing history
             </summary>
-            <param name="filter">List of assets identifier</param>
+            <param name="filter">Filter for cleaning asset history</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdDeviceController.Delete(System.String)">

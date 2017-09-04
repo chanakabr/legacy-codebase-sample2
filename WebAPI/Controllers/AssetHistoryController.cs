@@ -192,7 +192,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Clean the user’s viewing history
         /// </summary>
-        /// <param name="filter">List of assets identifier</param>
+        /// <param name="filter">Filter for cleaning asset history</param>
         /// <returns></returns>
         [Route("clean"), HttpPost]
         [ApiAuthorize]
@@ -202,11 +202,16 @@ namespace WebAPI.Controllers
             var ks = KS.GetFromRequest();
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (filter == null)
             {
                 filter = new KalturaAssetHistoryFilter();
             }
+
+            // days - default value 7
+            if (filter.DaysLessThanOrEqual == null || (filter.DaysLessThanOrEqual.HasValue && filter.DaysLessThanOrEqual.Value == 0))
+                filter.DaysLessThanOrEqual = 7;
 
             if (!filter.StatusEqual.HasValue)
             {
@@ -223,9 +228,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 // call client
-                ClientsManager.ApiClient().CleanUserAssetHistory(groupId, userId, filter.getAssetIdIn(), filterTypes, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual());
+                ClientsManager.ApiClient().CleanUserAssetHistory(groupId, userId, udid, filter.getAssetIdIn(), filterTypes, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual());
             }
             catch (ClientException ex)
             {
