@@ -3678,7 +3678,8 @@ namespace WebAPI.Clients
                 {
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
-                        response = Core.Api.Module.CleanUserHistory(groupId, userId, historyResponse.Objects.Select(o => (int)o.AssetId).ToList());
+                        response = Core.Api.Module.CleanUserAssetHistory(groupId, userId, 
+                            historyResponse.Objects.Select(a => new KeyValuePair<int, eAssetTypes>((int)a.AssetId, ApiMappings.ConvertAssetType(a.AssetType))).ToList());
                     }
                 }
                 catch (Exception ex)
