@@ -25,7 +25,8 @@ namespace Core.ConditionalAccess
         #region Consts
 
         private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
-        protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";        
+        protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
+        protected const string ROUTING_KEY_PROCESS_ONE_TRANSACTION_RENEW_SUBSCRIPTION = "PROCESS_ONE_TRANSACTION_RENEW_SUBSCRIPTION\\{0}";
 
         #endregion
 
@@ -1128,8 +1129,7 @@ namespace Core.ConditionalAccess
                             response = HandlePurchase(cas, groupId, siteguid, householdId, price, currency, userIp, customData, productId,
                                                       eTransactionType.Subscription, billingGuid, paymentGwId, 0, paymentMethodId, adapterData);
                         }
-                        if (response != null &&
-                            response.Status != null)
+                        if (response != null && response.Status != null)
                         {
                             // Status OK + (State OK || State Pending) = grant entitlement
                             if (response.Status.Code == (int)eResponseStatus.OK &&
@@ -1183,7 +1183,8 @@ namespace Core.ConditionalAccess
                                         }
                                         
                                         DateTime nextRenewalDate = endDate.Value;
-
+                                        
+                                        long currentDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow); // for each paymentgatewayId save the last date of change
                                         if (!isGiftCard)
                                         {
                                             // call billing process renewal
@@ -1203,7 +1204,7 @@ namespace Core.ConditionalAccess
 
                                                     if (!entitleToPreview)
                                                     {
-                                                        HandleDomainUnifiedBillingCycle(groupId, householdId, (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, unifiedBillingCycle, endDate.Value, paymentGatewayResponse.ID);
+                                                        HandleDomainUnifiedBillingCycle(groupId, householdId, (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, unifiedBillingCycle, endDate.Value, paymentGatewayResponse.ID, currentDate);
                                                     }
                                                 }
 
@@ -1221,24 +1222,26 @@ namespace Core.ConditionalAccess
                                         // enqueue renew transaction
                                         #region Renew transaction message in queue
                                         /*
-                                         check from configuration if unified cycle -- create new queue with new messages for each Payment Gateway 
-                                         * (only if i am the firat purchawse in this queue)
-                                         * else - as always 
-                                         */
-                                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                         check from configuration if unified cycle
+                                            if      message not exists in queue – add new message 
+                                            else    message exists yet – do nothing
+                                        create new queue with new messages for each Payment Gateway 
+                                        */
 
-                                        RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
-                                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                                        if (unifiedBillingCycle == null || unifiedBillingCycle.paymentGatewayIds == null ||
+                                            !unifiedBillingCycle.paymentGatewayIds.ContainsKey(paymentGwId))
+                                        {
+                                            // insert regular message 
+                                            RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate);
+                                        }
 
-                                        if (!enqueueSuccessful)
+                                        else if (unifiedBillingCycle != null && unifiedBillingCycle.paymentGatewayIds != null &&
+                                            unifiedBillingCycle.paymentGatewayIds.ContainsKey(paymentGwId) &&
+                                            unifiedBillingCycle.paymentGatewayIds[paymentGwId] == currentDate)
                                         {
-                                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                            RenewTransactionMessageInQueue(groupId, householdId, endDateUnix, nextRenewalDate, paymentGwId);
                                         }
-                                        else
-                                        {
-                                            log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
-                                                nextRenewalDate, data);
-                                        }
+                                        //else do nothing, message already exists
 
                                         #endregion
                                     }
@@ -1302,16 +1305,52 @@ namespace Core.ConditionalAccess
             return response;
         }
 
+        private static bool RenewTransactionMessageInQueue(int groupId, long householdId, long endDateUnix, DateTime nextRenewalDate, int paymentgatewayId)
+        {
+            // add new message to new routing key queue
+            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+            RenewOneTransactionData data = new RenewOneTransactionData(groupId, householdId, paymentgatewayId, endDateUnix, nextRenewalDate);
+            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_ONE_TRANSACTION_RENEW_SUBSCRIPTION, groupId));
+            if (!enqueueSuccessful)
+            {
+                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+            }
+            else
+            {
+                log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
+                    nextRenewalDate, data);
+            }
+            return enqueueSuccessful;
+        }
+
+        private static bool RenewTransactionMessageInQueue(int groupId, string siteguid, string billingGuid, long purchaseID, long endDateUnix, DateTime nextRenewalDate)
+        {
+            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
+            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+
+            if (!enqueueSuccessful)
+            {
+                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+            }
+            else
+            {
+                log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
+                    nextRenewalDate, data);
+            }
+            return enqueueSuccessful;
+        }
+
         ///If needed create/ update doc in cb for unifiedBilling_household_{ household_id }_renewBillingCycle
         ///create: unified billing cycle for household (CB)
         ///update: the current one with payment gateway id or end date 
-        private static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, long subscriptionBillingCycle, UnifiedBillingCycle unifiedBillingCycle, DateTime endDate, int paymentGatewayId)
+        private static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, long subscriptionBillingCycle, UnifiedBillingCycle unifiedBillingCycle, DateTime endDate, int paymentGatewayId, long currentDate)
         {            
             try
             {
                 long? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-                List<int> paymentGWIds = null;
-                bool setDomainUnifiedBillingCycle = false;
+                Dictionary<int, long> paymentGWIds = null;
+                bool setDomainUnifiedBillingCycle = false;                
 
                 if (groupUnifiedBillingCycle.HasValue) // group define with billing cycle
                 {
@@ -1320,17 +1359,18 @@ namespace Core.ConditionalAccess
                     {                        
                         if (unifiedBillingCycle == null || unifiedBillingCycle.paymentGatewayIds == null || unifiedBillingCycle.paymentGatewayIds.Count == 0)
                         {
-                            paymentGWIds = new List<int>() { paymentGatewayId };
+                            paymentGWIds = new Dictionary<int, long>();
+                            paymentGWIds.Add(paymentGatewayId, currentDate);
                             setDomainUnifiedBillingCycle = true;
                         }
                         else 
                         {
                             paymentGWIds = unifiedBillingCycle.paymentGatewayIds;
-                            if (!paymentGWIds.Contains(paymentGatewayId))
+                            if (!paymentGWIds.ContainsKey(paymentGatewayId))
                             {
-                                paymentGWIds.Add(paymentGatewayId);
+                                paymentGWIds.Add(paymentGatewayId, currentDate);
                                 setDomainUnifiedBillingCycle = true;
-                            }
+                            }                           
                         }
                     }
 

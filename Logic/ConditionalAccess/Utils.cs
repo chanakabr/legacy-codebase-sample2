@@ -7978,16 +7978,17 @@ namespace Core.ConditionalAccess
                         {
                             foreach (int pgid in paymentGatewayIds)
                             {
-                                if (!unifiedBillingCycle.paymentGatewayIds.Contains(pgid))
+                                if (!unifiedBillingCycle.paymentGatewayIds.ContainsKey(pgid))
                                 {
-                                    unifiedBillingCycle.paymentGatewayIds.Add(pgid);
+                                    unifiedBillingCycle.paymentGatewayIds.Add(pgid, ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow));
                                     setDomainUnifiedBillingCycle = true;
                                 }
                             }
                         }
                         else if (paymentGatewayIds != null && paymentGatewayIds.Count() > 0)
                         {
-                            unifiedBillingCycle.paymentGatewayIds = paymentGatewayIds;
+
+                            unifiedBillingCycle.paymentGatewayIds = paymentGatewayIds.Distinct().ToDictionary(x => x, y => ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow));
                             setDomainUnifiedBillingCycle = true;
                         }
 
