@@ -166,6 +166,7 @@ namespace WebAPI.Controllers
         [Throws(WebAPI.Managers.Models.StatusCode.InvalidRefreshToken)]
         [Throws(WebAPI.Managers.Models.StatusCode.InvalidKS)]
         [Throws(WebAPI.Managers.Models.StatusCode.RefreshTokenFailed)]
+        [Obsolete]
         public KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
             KalturaLoginSession response = null;
