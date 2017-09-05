@@ -9868,5 +9868,41 @@ namespace Core.Api
 
             return status;
         }
+
+        internal static Status CleanUserAssetHistory(int groupId, string userId, List<KeyValuePair<int, eAssetTypes>> assets)
+        {
+            Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+      
+            try
+            {
+                List<string> assetHistoryKeys = new List<string>();
+
+                foreach (var asset in assets)
+                {
+                    switch (asset.Value)
+                    {
+                        case eAssetTypes.NPVR:
+                            assetHistoryKeys.Add(DAL.UtilsDal.getUserNpvrMarkDocKey(userId, asset.Key));
+                            break;
+                        case eAssetTypes.MEDIA:
+                            assetHistoryKeys.Add(DAL.UtilsDal.getUserMediaMarkDocKey(userId, asset.Key));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (DAL.ApiDAL.CleanUserAssetHistory(assetHistoryKeys))
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("CleanUserHistory - Error = " + ex.Message, ex);
+            }
+
+            return response;
+        }
     }
 }
