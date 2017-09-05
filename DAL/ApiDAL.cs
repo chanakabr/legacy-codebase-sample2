@@ -4205,5 +4205,34 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+        public static bool CleanUserAssetHistory(List<string> assetHistoryKeys)
+        {
+            try
+            {
+                var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+                var mediaHitManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
+
+                Random r = new Random();
+
+                foreach (string documentKey in assetHistoryKeys)
+                {
+                    bool markResult = mediaMarkManager.Remove(documentKey);
+                    bool hitResult = mediaHitManager.Remove(documentKey);
+                    Thread.Sleep(r.Next(50));
+
+                    if (!markResult || !hitResult)
+                    {
+                        log.ErrorFormat("Failed to remove asset history key = {0}, markResult = {1}, hitResult = {2}", documentKey, markResult, hitResult);
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.Error("", ex);
+                return false;
+            }
+        }
     }
 }
