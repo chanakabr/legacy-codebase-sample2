@@ -25,6 +25,16 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaPlaybackSource":
+                    switch (propertyName)
+                    {
+                        case "AdsParams":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "AdsPolicy":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
                 case "KalturaPricePlan":
                     switch (propertyName)
                     {
@@ -294,15 +304,6 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "PaymentMethods":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaPlaybackSource":
-                    switch (propertyName)
-                    {
-                        case "AdsParams":
-                        case "AdsPolicy":
                             return true;
                     };
                     break;

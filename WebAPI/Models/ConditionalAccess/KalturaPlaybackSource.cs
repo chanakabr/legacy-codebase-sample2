@@ -43,7 +43,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "adsPolicy")]
         [JsonProperty("adsPolicy")]
         [XmlElement(ElementName = "adsPolicy")]
-        [Obsolete]
+        [Deprecated("4.6.0.0")]
         public KalturaAdsPolicy? AdsPolicy { get; set; }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "adsParam")]
         [JsonProperty("adsParam")]
         [XmlElement(ElementName = "adsParam")]
-        [Obsolete]
+        [Deprecated("4.6.0.0")]
         public string AdsParams { get; set; }
 
         internal string FileExtention { get; set; }
