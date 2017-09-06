@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
 
              try
              {
-                 if (string.IsNullOrEmpty(meta.Name))
+                 if (meta.Name != null)
                  {
                      throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaMeta.Name");
                  }

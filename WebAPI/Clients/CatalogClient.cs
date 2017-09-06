@@ -3,6 +3,7 @@ using ApiObjects.Catalog;
 using ApiObjects.SearchObjects;
 using AutoMapper;
 using Core.Catalog;
+using Core.Catalog.NewCatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using KLogMonitor;
@@ -41,6 +42,87 @@ namespace WebAPI.Clients
                 SignString = Guid.NewGuid().ToString();
                 Signature = GetSignature(SignString, value);
             }
+        }
+
+        internal KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool shouldGetByMetaIds = false)
+        {
+            KalturaAssetStructListResponse result = new KalturaAssetStructListResponse() { TotalCount = 0 };
+            AssetStructsResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {                    
+                    if (shouldGetByMetaIds)
+                    {
+                        response = Core.Catalog.NewCatalogManagement.CatalogManager.GetAssetStructsByMetaIds(groupId, ids);
+                    }
+                    else
+                    {
+                        response = Core.Catalog.NewCatalogManagement.CatalogManager.GetAssetStructsByIds(groupId, ids);
+                    }                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.AssetStructs != null && response.AssetStructs.Count > 0)
+            {
+                result.TotalCount = response.AssetStructs.Count;
+                result.AssetStructs = new List<KalturaAssetStruct>();
+                foreach (AssetStruct assetStruct in response.AssetStructs)
+                {                    
+                    result.AssetStructs.Add(AutoMapper.Mapper.Map<KalturaAssetStruct>(assetStruct));                    
+                }
+            }
+
+            if (result.TotalCount > 0 && orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaAssetStructOrderBy.NAME_ASC:
+                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.Name).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.NAME_DESC:
+                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.Name).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.SYSTEM_NAME_ASC:
+                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.SystemName).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.SYSTEM_NAME_DESC:
+                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.SystemName).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.CREATE_DATE_ASC:
+                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.CreateDate).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.CREATE_DATE_DESC:
+                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.CreateDate).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.UPDATE_DATE_ASC:
+                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.UpdateDate).ToList();
+                        break;
+                    case KalturaAssetStructOrderBy.UPDATE_DATE_DESC:
+                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.UpdateDate).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result;
         }
 
         public int CacheDuration { get; set; }

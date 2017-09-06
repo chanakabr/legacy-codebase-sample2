@@ -23,6 +23,7 @@
     <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>29ae49f1</NuGetPackageImportStamp>
     <TargetFrameworkProfile />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -220,6 +221,7 @@
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
     <Compile Include="Controllers\AssetStatisticsController.cs" />
+    <Compile Include="Controllers\AssetStructController.cs" />
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
@@ -234,6 +236,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStructListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStructFilter.cs" />
     <Compile Include="Controllers\PriceDetailsController.cs" />
     <Compile Include="Controllers\PricePlanController.cs" />
     <Compile Include="Controllers\SubscriptionSetController.cs" />
@@ -282,6 +286,7 @@
     <Compile Include="Models\API\KalturaCurrency.cs" />
     <Compile Include="Models\API\KalturaCurrencyFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStruct.cs" />
     <Compile Include="Models\Catalog\KalturaBaseSearchAssetFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAdContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingPriceType.cs" />
