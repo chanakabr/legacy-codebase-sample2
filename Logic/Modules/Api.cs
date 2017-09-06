@@ -1791,5 +1791,10 @@ namespace Core.Api
         {
             return Core.Api.api.DeleteSearchHistory(groupId, userId, id);
         }
+
+        public static Status CleanUserAssetHistory(int groupId, string userId, List<KeyValuePair<int, eAssetTypes>> assets)
+        {
+            return Core.Api.api.CleanUserAssetHistory(groupId, userId, assets);
+        }
     }
 }
