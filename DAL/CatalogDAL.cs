@@ -4623,7 +4623,7 @@ namespace Tvinci.Core.DAL
             meta.PartnerId = ODBCWrapper.Utils.GetIntSafeVal(dr, GROUP_ID_FIELD);
             assetType = ODBCWrapper.Utils.GetIntSafeVal(dr, ASSET_TYPE_FIELD);
             meta.AssetType = Enum.IsDefined(typeof(eAssetTypes), assetType) ? (eAssetTypes)assetType : eAssetTypes.UNKNOWN;
-            meta.IsTag = ODBCWrapper.Utils.GetIntSafeVal(dr, IS_TAG_FIELD) == 1 ? true : false;
+            meta.MultipleValue = ODBCWrapper.Utils.GetIntSafeVal(dr, IS_TAG_FIELD) == 1 ? true : false;
 
             return meta;
         }
@@ -4637,7 +4637,7 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@groupId", partnerId);
                 sp.AddParameter("@name", topicInterest.Name);
                 sp.AddParameter("@assetType", (int)topicInterest.AssetType);
-                sp.AddParameter("@isTag", topicInterest.IsTag ? 1 : 0);
+                sp.AddParameter("@isTag", topicInterest.MultipleValue ? 1 : 0);
                 sp.AddParameter("@metaId", topicInterest.Id);
                 sp.AddParameter("@parentMetaId", topicInterest.ParentId);
                 if (topicInterest.Features != null)
@@ -4703,5 +4703,29 @@ namespace Tvinci.Core.DAL
                 return false;
             }
         }
+
+        #region New Catalog Management
+
+        public static DataSet GetAssetStructsByIds(int groupId, List<long> ids)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetStructsByIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);            
+            sp.AddIDListParameter("@Ids", ids, "id");
+            sp.AddParameter("@IdsExist", ids != null && ids.Count > 0);
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet GetAssetStructsByMetaIds(int groupId, List<long> metaIds)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetStructsByMetaIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@MetaIds", metaIds, "id");            
+            return sp.ExecuteDataSet();
+        }
+
+        #endregion
+
     }
 }
