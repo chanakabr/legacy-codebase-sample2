@@ -8211,7 +8211,7 @@ namespace Core.Catalog
                     if (topic != null)
                     {
                         List<string> valueList = new List<string>();
-                        if (topic.IsTag)
+                        if (topic.MultipleValue)
                         {
                             if (result.Tags.TryGetValue(topic.Name, out valueList))
                                 valueList.Add(node.Value);
@@ -8472,6 +8472,3 @@ namespace Core.Catalog
         }
     }
 }
-
-
-

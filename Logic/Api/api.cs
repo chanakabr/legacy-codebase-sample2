@@ -9206,7 +9206,7 @@ namespace Core.Api
                                 Name = GetTagName(val, group.m_oEpgGroupSettings.MetasDisplayName),
 
                                 Type = ApiObjects.MetaType.String,
-                                IsTag = false,
+                                MultipleValue = false,
                                 PartnerId = group.m_oEpgGroupSettings.GroupId
                             };
 
@@ -9227,7 +9227,7 @@ namespace Core.Api
                                 FieldName = MetaFieldName.None,
                                 Name = GetTagName(val, group.m_oEpgGroupSettings.TagsDisplayName),
                                 Type = ApiObjects.MetaType.Tag,
-                                IsTag = true,
+                                MultipleValue = true,
                                 PartnerId = group.m_oEpgGroupSettings.GroupId
                             };
 
@@ -9278,7 +9278,7 @@ namespace Core.Api
                                     Name = metaVal.Value,
                                     Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
                                     PartnerId = partnerId,
-                                    IsTag = false
+                                    MultipleValue = false
                                 };
 
                                 meta.Id = BuildMetaId(meta, metaVal.Key);
@@ -9301,7 +9301,7 @@ namespace Core.Api
                                 FieldName = MetaFieldName.None,
                                 Name = tagVal.Value,
                                 Type = ApiObjects.MetaType.Tag,
-                                IsTag = true
+                                MultipleValue = true
                             };
 
                             meta.PartnerId = GetPartnerIdforTag(tagVal, group);
@@ -9421,7 +9421,7 @@ namespace Core.Api
         private static string BuildMetaId(Meta meta, string metaDBId)
         {
             string prefix = meta.AssetType == eAssetTypes.MEDIA && meta.Type == ApiObjects.MetaType.String ? "_NAME" : "";
-            return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_{3}{4}", meta.PartnerId, (int)meta.AssetType, meta.IsTag ? 1 : 0, metaDBId, prefix));
+            return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_{3}{4}", meta.PartnerId, (int)meta.AssetType, meta.MultipleValue ? 1 : 0, metaDBId, prefix));
         }
 
         private static int GetPartnerIdforTag(KeyValuePair<int, string> tagVal, GroupsCacheManager.Group group)

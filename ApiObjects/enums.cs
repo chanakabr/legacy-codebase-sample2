@@ -756,8 +756,8 @@ namespace ApiObjects
         String,
         Number,
         Bool,
-        Tag,
-        DateTime
+        DateTime,
+        Tag //TODO: Remove everything that references this
     }
 
     public enum MetaFieldName
