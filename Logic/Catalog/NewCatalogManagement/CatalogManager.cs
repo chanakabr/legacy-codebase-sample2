@@ -15,39 +15,7 @@ namespace Core.Catalog.NewCatalogManagement
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static AssetStructsResponse GetAssetStructsByIds(int groupId, List<long> ids)
-        {
-            AssetStructsResponse response = new AssetStructsResponse();
-            try
-            {
-                DataSet ds = CatalogDAL.GetAssetStructsByIds(groupId, ids);
-                CreateAssetStructResponseFromDataSet(response, ds);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetAssetStructsByIds with groupId: {0} and ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
-            }
-
-            return response;
-        }
-
-        public static AssetStructsResponse GetAssetStructsByMetaIds(int groupId, List<long> metaIds)
-        {
-            AssetStructsResponse response = new AssetStructsResponse();
-            try
-            {
-                DataSet ds = CatalogDAL.GetAssetStructsByMetaIds(groupId, metaIds);
-                CreateAssetStructResponseFromDataSet(response, ds);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetAssetStructsByMetaIds with groupId: {0} and metaIds: {1}", groupId, metaIds != null ? string.Join(",", metaIds) : string.Empty), ex);
-            }
-
-            return response;
-        }
-
-        private static void CreateAssetStructResponseFromDataSet(AssetStructsResponse response, DataSet ds)
+        private static void CreateAssetStructResponseFromDataSet(AssetStructListResponse response, DataSet ds)
         {
             if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
             {
@@ -91,5 +59,93 @@ namespace Core.Catalog.NewCatalogManagement
             }
         }
 
+        public static AssetStructListResponse GetAssetStructsByIds(int groupId, List<long> ids)
+        {
+            AssetStructListResponse response = new AssetStructListResponse();
+            try
+            {
+                DataSet ds = CatalogDAL.GetAssetStructsByIds(groupId, ids);
+                CreateAssetStructResponseFromDataSet(response, ds);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssetStructsByIds with groupId: {0} and ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
+            }
+
+            return response;
+        }
+
+        public static AssetStructListResponse GetAssetStructsByMetaIds(int groupId, List<long> metaIds)
+        {
+            AssetStructListResponse response = new AssetStructListResponse();
+            try
+            {
+                DataSet ds = CatalogDAL.GetAssetStructsByMetaIds(groupId, metaIds);
+                CreateAssetStructResponseFromDataSet(response, ds);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssetStructsByMetaIds with groupId: {0} and metaIds: {1}", groupId, metaIds != null ? string.Join(",", metaIds) : string.Empty), ex);
+            }
+
+            return response;
+        }        
+
+        public static AssetStructResponse AddAssetStruct(int groupId, AssetStruct assetStructToadd)
+        {
+            AssetStructResponse result = new AssetStructResponse();
+            try
+            {
+                List<KeyValuePair<long, int>> metaIdsToPriority = new List<KeyValuePair<long, int>>();
+                if (assetStructToadd.MetaIds != null && assetStructToadd.MetaIds.Count > 0)
+                {
+                    int priority = 1;
+                    foreach (long metaId in assetStructToadd.MetaIds)
+                    {
+                        metaIdsToPriority.Add(new KeyValuePair<long, int>(metaId, priority));
+                        priority++;
+                    }
+                }
+                DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, assetStructToadd.SystemName, metaIdsToPriority, assetStructToadd.IsPredefined);
+                List<AssetStruct> assetStructs = null;
+                long id = 0;
+                if (id > 0)
+                {
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    assetStructToadd.Id = id;
+                    result.AssetStruct = assetStructToadd;
+                }
+                else
+                {
+                    switch (id)
+                    {
+                        case -1:
+                            result.Status = new Status((int)eResponseStatus.AssetStructNameAlreadyInUse, eResponseStatus.AssetStructNameAlreadyInUse.ToString());
+                            break;
+                        case -2:
+                            result.Status = new Status((int)eResponseStatus.AssetStructSystemNameAlreadyInUse, eResponseStatus.AssetStructSystemNameAlreadyInUse.ToString());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddAssetStruct for groupId: {0} and assetStruct: {1}", groupId, assetStructToadd.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        public static AssetStructResponse UpdateAssetStruct(int groupId, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Status DeleteAssetStruct(object groupId, long id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -7,18 +7,15 @@ using System.Threading.Tasks;
 
 namespace Core.Catalog.NewCatalogManagement
 {
-    public class AssetStructsResponse
+    public class AssetStructResponse
     {
+        public Status Status { get; set; }
+        public AssetStruct AssetStruct { get; set; }        
 
-        public Status Status;
-
-        public List<AssetStruct> AssetStructs { get; set; }
-
-        public AssetStructsResponse()
+        public AssetStructResponse()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            AssetStructs = new List<AssetStruct>();
+            AssetStruct = null;
         }
-
     }
 }

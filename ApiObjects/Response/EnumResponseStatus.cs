@@ -198,6 +198,10 @@ namespace ApiObjects.Response
         ActionNotRecognized = 4023,
         InvalidAssetId = 4024,
         CountryNotFound = 4025,
+        AssetStructNameAlreadyInUse = 4026,
+        AssetStructSystemNameAlreadyInUse = 4027,
+        MetaIdsDoesNotExist = 4027,
+        AssetStructDoesNotExist = 4028,        
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

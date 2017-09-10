@@ -38,5 +38,18 @@ namespace Core.Catalog.NewCatalogManagement
             this.UpdateDate = updateDate;
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(string.Format("Id: {0}, ", Id));
+            sb.AppendFormat("Name: {0}, ", Name);
+            sb.AppendFormat("SystemName: {0}, ", SystemName);
+            sb.AppendFormat("MetaIds: {0}, ", MetaIds != null ? string.Join(",", MetaIds) : string.Empty);
+            sb.AppendFormat("IsPredefined: {0}, ", IsPredefined);
+            sb.AppendFormat("CreateDate: {0}, ", CreateDate);
+            sb.AppendFormat("UpdateDate: {0}", UpdateDate);
+
+            return sb.ToString();
+        }
+
     }
 }
