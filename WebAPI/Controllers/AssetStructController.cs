@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.Response;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
 
@@ -41,14 +43,12 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (!string.IsNullOrEmpty(filter.MetaIdContains))
-                {
-                    // call client
+                if (!string.IsNullOrEmpty(filter.MetaIdsContains))
+                {                    
                     response = ClientsManager.CatalogClient().GetAssetStructs(groupId, filter.GetMetaIdContains(), filter.OrderBy, true);
                 }
                 else
-                {
-                    // call client
+                {                   
                     response = ClientsManager.CatalogClient().GetAssetStructs(groupId, filter.GetIdIn(), filter.OrderBy);
                 }
 
@@ -60,5 +60,99 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Add a new assetStruct
+        /// </summary>
+        /// <param name="assetStrcut">AssetStruct Object</param>
+        /// <returns></returns>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetStructNameAlreadyInUse)]
+        [Throws(eResponseStatus.AssetStructSystemNameAlreadyInUse)]
+        [Throws(eResponseStatus.MetaIdsDoesNotExist)]
+        public KalturaAssetStruct Add(KalturaAssetStruct assetStrcut)
+        {
+            KalturaAssetStruct response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (assetStrcut.Name == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "name");
+            }
+
+            if (string.IsNullOrEmpty(assetStrcut.SystemName))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "systemName");
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().AddAssetStruct(groupId, assetStrcut);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Update an existing assetStruct
+        /// </summary>
+        /// <param name="id">AssetStruct Identifier</param>
+        /// <param name="assetStrcut">AssetStruct Object</param>
+        /// <returns></returns>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
+        [Throws(eResponseStatus.AssetStructNameAlreadyInUse)]
+        [Throws(eResponseStatus.AssetStructSystemNameAlreadyInUse)]
+        [Throws(eResponseStatus.MetaIdsDoesNotExist)]
+        [SchemeArgument("id", MinLong = 1)]
+        public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStrcut)
+        {
+            KalturaAssetStruct response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {                
+                response = ClientsManager.CatalogClient().UpdateAssetStruct(groupId, assetStrcut);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Delete an assetStruct
+        /// </summary>
+        /// <param name="id">AssetStruct Identifier</param>
+        /// <returns></returns>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
+        [SchemeArgument("id", MinLong = 1)]
+        public bool Delete(long id)
+        {
+            bool result = false;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                result = ClientsManager.CatalogClient().DeleteAssetStruct(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
     }
 }

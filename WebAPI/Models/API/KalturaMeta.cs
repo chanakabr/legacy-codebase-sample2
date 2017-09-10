@@ -30,7 +30,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
-        [XmlElement(ElementName = "name")]
+        [XmlElement(ElementName = "name", IsNullable = true)]
         public KalturaMultilingualString Name { get; set; }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "systemName")]
         [JsonProperty("systemName")]
-        [XmlElement(ElementName = "systemName")]
+        [XmlElement(ElementName = "systemName", IsNullable = true)]
         public string SystemName { get; set; }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
-        [XmlElement(ElementName = "type")]
+        [XmlElement(ElementName = "type", IsNullable = true)]
         public KalturaMetaType Type { get; set; }
 
         /// <summary>
@@ -63,23 +63,23 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "multipleValue")]
         [JsonProperty("multipleValue")]
-        [XmlElement(ElementName = "multipleValue")]
+        [XmlElement(ElementName = "multipleValue", IsNullable = true)]
         public bool MultipleValue { get; set; }
 
         /// <summary>
-        ///  Is the meta predefined on the system
+        ///  Is the meta protected by the system
         /// </summary>
-        [DataMember(Name = "isPredefined")]
-        [JsonProperty("isPredefined")]
-        [XmlElement(ElementName = "isPredefined")]
-        public bool IsPredefined { get; set; }
+        [DataMember(Name = "isProtected")]
+        [JsonProperty("isProtected")]
+        [XmlElement(ElementName = "isProtected", IsNullable = true)]
+        public bool IsProtected { get; set; }
 
         /// <summary>
         ///  The help text of the meta to display on the UI, where needed.
         /// </summary>
         [DataMember(Name = "helpText")]
         [JsonProperty("helpText")]
-        [XmlElement(ElementName = "helpText")]        
+        [XmlElement(ElementName = "helpText", IsNullable = true)]        
         public string HelpText { get; set; }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "features")]
         [JsonProperty("features")]
         [XmlElement(ElementName = "features", IsNullable = true)]
-        [SchemeProperty(DynamicType = typeof(KalturaMetaFeatureType))]
+        //[SchemeProperty(DynamicType = typeof(KalturaMetaFeatureType))]
         public string Features { get; set; }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "parentId")]
         [JsonProperty("parentId")]
-        [XmlElement(ElementName = "parentId")]        
+        [XmlElement(ElementName = "parentId", IsNullable = true)]        
         public string ParentId{ get; set; }
 
         /// <summary>

@@ -41,12 +41,12 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Comma separated meta identifiers
         /// </summary>
-        [DataMember(Name = "metaIdContains")]
-        [JsonProperty("metaIdContains")]
-        [XmlArray(ElementName = "metaIdContains", IsNullable = true)]
+        [DataMember(Name = "metaIdsContains")]
+        [JsonProperty("metaIdsContains")]
+        [XmlArray(ElementName = "metaIdsContains", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public string MetaIdContains { get; set; }
+        public string MetaIdsContains { get; set; }
 
         public override KalturaAssetStructOrderBy GetDefaultOrderByValue()
         {
@@ -55,7 +55,7 @@ namespace WebAPI.Models.Catalog
 
         internal void Validate()
         {
-            if (!string.IsNullOrEmpty(IdIn) && !string.IsNullOrEmpty(MetaIdContains))
+            if (!string.IsNullOrEmpty(IdIn) && !string.IsNullOrEmpty(MetaIdsContains))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaAssetStructFilter.idIn, KalturaAssetStructFilter.metaIdContains");
             }
@@ -87,9 +87,9 @@ namespace WebAPI.Models.Catalog
         public List<long> GetMetaIdContains()
         {
             List<long> list = new List<long>();
-            if (!string.IsNullOrEmpty(MetaIdContains))
+            if (!string.IsNullOrEmpty(MetaIdsContains))
             {
-                string[] stringValues = MetaIdContains.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] stringValues = MetaIdsContains.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string stringValue in stringValues)
                 {
                     long value;

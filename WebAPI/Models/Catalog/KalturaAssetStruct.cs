@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -26,7 +27,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
-        [XmlElement(ElementName = "name")]
+        [XmlElement(ElementName = "name", IsNullable = true)]
         public KalturaMultilingualString Name { get; set; }
 
         /// <summary>
@@ -34,16 +35,16 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "systemName")]
         [JsonProperty("systemName")]
-        [XmlElement(ElementName = "systemName")]
+        [XmlElement(ElementName = "systemName", IsNullable = true)]
         public string SystemName { get; set; }
 
         /// <summary>
-        ///  Is the Asset Struct predefined on the system
+        ///  Is the Asset Struct protected by the system
         /// </summary>
-        [DataMember(Name = "isPredefined")]
-        [JsonProperty("isPredefined")]
-        [XmlElement(ElementName = "isPredefined")]
-        public bool IsPredefined { get; set; }
+        [DataMember(Name = "isProtected")]
+        [JsonProperty("isProtected")]
+        [XmlElement(ElementName = "isProtected", IsNullable = true)]
+        public bool IsProtected { get; set; }
 
         /// <summary>
         /// A list of comma separated meta ids associated with this asset struct, returned according to the order.
@@ -70,5 +71,28 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "updateDate")]
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
+
+        public List<long> GetMetaIds()
+        {
+            List<long> list = new List<long>();
+            if (!string.IsNullOrEmpty(MetaIds))
+            {
+                string[] stringValues = MetaIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
+                {
+                    long value;
+                    if (!long.TryParse(stringValue, out value) || value < 1)
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_STRING_CONTAINED_MIN_VALUE_CROSSED, "KalturaAssetStruct.metaIds", 1);
+                    }
+                    else
+                    {
+                        list.Add(value);
+                    }
+                }
+            }
+
+            return list;
+        }
     }
 }

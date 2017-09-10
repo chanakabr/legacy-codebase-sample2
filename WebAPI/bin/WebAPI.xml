@@ -357,6 +357,28 @@
             <param name="filter">Filter parameters for filtering out the result</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.AssetStructController.Add(WebAPI.Models.Catalog.KalturaAssetStruct)">
+            <summary>
+            Add a new assetStruct
+            </summary>
+            <param name="assetStrcut">AssetStruct Object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetStructController.Update(System.Int64,WebAPI.Models.Catalog.KalturaAssetStruct)">
+            <summary>
+            Update an existing assetStruct
+            </summary>
+            <param name="id">AssetStruct Identifier</param>
+            <param name="assetStrcut">AssetStruct Object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetStructController.Delete(System.Int64)">
+            <summary>
+            Delete an assetStruct
+            </summary>
+            <param name="id">AssetStruct Identifier</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.CdnAdapterProfileController.List">
             <summary>
             Returns all CDN adapters for partner
@@ -3912,7 +3934,7 @@
             Comma separated identifiers
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructFilter.MetaIdContains">
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructFilter.MetaIdsContains">
             <summary>
             Comma separated meta identifiers
             </summary>
@@ -3932,9 +3954,9 @@
             Asset Struct name for the partner
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.IsPredefined">
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.IsProtected">
             <summary>
-             Is the Asset Struct predefined on the system
+             Is the Asset Struct protected by the system
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.MetaIds">
@@ -5517,9 +5539,9 @@
              Does the meta contain multiple values
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaMeta.IsPredefined">
+        <member name="P:WebAPI.Models.API.KalturaMeta.IsProtected">
             <summary>
-             Is the meta predefined on the system
+             Is the meta protected by the system
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.HelpText">

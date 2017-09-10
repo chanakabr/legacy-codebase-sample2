@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
+using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using AutoMapper;
 using Core.Catalog;
@@ -44,15 +45,17 @@ namespace WebAPI.Clients
             }
         }
 
-        internal KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool shouldGetByMetaIds = false)
+        #region New Catalog Management
+
+        public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool shouldGetByMetaIds = false)
         {
             KalturaAssetStructListResponse result = new KalturaAssetStructListResponse() { TotalCount = 0 };
-            AssetStructsResponse response = null;
+            AssetStructListResponse response = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {                    
+                {
                     if (shouldGetByMetaIds)
                     {
                         response = Core.Catalog.NewCatalogManagement.CatalogManager.GetAssetStructsByMetaIds(groupId, ids);
@@ -60,12 +63,12 @@ namespace WebAPI.Clients
                     else
                     {
                         response = Core.Catalog.NewCatalogManagement.CatalogManager.GetAssetStructsByIds(groupId, ids);
-                    }                    
+                    }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -84,8 +87,8 @@ namespace WebAPI.Clients
                 result.TotalCount = response.AssetStructs.Count;
                 result.AssetStructs = new List<KalturaAssetStruct>();
                 foreach (AssetStruct assetStruct in response.AssetStructs)
-                {                    
-                    result.AssetStructs.Add(AutoMapper.Mapper.Map<KalturaAssetStruct>(assetStruct));                    
+                {
+                    result.AssetStructs.Add(AutoMapper.Mapper.Map<KalturaAssetStruct>(assetStruct));
                 }
             }
 
@@ -124,6 +127,105 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut)
+        {
+            KalturaAssetStruct result = null;
+            AssetStructResponse response = null;
+
+            try
+            {
+                AssetStruct assetStructToadd = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.NewCatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToadd);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = AutoMapper.Mapper.Map<KalturaAssetStruct>(response.AssetStruct);
+            return result;
+        }
+
+        public KalturaAssetStruct UpdateAssetStruct(int groupId, KalturaAssetStruct assetStrcut)
+        {            
+            KalturaAssetStruct result = null;
+            AssetStructResponse response = null;
+
+            try
+            {
+                bool shouldUpdateMetaIds = assetStrcut.MetaIds != null;
+                AssetStruct assetStructToUpdate = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);                
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.NewCatalogManagement.CatalogManager.UpdateAssetStruct(groupId, assetStructToUpdate, shouldUpdateMetaIds);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = AutoMapper.Mapper.Map<KalturaAssetStruct>(response.AssetStruct);
+            return result;
+        }
+
+        public bool DeleteAssetStruct(int groupId, long id)
+        {
+            Status response = null;            
+
+            try
+            {                
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.NewCatalogManagement.CatalogManager.DeleteAssetStruct(groupId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        #endregion        
 
         public int CacheDuration { get; set; }
 
