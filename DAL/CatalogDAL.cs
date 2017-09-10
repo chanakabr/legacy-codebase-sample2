@@ -4725,6 +4725,20 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
+        public static DataSet InsertAssetStruct(int groupId, string name, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority, bool isPredefined)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertRecording");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Name", name);
+            sp.AddParameter("@SystemName", systemName);
+            sp.AddParameter("@IsPredefined", isPredefined);
+            sp.AddParameter("@MetaIdsToPriorityExist", metaIdsToPriority != null && metaIdsToPriority.Count > 0);
+            sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
+
+            return sp.ExecuteDataSet();
+        }
+
         #endregion
 
     }
