@@ -472,10 +472,11 @@ namespace APILogic
                                             rule.AllTagValues.AddRange(drTags.Select(x => x.Field<string>("VALUE")).ToList());
                                         }
                                         result.Add(rule);
-                                    }
-                                    res = true;
+                                    }                                    
                                 }
                             }
+
+                            res = true;
                         }
                     }
                 }
