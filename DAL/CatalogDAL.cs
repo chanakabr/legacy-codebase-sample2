@@ -787,7 +787,6 @@ namespace Tvinci.Core.DAL
             return returnedDataTable;
         }
 
-
         public static DataSet GetChannelDetails(List<int> nChannelId, bool alsoInactive = false)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetChannelDetails");
@@ -4725,18 +4724,50 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertAssetStruct(int groupId, string name, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority, bool isPredefined)
+        public static DataSet InsertAssetStruct(int groupId, string name, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertRecording");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Name", name);
             sp.AddParameter("@SystemName", systemName);
-            sp.AddParameter("@IsPredefined", isPredefined);
+            sp.AddParameter("@IsPredefined", isPredefined.Value ? 1 : 0);
             sp.AddParameter("@MetaIdsToPriorityExist", metaIdsToPriority != null && metaIdsToPriority.Count > 0);
             sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
 
             return sp.ExecuteDataSet();
+        }
+
+        public static DataSet UpdateAssetStruct(int groupId, string name, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetStruct");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Name", name);
+            sp.AddParameter("@SystemName", systemName);
+            if (isPredefined.HasValue)
+            {
+                sp.AddParameter("@IsPredefined", isPredefined.Value ? 1 : 0);
+            }
+            else
+            {
+                sp.AddParameter("@IsPredefined", null);
+            }
+
+            sp.AddParameter("@MetaIdsToPriorityExist", metaIdsToPriority != null && metaIdsToPriority.Count > 0);
+            sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static long DeleteAssetStruct(int groupId, long id)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteAssetStruct");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Id", id);
+
+            return sp.ExecuteReturnValue<long>();
         }
 
         #endregion
