@@ -984,7 +984,7 @@ namespace Core.ConditionalAccess
             ref bool shouldUpdateTaskStatus, string proccessId)
         {
             // log request
-            string logString = string.Format("RenewUnifiedTransaction: householdId {0}, paymentgatewayId {1}, endDateLong {3}", householdId, paymentgatewayId, nextEndDate);
+            string logString = string.Format("RenewUnifiedTransaction: householdId {0}, paymentgatewayId {1}, endDateLong {2}", householdId, paymentgatewayId, nextEndDate);
 
             log.DebugFormat("Starting renewal one transaction process. data: {0}", logString);
 
