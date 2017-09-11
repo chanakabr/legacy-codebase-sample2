@@ -51,5 +51,19 @@ namespace SubscriptionRenewHandler
             get;
             set;
         }
+
+        [JsonProperty("household_id")]
+        public long HouseholdId
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("paymentgateway_id")]
+        public int PaymentgatewayId
+        {
+            get;
+            set;
+        }
     }
 }

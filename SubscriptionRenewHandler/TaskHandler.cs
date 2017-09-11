@@ -45,6 +45,12 @@ namespace SubscriptionRenewHandler
                         success = Core.ConditionalAccess.Module.Renew(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
                         break;
                     }
+                    case eSubscriptionRenewRequestType.RenewUnifiedTransaction:
+                        {
+                            success = Core.ConditionalAccess.Module.RenewUnifiedTransaction(request.GroupID, request.HouseholdId, request.PaymentgatewayId, request.EndDate);
+                            break;
+                        }
+
                     case eSubscriptionRenewRequestType.Reminder:
                     {
                         success = Core.ConditionalAccess.Module.GiftCardReminder(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
