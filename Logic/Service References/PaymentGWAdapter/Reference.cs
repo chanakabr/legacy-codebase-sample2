@@ -569,6 +569,115 @@ namespace APILogic.PaymentGWAdapter {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="TransactionProductDetails", Namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models")]
+    [System.SerializableAttribute()]
+    public partial class TransactionProductDetails : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int gracePeriodMinutesField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private double priceField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string productCodeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string productidField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string transactionIdField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int gracePeriodMinutes {
+            get {
+                return this.gracePeriodMinutesField;
+            }
+            set {
+                if ((this.gracePeriodMinutesField.Equals(value) != true)) {
+                    this.gracePeriodMinutesField = value;
+                    this.RaisePropertyChanged("gracePeriodMinutes");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public double price {
+            get {
+                return this.priceField;
+            }
+            set {
+                if ((this.priceField.Equals(value) != true)) {
+                    this.priceField = value;
+                    this.RaisePropertyChanged("price");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string productCode {
+            get {
+                return this.productCodeField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.productCodeField, value) != true)) {
+                    this.productCodeField = value;
+                    this.RaisePropertyChanged("productCode");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string productid {
+            get {
+                return this.productidField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.productidField, value) != true)) {
+                    this.productidField = value;
+                    this.RaisePropertyChanged("productid");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string transactionId {
+            get {
+                return this.transactionIdField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.transactionIdField, value) != true)) {
+                    this.transactionIdField = value;
+                    this.RaisePropertyChanged("transactionId");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="PaymentGWAdapter.IService")]
     public interface IService {
@@ -596,6 +705,9 @@ namespace APILogic.PaymentGWAdapter {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/RemoveAccount", ReplyAction="http://tempuri.org/IService/RemoveAccountResponse")]
         APILogic.PaymentGWAdapter.PaymentMethodResponse RemoveAccount(int paymentGatewayId, string householdChargeId, string[] paymentMethodExternalIds, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/UnifiedProcessRenewal", ReplyAction="http://tempuri.org/IService/UnifiedProcessRenewalResponse")]
+        APILogic.PaymentGWAdapter.TransactionResponse UnifiedProcessRenewal(int paymentGatewayId, long housholdId, string chargeId, string paymentMethodExternalId, string currency, double totalPrice, APILogic.PaymentGWAdapter.TransactionProductDetails[] renewSubscription, long timeStamp, string signature);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -655,6 +767,10 @@ namespace APILogic.PaymentGWAdapter {
         
         public APILogic.PaymentGWAdapter.PaymentMethodResponse RemoveAccount(int paymentGatewayId, string householdChargeId, string[] paymentMethodExternalIds, long timeStamp, string signature) {
             return base.Channel.RemoveAccount(paymentGatewayId, householdChargeId, paymentMethodExternalIds, timeStamp, signature);
+        }
+        
+        public APILogic.PaymentGWAdapter.TransactionResponse UnifiedProcessRenewal(int paymentGatewayId, long housholdId, string chargeId, string paymentMethodExternalId, string currency, double totalPrice, APILogic.PaymentGWAdapter.TransactionProductDetails[] renewSubscription, long timeStamp, string signature) {
+            return base.Channel.UnifiedProcessRenewal(paymentGatewayId, housholdId, chargeId, paymentMethodExternalId, currency, totalPrice, renewSubscription, timeStamp, signature);
         }
     }
 }

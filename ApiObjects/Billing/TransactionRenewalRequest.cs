@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ApiObjects.Billing
 {
-    public class TransactionRenewalRequest : TransactionRequest
+    public class TransactionUnifiedRenewal : TransactionRequest
     {
         public string ExternalTransactionId { get; set; }
         public int GracePeriodMinutes { get; set; }

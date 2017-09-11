@@ -360,6 +360,7 @@
     <Compile Include="ConditionalAccess\Managers\UnifiedBillingCycleManager.cs" />
     <Compile Include="ConditionalAccess\Modules\PpvPurchase.cs" />
     <Compile Include="ConditionalAccess\Modules\Purchase.cs" />
+    <Compile Include="ConditionalAccess\Modules\RenewSubscriptionDetails.cs" />
     <Compile Include="ConditionalAccess\Modules\SubscriptionPurchase.cs" />
     <Compile Include="ConditionalAccess\PermittedCollectionContainer.cs" />
     <Compile Include="ConditionalAccess\PermittedMediaContainer.cs" />
@@ -843,7 +844,9 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\DataSources\AdapterControllers.RecommendationEngineAdapter.AdapterStatus.datasource" />
     <None Include="Properties\DataSources\AdapterControllers.RecommendationEngineAdapter.RecommendationsResult.datasource" />
     <None Include="Properties\Settings.settings">
@@ -952,26 +955,29 @@
     <None Include="Service References\OSSAdapterService\Service43.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\PaymentGWAdapter\Billing.PaymentGWAdapter.AdapterStatus1.datasource">
+    <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.AdapterStatus.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\PaymentGWAdapter\Billing.PaymentGWAdapter.ConfigurationResponse.datasource">
+    <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.ConfigurationResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\PaymentGWAdapter\Billing.PaymentGWAdapter.TransactionResponse1.datasource">
+    <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.PaymentMethodResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\PaymentGWAdapter\Billing.PaymentGWAdapter.TransactionResult.datasource">
+    <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.TransactionResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\PaymentGWAdapter\Service12.wsdl" />
+    <None Include="Service References\PaymentGWAdapter\Service.wsdl" />
+    <None Include="Service References\PaymentGWAdapter\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PaymentGWAdapter\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PaymentGWAdapter\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\PaymentGWAdapter\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\Service31.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\Service32.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Web References\AdyenPayAPI\BalanceCheckResult.datasource">
@@ -1133,21 +1139,6 @@
     <WCFMetadataStorage Include="Service References\PaymentGWAdapter\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\PaymentGWAdapter\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PaymentGWAdapter\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PaymentGWAdapter\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PaymentGWAdapter\Service1.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <WCFMetadataStorage Include="Service References\OSSAdapterService\" />
   </ItemGroup>
   <ItemGroup>
@@ -1218,6 +1209,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\AmazonSnsAdapter\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PaymentGWAdapter\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PaymentGWAdapter\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PaymentGWAdapter\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PaymentGWAdapter\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace ApiObjects
 {
-    public class RenewOneTransactionData : BaseCeleryData
+    public class RenewUnifiedData : BaseCeleryData
     {
-        public const string TASK = "distributed_tasks.process_one_transaction_renew_subscription";
+        public const string TASK = "distributed_tasks.process_unified_renew_subscription";
                 
         private long householdId;
         private int paymentgatewayId;
         private long endDate;
         private eSubscriptionRenewRequestType type;
 
-        public RenewOneTransactionData(int groupId, long householdId, int paymentgatewayId, long endDate, DateTime nextRenewDate,
-            eSubscriptionRenewRequestType type = eSubscriptionRenewRequestType.Renew) :
+        public RenewUnifiedData(int groupId, long householdId, int paymentgatewayId, long endDate, DateTime nextRenewDate,
+            eSubscriptionRenewRequestType type = eSubscriptionRenewRequestType.RenewUnifiedTransaction) :
                 base(// id = household+paymentgateway+date
                      string.Format("h{0}_p{1}_d{2}", householdId, paymentgatewayId, endDate),
                      // task = const
