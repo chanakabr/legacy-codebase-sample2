@@ -321,5 +321,13 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "externalId")]
         public string ExternalId{ get; set; }
 
+        /// <summary>
+        /// Is cancellation blocked for the subscription
+        /// </summary>
+        [DataMember(Name = "isCancellationBlocked")]
+        [JsonProperty("isCancellationBlocked")]
+        [XmlElement(ElementName = "isCancellationBlocked")]
+        public bool IsCancellationBlocked { get; set; }
+
     }
 }

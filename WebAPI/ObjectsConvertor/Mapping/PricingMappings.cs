@@ -172,6 +172,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)))
                .ForMember(dest => dest.DependencyType, opt => opt.MapFrom(src => ConvertSubscriptionType(src.Type)))
                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_ProductCode))
+               .ForMember(dest => dest.IsCancellationBlocked, opt => opt.MapFrom(src => src.BlockCancellation))
                .ForMember(dest => dest.PricePlanIds, opt => opt.MapFrom(src =>
                    src.m_MultiSubscriptionUsageModule != null && src.m_MultiSubscriptionUsageModule.Length > 0 ?
                    string.Join(",", src.m_MultiSubscriptionUsageModule.Select(um => um.m_nObjectID).ToArray()) :

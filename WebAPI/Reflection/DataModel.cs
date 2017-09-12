@@ -5837,6 +5837,8 @@ namespace WebAPI.Reflection
                             return "householdLimitationsId";
                         case "Id":
                             return "id";
+                        case "IsCancellationBlocked":
+                            return "isCancellationBlocked";
                         case "IsInfiniteRenewal":
                             return "isInfiniteRenewal";
                         case "IsRenewable":
