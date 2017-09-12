@@ -170,6 +170,7 @@ namespace ApiObjects.Response
         MissingBasePackage = 3071,
         BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet = 3072,
         WrongSubscriptionType = 3073,
+        SubscriptionCancellationIsBlocked = 3074,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

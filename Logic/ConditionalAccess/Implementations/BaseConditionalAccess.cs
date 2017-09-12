@@ -9756,8 +9756,21 @@ namespace Core.ConditionalAccess
                         string purchasingSiteGuid = string.Empty;
                         string billingGuid = string.Empty;
 
+                        // Check if cancellation allowed for subscription
+                        if (!isForce && transactionType == eTransactionType.Subscription)
+                        {
+                            Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false);
+                            if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                            {
+                                result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                                result.Message = "Cancellation is blocked for this subscription";
+                                return result;
+                            }
+                        }
+
                         // Check if within cancellation window
                         bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid);
+
 
                         // Check if the user purchased the asset at all
                         if (userPurchasesTable == null || userPurchasesTable.Rows == null || userPurchasesTable.Rows.Count == 0)
