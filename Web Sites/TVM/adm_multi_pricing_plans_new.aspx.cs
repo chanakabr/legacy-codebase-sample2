@@ -1495,6 +1495,10 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         dr_type.SetDefaultVal("NotApplicable");
         theRecord.AddRecord(dr_type);
 
+        DataRecordBoolField dr_is_cancellation_blocked = new DataRecordBoolField(true);
+        dr_is_cancellation_blocked.Initialize("Is cancellation blocked", "adm_table_header_nbg", "FormInput", "BLOCK_CANCELLATION", false);
+        theRecord.AddRecord(dr_is_cancellation_blocked);
+
         m.Dispose();
 
         string sTable = theRecord.GetTableHTML("adm_multi_pricing_plans_new.aspx?submited=1", true);
