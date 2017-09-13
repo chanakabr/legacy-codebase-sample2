@@ -928,13 +928,12 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns a group-by result for media or EPG according to given filter. Lists values of each field and their respective count.
         /// </summary>
-        /// <param name="filter">Filtering the assets request</param>
-        /// <param name="groupBy">List of asset parameters to group by</param>
+        /// <param name="filter">Filtering the assets request</param>       
         /// <returns></returns>
         [Route("count"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaAssetCount Count(List<KalturaAssetGroupBy> groupBy, KalturaSearchAssetFilter filter = null)
+        public KalturaAssetCount Count(KalturaSearchAssetFilter filter = null)
         {
             KalturaAssetCount response = null;
 
@@ -955,13 +954,13 @@ namespace WebAPI.Controllers
 
             List<string> groupByValuesList = null;
 
-            if (groupBy == null)
+            if (filter.GroupBy == null)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
             }
             else
             {
-                groupByValuesList = groupBy.Select(group => group.GetValue()).ToList();
+                groupByValuesList = filter.GroupBy.Select(group => group.GetValue()).ToList();
 
                 if (groupByValuesList == null || groupByValuesList.Count == 0)
                 {
