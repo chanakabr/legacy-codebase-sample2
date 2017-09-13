@@ -8134,7 +8134,7 @@ namespace Core.ConditionalAccess
         ///If needed create/ update doc in cb for unifiedBilling_household_{ household_id }_renewBillingCycle
         ///create: unified billing cycle for household (CB)
         ///update: the current one with payment gateway id or end date 
-        internal static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, long subscriptionBillingCycle, UnifiedBillingCycle unifiedBillingCycle, DateTime endDate, int paymentGatewayId, long currentDate)
+        internal static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, long subscriptionBillingCycle, ref UnifiedBillingCycle unifiedBillingCycle, DateTime endDate, int paymentGatewayId, long currentDate)
         {
             try
             {
@@ -8174,6 +8174,10 @@ namespace Core.ConditionalAccess
                     {
                         // update unified billing by endDate or paymentGatewatId                  
                         bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupUnifiedBillingCycle.Value, nextEndDate, paymentGWIds);
+                        if (setResult)
+                        {
+                            unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupUnifiedBillingCycle.Value);
+                        }
                     }
                 }
             }

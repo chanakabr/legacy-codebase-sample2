@@ -1310,10 +1310,8 @@ namespace Core.ConditionalAccess
                 nextRenewalDate = endDate.AddMinutes(-5);
 
                 nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
-                Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, maxUsageModuleLifeCycle, unifiedBillingCycle, endDate,
-                    paymentGateway.ID,
-                    ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow));
-
+                Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, maxUsageModuleLifeCycle, ref unifiedBillingCycle, endDate, paymentGateway.ID, ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow));
+                
                 // enqueue unified renew transaction
                 Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate), nextRenewalDate, paymentGateway.ID);
 
