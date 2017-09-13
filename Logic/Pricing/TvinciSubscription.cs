@@ -666,20 +666,22 @@ namespace Core.Pricing
             string sProductCode = ODBCWrapper.Utils.GetSafeStr(subscriptionRow["Product_Code"]);
             int nSubscriptionGeoCommerceID = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow["geo_commerce_block_id"]);
             long lPreviewModuleID = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow["preview_module_id"]);
-                       
+
+            bool blockCancellation = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow, "BLOCK_CANCELLATION", -1) == 1;
+
             if (bShrink)
             {
                 retSubscription.Initialize(sPriceCode, string.Empty, string.Empty, string.Empty, subscriptionDescription, m_nGroupID, nSubscriptionCode.ToString(),
                                            subscriptionChannels, dStart, dEnd, nFileTypes, bIsRecurring, nNumOfPeriods, subscriptionName, sSubPriceCode, sSubscriptionUsageModuleCode, sName,
                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID,
-                                           gracePeriodMinutes, adsPolicy, adsParam, couponsGroup, subscriptionSetIdsToPriority, externalProductCodes, type);                                           
+                                           gracePeriodMinutes, adsPolicy, adsParam, couponsGroup, subscriptionSetIdsToPriority, externalProductCodes, type, blockCancellation);                                           
             }
             else
             {
                 retSubscription.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, subscriptionDescription, m_nGroupID, nSubscriptionCode.ToString(),
                                            subscriptionChannels, dStart, dEnd, nFileTypes, bIsRecurring, nNumOfPeriods, subscriptionName, sSubPriceCode, sSubscriptionUsageModuleCode, sName,
                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID,
-                                           gracePeriodMinutes, adsPolicy, adsParam, couponsGroup, subscriptionSetIdsToPriority, externalProductCodes, type);
+                                           gracePeriodMinutes, adsPolicy, adsParam, couponsGroup, subscriptionSetIdsToPriority, externalProductCodes, type, blockCancellation);
             }
 
             return retSubscription;

@@ -871,7 +871,13 @@ namespace Core.ConditionalAccess
                         couponCode = coupon
                     };
                 subscriptionPurchase.Insert();
-                response.Id = purchaseId = subscriptionPurchase.purchaseId;
+                
+                purchaseId = subscriptionPurchase.purchaseId;
+
+                if (response != null)
+                {
+                    response.Id = purchaseId;
+                }
 
                 if (purchaseId == 0)
                 {
