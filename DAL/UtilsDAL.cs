@@ -697,6 +697,12 @@ namespace DAL
 
         }
 
+        public static string getUserNpvrMarkDocKey(string userId, int npvrId)
+        {
+            return string.Format("u{0}_n{1}", userId, npvrId);
+
+        }
+
         public static string getUserEpgMarkDocKey(int userID, string epgID)
         {
             return string.Format("u{0}_epg{1}", userID, epgID);
