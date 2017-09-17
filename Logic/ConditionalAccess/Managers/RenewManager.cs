@@ -526,9 +526,9 @@ namespace Core.ConditionalAccess
 
             long lastEndDate = DateUtils.DateTimeToUnixTimestamp(endDate);
 
-            if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != DateUtils.DateTimeToUnixTimestamp(endDate))
+            if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate)) 
             {
-                endDate = DateUtils.UnixTimeStampToDateTime(unifiedBillingCycle.endDate);
+                endDate = ODBCWrapper.Utils.UnixTimestampToDateTime(unifiedBillingCycle.endDate);
             }
             else
             {
