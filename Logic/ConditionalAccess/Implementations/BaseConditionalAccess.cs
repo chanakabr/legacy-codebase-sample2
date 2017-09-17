@@ -14165,11 +14165,14 @@ namespace Core.ConditionalAccess
 					recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
 				}
 
-				// get first batch
-				int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0;
-                System.Collections.Concurrent.ConcurrentDictionary<int, int> groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, int>();
-				Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
+                int totalRecordingsToCleanup = 0;
+                int totalRecordingsDeleted = 0;
+                var groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, int>();
 				HashSet<long> recordingsThatFailedDeletion = new HashSet<long>();
+
+                // get first batch
+                Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
+
 				while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
 				{
 					totalRecordingsToCleanup += recordingsForDeletion.Count;
@@ -14188,16 +14191,22 @@ namespace Core.ConditionalAccess
                         try
                         {
                             contextData.Load();
+
+                            // get adapter data of current group, if we don't have
+                            // pair.key = groupId
                             if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
                             {
                                 adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
+
                                 if (groupIdToAdapterIdMap.TryAdd(pair.Key, adapterId))
                                 {
                                     log.DebugFormat("Successfully added groupId :{0} with adapterId: {1} to groupIdToAdapterIdMap", pair.Key, adapterId);
                                 }
                             }
 
+                            // Try to delete the current recording
                             ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, adapterId);
+
                             if (deleteStatus.Code != (int)eResponseStatus.OK)
                             {
                                 if (!recordingsThatFailedDeletion.Contains(pair.Value.Id))
