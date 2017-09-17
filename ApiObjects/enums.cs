@@ -861,7 +861,8 @@ namespace ApiObjects
     {
         Renew = 0,
         Reminder = 1,
-        Downgrade = 2
+        Downgrade = 2,
+        RenewUnifiedTransaction = 3
     }
 
     public enum GrantContext

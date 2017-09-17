@@ -179,7 +179,7 @@ namespace Core.Billing
             return adapterResponse;
         }
 
-        public APILogic.PaymentGWAdapter.TransactionResponse ProcessRenewal(TransactionRenewalRequest request)
+        public APILogic.PaymentGWAdapter.TransactionResponse ProcessRenewal(TransactionUnifiedRenewal request)
         {
             APILogic.PaymentGWAdapter.TransactionResponse adapterResponse = ValidateRequest(request);
 
@@ -790,6 +790,121 @@ namespace Core.Billing
                 log.ErrorFormat("Error in RemoveAccount: error = {1}, charge id = {0}",
                     chargeId,
                     ex);
+            }
+
+            return adapterResponse;
+        }
+
+        public APILogic.PaymentGWAdapter.TransactionResponse UnifiedProcessRenewal(TransactionUnifiedRenewalRequest request)
+        {
+            APILogic.PaymentGWAdapter.TransactionResponse adapterResponse = ValidateRequest(request);
+
+            // If it is not valid - stop and return
+            if (adapterResponse.Status != null)
+                return adapterResponse;
+
+            this.paymentGatewayId = request.paymentGateway.ID;
+
+            APILogic.PaymentGWAdapter.ServiceClient adapterClient = new APILogic.PaymentGWAdapter.ServiceClient(string.Empty, request.paymentGateway.AdapterUrl);
+
+            if (!string.IsNullOrEmpty(request.paymentGateway.AdapterUrl))
+            {
+                adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.paymentGateway.AdapterUrl);
+            }
+                       
+            List<APILogic.PaymentGWAdapter.TransactionProductDetails> renewSubscription = new List<APILogic.PaymentGWAdapter.TransactionProductDetails>();
+            renewSubscription = request.renewRequests.Select(x => new APILogic.PaymentGWAdapter.TransactionProductDetails() {
+                gracePeriodMinutes = x.GracePeriodMinutes,
+                price = x.price,
+                productCode = x.productCode,
+                productid = x.productId.ToString(),
+                transactionId = x.ExternalTransactionId
+            }).ToList();
+
+
+            //set unixTimestamp
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+            //set signature
+            string signature = string.Concat(this.paymentGatewayId, request.householdId, request.totalPrice, request.currency, request.chargeId, renewSubscription,
+                unixTimestamp, request.paymentMethodExternalId);
+
+            try
+            {
+                //call Adapter Transact
+                adapterResponse = adapterClient.UnifiedProcessRenewal(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId,
+                    request.currency, request.totalPrice, renewSubscription.ToArray(), unixTimestamp, 
+                    Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+
+                // log response
+                LogAdapterResponse(adapterResponse, "Renewal");
+
+                if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == (int)PaymentGatewayAdapterStatus.NoConfigurationFound)
+                {
+                    string key = string.Format("PaymentGateway_Adapter_Locker_{0}", paymentGatewayId);
+
+                    // Build dictionary for synchronized action
+                    Dictionary<string, object> parameters = new Dictionary<string, object>()
+                    {
+                        {PARAMETER_PAYMENT_GATEWAY, request.paymentGateway},
+                        {PARAMETER_GROUP_ID, request.groupId}
+                    };
+
+                    configurationSynchronizer.DoAction(key, parameters);
+
+                    //call Adapter Transact - after it is configured
+                    adapterResponse = adapterClient.UnifiedProcessRenewal(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId,
+                        request.currency, request.totalPrice, renewSubscription.ToArray(), unixTimestamp,
+                        Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+
+                    // log response
+                    LogAdapterResponse(adapterResponse, "Renewal");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in transact: error = {4}, householdId = {0}, charge id = {1}, totalPrice = {2}, currency = {3}",
+                    request != null ? request.householdId : 0, // {0}
+                    request != null && request.chargeId != null ? request.chargeId : string.Empty, // {1}  
+                    request != null ? request.totalPrice : 0,                                      // {2}
+                    request != null && request.currency != null ? request.currency : string.Empty, // {3}                    
+                    ex);                                                                           // {4}
+            }
+
+            return adapterResponse;
+        }
+
+        private APILogic.PaymentGWAdapter.TransactionResponse ValidateRequest(TransactionUnifiedRenewalRequest request)
+        {
+            APILogic.PaymentGWAdapter.TransactionResponse adapterResponse = new APILogic.PaymentGWAdapter.TransactionResponse()
+            {
+                Status = null,
+                Transaction = null
+            };
+
+            if (request == null)
+            {
+                adapterResponse.Status = new APILogic.PaymentGWAdapter.AdapterStatus()
+                {
+                    Code = (int)PaymentGatewayAdapterStatus.Error,
+                    Message = "No request sent"
+                };
+            }
+            else if (request.paymentGateway == null)
+            {
+                adapterResponse.Status = new APILogic.PaymentGWAdapter.AdapterStatus()
+                {
+                    Code = (int)PaymentGatewayAdapterStatus.Error,
+                    Message = "No payment gateway sent"
+                };
+            }
+            else if (string.IsNullOrEmpty(request.paymentGateway.AdapterUrl))
+            {
+                adapterResponse.Status = new APILogic.PaymentGWAdapter.AdapterStatus()
+                {
+                    Code = (int)PaymentGatewayAdapterStatus.Error,
+                    Message = "Payment gateway has no adapter URL"
+                };
             }
 
             return adapterResponse;

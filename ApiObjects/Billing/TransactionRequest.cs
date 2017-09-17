@@ -14,9 +14,11 @@ namespace ApiObjects.Billing
         public PaymentGateway paymentGateway;
         public string chargeId;
         public string paymentMethodExternalId;
-        public double price;
+        
         public string currency;
         public string userIP;
+        
+        public double price;
         public int productId;
         public eTransactionType productType;
         public int contentId;

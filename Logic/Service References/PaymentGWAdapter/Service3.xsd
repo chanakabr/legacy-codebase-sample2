@@ -168,4 +168,26 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="UnifiedProcessRenewal">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="paymentGatewayId" type="xs:int" />
+        <xs:element minOccurs="0" name="housholdId" type="xs:long" />
+        <xs:element minOccurs="0" name="chargeId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="paymentMethodExternalId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="currency" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="totalPrice" type="xs:double" />
+        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="renewSubscription" nillable="true" type="q14:ArrayOfTransactionProductDetails" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnifiedProcessRenewalResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="UnifiedProcessRenewalResult" nillable="true" type="q15:TransactionResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

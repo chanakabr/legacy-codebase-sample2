@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using APILogic.ConditionalAccess.Modules;
 
 namespace Core.Billing
 {
@@ -1209,6 +1210,40 @@ namespace Core.Billing
             }
 
             return result;
+        }
+
+        public static TransactResult ProcessUnifiedRenewal(int groupId, long householdId, double totalPrice, string currency, int paymentgatewayId, 
+            int paymentMethodId, string userIp, List<RenewSubscriptionDetails> renewUnified, ref PaymentGateway paymentGateway)
+        {   
+            // add siteguid to logs/monitor
+            // HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
+            TransactResult response = null;
+
+            try
+            {
+                BasePaymentGateway t = new BasePaymentGateway(groupId);
+                if (t != null)
+                {
+                    return t.ProcessUnifiedRenewal(householdId, totalPrice, currency, paymentgatewayId, paymentMethodId, userIp, renewUnified,
+                        ref  paymentGateway);
+                }
+                else
+                {
+                    response = new TransactResult();
+                    response.Status = new ApiObjects.Response.Status();
+                    response.Status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                    response.Status.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new TransactResult();
+                response.Status = new ApiObjects.Response.Status();
+                response.Status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                response.Status.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
+                log.Error(string.Empty, ex);
+            }
+            return response;
         }
     }
 }

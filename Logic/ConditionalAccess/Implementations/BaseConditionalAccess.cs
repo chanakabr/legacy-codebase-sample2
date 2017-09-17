@@ -74,16 +74,17 @@ namespace Core.ConditionalAccess
 		internal const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
 		internal const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
 		internal const double MAX_SERVER_TIME_DIF = 5;
-		internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3;
+		internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3;       
 
-		//errors
-		internal const string CONFLICTED_PARAMS = "Conflicted params";
+        //errors
+        internal const string CONFLICTED_PARAMS = "Conflicted params";
 		internal const string NO_ADAPTER_TO_INSERT = "No adapter to insert";
 		internal const string NO_ADAPTER_TO_UPDATE = "No adapter to update";
 		internal const string NAME_REQUIRED = "Name must have a value";
 		internal const string ADAPTER_SHARED_SECRET_REQUIRED = "Shared secret must have a value";
-		internal const string EXTERNAL_IDENTIFIER_REQUIRED = "External identifier must have a value";
-		internal const string ERROR_EXT_ID_ALREADY_IN_USE = "External identifier must be unique";
+		internal const string EXTERNAL_IDENTIFIER_REQUIRED = "External identifier must have a value";       
+
+        internal const string ERROR_EXT_ID_ALREADY_IN_USE = "External identifier must be unique";
 		internal const string ADAPTER_ID_REQUIRED = "Adapter identifier is required";
 		internal const string ADAPTER_NOT_EXIST = "Adapter not exist";
 		internal const string ADAPTER_URL_REQUIRED = "Adapter url must have a value";
@@ -11821,13 +11822,22 @@ namespace Core.ConditionalAccess
 			return RenewManager.Renew(this, this.m_nGroupID, siteguid, purchaseId, billingGuid, nextEndDate, ref shouldUpdateTaskStatus);
 		}
 
-		public bool UpdateSubscriptionRenewingStatus(long purchaseId, string billingGuid, bool isActive)
+        public bool RenewUnifiedTransaction(long householdId, int paymentgatewayId, long nextEndDate, ref bool shouldUpdateTaskStatus, string proccessId)
+        {
+            return RenewManager.RenewUnifiedTransaction(this, this.m_nGroupID, householdId, paymentgatewayId, nextEndDate, ref shouldUpdateTaskStatus, proccessId);
+        }
+
+        public bool UpdateSubscriptionRenewingStatus(long purchaseId, string billingGuid, bool isActive)
 		{
 			return ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalActiveStatus(m_nGroupID, purchaseId, billingGuid, Convert.ToInt16(isActive));
 		}
 
+        public bool UpdateSubscriptionUnifiedRenewingStatus(string proccessId, int groupId, bool isActive = false)
+        {
+            return ConditionalAccessDAL.UpdateSubscriptionUnifiedRenewingStatus(groupId, proccessId, Convert.ToInt16(isActive));
+        }
 
-		public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid,
+        public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid,
 			string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP)
 		{
 			AssetItemPriceResponse response = new AssetItemPriceResponse();
