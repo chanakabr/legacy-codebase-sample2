@@ -976,6 +976,14 @@ namespace TVinciShared
             if (sIP == "" || sIP.ToLower() == "unknown")
                 sIP = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"].Trim();
 
+            // remove port
+            if (sIP.Contains(":"))
+            {
+                string[] ipParts = sIP.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                if (ipParts != null && ipParts.Length > 0)
+                    sIP = ipParts[0];
+            }
+
             ////Only for staging TVM!!!!!
             //if (sIP.StartsWith("192.168.16"))
             //{
