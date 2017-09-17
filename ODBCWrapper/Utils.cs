@@ -749,9 +749,20 @@ namespace ODBCWrapper
             return origin.AddSeconds(timestamp);
         }
 
+        public static DateTime UnixTimestampToDateTimeMilliseconds(long timestamp)
+        {
+            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return origin.AddMilliseconds(timestamp);
+        }
+
         public static long DateTimeToUnixTimestampUtc(DateTime dateTime)
         {
             return (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+        }
+
+        public static long DateTimeToUnixTimestampUtcMilliseconds(DateTime dateTime)
+        {
+            return (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
         }
 
         public static DateTime ConvertToUtc(DateTime time, string timezone)
