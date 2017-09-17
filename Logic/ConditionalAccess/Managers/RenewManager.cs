@@ -524,11 +524,11 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            long lastEndDate = DateUtils.DateTimeToUnixTimestamp(endDate);
+            long lastEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
 
-            if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate)) 
+            if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != lastEndDate) 
             {
-                endDate = ODBCWrapper.Utils.UnixTimestampToDateTime(unifiedBillingCycle.endDate);
+                endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
             }
             else
             {
@@ -587,7 +587,7 @@ namespace Core.ConditionalAccess
                 }
                 if (unifiedBillingCycle != null)
                 {
-                    long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate);
+                    long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
                     if (unifiedBillingCycle.endDate == lastEndDate)
                     {
                         log.DebugFormat("going to update UnifiedBillingCycle. current endDate = {0}, nextEndDate = {1}", unifiedBillingCycle.endDate, nextEndDate);
@@ -1310,10 +1310,10 @@ namespace Core.ConditionalAccess
                 nextRenewalDate = endDate.AddMinutes(-5);
 
                 nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
-                Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, maxUsageModuleLifeCycle, ref unifiedBillingCycle, endDate, paymentGateway.ID, ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow));
+                Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, maxUsageModuleLifeCycle, ref unifiedBillingCycle, endDate, paymentGateway.ID, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow));
                 
                 // enqueue unified renew transaction
-                Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate), nextRenewalDate, paymentGateway.ID);
+                Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate), nextRenewalDate, paymentGateway.ID);
 
                 //Send PS messages
                 foreach (Dictionary<string, object> pSMessage in psMessages)

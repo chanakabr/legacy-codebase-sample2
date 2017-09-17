@@ -8164,7 +8164,7 @@ namespace Core.ConditionalAccess
                         }
                     }
 
-                    long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate);
+                    long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
                     if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != nextEndDate)
                     {
                         setDomainUnifiedBillingCycle = true;

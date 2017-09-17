@@ -1152,7 +1152,7 @@ namespace Core.ConditionalAccess
                                 if (partialPrice)
                                 {
                                     // calculate end date by unified billing cycle
-                                    endDate = ODBCWrapper.Utils.UnixTimestampToDateTime(unifiedBillingCycle.endDate);
+                                    endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
                                 }
                                 // grant entitlement
                                 bool handleBillingPassed = 
@@ -1239,7 +1239,7 @@ namespace Core.ConditionalAccess
                                             unifiedBillingCycle.paymentGatewayIds.ContainsKey(paymentGwId) &&
                                             unifiedBillingCycle.paymentGatewayIds[paymentGwId] == currentDate) // this is the first purchase with this cycle + paymentgatewayid
                                         {
-                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(endDate.Value), nextRenewalDate, paymentGwId);
+                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, paymentGwId);
                                         }
                                         //else do nothing, message already exists
 
