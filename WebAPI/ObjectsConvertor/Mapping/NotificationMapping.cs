@@ -889,5 +889,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return result;
         }
+
+        internal static DynamicMailRequest ConvertEmailMessage(KalturaEmailMessage emailMessage)
+        {
+            DynamicMailRequest result = new DynamicMailRequest();
+
+            result.m_sTemplateName = emailMessage.TemplateName;
+            result.m_sSubject = emailMessage.Subject;
+            result.m_sFirstName = emailMessage.FirstName;
+            result.m_sLastName = emailMessage.LastName;
+            result.m_sSenderName = emailMessage.SenderName;
+            result.m_sSenderFrom = emailMessage.SenderFrom;
+            result.m_sSenderTo = emailMessage.SenderTo;
+            result.m_sBCCAddress = emailMessage.BccAddress;
+            if (emailMessage.ExtraParameters != null && emailMessage.ExtraParameters.Count > 0)
+            {
+                result.values = new List<KeyValuePair>();
+                foreach (KalturaKeyValue kkv in emailMessage.ExtraParameters)
+                {
+                    result.values.Add(new KeyValuePair(kkv.key, kkv.value));
+                }
+            }
+            return result;
+        }
     }
 }

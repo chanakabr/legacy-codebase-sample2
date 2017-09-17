@@ -68,6 +68,31 @@ namespace WebAPI.Clients
             }
         }
 
+        internal bool SendEmail(int groupId, KalturaEmailMessage emailMessage)
+        {
+            bool response = false;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    DynamicMailRequest mailMessage = NotificationMapping.ConvertEmailMessage(emailMessage);                    
+                   
+                    mailMessage.groupId = groupId;
+                    response = Core.Api.Module.SendMailTemplate(groupId, mailMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while sending email to user.  groupID: {0},emailMessage: {1}, exception: {2}", groupId, JsonConvert.SerializeObject(emailMessage), ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || !response)
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            
+            return true;
+        }
+
         internal KalturaNotificationSettings Get(int groupId, string userId)
         {
 
