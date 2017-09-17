@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using TVinciShared;
 
 public partial class AjaxToken : System.Web.UI.Page
 {
@@ -13,7 +14,11 @@ public partial class AjaxToken : System.Web.UI.Page
     protected void Page_Load(object sender, EventArgs e)
     {
         string sRet = "FAIL";
-        if (Request.Url.Host != "localhost" && Request.Url.Host != "127.0.0.1" && Request.Url.Scheme.ToUpper().Trim() != "HTTPS")
+
+        bool http = false;
+        http = WS_Utils.GetTcmBoolValue("EnableHttpLogin");
+
+        if (Request.Url.Host != "localhost" && Request.Url.Host != "127.0.0.1" && Request.Url.Scheme.ToUpper().Trim() != "HTTPS" && !http)
             sRet = "HTTPS_REQUIERED";
         else
         {
