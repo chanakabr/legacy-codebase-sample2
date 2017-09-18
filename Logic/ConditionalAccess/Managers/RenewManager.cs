@@ -1029,7 +1029,7 @@ namespace Core.ConditionalAccess
 
             // get subscription purchase 
             DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseForRenewal(groupId, householdId, paymentgatewayId, 
-                ODBCWrapper.Utils.UnixTimestampToDateTime(nextEndDate), proccessId);
+                ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(nextEndDate), proccessId);
 
             // validate subscription received
             if (subscriptionPurchaseDt == null)
