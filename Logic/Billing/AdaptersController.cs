@@ -825,16 +825,17 @@ namespace Core.Billing
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
-            //set signature
-            string signature = string.Concat(this.paymentGatewayId, request.householdId, request.totalPrice, request.currency, request.chargeId, renewSubscription,
-                unixTimestamp, request.paymentMethodExternalId);
+            //set signature           
+
+            string signature = string.Concat(this.paymentGatewayId, request.householdId, request.totalPrice, request.currency, request.chargeId, unixTimestamp, request.paymentMethodExternalId);
+            
 
             try
             {
                 //call Adapter Transact
                 adapterResponse = adapterClient.UnifiedProcessRenewal(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId,
-                    request.currency, request.totalPrice, renewSubscription.ToArray(), unixTimestamp, 
-                    Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    request.currency, request.totalPrice, renewSubscription.ToArray(), unixTimestamp,
+                    Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));                
 
                 // log response
                 LogAdapterResponse(adapterResponse, "Renewal");
