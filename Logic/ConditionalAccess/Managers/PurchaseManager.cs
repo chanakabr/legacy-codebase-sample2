@@ -1109,7 +1109,7 @@ namespace Core.ConditionalAccess
                         priceResponse.m_oCurrency.m_sCurrencyCD3 == currency))
                     {
                         // price is validated, create custom data
-                        bool partialPrice = unifiedBillingCycle != null && unifiedBillingCycle.endDate > 0 && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
+                        bool partialPrice = unifiedBillingCycle != null && unifiedBillingCycle.endDate > 0 && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow);
                         string customData = cas.GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, siteguid, price, currency,
                                                                          couponCode, userIp, country, string.Empty, deviceName, string.Empty,
                                                                          entitleToPreview ? subscription.m_oPreviewModule.m_nID + "" : string.Empty,
@@ -1184,7 +1184,7 @@ namespace Core.ConditionalAccess
                                         
                                         DateTime nextRenewalDate = endDate.Value;
                                         
-                                        long currentDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow); // for each paymentgatewayId save the last date of change
+                                        long currentDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow); // for each paymentgatewayId save the last date of change
                                         if (!isGiftCard)
                                         {
                                             // call billing process renewal
@@ -1201,10 +1201,11 @@ namespace Core.ConditionalAccess
                                                 else
                                                 {
                                                     nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
+                                                    paymentGwId = paymentGatewayResponse.ID;
 
                                                     if (!entitleToPreview)
                                                     {
-                                                        Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, ref unifiedBillingCycle, endDate.Value, paymentGatewayResponse.ID, currentDate);
+                                                        Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, ref unifiedBillingCycle, endDate.Value, paymentGwId, currentDate);
                                                     }
                                                 }
 
