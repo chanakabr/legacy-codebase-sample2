@@ -524,6 +524,7 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
+
             long lastEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
 
             if (unifiedBillingCycle != null) 

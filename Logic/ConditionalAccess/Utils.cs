@@ -1379,7 +1379,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow))
+                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                 {
                     DateTime nextRenew = Core.Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
                     int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
@@ -8094,7 +8094,6 @@ namespace Core.ConditionalAccess
                         }
                         else if (paymentGatewayIds != null && paymentGatewayIds.Count() > 0)
                         {
-
                             unifiedBillingCycle.paymentGatewayIds = paymentGatewayIds.Distinct().ToDictionary(x => x, y => ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow));
                             setDomainUnifiedBillingCycle = true;
                         }
