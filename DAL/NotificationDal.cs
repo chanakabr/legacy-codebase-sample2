@@ -886,7 +886,7 @@ namespace DAL
             return 0;
         }
 
-        public static DataRow Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, long announcement_id = 0, string messageReference = null, string resultMsgId = null)
+        public static DataRow Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, long announcement_id = 0, string messageReference = null, string resultMsgId = null, string imageUrl = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -901,6 +901,7 @@ namespace DAL
             spInsert.AddParameter("@result_message_id", resultMsgId);
             spInsert.AddParameter("@update_date", DateTime.UtcNow);
             spInsert.AddParameter("@message_reference", messageReference);
+            spInsert.AddParameter("@image_url", imageUrl);
             if (announcement_id != 0)
                 spInsert.AddParameter("@announcement_id", announcement_id);
 
@@ -915,7 +916,7 @@ namespace DAL
             return dt.Rows[0];
         }
 
-        public static DataRow Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, string resultMsgId = null)
+        public static DataRow Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, string resultMsgId = null, string imageUrl = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -928,6 +929,7 @@ namespace DAL
             spInsert.AddParameter("@timezone", timezone);
             spInsert.AddParameter("@updater_id", updaterId);
             spInsert.AddParameter("@result_message_id", resultMsgId);
+            spInsert.AddParameter("@image_url", imageUrl);
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
