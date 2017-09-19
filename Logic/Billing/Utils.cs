@@ -1475,11 +1475,11 @@ namespace Core.Billing
             }
         }
 
-        internal static List<long> InsertBillingTransaction(int billingProvider, int paymenMethodId, int paymentGatewayId, string xml, PaymentGatewayTransaction paymentGWTransaction, int billingTransactionStatus, int groupId)
+        internal static List<long> InsertBillingTransaction(int billingProvider, int paymenMethodId, string xml, PaymentGatewayTransaction paymentGWTransaction, int billingTransactionStatus, int groupId)
         {
             try
             {
-                List<long> result = ApiDAL.Insert_NewBillingTransactions(billingProvider, paymenMethodId, paymentGatewayId, xml, paymentGWTransaction.ID, billingTransactionStatus, groupId);
+                List<long> result = ApiDAL.Insert_NewBillingTransactions(billingProvider, paymenMethodId, paymenMethodId, xml, paymentGWTransaction.ID, billingTransactionStatus, groupId);
 
                 return result;
             }
