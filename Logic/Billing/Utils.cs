@@ -1485,7 +1485,7 @@ namespace Core.Billing
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("fail InsertBillingTransaction ex = {0},  billingProvider={1}, paymentGatewayId={2}, billingTransactionStatus={3}", ex, billingProvider, paymentGatewayId, billingTransactionStatus);                         
+                log.ErrorFormat("fail InsertBillingTransaction ex = {0},  billingProvider={1}, paymentGatewayId={2}, billingTransactionStatus={3}", ex, billingProvider, paymenMethodId, billingTransactionStatus);                         
             }
             return new List<long>();
         }
