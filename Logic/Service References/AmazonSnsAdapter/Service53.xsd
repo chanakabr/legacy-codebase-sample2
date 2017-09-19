@@ -67,6 +67,7 @@
       <xs:element minOccurs="0" name="Category" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="EndPointArn" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="ExtraData" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ImageUrl" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="ResultMessageId" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Sound" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Url" nillable="true" type="xs:string" />
