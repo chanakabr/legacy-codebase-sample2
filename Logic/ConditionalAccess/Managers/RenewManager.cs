@@ -502,7 +502,7 @@ namespace Core.ConditionalAccess
         protected static bool HandleRenewSubscriptionSuccess(BaseConditionalAccess cas, int groupId,
             string siteguid, long purchaseId, string billingGuid, string logString, long productId, ref DateTime endDate, long householdId,
             double price, string currency, int paymentNumber, int totalNumOfPayments, Subscription subscription, string customData, int maxVLCOfSelectedUsageModule,
-            TransactResult transactionResponse, UnifiedBillingCycle unifiedBillingCycle, bool UnifiedRenew = false)
+            TransactResult transactionResponse, UnifiedBillingCycle unifiedBillingCycle, bool UnifiedRenew = false, bool isFirstUnifiedCycle = false)
         {
             // renew subscription success!
             log.DebugFormat("Transaction renew success. data: {0}", logString);
@@ -526,24 +526,28 @@ namespace Core.ConditionalAccess
 
             long lastEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
 
-            if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > lastEndDate) 
+            if (unifiedBillingCycle != null) 
             {
-                endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
-                log.DebugFormat("New end-date was updated according to unifiedBillingCycle.endDate. EndDate={0}", endDate);
-            }
-            else if (unifiedBillingCycle != null)
-            {
-                if (transactionResponse.EndDateSeconds > 0)
+                if (isFirstUnifiedCycle)
                 {
-                    // end-date returned: EndDate = PG_End_Date + Configured_PG_Start_Renew_Time
-                    endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(transactionResponse.EndDateSeconds);
-                    log.DebugFormat("New end-date was updated according to PG and unifiedBillingCycle != null. EndDate={0}", endDate);
-                }
-                else
-                {
-                    // end wasn't retuned - get next end date from MPP
-                    endDate = Utils.GetEndDateTime(endDate, maxVLCOfSelectedUsageModule);
-                    log.DebugFormat("New end-date was updated according to MPP and unifiedBillingCycle != null. EndDate={0}", endDate);
+                    if (unifiedBillingCycle.endDate > lastEndDate)
+                    {
+                        endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
+                        log.DebugFormat("New end-date was updated according to unifiedBillingCycle.endDate. EndDate={0}", endDate);
+                    }
+
+                    else if (transactionResponse.EndDateSeconds > 0)
+                    {
+                        // end-date returned: EndDate = PG_End_Date + Configured_PG_Start_Renew_Time
+                        endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(transactionResponse.EndDateSeconds);
+                        log.DebugFormat("New end-date was updated according to PG and unifiedBillingCycle != null. EndDate={0}", endDate);
+                    }
+                    else
+                    {
+                        // end wasn't retuned - get next end date from MPP
+                        endDate = Utils.GetEndDateTime(endDate, maxVLCOfSelectedUsageModule);
+                        log.DebugFormat("New end-date was updated according to MPP and unifiedBillingCycle != null. EndDate={0}", endDate);
+                    }
                 }
             }
             else
@@ -1277,14 +1281,15 @@ namespace Core.ConditionalAccess
             long maxUsageModuleLifeCycle = 0;
             Subscription subscription = null;
             List<Dictionary<string, object>> psMessages = new List<Dictionary<string, object>>();
-
+            bool isFirstUnifiedCycle = true;
             foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
             {
                 logString = string.Format("Purchase request: siteguid {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}", renewUnifiedData.UserId, renewUnifiedData.PurchaseId, renewUnifiedData.BillingGuid, nextRenewalDate);
                 subscription = subscriptions.Where(x => x.m_SubscriptionCode == renewUnifiedData.ProductId).FirstOrDefault();
                 if (HandleRenewSubscriptionSuccess(cas, groupId, renewUnifiedData.UserId, renewUnifiedData.PurchaseId, renewUnifiedData.BillingGuid, logString, long.Parse(renewUnifiedData.ProductId), ref endDate, householdId,
-                    renewUnifiedData.Price, currency, renewUnifiedData.PaymentNumber, renewUnifiedData.TotalNumOfPayments, subscription, customData, renewUnifiedData.MaxVLCOfSelectedUsageModule, transactionResponse, unifiedBillingCycle, true))
+                    renewUnifiedData.Price, currency, renewUnifiedData.PaymentNumber, renewUnifiedData.TotalNumOfPayments, subscription, customData, renewUnifiedData.MaxVLCOfSelectedUsageModule, transactionResponse, unifiedBillingCycle, true, isFirstUnifiedCycle))
                 {
+                    isFirstUnifiedCycle = false;
                     maxUsageModuleLifeCycle = (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle;
                     if (!isNeedToInvalidationKey)
                     {
