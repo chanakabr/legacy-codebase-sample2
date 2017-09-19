@@ -1360,9 +1360,9 @@ namespace Core.Billing
                 BuildBillingTransactionXml(renewUnified, ref xmlDoc);
                 
                 // InsertBillingTransaction
-                List<long> billingTranactionIds = Core.Billing.Utils.InsertBillingTransaction(BILLING_PROVIDER, paymentGatewayId, xmlDoc.ToString(), paymentGWTransaction, billingTransactionStatus, groupID);
+                List<long> billingTranactionIds = Core.Billing.Utils.InsertBillingTransaction(BILLING_PROVIDER, paymenMethodId, paymentGatewayId, xmlDoc.InnerXml.ToString(), paymentGWTransaction, billingTransactionStatus, groupID);
 
-                if (billingTranactionIds == null || billingTranactionIds.Count == 0 || billingTranactionIds.Select(x=>x < 1).Count() > 0)
+                if (billingTranactionIds == null || billingTranactionIds.Count == 0 || billingTranactionIds.Where(x=>x < 1).Count() > 0)
                 {
                     // create billing transaction failed
                     response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
@@ -1485,7 +1485,7 @@ namespace Core.Billing
                 rowNode.AppendChild(customDataNode);
 
                 isRecurringNode = xmlDoc.CreateElement("is_recurring");
-                isRecurringNode.InnerText = isRecurring.ToString();
+                isRecurringNode.InnerText = isRecurring ? "1" : "0";
                 rowNode.AppendChild(isRecurringNode);
 
                 subscriptionCodeNode = xmlDoc.CreateElement("subscription_code");
