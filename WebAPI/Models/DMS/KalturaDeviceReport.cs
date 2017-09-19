@@ -10,7 +10,7 @@ namespace WebAPI.Models.DMS
     public class KalturaDeviceReport : KalturaReport
     {
         /// <summary>
-        /// Partner id
+        /// Partner unique identifier
         /// </summary>
         [DataMember(Name = "partnerId")]
         [XmlElement(ElementName = "partnerId")]
@@ -18,7 +18,7 @@ namespace WebAPI.Models.DMS
         public int PartnerId { get; set; }
 
         /// <summary>
-        /// Configuration group id
+        /// Configuration group identifier which the version configuration the devices last received belongs to
         /// </summary>
         [DataMember(Name = "configurationGroupId")]
         [XmlElement(ElementName = "configurationGroupId")]
@@ -26,7 +26,7 @@ namespace WebAPI.Models.DMS
         public string ConfigurationGroupId { get; set; }
 
         /// <summary>
-        /// Device UDID
+        /// Device unique identifier
         /// </summary>
         [DataMember(Name = "udid")]
         [XmlElement(ElementName = "udid")]
@@ -34,7 +34,7 @@ namespace WebAPI.Models.DMS
         public string Udid { get; set; }
 
         /// <summary>
-        /// Push parameters
+        /// Device-Application push parameters
         /// </summary>
         [DataMember(Name = "pushParameters")]
         [XmlElement(ElementName = "pushParameters")]
@@ -42,7 +42,7 @@ namespace WebAPI.Models.DMS
         public KalturaPushParams PushParameters { get; set; }
 
         /// <summary>
-        /// Version number
+        /// Application version number
         /// </summary>
         [DataMember(Name = "versionNumber")]
         [XmlElement(ElementName = "versionNumber")]
@@ -50,7 +50,7 @@ namespace WebAPI.Models.DMS
         public string VersionNumber { get; set; }
 
         /// <summary>
-        /// Version platform
+        /// Application version type
         /// </summary>
         [DataMember(Name = "versionPlatform")]
         [XmlElement(ElementName = "versionPlatform")]
@@ -59,7 +59,7 @@ namespace WebAPI.Models.DMS
         public KalturaPlatform VersionPlatform { get; set; }
 
         /// <summary>
-        /// Version application name
+        /// Application version name
         /// </summary>
         [DataMember(Name = "versionAppName")]
         [XmlElement(ElementName = "versionAppName")]
@@ -75,7 +75,7 @@ namespace WebAPI.Models.DMS
         public string LastAccessIP { get; set; }
 
         /// <summary>
-        /// Last access date
+        /// Last device configuration request date
         /// </summary>
         [DataMember(Name = "lastAccessDate")]
         [XmlElement(ElementName = "lastAccessDate")]
@@ -83,7 +83,7 @@ namespace WebAPI.Models.DMS
         public long LastAccessDate { get; set; }
 
         /// <summary>
-        /// User agent
+        /// request header property
         /// </summary>
         [DataMember(Name = "userAgent")]
         [XmlElement(ElementName = "userAgent")]
@@ -91,7 +91,8 @@ namespace WebAPI.Models.DMS
         public string UserAgent { get; set; }
 
         /// <summary>
-        /// Operation system
+        /// Request header property
+        /// Incase value cannot be found - returns "Unknown 0.0"
         /// </summary>
         [DataMember(Name = "operationSystem")]
         [XmlElement(ElementName = "operationSystem")]
