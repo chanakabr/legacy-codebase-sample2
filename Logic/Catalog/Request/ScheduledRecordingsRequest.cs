@@ -68,11 +68,13 @@ namespace Core.Catalog.Request
                 SeriesRecording[] series = null;
                 string wsUserName, wsPassword;
                 GetWsCredentials(out wsUserName, out wsPassword);
+                
                 // should we get the followed series
                 if (!isSingle)
                 {
                     SeriesResponse seriesResponse = ConditionalAccess.Module.GetFollowSeries(request.m_nGroupID, m_sSiteGuid, domainId, new SeriesRecordingOrderObj());
-                    if (seriesResponse != null && seriesResponse.Status != null && (seriesResponse.Status.Code == (int)eResponseStatus.OK || seriesResponse.Status.Code == (int)eResponseStatus.SeriesRecordingNotFound))
+                    if (seriesResponse != null && seriesResponse.Status != null && 
+                        (seriesResponse.Status.Code == (int)eResponseStatus.OK || seriesResponse.Status.Code == (int)eResponseStatus.SeriesRecordingNotFound))
                     {
                         if (channelIds != null && channelIds.Count > 0)
                         {
