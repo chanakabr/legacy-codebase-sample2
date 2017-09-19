@@ -1475,17 +1475,17 @@ namespace Core.Billing
             }
         }
 
-        internal static List<long> InsertBillingTransaction(int billingProvider, int paymenMethodId, int paymentGatewayId, string xml, PaymentGatewayTransaction paymentGWTransaction, int billingTransactionStatus, int groupId)
+        internal static List<long> InsertBillingTransaction(int billingProvider, int paymenMethodId, string xml, PaymentGatewayTransaction paymentGWTransaction, int billingTransactionStatus, int groupId)
         {
             try
             {
-                List<long> result = ApiDAL.Insert_NewBillingTransactions(billingProvider, paymenMethodId, paymentGatewayId, xml, paymentGWTransaction.ID, billingTransactionStatus, groupId);
+                List<long> result = ApiDAL.Insert_NewBillingTransactions(billingProvider, paymenMethodId, paymenMethodId, xml, paymentGWTransaction.ID, billingTransactionStatus, groupId);
 
                 return result;
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("fail InsertBillingTransaction ex = {0},  billingProvider={1}, paymentGatewayId={2}, billingTransactionStatus={3}", ex, billingProvider, paymentGatewayId, billingTransactionStatus);                         
+                log.ErrorFormat("fail InsertBillingTransaction ex = {0},  billingProvider={1}, paymentGatewayId={2}, billingTransactionStatus={3}", ex, billingProvider, paymenMethodId, billingTransactionStatus);                         
             }
             return new List<long>();
         }

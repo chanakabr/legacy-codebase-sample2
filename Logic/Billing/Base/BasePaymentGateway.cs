@@ -1360,7 +1360,7 @@ namespace Core.Billing
                 BuildBillingTransactionXml(renewUnified, ref xmlDoc);
                 
                 // InsertBillingTransaction
-                List<long> billingTranactionIds = Core.Billing.Utils.InsertBillingTransaction(BILLING_PROVIDER, paymenMethodId, paymentGatewayId, xmlDoc.InnerXml.ToString(), paymentGWTransaction, billingTransactionStatus, groupID);
+                List<long> billingTranactionIds = Core.Billing.Utils.InsertBillingTransaction(BILLING_PROVIDER, paymentGatewayId, xmlDoc.InnerXml.ToString(), paymentGWTransaction, billingTransactionStatus, groupID);
 
                 if (billingTranactionIds == null || billingTranactionIds.Count == 0 || billingTranactionIds.Where(x=>x < 1).Count() > 0)
                 {
