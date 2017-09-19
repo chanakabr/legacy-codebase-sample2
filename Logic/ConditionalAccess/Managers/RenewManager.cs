@@ -526,9 +526,25 @@ namespace Core.ConditionalAccess
 
             long lastEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
 
-            if (unifiedBillingCycle != null && unifiedBillingCycle.endDate >= lastEndDate) 
+            if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > lastEndDate) 
             {
                 endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
+                log.DebugFormat("New end-date was updated according to unifiedBillingCycle.endDate. EndDate={0}", endDate);
+            }
+            else if (unifiedBillingCycle != null)
+            {
+                if (transactionResponse.EndDateSeconds > 0)
+                {
+                    // end-date returned: EndDate = PG_End_Date + Configured_PG_Start_Renew_Time
+                    endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(transactionResponse.EndDateSeconds);
+                    log.DebugFormat("New end-date was updated according to PG and unifiedBillingCycle != null. EndDate={0}", endDate);
+                }
+                else
+                {
+                    // end wasn't retuned - get next end date from MPP
+                    endDate = Utils.GetEndDateTime(endDate, maxVLCOfSelectedUsageModule);
+                    log.DebugFormat("New end-date was updated according to MPP and unifiedBillingCycle != null. EndDate={0}", endDate);
+                }
             }
             else
             {
