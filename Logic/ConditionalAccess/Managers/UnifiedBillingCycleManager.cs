@@ -34,7 +34,7 @@ namespace APILogic.ConditionalAccess.Managers
 
              
 
-        public static bool SetDomainUnifiedBillingCycle(long domainId, long billingCycle, long endDate, List<int> paymentGateway)
+        public static bool SetDomainUnifiedBillingCycle(long domainId, long billingCycle, long endDate, Dictionary<int, long> paymentGateway)
         {            
             bool result = false;
             UnifiedBillingCycle unifiedBillingCycle = new UnifiedBillingCycle()

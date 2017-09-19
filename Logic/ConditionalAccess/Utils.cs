@@ -1272,7 +1272,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow))
+                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                 {
                     DateTime nextRenew = Core.Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
                     int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
@@ -7978,16 +7978,16 @@ namespace Core.ConditionalAccess
                         {
                             foreach (int pgid in paymentGatewayIds)
                             {
-                                if (!unifiedBillingCycle.paymentGatewayIds.Contains(pgid))
+                                if (!unifiedBillingCycle.paymentGatewayIds.ContainsKey(pgid))
                                 {
-                                    unifiedBillingCycle.paymentGatewayIds.Add(pgid);
+                                    unifiedBillingCycle.paymentGatewayIds.Add(pgid, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow));
                                     setDomainUnifiedBillingCycle = true;
                                 }
                             }
                         }
                         else if (paymentGatewayIds != null && paymentGatewayIds.Count() > 0)
                         {
-                            unifiedBillingCycle.paymentGatewayIds = paymentGatewayIds;
+                            unifiedBillingCycle.paymentGatewayIds = paymentGatewayIds.Distinct().ToDictionary(x => x, y => ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow));
                             setDomainUnifiedBillingCycle = true;
                         }
 

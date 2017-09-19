@@ -522,11 +522,11 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            long lastEndDate = DateUtils.DateTimeToUnixTimestamp(endDate);
+            long lastEndDate = DateUtils.DateTimeToUnixTimestampMilliseconds(endDate);
 
-            if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != DateUtils.DateTimeToUnixTimestamp(endDate))
+            if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != DateUtils.DateTimeToUnixTimestampMilliseconds(endDate))
             {
-                endDate = DateUtils.UnixTimeStampToDateTime(unifiedBillingCycle.endDate);
+                endDate = DateUtils.UnixTimeStampMillisecondsToDateTime(unifiedBillingCycle.endDate);
             }
             else
             {
