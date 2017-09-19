@@ -8087,7 +8087,7 @@ namespace Core.ConditionalAccess
                             {
                                 if (!unifiedBillingCycle.paymentGatewayIds.ContainsKey(pgid))
                                 {
-                                    unifiedBillingCycle.paymentGatewayIds.Add(pgid, ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow));
+                                    unifiedBillingCycle.paymentGatewayIds.Add(pgid, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow));
                                     setDomainUnifiedBillingCycle = true;
                                 }
                             }
@@ -8095,7 +8095,7 @@ namespace Core.ConditionalAccess
                         else if (paymentGatewayIds != null && paymentGatewayIds.Count() > 0)
                         {
 
-                            unifiedBillingCycle.paymentGatewayIds = paymentGatewayIds.Distinct().ToDictionary(x => x, y => ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow));
+                            unifiedBillingCycle.paymentGatewayIds = paymentGatewayIds.Distinct().ToDictionary(x => x, y => ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow));
                             setDomainUnifiedBillingCycle = true;
                         }
 

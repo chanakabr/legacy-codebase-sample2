@@ -1481,7 +1481,10 @@ namespace Core.Billing
                 rowNode.AppendChild(currencyNodeCode);
 
                 customDataNode = xmlDoc.CreateElement("custom_data");
-                customDataNode.InnerText = rsd.CustomData;
+                // change partial tag to full period - due to unified billing cycle 
+                customDataNode.InnerText = rsd.CustomData.Replace("<partialPrice>True</partialPrice>", "");
+
+
                 rowNode.AppendChild(customDataNode);
 
                 isRecurringNode = xmlDoc.CreateElement("is_recurring");
