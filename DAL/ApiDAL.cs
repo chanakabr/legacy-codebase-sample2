@@ -1687,10 +1687,11 @@ namespace DAL
             return newRule;
         }
 
-        public static List<long> Insert_NewBillingTransactions(int billingProvider, int paymentGatewayId, string xml, int billingProviderReferance, int billingTransactionStatus, int groupId)
+        public static List<long> Insert_NewBillingTransactions(int billingProvider, int billingProcessor, int paymentGatewayId, string xml, int billingProviderReferance, int billingTransactionStatus, int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertNewBillingTransactions");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@BillingProcessor", billingProcessor);
             sp.AddParameter("@BillingProvider", billingProvider);
             sp.AddParameter("@PaymentGatewayId", paymentGatewayId);            
             sp.AddParameter("@BillingTransactionStatus", billingTransactionStatus);
