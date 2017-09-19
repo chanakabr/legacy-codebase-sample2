@@ -18,7 +18,7 @@ namespace WebAPI.Models.DMS
         public int PartnerId { get; set; }
 
         /// <summary>
-        /// Configuration group identifier which the version configuration the devices last received belongs to
+        /// Configuration group identifier which the version configuration the device last received belongs to
         /// </summary>
         [DataMember(Name = "configurationGroupId")]
         [XmlElement(ElementName = "configurationGroupId")]

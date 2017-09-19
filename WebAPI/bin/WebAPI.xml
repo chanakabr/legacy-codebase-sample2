@@ -2191,7 +2191,7 @@
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.ConfigurationGroupId">
             <summary>
-            Configuration group identifier which the version configuration the devices last received belongs to
+            Configuration group identifier which the version configuration the device last received belongs to
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.Udid">
