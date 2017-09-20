@@ -104,7 +104,7 @@ public partial class adm_system_announcements : System.Web.UI.Page
             // in case Data Table return null ( no rows found) 
             // add Select query for empty grid layout
             theTable += "select a.ID, a.recipients as 'recipientsCode', a.status, a.is_active, a.name, a.message, a.start_time, a.sent, a.updater_id, a.update_date,a.create_date, ";
-            theTable += " a.group_id, a.timezone , ";
+            theTable += " a.group_id, a.timezone , a.image_url , ";
             theTable += " CASE  WHEN a.recipients = 0 THEN  'All'  WHEN a.recipients = 1 THEN 'LoggedIn'  when a.recipients = 2 then 'Guests' ";
             theTable += " when a.recipients = 3 then 'Other' end as 'recipients' , ";
             theTable += " CASE WHEN a.sent = 0 THEN  'Not Sent'  WHEN a.sent = 1 THEN 'Sending' when a.sent = 2 then 'Sent' when a.sent = 3 then 'Aborted' end as 'message status' ";
@@ -186,7 +186,7 @@ public partial class adm_system_announcements : System.Web.UI.Page
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery.SetConnectionKey("notifications_connection");
         selectQuery += "select a.ID, a.recipients as 'recipientsCode', a.status, a.is_active, a.name, a.message, a.start_time, a.sent, a.updater_id, a.update_date,a.create_date, ";
-        selectQuery += " a.group_id, a.timezone , ";
+        selectQuery += " a.group_id, a.timezone ,  a.image_url , ";
         selectQuery += " CASE  WHEN a.recipients = 0 THEN  'All'  WHEN a.recipients = 1 THEN 'LoggedIn'  when a.recipients = 2 then 'Guests' ";
         selectQuery += " when a.recipients = 3 then 'Other' end as 'recipients' , ";
         selectQuery += " CASE WHEN a.sent = 0 THEN  'Not Sent'  WHEN a.sent = 1 THEN 'Sending' when a.sent = 2 then 'Sent' when a.sent = 3 then 'Aborted' end as 'message status' ";
