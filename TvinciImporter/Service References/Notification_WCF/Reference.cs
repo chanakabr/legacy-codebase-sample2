@@ -373,6 +373,7 @@ namespace TvinciImporter.Notification_WCF {
         System.Threading.Tasks.Task<ApiObjects.Notification.RegistryResponse> RegisterPushReminderParametersAsync(string sWSUserName, string sWSPassword, long reminderId, string hash, string ip);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddUserReminder", ReplyAction="http://tempuri.org/INotificationService/AddUserReminderResponse")]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Notification.DbSeriesReminder))]
         ApiObjects.Notification.RemindersResponse AddUserReminder(string sWSUserName, string sWSPassword, int userId, ApiObjects.Notification.DbReminder dbReminder);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddUserReminder", ReplyAction="http://tempuri.org/INotificationService/AddUserReminderResponse")]
@@ -385,10 +386,10 @@ namespace TvinciImporter.Notification_WCF {
         System.Threading.Tasks.Task<ApiObjects.Response.Status> DeleteOldRemindersAsync(string sWSUserName, string sWSPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteUserReminder", ReplyAction="http://tempuri.org/INotificationService/DeleteUserReminderResponse")]
-        ApiObjects.Response.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId);
+        ApiObjects.Response.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId, ApiObjects.Notification.ReminderType reminderType);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteUserReminder", ReplyAction="http://tempuri.org/INotificationService/DeleteUserReminderResponse")]
-        System.Threading.Tasks.Task<ApiObjects.Response.Status> DeleteUserReminderAsync(string sWSUserName, string sWSPassword, int userId, long reminderId);
+        System.Threading.Tasks.Task<ApiObjects.Response.Status> DeleteUserReminderAsync(string sWSUserName, string sWSPassword, int userId, long reminderId, ApiObjects.Notification.ReminderType reminderType);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageReminder", ReplyAction="http://tempuri.org/INotificationService/SendMessageReminderResponse")]
         bool SendMessageReminder(string sWSUserName, string sWSPassword, long startTime, int reminderId);
@@ -415,6 +416,42 @@ namespace TvinciImporter.Notification_WCF {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetEngagementAdapterConfiguration", ReplyAction="http://tempuri.org/INotificationService/SetEngagementAdapterConfigurationResponse" +
             "")]
         System.Threading.Tasks.Task<ApiObjects.Response.Status> SetEngagementAdapterConfigurationAsync(string wsUserName, string wsSPassword, int engagementAdapterId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/ReSendEngagement", ReplyAction="http://tempuri.org/INotificationService/ReSendEngagementResponse")]
+        bool ReSendEngagement(string wsUserName, string wsSPassword, int engagementId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/ReSendEngagement", ReplyAction="http://tempuri.org/INotificationService/ReSendEngagementResponse")]
+        System.Threading.Tasks.Task<bool> ReSendEngagementAsync(string wsUserName, string wsSPassword, int engagementId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendEngagement", ReplyAction="http://tempuri.org/INotificationService/SendEngagementResponse")]
+        bool SendEngagement(string wsUserName, string wsSPassword, int engagementId, int startTime);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendEngagement", ReplyAction="http://tempuri.org/INotificationService/SendEngagementResponse")]
+        System.Threading.Tasks.Task<bool> SendEngagementAsync(string wsUserName, string wsSPassword, int engagementId, int startTime);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserSeriesReminders", ReplyAction="http://tempuri.org/INotificationService/GetUserSeriesRemindersResponse")]
+        ApiObjects.Notification.SeriesRemindersResponse GetUserSeriesReminders(string sWSUserName, string sWSPassword, int userId, string[] seriesIds, long[] seasonNumbers, long epgChannelId, int pageSize, int pageIndex, ApiObjects.SearchObjects.OrderObj orderObj);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserSeriesReminders", ReplyAction="http://tempuri.org/INotificationService/GetUserSeriesRemindersResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Notification.SeriesRemindersResponse> GetUserSeriesRemindersAsync(string sWSUserName, string sWSPassword, int userId, string[] seriesIds, long[] seasonNumbers, long epgChannelId, int pageSize, int pageIndex, ApiObjects.SearchObjects.OrderObj orderObj);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendUserPush", ReplyAction="http://tempuri.org/INotificationService/SendUserPushResponse")]
+        ApiObjects.Response.Status SendUserPush(string sWSUserName, string sWSPassword, int userId, ApiObjects.Notification.PushMessage pushMessage);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendUserPush", ReplyAction="http://tempuri.org/INotificationService/SendUserPushResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Response.Status> SendUserPushAsync(string sWSUserName, string sWSPassword, int userId, ApiObjects.Notification.PushMessage pushMessage);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendBulkEngagement", ReplyAction="http://tempuri.org/INotificationService/SendBulkEngagementResponse")]
+        bool SendBulkEngagement(string wsUserName, string wsSPassword, int engagementId, int engagementBulkId, int startTime);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendBulkEngagement", ReplyAction="http://tempuri.org/INotificationService/SendBulkEngagementResponse")]
+        System.Threading.Tasks.Task<bool> SendBulkEngagementAsync(string wsUserName, string wsSPassword, int engagementId, int engagementBulkId, int startTime);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageInterest", ReplyAction="http://tempuri.org/INotificationService/SendMessageInterestResponse")]
+        bool SendMessageInterest(string wsUserName, string wsSPassword, long startTime, int notificationInterestMessageId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageInterest", ReplyAction="http://tempuri.org/INotificationService/SendMessageInterestResponse")]
+        System.Threading.Tasks.Task<bool> SendMessageInterestAsync(string wsUserName, string wsSPassword, long startTime, int notificationInterestMessageId);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -796,12 +833,12 @@ namespace TvinciImporter.Notification_WCF {
             return base.Channel.DeleteOldRemindersAsync(sWSUserName, sWSPassword);
         }
         
-        public ApiObjects.Response.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId) {
-            return base.Channel.DeleteUserReminder(sWSUserName, sWSPassword, userId, reminderId);
+        public ApiObjects.Response.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId, ApiObjects.Notification.ReminderType reminderType) {
+            return base.Channel.DeleteUserReminder(sWSUserName, sWSPassword, userId, reminderId, reminderType);
         }
         
-        public System.Threading.Tasks.Task<ApiObjects.Response.Status> DeleteUserReminderAsync(string sWSUserName, string sWSPassword, int userId, long reminderId) {
-            return base.Channel.DeleteUserReminderAsync(sWSUserName, sWSPassword, userId, reminderId);
+        public System.Threading.Tasks.Task<ApiObjects.Response.Status> DeleteUserReminderAsync(string sWSUserName, string sWSPassword, int userId, long reminderId, ApiObjects.Notification.ReminderType reminderType) {
+            return base.Channel.DeleteUserReminderAsync(sWSUserName, sWSPassword, userId, reminderId, reminderType);
         }
         
         public bool SendMessageReminder(string sWSUserName, string sWSPassword, long startTime, int reminderId) {
@@ -834,6 +871,54 @@ namespace TvinciImporter.Notification_WCF {
         
         public System.Threading.Tasks.Task<ApiObjects.Response.Status> SetEngagementAdapterConfigurationAsync(string wsUserName, string wsSPassword, int engagementAdapterId) {
             return base.Channel.SetEngagementAdapterConfigurationAsync(wsUserName, wsSPassword, engagementAdapterId);
+        }
+        
+        public bool ReSendEngagement(string wsUserName, string wsSPassword, int engagementId) {
+            return base.Channel.ReSendEngagement(wsUserName, wsSPassword, engagementId);
+        }
+        
+        public System.Threading.Tasks.Task<bool> ReSendEngagementAsync(string wsUserName, string wsSPassword, int engagementId) {
+            return base.Channel.ReSendEngagementAsync(wsUserName, wsSPassword, engagementId);
+        }
+        
+        public bool SendEngagement(string wsUserName, string wsSPassword, int engagementId, int startTime) {
+            return base.Channel.SendEngagement(wsUserName, wsSPassword, engagementId, startTime);
+        }
+        
+        public System.Threading.Tasks.Task<bool> SendEngagementAsync(string wsUserName, string wsSPassword, int engagementId, int startTime) {
+            return base.Channel.SendEngagementAsync(wsUserName, wsSPassword, engagementId, startTime);
+        }
+        
+        public ApiObjects.Notification.SeriesRemindersResponse GetUserSeriesReminders(string sWSUserName, string sWSPassword, int userId, string[] seriesIds, long[] seasonNumbers, long epgChannelId, int pageSize, int pageIndex, ApiObjects.SearchObjects.OrderObj orderObj) {
+            return base.Channel.GetUserSeriesReminders(sWSUserName, sWSPassword, userId, seriesIds, seasonNumbers, epgChannelId, pageSize, pageIndex, orderObj);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Notification.SeriesRemindersResponse> GetUserSeriesRemindersAsync(string sWSUserName, string sWSPassword, int userId, string[] seriesIds, long[] seasonNumbers, long epgChannelId, int pageSize, int pageIndex, ApiObjects.SearchObjects.OrderObj orderObj) {
+            return base.Channel.GetUserSeriesRemindersAsync(sWSUserName, sWSPassword, userId, seriesIds, seasonNumbers, epgChannelId, pageSize, pageIndex, orderObj);
+        }
+        
+        public ApiObjects.Response.Status SendUserPush(string sWSUserName, string sWSPassword, int userId, ApiObjects.Notification.PushMessage pushMessage) {
+            return base.Channel.SendUserPush(sWSUserName, sWSPassword, userId, pushMessage);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Response.Status> SendUserPushAsync(string sWSUserName, string sWSPassword, int userId, ApiObjects.Notification.PushMessage pushMessage) {
+            return base.Channel.SendUserPushAsync(sWSUserName, sWSPassword, userId, pushMessage);
+        }
+        
+        public bool SendBulkEngagement(string wsUserName, string wsSPassword, int engagementId, int engagementBulkId, int startTime) {
+            return base.Channel.SendBulkEngagement(wsUserName, wsSPassword, engagementId, engagementBulkId, startTime);
+        }
+        
+        public System.Threading.Tasks.Task<bool> SendBulkEngagementAsync(string wsUserName, string wsSPassword, int engagementId, int engagementBulkId, int startTime) {
+            return base.Channel.SendBulkEngagementAsync(wsUserName, wsSPassword, engagementId, engagementBulkId, startTime);
+        }
+        
+        public bool SendMessageInterest(string wsUserName, string wsSPassword, long startTime, int notificationInterestMessageId) {
+            return base.Channel.SendMessageInterest(wsUserName, wsSPassword, startTime, notificationInterestMessageId);
+        }
+        
+        public System.Threading.Tasks.Task<bool> SendMessageInterestAsync(string wsUserName, string wsSPassword, long startTime, int notificationInterestMessageId) {
+            return base.Channel.SendMessageInterestAsync(wsUserName, wsSPassword, startTime, notificationInterestMessageId);
         }
     }
 }
