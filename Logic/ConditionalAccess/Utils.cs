@@ -1383,7 +1383,7 @@ namespace Core.ConditionalAccess
                 {
                     DateTime nextRenew = Core.Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
                     int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
-                    int numOfDaysByBillingCycle = (int)Math.Ceiling((Utils.ConvertEpochTimeToDate(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
+                    int numOfDaysByBillingCycle = (int)Math.Ceiling((ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
 
                     price = Math.Round(numOfDaysByBillingCycle * (price / numOfDaysForSubscription), 2);
                 }
