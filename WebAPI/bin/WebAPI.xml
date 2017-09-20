@@ -8199,6 +8199,11 @@
             Announcement id
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.ImageUrl">
+            <summary>
+            Announcement image URL, relevant for system announcements
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementRecipientsType">
             <summary>
             Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3

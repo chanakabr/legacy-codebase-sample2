@@ -75,8 +75,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    DynamicMailRequest mailMessage = NotificationMapping.ConvertEmailMessage(emailMessage);                    
-                   
+                    DynamicMailRequest mailMessage = NotificationMapping.ConvertEmailMessage(emailMessage);
+
                     mailMessage.groupId = groupId;
                     response = Core.Api.Module.SendMailTemplate(groupId, mailMessage);
                 }
@@ -89,7 +89,7 @@ namespace WebAPI.Clients
 
             if (response == null || !response)
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            
+
             return true;
         }
 
@@ -258,7 +258,8 @@ namespace WebAPI.Clients
                 Recipients = recipients,
                 StartTime = announcement.getStartTime(),
                 Status = status,
-                Timezone = announcement.Timezone
+                Timezone = announcement.Timezone,
+                ImageUrl = announcement.ImageUrl
             };
 
             try
@@ -332,7 +333,8 @@ namespace WebAPI.Clients
                 Recipients = recipients,
                 StartTime = announcement.getStartTime(),
                 Status = status,
-                Timezone = announcement.Timezone
+                Timezone = announcement.Timezone,
+                ImageUrl = announcement.ImageUrl
             };
 
             try
@@ -476,8 +478,6 @@ namespace WebAPI.Clients
             List<KalturaAnnouncement> result = null;
             GetAllMessageAnnouncementsResponse response = null;
             KalturaMessageAnnouncementListResponse ret;
-
-
 
             try
             {
@@ -1734,8 +1734,8 @@ namespace WebAPI.Clients
             engagementAdapter = Mapper.Map<KalturaEngagementAdapter>(response);
             return engagementAdapter;
         }
-       
-        internal List<KalturaEngagement> GetEngagements(int groupId, List<KalturaEngagementType> typeIn, long? sendTimeLessThanOrEqual)        
+
+        internal List<KalturaEngagement> GetEngagements(int groupId, List<KalturaEngagementType> typeIn, long? sendTimeLessThanOrEqual)
         {
             List<KalturaEngagement> list = null;
             EngagementResponseList response = null;
@@ -1913,7 +1913,7 @@ namespace WebAPI.Clients
                 result = new List<KalturaReminder>();
                 foreach (DbSeriesReminder reminder in response.Reminders)
                 {
-                    result.Add(Mapper.Map<KalturaSeriesReminder>(reminder));                    
+                    result.Add(Mapper.Map<KalturaSeriesReminder>(reminder));
                 }
             }
             ret = new KalturaReminderListResponse() { Reminders = result, TotalCount = response.TotalCount };

@@ -112,6 +112,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Recipients, opt => opt.MapFrom(src => ConvertRecipientsType(src.Recipients)))
                  .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
                  .ForMember(dest => dest.Timezone, opt => opt.MapFrom(src => src.Timezone))
+                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertAnnouncementStatusType(src.Status)));
 
             //MessageTemplate to KalturaMessageTemplate
