@@ -947,6 +947,14 @@ namespace Core.ConditionalAccess
             try
             {
                 long subscriptionSetModifyDetailsId = 0, purchaseId = 0;
+                // check if cancellation is allowed
+                Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(groupId, scheduledSubscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                {
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionCancellationIsBlocked, "Cancellation is blocked for this subscription");
+                    return res;
+                }
+
                 if (!Utils.GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId(groupId, domainId, scheduledSubscriptionId, ref subscriptionSetModifyDetailsId, ref purchaseId, SubscriptionSetModifyType.Downgrade))
                 {
                     res = new ApiObjects.Response.Status((int)eResponseStatus.ScheduledSubscriptionNotFound, eResponseStatus.ScheduledSubscriptionNotFound.ToString());

@@ -1723,7 +1723,16 @@ namespace Core.ConditionalAccess
 					}
 					else
 					{
-						int[] arrUsers = oDomain.m_UsersIDs.ToArray();
+                        // check if cancellation is allowed
+                        Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, p_sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);
+                        if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                        {
+                            result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                            result.Message = "Cancellation is blocked for this subscription";
+                            return result;
+                        }
+
+                        int[] arrUsers = oDomain.m_UsersIDs.ToArray();
 
 						DataRow drUserPurchase = GetSubscriptionPurchaseRow(p_sSubscriptionCode, arrUsers, domainId);
 
