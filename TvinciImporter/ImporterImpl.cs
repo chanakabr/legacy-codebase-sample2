@@ -5988,7 +5988,7 @@ namespace TvinciImporter
             return res;
         }
 
-        public static bool UpdateEpg(List<ulong> epgIds, int groupId, ApiObjects.eAction action, bool datesUpdates = true)
+        public static bool UpdateEpg(List<ulong> epgIds, int groupId, ApiObjects.eAction action, bool datesUpdates = true, bool isCalledFromTvm = false)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -6140,7 +6140,7 @@ namespace TvinciImporter
             return isUpdateIndexSucceeded;
         }
 
-        public static void UpdateRecordingsOfEPGs(List<ulong> epgIds, int groupId, ApiObjects.eAction action, string tcmKey = "conditionalaccess_ws")
+        public static void UpdateRecordingsOfEPGs(List<ulong> epgIds, int groupId, ApiObjects.eAction action, string tcmKey = "conditionalaccess_ws", bool isCalledFromTvm = false)
         {
             try
             {
@@ -6180,7 +6180,17 @@ namespace TvinciImporter
                         break;
                 }
 
-                cas.IngestRecordingAsync(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                if (isCalledFromTvm)
+                {
+                    System.Threading.Tasks.Task ingestRecordingAsync = System.Threading.Tasks.Task.Factory.StartNew(() =>
+                    {
+                        cas.IngestRecording(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                    });
+                }
+                else
+                {
+                    cas.IngestRecordingAsync(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                }
                 log.DebugFormat("cas.IngestRecordingAsync has been called for epgIds {0}", string.Join(", ", epgIds.Select(x => x.ToString()).ToArray()));
             }
             catch (Exception ex)
