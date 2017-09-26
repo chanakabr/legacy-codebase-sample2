@@ -260,7 +260,7 @@ namespace Core.Recordings
                     try
                     {
                         //  recording in status scheduled/recording is canceled, otherwise we delete
-                        if (slimRecording.EpgEndDate < DateTime.UtcNow)
+                        if (slimRecording.EpgEndDate > DateTime.UtcNow)
                         {
                             adapterResponse = adapterController.CancelRecording(groupId, externalChannelId, slimRecording.ExternalRecordingId, adapterId);
                         }
@@ -857,31 +857,23 @@ namespace Core.Recordings
 
         private static void UpdateCouchbase(int groupId, long programId, long recordingId, bool isRecorded)
         {
-            RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
-
             if (isRecorded)
             {
-                if (recording == null)
+                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
+                EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
+                if (epg != null)
                 {
-                    TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
-
-                    EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
-
-                    if (epg != null)
+                    RecordingCB recording = new RecordingCB(epg)
                     {
-                        epgBLTvinci.UpdateEpg(epg);
+                        RecordingId = (ulong)recordingId
+                    };
 
-                        recording = new RecordingCB(epg)
-                        {
-                            RecordingId = (ulong)recordingId
-                        };
-                    }
+                    RecordingsDAL.UpdateRecording_CB(recording);
                 }
-
-                RecordingsDAL.UpdateRecording_CB(recording);
             }
-            else if (!isRecorded)
+            else
             {
+                RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
                 RecordingsDAL.DeleteRecording_CB(recording);
             }
         }
@@ -1131,7 +1123,7 @@ namespace Core.Recordings
                 // Update recording information in to database
                 bool updateResult = false;
 
-                if (epgEndDate < DateTime.UtcNow)
+                if (epgEndDate > DateTime.UtcNow)
                 {                    
                     updateResult = RecordingsDAL.CancelRecording(recordingId);
                 }
