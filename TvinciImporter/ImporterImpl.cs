@@ -6009,7 +6009,7 @@ namespace TvinciImporter
                 // Update recordings only if we know that the dates have changed
                 if (datesUpdates)
                 {
-                    UpdateRecordingsOfEPGs(epgIds, groupId, action);
+                    UpdateRecordingsOfEPGs(epgIds, groupId, action, "conditionalaccess_ws", isCalledFromTvm);
                 }
 
                 #endregion
