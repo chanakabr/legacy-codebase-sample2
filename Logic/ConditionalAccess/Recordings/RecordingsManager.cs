@@ -858,31 +858,23 @@ namespace Core.Recordings
 
         private static void UpdateCouchbase(int groupId, long programId, long recordingId, bool isRecorded)
         {
-            RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
-
             if (isRecorded)
             {
-                if (recording == null)
+                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
+                EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
+                if (epg != null)
                 {
-                    TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
-
-                    EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
-
-                    if (epg != null)
+                    RecordingCB recording = new RecordingCB(epg)
                     {
-                        epgBLTvinci.UpdateEpg(epg);
+                        RecordingId = (ulong)recordingId
+                    };
 
-                        recording = new RecordingCB(epg)
-                        {
-                            RecordingId = (ulong)recordingId
-                        };
-                    }
+                    RecordingsDAL.UpdateRecording_CB(recording);
                 }
-
-                RecordingsDAL.UpdateRecording_CB(recording);
             }
-            else if (!isRecorded)
+            else
             {
+                RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
                 RecordingsDAL.DeleteRecording_CB(recording);
             }
         }
