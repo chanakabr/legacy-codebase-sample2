@@ -2037,6 +2037,8 @@ namespace WebAPI.Reflection
                             return "enabled";
                         case "Id":
                             return "id";
+                        case "ImageUrl":
+                            return "imageUrl";
                         case "Message":
                             return "message";
                         case "Name":
@@ -3165,6 +3167,30 @@ namespace WebAPI.Reflection
                             return "name";
                         case "OrderBy":
                             return "orderBy";
+                    }
+                    break;
+                    
+                case "KalturaEmailMessage":
+                    switch(property.Name)
+                    {
+                        case "BccAddress":
+                            return "bccAddress";
+                        case "ExtraParameters":
+                            return "extraParameters";
+                        case "FirstName":
+                            return "firstName";
+                        case "LastName":
+                            return "lastName";
+                        case "SenderFrom":
+                            return "senderFrom";
+                        case "SenderName":
+                            return "senderName";
+                        case "SenderTo":
+                            return "senderTo";
+                        case "Subject":
+                            return "subject";
+                        case "TemplateName":
+                            return "templateName";
                     }
                     break;
                     
