@@ -964,7 +964,7 @@ namespace APILogic.Notification
             }
 
             // enqueue message with small expiration date
-            MessageAnnouncementFullData data = new MessageAnnouncementFullData(partnerId, messageData.Alert, messageData.Url, messageData.Sound, messageData.Category, sendTime);
+            MessageAnnouncementFullData data = new MessageAnnouncementFullData(partnerId, messageData.Alert, messageData.Url, messageData.Sound, messageData.Category, sendTime, messageData.ImageUrl);
             GeneralDynamicQueue q = new GeneralDynamicQueue(routeName, QueueWrapper.Enums.ConfigType.PushNotifications);
             if (!q.Enqueue(data, routeName, AnnouncementManager.PUSH_MESSAGE_EXPIRATION_MILLI_SEC))
             {

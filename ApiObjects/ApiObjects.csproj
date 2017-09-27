@@ -102,6 +102,8 @@
     <Compile Include="AssetLifeCycleRules\FriendlyAssetLifeCycleRuleResponse.cs" />
     <Compile Include="AssetLifeCycleRules\LifeCycleFileTypesAndPpvsTransitions.cs" />
     <Compile Include="AssetLifeCycleRules\LifeCycleTransitions.cs" />
+    <Compile Include="Billing\TransactionUnifiedRenewalDetails.cs" />
+    <Compile Include="Billing\TransactionUnifiedRenewalRequest.cs" />
     <Compile Include="Compensation.cs" />
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />
@@ -136,6 +138,7 @@
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
     <Compile Include="Billing\UnifiedBillingCycle.cs" />
     <Compile Include="MailRequests\DynamicMailRequest.cs" />
+    <Compile Include="QueueObjects\RenewUnifiedData.cs" />
     <Compile Include="SearchObjects\SearchAggregationGroupBy.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetModifyDetails.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetDowngradeDetails.cs" />

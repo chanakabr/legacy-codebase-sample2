@@ -12,28 +12,40 @@ namespace ApiObjects.Notification
     {
         [DataMember]
         public string Name { get; set; }
+
         [DataMember]
         public string Message { get; set; }
+
         [DataMember]
         public bool Enabled { get; set; }
+
         [DataMember]
         public long StartTime { get; set; }
+
         [DataMember]
         public string Timezone { get; set; }
+
         [DataMember]
         public eAnnouncementStatus Status { get; set; }
+
         [DataMember]
         public eAnnouncementRecipientsType Recipients { get; set; }
+
         [DataMember]
         public int MessageAnnouncementId { get; set; }
+
         [DataMember]
         public int AnnouncementId { get; set; }
+
         [DataMember]
         public string MessageReference { get; set; }
 
+        [DataMember]
+        public string ImageUrl { get; set; }
+
         public MessageAnnouncement() { }
 
-        public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, eAnnouncementStatus status = eAnnouncementStatus.NotSent, string messageReference = null, int announcementId = 0)
+        public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, eAnnouncementStatus status = eAnnouncementStatus.NotSent, string messageReference = null, int announcementId = 0, string imageUrl = null)
         {
             Name = name;
             Message = msg;
@@ -44,6 +56,7 @@ namespace ApiObjects.Notification
             Status = status;
             AnnouncementId = announcementId;
             MessageReference = messageReference;
+            ImageUrl = imageUrl;
         }
 
         public override string ToString()

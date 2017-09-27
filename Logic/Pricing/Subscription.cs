@@ -41,6 +41,7 @@ namespace Core.Pricing
         public int m_nDomainLimitationModule;
         public ServiceObject[] m_lServices;
         public int m_GracePeriodMinutes;
+        public bool BlockCancellation;
         
         public List<KeyValuePair> SubscriptionSetIdsToPriority; // N/A or AddOn  ==> contains set ids that this subscription belongs to <set_id, priority>
                                                                 // Base ==> as above with only one set_id
@@ -246,7 +247,7 @@ namespace Core.Pricing
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, string sProductCode, string sExtDiscount, UserType[] userTypes, ServiceObject[] services,
             long lPreviewModuleID, int nGeoCommerceID = 0, int dlmID = 0, int gracePeriodMinutes = 0, AdsPolicy? adsPolicy = null, string adsParam = null,
              List<SubscriptionCouponGroup> couponsGroup = null, Dictionary<long, int> subscriptionSetIdsToPriority = null, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes = null
-            , SubscriptionType type = SubscriptionType.NotApplicable)
+            , SubscriptionType type = SubscriptionType.NotApplicable, bool blockCancellation = false)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sSubscriptionCode, false, sObjectVirtualName,
@@ -324,7 +325,9 @@ namespace Core.Pricing
             {
                 this.ExternalProductCodes = externalProductCodes;
             }
+
             Type = type;
+            BlockCancellation = blockCancellation;
         }
 
         private void InitializeMultiUsageModule(int nGroupID, string sSubscriptionCode)

@@ -34,6 +34,7 @@ namespace Core.Billing
         private static Dictionary<string, string> enablePaymentGatewayInputValues = new Dictionary<string, string>()
         { { "true", "1" }, { "yes", "1" }, { "1", "1" }, { "false", "0" }, { "no", "0" }, { "0", "0" } };
 
+        
         static public Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseBilling t)
         {
             Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
@@ -1474,6 +1475,21 @@ namespace Core.Billing
             }
         }
 
+        internal static List<long> InsertBillingTransaction(int billingProvider, int paymenMethodId, string xml, PaymentGatewayTransaction paymentGWTransaction, int billingTransactionStatus, int groupId)
+        {
+            try
+            {
+                List<long> result = ApiDAL.Insert_NewBillingTransactions(billingProvider, paymenMethodId, paymenMethodId, xml, paymentGWTransaction.ID, billingTransactionStatus, groupId);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail InsertBillingTransaction ex = {0},  billingProvider={1}, paymentGatewayId={2}, billingTransactionStatus={3}", ex, billingProvider, paymenMethodId, billingTransactionStatus);                         
+            }
+            return new List<long>();
+        }
+
         static public long InsertBillingTransaction(string sSITE_GUID, string sLAST_FOUR_DIGITS, double dPRICE,
     string sPRICE_CODE, string sCURRENCY_CODE, string sCUSTOMDATA, Int32 nBILLING_STATUS, string sBILLING_REASON,
     bool bIS_RECURRING, Int32 nMEDIA_FILE_ID, Int32 nMEDIA_ID, string sPPVMODULE_CODE,
@@ -1637,7 +1653,7 @@ namespace Core.Billing
         * 3. The payment number is critical for the MPP renewing process.
         * 
         */
-        private static int CalcPaymentNumberForBillingTransactionsDBTable(int nPaymentNumber, long lPreviewModuleID)
+        public static int CalcPaymentNumberForBillingTransactionsDBTable(int nPaymentNumber, long lPreviewModuleID)
         {
             if (nPaymentNumber == 1 && lPreviewModuleID > 0)
                 return 0;

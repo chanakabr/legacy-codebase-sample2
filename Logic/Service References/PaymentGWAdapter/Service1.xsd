@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="ArrayOfKeyValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="KeyValue" nillable="true" type="tns:KeyValue" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfKeyValue" nillable="true" type="tns:ArrayOfKeyValue" />
+  <xs:complexType name="KeyValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Key" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Value" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="KeyValue" nillable="true" type="tns:KeyValue" />
+  <xs:complexType name="AdapterStatus">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Code" type="xs:int" />
+      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AdapterStatus" nillable="true" type="tns:AdapterStatus" />
+  <xs:complexType name="ConfigurationResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Configuration" nillable="true" type="tns:ArrayOfKeyValue" />
+      <xs:element minOccurs="0" name="Status" nillable="true" type="tns:AdapterStatus" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ConfigurationResponse" nillable="true" type="tns:ConfigurationResponse" />
+  <xs:simpleType name="eTransactionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PPV" />
+      <xs:enumeration value="Subscription" />
+      <xs:enumeration value="Collection" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eTransactionType" nillable="true" type="tns:eTransactionType" />
+  <xs:complexType name="TransactionResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Status" nillable="true" type="tns:AdapterStatus" />
+      <xs:element minOccurs="0" name="Transaction" nillable="true" type="tns:Transaction" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="TransactionResponse" nillable="true" type="tns:TransactionResponse" />
+  <xs:complexType name="Transaction">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AutoRenewing" type="xs:boolean" />
+      <xs:element minOccurs="0" name="EndDateSeconds" type="xs:long" />
+      <xs:element minOccurs="0" name="FailReasonCode" type="xs:int" />
+      <xs:element minOccurs="0" name="PGMessage" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PGPayload" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PGStatus" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PGTransactionID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PaymentDetails" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PaymentMethod" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="StartDateSeconds" type="xs:long" />
+      <xs:element minOccurs="0" name="StateCode" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Transaction" nillable="true" type="tns:Transaction" />
+  <xs:complexType name="PaymentMethodResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+      <xs:element minOccurs="0" name="PGMessage" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PGStatus" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Status" nillable="true" type="tns:AdapterStatus" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PaymentMethodResponse" nillable="true" type="tns:PaymentMethodResponse" />
+  <xs:complexType name="ArrayOfTransactionProductDetails">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="TransactionProductDetails" nillable="true" type="tns:TransactionProductDetails" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfTransactionProductDetails" nillable="true" type="tns:ArrayOfTransactionProductDetails" />
+  <xs:complexType name="TransactionProductDetails">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="gracePeriodMinutes" type="xs:int" />
+      <xs:element minOccurs="0" name="price" type="xs:double" />
+      <xs:element minOccurs="0" name="productCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="productid" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="transactionId" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="TransactionProductDetails" nillable="true" type="tns:TransactionProductDetails" />
+</xs:schema>

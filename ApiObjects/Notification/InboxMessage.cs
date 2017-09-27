@@ -13,8 +13,10 @@ namespace ApiObjects.Notification
         public string Message { get; set; }
         public eMessageCategory Category { get; set; }
         public string Url { get; set; }
+        public string ImageUrl { get; set; }
         public long CreatedAtSec { get; set; }
         public long UpdatedAtSec { get; set; }
         public eMessageState State { get; set; }
+
     }
 }

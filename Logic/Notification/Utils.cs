@@ -73,7 +73,8 @@ namespace Core.Notification
                                                               recipients,
                                                               status,
                                                               ODBCWrapper.Utils.GetSafeStr(row, "message_reference"),
-                                                              ODBCWrapper.Utils.GetIntSafeVal(row, "announcement_id"));
+                                                              ODBCWrapper.Utils.GetIntSafeVal(row, "announcement_id"),
+                                                              ODBCWrapper.Utils.GetSafeStr(row, "image_url"));
 
             msg.MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
 

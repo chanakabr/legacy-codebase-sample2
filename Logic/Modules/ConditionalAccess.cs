@@ -60,6 +60,40 @@ namespace Core.ConditionalAccess
             return response;
         }
 
+        public static bool RenewUnifiedTransaction(int groupID, long householdId, int paymentgatewayId, long endDate)
+        {
+            bool response = false;
+
+            // add siteguid to logs/monitor
+           // HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = householdId != null ? householdId : "null";
+
+            // get partner implementation and group ID
+            BaseConditionalAccess casImpl = null;
+            Utils.GetBaseConditionalAccessImpl(ref casImpl, groupID);
+
+            string proccessId = Guid.NewGuid().ToString();
+
+            if (casImpl != null)
+            {
+                bool shouldUpdateTaskStatus = true;
+                try
+                {
+                    response = casImpl.RenewUnifiedTransaction(householdId, paymentgatewayId, endDate, ref shouldUpdateTaskStatus, proccessId);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error while trying to renew", ex);
+                }
+
+                // Update subscription renewing status to "not active"
+                if (shouldUpdateTaskStatus && !casImpl.UpdateSubscriptionUnifiedRenewingStatus(proccessId, groupID))
+                {
+                    log.ErrorFormat("Error while trying to update subscription renewing status to 0. proccessId: {0}, groupID: {1}",
+                                        proccessId, groupID);
+                }
+            }
+            return response;
+        }
 
         public static PermittedMediaContainer[] GetUserExpiredItems(int groupID, string sSiteGUID, int numOfItems)
         {

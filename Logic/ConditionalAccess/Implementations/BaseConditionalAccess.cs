@@ -74,16 +74,17 @@ namespace Core.ConditionalAccess
 		internal const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
 		internal const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
 		internal const double MAX_SERVER_TIME_DIF = 5;
-		internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3;
+		internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3;       
 
-		//errors
-		internal const string CONFLICTED_PARAMS = "Conflicted params";
+        //errors
+        internal const string CONFLICTED_PARAMS = "Conflicted params";
 		internal const string NO_ADAPTER_TO_INSERT = "No adapter to insert";
 		internal const string NO_ADAPTER_TO_UPDATE = "No adapter to update";
 		internal const string NAME_REQUIRED = "Name must have a value";
 		internal const string ADAPTER_SHARED_SECRET_REQUIRED = "Shared secret must have a value";
-		internal const string EXTERNAL_IDENTIFIER_REQUIRED = "External identifier must have a value";
-		internal const string ERROR_EXT_ID_ALREADY_IN_USE = "External identifier must be unique";
+		internal const string EXTERNAL_IDENTIFIER_REQUIRED = "External identifier must have a value";       
+
+        internal const string ERROR_EXT_ID_ALREADY_IN_USE = "External identifier must be unique";
 		internal const string ADAPTER_ID_REQUIRED = "Adapter identifier is required";
 		internal const string ADAPTER_NOT_EXIST = "Adapter not exist";
 		internal const string ADAPTER_URL_REQUIRED = "Adapter url must have a value";
@@ -1722,7 +1723,16 @@ namespace Core.ConditionalAccess
 					}
 					else
 					{
-						int[] arrUsers = oDomain.m_UsersIDs.ToArray();
+                        // check if cancellation is allowed
+                        Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, p_sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);
+                        if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                        {
+                            result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                            result.Message = "Cancellation is blocked for this subscription";
+                            return result;
+                        }
+
+                        int[] arrUsers = oDomain.m_UsersIDs.ToArray();
 
 						DataRow drUserPurchase = GetSubscriptionPurchaseRow(p_sSubscriptionCode, arrUsers, domainId);
 
@@ -2650,7 +2660,7 @@ namespace Core.ConditionalAccess
                     unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
                     
                     // check that end date between next end date and unified billing cycle end date are different
-                    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow))
+                    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                     {
                         Utils.CalculatePriceByUnifiedBillingCycle(groupId, ref priceValue, ref unifiedBillingCycle);
                         isPartialPrice = true;
@@ -9756,8 +9766,21 @@ namespace Core.ConditionalAccess
                         string purchasingSiteGuid = string.Empty;
                         string billingGuid = string.Empty;
 
+                        // Check if cancellation allowed for subscription
+                        if (!isForce && transactionType == eTransactionType.Subscription)
+                        {
+                            Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false);
+                            if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                            {
+                                result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                                result.Message = "Cancellation is blocked for this subscription";
+                                return result;
+                            }
+                        }
+
                         // Check if within cancellation window
                         bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid);
+
 
                         // Check if the user purchased the asset at all
                         if (userPurchasesTable == null || userPurchasesTable.Rows == null || userPurchasesTable.Rows.Count == 0)
@@ -11808,13 +11831,22 @@ namespace Core.ConditionalAccess
 			return RenewManager.Renew(this, this.m_nGroupID, siteguid, purchaseId, billingGuid, nextEndDate, ref shouldUpdateTaskStatus);
 		}
 
-		public bool UpdateSubscriptionRenewingStatus(long purchaseId, string billingGuid, bool isActive)
+        public bool RenewUnifiedTransaction(long householdId, int paymentgatewayId, long nextEndDate, ref bool shouldUpdateTaskStatus, string proccessId)
+        {
+            return RenewManager.RenewUnifiedTransaction(this, this.m_nGroupID, householdId, paymentgatewayId, nextEndDate, ref shouldUpdateTaskStatus, proccessId);
+        }
+
+        public bool UpdateSubscriptionRenewingStatus(long purchaseId, string billingGuid, bool isActive)
 		{
 			return ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalActiveStatus(m_nGroupID, purchaseId, billingGuid, Convert.ToInt16(isActive));
 		}
 
+        public bool UpdateSubscriptionUnifiedRenewingStatus(string proccessId, int groupId, bool isActive = false)
+        {
+            return ConditionalAccessDAL.UpdateSubscriptionUnifiedRenewingStatus(groupId, proccessId, Convert.ToInt16(isActive));
+        }
 
-		public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid,
+        public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid,
 			string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP)
 		{
 			AssetItemPriceResponse response = new AssetItemPriceResponse();
@@ -12996,7 +13028,7 @@ namespace Core.ConditionalAccess
 				if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
 				{
 					//check if it setting for quota_overage if so asuncronize action to delete oldest recordings 
-					//else return exceedeQuota  
+					//else return exceedeQuota
 					if (recording.Status.Code == (int)eResponseStatus.ExceededQuota)
 					{
 						TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
@@ -13005,13 +13037,13 @@ namespace Core.ConditionalAccess
 							quotaOverage = true;
 						}
 					}
+
 					if (!quotaOverage)
 					{
 						log.DebugFormat("Recording status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
 						return recording;
 					}
 				}
-			  
 
 				if (recording.Id == 0 || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
 				{
@@ -13024,7 +13056,7 @@ namespace Core.ConditionalAccess
 						log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);
 						if (quotaOverage) // if QuotaOverage then call delete recorded as needed                               
 						{
-							// handel delete to overage quota    
+							// handle delete to overage quota
 							ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDomainAutoDelete(m_nGroupID, domainID, recordingDuration);
 							if (bRes!= null && bRes.Code == (int)eResponseStatus.OK)
 							{
@@ -14152,11 +14184,14 @@ namespace Core.ConditionalAccess
 					recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
 				}
 
-				// get first batch
-				int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0;
-                System.Collections.Concurrent.ConcurrentDictionary<int, int> groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, int>();
-				Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
+                int totalRecordingsToCleanup = 0;
+                int totalRecordingsDeleted = 0;
+                var groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, int>();
 				HashSet<long> recordingsThatFailedDeletion = new HashSet<long>();
+
+                // get first batch
+                Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
+
 				while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
 				{
 					totalRecordingsToCleanup += recordingsForDeletion.Count;
@@ -14175,16 +14210,22 @@ namespace Core.ConditionalAccess
                         try
                         {
                             contextData.Load();
+
+                            // get adapter data of current group, if we don't have
+                            // pair.key = groupId
                             if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
                             {
                                 adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
+
                                 if (groupIdToAdapterIdMap.TryAdd(pair.Key, adapterId))
                                 {
                                     log.DebugFormat("Successfully added groupId :{0} with adapterId: {1} to groupIdToAdapterIdMap", pair.Key, adapterId);
                                 }
                             }
 
+                            // Try to delete the current recording
                             ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, adapterId);
+
                             if (deleteStatus.Code != (int)eResponseStatus.OK)
                             {
                                 if (!recordingsThatFailedDeletion.Contains(pair.Value.Id))
@@ -14755,12 +14796,15 @@ namespace Core.ConditionalAccess
 				string crid = string.Empty;
 				List<long> epgsInThePastToRecord = new List<long>();
 				long epgChannelId = 0;
-				if (!long.TryParse(channelId, out epgChannelId))
+				
+                if (!long.TryParse(channelId, out epgChannelId))
 				{
 					return result;
 				}
+
 				long domainSeriesRecordingId = RecordingsDAL.GetDomainSeriesId(m_nGroupID, domainId, seriesId, seasonNumber, epgChannelId);
 				HashSet<string> userRecordingCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId });
+
 				foreach (ExtendedSearchResult epg in epgsToRecord)
 				{
 					if (!long.TryParse(epg.AssetId, out epgId))
@@ -14768,17 +14812,21 @@ namespace Core.ConditionalAccess
 						log.ErrorFormat("failed parsing assetId on HandleFirstFollowerRecording, domainId: {0}, channelId: {1}, seriesId: {2}, seassonNumber: {3}", domainId, channelId, seriesId, seasonNumber);
 						continue;
 					}
+
 					if (!long.TryParse(Utils.GetStringParamFromExtendedSearchResult(epg, "epg_channel_id"), out epgChannelId))
 					{
 						log.ErrorFormat("failed parsing epgChannelId on HandleFirstFollowerRecording, domainId: {0}, channelId: {1}, seriesId: {2}, seassonNumber: {3}", domainId, channelId, seriesId, seasonNumber);
 						continue;
 					}
+
 					crid = Utils.GetStringParamFromExtendedSearchResult(epg, "crid");
 
 					DateTime epgPaddedStartDate = epg.StartDate.AddSeconds(-1 * paddingBeforeProgramStarts);
 					DateTime epgPaddedEndDate = epg.EndDate.AddSeconds(paddingAfterProgramEnds);
+
 					Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid);
-					if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
+					
+                    if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
 					{
 						log.ErrorFormat("RecordingsManager.Instance.Record failed for epgId: {0}, epgChannelId: {1}, epgPaddedStartDate: {2}, epgPaddedEndDate: {3}, crid: {4}", epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid);
 						continue;
@@ -15282,6 +15330,7 @@ namespace Core.ConditionalAccess
 			Recording recording = Utils.GetRecordingById(id);
 			if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
 			{
+                log.DebugFormat("GetRecordingById returned null or invalid recording, for id = {0} epgId = {1}", id, epgId);
 				// don't try distributing again
 				return result;
 			}
@@ -15289,13 +15338,16 @@ namespace Core.ConditionalAccess
 			if (recording.RecordingStatus != TstvRecordingStatus.Recording && recording.RecordingStatus != TstvRecordingStatus.Recorded)
 			{
 				// don't try distributing again
-				return result;
+                log.DebugFormat("GetRecordingById returned recording with wrong status, for id = {0} epgId = {1}", id, epgId);
+                return result;
 			}
+
+            log.DebugFormat("recording id = {0}, crid = {1}", id, recording.Crid);
 
 			List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
 			if (epgs == null || epgs.Count != 1)
 			{
-				log.DebugFormat("Failed Getting EPG from Catalog, groupId: {0}, EpgId: {1}", m_nGroupID, epgId);
+				log.ErrorFormat("Failed Getting EPG from Catalog, groupId: {0}, EpgId: {1}", m_nGroupID, epgId);
 				return result;
 			}
 
@@ -15319,6 +15371,7 @@ namespace Core.ConditionalAccess
 			int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
 			long maxDomainSeriesId = 0;
 			DataTable followingDomains = null;
+
 			// batching is done by remote tasks so get followingDomains by domainIds 
             if (hasDomainSeriesIds && domainSeriesIds.Count > 0)
 			{
@@ -15351,19 +15404,31 @@ namespace Core.ConditionalAccess
 				// loop on all rows
 				Parallel.For(0, followingDomains.Rows.Count, options, i =>
 				{
-					contextData.Load();
-					DataRow dr = followingDomains.Rows[i];
-					long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
-					long userId = ODBCWrapper.Utils.GetLongSafeVal(dr, "USER_ID", 0);
-					int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0);
-					long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                    contextData.Load();
+					DataRow followingDomainRow = followingDomains.Rows[i];
+					long domainId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "DOMAIN_ID", 0);
+					long userId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "USER_ID", 0);
+					int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "SEASON_NUMBER", 0);
+					long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "ID", 0);
 					RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
+
 					if (domainId > 0 && userId > 0)
 					{
-						HashSet<string> domainRecordedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId }, recording.Crid);
+                        //
+                        // !!!!!!!!!!!!!!!!!!!!!!!
+                        // Sunny: WHAT WE DO IF WE DONT HAVE CRIDS FOR EPGS? SP RETURNS HASHSET WITH NULL. hashet(null).contains(null) = true, 
+                        // AND THE RECORDING DOES NOT DISTRBUTE IN THIS CASE
+                        // A SOLUTION IS REQUIRED FOR NO CRID ENVIRONMENTS
+                        // !!!!!!!!!!!!!!!!!!!!!!!
+                        //
+
+						HashSet<string> domainRecordedCrids = 
+                            RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId }, recording.Crid);
+                        
 						if (!domainRecordedCrids.Contains(recording.Crid))
 						{
 							Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId, true);
+
 							if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
 							{
 								log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);

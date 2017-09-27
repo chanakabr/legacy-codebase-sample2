@@ -10,11 +10,12 @@ namespace ApiObjects.QueueObjects
     {
         public string Message;
         public string Url;
+        public string ImageUrl;
         public string Sound;
         public string Category;
         public long StartTime;
 
-        public MessageAnnouncementFullData(int groupId, string message, string url, string sound, string category, long startTime)
+        public MessageAnnouncementFullData(int groupId, string message, string url, string sound, string category, long startTime, string imageUrl)
         {
             GroupId = groupId;
             Message = message;
@@ -22,6 +23,7 @@ namespace ApiObjects.QueueObjects
             Sound = sound;
             Category = category;
             StartTime = startTime;
+            ImageUrl = imageUrl;
         }
     }
 }
