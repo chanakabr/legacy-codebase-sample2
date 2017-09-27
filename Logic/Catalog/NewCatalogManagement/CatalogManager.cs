@@ -169,7 +169,7 @@ namespace Core.Catalog.NewCatalogManagement
             return response;
         }        
 
-        public static AssetStructResponse AddAssetStruct(int groupId, AssetStruct assetStructToadd)
+        public static AssetStructResponse AddAssetStruct(int groupId, AssetStruct assetStructToadd, long userId)
         {
             AssetStructResponse result = new AssetStructResponse();
             try
@@ -184,7 +184,7 @@ namespace Core.Catalog.NewCatalogManagement
                         priority++;
                     }
                 }
-                DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, assetStructToadd.SystemName, metaIdsToPriority, assetStructToadd.IsPredefined);
+                DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, assetStructToadd.SystemName, metaIdsToPriority, assetStructToadd.IsPredefined, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
             }
             catch (Exception ex)
@@ -195,7 +195,7 @@ namespace Core.Catalog.NewCatalogManagement
             return result;
         }
 
-        public static AssetStructResponse UpdateAssetStruct(int groupId, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds)
+        public static AssetStructResponse UpdateAssetStruct(int groupId, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds, long userId)
         {
             AssetStructResponse result = new AssetStructResponse();
             try
@@ -211,7 +211,7 @@ namespace Core.Catalog.NewCatalogManagement
                         priority++;
                     }
                 }
-                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, assetStructToUpdate.Name, assetStructToUpdate.SystemName, metaIdsToPriority, assetStructToUpdate.IsPredefined);
+                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, assetStructToUpdate.Name, assetStructToUpdate.SystemName, metaIdsToPriority, assetStructToUpdate.IsPredefined, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
             }
             catch (Exception ex)
@@ -222,12 +222,12 @@ namespace Core.Catalog.NewCatalogManagement
             return result;
         }
 
-        public static Status DeleteAssetStruct(int groupId, long id)
+        public static Status DeleteAssetStruct(int groupId, long id, long userId)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                long deleteResult = CatalogDAL.DeleteAssetStruct(groupId, id);
+                long deleteResult = CatalogDAL.DeleteAssetStruct(groupId, id, userId);
                 result = CreateAssetStructResponseStatusFromResult(deleteResult);
             }
             catch (Exception ex)
