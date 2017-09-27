@@ -38,6 +38,14 @@ namespace WebAPI.Models.General
         public string Language { get; set; }
 
         /// <summary>
+        /// Content currency
+        /// </summary>
+        [DataMember(Name = "currency")]
+        [JsonProperty("currency")]
+        [XmlElement(ElementName = "currency")]
+        public string Currency { get; set; }
+
+        /// <summary>
         /// Kaltura API session
         /// </summary>
         [DataMember(Name = "ks")]
