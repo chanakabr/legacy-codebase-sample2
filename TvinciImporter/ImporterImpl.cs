@@ -5365,7 +5365,7 @@ namespace TvinciImporter
 
         #region Notification
 
-        static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, ref int id)
+        static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, string imageUrl, ref int id)
         {
             AddMessageAnnouncementResponse response = null;
             try
@@ -5388,6 +5388,7 @@ namespace TvinciImporter
                 announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestamp(date);
                 announcement.Timezone = timezone;
                 announcement.Enabled = Enabled;
+                announcement.ImageUrl = imageUrl;
                 response = service.AddMessageAnnouncement(sWSUserName, sWSPass, announcement);
                 if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
@@ -5401,7 +5402,7 @@ namespace TvinciImporter
             }
         }
 
-        static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone)
+        static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, string imageUrl)
         {
             try
             {
@@ -5424,6 +5425,7 @@ namespace TvinciImporter
                 announcement.Timezone = timezone;
                 announcement.MessageAnnouncementId = id;
                 announcement.Enabled = Enabled;
+                announcement.ImageUrl = imageUrl;
                 MessageAnnouncementResponse response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, id, announcement);
                 return response.Status;
             }
@@ -5640,7 +5642,7 @@ namespace TvinciImporter
                     SendTime = engagement.SendTime,
                     TotalNumberOfRecipients = engagement.TotalNumberOfRecipients,
                     UserList = engagement.UserList,
-                    CouponGroupId = engagement.CouponGroupId                    
+                    CouponGroupId = engagement.CouponGroupId
                 };
 
                 response = service.AddEngagement(sWSUserName, sWSPass, wcfEngagement);
@@ -5986,7 +5988,7 @@ namespace TvinciImporter
             return res;
         }
 
-        public static bool UpdateEpg(List<ulong> epgIds, int groupId, ApiObjects.eAction action, bool datesUpdates = true)
+        public static bool UpdateEpg(List<ulong> epgIds, int groupId, ApiObjects.eAction action, bool datesUpdates = true, bool isCalledFromTvm = false)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -6007,7 +6009,7 @@ namespace TvinciImporter
                 // Update recordings only if we know that the dates have changed
                 if (datesUpdates)
                 {
-                    UpdateRecordingsOfEPGs(epgIds, groupId, action);
+                    UpdateRecordingsOfEPGs(epgIds, groupId, action, "conditionalaccess_ws", isCalledFromTvm);
                 }
 
                 #endregion
@@ -6138,7 +6140,7 @@ namespace TvinciImporter
             return isUpdateIndexSucceeded;
         }
 
-        public static void UpdateRecordingsOfEPGs(List<ulong> epgIds, int groupId, ApiObjects.eAction action, string tcmKey = "conditionalaccess_ws")
+        public static void UpdateRecordingsOfEPGs(List<ulong> epgIds, int groupId, ApiObjects.eAction action, string tcmKey = "conditionalaccess_ws", bool isCalledFromTvm = false)
         {
             try
             {
@@ -6178,7 +6180,17 @@ namespace TvinciImporter
                         break;
                 }
 
-                cas.IngestRecordingAsync(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                if (isCalledFromTvm)
+                {
+                    System.Threading.Tasks.Task ingestRecordingAsync = System.Threading.Tasks.Task.Factory.StartNew(() =>
+                    {
+                        cas.IngestRecording(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                    });
+                }
+                else
+                {
+                    cas.IngestRecordingAsync(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                }
                 log.DebugFormat("cas.IngestRecordingAsync has been called for epgIds {0}", string.Join(", ", epgIds.Select(x => x.ToString()).ToArray()));
             }
             catch (Exception ex)

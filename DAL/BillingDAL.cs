@@ -1601,7 +1601,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_PaymentGatewayTransaction");
                 storedProcedure.SetConnectionKey("BILLING_CONNECTION_STRING");
                 storedProcedure.AddParameter("@group_id", groupID);
-                storedProcedure.AddParameter("@domain_id", domainId);
+                storedProcedure.AddParameter("@domain_id", domainId);                
                 storedProcedure.AddParameter("@site_guid", siteGuid);
                 storedProcedure.AddParameter("@payment_gateway_id", paymentGateway.PaymentGatewayID);
                 storedProcedure.AddParameter("@external_transaction_id", paymentGateway.ExternalTransactionId);

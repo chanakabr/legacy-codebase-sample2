@@ -15,6 +15,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using ApiObjects.Billing;
 
 namespace DAL
 {
@@ -1684,6 +1685,31 @@ namespace DAL
             newRule.isDefault = ODBCWrapper.Utils.ExtractBoolean(row, "IS_DEFAULT");
 
             return newRule;
+        }
+
+        public static List<long> Insert_NewBillingTransactions(int billingProvider, int billingProcessor, int paymentGatewayId, string xml, int billingProviderReferance, int billingTransactionStatus, int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertNewBillingTransactions");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@BillingProcessor", billingProcessor);
+            sp.AddParameter("@BillingProvider", billingProvider);
+            sp.AddParameter("@PaymentGatewayId", paymentGatewayId);            
+            sp.AddParameter("@BillingTransactionStatus", billingTransactionStatus);
+            sp.AddParameter("@BillingProviderReference", billingProviderReferance);
+            sp.AddParameter("@XmlDoc", xml);
+
+            sp.AddParameter("@IsActive", 1);
+            sp.AddParameter("@Status", 1);
+            sp.AddParameter("@GroupID", groupId);                        
+            sp.AddParameter("@CurrentDate", DateTime.UtcNow);
+            sp.AddParameter("@UpdaterID", DBNull.Value);
+
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                return dt.AsEnumerable().Select(x => x.Field<long>("ID")).ToList();
+            }
+            return new List<long>();
         }
 
         public static List<ParentalRule> Get_Domain_ParentalRules(int groupId, int domainId)

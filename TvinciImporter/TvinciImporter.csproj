@@ -252,12 +252,26 @@
     <None Include="obj\Release\build.force" />
     <None Include="obj\Release\DesignTimeResolveAssemblyReferencesInput.cache" />
     <None Include="obj\Release\ResolveAssemblyReference.cache" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.AddMessageAnnouncementResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.AnnouncementsResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.EngagementResponse1.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.FollowResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.FollowTemplateResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.GetAllMessageAnnouncementsResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.GetUserFollowsResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.InboxMessageResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.InboxMessageResponse1.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.MessageAnnouncementResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.MessageTemplateResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.NotificationMessage.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationPartnerSettingsResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationSettingsResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.RegistryResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.RemindersResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.SeriesRemindersResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Response.IdListResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Response.IdListResponse1.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Response.IdsResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Response.IdsResponse1.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Response.Status.datasource" />
     <None Include="Properties\Settings.settings">
@@ -265,6 +279,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Service References\Notification_WCF\NotificationService12.wsdl" />
+    <None Include="Service References\Notification_WCF\NotificationService13.wsdl" />
     <None Include="Service References\Notification_WCF\NotificationService81.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -295,17 +310,29 @@
     <None Include="Service References\Notification_WCF\NotificationService819.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.AddMessageAnnouncementResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
+    <None Include="Service References\Notification_WCF\ws_notification_service.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.GetAllMessageAnnouncementsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
+    <None Include="Service References\Notification_WCF\ws_notification_service1.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.GetUserFollowsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
+    <None Include="Service References\Notification_WCF\ws_notification_service2.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.NotificationMessage.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
+    <None Include="Service References\Notification_WCF\ws_notification_service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\ws_notification_service4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\ws_notification_service5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\ws_notification_service6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\ws_notification_service7.xsd">
+      <SubType>Designer</SubType>
     </None>
     <None Include="Service References\WSCatalog\Service10.xsd">
       <SubType>Designer</SubType>
@@ -590,6 +617,7 @@
     <Content Include="obj\Release\TvinciImporter.csproj.FileListAbsolute.txt" />
     <Content Include="obj\Release\TvinciImporter.dll" />
     <Content Include="obj\Release\TvinciImporter.pdb" />
+    <None Include="Service References\Notification_WCF\ws_notification_service.disco" />
     <None Include="Service References\Notification_WCF\NotificationService12.disco" />
     <None Include="Web References\WS_ConditionalAccess\module.disco" />
     <None Include="Service References\WSCatalog\Service2.disco" />

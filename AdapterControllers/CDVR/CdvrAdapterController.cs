@@ -94,7 +94,7 @@ namespace AdapterControllers.CDVR
                 //set unixTimestamp
                 long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                 //set signature
-                string signature = string.Concat(adapter.Settings != null ? string.Concat(adapter.Settings.Select(kv => string.Concat(kv.key, kv.value))) : string.Empty, 
+                string signature = string.Concat(adapter.ID, adapter.Settings != null ? string.Concat(adapter.Settings.Select(kv => string.Concat(kv.key, kv.value))) : string.Empty, 
                     partnerId, timeStamp);
 
                 //call Adapter 

@@ -1135,6 +1135,7 @@ namespace DAL
             return res;
         }
 
+      
         public static Dictionary<int, int> Get_GroupMediaTypesIDs(int nGroupID)
         {
             return Get_GroupMediaTypesIDs(nGroupID, string.Empty);
@@ -2945,7 +2946,7 @@ namespace DAL
             return compensation;
         }
 
-        public static bool UpdateSubscriptionCompernsationUse(long subscriptionCompernsationId, long transactionId, int renewalNumber)
+        public static bool UpdateSubscriptionCompensationUse(long subscriptionCompernsationId, long transactionId, int renewalNumber)
         {
             int rowCount = 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateSubscriptionCompernsationUse");
@@ -3132,5 +3133,34 @@ namespace DAL
             return sp.Execute();
         }
 
+        public static DataTable Get_SubscriptionPurchaseForRenewal(int groupId, long householdId, int paymentGatewayId, DateTime endDate, string proccessId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseUnifiedRenewal");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@HouseholdId", householdId);
+            sp.AddParameter("@PaymentGatewayId", paymentGatewayId);
+            sp.AddParameter("@EndDate", endDate);
+            sp.AddParameter("@ProccessId", proccessId);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                return ds.Tables[0];
+            }
+
+            return null;
+        }
+
+        public static bool UpdateSubscriptionUnifiedRenewingStatus(int groupId, string proccessId, int isActive)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseUnifiedRenewalActiveStatus");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@ProccessId", proccessId);
+            sp.AddParameter("@IsActive", isActive);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
     }
 }
