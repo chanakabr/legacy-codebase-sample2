@@ -1208,7 +1208,7 @@ namespace Core.ConditionalAccess
                         case eTransactionState.Pending:
                             {
                                 // renew subscription pending!
-                                HandleRenewUnifiedSubscriptionPending(cas, groupId, householdId, currency, renewUnified);
+                                HandleRenewUnifiedSubscriptionPending(cas, groupId, householdId, currency, renewUnified.Select(x => x.EndDate.Value).FirstOrDefault(), paymentGateway);
                             }
                             break;
                         case eTransactionState.Failed:
@@ -1269,10 +1269,9 @@ namespace Core.ConditionalAccess
                             long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value);
 
                             if (unifiedBillingCycle.endDate < nextEndDate)
-                            {
-                                UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, maxVLCOfSelectedUsageModule, nextEndDate, unifiedBillingCycle.paymentGatewayIds);
+                            {                                
+                                Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, maxVLCOfSelectedUsageModule, ref unifiedBillingCycle, endDate.Value, paymentGateway.ID, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow));
                             }
-
                         }
                     }
                 }
@@ -1337,9 +1336,7 @@ namespace Core.ConditionalAccess
                 {
                     log.ErrorFormat("Failed to set invalidation key on Renew key = {0}", invalidationKey);
                 }
-
-                //Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, maxVLCOfSelectedUsageModule, ref unifiedBillingCycle, endDate.Value, paymentGateway.ID, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow));
-
+                
                 DateTime nextRenewalDate = endDate.Value.AddMinutes(paymentGateway.RenewalStartMinutes);
 
                 // enqueue unified renew transaction
@@ -1356,13 +1353,34 @@ namespace Core.ConditionalAccess
             return true;
         }
 
-        private static bool HandleRenewUnifiedSubscriptionPending(BaseConditionalAccess cas, int groupId, long householdId, string currency, List<RenewSubscriptionDetails> renewUnified)
+        private static bool HandleRenewUnifiedSubscriptionPending(BaseConditionalAccess cas, int groupId, long householdId, string currency, DateTime endDate, PaymentGateway paymentGateway)
         {
-            string logString = string.Empty;
-            foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
+            try
             {
-                logString = string.Format("Unified Purchase request (pending): householdId {0} siteguid {1}, purchaseId {2}, billingGuid {3}, endDateLong {4}", householdId, renewUnifiedData.UserId, renewUnifiedData.PurchaseId, renewUnifiedData.BillingGuid, renewUnifiedData.EndDate.Value);
-                HandleRenewSubscriptionPending(cas, groupId, renewUnifiedData.UserId, renewUnifiedData.PurchaseId, renewUnifiedData.BillingGuid, logString, long.Parse(renewUnifiedData.ProductId), renewUnifiedData.EndDate.Value, householdId, false, renewUnifiedData.Price, currency);
+                string logString = string.Format("groupId={0}, householdId= {1}, currency={2}", groupId, householdId, currency);               
+
+                log.DebugFormat("Transaction unified renew pending. data: {0}", logString);
+                                
+                DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(60); // default
+
+                if (paymentGateway == null)
+                {
+                    // error getting PG
+                    log.Error("Error while trying to get the PG");
+                }
+                else if (paymentGateway.RenewalIntervalMinutes > 0)
+                {
+                    nextRenewalDate = DateTime.UtcNow.AddMinutes(paymentGateway.RenewalIntervalMinutes);
+                }
+
+                // enqueue unified renew transaction
+                Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate), nextRenewalDate, paymentGateway.ID);
+
+                log.DebugFormat("pending unified renew returned. groupId: {0}, householdId: {1}, currency: {2}", groupId, householdId, currency);                
+            }
+            catch (Exception ex)
+            {
+                log.Error("fail HandleRenewUnifiedSubscriptionPending ex={0}", ex);
             }
             return true;
         }
