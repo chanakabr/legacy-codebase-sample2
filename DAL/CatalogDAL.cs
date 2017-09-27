@@ -4724,7 +4724,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertAssetStruct(int groupId, string name, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined)
+        public static DataSet InsertAssetStruct(int groupId, string name, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4734,11 +4734,12 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@IsPredefined", isPredefined.Value ? 1 : 0);
             sp.AddParameter("@MetaIdsToPriorityExist", metaIdsToPriority != null && metaIdsToPriority.Count > 0);
             sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
+            sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateAssetStruct(int groupId, string name, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined)
+        public static DataSet UpdateAssetStruct(int groupId, string name, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4756,16 +4757,18 @@ namespace Tvinci.Core.DAL
 
             sp.AddParameter("@MetaIdsToPriorityExist", metaIdsToPriority != null && metaIdsToPriority.Count > 0);
             sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
+            sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();
         }
 
-        public static long DeleteAssetStruct(int groupId, long id)
+        public static long DeleteAssetStruct(int groupId, long id, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
+            sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteReturnValue<long>();
         }
