@@ -8,7 +8,7 @@ namespace WebAPI.Models.DMS
     public class KalturaPushParams : KalturaOTTObject
     {
         /// <summary>
-        /// Token
+        /// Device-Application push token
         /// </summary>
         [DataMember(Name = "token")]
         [XmlElement(ElementName = "token")]       
@@ -16,7 +16,7 @@ namespace WebAPI.Models.DMS
         public string Token { get; set; }
 
         /// <summary>
-        /// External token
+        /// External device token as received from external push provider in exchange for the device token
         /// </summary>
         [DataMember(Name = "externalToken")]
         [XmlElement(ElementName = "externalToken")]

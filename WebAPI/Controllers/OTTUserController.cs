@@ -128,7 +128,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username or password");
             }
             try
             {
@@ -253,7 +253,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(password))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "password");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username or password");
             }
             try
             {

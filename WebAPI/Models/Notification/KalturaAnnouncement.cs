@@ -80,6 +80,14 @@ namespace WebAPI.Models.Notifications
         [SchemeProperty(ReadOnly = true)]
         public int? Id { get; set; }
 
+        /// <summary>
+        /// Announcement image URL, relevant for system announcements
+        /// </summary>
+        [DataMember(Name = "imageUrl")]
+        [JsonProperty(PropertyName = "imageUrl")]
+        [XmlElement(ElementName = "imageUrl")]
+        public string ImageUrl { get; set; }
+
         internal long getStartTime()
         {
             return StartTime.HasValue ? (long)StartTime : 0;

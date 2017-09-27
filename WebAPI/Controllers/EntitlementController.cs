@@ -34,6 +34,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ContentAlreadyConsumed)]
         [Throws(eResponseStatus.PaymentGatewayNotValid)]
         [Throws(eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending)]
+        [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
         public bool Cancel(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;

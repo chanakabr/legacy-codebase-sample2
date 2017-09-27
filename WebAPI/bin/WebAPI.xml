@@ -687,6 +687,15 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.EmailController.Send(WebAPI.Models.Notification.KalturaEmailMessage)">
+            <summary>
+            Sends email notification
+            </summary>
+            <remarks>
+            Possible status codes:       
+            </remarks>        
+            <param name="emailMessage">email details</param>     
+        </member>
         <member name="M:WebAPI.Controllers.PriceDetailsController.List(WebAPI.Models.Pricing.KalturaPriceDetailsFilter)">
             <summary>
             Returns the list of available prices, can be filtered by price IDs
@@ -7903,6 +7912,11 @@
             Content language
             </summary>
         </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.Currency">
+            <summary>
+            Currency to be used
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.KS">
             <summary>
             Kaltura API session
@@ -7986,6 +8000,635 @@
         <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
             <summary>
             Total items
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.TemplateName">
+            <summary>
+            email template name 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.Subject">
+            <summary>
+            email subject
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.FirstName">
+            <summary>
+             first name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.LastName">
+             <summary>
+            last name
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.SenderName">
+             <summary>
+            sender name
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.SenderFrom">
+             <summary>
+            sender from
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.SenderTo">
+             <summary>
+            sender to
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.BccAddress">
+             <summary>
+            bcc address - seperated by comma
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.ExtraParameters">
+             <summary>
+            extra parameters
+             </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagementType">
+            <summary>
+            Engagement type: Churn=1
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagement">
+            <summary>
+            Engagement
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.Id">
+            <summary>
+            Engagement id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.TotalNumberOfRecipients">
+            <summary>
+            Total number of recipients
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.Type">
+            <summary>
+            Engagement type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.AdapterId">
+            <summary>
+            Engagement adapter id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.AdapterDynamicData">
+            <summary>
+            Engagement adapter dynamic data
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.IntervalSeconds">
+            <summary>
+            Interval (seconds)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.UserList">
+            <summary>
+            Manual User list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.SendTimeInSeconds">
+            <summary>
+            Send time (seconds)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.CouponGroupId">
+            <summary>
+            Coupon GroupId 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapter">
+            <summary>
+            Engagement Adapter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.IsActive">
+            <summary>
+            Engagement adapter active status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.AdapterUrl">
+            <summary>
+            Engagement adapter adapter URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.ProviderUrl">
+            <summary>
+            Engagement provider adapter URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.Settings">
+            <summary>
+            Engagement adapter extra parameters
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.SharedSecret">
+            <summary>
+            Shared Secret
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapterBase">
+            <summary>
+            Engagement adapter basic
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapterBase.Id">
+            <summary>
+            Engagement adapter id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapterBase.Name">
+            <summary>
+            Engagement adapter name
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagementListResponse">
+            <summary>
+            Engagement adapter list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementListResponse.Engagements">
+            <summary>
+            A list of Engagement
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapterListResponse">
+            <summary>
+            Engagement adapter list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapterListResponse.EngagementAdapters">
+            <summary>
+            A list of Engagement adapter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementFilter.TypeIn">
+            <summary>
+            List of inbox message types to search within.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementFilter.SendTimeGreaterThanOrEqual">
+            <summary>
+            SendTime GreaterThanOrEqual 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaPushMessage">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Message">
+            <summary>
+            The message that will be presented to the user.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Sound">
+            <summary>
+            Optional. Can be used to change the default push sound on the user device.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Action">
+            <summary>
+            Optional. Used to change the default action of the application when a push is received.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Url">
+            <summary>
+            Optional. Used to direct the application to the relevant page.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaReminderFilter`1.KSql">
+            <summary>
+            <![CDATA[
+            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
+            epg_channel_id – the channel identifier of the EPG program.
+            entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with), + (exists), !+ (not exists).
+            Logical conjunction: and, or. 
+            Search values are limited to 20 characters each.
+            (maximum length of entire filter is 2048 characters)]]>
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaAssetReminderFilter.KSql">
+            <summary>
+            <![CDATA[
+            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
+            epg_channel_id – the channel identifier of the EPG program.
+            entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with), + (exists), !+ (not exists).
+            Logical conjunction: and, or. 
+            Search values are limited to 20 characters each.
+            (maximum length of entire filter is 2048 characters)]]>
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaSeriesReminderFilter.SeriesIdIn">
+            <summary>
+            Comma separated series IDs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaSeriesReminderFilter.EpgChannelIdEqual">
+            <summary>
+            EPG channel ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaSeasonsReminderFilter.SeriesIdEqual">
+            <summary>
+            Series ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaSeasonsReminderFilter.SeasonNumberIn">
+            <summary>
+            Comma separated season numbers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaSeasonsReminderFilter.EpgChannelIdEqual">
+            <summary>
+            EPG channel ID
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaReminderListResponse">
+            <summary>
+            List of reminders from DB.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaReminderListResponse.Reminders">
+            <summary>
+            Reminders
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaInboxMessageTypeHolder">
+            <summary>
+            Holder object for inbox message type enum
+            </summary>    
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaInboxMessageResponse">
+            <summary>
+            List of inbox message.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageResponse.InboxMessages">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaInboxMessageListResponse">
+            <summary>
+            List of inbox message.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageListResponse.InboxMessages">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFeed.AssetId">
+            <summary>
+            Asset identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowDataTvSeries.AssetId">
+            <summary>
+            Asset Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowTvSeries.AssetId">
+            <summary>
+            Asset Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Id">
+            <summary>
+            message id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Message">
+            <summary>
+            message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Status">
+            <summary>
+            Status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Type">
+            <summary>
+            Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.CreatedAt">
+            <summary>
+            Created at 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Url">
+            <summary>
+            url
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageFilter.TypeIn">
+            <summary>
+            List of inbox message types to search within.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageFilter.CreatedAtGreaterThanOrEqual">
+            <summary>
+            createdAtGreaterThanOrEqual
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageFilter.CreatedAtLessThanOrEqual">
+            <summary>
+            createdAtLessThanOrEqual
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Message">
+             <summary>
+            The message template with placeholders
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.DateFormat">
+            <summary>
+            Default date format for the date &amp; time entries used in the template
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.MessageType">
+            <summary>
+            Template type. Possible values: Series, Reminder,Churn, SeriesReminder
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Sound">
+            <summary>
+            Sound file name to play upon message arrival to the device (if supported by target device)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Action">
+            <summary>
+            an optional action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.URL">
+            <summary>
+            URL template for deep linking. Example - /app/location/{mediaId}
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.AnnouncementId">
+            <summary>
+            Announcement Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.Status">
+            <summary>
+            Status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.Title">
+            <summary>
+            Title
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.Timestamp">
+            <summary>
+            Timestamp
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.FollowPhrase">
+            <summary>
+            Follow Phrase
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaListFollowDataTvSeriesResponse">
+            <summary>
+            List of message follow data.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaListFollowDataTvSeriesResponse.FollowDataList">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaFollowTvSeriesListResponse">
+            <summary>
+            List of message follow data.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowTvSeriesListResponse.FollowDataList">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaAnnouncementListResponse">
+            <summary>
+            List of message announcements from DB.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaAnnouncementListResponse.Announcements">
+            <summary>
+            Announcements
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaAnnouncementOrderBy">
+            <summary>
+            order announcements
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaAnnouncementFilter">
+            <summary>
+            order announcements
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaMessageAnnouncementListResponse">
+            <summary>
+            List of message announcements from DB.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageAnnouncementListResponse.Announcements">
+            <summary>
+            Announcements
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsSettings.PushNotificationEnabled">
+            <summary>
+            Specify if the user want to receive push notifications or not
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsSettings.PushFollowEnabled">
+            <summary>
+            Specify if the user will be notified for followed content via push. (requires push_notification_enabled to be enabled)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushNotificationEnabled">
+            <summary>
+            Push notification capability is enabled for the account
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushSystemAnnouncementsEnabled">
+            <summary>
+            System announcement capability is enabled for the account
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushStartHour">
+            <summary>
+            Window start time (UTC) for send automated push messages
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushEndHour">
+            <summary>
+            Window end time (UTC) for send automated push messages
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.InboxEnabled">
+            <summary>
+            Inbox enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.MessageTTLDays">
+            <summary>
+            Message TTL in days
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.AutomaticIssueFollowNotification">
+            <summary>
+            Automatic issue follow notification
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.TopicExpirationDurationDays">
+            <summary>
+            Topic expiration duration in days
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ReminderEnabled">
+            <summary>
+            Reminder enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ReminderOffset">
+            <summary>
+            Offset time (UTC) in seconds for send reminder
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushAdapterUrl">
+            <summary>
+            Push adapter URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ChurnMailTemplateName">
+            <summary>
+            Churn mail template name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ChurnMailSubject">
+            <summary>
+            Churn mail subject
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.SenderEmail">
+            <summary>
+            Sender email
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.MailSenderName">
+            <summary>
+            Mail sender name
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse">
+            <summary>
+            List of message follow data.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse.PersonalFollowFeed">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaPersonalFeedListResponse">
+            <summary>
+            List of message follow data.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalFeedListResponse.PersonalFollowFeed">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaRegistryResponse">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaRegistryResponse.AnnouncementId">
+            <summary>
+            Announcement Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaRegistryResponse.Key">
+            <summary>
+            Key
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaRegistryResponse.Url">
+            <summary>
+            URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaTopic.Id">
+            <summary>
+            message id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaTopic.Name">
+            <summary>
+            message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaTopic.SubscribersAmount">
+            <summary>
+            message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaTopic.AutomaticIssueNotification">
+            <summary>
+            automaticIssueNotification
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaTopic.LastMessageSentDateSec">
+            <summary>
+            lastMessageSentDateSec
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaTopicResponse">
+            <summary>
+            List of inbox message.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaTopicResponse.Topics">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaTopicListResponse">
+            <summary>
+            List of inbox message.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaTopicListResponse.Topics">
+            <summary>
+            Follow data list
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaPricePlanFilter.IdIn">
@@ -8883,6 +9526,11 @@
             External ID
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.IsCancellationBlocked">
+            <summary>
+            Is cancellation blocked for the subscription
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Users.KalturaUserInterestListResponse">
             <summary>
             User interest list
@@ -9446,37 +10094,37 @@
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.PartnerId">
             <summary>
-            Partner id
+            Partner unique identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.ConfigurationGroupId">
             <summary>
-            Configuration group id
+            Configuration group identifier which the version configuration the device last received belongs to
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.Udid">
             <summary>
-            Device UDID
+            Device unique identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.PushParameters">
             <summary>
-            Push parameters
+            Device-Application push parameters
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.VersionNumber">
             <summary>
-            Version number
+            Application version number
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.VersionPlatform">
             <summary>
-            Version platform
+            Application version type
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.VersionAppName">
             <summary>
-            Version application name
+            Application version name
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.LastAccessIP">
@@ -9486,17 +10134,18 @@
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.LastAccessDate">
             <summary>
-            Last access date
+            Last device configuration request date
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.UserAgent">
             <summary>
-            User agent
+            request header property
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.OperationSystem">
             <summary>
-            Operation system
+            Request header property
+            Incase value cannot be found - returns "Unknown 0.0"
             </summary>
         </member>
         <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupTagFilter">
@@ -9521,12 +10170,12 @@
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaPushParams.Token">
             <summary>
-            Token
+            Device-Application push token
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaPushParams.ExternalToken">
             <summary>
-            External token
+            External device token as received from external push provider in exchange for the device token
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDevice.ConfigurationGroupId">
@@ -10389,6 +11038,11 @@
             Announcement id
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.ImageUrl">
+            <summary>
+            Announcement image URL, relevant for system announcements
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementRecipientsType">
             <summary>
             Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3
@@ -10397,590 +11051,6 @@
         <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementStatus">
             <summary>
             Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaEngagementType">
-            <summary>
-            Engagement type: Churn=1
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaEngagement">
-            <summary>
-            Engagement
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagement.Id">
-            <summary>
-            Engagement id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagement.TotalNumberOfRecipients">
-            <summary>
-            Total number of recipients
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagement.Type">
-            <summary>
-            Engagement type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagement.AdapterId">
-            <summary>
-            Engagement adapter id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagement.AdapterDynamicData">
-            <summary>
-            Engagement adapter dynamic data
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagement.IntervalSeconds">
-            <summary>
-            Interval (seconds)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagement.UserList">
-            <summary>
-            Manual User list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagement.SendTimeInSeconds">
-            <summary>
-            Send time (seconds)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagement.CouponGroupId">
-            <summary>
-            Coupon GroupId 
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapter">
-            <summary>
-            Engagement Adapter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.IsActive">
-            <summary>
-            Engagement adapter active status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.AdapterUrl">
-            <summary>
-            Engagement adapter adapter URL
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.ProviderUrl">
-            <summary>
-            Engagement provider adapter URL
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.Settings">
-            <summary>
-            Engagement adapter extra parameters
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.SharedSecret">
-            <summary>
-            Shared Secret
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapterBase">
-            <summary>
-            Engagement adapter basic
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapterBase.Id">
-            <summary>
-            Engagement adapter id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapterBase.Name">
-            <summary>
-            Engagement adapter name
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaEngagementListResponse">
-            <summary>
-            Engagement adapter list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagementListResponse.Engagements">
-            <summary>
-            A list of Engagement
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapterListResponse">
-            <summary>
-            Engagement adapter list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapterListResponse.EngagementAdapters">
-            <summary>
-            A list of Engagement adapter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagementFilter.TypeIn">
-            <summary>
-            List of inbox message types to search within.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagementFilter.SendTimeGreaterThanOrEqual">
-            <summary>
-            SendTime GreaterThanOrEqual 
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaPushMessage">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Message">
-            <summary>
-            The message that will be presented to the user.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Sound">
-            <summary>
-            Optional. Can be used to change the default push sound on the user device.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Action">
-            <summary>
-            Optional. Used to change the default action of the application when a push is received.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Url">
-            <summary>
-            Optional. Used to direct the application to the relevant page.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaReminderFilter`1.KSql">
-            <summary>
-            <![CDATA[
-            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
-            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
-            epg_id, media_id - for specific asset IDs.
-            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
-            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
-            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
-            epg_channel_id – the channel identifier of the EPG program.
-            entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with), + (exists), !+ (not exists).
-            Logical conjunction: and, or. 
-            Search values are limited to 20 characters each.
-            (maximum length of entire filter is 2048 characters)]]>
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaAssetReminderFilter.KSql">
-            <summary>
-            <![CDATA[
-            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
-            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
-            epg_id, media_id - for specific asset IDs.
-            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
-            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
-            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
-            epg_channel_id – the channel identifier of the EPG program.
-            entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with), + (exists), !+ (not exists).
-            Logical conjunction: and, or. 
-            Search values are limited to 20 characters each.
-            (maximum length of entire filter is 2048 characters)]]>
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaSeriesReminderFilter.SeriesIdIn">
-            <summary>
-            Comma separated series IDs
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaSeriesReminderFilter.EpgChannelIdEqual">
-            <summary>
-            EPG channel ID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaSeasonsReminderFilter.SeriesIdEqual">
-            <summary>
-            Series ID
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaSeasonsReminderFilter.SeasonNumberIn">
-            <summary>
-            Comma separated season numbers
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaSeasonsReminderFilter.EpgChannelIdEqual">
-            <summary>
-            EPG channel ID
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaReminderListResponse">
-            <summary>
-            List of reminders from DB.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaReminderListResponse.Reminders">
-            <summary>
-            Reminders
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaInboxMessageTypeHolder">
-            <summary>
-            Holder object for inbox message type enum
-            </summary>    
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaInboxMessageResponse">
-            <summary>
-            List of inbox message.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageResponse.InboxMessages">
-            <summary>
-            Follow data list
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaInboxMessageListResponse">
-            <summary>
-            List of inbox message.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageListResponse.InboxMessages">
-            <summary>
-            Follow data list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaFeed.AssetId">
-            <summary>
-            Asset identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaFollowDataTvSeries.AssetId">
-            <summary>
-            Asset Id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaFollowTvSeries.AssetId">
-            <summary>
-            Asset Id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Id">
-            <summary>
-            message id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Message">
-            <summary>
-            message
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Status">
-            <summary>
-            Status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Type">
-            <summary>
-            Type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.CreatedAt">
-            <summary>
-            Created at 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Url">
-            <summary>
-            url
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageFilter.TypeIn">
-            <summary>
-            List of inbox message types to search within.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageFilter.CreatedAtGreaterThanOrEqual">
-            <summary>
-            createdAtGreaterThanOrEqual
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageFilter.CreatedAtLessThanOrEqual">
-            <summary>
-            createdAtLessThanOrEqual
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Message">
-             <summary>
-            The message template with placeholders
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.DateFormat">
-            <summary>
-            Default date format for the date &amp; time entries used in the template
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.MessageType">
-            <summary>
-            Template type. Possible values: Series, Reminder,Churn, SeriesReminder
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Sound">
-            <summary>
-            Sound file name to play upon message arrival to the device (if supported by target device)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Action">
-            <summary>
-            an optional action
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.URL">
-            <summary>
-            URL template for deep linking. Example - /app/location/{mediaId}
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.AnnouncementId">
-            <summary>
-            Announcement Id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.Status">
-            <summary>
-            Status
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.Title">
-            <summary>
-            Title
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.Timestamp">
-            <summary>
-            Timestamp
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.FollowPhrase">
-            <summary>
-            Follow Phrase
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaListFollowDataTvSeriesResponse">
-            <summary>
-            List of message follow data.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaListFollowDataTvSeriesResponse.FollowDataList">
-            <summary>
-            Follow data list
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaFollowTvSeriesListResponse">
-            <summary>
-            List of message follow data.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaFollowTvSeriesListResponse.FollowDataList">
-            <summary>
-            Follow data list
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaAnnouncementListResponse">
-            <summary>
-            List of message announcements from DB.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaAnnouncementListResponse.Announcements">
-            <summary>
-            Announcements
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaAnnouncementOrderBy">
-            <summary>
-            order announcements
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaAnnouncementFilter">
-            <summary>
-            order announcements
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaMessageAnnouncementListResponse">
-            <summary>
-            List of message announcements from DB.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaMessageAnnouncementListResponse.Announcements">
-            <summary>
-            Announcements
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsSettings.PushNotificationEnabled">
-            <summary>
-            Specify if the user want to receive push notifications or not
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsSettings.PushFollowEnabled">
-            <summary>
-            Specify if the user will be notified for followed content via push. (requires push_notification_enabled to be enabled)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushNotificationEnabled">
-            <summary>
-            Push notification capability is enabled for the account
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushSystemAnnouncementsEnabled">
-            <summary>
-            System announcement capability is enabled for the account
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushStartHour">
-            <summary>
-            Window start time (UTC) for send automated push messages
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushEndHour">
-            <summary>
-            Window end time (UTC) for send automated push messages
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.InboxEnabled">
-            <summary>
-            Inbox enabled
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.MessageTTLDays">
-            <summary>
-            Message TTL in days
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.AutomaticIssueFollowNotification">
-            <summary>
-            Automatic issue follow notification
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.TopicExpirationDurationDays">
-            <summary>
-            Topic expiration duration in days
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ReminderEnabled">
-            <summary>
-            Reminder enabled
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ReminderOffset">
-            <summary>
-            Offset time (UTC) in seconds for send reminder
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushAdapterUrl">
-            <summary>
-            Push adapter URL
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ChurnMailTemplateName">
-            <summary>
-            Churn mail template name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ChurnMailSubject">
-            <summary>
-            Churn mail subject
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.SenderEmail">
-            <summary>
-            Sender email
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.MailSenderName">
-            <summary>
-            Mail sender name
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse">
-            <summary>
-            List of message follow data.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse.PersonalFollowFeed">
-            <summary>
-            Follow data list
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaPersonalFeedListResponse">
-            <summary>
-            List of message follow data.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPersonalFeedListResponse.PersonalFollowFeed">
-            <summary>
-            Follow data list
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaRegistryResponse">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaRegistryResponse.AnnouncementId">
-            <summary>
-            Announcement Id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaRegistryResponse.Key">
-            <summary>
-            Key
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaRegistryResponse.Url">
-            <summary>
-            URL
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaTopic.Id">
-            <summary>
-            message id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaTopic.Name">
-            <summary>
-            message
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaTopic.SubscribersAmount">
-            <summary>
-            message
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaTopic.AutomaticIssueNotification">
-            <summary>
-            automaticIssueNotification
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaTopic.LastMessageSentDateSec">
-            <summary>
-            lastMessageSentDateSec
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaTopicResponse">
-            <summary>
-            List of inbox message.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaTopicResponse.Topics">
-            <summary>
-            Follow data list
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notification.KalturaTopicListResponse">
-            <summary>
-            List of inbox message.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaTopicListResponse.Topics">
-            <summary>
-            Follow data list
             </summary>
         </member>
         <member name="T:WebAPI.Models.Partner.KalturaBillingPartnerConfig">

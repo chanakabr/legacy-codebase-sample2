@@ -112,6 +112,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Recipients, opt => opt.MapFrom(src => ConvertRecipientsType(src.Recipients)))
                  .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
                  .ForMember(dest => dest.Timezone, opt => opt.MapFrom(src => src.Timezone))
+                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertAnnouncementStatusType(src.Status)));
 
             //MessageTemplate to KalturaMessageTemplate
@@ -887,6 +888,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
             }
 
+            return result;
+        }
+
+        internal static DynamicMailRequest ConvertEmailMessage(KalturaEmailMessage emailMessage)
+        {
+            DynamicMailRequest result = new DynamicMailRequest();
+
+            result.m_sTemplateName = emailMessage.TemplateName;
+            result.m_sSubject = emailMessage.Subject;
+            result.m_sFirstName = emailMessage.FirstName;
+            result.m_sLastName = emailMessage.LastName;
+            result.m_sSenderName = emailMessage.SenderName;
+            result.m_sSenderFrom = emailMessage.SenderFrom;
+            result.m_sSenderTo = emailMessage.SenderTo;
+            result.m_sBCCAddress = emailMessage.BccAddress;
+            if (emailMessage.ExtraParameters != null && emailMessage.ExtraParameters.Count > 0)
+            {
+                result.values = new List<KeyValuePair>();
+                foreach (KalturaKeyValue kkv in emailMessage.ExtraParameters)
+                {
+                    result.values.Add(new KeyValuePair(kkv.key, kkv.value));
+                }
+            }
             return result;
         }
     }
