@@ -3521,6 +3521,8 @@ namespace WebAPI.Reflection
                             return "mediaTypeIn";
                         case "UDID":
                             return "udid";
+                        case "UdidEqualCurrent":
+                            return "udidEqualCurrent";
                     }
                     break;
                     
@@ -5431,6 +5433,8 @@ namespace WebAPI.Reflection
                 case "KalturaRequestConfiguration":
                     switch(property.Name)
                     {
+                        case "Currency":
+                            return "currency";
                         case "KS":
                             return "ks";
                         case "Language":
