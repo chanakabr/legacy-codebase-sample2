@@ -45,6 +45,10 @@ namespace APILogic.ConditionalAccess.Modules
 
         public int GracePeriodMinutes { get; set; }
 
+        public string CountryName { get; set; }
+
+        public string CountryCode { get; set; }
+
         public eTransactionType Type
         {
             get

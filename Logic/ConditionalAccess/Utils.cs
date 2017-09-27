@@ -1271,6 +1271,10 @@ namespace Core.ConditionalAccess
                     rsd.UserId = ODBCWrapper.Utils.ExtractString(dr, "site_user_guid");
                     rsd.BillingGuid = ODBCWrapper.Utils.ExtractString(dr, "billing_guid");
                     rsd.CustomData = ODBCWrapper.Utils.ExtractString(dr, "customdata");
+
+                    rsd.CountryName = ODBCWrapper.Utils.ExtractString(dr, "country_code"); // country code on db is really country name 
+                    rsd.CountryCode = Utils.GetCountryCodeByCountryName(groupId, rsd.CountryName);
+
                     rsd.Currency = ODBCWrapper.Utils.ExtractString(dr, "currency_cd");
                     rsd.PaymentMethodId = ODBCWrapper.Utils.ExtractInteger(dr, "payment_method_id");
                     rsd.ExternalTransactionId = ODBCWrapper.Utils.ExtractString(dr, "external_transaction_id");
@@ -1331,7 +1335,11 @@ namespace Core.ConditionalAccess
 
                 Subscription subscription;
                 foreach (RenewSubscriptionDetails rsDetail in rsDetails)
-                {
+                { 
+                    previousPurchaseCurrencyCode = rsDetail.Currency;
+                    previousPurchaseCountryName = rsDetail.CountryName;
+                    previousPurchaseCountryCode = rsDetail.CountryCode;                     
+
                     subscription = subscriptions.Where(x => x.m_SubscriptionCode == rsDetail.ProductId).FirstOrDefault();                    
                     if (!cas.GetMultiSubscriptionUsageModule(rsDetail.UserId, userIp, (int)rsDetail.PurchaseId, rsDetail.PaymentNumber, rsDetail.TotalNumOfPayments, rsDetail.NumOfPayments, rsDetail.IsPurchasedWithPreviewModule,
                             ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
