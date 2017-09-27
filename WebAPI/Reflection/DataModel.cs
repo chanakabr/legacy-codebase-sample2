@@ -25,6 +25,18 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaMeta":
+                    switch (propertyName)
+                    {
+                        case "AssetType":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "FieldName":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "PartnerId":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
                 case "KalturaPlaybackSource":
                     switch (propertyName)
                     {
@@ -2037,6 +2049,8 @@ namespace WebAPI.Reflection
                             return "enabled";
                         case "Id":
                             return "id";
+                        case "ImageUrl":
+                            return "imageUrl";
                         case "Message":
                             return "message";
                         case "Name":
@@ -2449,6 +2463,44 @@ namespace WebAPI.Reflection
                             return "endDateGreaterThanOrEqual";
                         case "StartDateGreaterThanOrEqual":
                             return "startDateGreaterThanOrEqual";
+                    }
+                    break;
+                    
+                case "KalturaAssetStruct":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Id":
+                            return "id";
+                        case "IsProtected":
+                            return "isProtected";
+                        case "MetaIds":
+                            return "metaIds";
+                        case "Name":
+                            return "name";
+                        case "SystemName":
+                            return "systemName";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaAssetStructFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                        case "MetaIdsContains":
+                            return "metaIdsContains";
+                    }
+                    break;
+                    
+                case "KalturaAssetStructListResponse":
+                    switch(property.Name)
+                    {
+                        case "AssetStructs":
+                            return "objects";
                     }
                     break;
                     
@@ -3165,6 +3217,30 @@ namespace WebAPI.Reflection
                             return "name";
                         case "OrderBy":
                             return "orderBy";
+                    }
+                    break;
+                    
+                case "KalturaEmailMessage":
+                    switch(property.Name)
+                    {
+                        case "BccAddress":
+                            return "bccAddress";
+                        case "ExtraParameters":
+                            return "extraParameters";
+                        case "FirstName":
+                            return "firstName";
+                        case "LastName":
+                            return "lastName";
+                        case "SenderFrom":
+                            return "senderFrom";
+                        case "SenderName":
+                            return "senderName";
+                        case "SenderTo":
+                            return "senderTo";
+                        case "Subject":
+                            return "subject";
+                        case "TemplateName":
+                            return "templateName";
                     }
                     break;
                     
@@ -4203,20 +4279,32 @@ namespace WebAPI.Reflection
                     {
                         case "AssetType":
                             return "assetType";
+                        case "CreateDate":
+                            return "createDate";
                         case "Features":
                             return "features";
                         case "FieldName":
                             return "fieldName";
+                        case "HelpText":
+                            return "helpText";
                         case "Id":
                             return "id";
+                        case "IsProtected":
+                            return "isProtected";
+                        case "MultipleValue":
+                            return "multipleValue";
                         case "Name":
                             return "name";
                         case "ParentId":
                             return "parentId";
                         case "PartnerId":
                             return "partnerId";
+                        case "SystemName":
+                            return "systemName";
                         case "Type":
                             return "type";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     
@@ -5405,6 +5493,8 @@ namespace WebAPI.Reflection
                 case "KalturaRequestConfiguration":
                     switch(property.Name)
                     {
+                        case "Currency":
+                            return "currency";
                         case "KS":
                             return "ks";
                         case "Language":

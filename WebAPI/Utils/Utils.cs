@@ -158,5 +158,28 @@ namespace WebAPI.Utils
             return DateTime.TryParseExact(dateInString, convertToFormat, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dateTime);
         }
 
+        public static long GetUserIdFromKs()
+        {
+            var ks = KS.GetFromRequest();
+
+            if (ks == null)
+                return 0;
+
+            string siteGuid = ks.UserId;
+
+            if (siteGuid == "0")
+                return 0;
+
+            long userId = 0;
+            if (long.TryParse(siteGuid, out userId) && userId > 0)
+            {
+                return userId;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
     }
 }

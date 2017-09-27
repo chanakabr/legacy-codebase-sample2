@@ -75,6 +75,7 @@ namespace WebAPI.Controllers
         {
             KalturaAssetStruct response = null;
             int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             if (assetStrcut.Name == null)
             {
@@ -87,8 +88,8 @@ namespace WebAPI.Controllers
             }
 
             try
-            {
-                response = ClientsManager.CatalogClient().AddAssetStruct(groupId, assetStrcut);
+            {                
+                response = ClientsManager.CatalogClient().AddAssetStruct(groupId, assetStrcut, userId);
             }
             catch (ClientException ex)
             {
@@ -115,10 +116,11 @@ namespace WebAPI.Controllers
         {
             KalturaAssetStruct response = null;
             int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             try
             {                
-                response = ClientsManager.CatalogClient().UpdateAssetStruct(groupId, assetStrcut);
+                response = ClientsManager.CatalogClient().UpdateAssetStruct(groupId, assetStrcut, userId);
             }
             catch (ClientException ex)
             {
@@ -141,10 +143,11 @@ namespace WebAPI.Controllers
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             try
             {
-                result = ClientsManager.CatalogClient().DeleteAssetStruct(groupId, id);
+                result = ClientsManager.CatalogClient().DeleteAssetStruct(groupId, id, userId);
             }
             catch (ClientException ex)
             {

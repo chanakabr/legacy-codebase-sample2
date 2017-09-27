@@ -128,7 +128,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut)
+        public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
             KalturaAssetStruct result = null;
             AssetStructResponse response = null;
@@ -138,7 +138,7 @@ namespace WebAPI.Clients
                 AssetStruct assetStructToadd = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.NewCatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToadd);
+                    response = Core.Catalog.NewCatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToadd, userId);
                 }
             }
             catch (Exception ex)
@@ -161,7 +161,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetStruct UpdateAssetStruct(int groupId, KalturaAssetStruct assetStrcut)
+        public KalturaAssetStruct UpdateAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {            
             KalturaAssetStruct result = null;
             AssetStructResponse response = null;
@@ -172,7 +172,7 @@ namespace WebAPI.Clients
                 AssetStruct assetStructToUpdate = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.NewCatalogManagement.CatalogManager.UpdateAssetStruct(groupId, assetStructToUpdate, shouldUpdateMetaIds);
+                    response = Core.Catalog.NewCatalogManagement.CatalogManager.UpdateAssetStruct(groupId, assetStructToUpdate, shouldUpdateMetaIds, userId);
                 }
             }
             catch (Exception ex)
@@ -195,7 +195,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public bool DeleteAssetStruct(int groupId, long id)
+        public bool DeleteAssetStruct(int groupId, long id, long userId)
         {
             Status response = null;            
 
@@ -203,7 +203,7 @@ namespace WebAPI.Clients
             {                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.NewCatalogManagement.CatalogManager.DeleteAssetStruct(groupId, id);
+                    response = Core.Catalog.NewCatalogManagement.CatalogManager.DeleteAssetStruct(groupId, id, userId);
                 }
             }
             catch (Exception ex)
