@@ -243,7 +243,7 @@ namespace Core.Recordings
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
                 UpdateIndex(groupId, slimRecording.Id, eAction.Delete);
-                UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, false);
+                UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, true);
                 List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId);
                 // last recording
                 if (recordingsWithTheSameExternalId.Count == 1)
@@ -439,7 +439,7 @@ namespace Core.Recordings
                 // First of all - if EPG was updated, update the recording index, nevermind what was the change
                 UpdateIndex(groupId, recordingId, eAction.Update);
 
-                UpdateCouchbase(groupId, programId, recordingId, true);
+                UpdateCouchbase(groupId, programId, recordingId);
 
                 // If no change was made to program schedule - do nothing
                 if (recording.EpgStartDate == startDate &&
@@ -814,7 +814,7 @@ namespace Core.Recordings
                 // Update Couchbase that the EPG is recorded
                 #region Update CB
 
-                UpdateCouchbase(groupId, programId, recording.Id, true);
+                UpdateCouchbase(groupId, programId, recording.Id);
 
                 #endregion
 
@@ -855,9 +855,14 @@ namespace Core.Recordings
             Catalog.Module.UpdateRecordingsIndex(new List<long> { recordingId }, groupId, action);
         }
 
-        private static void UpdateCouchbase(int groupId, long programId, long recordingId, bool isRecorded)
+        private static void UpdateCouchbase(int groupId, long programId, long recordingId, bool shouldDelete = false)
         {
-            if (isRecorded)
+            if (shouldDelete)
+            {
+                RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
+                RecordingsDAL.DeleteRecording_CB(recording);
+            }
+            else
             {
                 TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
                 EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
@@ -870,11 +875,6 @@ namespace Core.Recordings
 
                     RecordingsDAL.UpdateRecording_CB(recording);
                 }
-            }
-            else
-            {
-                RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
-                RecordingsDAL.DeleteRecording_CB(recording);
             }
         }
 
