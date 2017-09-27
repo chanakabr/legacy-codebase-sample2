@@ -2946,7 +2946,7 @@ namespace DAL
             return compensation;
         }
 
-        public static bool UpdateSubscriptionCompernsationUse(long subscriptionCompernsationId, long transactionId, int renewalNumber)
+        public static bool UpdateSubscriptionCompensationUse(long subscriptionCompernsationId, long transactionId, int renewalNumber)
         {
             int rowCount = 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateSubscriptionCompernsationUse");
