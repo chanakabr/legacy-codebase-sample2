@@ -52,14 +52,14 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route(""), HttpGet]
+        [Route(""), HttpGet, HttpOptions]
         public async Task<object> __Action([FromUri]string service, [FromUri]string action)
         {
             return await Action(service, action);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("service/{service_name}"), HttpGet]
+        [Route("service/{service_name}"), HttpGet, HttpOptions]
         public async Task<object> _Multirequest(string service_name)
         {
             if (service_name.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))
@@ -157,7 +157,7 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route(""), HttpGet]
+        [Route(""), HttpGet, HttpOptions]
         public async Task<object> NoRoute()
         {
             throw new BadRequestException(BadRequestException.ACTION_NOT_SPECIFIED);
@@ -173,7 +173,7 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("service/{service_name}/action/{action_name}/{*pathData}"), HttpPost, HttpGet]
+        [Route("service/{service_name}/action/{action_name}/{*pathData}"), HttpPost, HttpGet, HttpOptions]
         [FailureHttpCode(System.Net.HttpStatusCode.NotFound)]
         public async Task<object> ActionWithParams(string service_name, string action_name, string pathData)
         {
