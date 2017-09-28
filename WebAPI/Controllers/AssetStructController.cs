@@ -111,6 +111,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetStructNameAlreadyInUse)]
         [Throws(eResponseStatus.AssetStructSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.MetaIdsDoesNotExist)]
+        [Throws(eResponseStatus.CanNotChangePredefinedAssetStructSystemName)]
         [SchemeArgument("id", MinLong = 1)]
         public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStrcut)
         {

@@ -4,7 +4,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using AutoMapper;
 using Core.Catalog;
-using Core.Catalog.NewCatalogManagement;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using KLogMonitor;
@@ -58,11 +58,11 @@ namespace WebAPI.Clients
                 {
                     if (shouldGetByMetaIds)
                     {
-                        response = Core.Catalog.NewCatalogManagement.CatalogManager.GetAssetStructsByMetaIds(groupId, ids);
+                        response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByMetaIds(groupId, ids);
                     }
                     else
                     {
-                        response = Core.Catalog.NewCatalogManagement.CatalogManager.GetAssetStructsByIds(groupId, ids);
+                        response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByIds(groupId, ids);
                     }
                 }
             }
@@ -138,7 +138,7 @@ namespace WebAPI.Clients
                 AssetStruct assetStructToadd = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.NewCatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToadd, userId);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToadd, userId);
                 }
             }
             catch (Exception ex)
@@ -172,7 +172,7 @@ namespace WebAPI.Clients
                 AssetStruct assetStructToUpdate = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.NewCatalogManagement.CatalogManager.UpdateAssetStruct(groupId, assetStructToUpdate, shouldUpdateMetaIds, userId);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetStruct(groupId, assetStructToUpdate, shouldUpdateMetaIds, userId);
                 }
             }
             catch (Exception ex)
@@ -203,7 +203,7 @@ namespace WebAPI.Clients
             {                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.NewCatalogManagement.CatalogManager.DeleteAssetStruct(groupId, id, userId);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetStruct(groupId, id, userId);
                 }
             }
             catch (Exception ex)
