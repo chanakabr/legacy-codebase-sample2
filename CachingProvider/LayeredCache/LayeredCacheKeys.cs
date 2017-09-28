@@ -247,7 +247,25 @@ namespace CachingProvider.LayeredCache
             return string.Format("unifiedBillingCycle_groupId_{0}", groupId);
         }
 
-       
+        public static string GetAssetStructKey(int groupId, long assetStrcutId)
+        {
+            return string.Format("assetStruct_groupId_{0}_id_{1}", groupId, assetStrcutId);
+        }
+
+        public static Dictionary<string, string> GetAssetStructsKeysMap(int groupId, List<long> assetStructIds)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (assetStructIds != null && assetStructIds.Count > 0)
+            {
+                assetStructIds = assetStructIds.Distinct().ToList();
+                foreach (long id in assetStructIds)
+                {
+                    result.Add(GetAssetStructKey(groupId, id), id.ToString());
+                }
+            }
+
+            return result;
+        }
 
         #endregion
 
@@ -401,8 +419,29 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyUnifiedBillingCycle_domainId_{0}_renewLifeCycle", domainID, renewLifeCycle);
         }
-        #endregion        
-    
-        
+
+        public static string GetAssetStructInvalidationKey(int groupId, long assetStructId)
+        {
+            return string.Format("invalidationKeyAssetStruct_groupId_{0}_id_{1}", groupId, assetStructId);
+        }
+
+        public static Dictionary<string, List<string>> GetAssetStructsInvalidationKeysMap(int groupId, List<long> assetStructIds)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (assetStructIds != null && assetStructIds.Count > 0)
+            {
+                assetStructIds = assetStructIds.Distinct().ToList();
+                foreach (long id in assetStructIds)
+                {
+                    result.Add(GetAssetStructKey(groupId, id), new List<string>() { GetAssetStructInvalidationKey(groupId, id) });
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
+
+
     }
 }

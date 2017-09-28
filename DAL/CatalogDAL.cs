@@ -4739,23 +4739,14 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateAssetStruct(int groupId, string name, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined, long userId)
+        public static DataSet UpdateAssetStruct(int groupId, string name, string systemName, bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Name", name);
             sp.AddParameter("@SystemName", systemName);
-            if (isPredefined.HasValue)
-            {
-                sp.AddParameter("@IsPredefined", isPredefined.Value ? 1 : 0);
-            }
-            else
-            {
-                sp.AddParameter("@IsPredefined", null);
-            }
-
-            sp.AddParameter("@MetaIdsToPriorityExist", metaIdsToPriority != null && metaIdsToPriority.Count > 0);
+            sp.AddParameter("@ShouldUpdateMetaIds", shouldUpdateMetaIds ? 1 : 0);                        
             sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
             sp.AddParameter("@UpdaterId", userId);
 
