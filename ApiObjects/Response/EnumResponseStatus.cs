@@ -202,7 +202,8 @@ namespace ApiObjects.Response
         AssetStructNameAlreadyInUse = 4026,
         AssetStructSystemNameAlreadyInUse = 4027,
         MetaIdsDoesNotExist = 4027,
-        AssetStructDoesNotExist = 4028,        
+        AssetStructDoesNotExist = 4028,
+        CanNotChangePredefinedAssetStructSystemName = 4029,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

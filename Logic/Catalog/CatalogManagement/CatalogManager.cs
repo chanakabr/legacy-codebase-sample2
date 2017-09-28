@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 
-namespace Core.Catalog.NewCatalogManagement
+namespace Core.Catalog.CatalogManagement
 {
     public class CatalogManager
     {
@@ -93,9 +94,9 @@ namespace Core.Catalog.NewCatalogManagement
             return response;
         }
 
-        private static AssetStructListResponse CreateAssetStructListResponseFromDataSet(DataSet ds)
+        private static List<AssetStruct> CreateAssetStructListFromDataSet(DataSet ds)
         {
-            AssetStructListResponse response = new AssetStructListResponse();
+            List <AssetStruct> response = null;
             if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
             {
                 Dictionary<long, AssetStruct> idToAssetStructMap = new Dictionary<long, AssetStruct>();
@@ -130,11 +131,78 @@ namespace Core.Catalog.NewCatalogManagement
                     }
                 }
 
-                response.AssetStructs = idToAssetStructMap.Values.ToList();
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response = idToAssetStructMap.Values.ToList();                
             }
 
             return response;
+        }
+
+        private static Tuple<Dictionary<string, AssetStruct>, bool> GetAssetStructs(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, AssetStruct> result = new Dictionary<string, AssetStruct>();
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("assetStructIds") && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;                    
+                    List<long> assetStructIds = null;                    
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                    {
+                        assetStructIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
+                    }
+                    else
+                    {
+                        assetStructIds = funcParams["assetStructIds"] != null ? funcParams["assetStructIds"] as List<long> : null;
+                    }
+
+                    if (assetStructIds != null && assetStructIds.Count > 0 && groupId.HasValue)
+                    {                        
+                        DataSet ds = CatalogDAL.GetAssetStructsByIds(groupId.Value, assetStructIds);
+                        List<AssetStruct> assetStructs = CreateAssetStructListFromDataSet(ds);
+                        if (assetStructs != null && assetStructs.Count > 0)
+                        {
+                            result = assetStructs.ToDictionary(x => LayeredCacheKeys.GetAssetStructKey(groupId.Value, x.Id), x => x);
+                        }
+                    }
+
+                    res = result.Keys.Count() == assetStructIds.Count();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAssetStructs failed params : {0}", funcParams != null ? string.Join(";",
+                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
+            }
+
+            return new Tuple<Dictionary<string, AssetStruct>, bool>(result, res);
+        }
+
+        public static List<AssetStruct> TryGetAssetStructsFromCache(int groupId, List<long> ids)
+        {
+            List<AssetStruct> result = null;
+            try
+            {
+                Dictionary<string, AssetStruct> assetStructsMap = null;
+                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetStructsKeysMap(groupId, ids);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetStructsInvalidationKeysMap(groupId, ids);
+                if (!LayeredCache.Instance.GetValues<AssetStruct>(keyToOriginalValueMap, ref assetStructsMap, GetAssetStructs,
+                    new Dictionary<string, object>() { { "groupId", groupId }, { "assetStructIds", ids } },
+                    groupId, LayeredCacheConfigNames.GET_ASSET_STRUCTS_CACHE_CONFIG_NAME, invalidationKeysMap))
+                {
+                    log.ErrorFormat("Failed getting AssetStructs from LayeredCache, groupId: {0}, assetStructIds", groupId, string.Join(",", ids));
+                }
+                else if (assetStructsMap != null)
+                {
+                    result = assetStructsMap.Count > 0 ? assetStructsMap.Values.ToList() : new List<AssetStruct>();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed TryGetAssetStructsFromCache with groupId: {0} and ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
+            }
+
+            return result;
         }
 
         public static AssetStructListResponse GetAssetStructsByIds(int groupId, List<long> ids)
@@ -142,8 +210,11 @@ namespace Core.Catalog.NewCatalogManagement
             AssetStructListResponse response = new AssetStructListResponse();
             try
             {
-                DataSet ds = CatalogDAL.GetAssetStructsByIds(groupId, ids);
-                response = CreateAssetStructListResponseFromDataSet(ds);
+                response.AssetStructs = TryGetAssetStructsFromCache(groupId, ids);
+                if (response.AssetStructs != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -159,7 +230,11 @@ namespace Core.Catalog.NewCatalogManagement
             try
             {
                 DataSet ds = CatalogDAL.GetAssetStructsByMetaIds(groupId, metaIds);
-                response = CreateAssetStructListResponseFromDataSet(ds);
+                response.AssetStructs = CreateAssetStructListFromDataSet(ds);
+                if (response.AssetStructs != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -200,6 +275,20 @@ namespace Core.Catalog.NewCatalogManagement
             AssetStructResponse result = new AssetStructResponse();
             try
             {
+                List<AssetStruct> assetStructs = TryGetAssetStructsFromCache(groupId, new List<long>() { assetStructToUpdate.Id });
+                if (assetStructs == null || assetStructs.Count != 1)
+                {
+                    result.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                    return result;
+                }
+
+                AssetStruct assetStruct = assetStructs.First();
+                if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value && !string.IsNullOrEmpty(assetStructToUpdate.SystemName))
+                {
+                    result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedAssetStructSystemName, eResponseStatus.CanNotChangePredefinedAssetStructSystemName.ToString());
+                    return result;
+                }
+
                 List<KeyValuePair<long, int>> metaIdsToPriority = null;
                 if (assetStructToUpdate.MetaIds != null)
                 {
@@ -211,7 +300,7 @@ namespace Core.Catalog.NewCatalogManagement
                         priority++;
                     }
                 }
-                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, assetStructToUpdate.Name, assetStructToUpdate.SystemName, metaIdsToPriority, assetStructToUpdate.IsPredefined, userId);
+                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, assetStructToUpdate.Name, assetStructToUpdate.SystemName, shouldUpdateMetaIds, metaIdsToPriority, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
             }
             catch (Exception ex)

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Catalog.NewCatalogManagement
+namespace Core.Catalog.CatalogManagement
 {
     public class AssetStruct
     {

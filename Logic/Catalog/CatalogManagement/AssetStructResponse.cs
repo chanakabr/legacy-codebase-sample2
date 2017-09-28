@@ -5,20 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Catalog.NewCatalogManagement
+namespace Core.Catalog.CatalogManagement
 {
-    public class AssetStructListResponse
+    public class AssetStructResponse
     {
-
         public Status Status { get; set; }
+        public AssetStruct AssetStruct { get; set; }        
 
-        public List<AssetStruct> AssetStructs { get; set; }
-
-        public AssetStructListResponse()
+        public AssetStructResponse()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            AssetStructs = new List<AssetStruct>();
+            AssetStruct = null;
         }
-
     }
 }
