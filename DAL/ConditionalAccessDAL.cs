@@ -1528,7 +1528,7 @@ namespace DAL
             }
         }
 
-        public static long GetUnifiedProcessId(int groupId, int paymentGatewayId, DateTime endDate, long householdId, int processPurchasesState = 0)
+        public static DataTable GetUnifiedProcessId(int groupId, int paymentGatewayId, DateTime endDate, long householdId, int? processPurchasesState = null)
         {
             try
             {
@@ -1538,14 +1538,20 @@ namespace DAL
                 sp.AddParameter("@paymentGatewayID", paymentGatewayId);
                 sp.AddParameter("@endDate", endDate);
                 sp.AddParameter("@householdId", householdId);
-                sp.AddParameter("@state", processPurchasesState);
-
-                return sp.ExecuteReturnValue<long>();
-
+                if (processPurchasesState.HasValue)
+                {
+                    sp.AddParameter("@state", processPurchasesState);
+                }
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt;
+                }
+                return null;
             }
             catch
             {
-                return 0;
+                return null;
             }
         }
 
