@@ -43,6 +43,8 @@ namespace Core.ConditionalAccess.Modules
 
         #endregion
 
+        public long processPurchasesId { get; set; }
+
         public SubscriptionPurchase(int groupId)
             : base(groupId) 
         {
@@ -75,7 +77,7 @@ namespace Core.ConditionalAccess.Modules
                 {
                     this.purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(this.GroupId, this.productId, this.siteGuid, this.isEntitledToPreviewModule ? 0.0 : this.price, this.currency, this.customData, this.country,
                            this.deviceName, this.usageModuleExists ? this.maxNumberOfViews : 0, this.usageModuleExists ? this.viewLifeCycle : 0, this.isRecurring, this.billingTransactionId,
-                           this.previewModuleId, this.startDate.Value, this.endDate.Value, this.entitlementDate.Value, this.houseHoldId, this.billingGuid, 0, this.couponCode);
+                           this.previewModuleId, this.startDate.Value, this.endDate.Value, this.entitlementDate.Value, this.houseHoldId, this.billingGuid, this.processPurchasesId, 0, this.couponCode);
                 }
                 else
                 {
@@ -83,7 +85,7 @@ namespace Core.ConditionalAccess.Modules
                         this.currency, this.customData, this.country, this.languageCode,
                         this.deviceName, this.maxNumberOfViews, this.viewLifeCycle, this.isRecurring, this.billingTransactionId, 
                         this.previewModuleId, this.startDate.Value, this.endDate.Value,
-                        this.entitlementDate.Value, string.Empty, (int)this.houseHoldId);
+                        this.entitlementDate.Value, string.Empty, (int)this.houseHoldId, this.processPurchasesId);
                 }
 
                 if (this.purchaseId > 0)

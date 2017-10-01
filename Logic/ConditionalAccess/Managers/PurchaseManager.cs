@@ -1037,7 +1037,7 @@ namespace Core.ConditionalAccess
                 bool isGiftCard = false;
                 Price priceResponse = null;
 
-                UnifiedBillingCycle unifiedBillingCycle = null; // endDate != null there is a unified billingCycle for this subscription cycle
+                UnifiedBillingCycle unifiedBillingCycle = null; // there is a unified billingCycle for this subscription cycle
                 priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode,
                     ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, ref unifiedBillingCycle, currency, isSubscriptionSetModifySubscription);
 
@@ -1139,6 +1139,8 @@ namespace Core.ConditionalAccess
                                 // purchase passed
                                 long purchaseID = 0;
 
+                                PaymentGateway paymentGatewayResponse = Core.Billing.Module.GetPaymentGatewayByBillingGuid(groupId, householdId, billingGuid);
+
                                 // update entitlement date
                                 DateTime entitlementDate = DateTime.UtcNow;
                                 DateTime? endDate = null;
@@ -1154,11 +1156,24 @@ namespace Core.ConditionalAccess
                                     // calculate end date by unified billing cycle
                                     endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
                                 }
+
+                                //try get from db process_purchases_id - if not exsits - create one 
+                                long processId = 0;
+                                bool isNew = false;
+                                if (paymentGatewayResponse != null)
+                                {
+                                    if (!endDate.HasValue)
+                                    {
+                                        endDate = Utils.CalcSubscriptionEndDate(subscription, entitleToPreview, entitlementDate);
+                                    }
+
+                                    processId = Utils.GetUnifiedProcessId(groupId, paymentGatewayResponse.ID, endDate.Value, householdId, out isNew);
+                                }
                                 // grant entitlement
                                 bool handleBillingPassed = 
                                     cas.HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, price, currency, couponCode, 
                                         userIp, country, deviceName, long.Parse(response.TransactionID), customData, productId, billingGuid.ToString(),
-                                        entitleToPreview, subscription.m_bIsRecurring, entitlementDate, ref purchaseID, ref endDate, SubscriptionPurchaseStatus.OK);
+                                        entitleToPreview, subscription.m_bIsRecurring, entitlementDate, ref purchaseID, ref endDate, SubscriptionPurchaseStatus.OK, processId);
 
                                 if (handleBillingPassed && endDate.HasValue)
                                 {
@@ -1173,8 +1188,6 @@ namespace Core.ConditionalAccess
 
                                     if (subscription.m_bIsRecurring)
                                     {
-                                        //DateTime nextRenewalDate = endDate.Value.AddMinutes(-5); // default  
-
                                         long endDateUnix = 0;
 
                                         if (endDate.HasValue)
@@ -1183,7 +1196,6 @@ namespace Core.ConditionalAccess
                                         }
                                         
                                         DateTime nextRenewalDate = endDate.Value;
-                                        long currentDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow); // for each paymentgatewayId save the last date of change
 
                                         if (!isGiftCard)
                                         {
@@ -1191,7 +1203,6 @@ namespace Core.ConditionalAccess
                                             try
                                             {
                                                 nextRenewalDate = endDate.Value.AddMinutes(-5);
-                                                PaymentGateway paymentGatewayResponse = Core.Billing.Module.GetPaymentGatewayByBillingGuid(groupId, householdId, billingGuid);
 
                                                 if (paymentGatewayResponse == null)
                                                 {
@@ -1205,7 +1216,7 @@ namespace Core.ConditionalAccess
 
                                                     if (!entitleToPreview)
                                                     {
-                                                        Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, ref unifiedBillingCycle, endDate.Value, paymentGwId, currentDate);
+                                                        Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, ref unifiedBillingCycle, endDate.Value);
                                                     }
                                                 }
 
@@ -1229,18 +1240,15 @@ namespace Core.ConditionalAccess
                                         create new queue with new messages for each Payment Gateway 
                                         */
 
-                                        if (unifiedBillingCycle == null || unifiedBillingCycle.paymentGatewayIds == null ||
-                                            !unifiedBillingCycle.paymentGatewayIds.ContainsKey(paymentGwId))
+                                        if (unifiedBillingCycle == null) // || unifiedBillingCycle.paymentGatewayIds == null || !unifiedBillingCycle.paymentGatewayIds.ContainsKey(paymentGwId))
                                         {
                                             // insert regular message 
                                             RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate);
                                         }
 
-                                        else if (unifiedBillingCycle != null && unifiedBillingCycle.paymentGatewayIds != null &&
-                                            unifiedBillingCycle.paymentGatewayIds.ContainsKey(paymentGwId) &&
-                                            unifiedBillingCycle.paymentGatewayIds[paymentGwId] == currentDate) // this is the first purchase with this cycle + paymentgatewayid
+                                        else if (isNew) // need to insert new unified billing message to queue
                                         {
-                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, paymentGwId);
+                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
                                         }
                                         //else do nothing, message already exists
 
@@ -1327,47 +1335,20 @@ namespace Core.ConditionalAccess
         ///If needed create/ update doc in cb for unifiedBilling_household_{ household_id }_renewBillingCycle
         ///create: unified billing cycle for household (CB)
         ///update: the current one with payment gateway id or end date 
-        private static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, long subscriptionBillingCycle, UnifiedBillingCycle unifiedBillingCycle, DateTime endDate, int paymentGatewayId, long currentDate)
+        private static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, long subscriptionBillingCycle, UnifiedBillingCycle unifiedBillingCycle, DateTime endDate)//, int paymentGatewayId, long currentDate)
         {            
             try
             {
                 long? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-                Dictionary<int, long> paymentGWIds = null;
-                bool setDomainUnifiedBillingCycle = false;
-
+              
                 if (groupUnifiedBillingCycle.HasValue) // group define with billing cycle
                 {
-                    // not a partial payment - check if this one match the group billing cycle (no document exists)
-                    if (subscriptionBillingCycle.Equals(groupUnifiedBillingCycle.Value))
-                    {                        
-                        if (unifiedBillingCycle == null || unifiedBillingCycle.paymentGatewayIds == null || unifiedBillingCycle.paymentGatewayIds.Count == 0)
-                        {
-                            paymentGWIds = new Dictionary<int, long>();
-                            paymentGWIds.Add(paymentGatewayId, currentDate);
-                            setDomainUnifiedBillingCycle = true;
-                        }
-                        else 
-                        {                           
-                            paymentGWIds = unifiedBillingCycle.paymentGatewayIds;
-                            if (!paymentGWIds.ContainsKey(paymentGatewayId))
-                            {
-                                paymentGWIds.Add(paymentGatewayId, currentDate);
-                                setDomainUnifiedBillingCycle = true;
-                            }
-                        }
-                    }
-
-                    long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
-                    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != nextEndDate)
-                    {
-                        setDomainUnifiedBillingCycle = true;
-                    }
-
-                    if (setDomainUnifiedBillingCycle)
+                   long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
+                   if (unifiedBillingCycle != null && unifiedBillingCycle.endDate != nextEndDate)
                     {
                         // update unified billing by endDate or paymentGatewatId                  
-                        bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupUnifiedBillingCycle.Value, nextEndDate, paymentGWIds);
-                    }
+                        bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupUnifiedBillingCycle.Value, nextEndDate); //, paymentGWIds);
+                    }                   
                 }
             }
             catch (Exception ex)

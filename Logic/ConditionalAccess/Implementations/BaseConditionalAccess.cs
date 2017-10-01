@@ -141,7 +141,7 @@ namespace Core.ConditionalAccess
 		protected internal abstract bool HandleSubscriptionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Subscription subscription, double price, string currency, string coupon,
 																 string userIP, string country, string deviceName, long billingTransactionId, string customData,
 																 int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate,
-																 ref long purchaseID, ref DateTime? subscriptionEndDate, SubscriptionPurchaseStatus subscriptionPurchaseStatus);
+																 ref long purchaseID, ref DateTime? subscriptionEndDate, SubscriptionPurchaseStatus subscriptionPurchaseStatus, long process_purchases_id = 0);
 
 		protected internal abstract bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
 															  string userIP, string country, string deviceName, long billingTransactionId, string customData, int productID,
@@ -11831,9 +11831,9 @@ namespace Core.ConditionalAccess
 			return RenewManager.Renew(this, this.m_nGroupID, siteguid, purchaseId, billingGuid, nextEndDate, ref shouldUpdateTaskStatus);
 		}
 
-        public bool RenewUnifiedTransaction(long householdId, int paymentgatewayId, long nextEndDate, ref bool shouldUpdateTaskStatus, string proccessId)
+        public bool RenewUnifiedTransaction(long householdId, long nextEndDate, ref bool shouldUpdateTaskStatus, long processId)
         {
-            return RenewManager.RenewUnifiedTransaction(this, this.m_nGroupID, householdId, paymentgatewayId, nextEndDate, ref shouldUpdateTaskStatus, proccessId);
+            return RenewManager.RenewUnifiedTransaction(this, this.m_nGroupID, householdId, nextEndDate, ref shouldUpdateTaskStatus, processId);
         }
 
         public bool UpdateSubscriptionRenewingStatus(long purchaseId, string billingGuid, bool isActive)
@@ -11841,9 +11841,9 @@ namespace Core.ConditionalAccess
 			return ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalActiveStatus(m_nGroupID, purchaseId, billingGuid, Convert.ToInt16(isActive));
 		}
 
-        public bool UpdateSubscriptionUnifiedRenewingStatus(string proccessId, int groupId, bool isActive = false)
+        public bool UpdateSubscriptionUnifiedRenewingStatus(long unifiedProcessId, int groupId, bool isActive = false)
         {
-            return ConditionalAccessDAL.UpdateSubscriptionUnifiedRenewingStatus(groupId, proccessId, Convert.ToInt16(isActive));
+            return ConditionalAccessDAL.UpdateSubscriptionUnifiedRenewingStatus(groupId, unifiedProcessId, Convert.ToInt16(isActive));
         }
 
         public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid,

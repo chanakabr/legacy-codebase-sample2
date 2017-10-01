@@ -11,8 +11,8 @@ namespace ApiObjects.Billing
     [JsonObject]
     public class UnifiedBillingCycle
     {
-        [JsonProperty]
-        public Dictionary<int, long> paymentGatewayIds { get; set; }
+        //[JsonProperty]
+        //public Dictionary<int, long> paymentGatewayIds { get; set; }
 
         [JsonProperty]
         public long endDate { get; set; }

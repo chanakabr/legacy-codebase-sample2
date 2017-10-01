@@ -367,7 +367,8 @@ namespace Core.ConditionalAccess
                     subscriptionEntitlement.paymentMethodId = entitlement.paymentMethodId;
                     response.entitelments.Add(subscriptionEntitlement);
 
-                    Utils.HandleDomainUnifiedBillingCycle(groupId, domainID, null, new List<int>() { entitlement.paymentGatewayId });
+                    //LIAT unified billing cycle  to do somthing here !!!!!!!!
+                    //Utils.HandleDomainUnifiedBillingCycle(groupId, domainID, null, new List<int>() { entitlement.paymentGatewayId });
                 }
                 response.status = changeStatus;
 
