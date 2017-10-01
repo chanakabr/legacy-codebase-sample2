@@ -59,8 +59,8 @@ namespace SubscriptionRenewHandler
             set;
         }
 
-        [JsonProperty("paymentgateway_id")]
-        public int PaymentgatewayId
+        [JsonProperty("process_id")]
+        public long ProcessId
         {
             get;
             set;

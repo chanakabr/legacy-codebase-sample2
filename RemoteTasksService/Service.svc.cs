@@ -40,7 +40,7 @@ namespace RemoteTasksService
                 log.DebugFormat("Info - Add Task Request Started: {0}, data: {1}", request.task, request.data);
 
                 string taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}", request.task));
-
+                              
                 log.Debug("Info - " + string.Format("Request: {0} should be handled by taskHandlerName: {1}", request.task, string.IsNullOrEmpty(taskHandlerName) ? string.Empty : taskHandlerName));
 
                 ITaskHandler taskHandler = (ITaskHandler)Activator.CreateInstance(Type.GetType(string.Format("{0}.TaskHandler, {0}", taskHandlerName)));

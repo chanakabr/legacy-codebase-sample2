@@ -47,7 +47,7 @@ namespace SubscriptionRenewHandler
                     }
                     case eSubscriptionRenewRequestType.RenewUnifiedTransaction:
                         {
-                            success = Core.ConditionalAccess.Module.RenewUnifiedTransaction(request.GroupID, request.HouseholdId, request.PaymentgatewayId, request.EndDate);
+                            success = Core.ConditionalAccess.Module.RenewUnifiedTransaction(request.GroupID, request.HouseholdId, request.ProcessId, request.EndDate);
                             break;
                         }
 
