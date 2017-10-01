@@ -565,6 +565,64 @@ namespace Core.ConditionalAccess
             return isCreditDownloaded;
         }
 
+        // find in process defined to old payment and change it to new - also change in subscription purchases
+        internal static void HandleUnifiedBillingCycle(int groupId, long domainId, int paymentGatewayId, DateTime endDate, int purchaseID, long oldUnifiedProcessId)
+        {            
+            try
+            {
+                // find in process defined to old payment and change it to new - also change in subscription purchases?
+                long processId = 0;
+                int state = 0;
+                ProcessUnifiedState processState = ProcessUnifiedState.Renew;
+                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGatewayId, endDate, domainId);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+                    state = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "state");
+                    processState = (ProcessUnifiedState)state;
+                }
+
+                if (processId == 0) // create new process id + add message to queue
+                {
+                    // get details of OLD processState needed to be changed                    
+                    DataRow dr = ConditionalAccessDAL.GetUnifiedProcessById(oldUnifiedProcessId);
+                    if (dr != null)
+                    {                       
+                        state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");
+                        processState = (ProcessUnifiedState)state;
+                    }
+                    // create new process Id 
+                    processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, endDate, domainId, (int)processState);
+                    
+                    // insert new message to queue
+
+                    PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupId, paymentGatewayId, 1, 1);
+                    DateTime nextRenewalDate;
+                    if (processState == ProcessUnifiedState.Renew)
+                    {
+                        nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
+                    }
+                    else
+                    {
+                        nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalIntervalMinutes);
+                    }
+
+                    Utils.RenewTransactionMessageInQueue(groupId, domainId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate), nextRenewalDate, processId);
+                }
+
+                if (processId > 0) // already have message to queue so update subscription purchase row
+                {
+                    // update subscription Purchase
+                    ConditionalAccessDAL.UpdateMPPRenewalProcessId(new List<int>() { purchaseID }, processId );
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         internal static void FillCatalogSignature(BaseRequest request)
         {
             request.m_sSignString = Guid.NewGuid().ToString();
@@ -1432,8 +1490,14 @@ namespace Core.ConditionalAccess
             isNew = false;
             try
             {
-                ProcessPurchasesId = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGatewayId, endDate,  householdId, (int)processPurchasesState);
-                if (ProcessPurchasesId == 0)
+                long processId = 0;
+                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGatewayId, endDate,  householdId, (int)processPurchasesState);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "id");
+                }
+
+                if (processId == 0)
                 {
                     // insert new one to DB 
                     ProcessPurchasesId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, endDate, householdId, (int)processPurchasesState);

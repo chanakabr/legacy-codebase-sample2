@@ -1353,7 +1353,13 @@ namespace Core.ConditionalAccess
                             }
                             else // all success
                             {
-                                long successProcessId = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGateway.ID, endDatedt, householdId, (int)ProcessUnifiedState.Renew);
+                                long successProcessId = 0;
+                                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGateway.ID, endDatedt, householdId, (int)ProcessUnifiedState.Renew);
+                                if (dt!= null && dt.Rows != null && dt.Rows.Count > 0)
+                                {
+                                    successProcessId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "id");
+                                }
+                                
                                 if (successProcessId > 0)
                                 {
                                     // update subsuription purchase with success
