@@ -18,9 +18,9 @@ namespace ApiObjects.ConditionalAccess
         PrePaidPurchased = 7,
         GeoCommerceBlocked = 8,
         EntitledToPreviewModule = 9,
-        FirstDeviceLimitation =10,
+        FirstDeviceLimitation = 10,
         CollectionPurchased = 11,
-        UserSuspended = 12, 
+        UserSuspended = 12,
         NotForPurchase = 13,
         InvalidCurrency = 14,
         CurrencyNotDefinedOnPriceCode = 15
@@ -88,7 +88,7 @@ namespace ApiObjects.ConditionalAccess
         OK,
         ERROR
     }
-    
+
     public enum ChangeSubscriptionStatus
     {
         OK = 0,
@@ -101,7 +101,7 @@ namespace ApiObjects.ConditionalAccess
         Error = 7,
         UserSuspended = 8,
     }
-    
+
     internal enum BundleToUse : byte
     {
         All = 0,
@@ -127,7 +127,7 @@ namespace ApiObjects.ConditionalAccess
 
     public enum eUrlType
     {
-        Static = 0,        
+        Static = 0,
         Dynamic = 1
     }
 
@@ -164,4 +164,9 @@ namespace ApiObjects.ConditionalAccess
         PartialPeriod = 1
     }
 
+    public enum ProcessUnifiedState
+    {
+        Renew = 0,
+        Pending = 1
+    }
 }

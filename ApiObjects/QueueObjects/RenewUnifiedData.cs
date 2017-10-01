@@ -11,14 +11,14 @@ namespace ApiObjects
         public const string TASK = "distributed_tasks.process_unified_renew_subscription";
                 
         private long householdId;
-        private int paymentgatewayId;
+        private long processId;
         private long endDate;
         private eSubscriptionRenewRequestType type;
 
-        public RenewUnifiedData(int groupId, long householdId, int paymentgatewayId, long endDate, DateTime nextRenewDate,
+        public RenewUnifiedData(int groupId, long householdId, long processId, long endDate, DateTime nextRenewDate,
             eSubscriptionRenewRequestType type = eSubscriptionRenewRequestType.RenewUnifiedTransaction) :
-                base(// id = household+paymentgateway+date
-                     string.Format("h{0}_p{1}_d{2}", householdId, paymentgatewayId, endDate),
+                base(// id = household+processPurchasesId+date
+                     string.Format("h{0}_p{1}_d{2}", householdId, processId, endDate),
                      // task = const
                      TASK)
             {
@@ -26,7 +26,7 @@ namespace ApiObjects
             this.GroupId = groupId;
             this.ETA = nextRenewDate;
             this.householdId = householdId;
-            this.paymentgatewayId = paymentgatewayId;
+            this.processId = processId;
             this.endDate = endDate;
             this.type = type;
 
@@ -34,7 +34,7 @@ namespace ApiObjects
             {
                 groupId,
                 householdId,
-                paymentgatewayId,
+                processId,
                 endDate,
                 type,
                 base.RequestId
