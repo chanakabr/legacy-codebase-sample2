@@ -1379,11 +1379,11 @@ namespace DAL
                 sp.AddParameter("@Id", processId);
                 if (endDate.HasValue)
                 {
-                    sp.AddParameter("@EndDate", endDate);
+                    sp.AddParameter("@EndDate", endDate.Value);
                 }
                 if (processUnifiedState.HasValue)
                 {
-                    sp.AddParameter("@ProcessUnifiedState", endDate);
+                    sp.AddParameter("@ProcessUnifiedState", processUnifiedState.Value);
                 }
                 return sp.ExecuteReturnValue<bool>();
             }
