@@ -1486,11 +1486,10 @@ namespace Core.ConditionalAccess
 
         internal static long GetUnifiedProcessId(int groupId, int paymentGatewayId, DateTime endDate, long householdId, out bool isNew, ProcessUnifiedState processPurchasesState = ProcessUnifiedState.Renew)
         {
-            long ProcessPurchasesId = 0;
+            long processId = 0;
             isNew = false;
             try
-            {
-                long processId = 0;
+            {                
                 DataTable dt = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGatewayId, endDate,  householdId, (int)processPurchasesState);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
@@ -1500,8 +1499,8 @@ namespace Core.ConditionalAccess
                 if (processId == 0)
                 {
                     // insert new one to DB 
-                    ProcessPurchasesId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, endDate, householdId, (int)processPurchasesState);
-                    if (ProcessPurchasesId > 0)
+                    processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, endDate, householdId, (int)processPurchasesState);
+                    if (processId > 0)
                     {
                         isNew = true;
                     }
@@ -1512,7 +1511,7 @@ namespace Core.ConditionalAccess
                 log.ErrorFormat("GetProcessPurchasesId - Failed for groupId = {0}, paymentGatewayID= {1} endDate={2}, householdId={3}, ex={4}", groupId, paymentGatewayId, endDate,
                     householdId, ex.Message);            
             }
-            return ProcessPurchasesId;
+            return processId;
         }
 
         public static long? GetGroupUnifiedBillingCycle(int groupId)
