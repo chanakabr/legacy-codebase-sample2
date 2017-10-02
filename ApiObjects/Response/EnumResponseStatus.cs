@@ -204,6 +204,7 @@ namespace ApiObjects.Response
         MetaIdsDoesNotExist = 4027,
         AssetStructDoesNotExist = 4028,
         CanNotChangePredefinedAssetStructSystemName = 4029,
+        CanNotDeletrePredefinedAssetStruct = 4030,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

@@ -65,7 +65,7 @@ namespace Core.Catalog.CatalogManagement
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
                     if (id > 0)
                     {
-                        response.AssetStruct = CreateAssetStructFromIdAndDataRow(id, dt.Rows[0]);                        
+                        response.AssetStruct = CreateAssetStructFromIdAndDataRow(id, dt.Rows[0]);
                     }
                     else
                     {
@@ -88,6 +88,11 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
                     }
+                }
+
+                if (response.AssetStruct != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
 
@@ -120,13 +125,30 @@ namespace Core.Catalog.CatalogManagement
                 DataTable metasDt = ds.Tables[1];
                 if (metasDt != null && metasDt.Rows != null && metasDt.Rows.Count > 0 && idToAssetStructMap.Count > 0)
                 {
+                    Dictionary<long, Dictionary<int, long>> assetStructOrderedMetasMap = new Dictionary<long, Dictionary<int, long>>();
                     foreach (DataRow dr in metasDt.Rows)
                     {
                         long assetStructId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID", 0);
                         long metaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID", 0);
-                        if (assetStructId > 0 && metaId > 0 && idToAssetStructMap.ContainsKey(assetStructId) && !idToAssetStructMap[assetStructId].MetaIds.Contains(metaId))
+                        int order = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER", 0);
+                        if (assetStructId > 0 && metaId > 0 && order > 0 && idToAssetStructMap.ContainsKey(assetStructId))
                         {
-                            idToAssetStructMap[assetStructId].MetaIds.Add(metaId);
+                            if (assetStructOrderedMetasMap.ContainsKey(assetStructId))
+                            {
+                                assetStructOrderedMetasMap[assetStructId][order] = metaId;
+                            }
+                            else
+                            {
+                                assetStructOrderedMetasMap.Add(assetStructId, new Dictionary<int, long>() { { order, metaId } });
+                            }                            
+                        }
+                    }
+
+                    foreach (AssetStruct assetStruct in idToAssetStructMap.Values)
+                    {
+                        if (assetStructOrderedMetasMap.ContainsKey(assetStruct.Id))
+                        {
+                            assetStruct.MetaIds = assetStructOrderedMetasMap[assetStruct.Id].OrderBy(x => x.Key).Select(x => x.Value).ToList();
                         }
                     }
                 }
@@ -249,6 +271,12 @@ namespace Core.Catalog.CatalogManagement
             AssetStructResponse result = new AssetStructResponse();
             try
             {
+                // TODO: check that meta Ids exist
+                if (assetStructToadd.MetaIds == null)
+                {
+                    result.Status = new Status((int)eResponseStatus.MetaIdsDoesNotExist, eResponseStatus.MetaIdsDoesNotExist.ToString());
+                }
+                //TODO: check that meta Ids exist
                 List<KeyValuePair<long, int>> metaIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (assetStructToadd.MetaIds != null && assetStructToadd.MetaIds.Count > 0)
                 {
@@ -283,14 +311,14 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 AssetStruct assetStruct = assetStructs.First();
-                if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value && !string.IsNullOrEmpty(assetStructToUpdate.SystemName))
+                if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value && assetStructToUpdate.SystemName != null)
                 {
                     result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedAssetStructSystemName, eResponseStatus.CanNotChangePredefinedAssetStructSystemName.ToString());
                     return result;
                 }
 
                 List<KeyValuePair<long, int>> metaIdsToPriority = null;
-                if (assetStructToUpdate.MetaIds != null)
+                if (assetStructToUpdate.MetaIds != null || shouldUpdateMetaIds)
                 {
                     metaIdsToPriority = new List<KeyValuePair<long, int>>();                                           
                     int priority = 1;
@@ -299,8 +327,15 @@ namespace Core.Catalog.CatalogManagement
                         metaIdsToPriority.Add(new KeyValuePair<long, int>(metaId, priority));
                         priority++;
                     }
+
+                    // no need to update DB if lists are equal
+                    if (assetStruct.MetaIds != null && assetStructToUpdate.MetaIds.SequenceEqual(assetStruct.MetaIds))
+                    {
+                        shouldUpdateMetaIds = false;
+                    }
                 }
-                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, assetStructToUpdate.Name, assetStructToUpdate.SystemName, shouldUpdateMetaIds, metaIdsToPriority, userId);
+
+                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, assetStruct.Id, assetStructToUpdate.Name, shouldUpdateMetaIds, metaIdsToPriority, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
             }
             catch (Exception ex)
@@ -316,12 +351,28 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                long deleteResult = CatalogDAL.DeleteAssetStruct(groupId, id, userId);
-                result = CreateAssetStructResponseStatusFromResult(deleteResult);
+                List<AssetStruct> assetStructs = TryGetAssetStructsFromCache(groupId, new List<long>() { id });
+                if (assetStructs == null || assetStructs.Count != 1)
+                {
+                    result = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                    return result;
+                }
+
+                AssetStruct assetStruct = assetStructs.First();
+                if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value)
+                {
+                    result = new Status((int)eResponseStatus.CanNotDeletrePredefinedAssetStruct, eResponseStatus.CanNotDeletrePredefinedAssetStruct.ToString());
+                    return result;
+                }
+
+                if (CatalogDAL.DeleteAssetStruct(groupId, id, userId))
+                {
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed UpdateAssetStruct for groupId: {0} and assetStructId: {1}", groupId, id), ex);
+                log.Error(string.Format("Failed DeleteAssetStruct for groupId: {0} and assetStructId: {1}", groupId, id), ex);
             }
 
             return result;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Core.Catalog.CatalogManagement
     {
         public long Id { get; set; }
         public string Name { get; set; }
+        public LanguageContainer[] LanguageContainer { get; set; }
         public string SystemName { get; set; }
         public List<long> MetaIds { get; set; }
         public bool? IsPredefined { get; set; }
