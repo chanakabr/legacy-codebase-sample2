@@ -1015,10 +1015,10 @@ namespace Core.ConditionalAccess
             ProcessUnifiedState processState = ProcessUnifiedState.Renew;
             DateTime? processEndDate = null;
             GetProcessDetails(processId, ref paymentgatewayId, ref processState, ref processEndDate);
-            if (paymentgatewayId != 0 && processEndDate.HasValue) // what if find nothing ???? 
+            if (paymentgatewayId != 0 && processEndDate.HasValue) 
             {
                 // validate that this is the right message 
-                if (Math.Abs(ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(processEndDate.Value) - nextEndDate) > 60)
+                if (Math.Abs(ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(processEndDate.Value) - nextEndDate) > 60)
                 {
                     // subscription purchase wasn't found
                     log.ErrorFormat("GetProcessDetails if end date not equal - canceling unified renew task. processId: {0}, nextEndDate: {1}, data: {2}",
@@ -1028,7 +1028,7 @@ namespace Core.ConditionalAccess
             }
 
             UnifiedBillingCycle unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupBillingCycle.Value);
-            if (unifiedBillingCycle == null)// || unifiedBillingCycle.paymentGatewayIds == null || !unifiedBillingCycle.paymentGatewayIds.ContainsKey(paymentgatewayId))
+            if (unifiedBillingCycle == null)
             {
                 log.DebugFormat("RenewUnifiedTransaction fail due to no unifiedBillingCycle define in CB for householdid ={0} ", householdId);
                 return true;
