@@ -367,7 +367,9 @@ namespace Core.ConditionalAccess
                     subscriptionEntitlement.paymentMethodId = entitlement.paymentMethodId;
                     response.entitelments.Add(subscriptionEntitlement);
 
-                    Utils.HandleDomainUnifiedBillingCycle(groupId, domainID, null, new List<int>() { entitlement.paymentGatewayId });
+                    //unified billing cycle updates
+                    long unifiedProcessId = ODBCWrapper.Utils.GetLongSafeVal(dr, "unified_process_id");
+                    Utils.HandleUnifiedBillingCycle(groupId, domainID, entitlement.paymentGatewayId, entitlement.endDate, entitlement.purchaseID, unifiedProcessId);
                 }
                 response.status = changeStatus;
 

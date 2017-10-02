@@ -639,7 +639,7 @@ namespace Core.Notification
                 case eAnnouncementRecipientsType.All:
 
                     // in case system announcement - the image URL is taken from the message announcement and not from template
-                    imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "imageUrl");
+                    imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "image_url");
 
                     if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {
@@ -689,7 +689,7 @@ namespace Core.Notification
                     if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {
                         // in case system announcement - the image URL is taken from the message announcement and not from template
-                        imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "imageUrl");
+                        imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "image_url");
 
                         // get topic push external id's of guests users
                         singleTopicExternalId = DAL.NotificationDal.Get_AnnouncementExternalIdByRecipients(groupId, (int)recipients);
@@ -708,7 +708,7 @@ namespace Core.Notification
                 case eAnnouncementRecipientsType.LoggedIn:
 
                     // in case system announcement - the image URL is taken from the message announcement and not from template
-                    imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "imageUrl");
+                    imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "image_url");
 
                     if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {

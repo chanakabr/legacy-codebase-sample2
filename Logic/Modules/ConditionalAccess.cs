@@ -60,7 +60,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static bool RenewUnifiedTransaction(int groupID, long householdId, int paymentgatewayId, long endDate)
+        public static bool RenewUnifiedTransaction(int groupID, long householdId, long processId, long endDate)
         {
             bool response = false;
 
@@ -70,15 +70,13 @@ namespace Core.ConditionalAccess
             // get partner implementation and group ID
             BaseConditionalAccess casImpl = null;
             Utils.GetBaseConditionalAccessImpl(ref casImpl, groupID);
-
-            string proccessId = Guid.NewGuid().ToString();
-
+            
             if (casImpl != null)
             {
                 bool shouldUpdateTaskStatus = true;
                 try
                 {
-                    response = casImpl.RenewUnifiedTransaction(householdId, paymentgatewayId, endDate, ref shouldUpdateTaskStatus, proccessId);
+                    response = casImpl.RenewUnifiedTransaction(householdId, endDate, ref shouldUpdateTaskStatus, processId);
                 }
                 catch (Exception ex)
                 {
@@ -86,10 +84,10 @@ namespace Core.ConditionalAccess
                 }
 
                 // Update subscription renewing status to "not active"
-                if (shouldUpdateTaskStatus && !casImpl.UpdateSubscriptionUnifiedRenewingStatus(proccessId, groupID))
+                if (shouldUpdateTaskStatus && !casImpl.UpdateSubscriptionUnifiedRenewingStatus(processId, groupID))
                 {
-                    log.ErrorFormat("Error while trying to update subscription renewing status to 0. proccessId: {0}, groupID: {1}",
-                                        proccessId, groupID);
+                    log.ErrorFormat("Error while trying to update subscription renewing status to 0. processId: {0}, groupID: {1}",
+                                        processId, groupID);
                 }
             }
             return response;
