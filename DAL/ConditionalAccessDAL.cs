@@ -779,7 +779,7 @@ namespace DAL
             double dPrice, string sCurrencyCode, string sCustomData, string sCountryCode, string sLanguageCode,
             string sDeviceName, long lMaxNumOfUses, long lViewLifeCycleSecs, bool bIsRecurringStatus,
             long lBillingTransactionID, long lPreviewModuleID, DateTime dtSubscriptionStartDate, DateTime dtSubscriptionEndDate,
-            DateTime dtCreateAndUpdateDate, string sConnKey, int domainID)
+            DateTime dtCreateAndUpdateDate, string sConnKey, int domainID, long processId = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
@@ -813,7 +813,10 @@ namespace DAL
             sp.AddParameter("@NotificationSent", 0);
             sp.AddParameter("@PreviewModuleID", lPreviewModuleID);
             sp.AddParameter("@domainID", domainID);
-
+            if (processId != 0)
+            {
+                sp.AddParameter("@unifiedProcessId", processId);
+            }
             return sp.ExecuteReturnValue<long>();
 
         }
@@ -1346,6 +1349,50 @@ namespace DAL
             return res;
         }
 
+        public static DataRow GetUnifiedProcessById(long processId)
+        {  
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUnifiedProcessById");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                sp.AddParameter("@Id", processId);
+
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows[0];
+                }
+            }
+            catch
+            {
+                return null;
+            }
+            return null;
+        }
+
+        public static bool UpdateUnifiedProcess(long processId, DateTime? endDate, int? processUnifiedState)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateUnifiedProcess");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                sp.AddParameter("@Id", processId);
+                if (endDate.HasValue)
+                {
+                    sp.AddParameter("@EndDate", endDate.Value);
+                }
+                if (processUnifiedState.HasValue)
+                {
+                    sp.AddParameter("@ProcessUnifiedState", processUnifiedState.Value);
+                }
+                return sp.ExecuteReturnValue<bool>();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static DataTable Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(int nSubscriptionCode, List<int> UserIDs, int nGroupID, int domainID = 0)
         {
             if (UserIDs == null)
@@ -1386,6 +1433,22 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
+        }
+
+        public static bool UpdateMPPRenewalProcessId(List<int> purchaseIds, long processId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPRenewalProcessId");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                sp.AddParameter("@ProcessId", processId);
+                sp.AddIDListParameter<int>("@PurchaseID", purchaseIds, "Id");
+                return sp.ExecuteReturnValue<bool>();
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static string Get_LicensedLinkSecretCode(long groupID)
@@ -1443,6 +1506,53 @@ namespace DAL
             }
 
             return nStreamingCoID;
+        }
+
+        public static long InsertUnifiedProcess(int groupId, int paymentGatewayId, DateTime endDate, long householdId, int processPurchasesState = 0)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertUnifiedProcess");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@paymentGatewayID", paymentGatewayId);
+                sp.AddParameter("@endDate", endDate);
+                sp.AddParameter("@householdId", householdId);
+                sp.AddParameter("@state", processPurchasesState);
+
+                return sp.ExecuteReturnValue<long>();
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static DataTable GetUnifiedProcessId(int groupId, int paymentGatewayId, DateTime endDate, long householdId, int? processPurchasesState = null)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUnifiedProcessId");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@paymentGatewayID", paymentGatewayId);
+                sp.AddParameter("@endDate", endDate);
+                sp.AddParameter("@householdId", householdId);
+                if (processPurchasesState.HasValue)
+                {
+                    sp.AddParameter("@state", processPurchasesState.Value);
+                }
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt;
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static bool Get_BasicLinkData(long mediaFileID, ref string baseUrl, ref string streamingCode, ref int streamingCompanyID, ref string fileType)
@@ -1851,8 +1961,8 @@ namespace DAL
         public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData,
             string country, string deviceName, int maxNumOfUses, int viewLifeCycle,
             bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate,
-            DateTime createAndUpdateDate, long householdId, string billingGuid, int purchaseStatus = 0, string coupon = null)
-        {
+            DateTime createAndUpdateDate, long householdId, string billingGuid, long processId, int purchaseStatus = 0, string coupon = null )
+        {           
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
 
@@ -1879,7 +1989,10 @@ namespace DAL
             sp.AddParameter("@billingGuid", billingGuid);
             sp.AddParameter("@PurchaseStatus", purchaseStatus);
             sp.AddParameter("@CouponCode", coupon);
-
+            if (processId != 0)
+            {                
+                sp.AddParameter("@unifiedProcessId", processId);
+            }
             return sp.ExecuteReturnValue<long>();
         }
 
@@ -3133,17 +3246,15 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static DataTable Get_SubscriptionPurchaseForRenewal(int groupId, long householdId, int paymentGatewayId, DateTime endDate, string proccessId)
+        public static DataTable Get_UnifiedSubscriptionPurchaseForRenewal(int groupId, long householdId,long processId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseUnifiedRenewal");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupId);
             sp.AddParameter("@HouseholdId", householdId);
-            sp.AddParameter("@PaymentGatewayId", paymentGatewayId);
-            sp.AddParameter("@EndDate", endDate);
-            sp.AddParameter("@ProccessId", proccessId);
+            sp.AddParameter("@ProcessId", processId); 
 
-            DataSet ds = sp.ExecuteDataSet();
+             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
             {
                 return ds.Tables[0];
@@ -3152,12 +3263,12 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateSubscriptionUnifiedRenewingStatus(int groupId, string proccessId, int isActive)
+        public static bool UpdateSubscriptionUnifiedRenewingStatus(int groupId, long unifiedProcessId, int isActive)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseUnifiedRenewalActiveStatus");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupId);
-            sp.AddParameter("@ProccessId", proccessId);
+            sp.AddParameter("@ProcessId", unifiedProcessId);
             sp.AddParameter("@IsActive", isActive);
 
             return sp.ExecuteReturnValue<int>() > 0;

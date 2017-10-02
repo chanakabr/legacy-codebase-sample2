@@ -786,7 +786,7 @@ namespace DAL
 
         internal static string GetDomainUnifiedBillingCycleKey(long domainId, long renewBillingCycle)
         {
-            return string.Format("unifiedBillingCycle_householdId_{0}_renewBillingCycle_{1}", domainId, renewBillingCycle);
+            return string.Format("unifiedBillingCycle_householdId_{0}_cycle_{1}", domainId, renewBillingCycle);
         }
     }
 }
