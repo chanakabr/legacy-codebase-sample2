@@ -191,7 +191,7 @@ namespace WebAPI.Controllers
             List<KalturaFavorite> favorites = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            string udid = filter.UdidEqualCurrent.HasValue && filter.UdidEqualCurrent.Value ? KSUtils.ExtractKSPayload().UDID : null;
 
             if (filter == null)
                 filter = new KalturaFavoriteFilter();

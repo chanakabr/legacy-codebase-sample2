@@ -3571,6 +3571,8 @@ namespace WebAPI.Reflection
                             return "mediaTypeIn";
                         case "UDID":
                             return "udid";
+                        case "UdidEqualCurrent":
+                            return "udidEqualCurrent";
                     }
                     break;
                     

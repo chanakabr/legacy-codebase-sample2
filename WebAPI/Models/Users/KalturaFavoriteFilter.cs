@@ -77,6 +77,15 @@ namespace WebAPI.Models.Users
         [XmlArray(ElementName = "mediaIdIn", IsNullable = true)]
         public string MediaIdIn { get; set; }
 
+        /// <summary>
+        /// Indicates whether the results should be filtered by origin UDID using the current
+        /// </summary>
+        [DataMember(Name = "udidEqualCurrent")]
+        [JsonProperty(PropertyName = "udidEqualCurrent")]
+        [XmlElement(ElementName = "udidEqualCurrent", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public bool? UdidEqualCurrent { get; set; }
+
         public override KalturaFavoriteOrderBy GetDefaultOrderByValue()
         {
             return KalturaFavoriteOrderBy.CREATE_DATE_DESC;
