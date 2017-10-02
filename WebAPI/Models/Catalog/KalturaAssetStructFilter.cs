@@ -99,7 +99,7 @@ namespace WebAPI.Models.Catalog
                     }
                     else
                     {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetStructFilter.metaIdContainsmo");
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetStructFilter.metaIdContains");
                     }
                 }
             }

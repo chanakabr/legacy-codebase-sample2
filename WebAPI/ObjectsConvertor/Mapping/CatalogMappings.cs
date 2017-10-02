@@ -6,6 +6,7 @@ using ApiObjects.Statistics;
 using AutoMapper;
 using Catalog.Response;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Response;
 using Core.Users;
 using GroupsCacheManager;
@@ -346,9 +347,50 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<AggregationResult, KalturaAssetCount>()
                 .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.count))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value))
-                .ForMember(dest => dest.SubCounts, opt => opt.MapFrom(src => src.subs))
-                ;
+                .ForMember(dest => dest.SubCounts, opt => opt.MapFrom(src => src.subs));
 
+            // AssetStruct to KalturaAssetStruct
+            Mapper.CreateMap<AssetStruct, KalturaAssetStruct>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.LanguageContainer)))
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+                .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsPredefined))
+                .ForMember(dest => dest.MetaIds, opt => opt.MapFrom(src => src.MetaIds != null ? string.Join(",", src.MetaIds) : string.Empty))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+
+            // KalturaAssetStruct to AssetStruct
+            Mapper.CreateMap<KalturaAssetStruct, AssetStruct>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+                .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
+                .ForMember(dest => dest.MetaIds, opt => opt.MapFrom(src => ConvertAssetStructMetaIdsList(src.MetaIds)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+        }
+
+        private static List<long> ConvertAssetStructMetaIdsList(string metaIds)
+        {
+            List<long> list = new List<long>();
+            if (!string.IsNullOrEmpty(metaIds))
+            {
+                string[] stringValues = metaIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
+                {
+                    long value;
+                    if (long.TryParse(stringValue, out value))
+                    {
+                        list.Add(value);
+                    }
+                    else
+                    {
+                        throw new ClientException((int)StatusCode.ArgumentMustBeNumeric, "Invalid MetaId");
+                    }
+                }
+            }
+
+            return list;
         }
 
         private static KalturaAssetGroupBy ConvertToGroupBy(SearchAggregationGroupBy searchAggregationGroupBy)
