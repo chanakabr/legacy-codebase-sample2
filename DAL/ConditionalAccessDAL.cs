@@ -1540,7 +1540,7 @@ namespace DAL
                 sp.AddParameter("@householdId", householdId);
                 if (processPurchasesState.HasValue)
                 {
-                    sp.AddParameter("@state", processPurchasesState);
+                    sp.AddParameter("@state", processPurchasesState.Value);
                 }
                 DataTable dt = sp.Execute();
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
