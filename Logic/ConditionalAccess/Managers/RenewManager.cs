@@ -1225,7 +1225,7 @@ namespace Core.ConditionalAccess
                     {
                         case eTransactionState.OK:
                             {
-                                HandleRenewUnifiedSubscriptionSuccess(cas, groupId, householdId, customData, unifiedBillingCycle, transactionResponse,
+                                HandleRenewUnifiedSubscriptionSuccess(cas, groupId, householdId, customData, ref unifiedBillingCycle, transactionResponse,
                                     currency, subscriptions, renewUnified, paymentGateway);
 
                                 successTransactions.Add(kvpRenewUnified.Key);
@@ -1416,7 +1416,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        private static bool HandleRenewUnifiedSubscriptionSuccess(BaseConditionalAccess cas, int groupId, long householdId, string customData, UnifiedBillingCycle unifiedBillingCycle,
+        private static bool HandleRenewUnifiedSubscriptionSuccess(BaseConditionalAccess cas, int groupId, long householdId, string customData, ref UnifiedBillingCycle unifiedBillingCycle,
             TransactResult transactionResponse, string currency, List<Subscription> subscriptions, List<RenewSubscriptionDetails> renewUnified,
             PaymentGateway paymentGateway)
         {
@@ -1447,6 +1447,8 @@ namespace Core.ConditionalAccess
                             if (unifiedBillingCycle.endDate < nextEndDate)
                             {                                
                                 Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, nextEndDate);
+
+                                unifiedBillingCycle.endDate = nextEndDate;
                             }
                         }
                     }
@@ -1469,16 +1471,6 @@ namespace Core.ConditionalAccess
                 {
                     log.Error("Error while trying to update MPP renew data", ex);
                     return true;
-                }
-
-                // update billing_transactions subscriptions_purchased reference  
-                if (transactionResponse.TransactionID > 0)
-                {
-                    ApiDAL.Update_PurchaseIDInBillingTransactions(transactionResponse.TransactionID, renewUnifiedData.PurchaseId);
-                }
-                else
-                {
-                    log.Error("Error while trying update billing_transactions subscriptions_purchased reference");
                 }
 
                 // update compensation use
