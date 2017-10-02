@@ -1018,7 +1018,7 @@ namespace Core.ConditionalAccess
             if (paymentgatewayId != 0 && processEndDate.HasValue) 
             {
                 // validate that this is the right message 
-                if (Math.Abs(ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(processEndDate.Value) - nextEndDate) > 60)
+                if (Math.Abs(ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(processEndDate.Value) - nextEndDate) > 60)
                 {
                     // subscription purchase wasn't found
                     log.ErrorFormat("GetProcessDetails if end date not equal - canceling unified renew task. processId: {0}, nextEndDate: {1}, data: {2}",
