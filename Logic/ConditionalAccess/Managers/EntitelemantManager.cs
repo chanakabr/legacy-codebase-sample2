@@ -368,8 +368,10 @@ namespace Core.ConditionalAccess
                     response.entitelments.Add(subscriptionEntitlement);
 
                     //unified billing cycle updates
+
                     long unifiedProcessId = ODBCWrapper.Utils.GetLongSafeVal(dr, "unified_process_id");
-                    Utils.HandleUnifiedBillingCycle(groupId, domainID, entitlement.paymentGatewayId, entitlement.endDate, entitlement.purchaseID, unifiedProcessId);
+                    DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+                    Utils.HandleUnifiedBillingCycle(groupId, domainID, entitlement.paymentGatewayId, endDate, entitlement.purchaseID, unifiedProcessId);
                 }
                 response.status = changeStatus;
 

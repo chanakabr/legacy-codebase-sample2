@@ -1453,7 +1453,7 @@ namespace Core.Billing
                 {
                     Int64.TryParse(previewModuleID, out lPreviewModuleID);
                 }
-                double dPriceToWriteToDatabase = lPreviewModuleID > 0 ? 0.0 : price;
+                double dPriceToWriteToDatabase = lPreviewModuleID > 0 ? 0.0 : rsd.Price;
 
                 int nPaymentNumberToInsertToDB =  Core.Billing.Utils.CalcPaymentNumberForBillingTransactionsDBTable(rsd.PaymentNumber, lPreviewModuleID);
 
@@ -1467,6 +1467,7 @@ namespace Core.Billing
                 lastFourDigitsNode.InnerText = string.Empty;
                 rowNode.AppendChild(lastFourDigitsNode);
                 
+                //TO FIX LIAT
                 priceNode = xmlDoc.CreateElement("price");
                 priceNode.InnerText = dPriceToWriteToDatabase.ToString();
                 rowNode.AppendChild(priceNode);
@@ -1537,9 +1538,6 @@ namespace Core.Billing
 
                 rootNode.AppendChild(rowNode);
             }
-
-           // long billingTranactionId = InsertBillingTransaction(BILLING_PROVIDER, paymentGatewayId, customData, paymentGWTransaction, billingTransactionStatus, paymentNumber);
-
         }
 
         private void GetDetailsFromCustomData(string customData, ref string PreivewEnd, ref double price, ref string currency, ref bool partialPrice)
