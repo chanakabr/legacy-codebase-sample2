@@ -1481,7 +1481,7 @@ namespace Core.Billing
                 rowNode.AppendChild(priceCodeNode);
 
                 currencyNodeCode = xmlDoc.CreateElement("currency_code");
-                currencyNodeCode.InnerText = currencyCode;
+                currencyNodeCode.InnerText = rsd.Currency;
                 rowNode.AppendChild(currencyNodeCode);
 
                 customDataNode = xmlDoc.CreateElement("custom_data");
