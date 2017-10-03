@@ -570,7 +570,7 @@ namespace Core.ConditionalAccess
 
             // update unified billing cycle for domian with next end date
             long? groupBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-            if (groupBillingCycle.HasValue)
+            if (groupBillingCycle.HasValue && (int)groupBillingCycle.Value == maxVLCOfSelectedUsageModule)
             {
                 if (unifiedBillingCycle == null)
                 {
