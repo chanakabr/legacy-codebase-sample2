@@ -56,5 +56,7 @@ namespace APILogic.ConditionalAccess.Modules
                 return eTransactionType.Subscription;
             }
         }
+
+        public long BillingTransactionId { get; set; }
     }
 }

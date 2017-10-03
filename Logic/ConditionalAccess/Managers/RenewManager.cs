@@ -1192,7 +1192,7 @@ namespace Core.ConditionalAccess
                 try
                 {
                     transactionResponse = Core.Billing.Module.ProcessUnifiedRenewal(groupId, householdId, totalPrice, currency, paymentgatewayId,
-                        paymentMethodId, userIp, renewUnified, ref paymentGateway);
+                        paymentMethodId, userIp, ref renewUnified, ref paymentGateway);
 
                     log.DebugFormat("Renew transaction returned from billing. data: {0}", logString);
 
@@ -1225,8 +1225,7 @@ namespace Core.ConditionalAccess
                     {
                         case eTransactionState.OK:
                             {
-                                HandleRenewUnifiedSubscriptionSuccess(cas, groupId, householdId, customData, ref unifiedBillingCycle, transactionResponse,
-                                    currency, subscriptions, renewUnified, paymentGateway);
+                                HandleRenewUnifiedSubscriptionSuccess(cas, groupId, householdId, customData, ref unifiedBillingCycle, currency, subscriptions, renewUnified, paymentGateway);
 
                                 successTransactions.Add(kvpRenewUnified.Key);
                             }
@@ -1390,8 +1389,8 @@ namespace Core.ConditionalAccess
         private static bool UpdateSuccessTransactions(int groupId, long householdId, long endDate, PaymentGateway paymentGateway, long processId, DateTime endDatedt, bool updateUnifiedProcess = true)
         {
             bool saved = true;
-            DateTime nextRenewalDate = endDatedt.AddMinutes(paymentGateway.RenewalStartMinutes);
-            
+            DateTime nextRenewalDate = endDatedt.AddMinutes(paymentGateway.RenewalStartMinutes);                     
+
             // insert message to queue
             Utils.RenewTransactionMessageInQueue(groupId, householdId, endDate, nextRenewalDate, processId);
 
@@ -1417,11 +1416,10 @@ namespace Core.ConditionalAccess
         }
 
         private static bool HandleRenewUnifiedSubscriptionSuccess(BaseConditionalAccess cas, int groupId, long householdId, string customData, ref UnifiedBillingCycle unifiedBillingCycle,
-            TransactResult transactionResponse, string currency, List<Subscription> subscriptions, List<RenewSubscriptionDetails> renewUnified,
+            string currency, List<Subscription> subscriptions, List<RenewSubscriptionDetails> renewUnified,
             PaymentGateway paymentGateway)
         {
-            DateTime? endDate = null;
-            int maxVLCOfSelectedUsageModule = 0;
+            DateTime? endDate = null;            
 
             Subscription subscription = null;
 
@@ -1429,12 +1427,10 @@ namespace Core.ConditionalAccess
             {
                 if (!endDate.HasValue)
                 {
-                    maxVLCOfSelectedUsageModule = renewUnifiedData.MaxVLCOfSelectedUsageModule;
-
-                    endDate = Utils.GetEndDateTime(renewUnifiedData.EndDate.Value, maxVLCOfSelectedUsageModule);
+                    endDate = Utils.GetEndDateTime(renewUnifiedData.EndDate.Value, renewUnifiedData.MaxVLCOfSelectedUsageModule);
                     DateTime ubcDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
 
-                    if (ubcDate < renewUnifiedData.EndDate)
+                    if (ubcDate < endDate)
                     {
                         log.DebugFormat("going to update UnifiedBillingCycle. current date = {0}, new Date = {1}", unifiedBillingCycle.endDate.ToString(), endDate.Value);
 
@@ -1446,7 +1442,7 @@ namespace Core.ConditionalAccess
 
                             if (unifiedBillingCycle.endDate < nextEndDate)
                             {                                
-                                Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, nextEndDate);
+                                Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, nextEndDate);                                
 
                                 unifiedBillingCycle.endDate = nextEndDate;
                             }
@@ -1465,7 +1461,7 @@ namespace Core.ConditionalAccess
                         renewUnifiedData.Price,                               // {1}
                         currency,                                             // {2}
                         renewUnifiedData.PurchaseId,                          // {3}
-                        transactionResponse.TransactionID));                  // {4}
+                        renewUnifiedData.BillingTransactionId));                  // {4}
                 }
                 catch (Exception ex)
                 {
@@ -1476,15 +1472,15 @@ namespace Core.ConditionalAccess
                 // update compensation use
                 if (renewUnifiedData.Compensation != null)
                 {
-                    if (!ConditionalAccessDAL.UpdateSubscriptionCompensationUse(renewUnifiedData.Compensation.Id, transactionResponse.TransactionID, renewUnifiedData.Compensation.Renewals + 1))
+                    if (!ConditionalAccessDAL.UpdateSubscriptionCompensationUse(renewUnifiedData.Compensation.Id, renewUnifiedData.BillingTransactionId, renewUnifiedData.Compensation.Renewals + 1))
                         log.ErrorFormat("Failed to update subscription compensation use. compensationId = {0}, billingTransactionId = {1}, renewalNumber = {2}",
-                            renewUnifiedData.Compensation.Id, transactionResponse.TransactionID, renewUnifiedData.Compensation.Renewals + 1);
+                            renewUnifiedData.Compensation.Id, renewUnifiedData.BillingTransactionId, renewUnifiedData.Compensation.Renewals + 1);
                 }
 
                 // message for PS use
                 Dictionary<string, object> psMessage = new Dictionary<string, object>()
                                         {
-                                            {"BillingTransactionID", transactionResponse.TransactionID},
+                                            {"BillingTransactionID", renewUnifiedData.BillingTransactionId},
                                             {"SiteGUID", renewUnifiedData.UserId},
                                             {"PaymentNumber", renewUnifiedData.PaymentNumber},
                                             {"TotalPaymentsNumber", renewUnifiedData.TotalNumOfPayments},
@@ -1496,29 +1492,6 @@ namespace Core.ConditionalAccess
 
                 cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, psMessage);
             }
-
-            //try
-            //{
-            //    string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(householdId);
-            //    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-            //    {
-            //        log.ErrorFormat("Failed to set invalidation key on Renew key = {0}", invalidationKey);
-            //    }
-                
-            //    DateTime nextRenewalDate = endDate.Value.AddMinutes(paymentGateway.RenewalStartMinutes);
-
-            //    // enqueue unified renew transaction
-            //    Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
-
-            //    // update process id with endDate.Value and always leave one process id for renew !!!! 
-
-            //    log.DebugFormat("Successfully renewed. household: {0}, groupId: {1}, endDate: {2}, currency: {3}",
-            //        householdId, groupId, endDate, currency);
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.Error("Error while trying to get the PG", ex);
-            //}
 
             return true;
         }

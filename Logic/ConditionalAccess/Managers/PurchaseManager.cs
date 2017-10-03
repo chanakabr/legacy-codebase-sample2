@@ -1216,7 +1216,7 @@ namespace Core.ConditionalAccess
 
                                                     if (!entitleToPreview)
                                                     {
-                                                        Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, ref unifiedBillingCycle, endDate.Value);
+                                                        Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, ref unifiedBillingCycle, endDate.Value);
                                                     }
                                                 }
 

@@ -1049,7 +1049,7 @@ namespace Core.Billing
         }
 
         public virtual TransactResult ProcessUnifiedRenewal(long householdId, double totalPrice, string currency, int paymentGatewayId, 
-            int paymentMethodId, string userIp,List<RenewSubscriptionDetails> renewUnified, ref PaymentGateway paymentGateway)
+            int paymentMethodId, string userIp, ref List<RenewSubscriptionDetails> renewUnified, ref PaymentGateway paymentGateway)
         {
             TransactResult transactionResponse = new TransactResult();
                          
@@ -1102,7 +1102,7 @@ namespace Core.Billing
                 log.DebugFormat("paymentGatewayId: {0}, householdId: {1}, isPaymentGWHouseholdExist: {2}, chargeID: {3}",
                     paymentGatewayId, householdId, isPaymentGatewayHouseholdExist, !string.IsNullOrEmpty(chargeId) ? chargeId : string.Empty);
                                 
-               transactionResponse = SendUnifiedRenewalRequestToAdapter(chargeId, totalPrice, currency, householdId, paymentGateway, paymentMethodExternalId, paymentMethodId, userIp, renewUnified);
+               transactionResponse = SendUnifiedRenewalRequestToAdapter(chargeId, totalPrice, currency, householdId, paymentGateway, paymentMethodExternalId, paymentMethodId, userIp, ref renewUnified);
 
                 /*
                 If will need - mail will be sent HERE
@@ -1122,7 +1122,7 @@ namespace Core.Billing
         }
 
         private TransactResult SendUnifiedRenewalRequestToAdapter(string chargeId, double totalPrice, string currency, long householdId, PaymentGateway paymentGateway, string paymentMethodExternalId, 
-            int paymentMethodId, string userIP, List<RenewSubscriptionDetails> renewUnified)
+            int paymentMethodId, string userIP, ref List<RenewSubscriptionDetails> renewUnified)
         {
             TransactResult response = new TransactResult();
 
@@ -1193,7 +1193,7 @@ namespace Core.Billing
                                 log.Debug("process renewal passed - create transaction");
 
                                 int paymentGatewayTransactionId = CreateUnifiedTransaction(ref response, adapterResponse, eTransactionType.Subscription,
-                                     paymentGateway.ID, paymentMethodId, householdId, BILLING_TRANSACTION_SUCCESS_STATUS, renewUnified);
+                                     paymentGateway.ID, paymentMethodId, householdId, BILLING_TRANSACTION_SUCCESS_STATUS, ref renewUnified);
                                
                                     if (paymentGatewayTransactionId > 0 && response != null && response.Status.Code != (int)eResponseStatus.OK)
                                     {
@@ -1226,14 +1226,10 @@ namespace Core.Billing
 
                                 break;
 
-                            case (int)eTransactionState.Failed:
-
-                                // process renewal failed
-                                log.Error("process renewal failed");
-                                // to change to one transaction !!!! 
+                            case (int)eTransactionState.Failed:                                
+                                log.Error("process unified renewal failed");                                
                                 foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
                                 {
-
                                     HandleAdapterTransactionFailed(ref response, adapterResponse, int.Parse(renewUnifiedData.ProductId), eTransactionType.Subscription, renewUnifiedData.BillingGuid, 0, paymentGateway.ID, householdId, 
                                         long.Parse(renewUnifiedData.UserId), renewUnifiedData.CustomData, renewUnifiedData.PaymentNumber);
                                 }
@@ -1289,7 +1285,7 @@ namespace Core.Billing
         }
 
         private int CreateUnifiedTransaction(ref TransactResult response, APILogic.PaymentGWAdapter.TransactionResponse adapterResponse, ApiObjects.eTransactionType transactionType, 
-            int paymentGatewayId, int paymenMethodId, long householdId, int billingTransactionStatus, List<RenewSubscriptionDetails> renewUnified)
+            int paymentGatewayId, int paymenMethodId, long householdId, int billingTransactionStatus, ref List<RenewSubscriptionDetails> renewUnified)
         {
             PaymentGatewayTransaction paymentGWTransaction = new PaymentGatewayTransaction();
 
@@ -1307,7 +1303,7 @@ namespace Core.Billing
             {
                 paymentGWTransaction = SaveUnifiedTransaction(ref response, adapterResponse.Transaction.PGTransactionID, adapterResponse.Transaction.PGStatus, 0,
                     adapterResponse.Transaction.PGMessage, adapterResponse.Transaction.StateCode, paymentGatewayId, paymenMethodId, adapterResponse.Transaction.FailReasonCode, adapterResponse.Transaction.PaymentMethod,
-                    adapterResponse.Transaction.PaymentDetails, householdId, renewUnified, billingTransactionStatus,
+                    adapterResponse.Transaction.PaymentDetails, householdId, ref renewUnified, billingTransactionStatus,
                     adapterResponse.Transaction.StartDateSeconds, adapterResponse.Transaction.EndDateSeconds, adapterResponse.Transaction.AutoRenewing);
             }
 
@@ -1315,7 +1311,7 @@ namespace Core.Billing
         }
 
         private PaymentGatewayTransaction SaveUnifiedTransaction(ref TransactResult response, string externalTransactionId, string externalStatus, int contentId, string message, int state, int paymentGatewayId, int paymenMethodId, int failReason, 
-            string paymentMethod, string paymentDetails, long householdId, List<RenewSubscriptionDetails> renewUnified , int billingTransactionStatus = BILLING_TRANSACTION_SUCCESS_STATUS, long startDateSeconds = 0, long endDateSeconds = 0 , 
+            string paymentMethod, string paymentDetails, long householdId, ref List<RenewSubscriptionDetails> renewUnified , int billingTransactionStatus = BILLING_TRANSACTION_SUCCESS_STATUS, long startDateSeconds = 0, long endDateSeconds = 0 , 
             bool autoRenewing = false)
         {
 
@@ -1358,11 +1354,11 @@ namespace Core.Billing
                 XmlDocument xmlDoc = new XmlDocument();
                 
                 BuildBillingTransactionXml(renewUnified, ref xmlDoc);
-                
-                // InsertBillingTransaction
-                List<long> billingTranactionIds = Core.Billing.Utils.InsertBillingTransaction(BILLING_PROVIDER, paymentGatewayId, xmlDoc.InnerXml.ToString(), paymentGWTransaction, billingTransactionStatus, groupID);
 
-                if (billingTranactionIds == null || billingTranactionIds.Count == 0 || billingTranactionIds.Where(x=>x < 1).Count() > 0)
+                // InsertBillingTransaction
+                Dictionary<long, long> billingTranactionIds = Core.Billing.Utils.InsertBillingTransaction(BILLING_PROVIDER, paymentGatewayId, xmlDoc.InnerXml.ToString(), paymentGWTransaction, billingTransactionStatus, groupID);
+
+                if (billingTranactionIds == null || billingTranactionIds.Count == 0 || billingTranactionIds.Where(x=> x.Key < 1).Count() > 0)
                 {
                     // create billing transaction failed
                     response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
@@ -1372,7 +1368,14 @@ namespace Core.Billing
                 {
                     // create billing transaction passed
                     response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
-                    //response.TransactionID = billingTranactionId;
+                    // update renew Subscription Details with the billingTransactionId
+                    foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
+                    {
+                        if (billingTranactionIds.ContainsKey(renewUnifiedData.PurchaseId))
+                        {
+                            renewUnifiedData.BillingTransactionId = billingTranactionIds[renewUnifiedData.PurchaseId];
+                        }
+                    }                        
                 }
             }
             else
