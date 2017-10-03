@@ -1687,7 +1687,7 @@ namespace DAL
             return newRule;
         }
 
-        public static List<long> Insert_NewBillingTransactions(int billingProvider, int billingProcessor, int paymentGatewayId, string xml, int billingProviderReferance, int billingTransactionStatus, int groupId)
+        public static Dictionary<long, long> Insert_NewBillingTransactions(int billingProvider, int billingProcessor, int paymentGatewayId, string xml, int billingProviderReferance, int billingTransactionStatus, int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertNewBillingTransactions");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -1707,9 +1707,9 @@ namespace DAL
             DataTable dt = sp.Execute();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                return dt.AsEnumerable().Select(x => x.Field<long>("ID")).ToList();
+                return dt.AsEnumerable().ToDictionary(x => x.Field<long>("PURCHASE_ID"), x => x.Field<long>("ID"));
             }
-            return new List<long>();
+            return new Dictionary<long, long>();
         }
 
         public static List<ParentalRule> Get_Domain_ParentalRules(int groupId, int domainId)
