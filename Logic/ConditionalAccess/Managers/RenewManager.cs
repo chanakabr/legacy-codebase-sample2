@@ -1442,7 +1442,7 @@ namespace Core.ConditionalAccess
 
                             if (unifiedBillingCycle.endDate < nextEndDate)
                             {                                
-                                Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, nextEndDate);                                
+                                Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, renewUnifiedData.MaxVLCOfSelectedUsageModule, nextEndDate);                                
 
                                 unifiedBillingCycle.endDate = nextEndDate;
                             }
