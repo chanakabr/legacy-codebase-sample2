@@ -3152,5 +3152,33 @@ namespace Core.ConditionalAccess
            
             return response;
         }
+
+        public static Status SuspendPaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.SuspendPaymentGatewayEntitlements(householdId, paymentGatewayId);
+            }
+
+            return response;
+        }
+
+        public static Status ResumePaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.ResumePaymentGatewayEntitlements(householdId, paymentGatewayId);
+            }
+
+            return response;
+        }
     }
 }

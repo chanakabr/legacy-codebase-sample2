@@ -1496,7 +1496,7 @@ namespace Core.ConditionalAccess
             return true;
         }
 
-        private static bool HandleRenewUnifiedSubscriptionPending(int groupId, long householdId, DateTime endDate, int renewalIntervalMinutes, long processID)
+        public static bool HandleRenewUnifiedSubscriptionPending(int groupId, long householdId, DateTime endDate, int renewalIntervalMinutes, long processID)
         {
             try
             {

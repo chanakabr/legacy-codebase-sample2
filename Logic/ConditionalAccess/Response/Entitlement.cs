@@ -53,6 +53,7 @@ namespace Core.ConditionalAccess.Response
         public int paymentMethodId { get; set; } // subscription only
         public bool IsInGracePeriod { get; set; } // subscription only
         public long? ScheduledSubscriptionId { get; set; } // subscription only
+        public bool IsSuspended { get; set; } // subscription only
 
         public Int32 mediaFileID; // ppv only
         public int mediaID { get; set; } // ppv only

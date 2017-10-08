@@ -636,6 +636,8 @@ namespace Core.ConditionalAccess
                 entitlement.ScheduledSubscriptionId = purchaseIdToScheduledSubscriptionId[entitlement.purchaseID];
             }
 
+            entitlement.IsSuspended = ODBCWrapper.Utils.GetIntSafeVal(dataRow["subscription_status"]) == (int)SubscriptionPurchaseStatus.Suspended;
+
             return entitlement;
         }
 
