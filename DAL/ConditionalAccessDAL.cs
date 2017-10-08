@@ -3273,5 +3273,28 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
+
+        public static DataTable GetUnifiedProcessIdByHouseholdPaymentGateway(int groupId, long paymentGatewayId, long householdId)
+        {
+            long proccessId = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUnifiedProcessIdByHouseholdPaymentGateway");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@paymentGatewayId", paymentGatewayId);
+            sp.AddParameter("@householdId", householdId);
+
+            return sp.Execute();
+        }
+
+        public static bool SetSubscriptionPurchaseStatusByUnifiedProccessId(int groupId, long unifiedProccessId, SubscriptionPurchaseStatus subscriptionPurchseStatus)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetSubscriptionPurchaseStatusByUnifiedProccessId");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@unifiedProccessId", unifiedProccessId);
+            sp.AddParameter("@subscriptionPurchseStatus", (int)subscriptionPurchseStatus);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
     }
 }
