@@ -5937,6 +5937,8 @@ namespace WebAPI.Reflection
                             return "isRenewable";
                         case "IsRenewableForPurchase":
                             return "isRenewableForPurchase";
+                        case "IsSuspended":
+                            return "isSuspended";
                         case "NextRenewalDate":
                             return "nextRenewalDate";
                         case "PaymentGatewayId":

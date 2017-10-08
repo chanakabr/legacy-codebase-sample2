@@ -992,9 +992,6 @@ namespace WebAPI.Clients
         {
             Status status = null;
 
-            // get group ID
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

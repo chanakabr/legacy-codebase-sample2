@@ -2104,6 +2104,11 @@
             Scheduled Subscription Identifier
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsSuspended">
+            <summary>
+            Indicates if the subscription suspended
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.DMS.KalturaConfigurations.Id">
             <summary>
             Configuration id
@@ -2585,6 +2590,18 @@
             Possible status codes:       
             PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
             </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentGatewayController.Suspend(System.Int32)">
+            <summary>
+            Suspends all the entitlements of the given payment gateway
+            </summary>
+            <param name="paymentGatewayId">Payment gateway ID</param>                
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentGatewayController.Resume(System.Int32)">
+            <summary>
+            Resumes all the entitlements of the given payment gateway
+            </summary>
+            <param name="paymentGatewayId">Payment gateway ID</param>                
         </member>
         <member name="M:WebAPI.Controllers.ProductPriceController.List(WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter)">
             <summary>
@@ -9802,7 +9819,7 @@
         <member name="P:WebAPI.Models.Social.KalturaSocial.Status">
             <summary>
             User model status
-            Possible values: UNKNOWN, OK, ERROR, NOACTION, NOTEXIST, CONFLICT, MERGE, MERGEOK, NEWUSER, MINFRIENDS, INVITEOK, INVITEERROR, ACCESSDENIED, WRONGPASSWORDORUSERNAME, UNMERGEOK
+            Possible values: UNKNOWN, OK, ERROR, NOACTION, NOTEXIST, CONFLICT, MERGE, MERGEOK, NEWUSER, MINFRIENDS, INVITEOK, INVITEERROR, ACCESSDENIED, WRONGPASSWORDORUSERNAME, UNMERGEOK, USEREMAILISMISSING
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocial.PictureUrl">

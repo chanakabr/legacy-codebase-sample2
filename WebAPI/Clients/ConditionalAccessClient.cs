@@ -2306,5 +2306,63 @@ namespace WebAPI.Clients
 
             return kalturaAdsContext;
         }
+
+        internal void SuspendPaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.SuspendPaymentGatewayEntitlements(groupId, householdId, paymentGatewayId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)eResponseStatus.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+        }
+
+        internal void ResumePaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.ResumePaymentGatewayEntitlements(groupId, householdId, paymentGatewayId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)eResponseStatus.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+        }
     }
 }

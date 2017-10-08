@@ -250,5 +250,55 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Suspends all the entitlements of the given payment gateway
+        /// </summary>
+        /// <param name="paymentGatewayId">Payment gateway ID</param>                
+        [Route("suspend"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        public void Suspend(int paymentGatewayId)
+        {
+            Models.Billing.KalturaPaymentGatewayConfiguration response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                ClientsManager.ConditionalAccessClient().SuspendPaymentGatewayEntitlements(groupId, householdId, paymentGatewayId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Resumes all the entitlements of the given payment gateway
+        /// </summary>
+        /// <param name="paymentGatewayId">Payment gateway ID</param>                
+        [Route("resume"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        public void Resume(int paymentGatewayId)
+        {
+            Models.Billing.KalturaPaymentGatewayConfiguration response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                ClientsManager.ConditionalAccessClient().ResumePaymentGatewayEntitlements(groupId, householdId, paymentGatewayId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
     }
 }
