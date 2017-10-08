@@ -1226,7 +1226,6 @@ namespace Core.ConditionalAccess
                         case eTransactionState.OK:
                             {
                                 HandleRenewUnifiedSubscriptionSuccess(cas, groupId, householdId, customData, ref unifiedBillingCycle, currency, subscriptions, renewUnified, paymentGateway);
-
                                 successTransactions.Add(kvpRenewUnified.Key);
                             }
                             break;
@@ -1263,15 +1262,28 @@ namespace Core.ConditionalAccess
 
             if (successTransactions.Count != 0 || pendingTransactions.Count != 0)
             {
-                UpdateNextUnifiedCycle(groupId, householdId, unifiedBillingCycle.endDate, paymentGateway, processId, processState, successTransactions, pendingTransactions, renewUnifiedDict);
+                DateTime? successTransactionsEndDate = null;
+                DateTime? pendingTransactionsEndDate = null;
+
+                if (successTransactions.Count > 0)
+                {
+                    successTransactionsEndDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
+                }
+
+                if (pendingTransactions.Count > 0)
+                {
+                    pendingTransactionsEndDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(nextEndDate);
+                }
+
+                UpdateNextUnifiedCycle(groupId, householdId, paymentGateway, processId, processState, successTransactions, pendingTransactions, renewUnifiedDict, successTransactionsEndDate, pendingTransactionsEndDate);
             }
 
             return true; // no need to retry renew 
         }
 
 
-        private static void UpdateNextUnifiedCycle(int groupId, long householdId, long endDate, PaymentGateway paymentGateway, long processId, ProcessUnifiedState processState,
-            List<string> successTransactions, List<string> pendingTransactions, Dictionary<string, List<RenewSubscriptionDetails>> renewUnifiedDict)
+        private static void UpdateNextUnifiedCycle(int groupId, long householdId, PaymentGateway paymentGateway, long processId, ProcessUnifiedState processState,
+            List<string> successTransactions, List<string> pendingTransactions, Dictionary<string, List<RenewSubscriptionDetails>> renewUnifiedDict, DateTime? successTransactionsEndDate, DateTime? pendingTransactionsEndDate)
         {
             // insert right messages + update db
             try
@@ -1285,7 +1297,6 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                DateTime endDatedt = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(endDate);
                 bool saved = false;
 
                 switch (processState) // original state of this process
@@ -1295,14 +1306,14 @@ namespace Core.ConditionalAccess
                             if (successTransactions.Count > 0)// some success
                             {
                                 // update the success ones
-                                saved = UpdateSuccessTransactions(groupId, householdId, endDate, paymentGateway, processId, endDatedt);
+                                saved = UpdateSuccessTransactions(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(successTransactionsEndDate.Value), paymentGateway, processId, successTransactionsEndDate.Value);
 
                                 // update the pandings 
                                 if (pendingTransactions.Count > 0) // some are pending this renew process
                                 {
                                     // get from db process for this with Pending State if exsits
                                     bool isNew = false;
-                                    long pendingProcessId = Utils.GetUnifiedProcessId(groupId, paymentGateway.ID, endDatedt, householdId, out isNew, ProcessUnifiedState.Pending);
+                                    long pendingProcessId = Utils.GetUnifiedProcessId(groupId, paymentGateway.ID, pendingTransactionsEndDate.Value, householdId, out isNew, ProcessUnifiedState.Pending);
                                     if (pendingProcessId > 0)
                                     {
                                         // update subscription purchases table with process id
@@ -1311,7 +1322,7 @@ namespace Core.ConditionalAccess
 
                                         if (isNew)
                                         {
-                                            HandleRenewUnifiedSubscriptionPending(groupId, householdId, endDatedt, paymentGateway.RenewalIntervalMinutes, pendingProcessId);
+                                            HandleRenewUnifiedSubscriptionPending(groupId, householdId, pendingTransactionsEndDate.Value, paymentGateway.RenewalIntervalMinutes, pendingProcessId);
                                         }
                                     }
                                 }
@@ -1320,8 +1331,9 @@ namespace Core.ConditionalAccess
                             {
                                 // update original state of this process to be Pending
                                 saved = ConditionalAccessDAL.UpdateUnifiedProcess(processId, null, (int)ProcessUnifiedState.Pending);
+                                
                                 // insert message to queue
-                                HandleRenewUnifiedSubscriptionPending(groupId, householdId, endDatedt, paymentGateway.RenewalIntervalMinutes, processId);
+                                HandleRenewUnifiedSubscriptionPending(groupId, householdId, pendingTransactionsEndDate.Value, paymentGateway.RenewalIntervalMinutes, processId);
                             }
                         }
                         break;
@@ -1330,13 +1342,13 @@ namespace Core.ConditionalAccess
                             if (pendingTransactions.Count > 0) // some still in pending status 
                             {
                                 // insert message to queue
-                                HandleRenewUnifiedSubscriptionPending(groupId, householdId, endDatedt, paymentGateway.RenewalIntervalMinutes, processId);
+                                HandleRenewUnifiedSubscriptionPending(groupId, householdId, pendingTransactionsEndDate.Value, paymentGateway.RenewalIntervalMinutes, processId);
 
                                 // update the pandings success
                                 if (successTransactions.Count > 0) // some are success this renew process
                                 {
                                     bool isNew = false;
-                                    long renewProcessId = Utils.GetUnifiedProcessId(groupId, paymentGateway.ID, endDatedt, householdId, out isNew, ProcessUnifiedState.Renew);
+                                    long renewProcessId = Utils.GetUnifiedProcessId(groupId, paymentGateway.ID, successTransactionsEndDate.Value, householdId, out isNew, ProcessUnifiedState.Renew);
                                     if (renewProcessId > 0)
                                     {
                                         // update subscription purchases table with process id
@@ -1345,7 +1357,7 @@ namespace Core.ConditionalAccess
 
                                         if (isNew)
                                         {
-                                            UpdateSuccessTransactions(groupId, householdId, endDate, paymentGateway, processId, endDatedt, false);
+                                            UpdateSuccessTransactions(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(successTransactionsEndDate.Value), paymentGateway, processId, successTransactionsEndDate.Value, false);
                                         }
                                     }
                                 }
@@ -1353,8 +1365,8 @@ namespace Core.ConditionalAccess
                             else // all success
                             {
                                 long successProcessId = 0;
-                                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGateway.ID, endDatedt, householdId, (int)ProcessUnifiedState.Renew);
-                                if (dt!= null && dt.Rows != null && dt.Rows.Count > 0)
+                                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGateway.ID, successTransactionsEndDate.Value, householdId, (int)ProcessUnifiedState.Renew);
+                                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                                 {
                                     successProcessId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "id");
                                 }
@@ -1366,10 +1378,9 @@ namespace Core.ConditionalAccess
                                     List<int> purchaseIds = (renewUnifiedDict.Where(x => successTransactions.Contains(x.Key)).SelectMany(x => x.Value).ToList()).Select(y => (int)y.PurchaseId).ToList();
                                     saved = ConditionalAccessDAL.UpdateMPPRenewalProcessId(purchaseIds, successProcessId);
                                 }
-
                                 else // sucess process not exsits (use pendding process exsits in DB)
                                 {
-                                    UpdateSuccessTransactions(groupId, householdId, endDate, paymentGateway, processId, endDatedt);
+                                    UpdateSuccessTransactions(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(successTransactionsEndDate.Value), paymentGateway, processId, successTransactionsEndDate.Value);
                                 }
                             }
                         }
@@ -1377,8 +1388,6 @@ namespace Core.ConditionalAccess
                     default:
                         break;
                 }
-                log.DebugFormat("UpdateNextUnifiedCycle. household: {0}, groupId: {1}, endDate: {2}, processId: {3}",
-                    householdId, groupId, endDate, processId);
             }
             catch (Exception ex)
             {
