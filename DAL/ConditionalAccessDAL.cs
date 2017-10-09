@@ -3263,13 +3263,12 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateSubscriptionUnifiedRenewingStatus(int groupId, long unifiedProcessId, int isActive)
+        public static bool UpdateSubscriptionUnifiedRenewingStatus(int groupId, List<long> purchasesIds)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseUnifiedRenewalActiveStatus");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupId);
-            sp.AddParameter("@ProcessId", unifiedProcessId);
-            sp.AddParameter("@IsActive", isActive);
+            sp.AddIDListParameter<long>("@purchasesIds", purchasesIds, "ID");
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
