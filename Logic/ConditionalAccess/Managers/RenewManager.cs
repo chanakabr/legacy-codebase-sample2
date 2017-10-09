@@ -1509,16 +1509,10 @@ namespace Core.ConditionalAccess
         {
             try
             {
-                string logString = string.Format("groupId={0}, householdId= {1}, processID={2}", groupId, householdId, processID);               
-
-                log.DebugFormat("Transaction unified renew pending. data: {0}", logString);
-                
                 DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(renewalIntervalMinutes);
-
+                
                 // enqueue unified renew transaction
                 Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate), nextRenewalDate, processID);
-
-                log.DebugFormat("pending unified renew returned. groupId: {0}, householdId: {1}, processID: {2}", groupId, householdId, processID);                
             }
             catch (Exception ex)
             {
