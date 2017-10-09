@@ -1338,6 +1338,8 @@ namespace Core.ConditionalAccess
                     rsd.ExternalTransactionId = ODBCWrapper.Utils.ExtractString(dr, "external_transaction_id");
                     rsd.TotalNumOfPayments = ODBCWrapper.Utils.ExtractInteger(dr, "total_number_of_payments");
 
+                    rsd.SubscriptionStatus = (SubscriptionPurchaseStatus)ODBCWrapper.Utils.ExtractInteger(dr, "subscription_status");
+
                     numOfPayments = ODBCWrapper.Utils.ExtractInteger(dr, "number_of_payments");
                     paymentNumber = ODBCWrapper.Utils.ExtractInteger(dr, "payment_number");
 

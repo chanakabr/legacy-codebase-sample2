@@ -1437,7 +1437,15 @@ namespace Core.ConditionalAccess
             {
                 if (!endDate.HasValue)
                 {
-                    endDate = Utils.GetEndDateTime(renewUnifiedData.EndDate.Value, renewUnifiedData.MaxVLCOfSelectedUsageModule);
+                    if (renewUnifiedData.SubscriptionStatus == SubscriptionPurchaseStatus.Suspended && renewUnifiedData.EndDate.Value < DateTime.UtcNow)
+                    {
+                        endDate = Utils.GetEndDateTime(DateTime.UtcNow, renewUnifiedData.MaxVLCOfSelectedUsageModule);
+                    }
+                    else
+                    {
+                        endDate = Utils.GetEndDateTime(renewUnifiedData.EndDate.Value, renewUnifiedData.MaxVLCOfSelectedUsageModule);
+                    }
+
                     DateTime ubcDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
 
                     if (ubcDate < endDate)
@@ -1465,7 +1473,7 @@ namespace Core.ConditionalAccess
                 // update MPP renew data
                 try
                 {
-                    ConditionalAccessDAL.Update_MPPRenewalData(renewUnifiedData.PurchaseId, true, endDate.Value, 0, "CA_CONNECTION_STRING", renewUnifiedData.UserId);
+                    ConditionalAccessDAL.Update_MPPRenewalData(renewUnifiedData.PurchaseId, true, endDate.Value, 0, "CA_CONNECTION_STRING", renewUnifiedData.UserId, (int)SubscriptionPurchaseStatus.OK);
                     cas.WriteToUserLog(renewUnifiedData.UserId, string.Format("Successfully renewed. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}, Billing Transition ID: {4}",
                         renewUnifiedData.ProductId,                           // {0}
                         renewUnifiedData.Price,                               // {1}
