@@ -973,7 +973,7 @@ namespace Core.ConditionalAccess
         }
 
         public static bool RenewUnifiedTransaction(BaseConditionalAccess cas, int groupId, long householdId, long nextEndDate,
-            ref bool shouldUpdateTaskStatus, long processId)
+            long processId, ref List<long> purchasesIds)
         {
             // log request
             string logString = string.Format("RenewUnifiedTransaction: householdId {0}, processId {1}, endDateLong {2}", householdId, processId,  nextEndDate);
@@ -1044,7 +1044,6 @@ namespace Core.ConditionalAccess
             {
                 // subscription purchase wasn't found
                 log.ErrorFormat("problem getting the subscription purchase. householdId : {0}, data: {1}", householdId, logString);
-                shouldUpdateTaskStatus = false;
                 return false; // retry
             }
 
@@ -1054,6 +1053,8 @@ namespace Core.ConditionalAccess
                 log.DebugFormat("RenewUnifiedTransaction fail due to no addon subscriptions for householdid = {0} and paymentgatewayid = { 1 }", householdId, paymentgatewayId);
                 return true;
             }
+
+            purchasesIds = renewSubscriptioDetails.Select(s => s.PurchaseId).ToList();
 
             #endregion
 

@@ -11831,9 +11831,9 @@ namespace Core.ConditionalAccess
 			return RenewManager.Renew(this, this.m_nGroupID, siteguid, purchaseId, billingGuid, nextEndDate, ref shouldUpdateTaskStatus);
 		}
 
-        public bool RenewUnifiedTransaction(long householdId, long nextEndDate, ref bool shouldUpdateTaskStatus, long processId)
+        public bool RenewUnifiedTransaction(long householdId, long nextEndDate, long processId, ref List<long> purchasesIds)
         {
-            return RenewManager.RenewUnifiedTransaction(this, this.m_nGroupID, householdId, nextEndDate, ref shouldUpdateTaskStatus, processId);
+            return RenewManager.RenewUnifiedTransaction(this, this.m_nGroupID, householdId, nextEndDate, processId, ref purchasesIds);
         }
 
         public bool UpdateSubscriptionRenewingStatus(long purchaseId, string billingGuid, bool isActive)
@@ -11841,9 +11841,9 @@ namespace Core.ConditionalAccess
 			return ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalActiveStatus(m_nGroupID, purchaseId, billingGuid, Convert.ToInt16(isActive));
 		}
 
-        public bool UpdateSubscriptionUnifiedRenewingStatus(long unifiedProcessId, int groupId, bool isActive = false)
+        public bool UpdateSubscriptionUnifiedRenewingStatus(int groupId, List<long> purchasesIds)
         {
-            return ConditionalAccessDAL.UpdateSubscriptionUnifiedRenewingStatus(groupId, unifiedProcessId, Convert.ToInt16(isActive));
+            return ConditionalAccessDAL.UpdateSubscriptionUnifiedRenewingStatus(groupId, purchasesIds);
         }
 
         public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid,

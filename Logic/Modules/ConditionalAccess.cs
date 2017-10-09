@@ -73,10 +73,10 @@ namespace Core.ConditionalAccess
             
             if (casImpl != null)
             {
-                bool shouldUpdateTaskStatus = true;
+                List<long> purchasesIds = new List<long>();
                 try
                 {
-                    response = casImpl.RenewUnifiedTransaction(householdId, endDate, ref shouldUpdateTaskStatus, processId);
+                    response = casImpl.RenewUnifiedTransaction(householdId, endDate, processId, ref purchasesIds);
                 }
                 catch (Exception ex)
                 {
@@ -84,7 +84,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // Update subscription renewing status to "not active"
-                if (shouldUpdateTaskStatus && !casImpl.UpdateSubscriptionUnifiedRenewingStatus(processId, groupID))
+                if (purchasesIds != null && purchasesIds.Count > 0 && !casImpl.UpdateSubscriptionUnifiedRenewingStatus(groupID, purchasesIds))
                 {
                     log.ErrorFormat("Error while trying to update subscription renewing status to 0. processId: {0}, groupID: {1}",
                                         processId, groupID);
