@@ -1455,6 +1455,7 @@ namespace DAL
             }
         }
 
+
         public static string Get_LicensedLinkSecretCode(long groupID)
         {
             StoredProcedure sp = new StoredProcedure("Get_LicensedLinkSecretCode");
@@ -3279,7 +3280,6 @@ namespace DAL
 
         public static DataTable GetUnifiedProcessIdByHouseholdPaymentGateway(int groupId, long paymentGatewayId, long householdId)
         {
-            long proccessId = 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUnifiedProcessIdByHouseholdPaymentGateway");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
@@ -3289,13 +3289,16 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static bool SetSubscriptionPurchaseStatusByUnifiedProccessId(int groupId, long unifiedProccessId, SubscriptionPurchaseStatus subscriptionPurchseStatus)
+        public static bool SetSubscriptionPurchaseStatusByUnifiedProccessId(int groupId, long unifiedProccessId, SubscriptionPurchaseStatus subscriptionPurchseStatus, int paymentGatewayId, long householdId, PaymentGatewayStatus isSuspend)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetSubscriptionPurchaseStatusByUnifiedProccessId");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@unifiedProccessId", unifiedProccessId);
             sp.AddParameter("@subscriptionPurchseStatus", (int)subscriptionPurchseStatus);
+            sp.AddParameter("@paymentGatewayId", paymentGatewayId);
+            sp.AddParameter("@householdId", householdId);
+            sp.AddParameter("@isSuspend", (int)isSuspend);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
