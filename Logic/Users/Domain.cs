@@ -546,6 +546,7 @@ namespace Core.Users
                     DomainsCache oDomainCache = DomainsCache.Instance();
                     oDomainCache.RemoveDomain(nDomainID);
                     InvalidateDomain();
+                    InvalidateDomainUser(nUserID.ToString());
 
                     // remove user from cache
                     UsersCache usersCache = UsersCache.Instance();
@@ -919,6 +920,7 @@ namespace Core.Users
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(nDomainID);
                 InvalidateDomain();
+                InvalidateDomainUser(nUserID.ToString());
             }
 
             // if user was added successfully as master - set user role to be master
@@ -986,6 +988,7 @@ namespace Core.Users
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 bool cacheRemoveResult = oDomainCache.RemoveDomain(nDomainID);
                 InvalidateDomain();
+                InvalidateDomainUser(nUserID.ToString());
 
                 if (!cacheRemoveResult)
                 {
@@ -1009,6 +1012,7 @@ namespace Core.Users
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 bool bRemove = oDomainCache.RemoveDomain(nDomainID);
                 InvalidateDomain();
+                InvalidateDomainUser(nUserID.ToString());
             }
 
             return response;
@@ -1236,6 +1240,8 @@ namespace Core.Users
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(m_nDomainID);
                 InvalidateDomain();
+                InvalidateDomainUser(nCurrentMasterID.ToString());
+                InvalidateDomainUser(nNewMasterID.ToString());
 
                 return DomainResponseStatus.OK;
             }
@@ -3035,7 +3041,17 @@ namespace Core.Users
         {
             List<string> invalidationKeys = new List<string>()
                 { 
-                    string.Format("invalidationKeydomain_{0}", this.m_nDomainID) 
+                    string.Format("invalidationKey_domain_{0}", this.m_nDomainID) 
+                };
+
+            LayeredCache.Instance.InvalidateKeys(invalidationKeys);
+        }
+
+        private void InvalidateDomainUser(string userId)
+        {
+            List<string> invalidationKeys = new List<string>()
+                { 
+                    LayeredCacheKeys.GetHouseholdUserInalidationKey(this.m_nDomainID, userId);
                 };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
@@ -3045,7 +3061,7 @@ namespace Core.Users
         {
             List<string> invalidationKeys = new List<string>()
                 { 
-                    string.Format("invalidationKeydomain_{0}", this.m_nDomainID) 
+                    string.Format("invalidationKey_domain_{0}", this.m_nDomainID) 
                 };
 
             LayeredCache.Instance.SetReadingInvalidationKeys(invalidationKeys);
