@@ -267,6 +267,26 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+        public static string GetTopicKey(int groupId, long topicId)
+        {
+            return string.Format("topic_groupId_{0}_id_{1}", groupId, topicId);
+        }
+
+        public static Dictionary<string, string> GetTopicsKeysMap(int groupId, List<long> topicIds)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (topicIds != null && topicIds.Count > 0)
+            {
+                topicIds = topicIds.Distinct().ToList();
+                foreach (long id in topicIds)
+                {
+                    result.Add(GetTopicKey(groupId, id), id.ToString());
+                }
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -434,6 +454,26 @@ namespace CachingProvider.LayeredCache
                 foreach (long id in assetStructIds)
                 {
                     result.Add(GetAssetStructKey(groupId, id), new List<string>() { GetAssetStructInvalidationKey(groupId, id) });
+                }
+            }
+
+            return result;
+        }
+
+        public static string GetTopicInvalidationKey(int groupId, long topicId)
+        {
+            return string.Format("invalidationKeyTopic_groupId_{0}_id_{1}", groupId, topicId);
+        }
+
+        public static Dictionary<string, List<string>> GetTopicsInvalidationKeysMap(int groupId, List<long> topicIds)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (topicIds != null && topicIds.Count > 0)
+            {
+                topicIds = topicIds.Distinct().ToList();
+                foreach (long id in topicIds)
+                {
+                    result.Add(GetTopicKey(groupId, id), new List<string>() { GetTopicInvalidationKey(groupId, id) });
                 }
             }
 

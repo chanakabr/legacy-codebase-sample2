@@ -4461,7 +4461,6 @@ namespace Tvinci.Core.DAL
             return cdvrId;
         }
 
-
         /*Get all metas and tags for EPGs by groupID And it's mapping in the xml file*/
         public static List<FieldTypeEntity> GetAliasMappingFields(int groupID)
         {
@@ -4715,12 +4714,12 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet GetAssetStructsByMetaIds(int groupId, List<long> metaIds)
+        public static DataSet GetAssetStructsByTopicIds(int groupId, List<long> topicIds)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetStructsByMetaIds");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetStructsByTopicIds");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
-            sp.AddIDListParameter("@MetaIds", metaIds, "id");            
+            sp.AddIDListParameter("@TopicIds", topicIds, "id");            
             return sp.ExecuteDataSet();
         }
 
@@ -4739,13 +4738,14 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateAssetStruct(int groupId, long id, string name, bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority, long userId)
+        public static DataSet UpdateAssetStruct(int groupId, long id, string name, string systemName, bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
-            sp.AddParameter("@Name", name);            
+            sp.AddParameter("@Name", name);
+            sp.AddParameter("@SystemName", systemName);
             sp.AddParameter("@ShouldUpdateMetaIds", shouldUpdateMetaIds ? 1 : 0);                     
             sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
             sp.AddParameter("@UpdaterId", userId);
@@ -4764,62 +4764,68 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet GetMetaByIds(int groupId, List<long> ids)
-        {
-            throw new NotImplementedException();
-            // TODO
-            //ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMetaByIds");
-            //sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            //sp.AddParameter("@GroupId", groupId);
-            //sp.AddIDListParameter("@Ids", ids, "id");
-            //sp.AddParameter("@IdsExist", ids != null && ids.Count > 0);
-            //return sp.ExecuteDataSet();
+        public static DataTable GetTopicByIds(int groupId, List<long> ids)
+        {                        
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicByIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@Ids", ids, "id");
+            sp.AddParameter("@IdsExist", ids != null && ids.Count > 0);
+            return sp.Execute();
         }
 
-        public static DataSet GetMetaByAssetStructIds(int groupId, List<long> assetStructIds)
-        {
-            throw new NotImplementedException();
-            // TODO
-            //ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMetaByAssetStructIds");
-            //sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            //sp.AddParameter("@GroupId", groupId);
-            //sp.AddIDListParameter("@AssetStructIds", assetStructIds, "id");
-            //return sp.ExecuteDataSet();
+        public static DataSet GetTopicByAssetStructIds(int groupId, List<long> assetStructIds)
+        {            
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicByAssetStructIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@AssetStructIds", assetStructIds, "id");
+            return sp.ExecuteDataSet();
         }
 
-        public static DataTable InsertMeta(int groupId, string name, string systemName, ApiObjects.MetaType metaType, bool? isPredefined, long parent_topic_id, string helpText, long userId)
-        {
-            throw new NotImplementedException();
-            // TODO
-            //ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMeta");
-            //sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            //sp.AddParameter("@GroupId", groupId);
-            //sp.AddParameter("@Name", name);
-            //sp.AddParameter("@SystemName", systemName);
-            //sp.AddParameter("@MetaType", (int)metaType);
-            //sp.AddParameter("@IsPredefined", isPredefined.Value ? 1 : 0);
-            //sp.AddParameter("@ParentTopicId", parent_topic_id);
-            //sp.AddParameter("@HelpText", helpText);
-            //sp.AddParameter("@UpdaterId", userId);
+        public static DataTable InsertTopic(int groupId, string name, string systemName, ApiObjects.MetaType TopicType, string commaSeparatedFeatures, bool? isPredefined, long parent_topic_id, string helpText, long userId)
+        {                        
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertTopic");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Name", name);
+            sp.AddParameter("@SystemName", systemName);
+            sp.AddParameter("@TopicType", (int)TopicType);
+            sp.AddParameter("@Features", commaSeparatedFeatures);
+            sp.AddParameter("@IsPredefined", isPredefined.Value ? 1 : 0);
+            sp.AddParameter("@ParentTopicId", parent_topic_id);
+            sp.AddParameter("@HelpText", helpText);
+            sp.AddParameter("@UpdaterId", userId);
 
-            //return sp.Execute();
+            return sp.Execute();
         }
 
-        public static DataTable UpdateMeta(int groupId, long id, string name, long parent_topic_id, string helpText, long userId)
-        {
-            throw new NotImplementedException();
-            // TODO
-            //ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMeta");
-            //sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            //sp.AddParameter("@GroupId", groupId);
-            //sp.AddParameter("@Id", id);
-            //sp.AddParameter("@Name", name);            
-            //sp.AddParameter("@ParentTopicId", parent_topic_id);
-            //sp.AddParameter("@HelpText", helpText);
-            //sp.AddParameter("@UpdaterId", userId);
+        public static DataTable UpdateTopic(int groupId, long id, string name, string systemName, string commaSeparatedFeatures, long parent_topic_id, string helpText, long userId)
+        {            
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTopic");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Id", id);
+            sp.AddParameter("@Name", name);
+            sp.AddParameter("@SystemName", systemName);            
+            sp.AddParameter("@Features", commaSeparatedFeatures);            
+            sp.AddParameter("@ParentTopicId", parent_topic_id);
+            sp.AddParameter("@HelpText", helpText);
+            sp.AddParameter("@UpdaterId", userId);
 
-            //return sp.Execute();
-        }        
+            return sp.Execute();
+        }
+
+        public static bool DeleteTopic(int groupId, long id, long userId)
+        {            
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteTopic");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Id", id);
+            sp.AddParameter("@UpdaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
 
         #endregion
 
