@@ -401,8 +401,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyUnifiedBillingCycle_domainId_{0}_renewLifeCycle", domainID, renewLifeCycle);
         }
-        #endregion        
-    
-        
+        #endregion
+
+        public static string GetHouseholdUserInalidationKey(long householId, string siteGuid)
+        {
+            return string.Format("invalidationKey_domain_{0}_user_{1}", householId, siteGuid);
+        }
     }
 }
