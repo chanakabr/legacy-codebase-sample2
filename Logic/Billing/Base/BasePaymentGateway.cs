@@ -909,12 +909,13 @@ namespace Core.Billing
                 paymentGateway = GetOSSAdapterPaymentGateway(groupID, householdID, userIP, out chargeId);
 
                 // in case OSS Adapter not set.
+                bool isSuspended = false;
                 if (paymentGateway == null)
                 {
                     if (paymentGatewayId == 0)
                     {
-                        // get selected household payment gateway
-                        paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdID, ref chargeId);
+                        // get selected household payment gateway                        
+                        paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdID, ref chargeId, ref isSuspended);
                         if (paymentGateway == null)
                         {
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
@@ -938,8 +939,7 @@ namespace Core.Billing
                             return response;
                         }
 
-                        bool isPaymentGWHouseholdExist = false;
-                        bool isSuspended = false;
+                        bool isPaymentGWHouseholdExist = false;                       
                         chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdID, ref isPaymentGWHouseholdExist, ref isSuspended);
 
                         if (!isPaymentGWHouseholdExist)
@@ -947,11 +947,11 @@ namespace Core.Billing
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
                             return response;
                         }
-                        if (isSuspended)
-                        {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
-                            return response;
-                        }
+                    }
+                    if (isSuspended)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
+                        return response;
                     }
                 }
                 else
@@ -1768,24 +1768,6 @@ namespace Core.Billing
                     // get charge ID
                     bool isSuspended = false;
                     chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdId, ref isPaymentGatewayHouseholdExist, ref isSuspended);
-
-                    //// get right process id from DB and update this row in DB 
-                    //DataTable dt =  DAL.ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(groupID, paymentGatewayId, householdId);
-                    //long processId = 0;
-
-                    //if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                    //{
-                    //    processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
-                    //    if (processId > 0) // update subscription purchase table with this process id 
-                    //    {
-                    //        // update subscription Purchase
-                    //        DAL.ConditionalAccessDAL.UpdateMPPRenewalProcessId(billing_guid, processId);
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    log.DebugFormat("Failed to suspend household entitlements for payment gateway: proccessId was not found in DB. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", m_nGroupID, paymentGatewayId, householdId);
-                    //}
                     
                     if (isSuspended) // return due to suspend payment gateway !!! 
                     {
@@ -2819,7 +2801,8 @@ namespace Core.Billing
                 if (domainStatus.Code == (int)ResponseStatus.OK)
                 {
                     string chargeId = string.Empty;
-                    PaymentGateway paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdId, ref chargeId);
+                    bool isSuspended = false;
+                    PaymentGateway paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdId, ref chargeId, ref isSuspended);
                     if (paymentGateway != null)
                     {
                         response.PaymentGateway = new PaymentGatewayBase() { ID = paymentGateway.ID, Name = paymentGateway.Name, IsDefault = paymentGateway.IsDefault };
