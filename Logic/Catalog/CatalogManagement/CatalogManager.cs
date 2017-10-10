@@ -542,8 +542,6 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-
-
         public static List<Topic> TryGetTopicsFromCache(int groupId, List<long> ids)
         {
             List<Topic> result = null;
@@ -590,25 +588,25 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        //public static TopicListResponse GetTopicsByTopicIds(int groupId, List<long> topicIds)
-        //{
-        //    TopicListResponse response = new TopicListResponse();
-        //    try
-        //    {
-        //        DataSet ds = CatalogDAL.GetTopicsByTopicIds(groupId, topicIds);
-        //        response.Topics = CreateTopicListFromDataSet(ds);
-        //        if (response.Topics != null)
-        //        {
-        //            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.Error(string.Format("Failed GetTopicsByTopicIds with groupId: {0} and topicIds: {1}", groupId, topicIds != null ? string.Join(",", topicIds) : string.Empty), ex);
-        //    }
+        public static TopicListResponse GetTopicsByAssetStructIds(int groupId, List<long> assetStructIds)
+        {
+            TopicListResponse response = new TopicListResponse();
+            try
+            {
+                DataTable dt = CatalogDAL.GetTopicByAssetStructIds(groupId, assetStructIds);
+                response.Topics = CreateTopicListFromDataTable(dt);
+                if (response.Topics != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetTopicsByAssetStructIds with groupId: {0} and assetStructIds: {1}", groupId, assetStructIds != null ? string.Join(",", assetStructIds) : string.Empty), ex);
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
 
         public static TopicResponse AddTopic(int groupId, Topic topicToAdd, long userId)
         {
