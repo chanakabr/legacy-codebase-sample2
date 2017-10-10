@@ -3041,7 +3041,7 @@ namespace Core.Users
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }
 
-        private void SetReadingInvalidationKeys()
+        public virtual void SetReadingInvalidationKeys()
         {
             List<string> invalidationKeys = new List<string>()
                 { 
