@@ -918,4 +918,10 @@ namespace ApiObjects
         Downgrade = 1
     }
 
+    public enum PaymentGatewayStatus
+    {
+        OK = 0,
+        Suspend = 1,
+    }
+
 }

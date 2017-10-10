@@ -143,6 +143,8 @@ namespace ApiObjects.Billing
         Failed = 2,
     }
 
+   
+
     //public enum PaymentGatewayAdapterFailReason
     //{
     //    InsufficientFunds = 20,

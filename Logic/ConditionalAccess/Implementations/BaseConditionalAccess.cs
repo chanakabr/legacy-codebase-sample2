@@ -16046,22 +16046,23 @@ namespace Core.ConditionalAccess
 
                 DataTable dt = ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId);
 
-                long proccessId = 0;
+                long processId = 0;
 
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    proccessId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+                    processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
                 }
                 else
                 {
                     log.DebugFormat("Failed to suspend household entitlements for payment gateway: proccessId was not found in DB. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", m_nGroupID, paymentGatewayId, householdId);
                 }
 
-                if (proccessId > 0)
+                if (processId > 0)
                 {
-                    if (!ConditionalAccessDAL.SetSubscriptionPurchaseStatusByUnifiedProccessId(m_nGroupID, proccessId, SubscriptionPurchaseStatus.Suspended))
+                    // set suspend to payment_gateway_household + subscriptions_purchases
+                    if (!ConditionalAccessDAL.SetSubscriptionPurchaseStatusByUnifiedProccessId(m_nGroupID, processId, SubscriptionPurchaseStatus.Suspended, paymentGatewayId, householdId, PaymentGatewayStatus.Suspend))
                     {
-                        log.ErrorFormat("Failed to suspend household entitlements for payment gateway: SetSubscriptionPurchaseStatusByUnifiedProccessId in DB failed. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", m_nGroupID, paymentGatewayId, householdId);
+                        log.ErrorFormat("Failed to suspend household entitlements for payment gateway: SetSubscriptionPurchaseStatusByUnifiedProccessId in DB failed. groupId = {0}, paymentGatewayId = {1}, householdId = {2}, proccessId= {3}", m_nGroupID, paymentGatewayId, householdId, processId);
                         response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         return response;
                     }
@@ -16124,6 +16125,8 @@ namespace Core.ConditionalAccess
                         response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         return response;
                     }
+                    // get paymentgateway out of suspend status 
+                    BillingDAL.UpdatePaymentGatewayHouseholdStatus(householdId, paymentGatewayId, PaymentGatewayStatus.OK);
                 }
             }
             catch (Exception ex)
