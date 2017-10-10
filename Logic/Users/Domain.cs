@@ -3051,7 +3051,7 @@ namespace Core.Users
         {
             List<string> invalidationKeys = new List<string>()
                 { 
-                    LayeredCacheKeys.GetHouseholdUserInalidationKey(this.m_nDomainID, userId);
+                    LayeredCacheKeys.GetHouseholdUserInalidationKey(this.m_nDomainID, userId)
                 };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
