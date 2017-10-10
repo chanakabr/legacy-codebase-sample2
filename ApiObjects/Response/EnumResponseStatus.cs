@@ -281,6 +281,7 @@ namespace ApiObjects.Response
         PaymentMethodAlreadySetToHouseholdPaymentGateway = 6054,
         PaymentMethodNameRequired = 6055,
         PaymentGatewayNotSupportPaymentMethod = 6056,
+        PaymentGatewaySuspended = 6051,
 
         // social 7000 - 7999
         Conflict = 7000,

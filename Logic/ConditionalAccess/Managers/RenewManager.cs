@@ -296,6 +296,11 @@ namespace Core.ConditionalAccess
                 log.Error("Error while trying to get Price plan to renew");
                 return false;
             }
+            
+            if (unifiedBillingCycle != null) //should be part of unified cycle 
+            {
+                UpdateMPPRenewalProcessId(groupId, purchaseId, billingGuid, householdId);
+            }
 
             // call billing process renewal
             TransactResult transactionResponse = null;
@@ -386,6 +391,38 @@ namespace Core.ConditionalAccess
                     break;
             }
             return res;
+        }
+
+        // get right process id from DB and update this row in DB 
+        private static void UpdateMPPRenewalProcessId(int groupId, long purchaseId, string billingGuid, long householdId)
+        {
+            try
+            {
+                PaymentGateway pg = Core.Billing.Module.GetPaymentGatewayByBillingGuid(groupId, householdId, billingGuid);
+                if (pg != null)
+                {
+                    DataTable dt = DAL.ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(groupId, pg.ID, householdId);
+                    long processId = 0;
+
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+                        if (processId > 0) // update subscription purchase table with this process id 
+                        {
+                            // update subscription Purchase
+                            DAL.ConditionalAccessDAL.UpdateMPPRenewalProcessId(new List<int>() { (int)purchaseId }, processId);
+                        }
+                    }
+                    else
+                    {
+                        log.DebugFormat("Failed to suspend household entitlements for payment gateway: proccessId was not found in DB. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", groupId, pg.ID, householdId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail update process id for specific renew groupId = {0}, purchaseId = {1}, billingGuid={2}, householdId = {3}, ex = {4}", groupId, purchaseId, billingGuid, householdId, ex);
+            }
         }
 
         protected internal static bool HandleRenewSubscriptionFailed(BaseConditionalAccess cas, int groupId,
@@ -590,24 +627,27 @@ namespace Core.ConditionalAccess
             }
 
 
-            // enqueue renew transaction
-            RenewTransactionsQueue queue = new RenewTransactionsQueue();
-            DateTime nextRenewalDate = endDate.AddMinutes(-5);
+            if (unifiedBillingCycle == null)
+            {
+                // enqueue renew transaction
+                RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                DateTime nextRenewalDate = endDate.AddMinutes(-5);
 
-            if (paymentGateway != null)
-            {
-                nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
-            }
-            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
-            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-            if (!enqueueSuccessful)
-            {
-                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                return true;
-            }
-            else
-            {
-                log.DebugFormat("New task created (upon renew success response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                if (paymentGateway != null)
+                {
+                    nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
+                }
+                RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
+                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                if (!enqueueSuccessful)
+                {
+                    log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                    return true;
+                }
+                else
+                {
+                    log.DebugFormat("New task created (upon renew success response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                }
             }
 
             // PS message 
@@ -1025,6 +1065,10 @@ namespace Core.ConditionalAccess
                         processId, nextEndDate, logString);
                     return true;
                 }                
+            }
+            else // process is in runtime = 1
+            {
+                return true;
             }
 
             UnifiedBillingCycle unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupBillingCycle.Value);
@@ -1480,6 +1524,8 @@ namespace Core.ConditionalAccess
                         currency,                                             // {2}
                         renewUnifiedData.PurchaseId,                          // {3}
                         renewUnifiedData.BillingTransactionId));                  // {4}
+
+                    
                 }
                 catch (Exception ex)
                 {
@@ -1510,6 +1556,8 @@ namespace Core.ConditionalAccess
 
                 cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, psMessage);
             }
+
+           
 
             return true;
         }
