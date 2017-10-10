@@ -1,4 +1,5 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects;
+using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using KLogMonitor;
 using System;
@@ -16,7 +17,9 @@ namespace Core.Catalog.CatalogManagement
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static Status CreateAssetStructResponseStatusFromResult(long result)
+        #region Private Methods
+
+        private static Status CreateAssetStructResponseStatusFromResult(long result, Status status = null)
         {
             Status responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             switch (result)
@@ -31,6 +34,11 @@ namespace Core.Catalog.CatalogManagement
                     responseStatus = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
                     break;
                 default:
+                    if (status != null)
+                    {
+                        responseStatus = status;
+                    }
+
                     break;
             }
 
@@ -44,11 +52,14 @@ namespace Core.Catalog.CatalogManagement
             {
                 string name = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
                 string systemName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
-                DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
-                DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
-                result = new AssetStruct(id, name, systemName, isPredefined, createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
-                                         updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0);
+                if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName))
+                {
+                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
+                    DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
+                    DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+                    result = new AssetStruct(id, name, systemName, isPredefined, createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
+                                             updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0);
+                }
             }
 
             return result;
@@ -71,6 +82,11 @@ namespace Core.Catalog.CatalogManagement
                     {
                         response.Status = CreateAssetStructResponseStatusFromResult(id);
                     }
+                }
+                /// assetStruct does not exist
+                else
+                {
+                    response.Status = CreateAssetStructResponseStatusFromResult(0, new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString()));
                 }
 
                 if (response.AssetStruct != null && ds.Tables.Count == 2)
@@ -200,6 +216,154 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, AssetStruct>, bool>(result, res);
         }
 
+        private static Status CreateTopicResponseStatusFromResult(long result)
+        {
+            Status responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            switch (result)
+            {
+                //TODO: Lior -  create error codes for topics and update this method
+                case -111:
+                    responseStatus = new Status((int)eResponseStatus.MetaNameAlreadyInUse, eResponseStatus.MetaNameAlreadyInUse.ToString());
+                    break;
+                case -222:
+                    responseStatus = new Status((int)eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
+                    break;
+                case -333:
+                    responseStatus = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
+                    break;
+                default:
+                    break;
+            }
+
+            return responseStatus;
+        }
+
+        private static Topic CreateTopicFromIdAndDataRow(long id, DataRow dr)
+        {
+            Topic result = null;
+            if (id > 0)
+            {
+                string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                string systemName = ODBCWrapper.Utils.GetSafeStr(dr, "SYSTEM_NAME");
+                string topicType = ODBCWrapper.Utils.GetSafeStr(dr, "TOPIC_TYPE");
+                MetaType type;
+                if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName) && Enum.TryParse<MetaType>(topicType, out type))
+                {
+                    string commaSeparatedFeatures = ODBCWrapper.Utils.GetSafeStr(dr, "FEATURES");
+                    HashSet<string> features = null;
+                    if (!string.IsNullOrEmpty(commaSeparatedFeatures))
+                    {
+                        features = new HashSet<string>(commaSeparatedFeatures.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+                    }
+
+                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
+                    //TODO: Lior -  get multipleValue from features and consider doing the same for isPredefined
+                    bool multipleValue = false;
+                    string helpText = ODBCWrapper.Utils.GetSafeStr(dr, "HELP_TEXT");
+                    long parentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TOPIC_ID", 0);
+                    DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
+                    DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+                    result = new Topic(id, name, systemName, type, features, isPredefined, multipleValue, helpText, parentId,
+                                        createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
+                                        updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0);
+                }
+            }
+
+            return result;
+        }
+
+        private static TopicResponse CreateTopicResponseFromDataTable(DataTable dt)
+        {
+            TopicResponse response = new TopicResponse();
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            {
+                long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
+                if (id > 0)
+                {
+                    response.Topic = CreateTopicFromIdAndDataRow(id, dt.Rows[0]);
+                }
+                else
+                {
+                    response.Status = CreateTopicResponseStatusFromResult(id);
+                }
+            }
+
+            if (response.Topic != null)
+            {
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }            
+
+            return response;
+        }
+
+        private static List<Topic> CreateTopicListFromDataTable(DataTable dt)
+        {
+            List<Topic> response = null;
+            if (dt != null && dt.Rows != null)
+            {
+                response = new List<Topic>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                    if (id > 0)
+                    {
+                        Topic topic = CreateTopicFromIdAndDataRow(id, dr);
+                        if (topic != null)
+                        {
+                            response.Add(topic);
+                        }
+                    }
+                }
+            }            
+
+            return response;
+        }
+
+        private static Tuple<Dictionary<string, Topic>, bool> GetTopics(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, Topic> result = new Dictionary<string, Topic>();
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("topicIds") && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    List<long> topicIds = null;
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                    {
+                        topicIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
+                    }
+                    else
+                    {
+                        topicIds = funcParams["topicIds"] != null ? funcParams["topicIds"] as List<long> : null;
+                    }
+
+                    if (topicIds != null && topicIds.Count > 0 && groupId.HasValue)
+                    {
+                        DataTable dt = CatalogDAL.GetTopicByIds(groupId.Value, topicIds);
+                        List<Topic> topics = CreateTopicListFromDataTable(dt);
+                        if (topics != null && topics.Count > 0)
+                        {
+                            result = topics.ToDictionary(x => LayeredCacheKeys.GetTopicKey(groupId.Value, x.Id), x => x);
+                        }
+                    }
+
+                    res = result.Keys.Count() == topicIds.Count();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetTopics failed params : {0}", funcParams != null ? string.Join(";",
+                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
+            }
+
+            return new Tuple<Dictionary<string, Topic>, bool>(result, res);
+        }
+
+        #endregion
+
+        #region Public Methods
+
         public static List<AssetStruct> TryGetAssetStructsFromCache(int groupId, List<long> ids)
         {
             List<AssetStruct> result = null;
@@ -246,12 +410,12 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static AssetStructListResponse GetAssetStructsByMetaIds(int groupId, List<long> metaIds)
+        public static AssetStructListResponse GetAssetStructsByTopicIds(int groupId, List<long> topicIds)
         {
             AssetStructListResponse response = new AssetStructListResponse();
             try
             {
-                DataSet ds = CatalogDAL.GetAssetStructsByMetaIds(groupId, metaIds);
+                DataSet ds = CatalogDAL.GetAssetStructsByTopicIds(groupId, topicIds);
                 response.AssetStructs = CreateAssetStructListFromDataSet(ds);
                 if (response.AssetStructs != null)
                 {
@@ -260,7 +424,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetAssetStructsByMetaIds with groupId: {0} and metaIds: {1}", groupId, metaIds != null ? string.Join(",", metaIds) : string.Empty), ex);
+                log.Error(string.Format("Failed GetAssetStructsByTopicIds with groupId: {0} and topicIds: {1}", groupId, topicIds != null ? string.Join(",", topicIds) : string.Empty), ex);
             }
 
             return response;
@@ -271,12 +435,12 @@ namespace Core.Catalog.CatalogManagement
             AssetStructResponse result = new AssetStructResponse();
             try
             {
-                // TODO: check that meta Ids exist
+                // TODO: Lior - check that meta Ids exist
                 if (assetStructToadd.MetaIds == null)
                 {
                     result.Status = new Status((int)eResponseStatus.MetaIdsDoesNotExist, eResponseStatus.MetaIdsDoesNotExist.ToString());
                 }
-                //TODO: check that meta Ids exist
+                //TODO: Lior - check that meta Ids exist
                 List<KeyValuePair<long, int>> metaIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (assetStructToadd.MetaIds != null && assetStructToadd.MetaIds.Count > 0)
                 {
@@ -335,7 +499,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, assetStruct.Id, assetStructToUpdate.Name, shouldUpdateMetaIds, metaIdsToPriority, userId);
+                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, assetStruct.Id, assetStructToUpdate.Name, assetStructToUpdate.SystemName, shouldUpdateMetaIds, metaIdsToPriority, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
             }
             catch (Exception ex)
@@ -361,7 +525,7 @@ namespace Core.Catalog.CatalogManagement
                 AssetStruct assetStruct = assetStructs.First();
                 if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value)
                 {
-                    result = new Status((int)eResponseStatus.CanNotDeletrePredefinedAssetStruct, eResponseStatus.CanNotDeletrePredefinedAssetStruct.ToString());
+                    result = new Status((int)eResponseStatus.CanNotDeletePredefinedAssetStruct, eResponseStatus.CanNotDeletePredefinedAssetStruct.ToString());
                     return result;
                 }
 
@@ -377,6 +541,162 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
+
+
+
+        public static List<Topic> TryGetTopicsFromCache(int groupId, List<long> ids)
+        {
+            List<Topic> result = null;
+            try
+            {
+                Dictionary<string, Topic> topicsMap = null;
+                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetTopicsKeysMap(groupId, ids);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetTopicsInvalidationKeysMap(groupId, ids);
+                if (!LayeredCache.Instance.GetValues<Topic>(keyToOriginalValueMap, ref topicsMap, GetTopics,
+                    new Dictionary<string, object>() { { "groupId", groupId }, { "topicIds", ids } },
+                    groupId, LayeredCacheConfigNames.GET_TOPICS_CACHE_CONFIG_NAME, invalidationKeysMap))
+                {
+                    log.ErrorFormat("Failed getting Topics from LayeredCache, groupId: {0}, topicIds", groupId, string.Join(",", ids));
+                }
+                else if (topicsMap != null)
+                {
+                    result = topicsMap.Count > 0 ? topicsMap.Values.ToList() : new List<Topic>();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed TryGetTopicsFromCache with groupId: {0} and ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
+            }
+
+            return result;
+        }
+
+        public static TopicListResponse GetTopicsByIds(int groupId, List<long> ids)
+        {
+            TopicListResponse response = new TopicListResponse();
+            try
+            {
+                response.Topics = TryGetTopicsFromCache(groupId, ids);
+                if (response.Topics != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetTopicsByIds with groupId: {0} and ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
+            }
+
+            return response;
+        }
+
+        //public static TopicListResponse GetTopicsByTopicIds(int groupId, List<long> topicIds)
+        //{
+        //    TopicListResponse response = new TopicListResponse();
+        //    try
+        //    {
+        //        DataSet ds = CatalogDAL.GetTopicsByTopicIds(groupId, topicIds);
+        //        response.Topics = CreateTopicListFromDataSet(ds);
+        //        if (response.Topics != null)
+        //        {
+        //            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error(string.Format("Failed GetTopicsByTopicIds with groupId: {0} and topicIds: {1}", groupId, topicIds != null ? string.Join(",", topicIds) : string.Empty), ex);
+        //    }
+
+        //    return response;
+        //}
+
+        public static TopicResponse AddTopic(int groupId, Topic topicToAdd, long userId)
+        {
+            TopicResponse result = new TopicResponse();
+            try
+            {
+                //TODO: Lior - do something with features
+                DataTable dt = CatalogDAL.InsertTopic(groupId, topicToAdd.Name, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetCommaSeparatedFeatures(),
+                                                      topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId);
+                result = CreateTopicResponseFromDataTable(dt);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddTopic for groupId: {0} and topic: {1}", groupId, topicToAdd.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        public static TopicResponse UpdateTopic(int groupId, Topic topicToUpdate, long userId)
+        {
+            TopicResponse result = new TopicResponse();
+            try
+            {
+                List<Topic> topics = TryGetTopicsFromCache(groupId, new List<long>() { topicToUpdate.Id });
+                if (topics == null || topics.Count != 1)
+                {
+                    result.Status = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
+                    return result;
+                }
+
+                Topic assetStruct = topics.First();
+                if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value && topicToUpdate.SystemName != null)
+                {
+                    result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedMetaSystemName, eResponseStatus.CanNotChangePredefinedMetaSystemName.ToString());
+                    return result;
+                }
+
+                //TODO: Lior - do something with features
+
+                //TODO: Lior - support changing system name for topic???
+                // SAME for AssetStruct???
+
+                DataTable dt = CatalogDAL.UpdateTopic(groupId, topicToUpdate.Id, topicToUpdate.Name, topicToUpdate.SystemName, topicToUpdate.GetCommaSeparatedFeatures(),
+                                                      topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
+                result = CreateTopicResponseFromDataTable(dt);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateTopic for groupId: {0} and assetStruct: {1}", groupId, topicToUpdate.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        public static Status DeleteTopic(int groupId, long id, long userId)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                List<Topic> assetStructs = TryGetTopicsFromCache(groupId, new List<long>() { id });
+                if (assetStructs == null || assetStructs.Count != 1)
+                {
+                    result = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
+                    return result;
+                }
+
+                Topic assetStruct = assetStructs.First();
+                if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value)
+                {
+                    result = new Status((int)eResponseStatus.CanNotDeletePredefinedMeta, eResponseStatus.CanNotDeletePredefinedMeta.ToString());
+                    return result;
+                }
+
+                if (CatalogDAL.DeleteTopic(groupId, id, userId))
+                {
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteTopic for groupId: {0} and assetStructId: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+
+        #endregion
 
     }
 }

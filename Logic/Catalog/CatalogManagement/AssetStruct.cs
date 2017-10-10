@@ -24,9 +24,10 @@ namespace Core.Catalog.CatalogManagement
             this.Name = string.Empty;
             this.SystemName = string.Empty;
             this.MetaIds = new List<long>();
-            this.IsPredefined = false;
+            this.IsPredefined = null;
             this.CreateDate = 0;
             this.UpdateDate = 0;
+            //TODO: Lior -  init languageContainer
         }
 
         public AssetStruct(long id, string name, string systemName, bool isPredefined, long createDate, long updateDate)
@@ -38,6 +39,7 @@ namespace Core.Catalog.CatalogManagement
             this.IsPredefined = isPredefined;
             this.CreateDate = createDate;
             this.UpdateDate = updateDate;
+            //TODO: Lior - init languageContainer
         }
 
         public override string ToString()
@@ -49,7 +51,7 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("IsPredefined: {0}, ", IsPredefined.HasValue ? IsPredefined.Value.ToString() : string.Empty);
             sb.AppendFormat("CreateDate: {0}, ", CreateDate);
             sb.AppendFormat("UpdateDate: {0}", UpdateDate);
-
+            //TODO: Lior -  add languageContainer
             return sb.ToString();
         }
 

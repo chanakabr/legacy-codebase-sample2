@@ -201,10 +201,15 @@ namespace ApiObjects.Response
         CountryNotFound = 4025,
         AssetStructNameAlreadyInUse = 4026,
         AssetStructSystemNameAlreadyInUse = 4027,
-        MetaIdsDoesNotExist = 4027,
         AssetStructDoesNotExist = 4028,
         CanNotChangePredefinedAssetStructSystemName = 4029,
-        CanNotDeletrePredefinedAssetStruct = 4030,
+        CanNotDeletePredefinedAssetStruct = 4030,
+        MetaIdsDoesNotExist = 4031,
+        MetaNameAlreadyInUse = 4032,
+        MetaSystemNameAlreadyInUse = 4033,
+        MetaDoesNotExist = 4034,
+        CanNotChangePredefinedMetaSystemName = 4035,
+        CanNotDeletePredefinedMeta = 4036,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

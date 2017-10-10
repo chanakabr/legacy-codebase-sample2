@@ -189,6 +189,9 @@
     <Compile Include="Catalog\Cache\EntitlementDefinitionsCache.cs" />
     <Compile Include="Catalog\Cache\ParentalRulesTagsCache.cs" />
     <Compile Include="Catalog\CatalogLogic.cs" />
+    <Compile Include="Catalog\CatalogManagement\TopicListResponse.cs" />
+    <Compile Include="Catalog\CatalogManagement\TopicResponse.cs" />
+    <Compile Include="Catalog\CatalogManagement\Topic.cs" />
     <Compile Include="Catalog\CatalogManagement\AssetStructResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\CatalogManager.cs" />
     <Compile Include="Catalog\ChannelViewsResult.cs" />
