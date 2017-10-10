@@ -58,7 +58,7 @@ namespace WebAPI.Clients
                 {
                     if (shouldGetByMetaIds)
                     {
-                        response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByMetaIds(groupId, ids);
+                        response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByTopicIds(groupId, ids);
                     }
                     else
                     {
@@ -204,6 +204,191 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetStruct(groupId, id, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        public KalturaMetaListResponse GetMetas(int groupId, List<long> ids, KalturaMetaOrderBy? orderBy, bool shouldGetByAssetStructIds = false)
+        {
+            KalturaMetaListResponse result = new KalturaMetaListResponse() { TotalCount = 0 };
+            TopicListResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    if (shouldGetByAssetStructIds)
+                    {
+                        response = Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByAssetStructIds(groupId, ids);
+                    }
+                    else
+                    {
+                        response = Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByIds(groupId, ids);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Topics != null && response.Topics.Count > 0)
+            {
+                result.TotalCount = response.Topics.Count;
+                result.Objects = new List<KalturaMeta>();
+                foreach (Topic topic in response.Topics)
+                {
+                    result.Objects.Add(AutoMapper.Mapper.Map<KalturaMeta>(topic));
+                }
+            }
+
+            if (result.TotalCount > 0 && orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaMetaOrderBy.NONE:
+                        break;
+                    default:
+                        break;
+                }
+                // TODO: Lior - fix order by to support whats needed
+                //switch (orderBy.Value)
+                //{
+                //    case KalturaAssetStructOrderBy.NAME_ASC:
+                //        result.AssetStructs = result.AssetStructs.OrderBy(x => x.Name).ToList();
+                //        break;
+                //    case KalturaAssetStructOrderBy.NAME_DESC:
+                //        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.Name).ToList();
+                //        break;
+                //    case KalturaAssetStructOrderBy.SYSTEM_NAME_ASC:
+                //        result.AssetStructs = result.AssetStructs.OrderBy(x => x.SystemName).ToList();
+                //        break;
+                //    case KalturaAssetStructOrderBy.SYSTEM_NAME_DESC:
+                //        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.SystemName).ToList();
+                //        break;
+                //    case KalturaAssetStructOrderBy.CREATE_DATE_ASC:
+                //        result.AssetStructs = result.AssetStructs.OrderBy(x => x.CreateDate).ToList();
+                //        break;
+                //    case KalturaAssetStructOrderBy.CREATE_DATE_DESC:
+                //        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.CreateDate).ToList();
+                //        break;
+                //    case KalturaAssetStructOrderBy.UPDATE_DATE_ASC:
+                //        result.AssetStructs = result.AssetStructs.OrderBy(x => x.UpdateDate).ToList();
+                //        break;
+                //    case KalturaAssetStructOrderBy.UPDATE_DATE_DESC:
+                //        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.UpdateDate).ToList();
+                //        break;
+                //    default:
+                //        break;
+                //}
+            }
+
+            return result;
+        }
+
+        public KalturaMeta AddMeta(int groupId, KalturaMeta meta, long userId)
+        {
+            KalturaMeta result = null;
+            TopicResponse response = null;
+
+            try
+            {
+                Topic topicToAdd = AutoMapper.Mapper.Map<Topic>(meta);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddTopic(groupId, topicToAdd, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = AutoMapper.Mapper.Map<KalturaMeta>(response.Topic);
+            return result;
+        }
+
+        public KalturaMeta UpdateMeta(int groupId, KalturaMeta meta, long userId)
+        {
+            KalturaMeta result = null;
+            TopicResponse response = null;
+
+            try
+            {
+                Topic topicToUpdate = AutoMapper.Mapper.Map<Topic>(meta);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateTopic(groupId, topicToUpdate, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = AutoMapper.Mapper.Map<KalturaMeta>(response.Topic);
+            return result;
+        }
+
+        public bool DeleteMeta(int groupId, long id, long userId)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteTopic(groupId, id, userId);
                 }
             }
             catch (Exception ex)

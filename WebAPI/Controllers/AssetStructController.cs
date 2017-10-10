@@ -139,7 +139,7 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
-        [Throws(eResponseStatus.CanNotDeletrePredefinedAssetStruct)]
+        [Throws(eResponseStatus.CanNotDeletePredefinedAssetStruct)]
         [SchemeArgument("id", MinLong = 1)]
         public bool Delete(long id)
         {

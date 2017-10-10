@@ -172,14 +172,23 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ACTION_NOT_RECOGNIZED = new ClientExceptionType(eResponseStatus.ActionNotRecognized, "Action Not Recognized", "Unable to recognize the action you specified");
         public static ClientExceptionType INVALID_ASSET_ID = new ClientExceptionType(eResponseStatus.InvalidAssetId, "Invalid Asset Id", "The specified asset ID is invalid");
         public static ClientExceptionType COUNTRY_NOT_FOUND = new ClientExceptionType(eResponseStatus.CountryNotFound, "Country Not Found", "Unable to find the country code specified");
+
         public static ClientExceptionType ASSET_STRUCT_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.AssetStructNameAlreadyInUse, "Name Already Used", "The asset struct name is already in use");
         public static ClientExceptionType ASSET_STRUCT_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.AssetStructSystemNameAlreadyInUse, "System Name Already Used", "The asset struct system name is already in use");        
-        //public static ClientExceptionType META_IDS_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MetaIdsDoesNotExist, "Invalid Meta Id", "One or more of the specified meta ids does not exist");
+        public static ClientExceptionType META_IDS_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MetaIdsDoesNotExist, "Invalid Meta Id", "One or more of the specified meta ids does not exist");
         public static ClientExceptionType ASSET_STRUCT_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetStructDoesNotExist, "Invalid Asset Struct Id", "The specified asset strcut id does not exist");
         public static ClientExceptionType CAN_NOT_CHANGE_PREDEFINED_ASSET_STRUCT_SYSTEM_NAME = new ClientExceptionType(eResponseStatus.CanNotChangePredefinedAssetStructSystemName, "System Name Can Not Be Changed",
                                                                                                                         "can not change predefined asset struct name");
-        public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeletrePredefinedAssetStruct, "Predefined Asset Struct Can not be deleted",
+        public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedAssetStruct, "Predefined Asset Struct Can not be deleted",
                                                                                                             "can not delete predefined asset struct");
+
+        public static ClientExceptionType META_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.MetaNameAlreadyInUse, "Name Already Used", "The meta name is already in use");
+        public static ClientExceptionType META_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.MetaSystemNameAlreadyInUse, "System Name Already Used", "The meta system name is already in use");        
+        public static ClientExceptionType META_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MetaDoesNotExist, "Invalid Asset Struct Id", "The specified meta id does not exist");
+        public static ClientExceptionType CAN_NOT_CHANGE_PREDEFINED_META_SYSTEM_NAME = new ClientExceptionType(eResponseStatus.CanNotChangePredefinedMetaSystemName, "System Name Can Not Be Changed",
+                                                                                                                        "can not change predefined meta name");
+        public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_META= new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedMeta, "Predefined meta Can not be deleted",
+                                                                                                            "can not delete predefined meta");
 
         // Api 5000 - 5999
         public static ClientExceptionType NO_PIN_DEFINED = new ClientExceptionType(eResponseStatus.NoPinDefined, "No Pin Defined", "No parental PIN was defined for this user/household");
