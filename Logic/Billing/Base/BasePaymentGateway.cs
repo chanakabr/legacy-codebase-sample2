@@ -78,7 +78,7 @@ namespace Core.Billing
         private const string PAYMENT_METHOD_ALREADY_SET_TO_HOUSEHOLD_PAYMENTGATEWAY = "Payment method already set to household paymentgateway";
         private const string PAYMENT_GATEWAY_NOT_SUPPORT_PAYMENT_METHOD = "Payment gateway not support payment method";
         private const string PAYMENT_GATEWAY_NOT_SET_TO_HOUSEHOLD = "Payment gateway not set to household";
-        private const string PAYMENT_GATEWAY_SUSPENDED = "Payment gateway suspended to thid householdId";
+        private const string PAYMENT_GATEWAY_SUSPENDED = "Payment gateway suspended to this householdId";
 
         protected const int FAIL_REASON_EXCEEDED_RETRY_LIMIT_CODE = 26;
 
