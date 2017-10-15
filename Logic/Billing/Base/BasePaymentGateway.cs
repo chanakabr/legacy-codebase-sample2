@@ -1772,6 +1772,8 @@ namespace Core.Billing
                     if (isSuspended) // return due to suspend payment gateway !!! 
                     {
                         transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
+
+                       
                         return transactionResponse;
                     }
 

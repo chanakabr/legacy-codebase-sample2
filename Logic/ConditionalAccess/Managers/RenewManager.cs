@@ -338,6 +338,14 @@ namespace Core.ConditionalAccess
                     return HandleRenewSubscriptionFailed(cas, groupId,
                         siteguid, purchaseId, logString, productId, subscription, householdId, 0, transactionResponse.Status.Message);
                 }
+                else if (transactionResponse.Status.Code == (int)eResponseStatus.PaymentGatewaySuspended)
+                {
+                    if (!ConditionalAccessDAL.UpdateMPPRenewalSubscriptionStatus(new List<int> (){ (int)purchaseId }, (int)SubscriptionPurchaseStatus.Suspended))
+                    {
+                        log.ErrorFormat("Failed to suspend purchase id  entitlements for payment gateway: UpdateMPPRenewalSubscriptionStatus fail in DB purchaseId={0}, householdId={1}", purchaseId, householdId);                            
+                    }
+                    return false;
+                }
                 else
                 {
                     return false;
