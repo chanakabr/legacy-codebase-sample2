@@ -146,20 +146,20 @@ namespace Core.Users.Cache
         // try to get domain from cache , if domain don't exsits - build it , thrn insert it to cache only if bInsertToCache == true
         internal Domain GetDomain(int nDomainID, int nGroupID, bool bInsertToCache = true)
         {
-            Domain oDomain = null;
-            Random r = new Random();
+            Domain domain = null;
+            Random random = new Random();
             int limitRetries = RETRY_LIMIT;
+
             try
             {
-                string sKey = string.Format("{0}{1}", sDomainKeyCache, nDomainID);
+                string cacheKey = string.Format("{0}{1}", sDomainKeyCache, nDomainID);
                 // try to get the domain id from cache
-                bool bSuccess = this.cache.GetJsonAsT<Domain>(sKey, out oDomain);
+                bool getSuccess = this.cache.GetJsonAsT<Domain>(cacheKey, out domain);
 
-
-                if (!bSuccess || oDomain == null)
+                if (!getSuccess || domain == null)
                 {
-                    bool bInsert = false;
-                    oDomain = DomainFactory.GetDomain(nGroupID, nDomainID);
+                    bool insertSuccess = false;
+                    domain = DomainFactory.GetDomain(nGroupID, nDomainID);
 
                     // if bInsertToCache = true = need to insert the domain to cache 
                     if (bInsertToCache)
@@ -167,10 +167,10 @@ namespace Core.Users.Cache
                         while (limitRetries > 0)
                         {
                             //try insert to Cache                                              
-                            bInsert = this.cache.SetJson<Domain>(sKey, oDomain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits
-                            if (!bInsert)
+                            insertSuccess = this.cache.SetJson<Domain>(cacheKey, domain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits
+                            if (!insertSuccess)
                             {
-                                Thread.Sleep(r.Next(50));
+                                Thread.Sleep(random.Next(50));
                                 limitRetries--;
                             }
                             else
@@ -182,11 +182,15 @@ namespace Core.Users.Cache
                 }
                 else
                 {
-                    DomainFactory.InitializeDLM(oDomain);
+                    DomainFactory.InitializeDLM(domain);
                 }
 
+                if (domain != null)
+                {
+                    domain.SetReadingInvalidationKeys();
+                }
 
-                return oDomain;
+                return domain;
             }
             catch (Exception ex)
             {

@@ -244,6 +244,9 @@ namespace APILogic.AmazonSnsAdapter {
         private int ContentAvailableField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ImageUrlField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string SoundField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -307,6 +310,19 @@ namespace APILogic.AmazonSnsAdapter {
                 if ((this.ContentAvailableField.Equals(value) != true)) {
                     this.ContentAvailableField = value;
                     this.RaisePropertyChanged("ContentAvailable");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ImageUrl {
+            get {
+                return this.ImageUrlField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ImageUrlField, value) != true)) {
+                    this.ImageUrlField = value;
+                    this.RaisePropertyChanged("ImageUrl");
                 }
             }
         }
@@ -526,6 +542,9 @@ namespace APILogic.AmazonSnsAdapter {
         private string ExtraDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ImageUrlField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string ResultMessageIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -605,6 +624,19 @@ namespace APILogic.AmazonSnsAdapter {
                 if ((object.ReferenceEquals(this.ExtraDataField, value) != true)) {
                     this.ExtraDataField = value;
                     this.RaisePropertyChanged("ExtraData");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ImageUrl {
+            get {
+                return this.ImageUrlField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ImageUrlField, value) != true)) {
+                    this.ImageUrlField = value;
+                    this.RaisePropertyChanged("ImageUrl");
                 }
             }
         }

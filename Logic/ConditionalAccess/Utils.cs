@@ -32,6 +32,9 @@ using KlogMonitorHelper;
 using ApiObjects.Billing;
 using ApiObjects.SubscriptionSet;
 using APILogic.ConditionalAccess.Managers;
+using Core.ConditionalAccess.Modules;
+using APILogic.ConditionalAccess.Modules;
+using QueueWrapper;
 
 namespace Core.ConditionalAccess
 {
@@ -63,7 +66,7 @@ namespace Core.ConditionalAccess
         private static readonly string BASIC_LINK_CONFIG_DATA = "!--config_data--";
         private static readonly int RECOVERY_GRACE_PERIOD = 864000;
 
-
+        protected const string ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION = "PROCESS_UNIFIED_RENEW_SUBSCRIPTION\\{0}";
         static public void GetBaseConditionalAccessImpl(ref BaseConditionalAccess t, Int32 nGroupID)
         {
             GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
@@ -560,6 +563,64 @@ namespace Core.ConditionalAccess
             }
 
             return isCreditDownloaded;
+        }
+
+        // find in process defined to old payment and change it to new - also change in subscription purchases
+        internal static void HandleUnifiedBillingCycle(int groupId, long domainId, int paymentGatewayId, DateTime endDate, int purchaseID, long oldUnifiedProcessId)
+        {            
+            try
+            {
+                // find in process defined to old payment and change it to new - also change in subscription purchases?
+                long processId = 0;
+                int state = 0;
+                ProcessUnifiedState processState = ProcessUnifiedState.Renew;
+                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGatewayId, endDate, domainId);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+                    state = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "state");
+                    processState = (ProcessUnifiedState)state;
+                }
+
+                if (processId == 0) // create new process id + add message to queue
+                {
+                    // get details of OLD processState needed to be changed                    
+                    DataRow dr = ConditionalAccessDAL.GetUnifiedProcessById(oldUnifiedProcessId);
+                    if (dr != null)
+                    {                       
+                        state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");
+                        processState = (ProcessUnifiedState)state;
+                    }
+                    // create new process Id 
+                    processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, endDate, domainId, (int)processState);
+                    
+                    // insert new message to queue
+
+                    PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupId, paymentGatewayId, 1, 1);
+                    DateTime nextRenewalDate;
+                    if (processState == ProcessUnifiedState.Renew)
+                    {
+                        nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
+                    }
+                    else
+                    {
+                        nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalIntervalMinutes);
+                    }
+
+                    Utils.RenewTransactionMessageInQueue(groupId, domainId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate), nextRenewalDate, processId);
+                }
+
+                if (processId > 0) // already have message to queue so update subscription purchase row
+                {
+                    // update subscription Purchase
+                    ConditionalAccessDAL.UpdateMPPRenewalProcessId(new List<int>() { purchaseID }, processId );
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         internal static void FillCatalogSignature(BaseRequest request)
@@ -1250,6 +1311,127 @@ namespace Core.ConditionalAccess
             return price;
         }
 
+        internal static List<RenewSubscriptionDetails> BuildSubscriptionPurchaseDetails(DataTable subscriptionPurchaseDt, int groupId, BaseConditionalAccess cas)
+        {
+            try
+            {
+                List<RenewSubscriptionDetails> renewSubscriptionDetails = new List<RenewSubscriptionDetails>();
+                RenewSubscriptionDetails rsd;                                
+                int numOfPayments, paymentNumber;
+
+                foreach (DataRow dr in subscriptionPurchaseDt.Rows)
+                {
+                    rsd = new RenewSubscriptionDetails();
+                    rsd.ProductId = ODBCWrapper.Utils.ExtractString(dr, "subscription_code");
+                    rsd.PurchaseId = ODBCWrapper.Utils.ExtractInteger(dr, "id");
+                    rsd.CouponCode = ODBCWrapper.Utils.ExtractString(dr, "coupon_code");
+                    rsd.EndDate = ODBCWrapper.Utils.ExtractDateTime(dr, "end_date");
+                    rsd.UserId = ODBCWrapper.Utils.ExtractString(dr, "site_user_guid");
+                    rsd.BillingGuid = ODBCWrapper.Utils.ExtractString(dr, "billing_guid");
+                    rsd.CustomData = ODBCWrapper.Utils.ExtractString(dr, "customdata");
+
+                    rsd.CountryName = ODBCWrapper.Utils.ExtractString(dr, "country_code"); // country code on db is really country name 
+                    rsd.CountryCode = Utils.GetCountryCodeByCountryName(groupId, rsd.CountryName);
+
+                    rsd.Currency = ODBCWrapper.Utils.ExtractString(dr, "currency_cd");
+                    rsd.PaymentMethodId = ODBCWrapper.Utils.ExtractInteger(dr, "payment_method_id");
+                    rsd.ExternalTransactionId = ODBCWrapper.Utils.ExtractString(dr, "external_transaction_id");
+                    rsd.TotalNumOfPayments = ODBCWrapper.Utils.ExtractInteger(dr, "total_number_of_payments");
+
+                    rsd.SubscriptionStatus = (SubscriptionPurchaseStatus)ODBCWrapper.Utils.ExtractInteger(dr, "subscription_status");
+
+                    numOfPayments = ODBCWrapper.Utils.ExtractInteger(dr, "number_of_payments");
+                    paymentNumber = ODBCWrapper.Utils.ExtractInteger(dr, "payment_number");
+
+                    // get compensation data
+                    rsd.Compensation = ConditionalAccessDAL.GetSubscriptionCompensationByPurchaseId(rsd.PurchaseId);
+
+                    // check if purchased with preview module                    
+                    rsd.IsPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModuleByBillingGuid(groupId, rsd.BillingGuid, (int)rsd.PurchaseId);
+
+                    paymentNumber = Utils.CalcPaymentNumber(numOfPayments, paymentNumber, rsd.IsPurchasedWithPreviewModule);
+                    if (numOfPayments > 0 && paymentNumber > numOfPayments)
+                    {
+                        // Subscription ended
+                        log.ErrorFormat("Subscription ended. numOfPayments={0}, paymentNumber={1}, numOfPayments={2}", numOfPayments, paymentNumber, numOfPayments);
+                        cas.WriteToUserLog(rsd.UserId, string.Format("Subscription ended. subscriptionID = {0}, numOfPayments={1}, paymentNumber={2}, numOfPayments={3}, billingGuid={4}",
+                            rsd.ProductId, numOfPayments, paymentNumber, numOfPayments, rsd.BillingGuid));
+                        
+                        continue; // won't insert this row details to the list ! 
+                    }
+                    paymentNumber++;
+
+                    rsd.NumOfPayments = numOfPayments;
+                    rsd.PaymentNumber = paymentNumber;
+
+                    renewSubscriptionDetails.Add(rsd);
+                }
+
+                return renewSubscriptionDetails;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("BuildSubscriptionPurchaseDetails failed ex = {0}" , ex);                
+            }
+            return null;
+        }
+
+        internal static void GetMultiSubscriptionUsageModule(List<RenewSubscriptionDetails> rsDetails, string userIp, List<Subscription> subscriptions, BaseConditionalAccess cas, ref UnifiedBillingCycle unifiedBillingCycle,
+            int householdId, int groupId)
+        {
+            try
+            {
+                // get MPP
+                int recPeriods = 0;
+                bool isMPPRecurringInfinitely = false;
+                int maxVLCOfSelectedUsageModule = 0;
+                double price = 0;
+                string customData = string.Empty;
+                string currency = "n/a";
+                string couponCode = string.Empty;
+                string previousPurchaseCurrencyCode = string.Empty;
+                string previousPurchaseCountryCode = string.Empty;
+                string previousPurchaseCountryName = string.Empty;
+                List<RenewSubscriptionDetails> rsDetailsToRemove = new List<RenewSubscriptionDetails>();
+
+                Subscription subscription;
+                foreach (RenewSubscriptionDetails rsDetail in rsDetails)
+                { 
+                    previousPurchaseCurrencyCode = rsDetail.Currency;
+                    previousPurchaseCountryName = rsDetail.CountryName;
+                    previousPurchaseCountryCode = rsDetail.CountryCode;                     
+
+                    subscription = subscriptions.Where(x => x.m_SubscriptionCode == rsDetail.ProductId).FirstOrDefault();                    
+                    if (!cas.GetMultiSubscriptionUsageModule(rsDetail.UserId, userIp, (int)rsDetail.PurchaseId, rsDetail.PaymentNumber, rsDetail.TotalNumOfPayments, rsDetail.NumOfPayments, rsDetail.IsPurchasedWithPreviewModule,
+                            ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
+                            ref couponCode, subscription, ref unifiedBillingCycle, rsDetail.Compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode, rsDetail.EndDate, groupId, 
+                            householdId))
+                    {
+                        // "Error while trying to get Price plan
+                        log.ErrorFormat("Error while trying to get Price plan to renew productId : {0}, purchaseId : {1}, householdId : {2}", rsDetail.ProductId, rsDetail.PurchaseId, householdId);
+                        //save object to remove + continue 
+                        rsDetailsToRemove.Add(rsDetail);
+                        continue;
+                    }
+
+                    rsDetail.CouponCode = couponCode;
+                    rsDetail.Price = price;
+                    rsDetail.Currency = currency;
+                    rsDetail.MaxVLCOfSelectedUsageModule = maxVLCOfSelectedUsageModule;
+                    rsDetail.GracePeriodMinutes = subscription.m_GracePeriodMinutes;
+                }
+
+                // remove if needed
+                rsDetails.RemoveAll(x => rsDetailsToRemove.Contains(x));
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetMultiSubscriptionUsageModule failed ex = {0}", ex);
+            }
+        }
+
+       
+
         /// calculate relative price by the time period that left until end of this cycle
         /// d =  subscription number of days 
         /// P = subscription price (original + discount)
@@ -1272,11 +1454,11 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow))
+                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                 {
                     DateTime nextRenew = Core.Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
                     int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
-                    int numOfDaysByBillingCycle = (int)Math.Ceiling((Utils.ConvertEpochTimeToDate(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
+                    int numOfDaysByBillingCycle = (int)Math.Ceiling((ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
 
                     price = Math.Round(numOfDaysByBillingCycle * (price / numOfDaysForSubscription), 2);
                 }
@@ -1304,7 +1486,36 @@ namespace Core.ConditionalAccess
             return unifiedBillingCycle;
         }
 
-      
+        internal static long GetUnifiedProcessId(int groupId, int paymentGatewayId, DateTime endDate, long householdId, out bool isNew, ProcessUnifiedState processPurchasesState = ProcessUnifiedState.Renew)
+        {
+            long processId = 0;
+            isNew = false;
+            try
+            {                
+                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGatewayId, endDate,  householdId, (int)processPurchasesState);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "id");
+                }
+
+                if (processId == 0)
+                {
+                    // insert new one to DB 
+                    processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, endDate, householdId, (int)processPurchasesState);
+                    if (processId > 0)
+                    {
+                        isNew = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetProcessPurchasesId - Failed for groupId = {0}, paymentGatewayID= {1} endDate={2}, householdId={3}, ex={4}", groupId, paymentGatewayId, endDate,
+                    householdId, ex.Message);            
+            }
+            return processId;
+        }
+
         public static long? GetGroupUnifiedBillingCycle(int groupId)
         {
             long? unifiedBillingCycle = null;
@@ -5113,7 +5324,7 @@ namespace Core.ConditionalAccess
             return domainDefaultQuota;
         }
 
-        internal static List<ExtendedSearchResult> GetFirstFollowerEpgIdsToRecord(int groupId, string epgChannelId, string seriesId, int seasonNumber, DateTime? windowStartDate)
+        internal static List<ExtendedSearchResult> GetFirstFollowerEpgIdsToRecord(int groupId, string epgChannelId, string seriesId, int seasonNumber, DateTime startDate)
         {
             List<ExtendedSearchResult> programs = null;
 
@@ -5125,11 +5336,7 @@ namespace Core.ConditionalAccess
                 if (seasonNumber > 0)
                     ksql.AppendFormat("season_number = '{0}'", seasonNumber);
 
-                if (windowStartDate.HasValue)
-                {
-                    ksql.AppendFormat("start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(windowStartDate.Value));
-                }
-
+                ksql.AppendFormat("start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(startDate));
                 ksql.AppendFormat("epg_channel_id = '{0}')", epgChannelId);
 
                 ExtendedSearchRequest request = new ExtendedSearchRequest()
@@ -5171,7 +5378,7 @@ namespace Core.ConditionalAccess
 
             catch
             {
-                log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, channelId: {0}, seriesId: {1}, seassonNumber: {2}, windowStartDate: {3}", epgChannelId, seriesId, seasonNumber, windowStartDate);
+                log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, channelId: {0}, seriesId: {1}, seassonNumber: {2}, windowStartDate: {3}", epgChannelId, seriesId, seasonNumber, startDate);
             }
 
             return programs;
@@ -7957,43 +8164,21 @@ namespace Core.ConditionalAccess
 
         /// update unified billing cycle (if exsits) with new paymentGatewayId
         /// get group unified billing cycle - and see if any document exsits for this domain 
-        internal static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, long? endDate = null, List<int> paymentGatewayIds = null)
+        internal static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, int maxUsageModuleLifeCycle, long? endDate = null)
         {
             try
             {
                 long? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-                if (groupUnifiedBillingCycle.HasValue)
+                if (groupUnifiedBillingCycle.HasValue && (int)groupUnifiedBillingCycle.Value == maxUsageModuleLifeCycle)
                 {
-                    bool setDomainUnifiedBillingCycle = false;
                     UnifiedBillingCycle unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, groupUnifiedBillingCycle.Value);
                     if (unifiedBillingCycle != null)
                     {
                         if (endDate.HasValue && unifiedBillingCycle.endDate != endDate.Value)
                         {
                             unifiedBillingCycle.endDate = endDate.Value;
-                            setDomainUnifiedBillingCycle = true;
-                        }
 
-                        if (unifiedBillingCycle.paymentGatewayIds != null)
-                        {
-                            foreach (int pgid in paymentGatewayIds)
-                            {
-                                if (!unifiedBillingCycle.paymentGatewayIds.Contains(pgid))
-                                {
-                                    unifiedBillingCycle.paymentGatewayIds.Add(pgid);
-                                    setDomainUnifiedBillingCycle = true;
-                                }
-                            }
-                        }
-                        else if (paymentGatewayIds != null && paymentGatewayIds.Count() > 0)
-                        {
-                            unifiedBillingCycle.paymentGatewayIds = paymentGatewayIds;
-                            setDomainUnifiedBillingCycle = true;
-                        }
-
-                        if (setDomainUnifiedBillingCycle)
-                        {
-                            UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupUnifiedBillingCycle.Value, unifiedBillingCycle.endDate, unifiedBillingCycle.paymentGatewayIds);
+                            UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupUnifiedBillingCycle.Value, unifiedBillingCycle.endDate);
                         }
                     }
                 }
@@ -8001,6 +8186,55 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 log.Error(string.Format("HandleUpdateDomainUnifiedBillingCycle failed groupId : {0}, householdId : {1}, ex : {2}", groupId, householdId, ex));
+            }
+        }
+
+
+        internal static bool RenewTransactionMessageInQueue(int groupId, long householdId, long endDateUnix, DateTime nextRenewalDate, long processId)
+        {
+            // add new message to new routing key queue
+            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+            RenewUnifiedData data = new RenewUnifiedData(groupId, householdId, processId, endDateUnix, nextRenewalDate);
+            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION, groupId));
+            if (!enqueueSuccessful)
+            {
+                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+            }
+            else
+            {
+                log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
+                    nextRenewalDate, data);
+            }
+            return enqueueSuccessful;
+        }
+
+        ///If needed create/ update doc in cb for unifiedBilling_household_{ household_id }_renewBillingCycle
+        ///create: unified billing cycle for household (CB)
+        ///update: the current one with payment gateway id or end date 
+        internal static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, ref UnifiedBillingCycle unifiedBillingCycle, int maxUsageModuleLifeCycle, DateTime endDate)
+        {
+            try
+            {
+                long? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
+
+                if (groupUnifiedBillingCycle.HasValue && (int)groupUnifiedBillingCycle.Value == maxUsageModuleLifeCycle) // group define with billing cycle
+                {
+                    long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
+                    if (unifiedBillingCycle == null || (unifiedBillingCycle != null && unifiedBillingCycle.endDate != nextEndDate))
+                    {
+                        // update unified billing by endDate or paymentGatewatId                  
+                        bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupUnifiedBillingCycle.Value, nextEndDate);
+                        if (setResult)
+                        {
+                            unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupUnifiedBillingCycle.Value);
+                        }
+                    }
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("HandleDomainUnifiedBillingCycle failed with ex = {0}", ex);
             }
         }
     }

@@ -191,7 +191,7 @@ namespace Core.Notification
             int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
             DateTime announcementStartTime = ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime);
 
-            DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(id, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0);
+            DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(id, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null, announcement.ImageUrl);
             announcement = Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
 
             // add a new message to queue when new time updated
@@ -259,7 +259,7 @@ namespace Core.Notification
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
-        private static bool HandleRecipientOtherTvSeries(int groupId, int messageId, long startTime, int announcementId, ref DataRow messageAnnouncementDataRow, ref string url, ref string sound,
+        private static bool HandleRecipientOtherTvSeries(int groupId, int messageId, long startTime, int announcementId, ref DataRow messageAnnouncementDataRow, ref string url, ref string ImageUrl, ref string sound,
                                                             ref string category, out string annExternalId, out string singleQueueName, out bool failRes)
         {
             failRes = false;
@@ -392,6 +392,7 @@ namespace Core.Notification
             {
                 category = msgTemplateResponse.MessageTemplate.Action;
                 sound = msgTemplateResponse.MessageTemplate.Sound;
+                //ImageUrl = msgTemplateResponse.MessageTemplate.ImageUrl;
                 url = msgTemplateResponse.MessageTemplate.URL.Replace("{" + eFollowSeriesPlaceHolders.CatalaogStartDate + "}", catalogStartDateStr.ToString(msgTemplateResponse.MessageTemplate.DateFormat)).
                                                             Replace("{" + eFollowSeriesPlaceHolders.MediaId + "}", assetId.ToString()).
                                                             Replace("{" + eFollowSeriesPlaceHolders.MediaName + "}", mediaName).
@@ -451,7 +452,10 @@ namespace Core.Notification
                                                                       startTime,
                                                                       timezone,
                                                                       recipients,
-                                                                      status);
+                                                                      status,
+                                                                      null,
+                                                                      0,
+                                                                      ODBCWrapper.Utils.GetSafeStr(row, "image_url"));
 
                     msg.MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
 
@@ -469,7 +473,7 @@ namespace Core.Notification
             try
             {
                 DateTime announcementStartTime = ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime);
-                DataRow row = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, announcement.AnnouncementId, announcement.MessageReference);
+                DataRow row = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, announcement.AnnouncementId, announcement.MessageReference, null, announcement.ImageUrl);
                 return Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
             }
             catch (Exception ex)
@@ -589,6 +593,7 @@ namespace Core.Notification
             string url = string.Empty;
             string sound = string.Empty;
             string category = string.Empty;
+            string imageUrl = string.Empty;
 
             // get message announcements
             DataRow messageAnnouncementDataRow = DAL.NotificationDal.Get_MessageAnnouncementWithActiveStatus(messageId);
@@ -633,6 +638,8 @@ namespace Core.Notification
             {
                 case eAnnouncementRecipientsType.All:
 
+                    // in case system announcement - the image URL is taken from the message announcement and not from template
+                    imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "image_url");
 
                     if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {
@@ -659,7 +666,8 @@ namespace Core.Notification
                             Message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
                             State = eMessageState.Unread,
                             UpdatedAtSec = currentTimeSec,
-                            Url = url
+                            Url = url,
+                            ImageUrl = imageUrl
                         };
 
                         if (!NotificationDal.SetSystemAnnouncementMessage(groupId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(groupId)))
@@ -680,6 +688,9 @@ namespace Core.Notification
 
                     if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {
+                        // in case system announcement - the image URL is taken from the message announcement and not from template
+                        imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "image_url");
+
                         // get topic push external id's of guests users
                         singleTopicExternalId = DAL.NotificationDal.Get_AnnouncementExternalIdByRecipients(groupId, (int)recipients);
                         if (!string.IsNullOrEmpty(singleTopicExternalId))
@@ -695,6 +706,9 @@ namespace Core.Notification
                     break;
 
                 case eAnnouncementRecipientsType.LoggedIn:
+
+                    // in case system announcement - the image URL is taken from the message announcement and not from template
+                    imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "image_url");
 
                     if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {
@@ -721,7 +735,8 @@ namespace Core.Notification
                             Message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
                             State = eMessageState.Unread,
                             UpdatedAtSec = currentTimeSec,
-                            Url = url
+                            Url = url,
+                            ImageUrl = imageUrl
                         };
 
                         if (!NotificationDal.SetSystemAnnouncementMessage(groupId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(groupId)))
@@ -751,7 +766,7 @@ namespace Core.Notification
                         return false;
                     }
 
-                    if (!HandleRecipientOtherTvSeries(groupId, messageId, startTime, announcementId, ref messageAnnouncementDataRow, ref url, ref sound, ref category, out singleTopicExternalId, out singleQueueName, out res))
+                    if (!HandleRecipientOtherTvSeries(groupId, messageId, startTime, announcementId, ref messageAnnouncementDataRow, ref url, ref imageUrl, ref sound, ref category, out singleTopicExternalId, out singleQueueName, out res))
                     {
                         DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
                         return res;
@@ -782,7 +797,8 @@ namespace Core.Notification
                                     State = eMessageState.Unread,
                                     UpdatedAtSec = currentTimeSec,
                                     Url = url,
-                                    UserId = userId
+                                    UserId = userId,
+                                    ImageUrl = imageUrl
                                 };
 
                                 int TtlDays = NotificationSettings.GetInboxMessageTTLDays(groupId);
@@ -809,7 +825,7 @@ namespace Core.Notification
                 {
                     foreach (string extAnnouncementId in topicExternalIds)
                     {
-                        string resultMsgId = NotificationAdapter.PublishToAnnouncement(groupId, extAnnouncementId, string.Empty, new MessageData() { Alert = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), Url = url, Sound = sound, Category = category });
+                        string resultMsgId = NotificationAdapter.PublishToAnnouncement(groupId, extAnnouncementId, string.Empty, new MessageData() { Alert = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), Url = url, Sound = sound, Category = category, ImageUrl = imageUrl });
                         if (!string.IsNullOrEmpty(resultMsgIds))
                             resultMsgIds += ",";
                         resultMsgIds += resultMsgId;
@@ -824,7 +840,7 @@ namespace Core.Notification
                 // send to push web - rabbit.                
                 if (queueNames != null && queueNames.Count > 0)
                 {
-                    MessageAnnouncementFullData data = new MessageAnnouncementFullData(groupId, ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, startTime);
+                    MessageAnnouncementFullData data = new MessageAnnouncementFullData(groupId, ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, startTime, imageUrl);
                     foreach (string qName in queueNames)
                     {
                         // enqueue message with small expiration date

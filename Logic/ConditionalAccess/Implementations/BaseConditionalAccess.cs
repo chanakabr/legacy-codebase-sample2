@@ -74,16 +74,17 @@ namespace Core.ConditionalAccess
 		internal const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
 		internal const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
 		internal const double MAX_SERVER_TIME_DIF = 5;
-		internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3;
+		internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3;       
 
-		//errors
-		internal const string CONFLICTED_PARAMS = "Conflicted params";
+        //errors
+        internal const string CONFLICTED_PARAMS = "Conflicted params";
 		internal const string NO_ADAPTER_TO_INSERT = "No adapter to insert";
 		internal const string NO_ADAPTER_TO_UPDATE = "No adapter to update";
 		internal const string NAME_REQUIRED = "Name must have a value";
 		internal const string ADAPTER_SHARED_SECRET_REQUIRED = "Shared secret must have a value";
-		internal const string EXTERNAL_IDENTIFIER_REQUIRED = "External identifier must have a value";
-		internal const string ERROR_EXT_ID_ALREADY_IN_USE = "External identifier must be unique";
+		internal const string EXTERNAL_IDENTIFIER_REQUIRED = "External identifier must have a value";       
+
+        internal const string ERROR_EXT_ID_ALREADY_IN_USE = "External identifier must be unique";
 		internal const string ADAPTER_ID_REQUIRED = "Adapter identifier is required";
 		internal const string ADAPTER_NOT_EXIST = "Adapter not exist";
 		internal const string ADAPTER_URL_REQUIRED = "Adapter url must have a value";
@@ -140,7 +141,7 @@ namespace Core.ConditionalAccess
 		protected internal abstract bool HandleSubscriptionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Subscription subscription, double price, string currency, string coupon,
 																 string userIP, string country, string deviceName, long billingTransactionId, string customData,
 																 int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate,
-																 ref long purchaseID, ref DateTime? subscriptionEndDate, SubscriptionPurchaseStatus subscriptionPurchaseStatus);
+																 ref long purchaseID, ref DateTime? subscriptionEndDate, SubscriptionPurchaseStatus subscriptionPurchaseStatus, long process_purchases_id = 0);
 
 		protected internal abstract bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
 															  string userIP, string country, string deviceName, long billingTransactionId, string customData, int productID,
@@ -1722,7 +1723,16 @@ namespace Core.ConditionalAccess
 					}
 					else
 					{
-						int[] arrUsers = oDomain.m_UsersIDs.ToArray();
+                        // check if cancellation is allowed
+                        Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, p_sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);
+                        if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                        {
+                            result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                            result.Message = "Cancellation is blocked for this subscription";
+                            return result;
+                        }
+
+                        int[] arrUsers = oDomain.m_UsersIDs.ToArray();
 
 						DataRow drUserPurchase = GetSubscriptionPurchaseRow(p_sSubscriptionCode, arrUsers, domainId);
 
@@ -2650,7 +2660,7 @@ namespace Core.ConditionalAccess
                     unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
                     
                     // check that end date between next end date and unified billing cycle end date are different
-                    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow))
+                    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                     {
                         Utils.CalculatePriceByUnifiedBillingCycle(groupId, ref priceValue, ref unifiedBillingCycle);
                         isPartialPrice = true;
@@ -9756,8 +9766,21 @@ namespace Core.ConditionalAccess
                         string purchasingSiteGuid = string.Empty;
                         string billingGuid = string.Empty;
 
+                        // Check if cancellation allowed for subscription
+                        if (!isForce && transactionType == eTransactionType.Subscription)
+                        {
+                            Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false);
+                            if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                            {
+                                result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                                result.Message = "Cancellation is blocked for this subscription";
+                                return result;
+                            }
+                        }
+
                         // Check if within cancellation window
                         bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid);
+
 
                         // Check if the user purchased the asset at all
                         if (userPurchasesTable == null || userPurchasesTable.Rows == null || userPurchasesTable.Rows.Count == 0)
@@ -11808,13 +11831,22 @@ namespace Core.ConditionalAccess
 			return RenewManager.Renew(this, this.m_nGroupID, siteguid, purchaseId, billingGuid, nextEndDate, ref shouldUpdateTaskStatus);
 		}
 
-		public bool UpdateSubscriptionRenewingStatus(long purchaseId, string billingGuid, bool isActive)
+        public bool RenewUnifiedTransaction(long householdId, long nextEndDate, long processId, ref List<long> purchasesIds)
+        {
+            return RenewManager.RenewUnifiedTransaction(this, this.m_nGroupID, householdId, nextEndDate, processId, ref purchasesIds);
+        }
+
+        public bool UpdateSubscriptionRenewingStatus(long purchaseId, string billingGuid, bool isActive)
 		{
 			return ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalActiveStatus(m_nGroupID, purchaseId, billingGuid, Convert.ToInt16(isActive));
 		}
 
+        public bool UpdateSubscriptionUnifiedRenewingStatus(int groupId, List<long> purchasesIds)
+        {
+            return ConditionalAccessDAL.UpdateSubscriptionUnifiedRenewingStatus(groupId, purchasesIds);
+        }
 
-		public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid,
+        public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid,
 			string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP)
 		{
 			AssetItemPriceResponse response = new AssetItemPriceResponse();
@@ -12996,7 +13028,7 @@ namespace Core.ConditionalAccess
 				if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
 				{
 					//check if it setting for quota_overage if so asuncronize action to delete oldest recordings 
-					//else return exceedeQuota  
+					//else return exceedeQuota
 					if (recording.Status.Code == (int)eResponseStatus.ExceededQuota)
 					{
 						TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
@@ -13005,13 +13037,13 @@ namespace Core.ConditionalAccess
 							quotaOverage = true;
 						}
 					}
+
 					if (!quotaOverage)
 					{
 						log.DebugFormat("Recording status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
 						return recording;
 					}
 				}
-			  
 
 				if (recording.Id == 0 || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
 				{
@@ -13024,7 +13056,7 @@ namespace Core.ConditionalAccess
 						log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);
 						if (quotaOverage) // if QuotaOverage then call delete recorded as needed                               
 						{
-							// handel delete to overage quota    
+							// handle delete to overage quota
 							ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDomainAutoDelete(m_nGroupID, domainID, recordingDuration);
 							if (bRes!= null && bRes.Code == (int)eResponseStatus.OK)
 							{
@@ -14152,11 +14184,14 @@ namespace Core.ConditionalAccess
 					recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
 				}
 
-				// get first batch
-				int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0;
-                System.Collections.Concurrent.ConcurrentDictionary<int, int> groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, int>();
-				Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
+                int totalRecordingsToCleanup = 0;
+                int totalRecordingsDeleted = 0;
+                var groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, int>();
 				HashSet<long> recordingsThatFailedDeletion = new HashSet<long>();
+
+                // get first batch
+                Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
+
 				while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
 				{
 					totalRecordingsToCleanup += recordingsForDeletion.Count;
@@ -14175,16 +14210,22 @@ namespace Core.ConditionalAccess
                         try
                         {
                             contextData.Load();
+
+                            // get adapter data of current group, if we don't have
+                            // pair.key = groupId
                             if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
                             {
                                 adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
+
                                 if (groupIdToAdapterIdMap.TryAdd(pair.Key, adapterId))
                                 {
                                     log.DebugFormat("Successfully added groupId :{0} with adapterId: {1} to groupIdToAdapterIdMap", pair.Key, adapterId);
                                 }
                             }
 
+                            // Try to delete the current recording
                             ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, adapterId);
+
                             if (deleteStatus.Code != (int)eResponseStatus.OK)
                             {
                                 if (!recordingsThatFailedDeletion.Contains(pair.Value.Id))
@@ -14726,13 +14767,21 @@ namespace Core.ConditionalAccess
 			try
 			{
 				TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-				DateTime? windowStartDate = null;
-				if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value && accountSettings.RecordingScheduleWindow.HasValue)
-				{
-					windowStartDate = DateTime.UtcNow.AddMinutes(-accountSettings.RecordingScheduleWindow.Value);
-				}
+                DateTime startDate;
+                long windowStartDate = accountSettings.RecordingScheduleWindow.HasValue ? accountSettings.RecordingScheduleWindow.Value : 0;
+                long bufferStartDate = accountSettings.CatchUpBufferLength.HasValue ? accountSettings.CatchUpBufferLength.Value : 0;
+                if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value ||
+                    accountSettings.IsCatchUpEnabled.HasValue && accountSettings.IsCatchUpEnabled.Value)
 
-				List<ExtendedSearchResult> epgsToRecord = Utils.GetFirstFollowerEpgIdsToRecord(m_nGroupID, channelId, seriesId, seasonNumber, windowStartDate);
+                {
+                    startDate = DateTime.UtcNow.AddMinutes(windowStartDate > bufferStartDate ? -windowStartDate : -bufferStartDate);
+                }
+                else
+                {
+                    startDate = DateTime.UtcNow;
+                }
+
+				List<ExtendedSearchResult> epgsToRecord = Utils.GetFirstFollowerEpgIdsToRecord(m_nGroupID, channelId, seriesId, seasonNumber, startDate);
 				if (epgsToRecord == null)
 				{
 					log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, seriesId: {0}, seassonNumber: {1}", seriesId, seasonNumber);
@@ -14755,12 +14804,15 @@ namespace Core.ConditionalAccess
 				string crid = string.Empty;
 				List<long> epgsInThePastToRecord = new List<long>();
 				long epgChannelId = 0;
-				if (!long.TryParse(channelId, out epgChannelId))
+				
+                if (!long.TryParse(channelId, out epgChannelId))
 				{
 					return result;
 				}
+
 				long domainSeriesRecordingId = RecordingsDAL.GetDomainSeriesId(m_nGroupID, domainId, seriesId, seasonNumber, epgChannelId);
 				HashSet<string> userRecordingCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId });
+
 				foreach (ExtendedSearchResult epg in epgsToRecord)
 				{
 					if (!long.TryParse(epg.AssetId, out epgId))
@@ -14768,17 +14820,21 @@ namespace Core.ConditionalAccess
 						log.ErrorFormat("failed parsing assetId on HandleFirstFollowerRecording, domainId: {0}, channelId: {1}, seriesId: {2}, seassonNumber: {3}", domainId, channelId, seriesId, seasonNumber);
 						continue;
 					}
+
 					if (!long.TryParse(Utils.GetStringParamFromExtendedSearchResult(epg, "epg_channel_id"), out epgChannelId))
 					{
 						log.ErrorFormat("failed parsing epgChannelId on HandleFirstFollowerRecording, domainId: {0}, channelId: {1}, seriesId: {2}, seassonNumber: {3}", domainId, channelId, seriesId, seasonNumber);
 						continue;
 					}
+
 					crid = Utils.GetStringParamFromExtendedSearchResult(epg, "crid");
 
 					DateTime epgPaddedStartDate = epg.StartDate.AddSeconds(-1 * paddingBeforeProgramStarts);
 					DateTime epgPaddedEndDate = epg.EndDate.AddSeconds(paddingAfterProgramEnds);
+
 					Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid);
-					if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
+					
+                    if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
 					{
 						log.ErrorFormat("RecordingsManager.Instance.Record failed for epgId: {0}, epgChannelId: {1}, epgPaddedStartDate: {2}, epgPaddedEndDate: {3}, crid: {4}", epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid);
 						continue;
@@ -15282,6 +15338,7 @@ namespace Core.ConditionalAccess
 			Recording recording = Utils.GetRecordingById(id);
 			if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
 			{
+                log.DebugFormat("GetRecordingById returned null or invalid recording, for id = {0} epgId = {1}", id, epgId);
 				// don't try distributing again
 				return result;
 			}
@@ -15289,13 +15346,16 @@ namespace Core.ConditionalAccess
 			if (recording.RecordingStatus != TstvRecordingStatus.Recording && recording.RecordingStatus != TstvRecordingStatus.Recorded)
 			{
 				// don't try distributing again
-				return result;
+                log.DebugFormat("GetRecordingById returned recording with wrong status, for id = {0} epgId = {1}", id, epgId);
+                return result;
 			}
+
+            log.DebugFormat("recording id = {0}, crid = {1}", id, recording.Crid);
 
 			List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
 			if (epgs == null || epgs.Count != 1)
 			{
-				log.DebugFormat("Failed Getting EPG from Catalog, groupId: {0}, EpgId: {1}", m_nGroupID, epgId);
+				log.ErrorFormat("Failed Getting EPG from Catalog, groupId: {0}, EpgId: {1}", m_nGroupID, epgId);
 				return result;
 			}
 
@@ -15319,6 +15379,7 @@ namespace Core.ConditionalAccess
 			int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
 			long maxDomainSeriesId = 0;
 			DataTable followingDomains = null;
+
 			// batching is done by remote tasks so get followingDomains by domainIds 
             if (hasDomainSeriesIds && domainSeriesIds.Count > 0)
 			{
@@ -15351,19 +15412,31 @@ namespace Core.ConditionalAccess
 				// loop on all rows
 				Parallel.For(0, followingDomains.Rows.Count, options, i =>
 				{
-					contextData.Load();
-					DataRow dr = followingDomains.Rows[i];
-					long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
-					long userId = ODBCWrapper.Utils.GetLongSafeVal(dr, "USER_ID", 0);
-					int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0);
-					long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                    contextData.Load();
+					DataRow followingDomainRow = followingDomains.Rows[i];
+					long domainId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "DOMAIN_ID", 0);
+					long userId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "USER_ID", 0);
+					int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "SEASON_NUMBER", 0);
+					long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "ID", 0);
 					RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
+
 					if (domainId > 0 && userId > 0)
 					{
-						HashSet<string> domainRecordedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId }, recording.Crid);
+                        //
+                        // !!!!!!!!!!!!!!!!!!!!!!!
+                        // Sunny: WHAT WE DO IF WE DONT HAVE CRIDS FOR EPGS? SP RETURNS HASHSET WITH NULL. hashet(null).contains(null) = true, 
+                        // AND THE RECORDING DOES NOT DISTRBUTE IN THIS CASE
+                        // A SOLUTION IS REQUIRED FOR NO CRID ENVIRONMENTS
+                        // !!!!!!!!!!!!!!!!!!!!!!!
+                        //
+
+						HashSet<string> domainRecordedCrids = 
+                            RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId }, recording.Crid);
+                        
 						if (!domainRecordedCrids.Contains(recording.Crid))
 						{
 							Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId, true);
+
 							if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
 							{
 								log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
@@ -15949,6 +16022,128 @@ namespace Core.ConditionalAccess
             List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context)
         {
             return PlaybackManager.GetAdsContext(this, m_nGroupID, userId, udid, ip,  assetId, assetType, fileIds, streamerType, mediaProtocol, context);
+        }
+
+        internal ApiObjects.Response.Status SuspendPaymentGatewayEntitlements(long householdId, int paymentGatewayId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            try
+            {
+                PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(m_nGroupID, paymentGatewayId);
+                if (paymentGateway == null || paymentGateway.Status != 1 || paymentGateway.IsActive != 1)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, "Payment gateway is not valid");
+                    return response;
+                }
+
+                Domain household;
+                ApiObjects.Response.Status domainStatus = Utils.ValidateDomain(m_nGroupID, (int)householdId, out household);
+
+                if (domainStatus.Code != (int)ResponseStatus.OK)
+                {
+                    return domainStatus;
+                }
+
+                HouseholdPaymentGateway householdPaymentGateway = DAL.BillingDAL.GetHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId, 1);
+                if (householdPaymentGateway == null && householdPaymentGateway.Selected != 1)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.HouseholdNotSetToPaymentGateway, "Household not set to paymentGateway");
+                    return response;
+                }
+
+                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId);
+
+                long processId = 0;
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+                }
+                else
+                {
+                    log.DebugFormat("Failed to suspend household entitlements for payment gateway: proccessId was not found in DB. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", m_nGroupID, paymentGatewayId, householdId);
+                }
+
+                if (processId > 0)
+                {
+                    // set suspend to payment_gateway_household + subscriptions_purchases
+                    if (!ConditionalAccessDAL.SetSubscriptionPurchaseStatusByUnifiedProccessId(m_nGroupID, processId, SubscriptionPurchaseStatus.Suspended, paymentGatewayId, householdId, PaymentGatewayStatus.Suspend))
+                    {
+                        log.ErrorFormat("Failed to suspend household entitlements for payment gateway: SetSubscriptionPurchaseStatusByUnifiedProccessId in DB failed. groupId = {0}, paymentGatewayId = {1}, householdId = {2}, proccessId= {3}", m_nGroupID, paymentGatewayId, householdId, processId);
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        return response;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed to suspend household entitlements for payment gateway. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", m_nGroupID, paymentGatewayId, householdId), ex);
+            }
+
+            return response;
+        }
+
+        internal ApiObjects.Response.Status ResumePaymentGatewayEntitlements(long householdId, int paymentGatewayId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            try
+            {
+                PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(m_nGroupID, paymentGatewayId);
+                if (paymentGateway == null || paymentGateway.Status != 1 || paymentGateway.IsActive != 1)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, "Payment gateway is not valid");
+                    return response;
+                }
+
+                Domain household;
+                ApiObjects.Response.Status domainStatus = Utils.ValidateDomain(m_nGroupID, (int)householdId, out household);
+
+                if (domainStatus.Code != (int)ResponseStatus.OK)
+                {
+                    return domainStatus;
+                }
+
+                HouseholdPaymentGateway householdPaymentGateway = DAL.BillingDAL.GetHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId, 1);
+                if (householdPaymentGateway == null && householdPaymentGateway.Selected != 1)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.HouseholdNotSetToPaymentGateway, "Household not set to paymentGateway");
+                    return response;
+                }
+
+                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId);
+
+                if (dt == null && dt.Rows == null && dt.Rows.Count == 0)
+                {
+                    log.ErrorFormat("Failed to resume household entitlements for payment gateway: failed to get proccessId and endDate from DB. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", m_nGroupID, paymentGatewayId, householdId);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+                    
+                long proccessId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+                DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "END_DATE");
+
+                if (proccessId > 0)
+                {
+                    if (!RenewManager.HandleRenewUnifiedSubscriptionPending(m_nGroupID, householdId, endDate, 0, proccessId))
+                    {
+                        log.ErrorFormat("Failed to resume household entitlements for payment gateway: HandleRenewUnifiedSubscriptionPending failed. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", m_nGroupID, paymentGatewayId, householdId);
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        return response;
+                    }
+                    // get paymentgateway out of suspend status 
+                    BillingDAL.UpdatePaymentGatewayHouseholdStatus(householdId, paymentGatewayId, PaymentGatewayStatus.OK);
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed to resume household entitlements for payment gateway. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", m_nGroupID, paymentGatewayId, householdId), ex);
+            }
+
+            return response;
         }
     }
 }

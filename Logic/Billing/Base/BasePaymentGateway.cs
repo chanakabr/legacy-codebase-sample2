@@ -11,7 +11,8 @@ using System.Reflection;
 using System.Net;
 using System.Web;
 using ApiLogic;
-
+using APILogic.ConditionalAccess.Modules;
+using System.Xml;
 
 namespace Core.Billing
 {
@@ -77,6 +78,7 @@ namespace Core.Billing
         private const string PAYMENT_METHOD_ALREADY_SET_TO_HOUSEHOLD_PAYMENTGATEWAY = "Payment method already set to household paymentgateway";
         private const string PAYMENT_GATEWAY_NOT_SUPPORT_PAYMENT_METHOD = "Payment gateway not support payment method";
         private const string PAYMENT_GATEWAY_NOT_SET_TO_HOUSEHOLD = "Payment gateway not set to household";
+        private const string PAYMENT_GATEWAY_SUSPENDED = "Payment gateway suspended to this householdId";
 
         protected const int FAIL_REASON_EXCEEDED_RETRY_LIMIT_CODE = 26;
 
@@ -907,12 +909,13 @@ namespace Core.Billing
                 paymentGateway = GetOSSAdapterPaymentGateway(groupID, householdID, userIP, out chargeId);
 
                 // in case OSS Adapter not set.
+                bool isSuspended = false;
                 if (paymentGateway == null)
                 {
                     if (paymentGatewayId == 0)
                     {
-                        // get selected household payment gateway
-                        paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdID, ref chargeId);
+                        // get selected household payment gateway                        
+                        paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdID, ref chargeId, ref isSuspended);
                         if (paymentGateway == null)
                         {
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
@@ -936,14 +939,19 @@ namespace Core.Billing
                             return response;
                         }
 
-                        bool isPaymentGWHouseholdExist = false;
-                        chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdID, ref isPaymentGWHouseholdExist);
+                        bool isPaymentGWHouseholdExist = false;                       
+                        chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdID, ref isPaymentGWHouseholdExist, ref isSuspended);
 
                         if (!isPaymentGWHouseholdExist)
                         {
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
                             return response;
                         }
+                    }
+                    if (isSuspended)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
+                        return response;
                     }
                 }
                 else
@@ -1044,6 +1052,505 @@ namespace Core.Billing
             {
                 log.ErrorFormat("Failed SendMail ex={0}, siteGUID={1}, price={2}, currency={3}, customData={4}, productID={5}, transactionType={6}", ex, siteGuid,
                     price, currency, customData, productID, productType);
+            }
+        }
+
+        public virtual TransactResult ProcessUnifiedRenewal(long householdId, double totalPrice, string currency, int paymentGatewayId, 
+            int paymentMethodId, string userIp, ref List<RenewSubscriptionDetails> renewUnified, ref PaymentGateway paymentGateway)
+        {
+            TransactResult transactionResponse = new TransactResult();
+                         
+            PaymentGatewayHouseholdPaymentMethod pghpm = null;
+            
+            string chargeId = string.Empty;
+            string paymentMethodExternalId = string.Empty;
+
+            try
+            {
+                bool isPaymentGatewayHouseholdExist = false;
+
+                /* there are 2 types of payment Gateway
+                 *  external ( verification) payment Gateway and "normal"
+                 *  incase of verification payment Gateway there is no need to look for the most update and relevant payment gateway
+                 *  the renewal will use only the verification payment Gateway   */
+
+                paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
+
+                if (paymentGateway == null || paymentGateway.ID <= 0)
+                {
+                    log.ErrorFormat("error while getting payment GW ID groupID: {0}, householdId: {1), paymentGatewayId : {2}", groupID, householdId, paymentGatewayId);
+                    transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    return transactionResponse;
+                }
+
+                // payment gateway is NOT Google/Apple/Roku - continue                
+                bool isSuspended = false;
+                if (!IsVerificationPaymentGateway(paymentGateway)) 
+                {
+                    // get charge ID                   
+                    chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdId, ref isPaymentGatewayHouseholdExist, ref isSuspended);
+
+                    // Handle  Payment Method
+                   
+                    if (paymentGateway.SupportPaymentMethod)
+                    {
+                        ApiObjects.Response.Status pghpmStatus = null;
+                        pghpmStatus = GetHouseholdPaymentGatewayPaymentMethod(householdId, paymentGatewayId, paymentMethodId, out pghpm);
+
+                        if (pghpmStatus.Code != (int)eResponseStatus.OK)
+                        {
+                            transactionResponse.Status = pghpmStatus;
+                            return transactionResponse;
+                        }
+
+                        paymentMethodExternalId = pghpm.PaymentMethodExternalId;
+                    }
+                }
+
+                log.DebugFormat("paymentGatewayId: {0}, householdId: {1}, isPaymentGWHouseholdExist: {2}, chargeID: {3}",
+                    paymentGatewayId, householdId, isPaymentGatewayHouseholdExist, !string.IsNullOrEmpty(chargeId) ? chargeId : string.Empty);
+                                
+               transactionResponse = SendUnifiedRenewalRequestToAdapter(chargeId, totalPrice, currency, householdId, paymentGateway, paymentMethodExternalId, paymentMethodId, userIp, ref renewUnified);
+
+                if (isSuspended && transactionResponse != null && transactionResponse.Status != null && transactionResponse.Status.Code == (int)eResponseStatus.OK && transactionResponse.State == eTransactionState.OK)
+                {   
+                    // change payment gateway suspend to OK 
+                    DAL.BillingDAL.UpdatePaymentGatewayHouseholdStatus(householdId, paymentGatewayId, PaymentGatewayStatus.OK);                    
+                }
+
+                /*
+                If will need - mail will be sent HERE
+                */
+            }
+            catch (Exception ex)
+            {
+                transactionResponse = new TransactResult()
+                {
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                };
+                
+                log.ErrorFormat("Failed ex={0}, householdId={1}, totalPrice={2}, currency={3}, ", ex, householdId, totalPrice, !string.IsNullOrEmpty(currency) ? currency : string.Empty);
+            }
+
+            return transactionResponse;
+        }
+
+        private TransactResult SendUnifiedRenewalRequestToAdapter(string chargeId, double totalPrice, string currency, long householdId, PaymentGateway paymentGateway, string paymentMethodExternalId, 
+            int paymentMethodId, string userIP, ref List<RenewSubscriptionDetails> renewUnified)
+        {
+            TransactResult response = new TransactResult();
+
+            string logString = string.Format("chargeId: {0}, totalPrice: {1}, currency: {2}, household: {3}, externalTransactionId={4}",
+                chargeId != null ? chargeId : string.Empty, totalPrice, currency != null ? currency : string.Empty, householdId,
+                paymentMethodExternalId != null ? paymentMethodExternalId : string.Empty);
+
+            // build request
+            if (!string.IsNullOrEmpty(paymentGateway.AdapterUrl))
+            {
+                TransactionUnifiedRenewalRequest request = new TransactionUnifiedRenewalRequest()
+                {
+                    groupId = groupID,
+                    chargeId = chargeId,
+                    paymentMethodExternalId = paymentMethodExternalId,
+                    currency = currency,
+                    householdId = householdId,
+                    paymentGateway = paymentGateway,
+                    totalPrice = totalPrice,
+                    userIP = userIP
+                };
+
+                request.renewRequests = new List<TransactionUnifiedRenewalDetails>();
+
+                foreach (RenewSubscriptionDetails ru in renewUnified)
+                {
+                    request.renewRequests.Add(new TransactionUnifiedRenewalDetails()
+                    {
+                        billingGuid = ru.BillingGuid,
+                        customData = ru.CustomData,
+                        price = ru.Price,
+                        productId = int.Parse(ru.ProductId),
+                        productType = eTransactionType.Subscription,
+                        siteGuid = ru.UserId,
+                        productCode = ru.ProductId,
+                        ExternalTransactionId = ru.ExternalTransactionId,
+                        GracePeriodMinutes = ru.GracePeriodMinutes
+                    });
+                }
+
+                // fire request            
+
+                APILogic.PaymentGWAdapter.TransactionResponse adapterResponse = AdaptersController.GetInstance(paymentGateway.ID).UnifiedProcessRenewal(request);
+                response = ValidateAdapterResponse(adapterResponse, logString);
+                if (response == null)
+                {
+                    log.Error("Error received while trying to process unified renewal");
+                    response = new TransactResult()
+                    {
+                        Status = new ApiObjects.Response.Status()
+                        {
+                            Code = (int)eResponseStatus.Error,
+                            Message = "Error validating adapter response"
+                        }
+                    };
+                }
+                // validation OK -> continue
+                // validation NOT OK -> validation response is final response
+                else if (response.Status.Code == (int)eResponseStatus.OK)
+                {
+                    if (adapterResponse.Status.Code == (int)PaymentGatewayAdapterStatus.OK)
+                    {
+                        switch (adapterResponse.Transaction.StateCode)
+                        {
+                            case (int)eTransactionState.OK:
+
+                                // renewal passed - create transaction
+                                log.Debug("process renewal passed - create transaction");
+
+                                int paymentGatewayTransactionId = CreateUnifiedTransaction(ref response, adapterResponse, eTransactionType.Subscription,
+                                     paymentGateway.ID, paymentMethodId, householdId, BILLING_TRANSACTION_SUCCESS_STATUS, ref renewUnified);
+                               
+                                    if (paymentGatewayTransactionId > 0 && response != null && response.Status.Code != (int)eResponseStatus.OK)
+                                    {
+                                        // error saving transaction
+                                        log.ErrorFormat("Error creating transaction (adapter code success). log string: {0}", logString);
+                                    }
+                                    else
+                                    {
+                                        // renewal passed
+                                        log.Debug("process renewal passed - transaction created");
+                                    }
+                                //}
+                                break;
+
+                            case (int)eTransactionState.Pending:
+
+                                // process renewal returned "PENDING"
+                                log.InfoFormat("PG return pending renewal request. data: {0}", logString);
+
+                                //set return response values
+                                response.PGResponseID = !string.IsNullOrEmpty(adapterResponse.Transaction.PGStatus) ? adapterResponse.Transaction.PGStatus : string.Empty;
+                                response.PGReferenceID = !string.IsNullOrEmpty(adapterResponse.Transaction.PGTransactionID) ? adapterResponse.Transaction.PGTransactionID : string.Empty;
+                                response.State = (eTransactionState)adapterResponse.Transaction.StateCode;
+                                response.FailReasonCode = adapterResponse.Transaction.FailReasonCode;
+                                response.PaymentDetails = !string.IsNullOrEmpty(adapterResponse.Transaction.PaymentDetails) ? adapterResponse.Transaction.PaymentDetails : string.Empty;
+                                response.PaymentMethod = !string.IsNullOrEmpty(adapterResponse.Transaction.PaymentMethod) ? adapterResponse.Transaction.PaymentMethod : string.Empty;
+                                response.StartDateSeconds = adapterResponse.Transaction.StartDateSeconds;
+                                response.EndDateSeconds = adapterResponse.Transaction.EndDateSeconds;
+                                response.AutoRenewing = adapterResponse.Transaction.AutoRenewing;
+
+                                break;
+
+                            case (int)eTransactionState.Failed:                                
+                                log.Error("process unified renewal failed");                                
+                                foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
+                                {
+                                    HandleAdapterTransactionFailed(ref response, adapterResponse, int.Parse(renewUnifiedData.ProductId), eTransactionType.Subscription, renewUnifiedData.BillingGuid, 0, paymentGateway.ID, householdId, 
+                                        long.Parse(renewUnifiedData.UserId), renewUnifiedData.CustomData, renewUnifiedData.PaymentNumber);
+                                }
+                                break;
+
+                            default:
+
+                                // process renewal returned an unhandled status
+                                response.Status = new ApiObjects.Response.Status()
+                                {
+                                    Code = (int)eResponseStatus.UnknownTransactionState,
+                                    Message = "Unknown transaction state"
+                                };
+                                log.ErrorFormat("Could not parse adapter result ENUM. Received: {0}, log string: {1}", adapterResponse.Transaction.StateCode, logString);
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        // general response code is not OK
+                        ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+                        switch (adapterResponse.Status.Code)
+                        {
+                            case (int)PaymentGatewayAdapterStatus.NoConfigurationFound:
+
+                                // no configuration found
+                                status.Code = (int)eResponseStatus.NoConfigurationFound;
+                                status.Message = "Payment Gateway Adapter : No Configuration Found";
+                                break;
+
+                            case (int)PaymentGatewayAdapterStatus.SignatureMismatch:
+
+                                // signature mismatch
+                                status.Code = (int)eResponseStatus.SignatureMismatch;
+                                status.Message = "Payment Gateway Adapter : Signature Mismatch";
+                                break;
+
+                            case (int)PaymentGatewayAdapterStatus.Error:
+                            default:
+
+                                // general error
+                                status.Code = (int)eResponseStatus.Error;
+                                status.Message = "Unknown Gateway adapter transaction error";
+                                break;
+                        }
+
+                        log.ErrorFormat("process renewal returned the following status: {0}, message: {1}", ((eResponseStatus)status.Code).ToString(), status.Message);
+                        response.Status = status;
+                    }
+                }
+            }
+            return response;
+        }
+
+        private int CreateUnifiedTransaction(ref TransactResult response, APILogic.PaymentGWAdapter.TransactionResponse adapterResponse, ApiObjects.eTransactionType transactionType, 
+            int paymentGatewayId, int paymenMethodId, long householdId, int billingTransactionStatus, ref List<RenewSubscriptionDetails> renewUnified)
+        {
+            PaymentGatewayTransaction paymentGWTransaction = new PaymentGatewayTransaction();
+
+            string logString = string.Format("{0}: paymentGatewayId: {1}, householdId: {2}, billingTransactionStatus: {3}",
+                    "CreateTransaction", paymentGatewayId , householdId, billingTransactionStatus);
+
+            if (adapterResponse == null || adapterResponse.Transaction == null)
+            {
+                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
+                log.ErrorFormat("{0}. adapterResponse or adapterResponse.Transaction are null. log string: {1}",
+                    ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION,  // {0}
+                    logString);                                // {1}  
+            }
+            else
+            {
+                paymentGWTransaction = SaveUnifiedTransaction(ref response, adapterResponse.Transaction.PGTransactionID, adapterResponse.Transaction.PGStatus, 0,
+                    adapterResponse.Transaction.PGMessage, adapterResponse.Transaction.StateCode, paymentGatewayId, paymenMethodId, adapterResponse.Transaction.FailReasonCode, adapterResponse.Transaction.PaymentMethod,
+                    adapterResponse.Transaction.PaymentDetails, householdId, ref renewUnified, billingTransactionStatus,
+                    adapterResponse.Transaction.StartDateSeconds, adapterResponse.Transaction.EndDateSeconds, adapterResponse.Transaction.AutoRenewing);
+            }
+
+            return paymentGWTransaction.ID;
+        }
+
+        private PaymentGatewayTransaction SaveUnifiedTransaction(ref TransactResult response, string externalTransactionId, string externalStatus, int contentId, string message, int state, int paymentGatewayId, int paymenMethodId, int failReason, 
+            string paymentMethod, string paymentDetails, long householdId, ref List<RenewSubscriptionDetails> renewUnified , int billingTransactionStatus = BILLING_TRANSACTION_SUCCESS_STATUS, long startDateSeconds = 0, long endDateSeconds = 0 , 
+            bool autoRenewing = false)
+        {
+
+            string logString = string.Format("{0}: paymentGatewayId: {1}, householdId: {2}, billingTransactionStatus: {3}",
+                    "CreateTransaction", paymentGatewayId, householdId, billingTransactionStatus);
+
+            // set PaymentGWTransaction for saving
+            PaymentGatewayTransaction paymentGWTransaction = new PaymentGatewayTransaction()
+            {
+                ExternalTransactionId = !string.IsNullOrEmpty(externalTransactionId) ? externalTransactionId : string.Empty,
+                ExternalStatus = !string.IsNullOrEmpty(externalStatus) ? externalStatus : string.Empty,
+                Message = !string.IsNullOrEmpty(message) ? message : string.Empty,
+                State = state,
+                PaymentGatewayID = paymentGatewayId,
+                FailReason = failReason,
+                PaymentMethod = !string.IsNullOrEmpty(paymentMethod) ? paymentMethod : string.Empty,
+                PaymentDetails = !string.IsNullOrEmpty(paymentDetails) ? paymentDetails : string.Empty,
+                PaymentMethodId = paymenMethodId
+            };
+
+            // Insert PaymentGateway Transaction return new paymentGateway TransactionId
+            paymentGWTransaction.ID = DAL.BillingDAL.InsertPaymentGatewayTransaction(groupID, householdId, 0, paymentGWTransaction);
+
+            //success
+            if (paymentGWTransaction.ID > 0)
+            {
+                //set return response values
+                response.PGResponseID = !string.IsNullOrEmpty(externalStatus) ? externalStatus : string.Empty;
+                response.PGReferenceID = !string.IsNullOrEmpty(externalTransactionId) ? externalTransactionId : string.Empty;
+                response.State = (eTransactionState)state;
+                response.FailReasonCode = failReason;
+                response.PaymentDetails = !string.IsNullOrEmpty(paymentDetails) ? paymentDetails : string.Empty;
+                response.PaymentMethod = !string.IsNullOrEmpty(paymentMethod) ? paymentMethod : string.Empty;
+                response.StartDateSeconds = startDateSeconds;
+                response.EndDateSeconds = endDateSeconds;
+                response.AutoRenewing = autoRenewing;
+
+
+                // create billing transaction - for each subscription 
+                XmlDocument xmlDoc = new XmlDocument();
+                
+                BuildBillingTransactionXml(renewUnified, ref xmlDoc);
+
+                // InsertBillingTransaction
+                Dictionary<long, long> billingTranactionIds = Core.Billing.Utils.InsertBillingTransaction(BILLING_PROVIDER, paymentGatewayId, xmlDoc.InnerXml.ToString(), paymentGWTransaction, billingTransactionStatus, groupID);
+
+                if (billingTranactionIds == null || billingTranactionIds.Count == 0 || billingTranactionIds.Where(x=> x.Key < 1).Count() > 0)
+                {
+                    // create billing transaction failed
+                    response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
+                    log.ErrorFormat("Error creating billing transaction. log string: {0}", logString);
+                }
+                else
+                {
+                    // create billing transaction passed
+                    response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
+                    // update renew Subscription Details with the billingTransactionId
+                    foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
+                    {
+                        if (billingTranactionIds.ContainsKey(renewUnifiedData.PurchaseId))
+                        {
+                            renewUnifiedData.BillingTransactionId = billingTranactionIds[renewUnifiedData.PurchaseId];
+                        }
+                    }                        
+                }
+            }
+            else
+            {
+                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
+                log.ErrorFormat("{0} log string: {1}",
+                    ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION,  // {0}
+                    logString);                                // {1}             
+            }
+
+            return paymentGWTransaction;
+        }
+
+
+        private void BuildBillingTransactionXml(List<RenewSubscriptionDetails> renewUnified, ref XmlDocument xmlDoc)
+        {  
+            XmlNode rowNode;
+            XmlNode rootNode = xmlDoc.CreateElement("root");
+            xmlDoc.AppendChild(rootNode);
+
+            XmlNode siteGuidNode;
+            XmlNode lastFourDigitsNode;
+            XmlNode priceNode; //price / total price             
+            XmlNode paymentMethodAdditionNode;            
+            XmlNode priceCodeNode;            
+            XmlNode currencyNodeCode;
+            XmlNode customDataNode;
+            XmlNode isRecurringNode;
+            XmlNode subscriptionCodeNode;
+            XmlNode purchaseIdNode;
+            XmlNode paymentNumberNode;
+            XmlNode numberOfPaymentsNode;
+            XmlNode countryCdNode;
+            XmlNode languageCodeNode;
+            XmlNode deviceNameNode;
+            XmlNode previewModuleIDNode;
+            XmlNode collectionCodeNode;
+            XmlNode billingGuidNode;
+
+            int numberOfPayments = 0;
+            int mediaFileID = 0;
+            int mediaID = 0;
+            string subscriptionCode = string.Empty;
+            string pPVCode = string.Empty;
+            string priceCode = string.Empty;
+            string pPVModuleCode = string.Empty;
+            bool isRecurring = false;
+            string currencyCode = string.Empty;
+            double price = 0.0;
+
+            string relevantSub = string.Empty;
+            string userGUID = string.Empty;
+            int maxNumberOfUses = 0;
+            int maxUsageModuleLifeCycle = 0;
+            int viewLifeCycleSecs = 0;
+            string purchaseType = string.Empty;
+            string previewModuleID = string.Empty;
+
+            string countryCd = string.Empty;
+            string languageCode = string.Empty;
+            string deviceName = string.Empty;
+            string prePaidCode = string.Empty;
+            string collectionCode = string.Empty;
+
+            foreach (RenewSubscriptionDetails rsd in renewUnified)
+            {   
+
+                Core.Billing.Utils.SplitRefference(rsd.CustomData, ref mediaFileID, ref mediaID, ref subscriptionCode, ref pPVCode, ref prePaidCode, ref priceCode,
+                        ref price, ref currencyCode, ref isRecurring, ref pPVModuleCode, ref numberOfPayments, ref userGUID,
+                                    ref relevantSub, ref maxNumberOfUses, ref maxUsageModuleLifeCycle, ref viewLifeCycleSecs, ref purchaseType,
+                                    ref countryCd, ref languageCode, ref deviceName, ref previewModuleID, ref collectionCode);
+
+                long lPreviewModuleID = 0;
+                if (!string.IsNullOrEmpty(previewModuleID))
+                {
+                    Int64.TryParse(previewModuleID, out lPreviewModuleID);
+                }
+                double dPriceToWriteToDatabase = lPreviewModuleID > 0 ? 0.0 : rsd.Price;
+
+                int nPaymentNumberToInsertToDB =  Core.Billing.Utils.CalcPaymentNumberForBillingTransactionsDBTable(rsd.PaymentNumber, lPreviewModuleID);
+
+                rowNode = xmlDoc.CreateElement("row");
+
+                siteGuidNode = xmlDoc.CreateElement("site_guid");
+                siteGuidNode.InnerText = userGUID;
+                rowNode.AppendChild(siteGuidNode);
+
+                lastFourDigitsNode = xmlDoc.CreateElement("last_four_digits");
+                lastFourDigitsNode.InnerText = string.Empty;
+                rowNode.AppendChild(lastFourDigitsNode);
+                
+                //TO FIX LIAT
+                priceNode = xmlDoc.CreateElement("price");
+                priceNode.InnerText = dPriceToWriteToDatabase.ToString();
+                rowNode.AppendChild(priceNode);
+
+                paymentMethodAdditionNode = xmlDoc.CreateElement("payment_method_addition");
+                paymentMethodAdditionNode.InnerText = string.Empty;
+                rowNode.AppendChild(paymentMethodAdditionNode);
+
+                priceCodeNode = xmlDoc.CreateElement("price_code");
+                priceCodeNode.InnerText = priceCode;
+                rowNode.AppendChild(priceCodeNode);
+
+                currencyNodeCode = xmlDoc.CreateElement("currency_code");
+                currencyNodeCode.InnerText = rsd.Currency;
+                rowNode.AppendChild(currencyNodeCode);
+
+                customDataNode = xmlDoc.CreateElement("custom_data");
+                // change partial tag to full period - due to unified billing cycle 
+                customDataNode.InnerText = rsd.CustomData.Replace("<partialPrice>True</partialPrice>", "");
+
+
+                rowNode.AppendChild(customDataNode);
+
+                isRecurringNode = xmlDoc.CreateElement("is_recurring");
+                isRecurringNode.InnerText = isRecurring ? "1" : "0";
+                rowNode.AppendChild(isRecurringNode);
+
+                subscriptionCodeNode = xmlDoc.CreateElement("subscription_code");
+                subscriptionCodeNode.InnerText = subscriptionCode;
+                rowNode.AppendChild(subscriptionCodeNode);
+
+                purchaseIdNode = xmlDoc.CreateElement("purchase_id");
+                purchaseIdNode.InnerText = rsd.PurchaseId.ToString();
+                rowNode.AppendChild(purchaseIdNode);
+
+                paymentNumberNode = xmlDoc.CreateElement("payment_number");
+                paymentNumberNode.InnerText = nPaymentNumberToInsertToDB.ToString();
+                rowNode.AppendChild(paymentNumberNode);
+
+                numberOfPaymentsNode = xmlDoc.CreateElement("number_of_payments");
+                numberOfPaymentsNode.InnerText = rsd.NumOfPayments.ToString();
+                rowNode.AppendChild(numberOfPaymentsNode);
+
+                countryCdNode = xmlDoc.CreateElement("country_code");
+                countryCdNode.InnerText = countryCd;
+                rowNode.AppendChild(countryCdNode);
+
+                languageCodeNode = xmlDoc.CreateElement("language_code");
+                languageCodeNode.InnerText = languageCode;
+                rowNode.AppendChild(languageCodeNode);
+
+                deviceNameNode = xmlDoc.CreateElement("device_name");
+                deviceNameNode.InnerText = deviceName;
+                rowNode.AppendChild(deviceNameNode);
+                    
+                previewModuleIDNode = xmlDoc.CreateElement("preview_module_id");
+                previewModuleIDNode.InnerText = previewModuleID;
+                rowNode.AppendChild(previewModuleIDNode);
+
+                collectionCodeNode = xmlDoc.CreateElement("collection_code");
+                collectionCodeNode.InnerText = collectionCode;
+                rowNode.AppendChild(collectionCodeNode);
+
+                billingGuidNode = xmlDoc.CreateElement("billing_guid");
+                billingGuidNode.InnerText = rsd.BillingGuid.ToString();
+                rowNode.AppendChild(billingGuidNode);
+
+
+                rootNode.AppendChild(rowNode);
             }
         }
 
@@ -1259,7 +1766,16 @@ namespace Core.Billing
                 if (!isVerification && !isOssValid)
                 {
                     // get charge ID
-                    chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdId, ref isPaymentGatewayHouseholdExist);
+                    bool isSuspended = false;
+                    chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdId, ref isPaymentGatewayHouseholdExist, ref isSuspended);
+                    
+                    if (isSuspended) // return due to suspend payment gateway !!! 
+                    {
+                        transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
+
+                       
+                        return transactionResponse;
+                    }
 
                     // Handle  Payment Method
                     //------------------------
@@ -1286,6 +1802,7 @@ namespace Core.Billing
 
                 transactionResponse = SendRenewalRequestToAdapter(chargeId, price, currency, productId, productCode, paymentNumber, numberOfPayments, siteguid,
                     householdId, billingGuid, paymentGateway, customData, externalTransactionId, gracePeriodMinutes, paymentMethodExternalId, paymentMethodId);
+                
 
                 // check if account trigger settings for send purchase mail is true 
                 bool renewMail = true;
@@ -1362,7 +1879,7 @@ namespace Core.Billing
             // build request
             if (!string.IsNullOrEmpty(paymentGateway.AdapterUrl))
             {
-                TransactionRenewalRequest request = new TransactionRenewalRequest()
+                TransactionUnifiedRenewal request = new TransactionUnifiedRenewal()
                 {
                     groupId = groupID,
                     billingGuid = billingGuid,
@@ -1381,7 +1898,7 @@ namespace Core.Billing
                     GracePeriodMinutes = gracePeriodMinutes
                 };
 
-                // fire request
+                // fire request                       
                 APILogic.PaymentGWAdapter.TransactionResponse adapterResponse = AdaptersController.GetInstance(paymentGateway.ID).ProcessRenewal(request);
                 response = ValidateAdapterResponse(adapterResponse, logString);
                 if (response == null)
@@ -2286,7 +2803,8 @@ namespace Core.Billing
                 if (domainStatus.Code == (int)ResponseStatus.OK)
                 {
                     string chargeId = string.Empty;
-                    PaymentGateway paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdId, ref chargeId);
+                    bool isSuspended = false;
+                    PaymentGateway paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdId, ref chargeId, ref isSuspended);
                     if (paymentGateway != null)
                     {
                         response.PaymentGateway = new PaymentGatewayBase() { ID = paymentGateway.ID, Name = paymentGateway.Name, IsDefault = paymentGateway.IsDefault };
@@ -3880,7 +4398,8 @@ namespace Core.Billing
                 }
 
                 bool isPaymentGWHouseholdExist = false;
-                string chargeId = DAL.BillingDAL.GetPaymentGWChargeID(newPaymentGatewayId, householdId, ref isPaymentGWHouseholdExist);
+                bool isSuspended = false;
+                string chargeId = DAL.BillingDAL.GetPaymentGWChargeID(newPaymentGatewayId, householdId, ref isPaymentGWHouseholdExist, ref isSuspended);
 
                 if (!isPaymentGWHouseholdExist)
                 {

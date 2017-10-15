@@ -60,6 +60,38 @@ namespace Core.ConditionalAccess
             return response;
         }
 
+        public static bool RenewUnifiedTransaction(int groupID, long householdId, long processId, long endDate)
+        {
+            bool response = false;
+
+            // add siteguid to logs/monitor
+           // HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = householdId != null ? householdId : "null";
+
+            // get partner implementation and group ID
+            BaseConditionalAccess casImpl = null;
+            Utils.GetBaseConditionalAccessImpl(ref casImpl, groupID);
+            
+            if (casImpl != null)
+            {
+                List<long> purchasesIds = new List<long>();
+                try
+                {
+                    response = casImpl.RenewUnifiedTransaction(householdId, endDate, processId, ref purchasesIds);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error while trying to renew", ex);
+                }
+
+                // Update subscription renewing status to "not active"
+                if (purchasesIds != null && purchasesIds.Count > 0 && !casImpl.UpdateSubscriptionUnifiedRenewingStatus(groupID, purchasesIds))
+                {
+                    log.ErrorFormat("Error while trying to update subscription renewing status to 0. processId: {0}, groupID: {1}",
+                                        processId, groupID);
+                }
+            }
+            return response;
+        }
 
         public static PermittedMediaContainer[] GetUserExpiredItems(int groupID, string sSiteGUID, int numOfItems)
         {
@@ -3118,6 +3150,34 @@ namespace Core.ConditionalAccess
                 response = t.GetAdsContext(userId, udid, ip, assetId, assetType, fileIds, streamerType, mediaProtocol, context);
             }
            
+            return response;
+        }
+
+        public static Status SuspendPaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.SuspendPaymentGatewayEntitlements(householdId, paymentGatewayId);
+            }
+
+            return response;
+        }
+
+        public static Status ResumePaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.ResumePaymentGatewayEntitlements(householdId, paymentGatewayId);
+            }
+
             return response;
         }
     }

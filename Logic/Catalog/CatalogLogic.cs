@@ -8111,8 +8111,15 @@ namespace Core.Catalog
                     // update total items
                     totalItems = unFilteredresult.Count;
 
-                    // page index 
-                    usersWatchHistory = unFilteredresult.Skip(pageSize * pageIndex).Take(pageSize).ToList();
+                    // page index /size. if size and index are 0 return all
+                    if (pageSize == 0 && pageIndex == 0)
+                    {
+                        usersWatchHistory = unFilteredresult;
+                    }
+                    else
+                    {
+                        usersWatchHistory = unFilteredresult.Skip(pageSize * pageIndex).Take(pageSize).ToList();
+                    }
                 }
             }
             catch (Exception ex)

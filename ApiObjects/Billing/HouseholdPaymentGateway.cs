@@ -12,6 +12,8 @@ namespace ApiObjects.Billing
         public int Selected { get; set; }
         public string ChargeId { get; set; }
 
+       public PaymentGatewayStatus Status { get; set; }
+
         public HouseholdPaymentGateway()
         {
 
@@ -22,6 +24,7 @@ namespace ApiObjects.Billing
             this.HouseholdId = householdPaymentGateway.HouseholdId;
             this.Selected = householdPaymentGateway.Selected;
             this.PaymentGatewayId = householdPaymentGateway.PaymentGatewayId;
+            this.Status = householdPaymentGateway.Status;
         }
     }
 }

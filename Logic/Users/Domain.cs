@@ -188,7 +188,6 @@ namespace Core.Users
             m_oLimitationsManager = new LimitationsManager();
 
             m_oUDIDToDeviceFamilyMapping = new Dictionary<string, int>();
-
         }
 
         public Domain(int nDomainID)
@@ -503,6 +502,7 @@ namespace Core.Users
             }
 
             Dictionary<int, int> dTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
+            SetReadingInvalidationKeys();
 
             // User validations
             if (dTypedUserIDs == null || dTypedUserIDs.Count == 0)
@@ -545,6 +545,8 @@ namespace Core.Users
                     // remove domain from cache 
                     DomainsCache oDomainCache = DomainsCache.Instance();
                     oDomainCache.RemoveDomain(nDomainID);
+                    InvalidateDomain();
+                    InvalidateDomainUser(nUserID.ToString());
 
                     // remove user from cache
                     UsersCache usersCache = UsersCache.Instance();
@@ -578,6 +580,7 @@ namespace Core.Users
                     //Remove domain from cache
                     DomainsCache domainCache = DomainsCache.Instance();
                     domainCache.RemoveDomain(nDomainID);
+                    InvalidateDomain();
                 }
             }
             catch (Exception ex)
@@ -815,12 +818,12 @@ namespace Core.Users
         /// <param name="brandID"></param>
         public DomainResponseStatus ChangeDeviceDomainStatus(int nGroupID, int nDomainID, string sUDID, bool bIsEnable)
         {
-            DomainResponseStatus eDomainResponseStatus = DomainResponseStatus.UnKnown;
+            DomainResponseStatus domainResponseStatus = DomainResponseStatus.UnKnown;
 
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                eDomainResponseStatus = DomainResponseStatus.DomainSuspended;
-                return eDomainResponseStatus;
+                domainResponseStatus = DomainResponseStatus.DomainSuspended;
+                return domainResponseStatus;
             }
 
             /** 1. Since frequency is defined at domain level and not in device family level we can pass a fictive (0)
@@ -828,8 +831,8 @@ namespace Core.Users
             **/
             if (!bIsEnable && ValidateFrequency(sUDID, 0) == DomainResponseStatus.LimitationPeriod)
             {
-                eDomainResponseStatus = DomainResponseStatus.LimitationPeriod;
-                return eDomainResponseStatus;
+                domainResponseStatus = DomainResponseStatus.LimitationPeriod;
+                return domainResponseStatus;
             }
 
             DeviceContainer container = null;
@@ -844,7 +847,7 @@ namespace Core.Users
             }
             else
             {
-                eDomainResponseStatus = ValidateQuantity(sUDID, device.m_deviceBrandID, container, device);
+                domainResponseStatus = ValidateQuantity(sUDID, device.m_deviceBrandID, container, device);
                 eNewDeviceState = DeviceState.Activated;
             }
 
@@ -852,7 +855,7 @@ namespace Core.Users
             int nDeviceID = 0;
             int nDomainDeviceID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, nGroupID, sUDID, ref isActive, ref nDeviceID);     //DoesDeviceExistInDomain(m_nDomainID, sUDID, ref isActive, ref nDeviceID);
 
-            if (nDomainDeviceID > 0 && eDomainResponseStatus != DomainResponseStatus.ExceededLimit)
+            if (nDomainDeviceID > 0 && domainResponseStatus != DomainResponseStatus.ExceededLimit)
             {
                 bool resUpdated = DomainDal.UpdateDomainsDevicesIsActive(nDomainDeviceID, enableInt, bIsEnable);
 
@@ -864,33 +867,35 @@ namespace Core.Users
                         SetDomainFlag(m_nDomainID, 1);
                     }
 
-                    eDomainResponseStatus = DomainResponseStatus.OK;
+                    domainResponseStatus = DomainResponseStatus.OK;
                 }
                 else
                 {
                     log.Debug("ChangeDeviceDomainStatus - " + String.Concat("Failed to update is_active in domains_devices. domains devices id: ", nDomainDeviceID, " enableInt: ", enableInt, " UDID: ", sUDID));
-                    eDomainResponseStatus = DomainResponseStatus.Error;
+                    domainResponseStatus = DomainResponseStatus.Error;
                 }
             }
             else
             {
                 if (nDomainDeviceID == 0)
                 {
-                    eDomainResponseStatus = DomainResponseStatus.DeviceNotInDomain;
+                    domainResponseStatus = DomainResponseStatus.DeviceNotInDomain;
                 }
                 else
                 {
-                    eDomainResponseStatus = DomainResponseStatus.ExceededLimit;
+                    domainResponseStatus = DomainResponseStatus.ExceededLimit;
                 }
             }
 
-            if (eDomainResponseStatus == DomainResponseStatus.OK)
+            if (domainResponseStatus == DomainResponseStatus.OK)
             {
                 //remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(m_nDomainID);
+                InvalidateDomain();
             }
-            return eDomainResponseStatus;
+
+            return domainResponseStatus;
         }
 
         /// <summary>
@@ -914,6 +919,8 @@ namespace Core.Users
                 //Remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(nDomainID);
+                InvalidateDomain();
+                InvalidateDomainUser(nUserID.ToString());
             }
 
             // if user was added successfully as master - set user role to be master
@@ -979,11 +986,15 @@ namespace Core.Users
 
                 //Remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                bool bCached = oDomainCache.RemoveDomain(nDomainID);
-                if (!bCached)
+                bool cacheRemoveResult = oDomainCache.RemoveDomain(nDomainID);
+                InvalidateDomain();
+                InvalidateDomainUser(nUserID.ToString());
+
+                if (!cacheRemoveResult)
                 {
                     log.Debug("AddUserToDomain Failed - " + String.Format("failed to remove domain id from CB nGroupID ={0}, nDomainID={1}, nUserID={2},bIsMaster={3}", nGroupID, nDomainID, nUserID, bIsMaster));
                 }
+
             }
 
             return eDomainResponseStatus;
@@ -1000,7 +1011,10 @@ namespace Core.Users
                 usersCache.RemoveUser(nUserID, nGroupID);
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 bool bRemove = oDomainCache.RemoveDomain(nDomainID);
+                InvalidateDomain();
+                InvalidateDomainUser(nUserID.ToString());
             }
+
             return response;
         }
 
@@ -1126,6 +1140,7 @@ namespace Core.Users
             //remove domain from cache 
             DomainsCache oDomainCache = DomainsCache.Instance();
             oDomainCache.RemoveDomain(m_nDomainID);
+            InvalidateDomain();
 
             return DomainResponseStatus.OK;
         }
@@ -1152,6 +1167,7 @@ namespace Core.Users
                 {
                     DomainsCache oDomainCache = DomainsCache.Instance();
                     oDomainCache.RemoveDomain(m_nDomainID);
+                    InvalidateDomain();
                 }
             }
             catch (Exception ex)
@@ -1223,6 +1239,9 @@ namespace Core.Users
                 // remove domain from cache 
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(m_nDomainID);
+                InvalidateDomain();
+                InvalidateDomainUser(nCurrentMasterID.ToString());
+                InvalidateDomainUser(nNewMasterID.ToString());
 
                 return DomainResponseStatus.OK;
             }
@@ -1622,6 +1641,8 @@ namespace Core.Users
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
                 ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit,
                 ref eSuspendStat, ref regionId);
+
+            SetReadingInvalidationKeys();
 
             if (res)
             {
@@ -2068,6 +2089,7 @@ namespace Core.Users
 
                 // Get Domain users from DB; Master user is first
                 Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
+                SetReadingInvalidationKeys();
 
                 if (dbTypedUserIDs != null && dbTypedUserIDs.Count > 0)
                 {
@@ -2087,6 +2109,7 @@ namespace Core.Users
                 isActive = 0;
                 status = 3;
                 Dictionary<int, int> dbPendingUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
+                SetReadingInvalidationKeys();
 
                 if (dbPendingUserIDs != null && dbPendingUserIDs.Count > 0)
                 {
@@ -2108,6 +2131,7 @@ namespace Core.Users
             DomainResponseStatus eDomainResponseStatus = DomainResponseStatus.UnKnown;
             int numOfUsers = m_UsersIDs.Count;
             Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
+            SetReadingInvalidationKeys();
 
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
@@ -2906,6 +2930,7 @@ namespace Core.Users
                 {
                     DomainsCache oDomainCache = DomainsCache.Instance();
                     oDomainCache.RemoveDomain(m_nDomainID);
+                    InvalidateDomain();
                 }
 
                 result &= updateInfoResult;
@@ -2943,6 +2968,7 @@ namespace Core.Users
                 //remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(m_nDomainID);
+                InvalidateDomain();
 
                 // delete users from cache
                 UsersCache usersCache = UsersCache.Instance();
@@ -2951,9 +2977,9 @@ namespace Core.Users
                     usersCache.RemoveUser(userId, m_nGroupID);
 
                     // add invalidation key for user roles cache
-                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
-                    if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                        log.ErrorFormat("Failed to set invalidation key on RemoveDomain key = {0}", invalidationKey);
+                    string userRoleInvalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
+                    if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(userRoleInvalidationKey))
+                        log.ErrorFormat("Failed to set invalidation key on RemoveDomain key = {0}", userRoleInvalidationKey);
                 }
 
                 INPVRProvider npvr;
@@ -3009,6 +3035,36 @@ namespace Core.Users
         public override CoreObject CoreClone()
         {
             return this.MemberwiseClone() as CoreObject;
+        }
+
+        private void InvalidateDomain()
+        {
+            List<string> invalidationKeys = new List<string>()
+                { 
+                    string.Format("invalidationKey_domain_{0}", this.m_nDomainID) 
+                };
+
+            LayeredCache.Instance.InvalidateKeys(invalidationKeys);
+        }
+
+        private void InvalidateDomainUser(string userId)
+        {
+            List<string> invalidationKeys = new List<string>()
+                { 
+                    LayeredCacheKeys.GetHouseholdUserInalidationKey(this.m_nDomainID, userId)
+                };
+
+            LayeredCache.Instance.InvalidateKeys(invalidationKeys);
+        }
+
+        public virtual void SetReadingInvalidationKeys()
+        {
+            List<string> invalidationKeys = new List<string>()
+                { 
+                    string.Format("invalidationKey_domain_{0}", this.m_nDomainID) 
+                };
+
+            LayeredCache.Instance.SetReadingInvalidationKeys(invalidationKeys);
         }
     }
 }

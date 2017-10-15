@@ -367,7 +367,11 @@ namespace Core.ConditionalAccess
                     subscriptionEntitlement.paymentMethodId = entitlement.paymentMethodId;
                     response.entitelments.Add(subscriptionEntitlement);
 
-                    Utils.HandleDomainUnifiedBillingCycle(groupId, domainID, null, new List<int>() { entitlement.paymentGatewayId });
+                    //unified billing cycle updates
+
+                    long unifiedProcessId = ODBCWrapper.Utils.GetLongSafeVal(dr, "unified_process_id");
+                    DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+                    Utils.HandleUnifiedBillingCycle(groupId, domainID, entitlement.paymentGatewayId, endDate, entitlement.purchaseID, unifiedProcessId);
                 }
                 response.status = changeStatus;
 
@@ -631,6 +635,8 @@ namespace Core.ConditionalAccess
             {
                 entitlement.ScheduledSubscriptionId = purchaseIdToScheduledSubscriptionId[entitlement.purchaseID];
             }
+
+            entitlement.IsSuspended = ODBCWrapper.Utils.GetIntSafeVal(dataRow["subscription_status"]) == (int)SubscriptionPurchaseStatus.Suspended;
 
             return entitlement;
         }
@@ -947,6 +953,14 @@ namespace Core.ConditionalAccess
             try
             {
                 long subscriptionSetModifyDetailsId = 0, purchaseId = 0;
+                // check if cancellation is allowed
+                Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(groupId, scheduledSubscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                {
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionCancellationIsBlocked, "Cancellation is blocked for this subscription");
+                    return res;
+                }
+
                 if (!Utils.GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId(groupId, domainId, scheduledSubscriptionId, ref subscriptionSetModifyDetailsId, ref purchaseId, SubscriptionSetModifyType.Downgrade))
                 {
                     res = new ApiObjects.Response.Status((int)eResponseStatus.ScheduledSubscriptionNotFound, eResponseStatus.ScheduledSubscriptionNotFound.ToString());

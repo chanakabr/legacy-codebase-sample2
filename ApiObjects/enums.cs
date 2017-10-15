@@ -822,7 +822,8 @@ namespace ApiObjects
         Fail = 3,
         HouseholdCancel = 4,
         Switched = 5,
-        Switched_To = 6
+        Switched_To = 6,
+        Suspended = 7,
     }
 
     public enum PlayContextType
@@ -861,7 +862,8 @@ namespace ApiObjects
     {
         Renew = 0,
         Reminder = 1,
-        Downgrade = 2
+        Downgrade = 2,
+        RenewUnifiedTransaction = 3
     }
 
     public enum GrantContext
@@ -914,6 +916,12 @@ namespace ApiObjects
     {
         Unknown = 0,
         Downgrade = 1
+    }
+
+    public enum PaymentGatewayStatus
+    {
+        OK = 0,
+        Suspend = 1,
     }
 
 }

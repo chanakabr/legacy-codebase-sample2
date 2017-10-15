@@ -17,6 +17,7 @@ namespace ApiObjects
         public string m_sBCCAddress;
 
         public string m_emailKey;
+        public int? groupId;
         
         
         

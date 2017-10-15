@@ -170,6 +170,7 @@ namespace ApiObjects.Response
         MissingBasePackage = 3071,
         BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet = 3072,
         WrongSubscriptionType = 3073,
+        SubscriptionCancellationIsBlocked = 3074,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
@@ -280,6 +281,7 @@ namespace ApiObjects.Response
         PaymentMethodAlreadySetToHouseholdPaymentGateway = 6054,
         PaymentMethodNameRequired = 6055,
         PaymentGatewayNotSupportPaymentMethod = 6056,
+        PaymentGatewaySuspended = 6051,
 
         // social 7000 - 7999
         Conflict = 7000,

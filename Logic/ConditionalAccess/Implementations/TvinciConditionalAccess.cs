@@ -795,7 +795,7 @@ namespace Core.ConditionalAccess
             string currency, string coupon, string userIP,
             string country, string deviceName, long billingTransactionId, string customData, int productId, string billingGuid,
             bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate, ref long purchaseId, ref DateTime? subscriptionEndDate,
-            SubscriptionPurchaseStatus purchaseStatus = SubscriptionPurchaseStatus.OK)
+            SubscriptionPurchaseStatus purchaseStatus = SubscriptionPurchaseStatus.OK, long processPurchasesId = 0)
         {
             purchaseId = 0;
             try
@@ -868,10 +868,17 @@ namespace Core.ConditionalAccess
                         entitlementDate = entitlementDate,
                         houseHoldId = houseHoldId,
                         billingGuid = billingGuid,
-                        couponCode = coupon
-                    };
+                        couponCode = coupon,
+                        processPurchasesId = processPurchasesId
+                };
                 subscriptionPurchase.Insert();
-                response.Id = purchaseId = subscriptionPurchase.purchaseId;
+                
+                purchaseId = subscriptionPurchase.purchaseId;
+
+                if (response != null)
+                {
+                    response.Id = purchaseId;
+                }
 
                 if (purchaseId == 0)
                 {
