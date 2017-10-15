@@ -4774,13 +4774,13 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataSet GetTopicByAssetStructIds(int groupId, List<long> assetStructIds)
+        public static DataTable GetTopicByAssetStructIds(int groupId, List<long> assetStructIds)
         {            
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicByAssetStructIds");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter("@AssetStructIds", assetStructIds, "id");
-            return sp.ExecuteDataSet();
+            return sp.Execute();
         }
 
         public static DataTable InsertTopic(int groupId, string name, string systemName, ApiObjects.MetaType TopicType, string commaSeparatedFeatures, bool? isPredefined, long parent_topic_id, string helpText, long userId)
