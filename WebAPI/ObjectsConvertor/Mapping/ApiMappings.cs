@@ -1566,7 +1566,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return response;
         }
 
-        private static KalturaMetaType ConvertMetaType(ApiObjects.MetaType metaType)
+        internal static KalturaMetaType ConvertMetaType(ApiObjects.MetaType metaType)
         {
             KalturaMetaType response;
 

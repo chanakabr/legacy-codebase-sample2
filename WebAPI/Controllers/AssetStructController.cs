@@ -121,7 +121,7 @@ namespace WebAPI.Controllers
 
             try
             {                
-                response = ClientsManager.CatalogClient().UpdateAssetStruct(groupId, assetStrcut, userId);
+                response = ClientsManager.CatalogClient().UpdateAssetStruct(groupId, id, assetStrcut, userId);
             }
             catch (ClientException ex)
             {
@@ -132,7 +132,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete an assetStruct
+        /// Delete an existing assetStruct
         /// </summary>
         /// <param name="id">AssetStruct Identifier</param>
         /// <returns></returns>

@@ -161,7 +161,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetStruct UpdateAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
+        public KalturaAssetStruct UpdateAssetStruct(int groupId, long id, KalturaAssetStruct assetStrcut, long userId)
         {            
             KalturaAssetStruct result = null;
             AssetStructResponse response = null;
@@ -172,7 +172,7 @@ namespace WebAPI.Clients
                 AssetStruct assetStructToUpdate = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetStruct(groupId, assetStructToUpdate, shouldUpdateMetaIds, userId);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetStruct(groupId, id, assetStructToUpdate, shouldUpdateMetaIds, userId);
                 }
             }
             catch (Exception ex)
@@ -225,7 +225,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public KalturaMetaListResponse GetMetas(int groupId, List<long> ids, KalturaMetaOrderBy? orderBy, bool shouldGetByAssetStructIds = false)
+        public KalturaMetaListResponse GetMetas(int groupId, List<long> ids, KalturaMetaType? type, KalturaMetaOrderBy? orderBy, bool shouldGetByAssetStructIds = false)
         {
             KalturaMetaListResponse result = new KalturaMetaListResponse() { TotalCount = 0 };
             TopicListResponse response = null;
@@ -234,13 +234,19 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
+                    ApiObjects.MetaType metaType = ApiObjects.MetaType.All;
+                    if (type.HasValue)
+                    {
+                        metaType = ApiMappings.ConvertMetaType(type);
+                    }
+
                     if (shouldGetByAssetStructIds)
                     {
-                        response = Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByAssetStructIds(groupId, ids);
+                        response = Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByAssetStructIds(groupId, ids, metaType);
                     }
                     else
                     {
-                        response = Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByIds(groupId, ids);
+                        response = Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByIds(groupId, ids, metaType);
                     }
                 }
             }
@@ -347,7 +353,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaMeta UpdateMeta(int groupId, KalturaMeta meta, long userId)
+        public KalturaMeta UpdateMeta(int groupId, long id, KalturaMeta meta, long userId)
         {
             KalturaMeta result = null;
             TopicResponse response = null;
@@ -357,7 +363,7 @@ namespace WebAPI.Clients
                 Topic topicToUpdate = AutoMapper.Mapper.Map<Topic>(meta);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateTopic(groupId, topicToUpdate, userId);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateTopic(groupId, id, topicToUpdate, userId);
                 }
             }
             catch (Exception ex)

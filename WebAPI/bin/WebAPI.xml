@@ -374,7 +374,7 @@
         </member>
         <member name="M:WebAPI.Controllers.AssetStructController.Delete(System.Int64)">
             <summary>
-            Delete an assetStruct
+            Delete an existing assetStruct
             </summary>
             <param name="id">AssetStruct Identifier</param>
             <returns></returns>
@@ -960,14 +960,14 @@
             <param name="pager">Pager</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
+        <member name="M:WebAPI.Controllers.MetaController.ListOldStandard(WebAPI.Models.API.KalturaMetaFilter)">
             <summary>
             Get the list of meta mappings for the partner
             </summary>
             <param name="filter">Meta filter</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.MetaController.Update(System.String,WebAPI.Models.API.KalturaMeta)">
+        <member name="M:WebAPI.Controllers.MetaController.UpdateOldStandard(System.String,WebAPI.Models.API.KalturaMeta)">
             <summary>
             Update meta's user interest
             </summary>
@@ -980,11 +980,33 @@
             ParentAssetTypeDiffrentFromMeta, MetaNotFound, MetaNotBelongtoPartner, WrongMetaName, ParentParnerDiffrentFromMetaPartner
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
+            <summary>
+            Return a list of metas for the account with optional filter
+            </summary>
+            <param name="filter">Filter parameters for filtering out the result</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.MetaController.Add(WebAPI.Models.API.KalturaMeta)">
             <summary>
             Add a new meta
             </summary>
             <param name="meta">Meta Object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MetaController.Update(System.Int64,WebAPI.Models.API.KalturaMeta)">
+            <summary>
+            Update an existing meta
+            </summary>
+            <param name="id">Meta Identifier</param>
+            <param name="meta">Meta Object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MetaController.Delete(System.Int64)">
+            <summary>
+            Delete an existing meta
+            </summary>
+            <param name="id">Meta Identifier</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.DeviceBrandController.List">
@@ -5483,6 +5505,16 @@
         <member name="T:WebAPI.Models.API.KalturaMetaFilter">
             <summary>
             Meta filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.IdIn">
+            <summary>
+            Comma separated identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.AssetStructIdsContains">
+            <summary>
+            Comma separated asset struct identifiers
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMetaFilter.FieldNameEqual">

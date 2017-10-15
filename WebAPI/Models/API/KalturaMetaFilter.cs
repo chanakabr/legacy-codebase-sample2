@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
@@ -14,12 +15,33 @@ namespace WebAPI.Models.API
     /// </summary>
     public class KalturaMetaFilter : KalturaFilter<KalturaMetaOrderBy>
     {
+
+        /// <summary>
+        /// Comma separated identifiers
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlArray(ElementName = "idIn", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        public string IdIn { get; set; }
+
+        /// <summary>
+        /// Comma separated asset struct identifiers
+        /// </summary>
+        [DataMember(Name = "assetStructIdsContains")]
+        [JsonProperty("assetStructIdsContains")]
+        [XmlArray(ElementName = "assetStructIdsContains", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string AssetStructIdsContains { get; set; }
+
         /// <summary>
         /// Meta system field name to filter by
         /// </summary>
         [DataMember(Name = "fieldNameEqual")]
         [JsonProperty("fieldNameEqual")]
         [XmlElement(ElementName = "fieldNameEqual")]
+        [Deprecated("4.6.0.0")]
         public KalturaMetaFieldName? FieldNameEqual { get; set; }
 
         /// <summary>
@@ -28,6 +50,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "fieldNameNotEqual")]
         [JsonProperty("fieldNameNotEqual")]
         [XmlElement(ElementName = "fieldNameNotEqual")]
+        [Deprecated("4.6.0.0")]
         public KalturaMetaFieldName? FieldNameNotEqual { get; set; }
 
         /// <summary>
@@ -44,6 +67,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "assetTypeEqual")]
         [JsonProperty("assetTypeEqual")]
         [XmlElement(ElementName = "assetTypeEqual")]
+        [Deprecated("4.6.0.0")]
         public KalturaAssetType? AssetTypeEqual { get; set; }
 
         /// <summary>
@@ -52,6 +76,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "featuresIn")]
         [JsonProperty("featuresIn")]
         [XmlElement(ElementName = "featuresIn", IsNullable = true)]
+        [Deprecated("4.6.0.0")]
         public string FeaturesIn { get; set; }
 
         public override KalturaMetaOrderBy GetDefaultOrderByValue()
@@ -79,7 +104,61 @@ namespace WebAPI.Models.API
             return featureList;
         }
 
-        internal void validate()
+        public List<long> GetIdIn()
+        {
+            List<long> list = new List<long>();
+            if (!string.IsNullOrEmpty(IdIn))
+            {
+                string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
+                {
+                    long value;
+                    if (long.TryParse(stringValue, out value))
+                    {
+                        list.Add(value);
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaMetaFilter.idIn");
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        public List<long> GetAssetStructIdContains()
+        {
+            List<long> list = new List<long>();
+            if (!string.IsNullOrEmpty(AssetStructIdsContains))
+            {
+                string[] stringValues = AssetStructIdsContains.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
+                {
+                    long value;
+                    if (long.TryParse(stringValue, out value))
+                    {
+                        list.Add(value);
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaMetaFilter.assetStructIdsContains");
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        internal void Validate()
+        {
+            if (!string.IsNullOrEmpty(IdIn) && !string.IsNullOrEmpty(AssetStructIdsContains))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMetaFilter.idIn, KalturaMetaFilter.assetStructIdsContains");
+            }
+        }
+
+        internal void OldValidate()
         {
             if (FieldNameNotEqual.HasValue && FieldNameEqual.HasValue)
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMetaFilter.fieldNameEqual", "KalturaMetaFilter.fieldNameNotEqual");

@@ -37,6 +37,20 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaMetaFilter":
+                    switch (propertyName)
+                    {
+                        case "AssetTypeEqual":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "FeaturesIn":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "FieldNameEqual":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "FieldNameNotEqual":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
                 case "KalturaPlaybackSource":
                     switch (propertyName)
                     {
@@ -1830,6 +1844,13 @@ namespace WebAPI.Reflection
                 case "LicensedUrlController":
                     ret = new Dictionary<string, string>() { 
                         {"getOldStandard", "get"},
+                    };
+                    break;
+                    
+                case "MetaController":
+                    ret = new Dictionary<string, string>() { 
+                        {"listOldStandard", "list"},
+                        {"updateOldStandard", "update"},
                     };
                     break;
                     
@@ -4313,6 +4334,8 @@ namespace WebAPI.Reflection
                 case "KalturaMetaFilter":
                     switch(property.Name)
                     {
+                        case "AssetStructIdsContains":
+                            return "assetStructIdsContains";
                         case "AssetTypeEqual":
                             return "assetTypeEqual";
                         case "FeaturesIn":
@@ -4321,6 +4344,8 @@ namespace WebAPI.Reflection
                             return "fieldNameEqual";
                         case "FieldNameNotEqual":
                             return "fieldNameNotEqual";
+                        case "IdIn":
+                            return "idIn";
                         case "TypeEqual":
                             return "typeEqual";
                     }

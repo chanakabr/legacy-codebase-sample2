@@ -349,6 +349,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value))
                 .ForMember(dest => dest.SubCounts, opt => opt.MapFrom(src => src.subs));
 
+            #region New Catalog Management
+
             // AssetStruct to KalturaAssetStruct
             Mapper.CreateMap<AssetStruct, KalturaAssetStruct>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -368,7 +370,39 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.MetaIds, opt => opt.MapFrom(src => ConvertAssetStructMetaIdsList(src.MetaIds)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+
+            // Topic to KalturaMeta
+            Mapper.CreateMap<Topic, Models.API.KalturaMeta>()              
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ApiMappings.ConvertMetaType(src.Type)))
+              .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
+              .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsPredefined))
+              .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
+              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.Features))
+              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
+              .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+
+            // KalturaMeta to Topic
+            Mapper.CreateMap<Models.API.KalturaMeta, Topic>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ApiMappings.ConvertMetaType (src.Type)))
+              .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
+              .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
+              .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
+              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.Features))
+              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
+              .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+
+            #endregion
         }
+
+        #region New Catalog Management
 
         private static List<long> ConvertAssetStructMetaIdsList(string metaIds)
         {
@@ -391,7 +425,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return list;
-        }
+        }        
+
+        #endregion
 
         private static KalturaAssetGroupBy ConvertToGroupBy(SearchAggregationGroupBy searchAggregationGroupBy)
         {            
