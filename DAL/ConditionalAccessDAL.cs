@@ -3302,5 +3302,22 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
+
+        public static bool UpdateMPPRenewalSubscriptionStatus(List<int> purchaseIds, int status)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPRenewalSubscriptionStatus");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                sp.AddParameter("@SubscriptionStatus", status);
+                sp.AddIDListParameter<int>("@PurchaseID", purchaseIds, "Id");
+                return sp.ExecuteReturnValue<bool>();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
     }
 }
