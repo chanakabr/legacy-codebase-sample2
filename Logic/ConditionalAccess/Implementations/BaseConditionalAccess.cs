@@ -14726,13 +14726,21 @@ namespace Core.ConditionalAccess
 			try
 			{
 				TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-				DateTime? windowStartDate = null;
-				if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value && accountSettings.RecordingScheduleWindow.HasValue)
-				{
-					windowStartDate = DateTime.UtcNow.AddMinutes(-accountSettings.RecordingScheduleWindow.Value);
-				}
+                DateTime startDate;
+                long windowStartDate = accountSettings.RecordingScheduleWindow.HasValue ? accountSettings.RecordingScheduleWindow.Value : 0;
+                long bufferStartDate = accountSettings.CatchUpBufferLength.HasValue ? accountSettings.CatchUpBufferLength.Value : 0;
+                if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value ||
+                    accountSettings.IsCatchUpEnabled.HasValue && accountSettings.IsCatchUpEnabled.Value)
 
-				List<ExtendedSearchResult> epgsToRecord = Utils.GetFirstFollowerEpgIdsToRecord(m_nGroupID, channelId, seriesId, seasonNumber, windowStartDate);
+                {
+                    startDate = DateTime.UtcNow.AddMinutes(windowStartDate > bufferStartDate ? -windowStartDate : -bufferStartDate);
+                }
+                else
+                {
+                    startDate = DateTime.UtcNow;
+                }
+
+				List<ExtendedSearchResult> epgsToRecord = Utils.GetFirstFollowerEpgIdsToRecord(m_nGroupID, channelId, seriesId, seasonNumber, startDate);
 				if (epgsToRecord == null)
 				{
 					log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, seriesId: {0}, seassonNumber: {1}", seriesId, seasonNumber);
