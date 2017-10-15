@@ -220,8 +220,7 @@ namespace Core.Catalog.CatalogManagement
         {
             Status responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             switch (result)
-            {
-                //TODO: Lior -  create error codes for topics and update this method
+            {                
                 case -111:
                     responseStatus = new Status((int)eResponseStatus.MetaNameAlreadyInUse, eResponseStatus.MetaNameAlreadyInUse.ToString());
                     break;
@@ -325,9 +324,10 @@ namespace Core.Catalog.CatalogManagement
             Dictionary<string, Topic> result = new Dictionary<string, Topic>();
             try
             {
-                if (funcParams != null && funcParams.ContainsKey("topicIds") && funcParams.ContainsKey("groupId"))
+                if (funcParams != null && funcParams.ContainsKey("topicIds") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("topicType"))
                 {
                     int? groupId = funcParams["groupId"] as int?;
+                    int? topicType = funcParams["topicType"] as int?;
                     List<long> topicIds = null;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
@@ -338,9 +338,9 @@ namespace Core.Catalog.CatalogManagement
                         topicIds = funcParams["topicIds"] != null ? funcParams["topicIds"] as List<long> : null;
                     }
 
-                    if (topicIds != null && topicIds.Count > 0 && groupId.HasValue)
+                    if (topicIds != null && topicIds.Count > 0 && groupId.HasValue && topicType.HasValue)
                     {
-                        DataTable dt = CatalogDAL.GetTopicByIds(groupId.Value, topicIds);
+                        DataTable dt = CatalogDAL.GetTopicByIds(groupId.Value, topicIds, topicType.Value);
                         List<Topic> topics = CreateTopicListFromDataTable(dt);
                         if (topics != null && topics.Count > 0)
                         {
@@ -462,12 +462,12 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetStructResponse UpdateAssetStruct(int groupId, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds, long userId)
+        public static AssetStructResponse UpdateAssetStruct(int groupId, long id, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds, long userId)
         {
             AssetStructResponse result = new AssetStructResponse();
             try
             {
-                List<AssetStruct> assetStructs = TryGetAssetStructsFromCache(groupId, new List<long>() { assetStructToUpdate.Id });
+                List<AssetStruct> assetStructs = TryGetAssetStructsFromCache(groupId, new List<long>() { id });
                 if (assetStructs == null || assetStructs.Count != 1)
                 {
                     result.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
@@ -499,12 +499,12 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, assetStruct.Id, assetStructToUpdate.Name, assetStructToUpdate.SystemName, shouldUpdateMetaIds, metaIdsToPriority, userId);
+                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, assetStructToUpdate.SystemName, shouldUpdateMetaIds, metaIdsToPriority, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed UpdateAssetStruct for groupId: {0} and assetStruct: {1}", groupId, assetStructToUpdate.ToString()), ex);
+                log.Error(string.Format("Failed UpdateAssetStruct for groupId: {0}, id: {1} and assetStruct: {2}", groupId, id, assetStructToUpdate.ToString()), ex);
             }
 
             return result;
@@ -542,7 +542,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static List<Topic> TryGetTopicsFromCache(int groupId, List<long> ids)
+        public static List<Topic> TryGetTopicsFromCache(int groupId, List<long> ids, MetaType type)
         {
             List<Topic> result = null;
             try
@@ -551,7 +551,7 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetTopicsKeysMap(groupId, ids);
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetTopicsInvalidationKeysMap(groupId, ids);
                 if (!LayeredCache.Instance.GetValues<Topic>(keyToOriginalValueMap, ref topicsMap, GetTopics,
-                    new Dictionary<string, object>() { { "groupId", groupId }, { "topicIds", ids } },
+                    new Dictionary<string, object>() { { "groupId", groupId }, { "topicIds", ids }, { "topicType", (int)type } },
                     groupId, LayeredCacheConfigNames.GET_TOPICS_CACHE_CONFIG_NAME, invalidationKeysMap))
                 {
                     log.ErrorFormat("Failed getting Topics from LayeredCache, groupId: {0}, topicIds", groupId, string.Join(",", ids));
@@ -569,12 +569,12 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static TopicListResponse GetTopicsByIds(int groupId, List<long> ids)
+        public static TopicListResponse GetTopicsByIds(int groupId, List<long> ids, MetaType type)
         {
             TopicListResponse response = new TopicListResponse();
             try
             {
-                response.Topics = TryGetTopicsFromCache(groupId, ids);
+                response.Topics = TryGetTopicsFromCache(groupId, ids, type);
                 if (response.Topics != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -588,12 +588,12 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static TopicListResponse GetTopicsByAssetStructIds(int groupId, List<long> assetStructIds)
+        public static TopicListResponse GetTopicsByAssetStructIds(int groupId, List<long> assetStructIds, MetaType type)
         {
             TopicListResponse response = new TopicListResponse();
             try
             {
-                DataTable dt = CatalogDAL.GetTopicByAssetStructIds(groupId, assetStructIds);
+                DataTable dt = CatalogDAL.GetTopicByAssetStructIds(groupId, assetStructIds, (int)type);
                 response.Topics = CreateTopicListFromDataTable(dt);
                 if (response.Topics != null)
                 {
@@ -626,12 +626,12 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static TopicResponse UpdateTopic(int groupId, Topic topicToUpdate, long userId)
+        public static TopicResponse UpdateTopic(int groupId, long id, Topic topicToUpdate, long userId)
         {
             TopicResponse result = new TopicResponse();
             try
             {
-                List<Topic> topics = TryGetTopicsFromCache(groupId, new List<long>() { topicToUpdate.Id });
+                List<Topic> topics = TryGetTopicsFromCache(groupId, new List<long>() { id }, topicToUpdate.Type);
                 if (topics == null || topics.Count != 1)
                 {
                     result.Status = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
@@ -650,13 +650,13 @@ namespace Core.Catalog.CatalogManagement
                 //TODO: Lior - support changing system name for topic???
                 // SAME for AssetStruct???
 
-                DataTable dt = CatalogDAL.UpdateTopic(groupId, topicToUpdate.Id, topicToUpdate.Name, topicToUpdate.SystemName, topicToUpdate.GetCommaSeparatedFeatures(),
+                DataTable dt = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Name, topicToUpdate.SystemName, topicToUpdate.GetCommaSeparatedFeatures(),
                                                       topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
                 result = CreateTopicResponseFromDataTable(dt);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed UpdateTopic for groupId: {0} and assetStruct: {1}", groupId, topicToUpdate.ToString()), ex);
+                log.Error(string.Format("Failed UpdateTopic for groupId: {0}, id: {1} and assetStruct: {2}", groupId, id, topicToUpdate.ToString()), ex);
             }
 
             return result;
@@ -667,7 +667,7 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                List<Topic> assetStructs = TryGetTopicsFromCache(groupId, new List<long>() { id });
+                List<Topic> assetStructs = TryGetTopicsFromCache(groupId, new List<long>() { id }, MetaType.All);
                 if (assetStructs == null || assetStructs.Count != 1)
                 {
                     result = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());

@@ -752,12 +752,12 @@ namespace ApiObjects
 
     public enum MetaType
     {
-        All,
-        String,
-        Number,
-        Bool,
-        DateTime,
-        Tag //TODO: Lior - Remove everything that references this
+        All = 0,
+        String = 1,
+        Number = 2,
+        Bool = 3,
+        DateTime = 4,
+        Tag = 5 //TODO: Lior - Remove everything that references this
     }
 
     public enum MetaFieldName
