@@ -244,9 +244,8 @@ namespace Core.Catalog.CatalogManagement
             {
                 string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                 string systemName = ODBCWrapper.Utils.GetSafeStr(dr, "SYSTEM_NAME");
-                string topicType = ODBCWrapper.Utils.GetSafeStr(dr, "TOPIC_TYPE");
-                MetaType type;
-                if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName) && Enum.TryParse<MetaType>(topicType, out type))
+                int topicType = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOPIC_TYPE_ID", 0);                
+                if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName) && topicType > 0 && typeof(MetaType).IsEnumDefined(topicType))
                 {
                     string commaSeparatedFeatures = ODBCWrapper.Utils.GetSafeStr(dr, "FEATURES");
                     HashSet<string> features = null;
@@ -262,7 +261,7 @@ namespace Core.Catalog.CatalogManagement
                     long parentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TOPIC_ID", 0);
                     DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
                     DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
-                    result = new Topic(id, name, systemName, type, features, isPredefined, multipleValue, helpText, parentId,
+                    result = new Topic(id, name, systemName, (MetaType)topicType, features, isPredefined, multipleValue, helpText, parentId,
                                         createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
                                         updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0);
                 }
@@ -319,8 +318,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static Tuple<Dictionary<string, Topic>, bool> GetTopics(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
+        {            
             Dictionary<string, Topic> result = new Dictionary<string, Topic>();
             try
             {
@@ -338,7 +336,7 @@ namespace Core.Catalog.CatalogManagement
                         topicIds = funcParams["topicIds"] != null ? funcParams["topicIds"] as List<long> : null;
                     }
 
-                    if (topicIds != null && topicIds.Count > 0 && groupId.HasValue && topicType.HasValue)
+                    if (topicIds != null && groupId.HasValue && topicType.HasValue)
                     {
                         DataTable dt = CatalogDAL.GetTopicByIds(groupId.Value, topicIds, topicType.Value);
                         List<Topic> topics = CreateTopicListFromDataTable(dt);
@@ -346,9 +344,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             result = topics.ToDictionary(x => LayeredCacheKeys.GetTopicKey(groupId.Value, x.Id), x => x);
                         }
-                    }
-
-                    res = result.Keys.Count() == topicIds.Count();
+                    }                    
                 }
             }
             catch (Exception ex)
@@ -357,7 +353,7 @@ namespace Core.Catalog.CatalogManagement
                          funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
             }
 
-            return new Tuple<Dictionary<string, Topic>, bool>(result, res);
+            return new Tuple<Dictionary<string, Topic>, bool>(result, true);
         }
 
         #endregion
@@ -396,7 +392,16 @@ namespace Core.Catalog.CatalogManagement
             AssetStructListResponse response = new AssetStructListResponse();
             try
             {
-                response.AssetStructs = TryGetAssetStructsFromCache(groupId, ids);
+                if (ids != null && ids.Count > 0)
+                {
+                    response.AssetStructs = TryGetAssetStructsFromCache(groupId, ids);
+                }
+                else
+                {
+                    DataSet ds = CatalogDAL.GetAssetStructsByIds(groupId, ids);
+                    response.AssetStructs = CreateAssetStructListFromDataSet(ds);
+                }
+
                 if (response.AssetStructs != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -544,7 +549,7 @@ namespace Core.Catalog.CatalogManagement
 
         public static List<Topic> TryGetTopicsFromCache(int groupId, List<long> ids, MetaType type)
         {
-            List<Topic> result = null;
+            List<Topic> result = new List<Topic>();
             try
             {
                 Dictionary<string, Topic> topicsMap = null;
@@ -554,7 +559,7 @@ namespace Core.Catalog.CatalogManagement
                     new Dictionary<string, object>() { { "groupId", groupId }, { "topicIds", ids }, { "topicType", (int)type } },
                     groupId, LayeredCacheConfigNames.GET_TOPICS_CACHE_CONFIG_NAME, invalidationKeysMap))
                 {
-                    log.ErrorFormat("Failed getting Topics from LayeredCache, groupId: {0}, topicIds", groupId, string.Join(",", ids));
+                    log.ErrorFormat("Failed getting Topics from LayeredCache, groupId: {0}, topicIds", groupId, string.Join(",", ids));                    
                 }
                 else if (topicsMap != null)
                 {
@@ -574,7 +579,16 @@ namespace Core.Catalog.CatalogManagement
             TopicListResponse response = new TopicListResponse();
             try
             {
-                response.Topics = TryGetTopicsFromCache(groupId, ids, type);
+                if (ids != null && ids.Count > 0)
+                {
+                    response.Topics = TryGetTopicsFromCache(groupId, ids, type);
+                }
+                else
+                {
+                    DataTable dt = CatalogDAL.GetTopicByIds(groupId, ids, (int)type);
+                    response.Topics = CreateTopicListFromDataTable(dt);
+                }
+
                 if (response.Topics != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
