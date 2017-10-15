@@ -4764,33 +4764,35 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataTable GetTopicByIds(int groupId, List<long> ids)
+        public static DataTable GetTopicByIds(int groupId, List<long> ids, int topicType)
         {                        
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicByIds");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Type", topicType);
             sp.AddIDListParameter("@Ids", ids, "id");
             sp.AddParameter("@IdsExist", ids != null && ids.Count > 0);
             return sp.Execute();
         }
 
-        public static DataTable GetTopicByAssetStructIds(int groupId, List<long> assetStructIds)
+        public static DataTable GetTopicByAssetStructIds(int groupId, List<long> assetStructIds, int topicType)
         {            
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicByAssetStructIds");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Type", topicType);
             sp.AddIDListParameter("@AssetStructIds", assetStructIds, "id");
             return sp.Execute();
         }
 
-        public static DataTable InsertTopic(int groupId, string name, string systemName, ApiObjects.MetaType TopicType, string commaSeparatedFeatures, bool? isPredefined, long parent_topic_id, string helpText, long userId)
+        public static DataTable InsertTopic(int groupId, string name, string systemName, ApiObjects.MetaType topicType, string commaSeparatedFeatures, bool? isPredefined, long parent_topic_id, string helpText, long userId)
         {                        
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Name", name);
             sp.AddParameter("@SystemName", systemName);
-            sp.AddParameter("@TopicType", (int)TopicType);
+            sp.AddParameter("@TopicType", (int)topicType);
             sp.AddParameter("@Features", commaSeparatedFeatures);
             sp.AddParameter("@IsPredefined", isPredefined.Value ? 1 : 0);
             sp.AddParameter("@ParentTopicId", parent_topic_id);
