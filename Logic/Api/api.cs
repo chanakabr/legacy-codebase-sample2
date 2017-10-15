@@ -5358,7 +5358,7 @@ namespace Core.Api
 
                     if (!cacheResult)
                     {
-                        log.Error(string.Format("GetParentalEPGRules - GetEpgParentalRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, epgId));
+                        log.Error(string.Format("GetParentalEPGRules - GetEpgParentalRules - Failed get data from cache groupId={0}, epgId={1}", groupId, epgId));
                         return null;
                     }
                     else if (epgRuleIds != null && epgRuleIds.Count > 0)
