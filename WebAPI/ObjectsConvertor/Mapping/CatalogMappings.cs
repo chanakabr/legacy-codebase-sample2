@@ -364,7 +364,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // KalturaAssetStruct to AssetStruct
             Mapper.CreateMap<KalturaAssetStruct, AssetStruct>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.ToString()))
                 .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                 .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
                 .ForMember(dest => dest.MetaIds, opt => opt.MapFrom(src => ConvertAssetStructMetaIdsList(src.MetaIds)))
@@ -374,7 +374,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // Topic to KalturaMeta
             Mapper.CreateMap<Topic, Models.API.KalturaMeta>()              
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.LanguageContainer)))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ApiMappings.ConvertMetaType(src.Type)))
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
@@ -388,7 +388,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // KalturaMeta to Topic
             Mapper.CreateMap<Models.API.KalturaMeta, Topic>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.ToString()))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ApiMappings.ConvertMetaType (src.Type)))
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
