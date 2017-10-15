@@ -4954,7 +4954,7 @@ namespace Core.ConditionalAccess
             return domainDefaultQuota;
         }
 
-        internal static List<ExtendedSearchResult> GetFirstFollowerEpgIdsToRecord(int groupId, string epgChannelId, string seriesId, int seasonNumber, DateTime? windowStartDate)
+        internal static List<ExtendedSearchResult> GetFirstFollowerEpgIdsToRecord(int groupId, string epgChannelId, string seriesId, int seasonNumber, DateTime startDate)
         {
             List<ExtendedSearchResult> programs = null;
 
@@ -4966,11 +4966,7 @@ namespace Core.ConditionalAccess
                 if (seasonNumber > 0)
                     ksql.AppendFormat("season_number = '{0}'", seasonNumber);
 
-                if (windowStartDate.HasValue)
-                {
-                    ksql.AppendFormat("start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(windowStartDate.Value));
-                }
-
+                ksql.AppendFormat("start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(startDate));
                 ksql.AppendFormat("epg_channel_id = '{0}')", epgChannelId);
 
                 ExtendedSearchRequest request = new ExtendedSearchRequest()
@@ -5012,7 +5008,7 @@ namespace Core.ConditionalAccess
 
             catch 
             {
-                log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, channelId: {0}, seriesId: {1}, seassonNumber: {2}, windowStartDate: {3}", epgChannelId, seriesId, seasonNumber, windowStartDate);
+                log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, channelId: {0}, seriesId: {1}, seassonNumber: {2}, windowStartDate: {3}", epgChannelId, seriesId, seasonNumber, startDate);
             }
 
             return programs;
