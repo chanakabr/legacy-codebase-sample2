@@ -962,7 +962,7 @@ namespace TVinciShared
 
                     if (imageUrl.EndsWith("=") == false)
                     {
-                        imageUrl = string.Format("{0}/", imageUrl);
+                        imageUrl = string.Format("{0}/{1}", imageUrl, sP);
                     }
                     if (imageUrl.EndsWith("=") == true)
                     {
