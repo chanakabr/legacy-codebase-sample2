@@ -32,6 +32,7 @@ namespace Core.ConditionalAccess
         private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
         private const string MAX_USAGE_MODULE = "mumlc";
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
+        private const int PENDING_THRESHOLD_DAYS = 180;
 
         #endregion
 
@@ -1356,6 +1357,9 @@ namespace Core.ConditionalAccess
             List<string> successTransactions, List<string> pendingTransactions, Dictionary<string, List<RenewSubscriptionDetails>> renewUnifiedDict, DateTime? successTransactionsEndDate, DateTime? pendingTransactionsEndDate)
         {
             // insert right messages + update db
+
+            bool saved = false;
+
             try
             {
                 if (successTransactions.Count > 0)
@@ -1367,8 +1371,27 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                bool saved = false;
+                if (pendingTransactions.Count > 0)
+                {
+                    // get tcm value 
+                    int PendingThresholdDays = TCMClient.Settings.Instance.GetValue<int>("pending_threshold_days");
+                    if (PendingThresholdDays == 0)
+                    {
+                        PendingThresholdDays = PENDING_THRESHOLD_DAYS;
+                    }
+                    DateTime pendingThresholdDate = DateTime.UtcNow.AddDays(PendingThresholdDays);
+                    // fail pending renew if more then X days passed 
+                    if (ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(pendingTransactionsEndDate.Value) + ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(pendingThresholdDate) <
+                            ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                    {
+                        // move all of these pending to fail - update subscription purchases table with fail status                       
+                        List<int> purchaseIds = (renewUnifiedDict.Where(x => pendingTransactions.Contains(x.Key)).SelectMany(x => x.Value).ToList()).Select(y => (int)y.PurchaseId).ToList();
+                        saved = ConditionalAccessDAL.UpdateMPPRenewalSubscriptionStatus(purchaseIds, (int)SubscriptionPurchaseStatus.Fail);
+                        pendingTransactions = new List<string>(); // Resets to avoid falling in the next case
+                    }
+                }
 
+                saved = false;
                 switch (processState) // original state of this process
                 {
                     case ProcessUnifiedState.Renew:
