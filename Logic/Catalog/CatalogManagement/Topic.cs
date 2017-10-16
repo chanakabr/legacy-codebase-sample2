@@ -55,6 +55,22 @@ namespace Core.Catalog.CatalogManagement
             //TODO: Lior -  init languageContainer
         }
 
+        public Topic(Topic topicToCopy)
+        {
+            this.Id = topicToCopy.Id;
+            this.Name = string.Copy(topicToCopy.Name);
+            this.SystemName = string.Copy(topicToCopy.SystemName);
+            this.Type = topicToCopy.Type;
+            this.Features = new HashSet<string>(topicToCopy.Features);
+            this.IsPredefined = topicToCopy.IsPredefined;
+            this.MultipleValue = topicToCopy.MultipleValue;
+            this.HelpText = topicToCopy.HelpText;
+            this.ParentId = topicToCopy.ParentId;
+            this.CreateDate = topicToCopy.CreateDate;
+            this.UpdateDate = topicToCopy.UpdateDate;
+            //TODO: Lior -  init languageContainer
+        }
+
         public string GetCommaSeparatedFeatures()
         {
             if (this.Features != null && this.Features.Count > 0)

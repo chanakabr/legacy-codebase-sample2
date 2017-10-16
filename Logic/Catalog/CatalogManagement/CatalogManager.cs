@@ -19,6 +19,59 @@ namespace Core.Catalog.CatalogManagement
 
         #region Private Methods
 
+        private static Tuple<CatalogGroupCache, bool> GetCatalogGroupCache(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            CatalogGroupCache catalogGroupCache = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        DataTable dt = CatalogDAL.GetTopicByIds(groupId.Value, new List<long>(), (int)MetaType.All);
+                        List<Topic> topics = CreateTopicListFromDataTable(dt);
+                        // return false if no topics are found on group
+                        if (topics == null || topics.Count == 0)
+                        {
+                            return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, false);
+                        }
+
+                        DataSet ds = CatalogDAL.GetAssetStructsByIds(groupId.Value, new List<long>());
+                        List<AssetStruct> assetStructs = CreateAssetStructListFromDataSet(ds);
+                        // return false if no asset structs are found on group
+                        if (assetStructs == null || assetStructs.Count == 0)
+                        {
+                            return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, false);
+                        }
+
+                        catalogGroupCache = new CatalogGroupCache(assetStructs, topics);
+                        res = true;
+                    }                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetCatalogGroupCache failed params : {0}", funcParams != null ? string.Join(";",
+                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
+            }
+
+            return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, res);
+        }
+
+        private static void InvalidateCatalogGroupCache(int groupId, Status resultStatus, bool shouldCheckResultObject, object resultObject = null)
+        {
+            if (resultStatus != null && resultStatus.Code == (int)eResponseStatus.OK && (!shouldCheckResultObject || resultObject != null))
+            {
+                string invalidationKey = LayeredCacheKeys.GetCatalogGroupCacheInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for catalogGroupCache with invalidationKey: {0}", invalidationKey);
+                }
+            }
+        }
+
         private static Status CreateAssetStructResponseStatusFromResult(long result, Status status = null)
         {
             Status responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -173,48 +226,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }
-
-        private static Tuple<Dictionary<string, AssetStruct>, bool> GetAssetStructs(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            Dictionary<string, AssetStruct> result = new Dictionary<string, AssetStruct>();
-            try
-            {
-                if (funcParams != null && funcParams.ContainsKey("assetStructIds") && funcParams.ContainsKey("groupId"))
-                {
-                    int? groupId = funcParams["groupId"] as int?;                    
-                    List<long> assetStructIds = null;                    
-                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
-                    {
-                        assetStructIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
-                    }
-                    else
-                    {
-                        assetStructIds = funcParams["assetStructIds"] != null ? funcParams["assetStructIds"] as List<long> : null;
-                    }
-
-                    if (assetStructIds != null && assetStructIds.Count > 0 && groupId.HasValue)
-                    {                        
-                        DataSet ds = CatalogDAL.GetAssetStructsByIds(groupId.Value, assetStructIds);
-                        List<AssetStruct> assetStructs = CreateAssetStructListFromDataSet(ds);
-                        if (assetStructs != null && assetStructs.Count > 0)
-                        {
-                            result = assetStructs.ToDictionary(x => LayeredCacheKeys.GetAssetStructKey(groupId.Value, x.Id), x => x);
-                        }
-                    }
-
-                    res = result.Keys.Count() == assetStructIds.Count();
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetAssetStructs failed params : {0}", funcParams != null ? string.Join(";",
-                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
-            }
-
-            return new Tuple<Dictionary<string, AssetStruct>, bool>(result, res);
-        }
+        }        
 
         private static Status CreateTopicResponseStatusFromResult(long result)
         {
@@ -315,73 +327,27 @@ namespace Core.Catalog.CatalogManagement
             }            
 
             return response;
-        }
-
-        private static Tuple<Dictionary<string, Topic>, bool> GetTopics(Dictionary<string, object> funcParams)
-        {            
-            Dictionary<string, Topic> result = new Dictionary<string, Topic>();
-            try
-            {
-                if (funcParams != null && funcParams.ContainsKey("topicIds") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("topicType"))
-                {
-                    int? groupId = funcParams["groupId"] as int?;
-                    int? topicType = funcParams["topicType"] as int?;
-                    List<long> topicIds = null;
-                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
-                    {
-                        topicIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
-                    }
-                    else
-                    {
-                        topicIds = funcParams["topicIds"] != null ? funcParams["topicIds"] as List<long> : null;
-                    }
-
-                    if (topicIds != null && groupId.HasValue && topicType.HasValue)
-                    {
-                        DataTable dt = CatalogDAL.GetTopicByIds(groupId.Value, topicIds, topicType.Value);
-                        List<Topic> topics = CreateTopicListFromDataTable(dt);
-                        if (topics != null && topics.Count > 0)
-                        {
-                            result = topics.ToDictionary(x => LayeredCacheKeys.GetTopicKey(groupId.Value, x.Id), x => x);
-                        }
-                    }                    
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetTopics failed params : {0}", funcParams != null ? string.Join(";",
-                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
-            }
-
-            return new Tuple<Dictionary<string, Topic>, bool>(result, true);
-        }
+        }        
 
         #endregion
 
         #region Public Methods
 
-        public static List<AssetStruct> TryGetAssetStructsFromCache(int groupId, List<long> ids)
+        public static CatalogGroupCache GetCatalogGroupCacheFromCache(int groupId)
         {
-            List<AssetStruct> result = null;
+            CatalogGroupCache result = null;
             try
             {
-                Dictionary<string, AssetStruct> assetStructsMap = null;
-                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetStructsKeysMap(groupId, ids);
-                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetStructsInvalidationKeysMap(groupId, ids);
-                if (!LayeredCache.Instance.GetValues<AssetStruct>(keyToOriginalValueMap, ref assetStructsMap, GetAssetStructs,
-                    new Dictionary<string, object>() { { "groupId", groupId }, { "assetStructIds", ids } },
-                    groupId, LayeredCacheConfigNames.GET_ASSET_STRUCTS_CACHE_CONFIG_NAME, invalidationKeysMap))
+                string key = LayeredCacheKeys.GetCatalogGroupCacheKey(groupId);
+                if (!LayeredCache.Instance.Get<CatalogGroupCache>(key, ref result, GetCatalogGroupCache, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                    LayeredCacheConfigNames.GET_CATALOG_GROUP_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetCatalogGroupCacheInvalidationKey(groupId) }))
                 {
-                    log.ErrorFormat("Failed getting AssetStructs from LayeredCache, groupId: {0}, assetStructIds", groupId, string.Join(",", ids));
-                }
-                else if (assetStructsMap != null)
-                {
-                    result = assetStructsMap.Count > 0 ? assetStructsMap.Values.ToList() : new List<AssetStruct>();
+                    log.ErrorFormat("Failed getting CatalogGroupCache from LayeredCache, groupId: {0}", groupId);
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed TryGetAssetStructsFromCache with groupId: {0} and ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
+                log.Error(string.Format("Failed TryGetCatalogGroupCache with groupId: {0}", groupId), ex);
             }
 
             return result;
@@ -392,14 +358,17 @@ namespace Core.Catalog.CatalogManagement
             AssetStructListResponse response = new AssetStructListResponse();
             try
             {
-                if (ids != null && ids.Count > 0)
+                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
+                if (catalogGroupCache != null && catalogGroupCache.AssetStructsMapById != null && catalogGroupCache.AssetStructsMapById.Count > 0)
                 {
-                    response.AssetStructs = TryGetAssetStructsFromCache(groupId, ids);
-                }
-                else
-                {
-                    DataSet ds = CatalogDAL.GetAssetStructsByIds(groupId, ids);
-                    response.AssetStructs = CreateAssetStructListFromDataSet(ds);
+                    if (ids != null && ids.Count > 0)
+                    {
+                        response.AssetStructs = ids.Where(x => catalogGroupCache.AssetStructsMapById.ContainsKey(x)).Select(x => catalogGroupCache.AssetStructsMapById[x]).ToList();
+                    }
+                    else
+                    {
+                        response.AssetStructs = catalogGroupCache.AssetStructsMapById.Values.ToList();
+                    }
                 }
 
                 if (response.AssetStructs != null)
@@ -415,21 +384,25 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static AssetStructListResponse GetAssetStructsByTopicIds(int groupId, List<long> topicIds)
+        public static AssetStructListResponse GetAssetStructsByTopicId(int groupId, long topicId)
         {
             AssetStructListResponse response = new AssetStructListResponse();
             try
             {
-                DataSet ds = CatalogDAL.GetAssetStructsByTopicIds(groupId, topicIds);
-                response.AssetStructs = CreateAssetStructListFromDataSet(ds);
-                if (response.AssetStructs != null)
+                if (topicId > 0)
                 {
+                    CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
+                    if (catalogGroupCache != null && catalogGroupCache.AssetStructsMapById != null && catalogGroupCache.AssetStructsMapById.Count > 0)
+                    {
+                        response.AssetStructs = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.MetaIds.Contains(topicId)).ToList();                        
+                    }
+
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetAssetStructsByTopicIds with groupId: {0} and topicIds: {1}", groupId, topicIds != null ? string.Join(",", topicIds) : string.Empty), ex);
+                log.Error(string.Format("Failed GetAssetStructsByTopicIds with groupId: {0} and topicId: {1}", groupId, topicId), ex);
             }
 
             return response;
@@ -440,12 +413,25 @@ namespace Core.Catalog.CatalogManagement
             AssetStructResponse result = new AssetStructResponse();
             try
             {
-                // TODO: Lior - check that meta Ids exist
-                if (assetStructToadd.MetaIds == null)
+                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
+                //TODO: Lior - System name is already chcked in DB, should we double check here before because we already have the info? *** ASK IRA **
+                if (catalogGroupCache != null && catalogGroupCache.AssetStructsMapBySystemName != null && catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(assetStructToadd.SystemName))
                 {
-                    result.Status = new Status((int)eResponseStatus.MetaIdsDoesNotExist, eResponseStatus.MetaIdsDoesNotExist.ToString());
+                    result.Status = new Status((int)eResponseStatus.AssetStructSystemNameAlreadyInUse, eResponseStatus.AssetStructSystemNameAlreadyInUse.ToString());
+                    return result;
                 }
-                //TODO: Lior - check that meta Ids exist
+                                
+                if (assetStructToadd.MetaIds != null && assetStructToadd.MetaIds.Count > 0 && catalogGroupCache.TopicsMapById != null)
+                {
+                    List<long> noneExistingMetaIds = assetStructToadd.MetaIds.Except(catalogGroupCache.TopicsMapById.Keys).ToList();
+                    if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
+                    {
+                        result.Status = new Status((int)eResponseStatus.MetaIdsDoesNotExist, string.Format("{0} for the following Meta Ids: {1}",
+                                                                                             eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
+                        return result;
+                    }
+                }
+                
                 List<KeyValuePair<long, int>> metaIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (assetStructToadd.MetaIds != null && assetStructToadd.MetaIds.Count > 0)
                 {
@@ -458,6 +444,7 @@ namespace Core.Catalog.CatalogManagement
                 }
                 DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, assetStructToadd.SystemName, metaIdsToPriority, assetStructToadd.IsPredefined, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
+                InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
             }
             catch (Exception ex)
             {
@@ -472,14 +459,14 @@ namespace Core.Catalog.CatalogManagement
             AssetStructResponse result = new AssetStructResponse();
             try
             {
-                List<AssetStruct> assetStructs = TryGetAssetStructsFromCache(groupId, new List<long>() { id });
-                if (assetStructs == null || assetStructs.Count != 1)
+                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
+                if (catalogGroupCache != null && catalogGroupCache.AssetStructsMapById != null && !catalogGroupCache.AssetStructsMapById.ContainsKey(id))
                 {
                     result.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
                     return result;
                 }
 
-                AssetStruct assetStruct = assetStructs.First();
+                AssetStruct assetStruct = new AssetStruct(catalogGroupCache.AssetStructsMapById[id]);
                 if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value && assetStructToUpdate.SystemName != null)
                 {
                     result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedAssetStructSystemName, eResponseStatus.CanNotChangePredefinedAssetStructSystemName.ToString());
@@ -489,7 +476,7 @@ namespace Core.Catalog.CatalogManagement
                 List<KeyValuePair<long, int>> metaIdsToPriority = null;
                 if (assetStructToUpdate.MetaIds != null || shouldUpdateMetaIds)
                 {
-                    metaIdsToPriority = new List<KeyValuePair<long, int>>();                                           
+                    metaIdsToPriority = new List<KeyValuePair<long, int>>();
                     int priority = 1;
                     foreach (long metaId in assetStructToUpdate.MetaIds)
                     {
@@ -506,6 +493,7 @@ namespace Core.Catalog.CatalogManagement
 
                 DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, assetStructToUpdate.SystemName, shouldUpdateMetaIds, metaIdsToPriority, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
+                InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
             }
             catch (Exception ex)
             {
@@ -520,14 +508,14 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                List<AssetStruct> assetStructs = TryGetAssetStructsFromCache(groupId, new List<long>() { id });
-                if (assetStructs == null || assetStructs.Count != 1)
+                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
+                if (catalogGroupCache != null && catalogGroupCache.AssetStructsMapById != null && !catalogGroupCache.AssetStructsMapById.ContainsKey(id))
                 {
                     result = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
                     return result;
                 }
 
-                AssetStruct assetStruct = assetStructs.First();
+                AssetStruct assetStruct = new AssetStruct(catalogGroupCache.AssetStructsMapById[id]);
                 if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value)
                 {
                     result = new Status((int)eResponseStatus.CanNotDeletePredefinedAssetStruct, eResponseStatus.CanNotDeletePredefinedAssetStruct.ToString());
@@ -537,6 +525,7 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeleteAssetStruct(groupId, id, userId))
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    InvalidateCatalogGroupCache(groupId, result, false);
                 }
             }
             catch (Exception ex)
@@ -547,46 +536,23 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static List<Topic> TryGetTopicsFromCache(int groupId, List<long> ids, MetaType type)
-        {
-            List<Topic> result = new List<Topic>();
-            try
-            {
-                Dictionary<string, Topic> topicsMap = null;
-                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetTopicsKeysMap(groupId, ids);
-                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetTopicsInvalidationKeysMap(groupId, ids);
-                if (!LayeredCache.Instance.GetValues<Topic>(keyToOriginalValueMap, ref topicsMap, GetTopics,
-                    new Dictionary<string, object>() { { "groupId", groupId }, { "topicIds", ids }, { "topicType", (int)type } },
-                    groupId, LayeredCacheConfigNames.GET_TOPICS_CACHE_CONFIG_NAME, invalidationKeysMap))
-                {
-                    log.ErrorFormat("Failed getting Topics from LayeredCache, groupId: {0}, topicIds", groupId, string.Join(",", ids));                    
-                }
-                else if (topicsMap != null)
-                {
-                    result = topicsMap.Count > 0 ? topicsMap.Values.ToList() : new List<Topic>();
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed TryGetTopicsFromCache with groupId: {0} and ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
-            }
-
-            return result;
-        }
-
         public static TopicListResponse GetTopicsByIds(int groupId, List<long> ids, MetaType type)
         {
             TopicListResponse response = new TopicListResponse();
             try
             {
-                if (ids != null && ids.Count > 0)
+                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
+                if (catalogGroupCache != null && catalogGroupCache.TopicsMapById != null && catalogGroupCache.TopicsMapById.Count > 0)
                 {
-                    response.Topics = TryGetTopicsFromCache(groupId, ids, type);
-                }
-                else
-                {
-                    DataTable dt = CatalogDAL.GetTopicByIds(groupId, ids, (int)type);
-                    response.Topics = CreateTopicListFromDataTable(dt);
+                    if (ids != null && ids.Count > 0)
+                    {
+                        response.Topics = ids.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
+                                                   .Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
+                    }
+                    else
+                    {
+                        response.Topics = catalogGroupCache.TopicsMapById.Values.Where(x => type == MetaType.All || x.Type == type).ToList();
+                    }
                 }
 
                 if (response.Topics != null)
@@ -602,21 +568,32 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static TopicListResponse GetTopicsByAssetStructIds(int groupId, List<long> assetStructIds, MetaType type)
+        public static TopicListResponse GetTopicsByAssetStructId(int groupId, long assetStructId, MetaType type)
         {
             TopicListResponse response = new TopicListResponse();
             try
             {
-                DataTable dt = CatalogDAL.GetTopicByAssetStructIds(groupId, assetStructIds, (int)type);
-                response.Topics = CreateTopicListFromDataTable(dt);
-                if (response.Topics != null)
+                if (assetStructId > 0)
                 {
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
+                    if (catalogGroupCache != null && catalogGroupCache.AssetStructsMapById != null && catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
+                    {
+                        List<long> topicIds = catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds;
+                        if (topicIds != null && topicIds.Count > 0)
+                        {
+                            response.Topics = topicIds.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x)).Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
+                        }
+                    }
+
+                    if (response.Topics != null)
+                    {
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetTopicsByAssetStructIds with groupId: {0} and assetStructIds: {1}", groupId, assetStructIds != null ? string.Join(",", assetStructIds) : string.Empty), ex);
+                log.Error(string.Format("Failed GetTopicsByAssetStructId with groupId: {0} and assetStructId: {1}", groupId, assetStructId), ex);
             }
 
             return response;
@@ -626,11 +603,20 @@ namespace Core.Catalog.CatalogManagement
         {
             TopicResponse result = new TopicResponse();
             try
-            {
+            {                
+                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
+                //TODO: Lior - System name is already chcked in DB, should we double check here before because we already have the info? *** ASK IRA **
+                if (catalogGroupCache != null && catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.ContainsKey(topicToAdd.SystemName))
+                {
+                    result.Status = new Status((int)eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
+                    return result;
+                }
+
                 //TODO: Lior - do something with features
                 DataTable dt = CatalogDAL.InsertTopic(groupId, topicToAdd.Name, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetCommaSeparatedFeatures(),
                                                       topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId);
                 result = CreateTopicResponseFromDataTable(dt);
+                InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
             }
             catch (Exception ex)
             {
@@ -645,28 +631,25 @@ namespace Core.Catalog.CatalogManagement
             TopicResponse result = new TopicResponse();
             try
             {
-                List<Topic> topics = TryGetTopicsFromCache(groupId, new List<long>() { id }, topicToUpdate.Type);
-                if (topics == null || topics.Count != 1)
+                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
+                if (catalogGroupCache != null && catalogGroupCache.TopicsMapById != null && !catalogGroupCache.TopicsMapById.ContainsKey(id))
                 {
                     result.Status = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
                     return result;
                 }
 
-                Topic assetStruct = topics.First();
-                if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value && topicToUpdate.SystemName != null)
+                Topic topic = new Topic(catalogGroupCache.TopicsMapById[id]);
+                if (topic.IsPredefined.HasValue && topic.IsPredefined.Value && topicToUpdate.SystemName != null)
                 {
                     result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedMetaSystemName, eResponseStatus.CanNotChangePredefinedMetaSystemName.ToString());
                     return result;
                 }
 
                 //TODO: Lior - do something with features
-
-                //TODO: Lior - support changing system name for topic???
-                // SAME for AssetStruct???
-
                 DataTable dt = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Name, topicToUpdate.SystemName, topicToUpdate.GetCommaSeparatedFeatures(),
                                                       topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
                 result = CreateTopicResponseFromDataTable(dt);
+                InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
             }
             catch (Exception ex)
             {
@@ -681,15 +664,15 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                List<Topic> assetStructs = TryGetTopicsFromCache(groupId, new List<long>() { id }, MetaType.All);
-                if (assetStructs == null || assetStructs.Count != 1)
+                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
+                if (catalogGroupCache != null && catalogGroupCache.TopicsMapById != null && !catalogGroupCache.TopicsMapById.ContainsKey(id))
                 {
                     result = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
                     return result;
                 }
 
-                Topic assetStruct = assetStructs.First();
-                if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value)
+                Topic topic = new Topic(catalogGroupCache.TopicsMapById[id]);
+                if (topic.IsPredefined.HasValue && topic.IsPredefined.Value)
                 {
                     result = new Status((int)eResponseStatus.CanNotDeletePredefinedMeta, eResponseStatus.CanNotDeletePredefinedMeta.ToString());
                     return result;
@@ -698,6 +681,7 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeleteTopic(groupId, id, userId))
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    InvalidateCatalogGroupCache(groupId, result, false);
                 }
             }
             catch (Exception ex)

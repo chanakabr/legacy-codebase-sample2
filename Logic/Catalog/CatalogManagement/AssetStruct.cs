@@ -42,6 +42,18 @@ namespace Core.Catalog.CatalogManagement
             //TODO: Lior - init languageContainer
         }
 
+        public AssetStruct(AssetStruct assetStructToCopy)
+        {
+            this.Id = assetStructToCopy.Id;
+            this.Name = string.Copy(assetStructToCopy.Name);
+            this.SystemName = string.Copy(assetStructToCopy.SystemName);
+            this.MetaIds = new List<long>(assetStructToCopy.MetaIds);
+            this.IsPredefined = assetStructToCopy.IsPredefined;
+            this.CreateDate = assetStructToCopy.CreateDate;
+            this.UpdateDate = assetStructToCopy.UpdateDate;
+            //TODO: Lior - init languageContainer
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(string.Format("Id: {0}, ", Id));
