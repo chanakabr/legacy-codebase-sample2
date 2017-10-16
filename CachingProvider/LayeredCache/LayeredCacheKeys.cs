@@ -247,44 +247,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("unifiedBillingCycle_groupId_{0}", groupId);
         }
 
-        public static string GetAssetStructKey(int groupId, long assetStrcutId)
+        public static string GetCatalogGroupCacheKey(int groupId)
         {
-            return string.Format("assetStruct_groupId_{0}_id_{1}", groupId, assetStrcutId);
-        }
-
-        public static Dictionary<string, string> GetAssetStructsKeysMap(int groupId, List<long> assetStructIds)
-        {
-            Dictionary<string, string> result = new Dictionary<string, string>();
-            if (assetStructIds != null && assetStructIds.Count > 0)
-            {
-                assetStructIds = assetStructIds.Distinct().ToList();
-                foreach (long id in assetStructIds)
-                {
-                    result.Add(GetAssetStructKey(groupId, id), id.ToString());
-                }
-            }
-
-            return result;
-        }
-
-        public static string GetTopicKey(int groupId, long topicId)
-        {
-            return string.Format("topic_groupId_{0}_id_{1}", groupId, topicId);
-        }
-
-        public static Dictionary<string, string> GetTopicsKeysMap(int groupId, List<long> topicIds)
-        {
-            Dictionary<string, string> result = new Dictionary<string, string>();
-            if (topicIds != null && topicIds.Count > 0)
-            {
-                topicIds = topicIds.Distinct().ToList();
-                foreach (long id in topicIds)
-                {
-                    result.Add(GetTopicKey(groupId, id), id.ToString());
-                }
-            }
-
-            return result;
+            return string.Format("CatalogGroupCache_groupId_{0}", groupId);
         }
 
         #endregion
@@ -435,50 +400,16 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyUnifiedBillingCycle_groupId_{0}", groupId);
         }
+
         public static string GetHouseholdUnifiedBillingCycleInvalidationKey(int domainID, long renewLifeCycle)
         {
             return string.Format("invalidationKeyUnifiedBillingCycle_domainId_{0}_renewLifeCycle", domainID, renewLifeCycle);
         }
 
-        public static string GetAssetStructInvalidationKey(int groupId, long assetStructId)
+        public static string GetCatalogGroupCacheInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKeyAssetStruct_groupId_{0}_id_{1}", groupId, assetStructId);
-        }
-
-        public static Dictionary<string, List<string>> GetAssetStructsInvalidationKeysMap(int groupId, List<long> assetStructIds)
-        {
-            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
-            if (assetStructIds != null && assetStructIds.Count > 0)
-            {
-                assetStructIds = assetStructIds.Distinct().ToList();
-                foreach (long id in assetStructIds)
-                {
-                    result.Add(GetAssetStructKey(groupId, id), new List<string>() { GetAssetStructInvalidationKey(groupId, id) });
-                }
-            }
-
-            return result;
-        }
-
-        public static string GetTopicInvalidationKey(int groupId, long topicId)
-        {
-            return string.Format("invalidationKeyTopic_groupId_{0}_id_{1}", groupId, topicId);
-        }
-
-        public static Dictionary<string, List<string>> GetTopicsInvalidationKeysMap(int groupId, List<long> topicIds)
-        {
-            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
-            if (topicIds != null && topicIds.Count > 0)
-            {
-                topicIds = topicIds.Distinct().ToList();
-                foreach (long id in topicIds)
-                {
-                    result.Add(GetTopicKey(groupId, id), new List<string>() { GetTopicInvalidationKey(groupId, id) });
-                }
-            }
-
-            return result;
-        }
+            return string.Format("invalidationKeyCatalogGroupCache_groupId_{0}", groupId);
+        }        
 
         #endregion
 

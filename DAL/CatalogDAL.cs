@@ -4714,6 +4714,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
+        // TODO - LIOR delete this method and its store procedure
         public static DataSet GetAssetStructsByTopicIds(int groupId, List<long> topicIds)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetStructsByTopicIds");
@@ -4775,6 +4776,7 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
+        // TODO - LIOR delete this method and its store procedure
         public static DataTable GetTopicByAssetStructIds(int groupId, List<long> assetStructIds, int topicType)
         {            
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicByAssetStructIds");
