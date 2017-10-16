@@ -343,9 +343,9 @@ namespace Core.ConditionalAccess
                 {
                     if (!ConditionalAccessDAL.UpdateMPPRenewalSubscriptionStatus(new List<int> (){ (int)purchaseId }, (int)SubscriptionPurchaseStatus.Suspended))
                     {
-                        log.ErrorFormat("Failed to suspend purchase id  entitlements for payment gateway: UpdateMPPRenewalSubscriptionStatus fail in DB purchaseId={0}, householdId={1}", purchaseId, householdId);                            
+                        log.ErrorFormat("Failed to suspend purchase id  entitlements for payment gateway: UpdateMPPRenewalSubscriptionStatus fail in DB purchaseId={0}, householdId={1}", purchaseId, householdId);
                     }
-                    return false;
+                    return true;// don't retry
                 }
                 else
                 {
@@ -424,7 +424,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        log.DebugFormat("Failed to suspend household entitlements for payment gateway: proccessId was not found in DB. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", groupId, pg.ID, householdId);
+                        log.DebugFormat("Failed to get household process id for payment gateway: proccessId was not found in DB. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", groupId, pg.ID, householdId);
                     }
                 }
             }
