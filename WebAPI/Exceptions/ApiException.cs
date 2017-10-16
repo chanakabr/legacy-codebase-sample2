@@ -142,6 +142,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType RECORDING_PLAYBACK_NOT_ALLOWED_FOR_NON_EXISTING_EPG_CHANNEL = new ClientExceptionType(eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording Playback Not Allowed For Non Existing Epg Channel", "Recording playback is not allowed for a non-existing linear channel");
         public static ClientExceptionType RECORDING_PLAYBACK_NOT_ALLOWED_FOR_NOT_ENTITLED_EPG_CHANNEL = new ClientExceptionType(eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, "Recording Playback Not Allowed For Not Entitled Epg Channel", "Recording playback is not allowed for non-entitled linear channels");
         public static ClientExceptionType SEASON_NUMBER_NOT_MATCH = new ClientExceptionType(eResponseStatus.SeasonNumberNotMatch, "Season Number Not Match", "The season number you entered doesn't match the season number that was recorded");
+        public static ClientExceptionType SUBSCRIPTION_CANCELLATION_IS_BLOCKED = new ClientExceptionType(eResponseStatus.SubscriptionCancellationIsBlocked, "The cancellation for the specified subscription is blocked");
 
 
         //Catalog 4000 - 4999
