@@ -32,7 +32,7 @@ namespace Core.ConditionalAccess
         private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
         private const string MAX_USAGE_MODULE = "mumlc";
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
-
+    // test 
         #endregion
 
         #region Static Members
