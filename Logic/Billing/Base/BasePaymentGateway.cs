@@ -1538,7 +1538,7 @@ namespace Core.Billing
                 rowNode.AppendChild(deviceNameNode);
                     
                 previewModuleIDNode = xmlDoc.CreateElement("preview_module_id");
-                previewModuleIDNode.InnerText = previewModuleID;
+                previewModuleIDNode.InnerText = "0"; // previewModuleID;
                 rowNode.AppendChild(previewModuleIDNode);
 
                 collectionCodeNode = xmlDoc.CreateElement("collection_code");
