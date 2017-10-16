@@ -646,13 +646,15 @@ namespace Core.Users
                     DeviceFamilyId = device.m_deviceFamilyID
                 };
 
-                bool deleted = domainDevice.Delete();               
+                bool deleted = domainDevice.Delete();
 
                 if (!deleted)
                 {
                     log.Debug("RemoveDeviceFromDomain - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, udid));
                     return DomainResponseStatus.Error;
-                }           
+                }
+
+                this.InvalidateDomain();
 
                 if (DomainDal.GetDomainsDevicesCount(m_nGroupID, nDeviceID) == 0) // No other domains attached to this device
                 {
@@ -3037,7 +3039,7 @@ namespace Core.Users
             return this.MemberwiseClone() as CoreObject;
         }
 
-        private void InvalidateDomain()
+        public void InvalidateDomain()
         {
             List<string> invalidationKeys = new List<string>()
                 { 

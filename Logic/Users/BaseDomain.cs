@@ -898,6 +898,8 @@ namespace Core.Users
                     // Remove Users
                     usersCache.RemoveUser(userID, m_nGroupID);
                 }
+
+                domain.InvalidateDomain();
             }
 
             // update result
@@ -958,7 +960,9 @@ namespace Core.Users
                 {
                     // Remove Users
                     usersCache.RemoveUser(userID, m_nGroupID);
+
                 }
+                domain.InvalidateDomain();
             }
 
             // update result
