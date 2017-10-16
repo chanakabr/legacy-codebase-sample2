@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using KLogMonitor;
 using System.Reflection;
+using CachingProvider.LayeredCache;
 
 namespace Core.Users
 {
@@ -306,6 +307,9 @@ namespace Core.Users
             }
 
             m_id = retVal.ToString();
+
+            this.InvalidateDomainDevice();
+
             return retVal;
         }
 
@@ -536,6 +540,26 @@ namespace Core.Users
             sb.Append(String.Concat(" State: ", m_state.ToString()));
 
             return sb.ToString();
+        }
+        
+        public void InvalidateDomainDevice()
+        {
+            List<string> invalidationKeys = new List<string>()
+                {
+                    string.Format("invalidationKey_domain_{0}_device_{1}", this.m_domainID, this.m_id)
+                };
+
+            LayeredCache.Instance.InvalidateKeys(invalidationKeys);
+        }
+
+        internal void SetReadingInvalidationKeys()
+        {
+            List<string> invalidationKeys = new List<string>()
+                {
+                    string.Format("invalidationKey_domain_{0}_device_{1}", this.m_domainID, this.m_id)
+                };
+
+            LayeredCache.Instance.SetReadingInvalidationKeys(invalidationKeys);
         }
     }
 }

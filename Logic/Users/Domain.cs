@@ -1732,6 +1732,8 @@ namespace Core.Users
                         MapDeviceToFamily(device);
                         IncrementDeviceCount(device);
                     }
+                    
+                    device.SetReadingInvalidationKeys();
                 }
             }
             else

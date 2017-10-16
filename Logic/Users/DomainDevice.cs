@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using CachingProvider.LayeredCache;
 using Core.Users;
 using Core.Users.Cache;
 using DAL;
@@ -60,6 +61,8 @@ namespace Core.Users
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(this.DomainId);
+
+                InvalidateDomainDevice();
             }
             catch (Exception ex)
             {
@@ -100,6 +103,8 @@ namespace Core.Users
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(this.DomainId);
+
+                InvalidateDomainDevice();
             }
             catch (Exception ex)
             {
@@ -118,6 +123,8 @@ namespace Core.Users
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(this.DomainId);
+
+                InvalidateDomainDevice();
             }
             catch (Exception ex)
             {
@@ -126,10 +133,19 @@ namespace Core.Users
 
             return result;
         }
-
         public override CoreObject CoreClone()
         {
             throw new NotImplementedException();
+        }
+
+        public void InvalidateDomainDevice()
+        {
+            List<string> invalidationKeys = new List<string>()
+                {
+                    string.Format("invalidationKey_domain_{0}_device_{1}", this.DomainId, this.DeviceId)
+                };
+
+            LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }
     }
 }

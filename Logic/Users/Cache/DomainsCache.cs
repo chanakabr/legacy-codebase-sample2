@@ -185,9 +185,18 @@ namespace Core.Users.Cache
                     DomainFactory.InitializeDLM(domain);
                 }
 
+                // Mark reading invalidation key for domain and its devices
                 if (domain != null)
                 {
                     domain.SetReadingInvalidationKeys();
+
+                    foreach (var deviceContainer in domain.m_deviceFamilies)
+                    {
+                        foreach (var device in deviceContainer.DeviceInstances)
+                        {
+                            device.SetReadingInvalidationKeys();
+                        }
+                    }
                 }
 
                 return domain;
