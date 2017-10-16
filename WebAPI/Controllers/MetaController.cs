@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Response;
 using KLogMonitor;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
@@ -126,9 +127,9 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (!string.IsNullOrEmpty(filter.AssetStructIdsContains))
+                if (filter.AssetStructIdEqual.HasValue && filter.AssetStructIdEqual.Value > 0)
                 {
-                    response = ClientsManager.CatalogClient().GetMetas(groupId, filter.GetAssetStructIdContains(), filter.TypeEqual, filter.OrderBy, true);
+                    response = ClientsManager.CatalogClient().GetMetas(groupId, new List<long>(), filter.TypeEqual, filter.OrderBy, filter.AssetStructIdEqual.Value);
                 }
                 else
                 {

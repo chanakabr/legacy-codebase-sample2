@@ -43,9 +43,9 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (!string.IsNullOrEmpty(filter.MetaIdsContains))
+                if (filter.MetaIdEqual.HasValue && filter.MetaIdEqual.Value > 0)
                 {                    
-                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, filter.GetMetaIdContains(), filter.OrderBy, true);
+                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, new List<long>(), filter.OrderBy, filter.MetaIdEqual.Value);
                 }
                 else
                 {                   

@@ -47,7 +47,7 @@ namespace WebAPI.Clients
 
         #region New Catalog Management
 
-        public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool shouldGetByMetaIds = false)
+        public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, long metaId = 0)
         {
             KalturaAssetStructListResponse result = new KalturaAssetStructListResponse() { TotalCount = 0 };
             AssetStructListResponse response = null;
@@ -56,9 +56,9 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    if (shouldGetByMetaIds)
+                    if (metaId > 0)
                     {
-                        response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByTopicIds(groupId, ids);
+                        response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByTopicId(groupId, metaId);
                     }
                     else
                     {
@@ -225,7 +225,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public KalturaMetaListResponse GetMetas(int groupId, List<long> ids, KalturaMetaType? type, KalturaMetaOrderBy? orderBy, bool shouldGetByAssetStructIds = false)
+        public KalturaMetaListResponse GetMetas(int groupId, List<long> ids, KalturaMetaType? type, KalturaMetaOrderBy? orderBy, long assetStructId = 0)
         {
             KalturaMetaListResponse result = new KalturaMetaListResponse() { TotalCount = 0 };
             TopicListResponse response = null;
@@ -240,9 +240,9 @@ namespace WebAPI.Clients
                         metaType = ApiMappings.ConvertMetaType(type);
                     }
 
-                    if (shouldGetByAssetStructIds)
+                    if (assetStructId > 0)
                     {
-                        response = Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByAssetStructIds(groupId, ids, metaType);
+                        response = Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByAssetStructId(groupId, assetStructId, metaType);
                     }
                     else
                     {

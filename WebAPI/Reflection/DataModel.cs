@@ -2512,8 +2512,8 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
-                        case "MetaIdsContains":
-                            return "metaIdsContains";
+                        case "MetaIdEqual":
+                            return "metaIdEqual";
                     }
                     break;
                     
@@ -4334,8 +4334,8 @@ namespace WebAPI.Reflection
                 case "KalturaMetaFilter":
                     switch(property.Name)
                     {
-                        case "AssetStructIdsContains":
-                            return "assetStructIdsContains";
+                        case "AssetStructIdEqual":
+                            return "assetStructIdEqual";
                         case "AssetTypeEqual":
                             return "assetTypeEqual";
                         case "FeaturesIn":

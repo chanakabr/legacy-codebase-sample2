@@ -41,12 +41,11 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Comma separated meta identifiers
         /// </summary>
-        [DataMember(Name = "metaIdsContains")]
-        [JsonProperty("metaIdsContains")]
-        [XmlArray(ElementName = "metaIdsContains", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public string MetaIdsContains { get; set; }
+        [DataMember(Name = "metaIdEqual")]
+        [JsonProperty("metaIdEqual")]
+        [XmlArray(ElementName = "metaIdEqual", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]        
+        public long? MetaIdEqual { get; set; }
 
         public override KalturaAssetStructOrderBy GetDefaultOrderByValue()
         {
@@ -55,9 +54,9 @@ namespace WebAPI.Models.Catalog
 
         internal void Validate()
         {
-            if (!string.IsNullOrEmpty(IdIn) && !string.IsNullOrEmpty(MetaIdsContains))
+            if (!string.IsNullOrEmpty(IdIn) && MetaIdEqual.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaAssetStructFilter.idIn, KalturaAssetStructFilter.metaIdContains");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaAssetStructFilter.idIn, KalturaAssetStructFilter.metaIdEqual");
             }
         }
 
@@ -82,30 +81,7 @@ namespace WebAPI.Models.Catalog
             }
 
             return list;
-        }
-
-        public List<long> GetMetaIdContains()
-        {
-            List<long> list = new List<long>();
-            if (!string.IsNullOrEmpty(MetaIdsContains))
-            {
-                string[] stringValues = MetaIdsContains.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    long value;
-                    if (long.TryParse(stringValue, out value))
-                    {
-                        list.Add(value);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetStructFilter.metaIdContains");
-                    }
-                }
-            }
-
-            return list;
-        }
+        }        
 
     }
 }

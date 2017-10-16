@@ -3972,7 +3972,7 @@
             Comma separated identifiers
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructFilter.MetaIdsContains">
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructFilter.MetaIdEqual">
             <summary>
             Comma separated meta identifiers
             </summary>
@@ -5512,7 +5512,7 @@
             Comma separated identifiers
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaMetaFilter.AssetStructIdsContains">
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.AssetStructIdEqual">
             <summary>
             Comma separated asset struct identifiers
             </summary>

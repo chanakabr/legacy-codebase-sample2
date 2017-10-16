@@ -28,12 +28,11 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Comma separated asset struct identifiers
         /// </summary>
-        [DataMember(Name = "assetStructIdsContains")]
-        [JsonProperty("assetStructIdsContains")]
-        [XmlArray(ElementName = "assetStructIdsContains", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public string AssetStructIdsContains { get; set; }
+        [DataMember(Name = "assetStructIdEqual")]
+        [JsonProperty("assetStructIdEqual")]
+        [XmlArray(ElementName = "assetStructIdEqual", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]        
+        public long? AssetStructIdEqual { get; set; }
 
         /// <summary>
         /// Meta system field name to filter by
@@ -127,34 +126,11 @@ namespace WebAPI.Models.API
             return list;
         }
 
-        public List<long> GetAssetStructIdContains()
-        {
-            List<long> list = new List<long>();
-            if (!string.IsNullOrEmpty(AssetStructIdsContains))
-            {
-                string[] stringValues = AssetStructIdsContains.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    long value;
-                    if (long.TryParse(stringValue, out value))
-                    {
-                        list.Add(value);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaMetaFilter.assetStructIdsContains");
-                    }
-                }
-            }
-
-            return list;
-        }
-
         internal void Validate()
         {
-            if (!string.IsNullOrEmpty(IdIn) && !string.IsNullOrEmpty(AssetStructIdsContains))
+            if (!string.IsNullOrEmpty(IdIn) && AssetStructIdEqual.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMetaFilter.idIn, KalturaMetaFilter.assetStructIdsContains");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMetaFilter.idIn, KalturaMetaFilter.assetStructIdEqual");
             }
         }
 
