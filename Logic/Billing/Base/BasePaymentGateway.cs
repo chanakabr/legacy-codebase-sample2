@@ -4278,8 +4278,11 @@ namespace Core.Billing
                         householdPaymentgatewayPaymentMethodExternalIds.Add(paymentGatewayId, new KeyValuePair<PaymentGateway, List<string>>(paymentGateway, new List<string>()));
                     }
 
-                    householdPaymentgatewayPaymentMethodExternalIds[paymentGatewayId].Value.Add(PaymentMethodExternalId);
-                    allPayentMethodsToDelete.Add(householdPaymentMethodId);
+                    if (householdPaymentMethodId > 0 && !string.IsNullOrEmpty(PaymentMethodExternalId))
+                    {
+                        householdPaymentgatewayPaymentMethodExternalIds[paymentGatewayId].Value.Add(PaymentMethodExternalId);
+                        allPayentMethodsToDelete.Add(householdPaymentMethodId);
+                    }                    
                 }
 
                 foreach (var pg in householdPaymentgatewayPaymentMethodExternalIds.Values)
