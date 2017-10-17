@@ -21,8 +21,8 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "idIn")]
         [JsonProperty("idIn")]
-        [XmlArray(ElementName = "idIn", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
+        [XmlElement(ElementName = "idIn", IsNullable = true)]
+        [SchemeProperty(DynamicMinInt = 1)]
         public string IdIn { get; set; }
 
         /// <summary>
@@ -30,8 +30,8 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "assetStructIdEqual")]
         [JsonProperty("assetStructIdEqual")]
-        [XmlArray(ElementName = "assetStructIdEqual", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]        
+        [XmlElement(ElementName = "assetStructIdEqual", IsNullable = true)]
+        [SchemeProperty(DynamicMinInt = 1)]
         public long? AssetStructIdEqual { get; set; }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "typeEqual")]
         [JsonProperty("typeEqual")]
-        [XmlElement(ElementName = "typeEqual")]
+        [XmlElement(ElementName = "typeEqual", IsNullable = true)]
         public KalturaMetaType? TypeEqual { get; set; }
 
         /// <summary>
