@@ -4262,17 +4262,19 @@ namespace Core.Billing
                 List<long> allPayentMethodsToDelete = new List<long>();
 
                 Dictionary<int, KeyValuePair<PaymentGateway, List<string>>> householdPaymentgatewayPaymentMethodExternalIds = new Dictionary<int, KeyValuePair<PaymentGateway, List<string>>>();
+                Dictionary<int, string> paymentGatewayIdToHouseholdChargeIdMap = new Dictionary<int, string>();
                 ApiObjects.Response.Status sendToAdapterStatus;
 
                 foreach (DataRow row in dt.Rows)
                 {
                     paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(row, "paymentGatewayId");
-                    householdPaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(row, "paymentMethodId");
-                    householdChargeId = ODBCWrapper.Utils.GetSafeStr(row, "householdChargeId");
+                    householdPaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(row, "paymentMethodId");                    
                     PaymentMethodExternalId = ODBCWrapper.Utils.GetSafeStr(row, "paymentMethodExternalId");
 
                     if (!householdPaymentgatewayPaymentMethodExternalIds.ContainsKey(paymentGatewayId))
                     {
+                        householdChargeId = ODBCWrapper.Utils.GetSafeStr(row, "householdChargeId");
+                        paymentGatewayIdToHouseholdChargeIdMap.Add(paymentGatewayId, householdChargeId);
                         // get the next payment gateway
                         paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
                         householdPaymentgatewayPaymentMethodExternalIds.Add(paymentGatewayId, new KeyValuePair<PaymentGateway, List<string>>(paymentGateway, new List<string>()));
@@ -4288,7 +4290,7 @@ namespace Core.Billing
                 foreach (var pg in householdPaymentgatewayPaymentMethodExternalIds.Values)
                 {
                     // send remove account for the previous payment gateway
-                    sendToAdapterStatus = SendRemoveAccountToAdapter(householdChargeId, householdId, pg.Key, pg.Value);
+                    sendToAdapterStatus = SendRemoveAccountToAdapter(paymentGatewayIdToHouseholdChargeIdMap[pg.Key.ID], householdId, pg.Key, pg.Value);
                 }
                 if (allPayentMethodsToDelete.Count > 0)
                 {
