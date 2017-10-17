@@ -1461,15 +1461,8 @@ namespace Core.Billing
                         ref price, ref currencyCode, ref isRecurring, ref pPVModuleCode, ref numberOfPayments, ref userGUID,
                                     ref relevantSub, ref maxNumberOfUses, ref maxUsageModuleLifeCycle, ref viewLifeCycleSecs, ref purchaseType,
                                     ref countryCd, ref languageCode, ref deviceName, ref previewModuleID, ref collectionCode);
-
-                long lPreviewModuleID = 0;
-                if (!string.IsNullOrEmpty(previewModuleID))
-                {
-                    Int64.TryParse(previewModuleID, out lPreviewModuleID);
-                }
-                double dPriceToWriteToDatabase = lPreviewModuleID > 0 ? 0.0 : rsd.Price;
-
-                int nPaymentNumberToInsertToDB =  Core.Billing.Utils.CalcPaymentNumberForBillingTransactionsDBTable(rsd.PaymentNumber, lPreviewModuleID);
+                
+                int nPaymentNumberToInsertToDB =  Core.Billing.Utils.CalcPaymentNumberForBillingTransactionsDBTable(rsd.PaymentNumber, 0);
 
                 rowNode = xmlDoc.CreateElement("row");
 
@@ -1481,9 +1474,8 @@ namespace Core.Billing
                 lastFourDigitsNode.InnerText = string.Empty;
                 rowNode.AppendChild(lastFourDigitsNode);
                 
-                //TO FIX LIAT
                 priceNode = xmlDoc.CreateElement("price");
-                priceNode.InnerText = dPriceToWriteToDatabase.ToString();
+                priceNode.InnerText = rsd.Price.ToString();
                 rowNode.AppendChild(priceNode);
 
                 paymentMethodAdditionNode = xmlDoc.CreateElement("payment_method_addition");
@@ -1538,7 +1530,7 @@ namespace Core.Billing
                 rowNode.AppendChild(deviceNameNode);
                     
                 previewModuleIDNode = xmlDoc.CreateElement("preview_module_id");
-                previewModuleIDNode.InnerText = "0"; // previewModuleID;
+                previewModuleIDNode.InnerText = "0";
                 rowNode.AppendChild(previewModuleIDNode);
 
                 collectionCodeNode = xmlDoc.CreateElement("collection_code");

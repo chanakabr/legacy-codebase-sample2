@@ -1072,11 +1072,13 @@ namespace Core.ConditionalAccess
                     // subscription purchase wasn't found
                     log.ErrorFormat("GetProcessDetails if end date not equal - canceling unified renew task. processId: {0}, nextEndDate: {1}, data: {2}",
                         processId, nextEndDate, logString);
+                    bool changeUnifiedStatus = ConditionalAccessDAL.UpdateUnifiedProcess(processId, null, null);
                     return true;
                 }                
             }
             else // process is in runtime = 1
             {
+                bool changeUnifiedStatus = ConditionalAccessDAL.UpdateUnifiedProcess(processId, null, null);
                 return true;
             }
 
@@ -1332,7 +1334,7 @@ namespace Core.ConditionalAccess
                                 {
                                     Subscription subscription = subscriptions.Where(x => x.m_SubscriptionCode == renewUnifiedData.ProductId).FirstOrDefault();
                                     HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, renewUnifiedData, transactionResponse.FailReasonCode);
-                                }
+                                }                               
                             }
                             break;
                         default:
@@ -1367,6 +1369,10 @@ namespace Core.ConditionalAccess
                 }
 
                 UpdateNextUnifiedCycle(groupId, householdId, paymentGateway, processId, processState, successTransactions, pendingTransactions, renewUnifiedDict, successTransactionsEndDate, pendingTransactionsEndDate);
+            }
+            else
+            {
+                bool changeUnifiedStatus = ConditionalAccessDAL.UpdateUnifiedProcess(processId, null, null);
             }
 
             return true; // no need to retry renew 
