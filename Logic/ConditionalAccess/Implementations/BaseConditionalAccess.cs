@@ -2571,8 +2571,8 @@ namespace Core.ConditionalAccess
         protected internal bool GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
                 int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
                 ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, ref UnifiedBillingCycle unifiedBillingCycle, 
-                Compensation compensation = null, string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null, DateTime? endDate = null,
-            int groupId = 0, long householdId = 0)
+                Compensation compensation = null, string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null, 
+                DateTime? endDate = null, int groupId = 0, long householdId = 0, bool ignoreUnifiedBillingCycle = true)
         {
             bool isSuccess = false;
 
@@ -2655,15 +2655,18 @@ namespace Core.ConditionalAccess
                 // if this is a renew after preview module / gift card - need to calculate partial price (if unified billing cycle)  
                 bool isPartialPrice = false;
 
-                if ((isCouponGiftCard || (paymentNumber == 1 && isPurchasedWithPreviewModule)) && groupId > 0 && householdId > 0 && endDate.HasValue)
+                if (!ignoreUnifiedBillingCycle)
                 {
-                    unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
-                    
-                    // check that end date between next end date and unified billing cycle end date are different
-                    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                    if ((isCouponGiftCard || (paymentNumber == 1 && isPurchasedWithPreviewModule)) && groupId > 0 && householdId > 0 && endDate.HasValue)
                     {
-                        Utils.CalculatePriceByUnifiedBillingCycle(groupId, ref priceValue, ref unifiedBillingCycle);
-                        isPartialPrice = true;
+                        unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
+
+                        // check that end date between next end date and unified billing cycle end date are different
+                        if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                        {
+                            Utils.CalculatePriceByUnifiedBillingCycle(groupId, ref priceValue, ref unifiedBillingCycle);
+                            isPartialPrice = true;
+                        }
                     }
                 }
 

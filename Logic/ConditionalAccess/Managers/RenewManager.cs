@@ -281,6 +281,13 @@ namespace Core.ConditionalAccess
             // get compensation data
             Compensation compensation = ConditionalAccessDAL.GetSubscriptionCompensationByPurchaseId(purchaseId);
 
+            /******* Check if this is a renew via INAPP PURCHASE **********/
+
+            PaymentDetails pd = null;
+            ApiObjects.Response.Status statusVerificationS = Billing.Module.GetPaymentGatewayVerificationStatus(groupId , billingGuid , ref pd);
+            
+            bool ignoreUnifiedBillingCycle = statusVerificationS.Code != (int)eResponseStatus.OK || pd == null || pd.PaymentGatewayId == 0;
+                        
             // get MPP
             int recPeriods = 0;
             bool isMPPRecurringInfinitely = false;
@@ -291,13 +298,14 @@ namespace Core.ConditionalAccess
 
             if (!cas.GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
                     ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
-                    ref couponCode, subscription, ref unifiedBillingCycle, compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode, endDate, groupId, householdId))
+                    ref couponCode, subscription, ref unifiedBillingCycle, compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode, 
+                    endDate, groupId, householdId, ignoreUnifiedBillingCycle))
             {
                 // "Error while trying to get Price plan
                 log.Error("Error while trying to get Price plan to renew");
                 return false;
             }
-            
+
             if (unifiedBillingCycle != null) //should be part of unified cycle 
             {
                 UpdateMPPRenewalProcessId(groupId, purchaseId, billingGuid, householdId);
