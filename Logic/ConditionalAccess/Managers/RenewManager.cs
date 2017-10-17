@@ -284,10 +284,10 @@ namespace Core.ConditionalAccess
             /******* Check if this is a renew via INAPP PURCHASE **********/
 
             PaymentDetails pd = null;
-            ApiObjects.Response.Status statusVerificationS = Billing.Module.GetPaymentGatewayVerificationStatus(groupId , billingGuid , ref pd);
-            
+            ApiObjects.Response.Status statusVerificationS = Billing.Module.GetPaymentGatewayVerificationStatus(groupId, billingGuid, ref pd);
+
             bool ignoreUnifiedBillingCycle = statusVerificationS.Code != (int)eResponseStatus.OK || pd == null || pd.PaymentGatewayId == 0;
-                        
+
             // get MPP
             int recPeriods = 0;
             bool isMPPRecurringInfinitely = false;
@@ -298,7 +298,7 @@ namespace Core.ConditionalAccess
 
             if (!cas.GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
                     ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
-                    ref couponCode, subscription, ref unifiedBillingCycle, compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode, 
+                    ref couponCode, subscription, ref unifiedBillingCycle, compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode,
                     endDate, groupId, householdId, ignoreUnifiedBillingCycle))
             {
                 // "Error while trying to get Price plan
@@ -349,7 +349,7 @@ namespace Core.ConditionalAccess
                 }
                 else if (transactionResponse.Status.Code == (int)eResponseStatus.PaymentGatewaySuspended)
                 {
-                    if (!ConditionalAccessDAL.UpdateMPPRenewalSubscriptionStatus(new List<int> (){ (int)purchaseId }, (int)SubscriptionPurchaseStatus.Suspended))
+                    if (!ConditionalAccessDAL.UpdateMPPRenewalSubscriptionStatus(new List<int>() { (int)purchaseId }, (int)SubscriptionPurchaseStatus.Suspended))
                     {
                         log.ErrorFormat("Failed to suspend purchase id  entitlements for payment gateway: UpdateMPPRenewalSubscriptionStatus fail in DB purchaseId={0}, householdId={1}", purchaseId, householdId);
                     }
@@ -1033,7 +1033,7 @@ namespace Core.ConditionalAccess
             long processId, ref List<long> purchasesIds)
         {
             // log request
-            string logString = string.Format("RenewUnifiedTransaction: householdId {0}, processId {1}, endDateLong {2}", householdId, processId,  nextEndDate);
+            string logString = string.Format("RenewUnifiedTransaction: householdId {0}, processId {1}, endDateLong {2}", householdId, processId, nextEndDate);
 
             log.DebugFormat("Starting renewal one transaction process. data: {0}", logString);
 
@@ -1066,13 +1066,13 @@ namespace Core.ConditionalAccess
                 return true;
             }
             #endregion
-            
+
             // Get Process Details 
             int paymentgatewayId = 0;
             ProcessUnifiedState processState = ProcessUnifiedState.Renew;
             DateTime? processEndDate = null;
             GetProcessDetails(processId, ref paymentgatewayId, ref processState, ref processEndDate);
-            if (paymentgatewayId != 0 && processEndDate.HasValue) 
+            if (paymentgatewayId != 0 && processEndDate.HasValue)
             {
                 // validate that this is the right message                              
                 if (Math.Abs(ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(processEndDate.Value) - nextEndDate) > 60)
@@ -1082,7 +1082,7 @@ namespace Core.ConditionalAccess
                         processId, nextEndDate, logString);
                     bool changeUnifiedStatus = ConditionalAccessDAL.UpdateUnifiedProcess(processId, null, null);
                     return true;
-                }                
+                }
             }
             else // process is in runtime = 1
             {
@@ -1201,7 +1201,7 @@ namespace Core.ConditionalAccess
             List<string> removeSubscriptionCodes = new List<string>();
             List<Subscription> baseSubscriptions = subscriptions.Where(x => x.Type == SubscriptionType.Base).ToList();
             foreach (Subscription subscription in (subscriptions.Where(x => x.Type == SubscriptionType.AddOn).ToList()))
-            {                
+            {
                 if (subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
                 {
                     ApiObjects.Response.Status status = Utils.CanPurchaseAddOn(groupId, householdId, subscription);
@@ -1263,7 +1263,7 @@ namespace Core.ConditionalAccess
             List<string> successTransactions = new List<string>();
             List<string> pendingTransactions = new List<string>();
 
-            foreach (KeyValuePair<string, List <RenewSubscriptionDetails>> kvpRenewUnified in renewUnifiedDict)
+            foreach (KeyValuePair<string, List<RenewSubscriptionDetails>> kvpRenewUnified in renewUnifiedDict)
             {
                 List<RenewSubscriptionDetails> renewUnified = kvpRenewUnified.Value;
 
@@ -1311,38 +1311,30 @@ namespace Core.ConditionalAccess
                             }
                             break;
                         case eTransactionState.Pending:
-                            {
-                                if (pendingTransactions.Count > 0)
-                                {
-                                    // get tcm value 
-                                    int PendingThresholdDays = TCMClient.Settings.Instance.GetValue<int>("pending_threshold_days");
-                                    if (PendingThresholdDays == 0)
-                                    {
-                                        PendingThresholdDays = PENDING_THRESHOLD_DAYS;
-                                    }
-                                    DateTime pendingThresholdDate = DateTime.UtcNow.AddDays(PendingThresholdDays);
-                                    // fail pending renew if more then X days passed 
-                                    if (nextEndDate + ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(pendingThresholdDate) <
-                                            ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
-                                    {
-                                        // go tho fail case 
-                                        goto case eTransactionState.Failed;                                      
-                                    }
-                                    else
-                                    {
-                                        pendingTransactions.Add(kvpRenewUnified.Key);
-                                    }
-                                }
-                            }
-                            break;
                         case eTransactionState.Failed:
                             {
-                                // renew subscription failed! pass 0 as failReasonCode since we don't get it on the transactionResponse
-                                foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
+                                // get tcm value 
+                                int PendingThresholdDays = TCMClient.Settings.Instance.GetValue<int>("pending_threshold_days");
+                                if (PendingThresholdDays == 0)
                                 {
-                                    Subscription subscription = subscriptions.Where(x => x.m_SubscriptionCode == renewUnifiedData.ProductId).FirstOrDefault();
-                                    HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, renewUnifiedData, transactionResponse.FailReasonCode);
-                                }                               
+                                    PendingThresholdDays = PENDING_THRESHOLD_DAYS;
+                                }
+
+                                if (transactionResponse.State == eTransactionState.Failed || new DateTime(1970, 1, 1).AddMilliseconds(nextEndDate).AddDays(PendingThresholdDays) < DateTime.UtcNow)
+                                {
+                                    // renew subscription failed! pass 0 as failReasonCode since we don't get it on the transactionResponse
+                                    foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
+                                    {
+                                        Subscription subscription = subscriptions.Where(x => x.m_SubscriptionCode == renewUnifiedData.ProductId).FirstOrDefault();
+                                        HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, renewUnifiedData, transactionResponse.FailReasonCode);
+                                    }
+
+                                }
+                                else
+                                {
+                                    pendingTransactions.Add(kvpRenewUnified.Key);
+                                }
+
                             }
                             break;
                         default:
@@ -1404,7 +1396,7 @@ namespace Core.ConditionalAccess
                         log.ErrorFormat("Failed to set invalidation key on Renew key = {0}", invalidationKey);
                     }
                 }
-                
+
                 switch (processState) // original state of this process
                 {
                     case ProcessUnifiedState.Renew:
@@ -1437,7 +1429,7 @@ namespace Core.ConditionalAccess
                             {
                                 // update original state of this process to be Pending
                                 saved = ConditionalAccessDAL.UpdateUnifiedProcess(processId, null, (int)ProcessUnifiedState.Pending);
-                                
+
                                 // insert message to queue
                                 HandleRenewUnifiedSubscriptionPending(groupId, householdId, pendingTransactionsEndDate.Value, paymentGateway.RenewalIntervalMinutes, processId);
                             }
@@ -1476,7 +1468,7 @@ namespace Core.ConditionalAccess
                                 {
                                     successProcessId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "id");
                                 }
-                                
+
                                 if (successProcessId > 0)
                                 {
                                     // update subsuription purchase with success
@@ -1504,7 +1496,7 @@ namespace Core.ConditionalAccess
         private static bool UpdateSuccessTransactions(int groupId, long householdId, long endDate, PaymentGateway paymentGateway, long processId, DateTime endDatedt, bool updateUnifiedProcess = true)
         {
             bool saved = true;
-            DateTime nextRenewalDate = endDatedt.AddMinutes(paymentGateway.RenewalStartMinutes);                     
+            DateTime nextRenewalDate = endDatedt.AddMinutes(paymentGateway.RenewalStartMinutes);
 
             // insert message to queue
             Utils.RenewTransactionMessageInQueue(groupId, householdId, endDate, nextRenewalDate, processId);
@@ -1534,7 +1526,7 @@ namespace Core.ConditionalAccess
             string currency, List<Subscription> subscriptions, List<RenewSubscriptionDetails> renewUnified,
             PaymentGateway paymentGateway)
         {
-            DateTime? endDate = null;            
+            DateTime? endDate = null;
 
             Subscription subscription = null;
 
@@ -1564,8 +1556,8 @@ namespace Core.ConditionalAccess
                             long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value);
 
                             if (unifiedBillingCycle.endDate < nextEndDate)
-                            {                                
-                                Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, renewUnifiedData.MaxVLCOfSelectedUsageModule, nextEndDate);                                
+                            {
+                                Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, renewUnifiedData.MaxVLCOfSelectedUsageModule, nextEndDate);
 
                                 unifiedBillingCycle.endDate = nextEndDate;
                             }
@@ -1586,7 +1578,7 @@ namespace Core.ConditionalAccess
                         renewUnifiedData.PurchaseId,                          // {3}
                         renewUnifiedData.BillingTransactionId));                  // {4}
 
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -1618,7 +1610,7 @@ namespace Core.ConditionalAccess
                 cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, psMessage);
             }
 
-           
+
 
             return true;
         }
@@ -1628,7 +1620,7 @@ namespace Core.ConditionalAccess
             try
             {
                 DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(renewalIntervalMinutes);
-                
+
                 // enqueue unified renew transaction
                 Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate), nextRenewalDate, processID);
             }
