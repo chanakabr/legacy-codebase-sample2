@@ -190,11 +190,17 @@ namespace Core.Users.Cache
                 {
                     domain.SetReadingInvalidationKeys();
 
-                    foreach (var deviceContainer in domain.m_deviceFamilies)
+                    if (domain.m_deviceFamilies != null)
                     {
-                        foreach (var device in deviceContainer.DeviceInstances)
+                        foreach (var deviceContainer in domain.m_deviceFamilies)
                         {
-                            device.SetReadingInvalidationKeys();
+                            if (deviceContainer.DeviceInstances != null)
+                            {
+                                foreach (var device in deviceContainer.DeviceInstances)
+                                {
+                                    device.SetReadingInvalidationKeys();
+                                }
+                            }
                         }
                     }
                 }
