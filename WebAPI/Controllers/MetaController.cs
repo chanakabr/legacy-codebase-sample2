@@ -160,10 +160,12 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
-            if (meta.Name == null)
+            if (meta.Name == null || meta.Name.Values == null || meta.Name.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "name");
             }
+
+            meta.Name.Validate();
 
             if (string.IsNullOrEmpty(meta.SystemName))
             {

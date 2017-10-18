@@ -181,7 +181,6 @@ namespace WebAPI.Exceptions
                                                                                                                         "can not change predefined asset struct name");
         public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedAssetStruct, "Predefined Asset Struct Can not be deleted",
                                                                                                             "can not delete predefined asset struct");
-
         public static ClientExceptionType META_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.MetaNameAlreadyInUse, "Name Already Used", "The meta name is already in use");
         public static ClientExceptionType META_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.MetaSystemNameAlreadyInUse, "System Name Already Used", "The meta system name is already in use");        
         public static ClientExceptionType META_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MetaDoesNotExist, "Invalid Asset Struct Id", "The specified meta id does not exist");
@@ -189,6 +188,7 @@ namespace WebAPI.Exceptions
                                                                                                                         "can not change predefined meta name");
         public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_META= new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedMeta, "Predefined meta Can not be deleted",
                                                                                                             "can not delete predefined meta");
+        public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");
 
         // Api 5000 - 5999
         public static ClientExceptionType NO_PIN_DEFINED = new ClientExceptionType(eResponseStatus.NoPinDefined, "No Pin Defined", "No parental PIN was defined for this user/household");
