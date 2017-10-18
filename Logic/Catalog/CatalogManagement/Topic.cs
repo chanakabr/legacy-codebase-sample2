@@ -9,9 +9,8 @@ namespace Core.Catalog.CatalogManagement
 {
     public class Topic
     {
-        public long Id { get; set; }
-        public string Name { get; set; }
-        public LanguageContainer[] LanguageContainer { get; set; }
+        public long Id { get; set; }        
+        public LanguageContainer[] Names { get; set; }
         public string SystemName { get; set; }
         public MetaType Type { get; set; }
         public HashSet<string> Features { get; set; }
@@ -25,7 +24,7 @@ namespace Core.Catalog.CatalogManagement
         public Topic()
         {
             this.Id = 0;
-            this.Name = string.Empty;
+            this.Names = new LanguageContainer[0];
             this.SystemName = string.Empty;
             this.Type = MetaType.All;
             this.Features = null;
@@ -34,15 +33,15 @@ namespace Core.Catalog.CatalogManagement
             this.HelpText = string.Empty;
             this.ParentId = 0;            
             this.CreateDate = 0;
-            this.UpdateDate = 0;
-            //TODO: Lior -  init languageContainer
+            this.UpdateDate = 0;            
         }
 
         public Topic(long id, string name, string systemName, MetaType type, HashSet<string> features, bool isPredefined, bool multipleValue, string helpText,
                      long parentId, long createDate, long updateDate)
         {
             this.Id = id;
-            this.Name = name;
+            //TODO: Lior -  support multilanguage, CURRENTY WE ONLY SUPPORT ENG
+            this.Names = new LanguageContainer[1] { new LanguageContainer("eng", name) };
             this.SystemName = systemName;
             this.Type = type;
             this.Features = features != null ? new HashSet<string>(features) : new HashSet<string>();
@@ -51,14 +50,13 @@ namespace Core.Catalog.CatalogManagement
             this.HelpText = helpText;
             this.ParentId = parentId;
             this.CreateDate = createDate;
-            this.UpdateDate = updateDate;
-            //TODO: Lior -  init languageContainer
+            this.UpdateDate = updateDate;            
         }
 
         public Topic(Topic topicToCopy)
         {
             this.Id = topicToCopy.Id;
-            this.Name = string.Copy(topicToCopy.Name);
+            this.Names = new List<LanguageContainer>(topicToCopy.Names).ToArray();
             this.SystemName = string.Copy(topicToCopy.SystemName);
             this.Type = topicToCopy.Type;
             this.Features = new HashSet<string>(topicToCopy.Features);
@@ -67,8 +65,7 @@ namespace Core.Catalog.CatalogManagement
             this.HelpText = topicToCopy.HelpText;
             this.ParentId = topicToCopy.ParentId;
             this.CreateDate = topicToCopy.CreateDate;
-            this.UpdateDate = topicToCopy.UpdateDate;
-            //TODO: Lior -  init languageContainer
+            this.UpdateDate = topicToCopy.UpdateDate;            
         }
 
         public string GetCommaSeparatedFeatures()
@@ -86,7 +83,8 @@ namespace Core.Catalog.CatalogManagement
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(string.Format("Id: {0}, ", Id));
-            sb.AppendFormat("Name: {0}, ", Name);
+            sb.AppendFormat("Names: {0}, ", Names != null && Names.Length > 0 ? string.Join(",", Names.Select(x => string.Format("languageCode: {0}, value: {1}",
+                                                                                                             x.m_sLanguageCode3, x.m_sValue)).ToList()) : string.Empty);
             sb.AppendFormat("SystemName: {0}, ", SystemName);
             sb.AppendFormat("Type: {0}, ", Type);
             sb.AppendFormat("Features: {0}, ", Features != null ? string.Join(",", Features) : string.Empty);

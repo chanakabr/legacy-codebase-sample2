@@ -10,6 +10,13 @@ namespace ApiObjects
             m_sLanguageCode3 = string.Empty;
             m_sValue = string.Empty;
         }
+
+        public LanguageContainer(string sLanguageCode, string sValue)
+        {
+            m_sLanguageCode3 = sLanguageCode;
+            m_sValue = sValue;
+        }
+
         public void Initialize(string sLanguageCode, string sValue)
         {
             m_sLanguageCode3 = sLanguageCode;

@@ -61,5 +61,12 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
+        public bool IsValid()
+        {
+            return AssetStructsMapById != null && AssetStructsMapById.Count > 0
+                && AssetStructsMapBySystemName != null && AssetStructsMapBySystemName.Count == AssetStructsMapById.Count
+                && TopicsMapById != null && TopicsMapById.Count > 0
+                && TopicsMapBySystemName != null && TopicsMapBySystemName.Count == TopicsMapById.Count;
+        }
     }
 }

@@ -333,17 +333,20 @@ namespace Core.Catalog.CatalogManagement
 
         #region Public Methods
 
-        public static CatalogGroupCache GetCatalogGroupCacheFromCache(int groupId)
+        public static bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache)
         {
-            CatalogGroupCache result = null;
+            bool result = false;
+            catalogGroupCache = null;
             try
             {
                 string key = LayeredCacheKeys.GetCatalogGroupCacheKey(groupId);
-                if (!LayeredCache.Instance.Get<CatalogGroupCache>(key, ref result, GetCatalogGroupCache, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                if (!LayeredCache.Instance.Get<CatalogGroupCache>(key, ref catalogGroupCache, GetCatalogGroupCache, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                     LayeredCacheConfigNames.GET_CATALOG_GROUP_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetCatalogGroupCacheInvalidationKey(groupId) }))
                 {
                     log.ErrorFormat("Failed getting CatalogGroupCache from LayeredCache, groupId: {0}", groupId);
                 }
+
+                result = catalogGroupCache.IsValid();
             }
             catch (Exception ex)
             {
@@ -358,23 +361,23 @@ namespace Core.Catalog.CatalogManagement
             AssetStructListResponse response = new AssetStructListResponse();
             try
             {
-                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
-                if (catalogGroupCache != null && catalogGroupCache.AssetStructsMapById != null && catalogGroupCache.AssetStructsMapById.Count > 0)
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    if (ids != null && ids.Count > 0)
-                    {
-                        response.AssetStructs = ids.Where(x => catalogGroupCache.AssetStructsMapById.ContainsKey(x)).Select(x => catalogGroupCache.AssetStructsMapById[x]).ToList();
-                    }
-                    else
-                    {
-                        response.AssetStructs = catalogGroupCache.AssetStructsMapById.Values.ToList();
-                    }
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetStructsByIds", groupId);
+                    return response;
                 }
 
-                if (response.AssetStructs != null)
+                if (ids != null && ids.Count > 0)
                 {
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.AssetStructs = ids.Where(x => catalogGroupCache.AssetStructsMapById.ContainsKey(x)).Select(x => catalogGroupCache.AssetStructsMapById[x]).ToList();
                 }
+                else
+                {
+                    response.AssetStructs = catalogGroupCache.AssetStructsMapById.Values.ToList();
+                }
+
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -391,12 +394,14 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (topicId > 0)
                 {
-                    CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
-                    if (catalogGroupCache != null && catalogGroupCache.AssetStructsMapById != null && catalogGroupCache.AssetStructsMapById.Count > 0)
+                    CatalogGroupCache catalogGroupCache;
+                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
-                        response.AssetStructs = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.MetaIds.Contains(topicId)).ToList();                        
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetStructsByTopicId", groupId);
+                        return response;                        
                     }
 
+                    response.AssetStructs = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.MetaIds.Contains(topicId)).ToList();
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
@@ -412,10 +417,16 @@ namespace Core.Catalog.CatalogManagement
         {
             AssetStructResponse result = new AssetStructResponse();
             try
-            {
-                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
+            {                
+                CatalogGroupCache catalogGroupCache;                
+                if (TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddAssetStruct", groupId);
+                    return result;
+                }
+
                 //TODO: Lior - System name is already chcked in DB, should we double check here before because we already have the info? *** ASK IRA **
-                if (catalogGroupCache != null && catalogGroupCache.AssetStructsMapBySystemName != null && catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(assetStructToadd.SystemName))
+                if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(assetStructToadd.SystemName))
                 {
                     result.Status = new Status((int)eResponseStatus.AssetStructSystemNameAlreadyInUse, eResponseStatus.AssetStructSystemNameAlreadyInUse.ToString());
                     return result;
@@ -442,7 +453,7 @@ namespace Core.Catalog.CatalogManagement
                         priority++;
                     }
                 }
-                DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, assetStructToadd.SystemName, metaIdsToPriority, assetStructToadd.IsPredefined, userId);
+                DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Names[0].m_sValue, assetStructToadd.SystemName, metaIdsToPriority, assetStructToadd.IsPredefined, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
             }
@@ -459,8 +470,14 @@ namespace Core.Catalog.CatalogManagement
             AssetStructResponse result = new AssetStructResponse();
             try
             {
-                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
-                if (catalogGroupCache != null && catalogGroupCache.AssetStructsMapById != null && !catalogGroupCache.AssetStructsMapById.ContainsKey(id))
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAssetStruct", groupId);
+                    return result;
+                }
+
+                if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))
                 {
                     result.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
                     return result;
@@ -491,7 +508,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, assetStructToUpdate.SystemName, shouldUpdateMetaIds, metaIdsToPriority, userId);
+                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Names[0].m_sValue, assetStructToUpdate.SystemName, shouldUpdateMetaIds, metaIdsToPriority, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
             }
@@ -508,8 +525,14 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
-                if (catalogGroupCache != null && catalogGroupCache.AssetStructsMapById != null && !catalogGroupCache.AssetStructsMapById.ContainsKey(id))
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteAssetStruct", groupId);
+                    return result;
+                }
+                                
+                if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))
                 {
                     result = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
                     return result;
@@ -541,24 +564,24 @@ namespace Core.Catalog.CatalogManagement
             TopicListResponse response = new TopicListResponse();
             try
             {
-                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
-                if (catalogGroupCache != null && catalogGroupCache.TopicsMapById != null && catalogGroupCache.TopicsMapById.Count > 0)
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    if (ids != null && ids.Count > 0)
-                    {
-                        response.Topics = ids.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
-                                                   .Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
-                    }
-                    else
-                    {
-                        response.Topics = catalogGroupCache.TopicsMapById.Values.Where(x => type == MetaType.All || x.Type == type).ToList();
-                    }
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetTopicsByIds", groupId);
+                    return response;
+                }
+                
+                if (ids != null && ids.Count > 0)
+                {
+                    response.Topics = ids.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
+                                                .Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
+                }
+                else
+                {
+                    response.Topics = catalogGroupCache.TopicsMapById.Values.Where(x => type == MetaType.All || x.Type == type).ToList();
                 }
 
-                if (response.Topics != null)
-                {
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                
             }
             catch (Exception ex)
             {
@@ -575,8 +598,14 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (assetStructId > 0)
                 {
-                    CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
-                    if (catalogGroupCache != null && catalogGroupCache.AssetStructsMapById != null && catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
+                    CatalogGroupCache catalogGroupCache;
+                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetTopicsByAssetStructId", groupId);
+                        return response;
+                    }
+
+                    if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
                     {
                         List<long> topicIds = catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds;
                         if (topicIds != null && topicIds.Count > 0)
@@ -585,10 +614,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    if (response.Topics != null)
-                    {
-                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    }
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
@@ -603,17 +629,23 @@ namespace Core.Catalog.CatalogManagement
         {
             TopicResponse result = new TopicResponse();
             try
-            {                
-                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddTopic", groupId);
+                    return result;
+                }
+
                 //TODO: Lior - System name is already chcked in DB, should we double check here before because we already have the info? *** ASK IRA **
-                if (catalogGroupCache != null && catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.ContainsKey(topicToAdd.SystemName))
+                if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(topicToAdd.SystemName))
                 {
                     result.Status = new Status((int)eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
                     return result;
                 }
 
                 //TODO: Lior - do something with features
-                DataTable dt = CatalogDAL.InsertTopic(groupId, topicToAdd.Name, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetCommaSeparatedFeatures(),
+                DataTable dt = CatalogDAL.InsertTopic(groupId, topicToAdd.Names[0].m_sValue, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetCommaSeparatedFeatures(),
                                                       topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId);
                 result = CreateTopicResponseFromDataTable(dt);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
@@ -630,9 +662,15 @@ namespace Core.Catalog.CatalogManagement
         {
             TopicResponse result = new TopicResponse();
             try
-            {
-                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
-                if (catalogGroupCache != null && catalogGroupCache.TopicsMapById != null && !catalogGroupCache.TopicsMapById.ContainsKey(id))
+            {                
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateTopic", groupId);
+                    return result;
+                }
+
+                if (!catalogGroupCache.TopicsMapById.ContainsKey(id))
                 {
                     result.Status = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
                     return result;
@@ -646,7 +684,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 //TODO: Lior - do something with features
-                DataTable dt = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Name, topicToUpdate.SystemName, topicToUpdate.GetCommaSeparatedFeatures(),
+                DataTable dt = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Names[0].m_sValue, topicToUpdate.SystemName, topicToUpdate.GetCommaSeparatedFeatures(),
                                                       topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
                 result = CreateTopicResponseFromDataTable(dt);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
@@ -663,9 +701,15 @@ namespace Core.Catalog.CatalogManagement
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
-            {
-                CatalogGroupCache catalogGroupCache = GetCatalogGroupCacheFromCache(groupId);
-                if (catalogGroupCache != null && catalogGroupCache.TopicsMapById != null && !catalogGroupCache.TopicsMapById.ContainsKey(id))
+            {                
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteTopic", groupId);
+                    return result;
+                }
+
+                if (!catalogGroupCache.TopicsMapById.ContainsKey(id))
                 {
                     result = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
                     return result;

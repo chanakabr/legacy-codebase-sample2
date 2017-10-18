@@ -10,8 +10,7 @@ namespace Core.Catalog.CatalogManagement
     public class AssetStruct
     {
         public long Id { get; set; }
-        public string Name { get; set; }
-        public LanguageContainer[] LanguageContainer { get; set; }
+        public LanguageContainer[] Names { get; set; }        
         public string SystemName { get; set; }
         public List<long> MetaIds { get; set; }
         public bool? IsPredefined { get; set; }
@@ -21,7 +20,7 @@ namespace Core.Catalog.CatalogManagement
         public AssetStruct()
         {
             this.Id = 0;
-            this.Name = string.Empty;
+            this.Names = new LanguageContainer[0];
             this.SystemName = string.Empty;
             this.MetaIds = new List<long>();
             this.IsPredefined = null;
@@ -33,7 +32,7 @@ namespace Core.Catalog.CatalogManagement
         public AssetStruct(long id, string name, string systemName, bool isPredefined, long createDate, long updateDate)
         {
             this.Id = id;
-            this.Name = name;
+            this.Names = new LanguageContainer[1] { new LanguageContainer("eng", name) };
             this.SystemName = systemName;
             this.MetaIds = new List<long>();
             this.IsPredefined = isPredefined;
@@ -45,7 +44,7 @@ namespace Core.Catalog.CatalogManagement
         public AssetStruct(AssetStruct assetStructToCopy)
         {
             this.Id = assetStructToCopy.Id;
-            this.Name = string.Copy(assetStructToCopy.Name);
+            this.Names = new List<LanguageContainer>(assetStructToCopy.Names).ToArray();
             this.SystemName = string.Copy(assetStructToCopy.SystemName);
             this.MetaIds = new List<long>(assetStructToCopy.MetaIds);
             this.IsPredefined = assetStructToCopy.IsPredefined;
@@ -57,7 +56,8 @@ namespace Core.Catalog.CatalogManagement
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(string.Format("Id: {0}, ", Id));
-            sb.AppendFormat("Name: {0}, ", Name);
+            sb.AppendFormat("Names: {0}, ", Names != null && Names.Length > 0 ? string.Join(",", Names.Select(x => string.Format("languageCode: {0}, value: {1}",
+                                                                                                 x.m_sLanguageCode3, x.m_sValue)).ToList()) : string.Empty);
             sb.AppendFormat("SystemName: {0}, ", SystemName);
             sb.AppendFormat("MetaIds: {0}, ", MetaIds != null ? string.Join(",", MetaIds) : string.Empty);
             sb.AppendFormat("IsPredefined: {0}, ", IsPredefined.HasValue ? IsPredefined.Value.ToString() : string.Empty);
