@@ -4714,16 +4714,6 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        // TODO - LIOR delete this method and its store procedure
-        public static DataSet GetAssetStructsByTopicIds(int groupId, List<long> topicIds)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetStructsByTopicIds");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
-            sp.AddIDListParameter("@TopicIds", topicIds, "id");            
-            return sp.ExecuteDataSet();
-        }
-
         public static DataSet InsertAssetStruct(int groupId, string name, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertAssetStruct");
@@ -4773,17 +4763,6 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Type", topicType);
             sp.AddIDListParameter("@Ids", ids, "id");
             sp.AddParameter("@IdsExist", ids != null && ids.Count > 0);
-            return sp.Execute();
-        }
-
-        // TODO - LIOR delete this method and its store procedure
-        public static DataTable GetTopicByAssetStructIds(int groupId, List<long> assetStructIds, int topicType)
-        {            
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicByAssetStructIds");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@Type", topicType);
-            sp.AddIDListParameter("@AssetStructIds", assetStructIds, "id");
             return sp.Execute();
         }
 
