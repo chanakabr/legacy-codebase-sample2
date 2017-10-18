@@ -153,19 +153,23 @@ namespace WebAPI.Controllers
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.MetaNameAlreadyInUse)]
-        [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]        
+        [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]
         public KalturaMeta Add(KalturaMeta meta)
         {
             KalturaMeta response = null;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
+            // validate features + multivalue = ture only for type STRING
+            meta.Validate();
+
             if (meta.Name == null || meta.Name.Values == null || meta.Name.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "name");
             }
 
-            meta.Name.Validate();
+            // validate
+            meta.Name.Validate(true);            
 
             if (string.IsNullOrEmpty(meta.SystemName))
             {

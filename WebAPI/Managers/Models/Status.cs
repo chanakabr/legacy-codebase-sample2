@@ -126,6 +126,9 @@ namespace WebAPI.Managers.Models
         ArgumentsConflictEachOther = 500061,
         UnableToCreateHouseholdForRole = 500062,
         ExternalError = 500063,
-        DuplicateLanguageSent = 500064
+        DuplicateLanguageSent = 500064,
+        InvalidMultipleValueForMetaType = 500065,
+        InvalidValueForFeatures = 500066,
+        DefaultLanguageMustBeSnt = 500067
     }
 }

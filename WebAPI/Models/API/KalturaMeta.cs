@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -16,6 +18,9 @@ namespace WebAPI.Models.API
     /// </summary>
     public class KalturaMeta : KalturaOTTObject
     {
+
+        private const string FEATURES_PATTERN = @"\W";
+
         /// <summary>
         /// Meta id 
         /// </summary>
@@ -135,6 +140,58 @@ namespace WebAPI.Models.API
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
+        internal void Validate()
+        {
+            if (MultipleValue && Type != KalturaMetaType.STRING)
+            {
+                throw new BadRequestException(ApiException.INVALID_MULTIPLE_VALUE_FOR_META_TYPE);
+            }
+
+            if (!string.IsNullOrEmpty(this.Features))
+            {
+                string allowedPattern = TCMClient.Settings.Instance.GetValue<string>("meta_features_patten");
+                if (string.IsNullOrEmpty(allowedPattern))
+                {
+                    allowedPattern = FEATURES_PATTERN;
+                }
+
+                Regex regex = new Regex(allowedPattern);
+                if (regex.IsMatch(this.Features))
+                {
+                    throw new BadRequestException(ApiException.INVALID_VALUE_FOR_FEATURES);
+                }                               
+            }
+        }
+
+        internal HashSet<string> GetFeaturesAsHashSet()
+        {
+            HashSet<string> result = new HashSet<string>();
+            if (!string.IsNullOrEmpty(this.Features))
+            {
+                string[] splitedFeatures = this.Features.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string feature in splitedFeatures)
+                {
+                    if (!result.Contains(feature))
+                    {
+                        result.Add(feature);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public string GetCommaSeparatedFeatures()
+        {
+            if (this.Features != null && this.Features.Length > 0)
+            {
+                return string.Join(",", this.Features);
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
     }
 
     [Serializable]

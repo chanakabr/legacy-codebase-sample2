@@ -189,6 +189,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_META= new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedMeta, "Predefined meta Can not be deleted",
                                                                                                             "can not delete predefined meta");
         public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");
+        public static ApiExceptionType INVALID_MULTIPLE_VALUE_FOR_META_TYPE = new ApiExceptionType(StatusCode.InvalidMultipleValueForMetaType, "MultipleValue can only be set to true for KalturaMetaType - STRING");
+        public static ApiExceptionType INVALID_VALUE_FOR_FEATURES = new ApiExceptionType(StatusCode.InvalidValueForFeatures, "Features can only underscore or alphanumeric values");
+        public static ApiExceptionType DEFUALT_LANGUAGE_MUST_BE_SENT = new ApiExceptionType(StatusCode.DefaultLanguageMustBeSnt, "Default language must be one of the values sent for multilingualName");
 
         // Api 5000 - 5999
         public static ClientExceptionType NO_PIN_DEFINED = new ClientExceptionType(eResponseStatus.NoPinDefined, "No Pin Defined", "No parental PIN was defined for this user/household");
@@ -346,7 +349,7 @@ namespace WebAPI.Exceptions
         [XmlArrayItem("item")]
         new public KalturaApiExceptionArg[] Args { get; set; }
 
-        private HttpStatusCode FailureHttpCode;
+        private HttpStatusCode FailureHttpCode;        
 
         public class ExceptionType
         {

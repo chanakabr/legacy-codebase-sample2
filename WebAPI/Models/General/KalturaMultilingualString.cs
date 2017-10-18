@@ -146,7 +146,7 @@ namespace WebAPI.Models.General
             return null;
         }
 
-        internal void Validate()
+        internal void Validate(bool shouldCheckDefaultLanguageIsSent)
         {
             if (Values != null && Values.Count > 0)
             {
@@ -157,8 +157,17 @@ namespace WebAPI.Models.General
                     {
                         throw new BadRequestException(ApiException.DUPLICATE_LANGUAGE_SENT, token.Language);
                     }
-
+                    
                     languageCodes.Add(token.Language);
+                }
+
+                if (shouldCheckDefaultLanguageIsSent)
+                {
+                    string defaultLanguageCode = Utils.Utils.GetDefaultLanguage();
+                    if (!languageCodes.Contains(defaultLanguageCode))
+                    {
+                        throw new BadRequestException(ApiException.DEFUALT_LANGUAGE_MUST_BE_SENT);
+                    }
                 }
             }
         }
