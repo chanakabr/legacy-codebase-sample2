@@ -787,7 +787,31 @@ namespace Core.ConditionalAccess
                 ResponseStatus userValidStatus = ResponseStatus.OK;
                 Core.Users.User user;
                 userValidStatus = Utils.ValidateUser(groupId, siteguid, ref household, out user);
-                if (userValidStatus != ResponseStatus.OK || user == null || user.m_oBasicData == null)
+                if (userValidStatus == ResponseStatus.UserSuspended)
+                {
+                    // check for it specific is the sespende 
+                    Core.Users.Domain domain = null; 
+                    Utils.ValidateDomain(groupId, (int)household, out domain);
+                    if (domain.nextSuspensionStatus == DomainSuspentionStatus.Suspended && domain.roleId.HasValue)
+                    {
+                        // get the role by role id and look for suspended for purchase 
+                        List<ApiObjects.Roles.Role> roles = DAL.ApiDAL.GetRoles(groupId, new List<long>() { domain.roleId.Value });
+                        if (roles != null && roles.Count() > 0)
+                        {
+                            // look for specific enum value 
+                            List<ApiObjects.Roles.Permission> Permissions = roles.SelectMany(x => x.Permissions).ToList();
+                            if (Permissions.Where(x => x.Name == SuspendedPermissions.PURCHASE_PPV.ToString() || x.Name == SuspendedPermissions.PURCHASE_SUBSCRIPTION.ToString()).Count() > 0)
+                            {
+                                // mabye add here for it is suspended ???
+                                response.Status = Utils.SetResponseStatus(userValidStatus);
+                                log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
+                                return response;
+                            }
+                        }
+                    }
+
+                }
+                else if (userValidStatus != ResponseStatus.OK || user == null || user.m_oBasicData == null)
                 {
                     // user validation failed
                     response.Status = Utils.SetResponseStatus(userValidStatus);
@@ -1041,6 +1065,12 @@ namespace Core.ConditionalAccess
                 priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode,
                     ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, ref unifiedBillingCycle, currency, isSubscriptionSetModifySubscription);
 
+                // if unified billing cycle is in the "history" ignore it in purchase ! 
+                if (unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                {
+                    unifiedBillingCycle = null;
+                }
+
                 if (subscription == null)
                 {
                     response.Status.Message = "ProductId doesn't exist";
@@ -1214,11 +1244,10 @@ namespace Core.ConditionalAccess
                                                     nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
                                                     paymentGwId = paymentGatewayResponse.ID;
 
-                                                    if (!entitleToPreview)
-                                                    {
-                                                        if (subscription != null && subscription.m_bIsRecurring
+                                                    if (unifiedBillingCycle == null && subscription != null && subscription.m_bIsRecurring
                                                            && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
                                                           )
+                                                    { 
                                                             Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, ref unifiedBillingCycle, subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, endDate.Value );
                                                     }
                                                 }
