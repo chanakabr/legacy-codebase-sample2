@@ -1048,7 +1048,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // if unified billing cycle is in the "history" ignore it in purchase ! 
-                if (unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                 {
                     unifiedBillingCycle = null;
                 }
