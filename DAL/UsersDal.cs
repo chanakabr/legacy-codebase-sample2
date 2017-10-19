@@ -1964,6 +1964,30 @@ namespace DAL
             return rowCount;
         }
 
+        public static int Upsert_SuspendedUsersRole(int groupId, List<int> usersId, long currentRoleId, long newRoleId)
+        {
+            int rowCount;
+
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Upsert_SuspendedUsersRole");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddIDListParameter<int>("@users_id",usersId, "Id");
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@current_role_id", currentRoleId);
+                sp.AddParameter("@new_role_id", newRoleId);
+
+                rowCount = sp.ExecuteReturnValue<int>();
+
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+            return rowCount;
+
+        }
+
         public static bool DeleteUser(int groupId, int userId)
         {
             int status = 0;

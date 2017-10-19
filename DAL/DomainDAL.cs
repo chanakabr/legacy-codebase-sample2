@@ -955,21 +955,21 @@ namespace DAL
         public static bool GetDomainSettings(int nDomainID, int nGroupID, ref string sName, ref string sDescription, ref int nDeviceLimitationModule,
             ref int nDeviceLimit, ref int nUserLimit, ref int nConcurrentLimit, ref int nStatus, ref int nIsActive, ref int nFrequencyFlag,
             ref int nDeviceMinPeriodId, ref int nUserMinPeriodId, ref DateTime dDeviceFrequencyLastAction, ref DateTime dUserFrequencyLastAction,
-            ref string sCoGuid, ref int nDomainRestriction, ref DomainSuspentionStatus eDomainSuspendStat, ref int regionId)
+            ref string sCoGuid, ref int nDomainRestriction, ref DomainSuspentionStatus eDomainSuspendStat, ref int regionId, ref int roleId)
         {
             int nGroupConcurrentMaxLimit = 0;
 
 
             return GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
-                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDomainID, ref nGroupConcurrentMaxLimit, ref eDomainSuspendStat, ref regionId);
+                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDomainID, ref nGroupConcurrentMaxLimit, ref eDomainSuspendStat, ref regionId, ref roleId);
         }
 
 
         public static bool GetDomainSettings(int nDomainID, int nGroupID, ref string sName, ref string sDescription, ref int nDeviceLimitationModule,
             ref int nDeviceLimit, ref int nUserLimit, ref int nConcurrentLimit, ref int nStatus, ref int nIsActive, ref int nFrequencyFlag,
             ref int nDeviceMinPeriodId, ref int nUserMinPeriodId, ref DateTime dDeviceFrequencyLastAction, ref DateTime dUserFrequencyLastAction,
-            ref string sCoGuid, ref int nDomainRestriction, ref int nGroupConcurrentLimit, ref DomainSuspentionStatus suspendStatus, ref int regionId)
+            ref string sCoGuid, ref int nDomainRestriction, ref int nGroupConcurrentLimit, ref DomainSuspentionStatus suspendStatus, ref int regionId, ref int roleId)
         {
 
             bool res = false;
@@ -1016,7 +1016,10 @@ namespace DAL
                 {
                     suspendStatus = (DomainSuspentionStatus)suspendStatInt;
                 }
+
                 regionId = ODBCWrapper.Utils.GetIntSafeVal(dr, "REGION_ID");
+                roleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ROLE_ID");
+
                 res = true;
             }
             return res;
@@ -1907,13 +1910,17 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool ChangeSuspendDomainStatus(int nDomainID, int nGroupID, DomainSuspentionStatus nStatus)
+        public static bool ChangeSuspendDomainStatus(int nDomainID, int nGroupID, DomainSuspentionStatus nStatus, int? roleId)
         {
             StoredProcedure sp = new StoredProcedure("Update_DomainSuspendStatus");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@domainID", nDomainID);
             sp.AddParameter("@groupID", nGroupID);
             sp.AddParameter("@IsSuspended", nStatus);
+            if (roleId.HasValue)
+            {
+                sp.AddParameter("@RoleId", roleId);
+            }
             return sp.ExecuteReturnValue<bool>();
         }
 
