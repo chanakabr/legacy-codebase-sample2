@@ -111,7 +111,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "parentId")]
         [JsonProperty("parentId")]
         [XmlElement(ElementName = "parentId", IsNullable = true)]        
-        public string ParentId{ get; set; }
+        public long ParentId{ get; set; }
 
         /// <summary>
         /// Partner Id
@@ -149,17 +149,24 @@ namespace WebAPI.Models.API
 
             if (!string.IsNullOrEmpty(this.Features))
             {
-                string allowedPattern = TCMClient.Settings.Instance.GetValue<string>("meta_features_patten");
-                if (string.IsNullOrEmpty(allowedPattern))
+                HashSet<string> featuresHashSet = GetFeaturesAsHashSet();
+                if (featuresHashSet != null && featuresHashSet.Count > 0)
                 {
-                    allowedPattern = FEATURES_PATTERN;
-                }
+                    string allowedPattern = TCMClient.Settings.Instance.GetValue<string>("meta_features_patten");
+                    if (string.IsNullOrEmpty(allowedPattern))
+                    {
+                        allowedPattern = FEATURES_PATTERN;
+                    }
 
-                Regex regex = new Regex(allowedPattern);
-                if (regex.IsMatch(this.Features))
-                {
-                    throw new BadRequestException(ApiException.INVALID_VALUE_FOR_FEATURES);
-                }                               
+                    Regex regex = new Regex(allowedPattern);
+                    foreach (string feature in featuresHashSet)
+                    {
+                        if (regex.IsMatch(feature))
+                        {
+                            throw new BadRequestException(ApiException.INVALID_VALUE_FOR_FEATURE, feature);
+                        }
+                    }
+                }
             }
         }
 

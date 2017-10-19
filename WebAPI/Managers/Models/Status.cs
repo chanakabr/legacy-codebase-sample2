@@ -128,7 +128,7 @@ namespace WebAPI.Managers.Models
         ExternalError = 500063,
         DuplicateLanguageSent = 500064,
         InvalidMultipleValueForMetaType = 500065,
-        InvalidValueForFeatures = 500066,
+        InvalidValueForFeature = 500066,
         DefaultLanguageMustBeSnt = 500067
     }
 }
