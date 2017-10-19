@@ -1124,10 +1124,6 @@ namespace Core.ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
 
-                        bool purchasePartOfUbc = unifiedBillingCycle != null && subscription != null &&
-                             subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
-                             subscription.m_MultiSubscriptionUsageModule.Count() == 1; /*only one price plan*/                                                          
-
                         // purchase
                         if (couponFullDiscount || isGiftCard)
                         {
@@ -1177,7 +1173,12 @@ namespace Core.ConditionalAccess
                                         endDate = Utils.CalcSubscriptionEndDate(subscription, entitleToPreview, entitlementDate);
                                     }
 
-                                    if (purchasePartOfUbc)
+                                    long ? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
+                                    if ( subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
+                                         subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
+                                         && groupUnifiedBillingCycle.HasValue 
+                                         && (int)groupUnifiedBillingCycle.Value == subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle) 
+                                         // group define with billing cycle
                                     {
                                         processId = Utils.GetUnifiedProcessId(groupId, paymentGatewayResponse.ID, endDate.Value, householdId, out isNew);
                                     }
@@ -1226,8 +1227,10 @@ namespace Core.ConditionalAccess
                                                 {
                                                     nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
                                                     paymentGwId = paymentGatewayResponse.ID;
-                                                   
-                                                    if (purchasePartOfUbc)  
+
+                                                    if (unifiedBillingCycle == null && subscription != null &&
+                                                     subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
+                                                     subscription.m_MultiSubscriptionUsageModule.Count() == 1)
                                                     {
                                                         Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, ref unifiedBillingCycle, subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, endDate.Value);
                                                     }
