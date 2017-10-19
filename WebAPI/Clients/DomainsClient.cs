@@ -772,17 +772,14 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal bool Suspend(int groupId, int domainId)
+        internal bool Suspend(int groupId, int domainId, int? roleId = null)
         {
             ApiObjects.Response.Status response = null;
-
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.SuspendDomain(groupId, domainId);
+                    response = Core.Domains.Module.SuspendDomain(groupId, domainId, roleId);
                 }
             }
             catch (Exception ex)

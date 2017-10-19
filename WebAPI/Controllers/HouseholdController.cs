@@ -607,13 +607,15 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Suspend a given household service. Sets the household status to “suspended".The household service settings are maintained for later resume
         /// </summary>                
+        /// <param name="roleId">roleId</param>
         /// <remarks>Possible status codes: Household already suspended = 1012
         ///</remarks>
         [Route("suspend"), HttpPost]
         [ApiAuthorize]
+        [SchemeArgument("roleId ", RequiresPermission = true)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.DomainAlreadySuspended)]
-        public bool Suspend()
+        public bool Suspend(int? roleId = null)
         {
             var ks = KS.GetFromRequest();
             int groupId = KS.GetFromRequest().GroupId;
@@ -622,8 +624,7 @@ namespace WebAPI.Controllers
             {
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 // call client
-                return ClientsManager.DomainsClient().Suspend(groupId, (int)domainId);
-
+                return ClientsManager.DomainsClient().Suspend(groupId, (int)domainId, roleId);
             }
             catch (ClientException ex)
             {
