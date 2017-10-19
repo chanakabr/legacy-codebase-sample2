@@ -1047,6 +1047,11 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
+                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                {
+                    unifiedBillingCycle = null;
+                }
+
                 if (subscription.m_UserTypes != null && subscription.m_UserTypes.Length > 0 && !subscription.m_UserTypes.Contains(user.m_oBasicData.m_UserType))
                 {
                     response.Status = new Status((int)eResponseStatus.SubscriptionNotAllowedForUserType, eResponseStatus.SubscriptionNotAllowedForUserType.ToString());
@@ -1118,6 +1123,11 @@ namespace Core.ConditionalAccess
                         // create new GUID for billing transaction
                         string billingGuid = Guid.NewGuid().ToString();
 
+
+                        bool purchasePartOfUbc = unifiedBillingCycle != null && subscription != null &&
+                             subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
+                             subscription.m_MultiSubscriptionUsageModule.Count() == 1; /*only one price plan*/                                                          
+
                         // purchase
                         if (couponFullDiscount || isGiftCard)
                         {
@@ -1157,7 +1167,7 @@ namespace Core.ConditionalAccess
                                     endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
                                 }
 
-                                //try get from db process_purchases_id - if not exsits - create one 
+                                //try get from db process_purchases_id - if not exsits - create one - only if pare of billing cycle
                                 long processId = 0;
                                 bool isNew = false;
                                 if (paymentGatewayResponse != null)
@@ -1167,7 +1177,10 @@ namespace Core.ConditionalAccess
                                         endDate = Utils.CalcSubscriptionEndDate(subscription, entitleToPreview, entitlementDate);
                                     }
 
-                                    processId = Utils.GetUnifiedProcessId(groupId, paymentGatewayResponse.ID, endDate.Value, householdId, out isNew);
+                                    if (purchasePartOfUbc)
+                                    {
+                                        processId = Utils.GetUnifiedProcessId(groupId, paymentGatewayResponse.ID, endDate.Value, householdId, out isNew);
+                                    }
                                 }
                                 // grant entitlement
                                 bool handleBillingPassed = 
@@ -1214,12 +1227,9 @@ namespace Core.ConditionalAccess
                                                     nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
                                                     paymentGwId = paymentGatewayResponse.ID;
 
-                                                    if (!entitleToPreview)
+                                                    if (purchasePartOfUbc)                                                           
                                                     {
-                                                        if (subscription != null && subscription.m_bIsRecurring
-                                                           && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
-                                                          )
-                                                            Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, ref unifiedBillingCycle, subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, endDate.Value );
+                                                        Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, ref unifiedBillingCycle, subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, endDate.Value);
                                                     }
                                                 }
 
