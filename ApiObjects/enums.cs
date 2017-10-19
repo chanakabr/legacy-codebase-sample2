@@ -515,6 +515,7 @@ namespace ApiObjects
     {
         Normal = 1,
         Group = 2
+
     }
 
     public enum eDbActionType
@@ -922,6 +923,16 @@ namespace ApiObjects
     {
         OK = 0,
         Suspend = 1,
+    }
+
+    public enum SuspendedPermissions
+    {
+        PLAYBACK_SUBSCRIPTION = 0,
+        PLAYBACK_PPV = 1,
+        PURCHASE_SUBSCRIPTION = 2,
+        PURCHASE_PPV = 3,
+        RENEW_SUBSCRIPTION = 4,
+        PURCHASE_SERVICE = 5
     }
 
 }

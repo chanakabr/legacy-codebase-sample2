@@ -853,7 +853,7 @@ namespace Core.Users
             return res;
         }
 
-        public virtual ApiObjects.Response.Status SuspendDomain(int nDomainID)
+        public virtual ApiObjects.Response.Status SuspendDomain(int nDomainID, int? roleId = null)
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status();
             DomainsCache oDomainCache = DomainsCache.Instance();
@@ -868,22 +868,35 @@ namespace Core.Users
             }
 
             // validate domain is not suspended
-            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !roleId.HasValue)
             {
                 result.Code = (int)eResponseStatus.DomainAlreadySuspended;
                 result.Message = "Domain already suspended";
                 return result;
-            }
+            }            
 
             domain.shouldUpdateSuspendStatus = true;
             domain.nextSuspensionStatus = DomainSuspentionStatus.Suspended;
-            
+
+            // get current domain.roleId ==> to update the users 
+            int? currentRoleId = domain.roleId;
+                        
+            if (roleId.HasValue)
+            {
+                domain.roleId = roleId.Value;
+            }
+
             // suspend domain
             bool suspendSucceed = domain.Update();
 
             // remove from cache
             if (suspendSucceed)
             {
+                if (roleId.HasValue)
+                {
+                    bool resultSuspendedUsers = UpdateSuspendedUserRoles(domain, m_nGroupID, currentRoleId.HasValue ? currentRoleId.Value : 0, roleId.Value);
+                    
+                }
                 // Remove Domain
                 oDomainCache.RemoveDomain(nDomainID);
                 UsersCache usersCache = UsersCache.Instance();
@@ -901,9 +914,8 @@ namespace Core.Users
 
                 domain.InvalidateDomain();
             }
-
             // update result
-            if (suspendSucceed)
+             if (suspendSucceed)
             {
                 result.Code = (int)eResponseStatus.OK;
             }
@@ -914,6 +926,25 @@ namespace Core.Users
             }
 
             return result;
+        }
+
+        private bool UpdateSuspendedUserRoles(Domain domain, int groupId, int? currentRoleId, int? newRoleId)
+        {
+            int rowCount = 0;
+            try
+            {
+                // add roleId to all Users
+                List<int> usersInDomain = domain.m_DefaultUsersIDs;
+                usersInDomain.AddRange(domain.m_UsersIDs);
+
+                rowCount = UsersDal.Upsert_SuspendedUsersRole(groupId, usersInDomain, currentRoleId.HasValue ? currentRoleId.Value : 0, newRoleId.HasValue ? newRoleId.Value : 0);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail Upsert_SuspendedUsersRole in DB m_nGroupID={0}, domainId={1}, currentRoleId={2}, newRoleId={3}, ex={4}", groupId, domain.m_nDomainID,
+                    currentRoleId.HasValue ? currentRoleId.Value : 0, newRoleId.HasValue ? newRoleId.Value : 0, ex);                
+            }
+            return rowCount > 0 ? true : false;
         }
 
         public virtual ApiObjects.Response.Status ResumeDomain(int nDomainID)
@@ -941,12 +972,20 @@ namespace Core.Users
             domain.shouldUpdateSuspendStatus = true;
             domain.nextSuspensionStatus = DomainSuspentionStatus.OK;
 
+            int? currentRoleId = domain.roleId;
+            domain.roleId = null;
+
             // resume domain
             bool resumeSucceed = domain.Update();
 
             // remove from cache
             if (resumeSucceed)
             {
+                // update all users to suspended roleId = null
+                if (currentRoleId.HasValue)
+                {
+                    bool resultSuspendedUsers = UpdateSuspendedUserRoles(domain, m_nGroupID, currentRoleId.HasValue ? currentRoleId.Value : 0, null);
+                }
                 // Remove Domain
                 oDomainCache.RemoveDomain(nDomainID);
                 UsersCache usersCache = UsersCache.Instance();
