@@ -419,7 +419,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {                
                 CatalogGroupCache catalogGroupCache;                
-                if (TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddAssetStruct", groupId);
                     return result;
