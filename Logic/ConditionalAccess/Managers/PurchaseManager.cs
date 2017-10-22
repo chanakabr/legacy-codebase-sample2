@@ -1180,7 +1180,7 @@ namespace Core.ConditionalAccess
                                          subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
                                          && groupUnifiedBillingCycle.HasValue 
                                          && (int)groupUnifiedBillingCycle.Value == subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle
-                                         && !entitleToPreview) 
+                                        ) 
                                          // group define with billing cycle
                                     {
                                         processId = Utils.GetUnifiedProcessId(groupId, paymentGatewayResponse.ID, endDate.Value, householdId, out isNew);
@@ -1258,17 +1258,17 @@ namespace Core.ConditionalAccess
                                             else    message exists yet – do nothing
                                         create new queue with new messages for each Payment Gateway 
                                         */
-
-                                        if (unifiedBillingCycle == null || entitleToPreview)
+                                        if (isNew) // need to insert new unified billing message to queue
+                                        {
+                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
+                                        }
+                                        //if (unifiedBillingCycle == null || (entitleToPreview && !isNew))
+                                        else
                                         {
                                             // insert regular message 
                                             RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate);
                                         }
-
-                                        else if (isNew) // need to insert new unified billing message to queue
-                                        {
-                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
-                                        }
+                                       
                                         //else do nothing, message already exists
 
                                         #endregion
