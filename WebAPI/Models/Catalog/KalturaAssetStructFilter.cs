@@ -47,6 +47,15 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(DynamicMinInt = 1)]
         public long? MetaIdEqual { get; set; }
 
+        /// <summary>
+        /// Comma separated meta identifiers
+        /// </summary>
+        [DataMember(Name = "isProtected")]
+        [JsonProperty("isProtected")]
+        [XmlElement(ElementName = "isProtected", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public bool? IsProtected { get; set; }
+
         public override KalturaAssetStructOrderBy GetDefaultOrderByValue()
         {
             return KalturaAssetStructOrderBy.NAME_ASC;

@@ -47,7 +47,7 @@ namespace WebAPI.Clients
 
         #region New Catalog Management
 
-        public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, long metaId = 0)
+        public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, long metaId = 0)
         {
             KalturaAssetStructListResponse result = new KalturaAssetStructListResponse() { TotalCount = 0 };
             AssetStructListResponse response = null;
@@ -58,11 +58,11 @@ namespace WebAPI.Clients
                 {
                     if (metaId > 0)
                     {
-                        response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByTopicId(groupId, metaId);
+                        response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByTopicId(groupId, metaId, isProtected);
                     }
                     else
                     {
-                        response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByIds(groupId, ids);
+                        response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByIds(groupId, ids, isProtected);
                     }
                 }
             }
@@ -97,10 +97,10 @@ namespace WebAPI.Clients
                 switch (orderBy.Value)
                 {
                     case KalturaAssetStructOrderBy.NAME_ASC:
-                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.Name).ToList();
+                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.Name.ToString()).ToList();
                         break;
                     case KalturaAssetStructOrderBy.NAME_DESC:
-                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.Name).ToList();
+                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.Name.ToString()).ToList();
                         break;
                     case KalturaAssetStructOrderBy.SYSTEM_NAME_ASC:
                         result.AssetStructs = result.AssetStructs.OrderBy(x => x.SystemName).ToList();
@@ -128,14 +128,14 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStruct, long userId)
+        public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
             KalturaAssetStruct result = null;
             AssetStructResponse response = null;
 
             try
             {
-                AssetStruct assetStructToadd = AutoMapper.Mapper.Map<AssetStruct>(assetStruct);
+                AssetStruct assetStructToadd = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToadd, userId);
@@ -161,15 +161,15 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetStruct UpdateAssetStruct(int groupId, long id, KalturaAssetStruct assetStruct, long userId)
+        public KalturaAssetStruct UpdateAssetStruct(int groupId, long id, KalturaAssetStruct assetStrcut, long userId)
         {            
             KalturaAssetStruct result = null;
             AssetStructResponse response = null;
 
             try
             {
-                bool shouldUpdateMetaIds = assetStruct.MetaIds != null;
-                AssetStruct assetStructToUpdate = AutoMapper.Mapper.Map<AssetStruct>(assetStruct);                
+                bool shouldUpdateMetaIds = assetStrcut.MetaIds != null;
+                AssetStruct assetStructToUpdate = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetStruct(groupId, id, assetStructToUpdate, shouldUpdateMetaIds, userId);

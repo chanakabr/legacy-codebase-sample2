@@ -2512,6 +2512,8 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
+                        case "IsProtected":
+                            return "isProtected";
                         case "MetaIdEqual":
                             return "metaIdEqual";
                     }

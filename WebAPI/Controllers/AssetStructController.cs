@@ -45,11 +45,11 @@ namespace WebAPI.Controllers
             {
                 if (filter.MetaIdEqual.HasValue && filter.MetaIdEqual.Value > 0)
                 {                    
-                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, new List<long>(), filter.OrderBy, filter.MetaIdEqual.Value);
+                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, new List<long>(), filter.OrderBy, filter.IsProtected, filter.MetaIdEqual.Value);
                 }
                 else
                 {                   
-                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, filter.GetIdIn(), filter.OrderBy);
+                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, filter.GetIdIn(), filter.OrderBy, filter.IsProtected);
                 }
 
             }
