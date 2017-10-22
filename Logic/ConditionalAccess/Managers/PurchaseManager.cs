@@ -1024,6 +1024,7 @@ namespace Core.ConditionalAccess
             try
             {
                 string country = string.Empty;
+
                 if (!string.IsNullOrEmpty(userIp))
                 {
                     // get country by user IP
@@ -1256,7 +1257,7 @@ namespace Core.ConditionalAccess
                                         create new queue with new messages for each Payment Gateway 
                                         */
 
-                                        if (unifiedBillingCycle == null) // || unifiedBillingCycle.paymentGatewayIds == null || !unifiedBillingCycle.paymentGatewayIds.ContainsKey(paymentGwId))
+                                        if (unifiedBillingCycle == null || entitleToPreview)
                                         {
                                             // insert regular message 
                                             RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate);
