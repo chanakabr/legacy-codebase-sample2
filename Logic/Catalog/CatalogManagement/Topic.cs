@@ -11,6 +11,7 @@ namespace Core.Catalog.CatalogManagement
     {
 
         private const string MULTIPLE_VALUE = "multipleValue";
+        private const string SEARCH_RELATED = "searchRelated";
 
         public long Id { get; set; }        
         public LanguageContainer[] Names { get; set; }
@@ -19,6 +20,7 @@ namespace Core.Catalog.CatalogManagement
         public HashSet<string> Features { get; set; }
         public bool? IsPredefined { get; set; }
         public bool? MultipleValue { get; set; }
+        public bool SearchRelated { get; set; }
         public string HelpText { get; set; }
         public long ParentId { get; set; }
         public long CreateDate { get; set; }
@@ -33,6 +35,7 @@ namespace Core.Catalog.CatalogManagement
             this.Features = null;
             this.IsPredefined = null;
             this.MultipleValue = null;
+            this.SearchRelated = false;
             this.HelpText = string.Empty;
             this.ParentId = 0;            
             this.CreateDate = 0;
@@ -57,6 +60,16 @@ namespace Core.Catalog.CatalogManagement
                 this.MultipleValue = false;
             }
 
+            if (this.Features.Contains(SEARCH_RELATED))
+            {
+                this.SearchRelated = true;
+                this.Features.Remove(SEARCH_RELATED);
+            }
+            else
+            {
+                this.SearchRelated = false;
+            }
+
             this.IsPredefined = isPredefined;            
             this.HelpText = helpText;
             this.ParentId = parentId;
@@ -73,6 +86,7 @@ namespace Core.Catalog.CatalogManagement
             this.Features = new HashSet<string>(topicToCopy.Features, StringComparer.OrdinalIgnoreCase);
             this.IsPredefined = topicToCopy.IsPredefined;
             this.MultipleValue = topicToCopy.MultipleValue;
+            this.SearchRelated = topicToCopy.SearchRelated;
             this.HelpText = topicToCopy.HelpText;
             this.ParentId = topicToCopy.ParentId;
             this.CreateDate = topicToCopy.CreateDate;
@@ -94,15 +108,20 @@ namespace Core.Catalog.CatalogManagement
         internal string GetFeaturesForDB()
         {            
             StringBuilder regularFeatures = new StringBuilder(GetCommaSeparatedFeatures());
-            StringBuilder featuresWithLogic = new StringBuilder();
+            HashSet<string> featuresWithLogic = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             if (MultipleValue.HasValue && MultipleValue.Value)
             {
-                featuresWithLogic.Append(MULTIPLE_VALUE);
+                featuresWithLogic.Add(MULTIPLE_VALUE);
             }
 
-            if (regularFeatures.Length > 0 && featuresWithLogic.Length > 0)
+            if (SearchRelated)
             {
-                return string.Format("{0},{1}", regularFeatures.ToString(), featuresWithLogic.ToString());
+                featuresWithLogic.Add(SEARCH_RELATED);
+            }
+
+            if (regularFeatures.Length > 0 && featuresWithLogic.Count > 0)
+            {
+                return string.Format("{0},{1}", regularFeatures.ToString(), string.Join(",", featuresWithLogic));
             }
             else if (regularFeatures.Length > 0)
             {
@@ -110,7 +129,7 @@ namespace Core.Catalog.CatalogManagement
             }
             else
             {
-                return featuresWithLogic.ToString();
+                return string.Join(",", featuresWithLogic);
             }
         }
 
@@ -124,6 +143,7 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("Features: {0}, ", Features != null ? string.Join(",", Features) : string.Empty);
             sb.AppendFormat("IsPredefined: {0}, ", IsPredefined.HasValue ? IsPredefined.ToString() : string.Empty);
             sb.AppendFormat("MultipleValue: {0}", MultipleValue.HasValue ? MultipleValue.ToString() : string.Empty);
+            sb.AppendFormat("SearchRelated: {0}", SearchRelated);
             sb.AppendFormat("HelpText: {0}, ", HelpText);
             sb.AppendFormat("ParentId: {0}, ", ParentId);
             sb.AppendFormat("CreateDate: {0}, ", CreateDate);

@@ -500,7 +500,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 List<KeyValuePair<long, int>> metaIdsToPriority = null;
-                if (assetStructToUpdate.MetaIds != null || shouldUpdateMetaIds)
+                if (assetStructToUpdate.MetaIds != null && shouldUpdateMetaIds)
                 {
                     metaIdsToPriority = new List<KeyValuePair<long, int>>();
                     int priority = 1;
