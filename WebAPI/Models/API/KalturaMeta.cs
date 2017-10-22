@@ -168,7 +168,7 @@ namespace WebAPI.Models.API
 
         internal HashSet<string> GetFeaturesAsHashSet()
         {
-            HashSet<string> result = new HashSet<string>();
+            HashSet<string> result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             if (!string.IsNullOrEmpty(this.Features))
             {
                 string[] splitedFeatures = this.Features.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
