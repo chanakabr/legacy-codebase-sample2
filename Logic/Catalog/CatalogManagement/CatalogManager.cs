@@ -630,6 +630,12 @@ namespace Core.Catalog.CatalogManagement
             TopicResponse result = new TopicResponse();
             try
             {
+                if (topicToAdd.MultipleValue.HasValue && topicToAdd.MultipleValue.Value && topicToAdd.Type != MetaType.String)
+                {
+                    result.Status = new Status((int)eResponseStatus.InvalidMutlipleValueForMetaType, "MultipleValue can only be set to true for KalturaMetaType - STRING");
+                    return result;
+                }
+
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
@@ -642,7 +648,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     result.Status = new Status((int)eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
                     return result;
-                }
+                }                
 
                 //TODO: Lior - do something with features
                 DataTable dt = CatalogDAL.InsertTopic(groupId, topicToAdd.Names[0].m_sValue, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetCommaSeparatedFeatures(),
@@ -680,6 +686,13 @@ namespace Core.Catalog.CatalogManagement
                 if (topic.IsPredefined.HasValue && topic.IsPredefined.Value && topicToUpdate.SystemName != null)
                 {
                     result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedMetaSystemName, eResponseStatus.CanNotChangePredefinedMetaSystemName.ToString());
+                    return result;
+                }
+
+                // You can't change the topic type on update so we are only checking the "new" multiple value
+                if (topicToUpdate.MultipleValue.HasValue && topicToUpdate.MultipleValue.Value && topicToUpdate.Type != MetaType.String)
+                {
+                    result.Status = new Status((int)eResponseStatus.InvalidMutlipleValueForMetaType, "MultipleValue can only be set to true for KalturaMetaType - STRING");
                     return result;
                 }
 
