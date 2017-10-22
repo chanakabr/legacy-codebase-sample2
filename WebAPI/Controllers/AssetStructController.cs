@@ -64,32 +64,32 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add a new assetStruct
         /// </summary>
-        /// <param name="assetStrcut">AssetStruct Object</param>
+        /// <param name="assetStruct">AssetStruct Object</param>
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructNameAlreadyInUse)]
         [Throws(eResponseStatus.AssetStructSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.MetaIdsDoesNotExist)]
-        public KalturaAssetStruct Add(KalturaAssetStruct assetStrcut)
+        public KalturaAssetStruct Add(KalturaAssetStruct assetStruct)
         {
             KalturaAssetStruct response = null;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
-            if (assetStrcut.Name == null)
+            if (assetStruct.Name == null)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "name");
             }
 
-            if (string.IsNullOrEmpty(assetStrcut.SystemName))
+            if (string.IsNullOrEmpty(assetStruct.SystemName))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "systemName");
             }
 
             try
             {                
-                response = ClientsManager.CatalogClient().AddAssetStruct(groupId, assetStrcut, userId);
+                response = ClientsManager.CatalogClient().AddAssetStruct(groupId, assetStruct, userId);
             }
             catch (ClientException ex)
             {
@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
         /// Update an existing assetStruct
         /// </summary>
         /// <param name="id">AssetStruct Identifier</param>
-        /// <param name="assetStrcut">AssetStruct Object</param>
+        /// <param name="assetStruct">AssetStruct Object</param>
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
@@ -113,7 +113,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MetaIdsDoesNotExist)]
         [Throws(eResponseStatus.CanNotChangePredefinedAssetStructSystemName)]
         [SchemeArgument("id", MinLong = 1)]
-        public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStrcut)
+        public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStruct)
         {
             KalturaAssetStruct response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -121,7 +121,7 @@ namespace WebAPI.Controllers
 
             try
             {                
-                response = ClientsManager.CatalogClient().UpdateAssetStruct(groupId, id, assetStrcut, userId);
+                response = ClientsManager.CatalogClient().UpdateAssetStruct(groupId, id, assetStruct, userId);
             }
             catch (ClientException ex)
             {

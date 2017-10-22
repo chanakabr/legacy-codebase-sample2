@@ -361,7 +361,7 @@
             <summary>
             Add a new assetStruct
             </summary>
-            <param name="assetStrcut">AssetStruct Object</param>
+            <param name="assetStruct">AssetStruct Object</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.AssetStructController.Update(System.Int64,WebAPI.Models.Catalog.KalturaAssetStruct)">
@@ -369,7 +369,7 @@
             Update an existing assetStruct
             </summary>
             <param name="id">AssetStruct Identifier</param>
-            <param name="assetStrcut">AssetStruct Object</param>
+            <param name="assetStruct">AssetStruct Object</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.AssetStructController.Delete(System.Int64)">

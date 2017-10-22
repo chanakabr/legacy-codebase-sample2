@@ -168,18 +168,20 @@ namespace WebAPI.Models.API
 
         internal HashSet<string> GetFeaturesAsHashSet()
         {
-            HashSet<string> result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (!string.IsNullOrEmpty(this.Features))
+            if (this.Features == null)
             {
-                string[] splitedFeatures = this.Features.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string feature in splitedFeatures)
-                {
-                    if (!result.Contains(feature))
-                    {
-                        result.Add(feature);
-                    }
-                }
+                return null;
             }
+
+            HashSet<string> result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);                        
+            string[] splitedFeatures = this.Features.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string feature in splitedFeatures)
+            {
+                if (!result.Contains(feature))
+                {
+                    result.Add(feature);
+                }
+            }            
 
             return result;
         }

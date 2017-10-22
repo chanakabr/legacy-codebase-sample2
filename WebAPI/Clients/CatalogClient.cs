@@ -128,14 +128,14 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
+        public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStruct, long userId)
         {
             KalturaAssetStruct result = null;
             AssetStructResponse response = null;
 
             try
             {
-                AssetStruct assetStructToadd = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);
+                AssetStruct assetStructToadd = AutoMapper.Mapper.Map<AssetStruct>(assetStruct);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToadd, userId);
@@ -161,15 +161,15 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetStruct UpdateAssetStruct(int groupId, long id, KalturaAssetStruct assetStrcut, long userId)
+        public KalturaAssetStruct UpdateAssetStruct(int groupId, long id, KalturaAssetStruct assetStruct, long userId)
         {            
             KalturaAssetStruct result = null;
             AssetStructResponse response = null;
 
             try
             {
-                bool shouldUpdateMetaIds = assetStrcut.MetaIds != null;
-                AssetStruct assetStructToUpdate = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);                
+                bool shouldUpdateMetaIds = assetStruct.MetaIds != null;
+                AssetStruct assetStructToUpdate = AutoMapper.Mapper.Map<AssetStruct>(assetStruct);                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetStruct(groupId, id, assetStructToUpdate, shouldUpdateMetaIds, userId);
