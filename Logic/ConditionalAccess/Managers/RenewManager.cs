@@ -308,7 +308,7 @@ namespace Core.ConditionalAccess
 
             if (unifiedBillingCycle != null) //should be part of unified cycle 
             {
-                UpdateMPPRenewalProcessId(groupId, purchaseId, billingGuid, householdId);
+                long processId = UpdateMPPRenewalProcessId(groupId, purchaseId, billingGuid, householdId, unifiedBillingCycle);                
             }
 
             // call billing process renewal
@@ -411,35 +411,39 @@ namespace Core.ConditionalAccess
         }
 
         // get right process id from DB and update this row in DB 
-        private static void UpdateMPPRenewalProcessId(int groupId, long purchaseId, string billingGuid, long householdId)
+        private static long UpdateMPPRenewalProcessId(int groupId, long purchaseId, string billingGuid, long householdId, UnifiedBillingCycle unifiedBillingCycle)
         {
+            long processId = 0;
             try
             {
                 PaymentGateway pg = Core.Billing.Module.GetPaymentGatewayByBillingGuid(groupId, householdId, billingGuid);
                 if (pg != null)
                 {
                     DataTable dt = DAL.ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(groupId, pg.ID, householdId);
-                    long processId = 0;
 
                     if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                     {
-                        processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
-                        if (processId > 0) // update subscription purchase table with this process id 
-                        {
-                            // update subscription Purchase
-                            DAL.ConditionalAccessDAL.UpdateMPPRenewalProcessId(new List<int>() { (int)purchaseId }, processId);
-                        }
+                        processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");                        
                     }
-                    else
+
+                    if (processId == 0) // need to create new process id 
                     {
-                        log.DebugFormat("Failed to get household process id for payment gateway: proccessId was not found in DB. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", groupId, pg.ID, householdId);
+                        processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, pg.ID, ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate), householdId, (int)ProcessUnifiedState.Renew);                        
+                    }
+
+                    if (processId > 0)
+                    {
+                        // update subscription Purchase
+                        DAL.ConditionalAccessDAL.UpdateMPPRenewalProcessId(new List<int>() { (int)purchaseId }, processId);
                     }
                 }
             }
             catch (Exception ex)
             {
+                processId = 0;
                 log.ErrorFormat("fail update process id for specific renew groupId = {0}, purchaseId = {1}, billingGuid={2}, householdId = {3}, ex = {4}", groupId, purchaseId, billingGuid, householdId, ex);
             }
+            return processId;
         }
 
         protected internal static bool HandleRenewSubscriptionFailed(BaseConditionalAccess cas, int groupId,

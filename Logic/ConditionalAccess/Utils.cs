@@ -1267,6 +1267,21 @@ namespace Core.ConditionalAccess
                     {
                         if (!isSubscriptionSetModifySubscription && subscription.m_oPreviewModule != null && IsEntitledToPreviewModule(userId, groupId, subCode, subscription, ref price, ref theReason, domainID))
                         {
+                            long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
+                            if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
+                            {
+                                if (unifiedBillingCycle == null)
+                                {
+                                    //chcek that subscription contain this group billing cycle and subscription is renew                                             
+                                    if (subscription != null && subscription.m_bIsRecurring
+                                        && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
+                                        && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
+                                    {
+                                        //get key from CB household_renewBillingCycle
+                                        unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainID, groupUnifiedBillingCycle.Value);
+                                    }
+                                }
+                            }
                             return price;
                         }
 
