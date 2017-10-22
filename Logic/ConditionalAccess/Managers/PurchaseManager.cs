@@ -1047,7 +1047,7 @@ namespace Core.ConditionalAccess
                     response.Status.Message = "ProductId doesn't exist";
                     return response;
                 }
-
+                   
                 if (unifiedBillingCycle != null && unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                 {
                     unifiedBillingCycle = null;
