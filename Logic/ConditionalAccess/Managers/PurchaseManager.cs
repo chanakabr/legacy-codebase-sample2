@@ -1024,6 +1024,7 @@ namespace Core.ConditionalAccess
             try
             {
                 string country = string.Empty;
+
                 if (!string.IsNullOrEmpty(userIp))
                 {
                     // get country by user IP
@@ -1046,6 +1047,7 @@ namespace Core.ConditionalAccess
                     response.Status.Message = "ProductId doesn't exist";
                     return response;
                 }
+
                 // if unified billing cycle is in the "history" ignore it in purchase ! 
                 if (unifiedBillingCycle != null && unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                 {
@@ -1157,7 +1159,7 @@ namespace Core.ConditionalAccess
                                     endDate = CalculateGiftCardEndDate(cas, coupon, subscription, entitlementDate);
                                 }
 
-                                if (partialPrice)
+                                if (unifiedBillingCycle != null && !entitleToPreview)   
                                 {
                                     // calculate end date by unified billing cycle
                                     endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
@@ -1173,14 +1175,19 @@ namespace Core.ConditionalAccess
                                         endDate = Utils.CalcSubscriptionEndDate(subscription, entitleToPreview, entitlementDate);
                                     }
 
+                                    //create process id only for subscription that equal the cycle and are NOT preview module 
                                     long ? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-                                    if ( subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
+                                    if (subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
                                          subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
-                                         && groupUnifiedBillingCycle.HasValue 
-                                         && (int)groupUnifiedBillingCycle.Value == subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle) 
-                                         // group define with billing cycle
+                                         && groupUnifiedBillingCycle.HasValue
+                                         && (int)groupUnifiedBillingCycle.Value == subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle
+                                        )
+                                    // group define with billing cycle
                                     {
-                                        processId = Utils.GetUnifiedProcessId(groupId, paymentGatewayResponse.ID, endDate.Value, householdId, out isNew);
+                                        if (!entitleToPreview || unifiedBillingCycle == null)
+                                        {
+                                            processId = Utils.GetUnifiedProcessId(groupId, paymentGatewayResponse.ID, endDate.Value, householdId, out isNew);
+                                        }
                                     }
                                 }
                                 // grant entitlement
@@ -1255,17 +1262,17 @@ namespace Core.ConditionalAccess
                                             else    message exists yet – do nothing
                                         create new queue with new messages for each Payment Gateway 
                                         */
-
-                                        if (unifiedBillingCycle == null) // || unifiedBillingCycle.paymentGatewayIds == null || !unifiedBillingCycle.paymentGatewayIds.ContainsKey(paymentGwId))
+                                        if (isNew) // need to insert new unified billing message to queue
+                                        {
+                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
+                                        }
+                                       
+                                        else if (unifiedBillingCycle == null || (entitleToPreview && !isNew))
                                         {
                                             // insert regular message 
                                             RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate);
                                         }
-
-                                        else if (isNew) // need to insert new unified billing message to queue
-                                        {
-                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
-                                        }
+                                       
                                         //else do nothing, message already exists
 
                                         #endregion

@@ -6254,7 +6254,7 @@ namespace Core.ConditionalAccess
                         {
                             SubscriptionsPricesContainer cont = new SubscriptionsPricesContainer();
                             long? endDate = null;
-                            if (unifiedBillingCycle != null)
+                            if (unifiedBillingCycle != null && theReason != PriceReason.EntitledToPreviewModule)
                             {
                                 endDate = unifiedBillingCycle.endDate;
                             }
@@ -7772,7 +7772,7 @@ namespace Core.ConditionalAccess
 			{
 				sb.Append(string.Format("<context>{0}</context>", context.Value));
 			}
-            if (isPartialPrice) // add to custom data isPartial price - only if it is parcial 
+            if (isPartialPrice && !previewEntitled) // add to custom data isPartial price - only if it is parcial 
             {
                 sb.Append(string.Format("<partialPrice>{0}</partialPrice>", isPartialPrice));
             }
