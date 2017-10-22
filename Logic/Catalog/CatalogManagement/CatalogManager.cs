@@ -355,7 +355,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetStructListResponse GetAssetStructsByIds(int groupId, List<long> ids)
+        public static AssetStructListResponse GetAssetStructsByIds(int groupId, List<long> ids, bool? isProtected)
         {
             AssetStructListResponse response = new AssetStructListResponse();
             try
@@ -376,6 +376,11 @@ namespace Core.Catalog.CatalogManagement
                     response.AssetStructs = catalogGroupCache.AssetStructsMapById.Values.ToList();
                 }
 
+                if (isProtected.HasValue)
+                {
+                    response.AssetStructs = response.AssetStructs.Where(x => x.IsPredefined.HasValue && x.IsPredefined == isProtected.Value).ToList();
+                }
+
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -386,7 +391,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static AssetStructListResponse GetAssetStructsByTopicId(int groupId, long topicId)
+        public static AssetStructListResponse GetAssetStructsByTopicId(int groupId, long topicId, bool? isProtected)
         {
             AssetStructListResponse response = new AssetStructListResponse();
             try
@@ -401,6 +406,11 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     response.AssetStructs = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.MetaIds.Contains(topicId)).ToList();
+                    if (isProtected.HasValue)
+                    {
+                        response.AssetStructs = response.AssetStructs.Where(x => x.IsPredefined.HasValue && x.IsPredefined == isProtected.Value).ToList();
+                    }
+
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
