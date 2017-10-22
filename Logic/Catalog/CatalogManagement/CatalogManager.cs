@@ -267,13 +267,12 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
-                    //TODO: Lior -  get multipleValue from features and consider doing the same for isPredefined
-                    bool multipleValue = false;
+                    //TODO: Lior -  get multipleValue from features and consider doing the same for isPredefined                    
                     string helpText = ODBCWrapper.Utils.GetSafeStr(dr, "HELP_TEXT");
                     long parentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TOPIC_ID", 0);
                     DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
                     DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
-                    result = new Topic(id, name, systemName, (MetaType)topicType, features, isPredefined, multipleValue, helpText, parentId,
+                    result = new Topic(id, name, systemName, (MetaType)topicType, features, isPredefined, helpText, parentId,
                                         createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
                                         updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0);
                 }
@@ -650,8 +649,8 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }                
 
-                //TODO: Lior - do something with features
-                DataTable dt = CatalogDAL.InsertTopic(groupId, topicToAdd.Names[0].m_sValue, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetCommaSeparatedFeatures(),
+                //TODO: Lior - do something with features                
+                DataTable dt = CatalogDAL.InsertTopic(groupId, topicToAdd.Names[0].m_sValue, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetFeaturesForDB(),
                                                       topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId);
                 result = CreateTopicResponseFromDataTable(dt);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
@@ -697,7 +696,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 //TODO: Lior - do something with features
-                DataTable dt = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Names[0].m_sValue, topicToUpdate.SystemName, topicToUpdate.GetCommaSeparatedFeatures(),
+                DataTable dt = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Names[0].m_sValue, topicToUpdate.SystemName, topicToUpdate.GetFeaturesForDB(),
                                                       topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
                 result = CreateTopicResponseFromDataTable(dt);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);

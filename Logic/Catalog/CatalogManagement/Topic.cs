@@ -9,6 +9,9 @@ namespace Core.Catalog.CatalogManagement
 {
     public class Topic
     {
+
+        private const string MULTIPLE_VALUE = "multipleValue";
+
         public long Id { get; set; }        
         public LanguageContainer[] Names { get; set; }
         public string SystemName { get; set; }
@@ -36,17 +39,25 @@ namespace Core.Catalog.CatalogManagement
             this.UpdateDate = 0;            
         }
 
-        public Topic(long id, string name, string systemName, MetaType type, HashSet<string> features, bool isPredefined, bool multipleValue, string helpText,
-                     long parentId, long createDate, long updateDate)
+        public Topic(long id, string name, string systemName, MetaType type, HashSet<string> features, bool isPredefined, string helpText, long parentId, long createDate, long updateDate)
         {
             this.Id = id;
             //TODO: Lior -  support multilanguage, CURRENTY WE ONLY SUPPORT ENG
             this.Names = new LanguageContainer[1] { new LanguageContainer("eng", name) };
             this.SystemName = systemName;
             this.Type = type;
-            this.Features = features != null ? new HashSet<string>(features) : new HashSet<string>();
-            this.IsPredefined = isPredefined;
-            this.MultipleValue = multipleValue;
+            this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (this.Features.Contains(MULTIPLE_VALUE))
+            {
+                this.MultipleValue = true;
+                this.Features.Remove(MULTIPLE_VALUE);
+            }
+            else
+            {
+                this.MultipleValue = false;
+            }
+
+            this.IsPredefined = isPredefined;            
             this.HelpText = helpText;
             this.ParentId = parentId;
             this.CreateDate = createDate;
@@ -59,7 +70,7 @@ namespace Core.Catalog.CatalogManagement
             this.Names = new List<LanguageContainer>(topicToCopy.Names).ToArray();
             this.SystemName = string.Copy(topicToCopy.SystemName);
             this.Type = topicToCopy.Type;
-            this.Features = new HashSet<string>(topicToCopy.Features);
+            this.Features = new HashSet<string>(topicToCopy.Features, StringComparer.OrdinalIgnoreCase);
             this.IsPredefined = topicToCopy.IsPredefined;
             this.MultipleValue = topicToCopy.MultipleValue;
             this.HelpText = topicToCopy.HelpText;
@@ -80,6 +91,29 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
+        internal string GetFeaturesForDB()
+        {            
+            StringBuilder regularFeatures = new StringBuilder(GetCommaSeparatedFeatures());
+            StringBuilder featuresWithLogic = new StringBuilder();
+            if (MultipleValue.HasValue && MultipleValue.Value)
+            {
+                featuresWithLogic.Append(MULTIPLE_VALUE);
+            }
+
+            if (regularFeatures.Length > 0 && featuresWithLogic.Length > 0)
+            {
+                return string.Format("{0},{1}", regularFeatures.ToString(), featuresWithLogic.ToString());
+            }
+            else if (regularFeatures.Length > 0)
+            {
+                return regularFeatures.ToString();
+            }
+            else
+            {
+                return featuresWithLogic.ToString();
+            }
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(string.Format("Id: {0}, ", Id));
@@ -96,7 +130,6 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("UpdateDate: {0}", UpdateDate);
             //TODO: Lior -  add languageContainer
             return sb.ToString();
-        }        
-
+        }
     }
 }
