@@ -1158,7 +1158,7 @@ namespace Core.ConditionalAccess
                                     endDate = CalculateGiftCardEndDate(cas, coupon, subscription, entitlementDate);
                                 }
 
-                                if (partialPrice && !entitleToPreview)   
+                                if (unifiedBillingCycle != null && !entitleToPreview)   
                                 {
                                     // calculate end date by unified billing cycle
                                     endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
@@ -1176,14 +1176,17 @@ namespace Core.ConditionalAccess
 
                                     //create process id only for subscription that equal the cycle and are NOT preview module 
                                     long ? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-                                    if ( subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
+                                    if (subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
                                          subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
-                                         && groupUnifiedBillingCycle.HasValue 
+                                         && groupUnifiedBillingCycle.HasValue
                                          && (int)groupUnifiedBillingCycle.Value == subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle
-                                        ) 
-                                         // group define with billing cycle
+                                        )
+                                    // group define with billing cycle
                                     {
-                                        processId = Utils.GetUnifiedProcessId(groupId, paymentGatewayResponse.ID, endDate.Value, householdId, out isNew);
+                                        if (!entitleToPreview || unifiedBillingCycle == null)
+                                        {
+                                            processId = Utils.GetUnifiedProcessId(groupId, paymentGatewayResponse.ID, endDate.Value, householdId, out isNew);
+                                        }
                                     }
                                 }
                                 // grant entitlement
@@ -1262,8 +1265,8 @@ namespace Core.ConditionalAccess
                                         {
                                             Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
                                         }
-                                        //if (unifiedBillingCycle == null || (entitleToPreview && !isNew))
-                                        else
+                                       
+                                        else if (unifiedBillingCycle == null || (entitleToPreview && !isNew))
                                         {
                                             // insert regular message 
                                             RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate);
