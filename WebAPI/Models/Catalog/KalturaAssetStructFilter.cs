@@ -48,7 +48,7 @@ namespace WebAPI.Models.Catalog
         public long? MetaIdEqual { get; set; }
 
         /// <summary>
-        /// Comma separated meta identifiers
+        /// Filter Asset Structs by isProtected value
         /// </summary>
         [DataMember(Name = "isProtected")]
         [JsonProperty("isProtected")]

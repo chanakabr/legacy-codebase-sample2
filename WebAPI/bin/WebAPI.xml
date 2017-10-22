@@ -3979,7 +3979,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetStructFilter.IsProtected">
             <summary>
-            Comma separated meta identifiers
+            Filter Asset Structs by isProtected value
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.Id">
