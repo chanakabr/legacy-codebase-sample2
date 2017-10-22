@@ -19,7 +19,7 @@ namespace WebAPI.Models.API
     public class KalturaMeta : KalturaOTTObject
     {
 
-        private const string FEATURES_PATTERN = @"\W";
+        private const string FEATURES_PATTERN = @"\W|[^ ]{64}[^ ]";
 
         /// <summary>
         /// Meta id 
