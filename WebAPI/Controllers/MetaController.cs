@@ -81,13 +81,12 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ParentParnerDiffrentFromMetaPartner)]        
         public KalturaMeta UpdateOldStandard(string id, KalturaMeta meta)
         {
-            KalturaMeta response = null;
-            meta.Id = id;
-
+            KalturaMeta response = null;                                    
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
+                meta.Id = long.Parse(id);
                 if (meta.Name != null)
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaMeta.Name");
@@ -154,6 +153,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.MetaNameAlreadyInUse)]
         [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]
+        [Throws(eResponseStatus.InvalidMutlipleValueForMetaType)]
         public KalturaMeta Add(KalturaMeta meta)
         {
             KalturaMeta response = null;
@@ -161,7 +161,7 @@ namespace WebAPI.Controllers
             long userId = Utils.Utils.GetUserIdFromKs();
 
             // validate features + multivalue = ture only for type STRING
-            meta.Validate();
+            meta.ValidateFeatures();
 
             if (meta.Name == null || meta.Name.Values == null || meta.Name.Values.Count == 0)
             {
@@ -200,6 +200,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MetaNameAlreadyInUse)]
         [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]        
         [Throws(eResponseStatus.CanNotChangePredefinedMetaSystemName)]
+        [Throws(eResponseStatus.InvalidMutlipleValueForMetaType)]
         [SchemeArgument("id", MinLong = 1)]
         public KalturaMeta Update(long id, KalturaMeta meta)
         {

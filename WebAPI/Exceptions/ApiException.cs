@@ -188,8 +188,9 @@ namespace WebAPI.Exceptions
                                                                                                                         "can not change predefined meta name");
         public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_META= new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedMeta, "Predefined meta Can not be deleted",
                                                                                                             "can not delete predefined meta");
-        public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");
-        public static ApiExceptionType INVALID_MULTIPLE_VALUE_FOR_META_TYPE = new ApiExceptionType(StatusCode.InvalidMultipleValueForMetaType, "MultipleValue can only be set to true for KalturaMetaType - STRING");
+        public static ClientExceptionType INVALID_MULTIPLE_VALUE_FOR_META_TYPE = new ClientExceptionType(eResponseStatus.InvalidMutlipleValueForMetaType, "MultipleValue can only be set to true for KalturaMetaType - STRING");
+
+        public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");        
         public static ApiExceptionType INVALID_VALUE_FOR_FEATURE = new ApiExceptionType(StatusCode.InvalidValueForFeature, "Invalid value for feature: @feature@. feature can only contain alphanumeric values and/or underscore", "feature");
         public static ApiExceptionType DEFUALT_LANGUAGE_MUST_BE_SENT = new ApiExceptionType(StatusCode.DefaultLanguageMustBeSnt, "Default language must be one of the values sent for multilingualName");
 

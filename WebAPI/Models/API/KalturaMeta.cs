@@ -27,8 +27,8 @@ namespace WebAPI.Models.API
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty(ReadOnly = true)]
-        public string Id { get; set; }
+        [SchemeProperty(ReadOnly = true, DynamicMinInt = 1)]
+        public long Id { get; set; }
 
         /// <summary>
         /// Meta name for the partner
@@ -110,7 +110,8 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "parentId")]
         [JsonProperty("parentId")]
-        [XmlElement(ElementName = "parentId", IsNullable = true)]        
+        [XmlElement(ElementName = "parentId", IsNullable = true)]
+        [SchemeProperty (DynamicMinInt = 1)]
         public long ParentId{ get; set; }
 
         /// <summary>
@@ -140,19 +141,14 @@ namespace WebAPI.Models.API
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
-        internal void Validate()
+        internal void ValidateFeatures()
         {
-            if (MultipleValue && Type != KalturaMetaType.STRING)
-            {
-                throw new BadRequestException(ApiException.INVALID_MULTIPLE_VALUE_FOR_META_TYPE);
-            }
-
             if (!string.IsNullOrEmpty(this.Features))
             {
                 HashSet<string> featuresHashSet = GetFeaturesAsHashSet();
                 if (featuresHashSet != null && featuresHashSet.Count > 0)
                 {
-                    string allowedPattern = TCMClient.Settings.Instance.GetValue<string>("meta_features_patten");
+                    string allowedPattern = TCMClient.Settings.Instance.GetValue<string>("meta_features_pattern");
                     if (string.IsNullOrEmpty(allowedPattern))
                     {
                         allowedPattern = FEATURES_PATTERN;
