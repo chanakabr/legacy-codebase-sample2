@@ -406,21 +406,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static List<long> ConvertAssetStructMetaIdsList(string metaIds)
         {
-            List<long> list = new List<long>();
-            if (!string.IsNullOrEmpty(metaIds))
+            if (metaIds == null)
             {
-                string[] stringValues = metaIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
+                return null;
+            }
+
+            List<long> list = new List<long>();
+            string[] stringValues = metaIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
+            {
+                long value;
+                if (long.TryParse(stringValue, out value))
                 {
-                    long value;
-                    if (long.TryParse(stringValue, out value))
-                    {
-                        list.Add(value);
-                    }
-                    else
-                    {
-                        throw new ClientException((int)StatusCode.ArgumentMustBeNumeric, "Invalid MetaId");
-                    }
+                    list.Add(value);
+                }
+                else
+                {
+                    throw new ClientException((int)StatusCode.ArgumentMustBeNumeric, "Invalid MetaId");
                 }
             }
 
