@@ -199,8 +199,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MetaDoesNotExist)]
         [Throws(eResponseStatus.MetaNameAlreadyInUse)]
         [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]        
-        [Throws(eResponseStatus.CanNotChangePredefinedMetaSystemName)]
-        [Throws(eResponseStatus.InvalidMutlipleValueForMetaType)]
+        [Throws(eResponseStatus.CanNotChangePredefinedMetaSystemName)]        
         [SchemeArgument("id", MinLong = 1)]
         public KalturaMeta Update(long id, KalturaMeta meta)
         {
