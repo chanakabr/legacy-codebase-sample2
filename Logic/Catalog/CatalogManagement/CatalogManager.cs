@@ -706,15 +706,8 @@ namespace Core.Catalog.CatalogManagement
                     result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedMetaSystemName, eResponseStatus.CanNotChangePredefinedMetaSystemName.ToString());
                     return result;
                 }
-
-                // You can't change the topic type on update so we are only checking the "new" multiple value
-                if (topicToUpdate.MultipleValue.HasValue && topicToUpdate.MultipleValue.Value && topicToUpdate.Type != MetaType.String)
-                {
-                    result.Status = new Status((int)eResponseStatus.InvalidMutlipleValueForMetaType, "MultipleValue can only be set to true for KalturaMetaType - STRING");
-                    return result;
-                }
                 
-                DataTable dt = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Names[0].m_sValue, topicToUpdate.SystemName, topicToUpdate.GetFeaturesForDB(),
+                DataTable dt = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Names[0].m_sValue, topicToUpdate.SystemName, topicToUpdate.GetFeaturesForDB(topic.Features),
                                                       topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
                 result = CreateTopicResponseFromDataTable(dt);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);

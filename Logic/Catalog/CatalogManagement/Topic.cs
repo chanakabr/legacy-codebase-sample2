@@ -105,11 +105,14 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        internal string GetFeaturesForDB()
+        internal string GetFeaturesForDB(HashSet<string> existingFeatures = null)
         {            
             StringBuilder regularFeatures = new StringBuilder(GetCommaSeparatedFeatures());
             HashSet<string> featuresWithLogic = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (MultipleValue.HasValue && MultipleValue.Value)
+            // if its for new topic --> existing features == null we take the value according to MultipleValue property            
+            if ((existingFeatures == null && MultipleValue.HasValue && MultipleValue.Value) ||
+                // if its for updating topic we take multipleValue according to existing features
+                (existingFeatures != null && existingFeatures.Contains(MULTIPLE_VALUE)))
             {
                 featuresWithLogic.Add(MULTIPLE_VALUE);
             }
