@@ -872,7 +872,6 @@ namespace Core.ConditionalAccess
                 subscriptionPurchase.Insert();
                 purchaseId = subscriptionPurchase.purchaseId;
 
-
                 if (purchaseId == 0)
                 {
                     // entitlement failed

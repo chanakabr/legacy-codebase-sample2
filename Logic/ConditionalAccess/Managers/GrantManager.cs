@@ -360,7 +360,11 @@ namespace Core.ConditionalAccess
                     ip, country, udid, lBillingTransactionID, customData, productId, billingGuid.ToString(),
                     entitleToPreview, subscription.m_bIsRecurring, startDate, ref purchaseID, ref endDate, context == GrantContext.Grant ? SubscriptionPurchaseStatus.OK : SubscriptionPurchaseStatus.Switched_To);
 
-                if (result)
+                if (!result)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to insert subscription purchase.");
+                }
+                else
                 {
                     status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
