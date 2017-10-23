@@ -136,7 +136,6 @@ namespace CachingProvider.LayeredCache
             bool res = false;
             try
             {
-
                 if (HttpContext.Current != null)
                 {
                     HttpContext.Current.Response.Headers.Set("no-cache", "true");
