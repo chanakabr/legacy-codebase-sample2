@@ -80,7 +80,7 @@ namespace WebAPI.Models.API
         public bool IsProtected { get; set; }
 
         /// <summary>
-        ///  The help text of the meta to display on the UI, where needed.
+        ///  The help text of the meta to be displayed on the UI.
         /// </summary>
         [DataMember(Name = "helpText")]
         [JsonProperty("helpText")]
@@ -97,7 +97,7 @@ namespace WebAPI.Models.API
         public KalturaAssetType AssetType { get; set; }
 
         /// <summary>
-        /// List of supported features 
+        /// List of supported features
         /// </summary>
         [DataMember(Name = "features")]
         [JsonProperty("features")]

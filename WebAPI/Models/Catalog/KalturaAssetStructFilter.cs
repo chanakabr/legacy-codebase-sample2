@@ -39,7 +39,7 @@ namespace WebAPI.Models.Catalog
         public string IdIn { get; set; }
 
         /// <summary>
-        /// Comma separated meta identifiers
+        /// Filter Asset Structs that contain a specific meta id
         /// </summary>
         [DataMember(Name = "metaIdEqual")]
         [JsonProperty("metaIdEqual")]

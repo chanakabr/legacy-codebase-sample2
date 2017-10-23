@@ -3974,7 +3974,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetStructFilter.MetaIdEqual">
             <summary>
-            Comma separated meta identifiers
+            Filter Asset Structs that contain a specific meta id
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetStructFilter.IsProtected">
@@ -3994,7 +3994,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.SystemName">
             <summary>
-            Asset Struct name for the partner
+            Asset Struct system name for the partner
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.IsProtected">
@@ -5519,7 +5519,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaMetaFilter.AssetStructIdEqual">
             <summary>
-            Comma separated asset struct identifiers
+            Filter Metas that are contained in a specific asset struct
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMetaFilter.FieldNameEqual">
@@ -5599,7 +5599,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.HelpText">
             <summary>
-             The help text of the meta to display on the UI, where needed.
+             The help text of the meta to be displayed on the UI.
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.AssetType">
@@ -5609,7 +5609,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.Features">
             <summary>
-            List of supported features 
+            List of supported features
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.ParentId">

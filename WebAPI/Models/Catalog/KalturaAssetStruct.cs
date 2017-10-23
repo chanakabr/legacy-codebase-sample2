@@ -31,7 +31,7 @@ namespace WebAPI.Models.Catalog
         public KalturaMultilingualString Name { get; set; }
 
         /// <summary>
-        /// Asset Struct name for the partner
+        /// Asset Struct system name for the partner
         /// </summary>
         [DataMember(Name = "systemName")]
         [JsonProperty("systemName")]

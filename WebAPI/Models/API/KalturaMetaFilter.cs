@@ -26,7 +26,7 @@ namespace WebAPI.Models.API
         public string IdIn { get; set; }
 
         /// <summary>
-        /// Comma separated asset struct identifiers
+        /// Filter Metas that are contained in a specific asset struct
         /// </summary>
         [DataMember(Name = "assetStructIdEqual")]
         [JsonProperty("assetStructIdEqual")]
