@@ -4356,7 +4356,7 @@ namespace WebAPI.Reflection
                 case "KalturaMetaListResponse":
                     switch(property.Name)
                     {
-                        case "Objects":
+                        case "Metas":
                             return "objects";
                     }
                     break;

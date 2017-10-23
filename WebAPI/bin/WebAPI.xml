@@ -5552,7 +5552,7 @@
             Meta list response
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaMetaListResponse.Objects">
+        <member name="P:WebAPI.Models.API.KalturaMetaListResponse.Metas">
             <summary>
             A list asset meta
             </summary>

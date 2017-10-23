@@ -3345,7 +3345,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result.Objects = AutoMapper.Mapper.Map<List<KalturaMeta>>(response.MetaList);
+            result.Metas = AutoMapper.Mapper.Map<List<KalturaMeta>>(response.MetaList);
             result.TotalCount = response.MetaList.Count();
 
             return result;

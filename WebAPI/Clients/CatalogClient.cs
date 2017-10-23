@@ -269,10 +269,10 @@ namespace WebAPI.Clients
             if (response.Topics != null && response.Topics.Count > 0)
             {
                 result.TotalCount = response.Topics.Count;
-                result.Objects = new List<KalturaMeta>();
+                result.Metas = new List<KalturaMeta>();
                 foreach (Topic topic in response.Topics)
                 {
-                    result.Objects.Add(AutoMapper.Mapper.Map<KalturaMeta>(topic));
+                    result.Metas.Add(AutoMapper.Mapper.Map<KalturaMeta>(topic));
                 }
             }
 
@@ -280,41 +280,33 @@ namespace WebAPI.Clients
             {
                 switch (orderBy.Value)
                 {
-                    case KalturaMetaOrderBy.NONE:
+                    case KalturaMetaOrderBy.NAME_ASC:
+                        result.Metas = result.Metas.OrderBy(x => x.Name.ToString()).ToList();
+                        break;
+                    case KalturaMetaOrderBy.NAME_DESC:
+                        result.Metas = result.Metas.OrderByDescending(x => x.Name.ToString()).ToList();
+                        break;
+                    case KalturaMetaOrderBy.SYSTEM_NAME_ASC:
+                        result.Metas = result.Metas.OrderBy(x => x.SystemName).ToList();
+                        break;
+                    case KalturaMetaOrderBy.SYSTEM_NAME_DESC:
+                        result.Metas = result.Metas.OrderByDescending(x => x.SystemName).ToList();
+                        break;
+                    case KalturaMetaOrderBy.CREATE_DATE_ASC:
+                        result.Metas = result.Metas.OrderBy(x => x.CreateDate).ToList();
+                        break;
+                    case KalturaMetaOrderBy.CREATE_DATE_DESC:
+                        result.Metas = result.Metas.OrderByDescending(x => x.CreateDate).ToList();
+                        break;
+                    case KalturaMetaOrderBy.UPDATE_DATE_ASC:
+                        result.Metas = result.Metas.OrderBy(x => x.UpdateDate).ToList();
+                        break;
+                    case KalturaMetaOrderBy.UPDATE_DATE_DESC:
+                        result.Metas = result.Metas.OrderByDescending(x => x.UpdateDate).ToList();
                         break;
                     default:
                         break;
-                }
-                // TODO: Lior - fix order by to support whats needed
-                //switch (orderBy.Value)
-                //{
-                //    case KalturaAssetStructOrderBy.NAME_ASC:
-                //        result.AssetStructs = result.AssetStructs.OrderBy(x => x.Name).ToList();
-                //        break;
-                //    case KalturaAssetStructOrderBy.NAME_DESC:
-                //        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.Name).ToList();
-                //        break;
-                //    case KalturaAssetStructOrderBy.SYSTEM_NAME_ASC:
-                //        result.AssetStructs = result.AssetStructs.OrderBy(x => x.SystemName).ToList();
-                //        break;
-                //    case KalturaAssetStructOrderBy.SYSTEM_NAME_DESC:
-                //        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.SystemName).ToList();
-                //        break;
-                //    case KalturaAssetStructOrderBy.CREATE_DATE_ASC:
-                //        result.AssetStructs = result.AssetStructs.OrderBy(x => x.CreateDate).ToList();
-                //        break;
-                //    case KalturaAssetStructOrderBy.CREATE_DATE_DESC:
-                //        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.CreateDate).ToList();
-                //        break;
-                //    case KalturaAssetStructOrderBy.UPDATE_DATE_ASC:
-                //        result.AssetStructs = result.AssetStructs.OrderBy(x => x.UpdateDate).ToList();
-                //        break;
-                //    case KalturaAssetStructOrderBy.UPDATE_DATE_DESC:
-                //        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.UpdateDate).ToList();
-                //        break;
-                //    default:
-                //        break;
-                //}
+                }                
             }
 
             return result;

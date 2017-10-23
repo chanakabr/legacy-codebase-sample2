@@ -80,7 +80,7 @@ namespace WebAPI.Models.API
 
         public override KalturaMetaOrderBy GetDefaultOrderByValue()
         {
-            return KalturaMetaOrderBy.NONE;
+            return KalturaMetaOrderBy.NAME_ASC;
         }
 
         public List<KalturaMetaFeatureType> GetFeaturesIn()
