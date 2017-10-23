@@ -499,6 +499,17 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                if (assetStructToUpdate.MetaIds != null && assetStructToUpdate.MetaIds.Count > 0 && catalogGroupCache.TopicsMapById != null)
+                {
+                    List<long> noneExistingMetaIds = assetStructToUpdate.MetaIds.Except(catalogGroupCache.TopicsMapById.Keys).ToList();
+                    if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
+                    {
+                        result.Status = new Status((int)eResponseStatus.MetaIdsDoesNotExist, string.Format("{0} for the following Meta Ids: {1}",
+                                                                                             eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
+                        return result;
+                    }
+                }
+
                 List<KeyValuePair<long, int>> metaIdsToPriority = null;
                 if (assetStructToUpdate.MetaIds != null && shouldUpdateMetaIds)
                 {
