@@ -493,7 +493,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 AssetStruct assetStruct = new AssetStruct(catalogGroupCache.AssetStructsMapById[id]);
-                if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value && assetStructToUpdate.SystemName != null)
+                if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value && assetStructToUpdate.SystemName != null && assetStruct.SystemName != assetStructToUpdate.SystemName)
                 {
                     result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedAssetStructSystemName, eResponseStatus.CanNotChangePredefinedAssetStructSystemName.ToString());
                     return result;
@@ -692,7 +692,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 Topic topic = new Topic(catalogGroupCache.TopicsMapById[id]);
-                if (topic.IsPredefined.HasValue && topic.IsPredefined.Value && topicToUpdate.SystemName != null)
+                if (topic.IsPredefined.HasValue && topic.IsPredefined.Value && topicToUpdate.SystemName != null && topicToUpdate.SystemName != topic.SystemName)
                 {
                     result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedMetaSystemName, eResponseStatus.CanNotChangePredefinedMetaSystemName.ToString());
                     return result;
