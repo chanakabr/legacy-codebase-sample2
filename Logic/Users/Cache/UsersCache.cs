@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using CachingProvider;
 using KLogMonitor;
-
+using CachingProvider.LayeredCache;
 
 namespace Core.Users
 {
@@ -99,6 +99,11 @@ namespace Core.Users
                     string sKey = string.Format("group_{0}_{1}_{2}", groupID, userKeyCache, userID);
                     // try getting the userID from the cache, the result is not relevant since we return null if no user is found
                     bool isSuccess = this.cache.GetJsonAsT<User>(sKey, out userObject);
+                }
+
+                if (userObject != null)
+                {
+                    userObject.SetReadingInvalidationKeys();
                 }
 
                 return userObject;
@@ -194,6 +199,10 @@ namespace Core.Users
                     if (!isRemoveSuccess)
                     {
                         log.Error(string.Format("Failed removing user {0} from cache", userID.ToString()));
+                    }
+                    else
+                    {
+                        User.InvalidateUser(userID.ToString());
                     }
 
                     return isRemoveSuccess;

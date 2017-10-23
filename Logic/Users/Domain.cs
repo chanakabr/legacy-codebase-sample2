@@ -3044,8 +3044,8 @@ namespace Core.Users
         public void InvalidateDomain()
         {
             List<string> invalidationKeys = new List<string>()
-                { 
-                    string.Format("invalidationKey_domain_{0}", this.m_nDomainID) 
+                {
+                    LayeredCacheKeys.GetHouseholdInvalidationKey(this.m_nDomainID)
                 };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
@@ -3064,8 +3064,8 @@ namespace Core.Users
         public virtual void SetReadingInvalidationKeys()
         {
             List<string> invalidationKeys = new List<string>()
-                { 
-                    string.Format("invalidationKey_domain_{0}", this.m_nDomainID) 
+                {
+                    LayeredCacheKeys.GetHouseholdInvalidationKey(this.m_nDomainID)
                 };
 
             LayeredCache.Instance.SetReadingInvalidationKeys(invalidationKeys);
