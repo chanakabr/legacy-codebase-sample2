@@ -266,8 +266,7 @@ namespace Core.Catalog.CatalogManagement
                         features = new HashSet<string>(commaSeparatedFeatures.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
                     }
 
-                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
-                    //TODO: Lior -  get multipleValue from features and consider doing the same for isPredefined                    
+                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");                    
                     string helpText = ODBCWrapper.Utils.GetSafeStr(dr, "HELP_TEXT");
                     long parentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TOPIC_ID", 0);
                     DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
@@ -434,7 +433,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                //TODO: Lior - System name is already chcked in DB, should we double check here before because we already have the info? *** ASK IRA **
+                //TODO: Lior - System name is already checked in DB, should we double check here before because we already have the info? *** ASK IRA **
                 if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(assetStructToadd.SystemName))
                 {
                     result.Status = new Status((int)eResponseStatus.AssetStructSystemNameAlreadyInUse, eResponseStatus.AssetStructSystemNameAlreadyInUse.ToString());
@@ -669,8 +668,7 @@ namespace Core.Catalog.CatalogManagement
                     result.Status = new Status((int)eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
                     return result;
                 }                
-
-                //TODO: Lior - do something with features                
+                
                 DataTable dt = CatalogDAL.InsertTopic(groupId, topicToAdd.Names[0].m_sValue, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetFeaturesForDB(),
                                                       topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId);
                 result = CreateTopicResponseFromDataTable(dt);
@@ -715,8 +713,7 @@ namespace Core.Catalog.CatalogManagement
                     result.Status = new Status((int)eResponseStatus.InvalidMutlipleValueForMetaType, "MultipleValue can only be set to true for KalturaMetaType - STRING");
                     return result;
                 }
-
-                //TODO: Lior - do something with features
+                
                 DataTable dt = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Names[0].m_sValue, topicToUpdate.SystemName, topicToUpdate.GetFeaturesForDB(),
                                                       topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
                 result = CreateTopicResponseFromDataTable(dt);

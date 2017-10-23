@@ -147,8 +147,7 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("HelpText: {0}, ", HelpText);
             sb.AppendFormat("ParentId: {0}, ", ParentId);
             sb.AppendFormat("CreateDate: {0}, ", CreateDate);
-            sb.AppendFormat("UpdateDate: {0}", UpdateDate);
-            //TODO: Lior -  add languageContainer
+            sb.AppendFormat("UpdateDate: {0}", UpdateDate);            
             return sb.ToString();
         }
     }

@@ -25,20 +25,19 @@ namespace Core.Catalog.CatalogManagement
             this.MetaIds = new List<long>();
             this.IsPredefined = null;
             this.CreateDate = 0;
-            this.UpdateDate = 0;
-            //TODO: Lior -  init languageContainer
+            this.UpdateDate = 0;            
         }
 
         public AssetStruct(long id, string name, string systemName, bool isPredefined, long createDate, long updateDate)
         {
             this.Id = id;
+            //TODO: Lior - init languageContainer, currently using "eng" but its wrong to do that
             this.Names = new LanguageContainer[1] { new LanguageContainer("eng", name) };
             this.SystemName = systemName;
             this.MetaIds = new List<long>();
             this.IsPredefined = isPredefined;
             this.CreateDate = createDate;
-            this.UpdateDate = updateDate;
-            //TODO: Lior - init languageContainer
+            this.UpdateDate = updateDate;            
         }
 
         public AssetStruct(AssetStruct assetStructToCopy)
@@ -49,8 +48,7 @@ namespace Core.Catalog.CatalogManagement
             this.MetaIds = new List<long>(assetStructToCopy.MetaIds);
             this.IsPredefined = assetStructToCopy.IsPredefined;
             this.CreateDate = assetStructToCopy.CreateDate;
-            this.UpdateDate = assetStructToCopy.UpdateDate;
-            //TODO: Lior - init languageContainer
+            this.UpdateDate = assetStructToCopy.UpdateDate;            
         }
 
         public override string ToString()
@@ -62,8 +60,7 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("MetaIds: {0}, ", MetaIds != null ? string.Join(",", MetaIds) : string.Empty);
             sb.AppendFormat("IsPredefined: {0}, ", IsPredefined.HasValue ? IsPredefined.Value.ToString() : string.Empty);
             sb.AppendFormat("CreateDate: {0}, ", CreateDate);
-            sb.AppendFormat("UpdateDate: {0}", UpdateDate);
-            //TODO: Lior -  add languageContainer
+            sb.AppendFormat("UpdateDate: {0}", UpdateDate);            
             return sb.ToString();
         }
 
