@@ -395,7 +395,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))
-              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
+              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId.HasValue ? src.ParentId.Value : 0))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));            
 
@@ -422,7 +422,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 }
                 else
                 {
-                    throw new ClientException((int)StatusCode.ArgumentMustBeNumeric, "Invalid MetaId");
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetStruct.metaIds");
                 }
             }
 

@@ -27,7 +27,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty(ReadOnly = true, DynamicMinInt = 1)]
+        [SchemeProperty(ReadOnly = true)]
         public long Id { get; set; }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         [XmlElement(ElementName = "type", IsNullable = true)]
-        public KalturaMetaType Type { get; set; }
+        public KalturaMetaType? Type { get; set; }
 
         /// <summary>
         ///  Does the meta contain multiple values
@@ -69,7 +69,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "multipleValue")]
         [JsonProperty("multipleValue")]
         [XmlElement(ElementName = "multipleValue", IsNullable = true)]
-        public bool MultipleValue { get; set; }
+        public bool? MultipleValue { get; set; }
 
         /// <summary>
         ///  Is the meta protected by the system
@@ -77,7 +77,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isProtected")]
         [JsonProperty("isProtected")]
         [XmlElement(ElementName = "isProtected", IsNullable = true)]
-        public bool IsProtected { get; set; }
+        public bool? IsProtected { get; set; }
 
         /// <summary>
         ///  The help text of the meta to be displayed on the UI.
@@ -111,7 +111,7 @@ namespace WebAPI.Models.API
         [JsonProperty("parentId")]
         [XmlElement(ElementName = "parentId", IsNullable = true)]
         [SchemeProperty (DynamicMinInt = 1)]
-        public long ParentId{ get; set; }
+        public long? ParentId{ get; set; }
 
         /// <summary>
         /// Partner Id

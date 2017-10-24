@@ -78,15 +78,16 @@ namespace WebAPI.Controllers
             long userId = Utils.Utils.GetUserIdFromKs();
             if (assetStruct.Name == null || assetStruct.Name.Values == null || assetStruct.Name.Values.Count == 0)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "name");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
             }
 
             assetStruct.Name.Validate();
             if (string.IsNullOrEmpty(assetStruct.SystemName.Trim()))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "systemName");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
             }
 
+            assetStruct.ValidateMetaIds();
             try
             {                
                 response = ClientsManager.CatalogClient().AddAssetStruct(groupId, assetStruct, userId);
@@ -122,7 +123,7 @@ namespace WebAPI.Controllers
             {
                 if ((assetStruct.Name.Values == null || assetStruct.Name.Values.Count == 0))
                 {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "name");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
                 }
                 else
                 {
@@ -132,9 +133,10 @@ namespace WebAPI.Controllers
 
             if (assetStruct.SystemName != null && assetStruct.SystemName.Trim() == string.Empty)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "systemName");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
             }
 
+            assetStruct.ValidateMetaIds();
             try
             {                
                 response = ClientsManager.CatalogClient().UpdateAssetStruct(groupId, id, assetStruct, userId);

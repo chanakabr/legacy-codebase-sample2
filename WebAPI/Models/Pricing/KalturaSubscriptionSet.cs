@@ -81,7 +81,7 @@ namespace WebAPI.Models.Pricing
             }
             else
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaSubscriptionSet.subscriptions");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSubscriptionSet.subscriptions");
             }
 
             return list;

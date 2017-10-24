@@ -19,7 +19,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty(ReadOnly = true, DynamicMinInt = 1)]        
+        [SchemeProperty(ReadOnly = true)]        
         public long Id { get; set; }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "isProtected")]
         [JsonProperty("isProtected")]
         [XmlElement(ElementName = "isProtected", IsNullable = true)]
-        public bool IsProtected { get; set; }
+        public bool? IsProtected { get; set; }
 
         /// <summary>
         /// A list of comma separated meta ids associated with this asset struct, returned according to the order.
@@ -72,9 +72,8 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
-        public List<long> GetMetaIds()
+        public bool ValidateMetaIds()
         {
-            List<long> list = new List<long>();
             if (!string.IsNullOrEmpty(MetaIds))
             {
                 string[] stringValues = MetaIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -83,16 +82,12 @@ namespace WebAPI.Models.Catalog
                     long value;
                     if (!long.TryParse(stringValue, out value) || value < 1)
                     {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_STRING_CONTAINED_MIN_VALUE_CROSSED, "KalturaAssetStruct.metaIds", 1);
-                    }
-                    else
-                    {
-                        list.Add(value);
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetStruct.metaIds");
                     }
                 }
             }
 
-            return list;
+            return true;
         }
     }
 }

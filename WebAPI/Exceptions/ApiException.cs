@@ -193,6 +193,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");        
         public static ApiExceptionType INVALID_VALUE_FOR_FEATURE = new ApiExceptionType(StatusCode.InvalidValueForFeature, "Invalid value for feature: @feature@. feature can only contain alphanumeric values and/or underscore up until 64 characters", "feature");
         public static ApiExceptionType DEFUALT_LANGUAGE_MUST_BE_SENT = new ApiExceptionType(StatusCode.DefaultLanguageMustBeSnt, "Default language must be one of the values sent for multilingualName");
+        public static ApiExceptionType GROUP_DOES_NOT_CONTAIN_LANGUAGE = new ApiExceptionType(StatusCode.GroupDoesNotContainLanguage, "language: @lng@ is not part of group supported languages", "lng");
 
         // Api 5000 - 5999
         public static ClientExceptionType NO_PIN_DEFINED = new ClientExceptionType(eResponseStatus.NoPinDefined, "No Pin Defined", "No parental PIN was defined for this user/household");

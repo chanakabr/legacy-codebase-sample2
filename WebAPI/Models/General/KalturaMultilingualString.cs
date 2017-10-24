@@ -151,6 +151,7 @@ namespace WebAPI.Models.General
             if (Values != null && Values.Count > 0)
             {
                 HashSet<string> languageCodes = new HashSet<string>();
+                HashSet<string> groupLlanguageCodes = Utils.Utils.GetGroupLanguageCodes();
                 foreach (KalturaTranslationToken token in Values)
                 {
                     if (languageCodes.Contains(token.Language))
@@ -158,11 +159,21 @@ namespace WebAPI.Models.General
                         throw new BadRequestException(ApiException.DUPLICATE_LANGUAGE_SENT, token.Language);
                     }
 
-                    if (shouldValidateValues && string.IsNullOrEmpty(token.Value))
+                    if (shouldValidateValues)
                     {
-                        throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaTranslationToken.value");
+
+                        if (string.IsNullOrEmpty(token.Value))
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTranslationToken.value");
+                        }
+
+                        
+                        if (!groupLlanguageCodes.Contains(token.Language))
+                        {
+                            throw new BadRequestException(BadRequestException.GROUP_DOES_NOT_CONTAIN_LANGUAGE, token.Language);
+                        }
                     }
-                    
+
                     languageCodes.Add(token.Language);
                 }
 

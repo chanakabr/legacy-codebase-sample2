@@ -16,7 +16,11 @@ namespace WebAPI.Utils
         internal static int GetLanguageId(int groupId, string language)
         {
             // get all group languages
-            var languages = GroupsManager.GetGroup(groupId).Languages;
+            List<Language> languages = GetGroupLanguages();
+            if (languages == null)
+            {
+                return 0;
+            }
 
             // get default/specific language
             Language langModel = new Language();
@@ -123,15 +127,48 @@ namespace WebAPI.Utils
             }
 
             // get all group languages
-            var languages = GroupsManager.GetGroup(groupId.Value).Languages;
-            Language langModel = languages.Where(l => l.IsDefault).FirstOrDefault();
+            List<Language> languages = GetGroupLanguages();
+            if (languages == null || languages.Count == 0)
+            {
+                return null;
+            }
 
+            Language langModel = languages.Where(l => l.IsDefault).FirstOrDefault();
             if (langModel != null)
             {
                 return langModel.Code;
             }
 
             return null;
+        }
+
+        internal static HashSet<string> GetGroupLanguageCodes()
+        {
+            HashSet<string> languageCodes = new HashSet<string>();
+            List<Language> languages = GetGroupLanguages();
+            if (languages != null)
+            {
+                foreach (Language lng in languages)
+                {
+                    if (!languageCodes.Contains(lng.Code))
+                    {
+                        languageCodes.Add(lng.Code);
+                    }
+                }
+            }
+
+            return languageCodes;
+        }
+
+        internal static List<Language> GetGroupLanguages()
+        {
+            int? groupId = GetGroupIdFromRequest();
+            if (!groupId.HasValue)
+            {
+                return null;
+            }
+                        
+            return GroupsManager.GetGroup(groupId.Value).Languages;
         }
 
         internal static string GetCurrencyFromRequest()
