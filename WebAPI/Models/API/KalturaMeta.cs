@@ -102,7 +102,6 @@ namespace WebAPI.Models.API
         [DataMember(Name = "features")]
         [JsonProperty("features")]
         [XmlElement(ElementName = "features", IsNullable = true)]
-        //[SchemeProperty(DynamicType = typeof(KalturaMetaFeatureType))]
         public string Features { get; set; }
 
         /// <summary>

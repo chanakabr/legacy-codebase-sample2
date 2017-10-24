@@ -159,19 +159,14 @@ namespace WebAPI.Controllers
             KalturaMeta response = null;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
-
-            // validate features + multivalue = ture only for type STRING
             meta.ValidateFeatures();
-
             if (meta.Name == null || meta.Name.Values == null || meta.Name.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "name");
             }
 
-            // validate
-            meta.Name.Validate(true);            
-
-            if (string.IsNullOrEmpty(meta.SystemName))
+            meta.Name.Validate();
+            if (string.IsNullOrEmpty(meta.SystemName.Trim()))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "systemName");
             }
@@ -205,7 +200,25 @@ namespace WebAPI.Controllers
         {
             KalturaMeta response = null;
             int groupId = KS.GetFromRequest().GroupId;
-            long userId = Utils.Utils.GetUserIdFromKs();
+            long userId = Utils.Utils.GetUserIdFromKs();            
+            meta.ValidateFeatures();
+
+            if (meta.Name != null)
+            {
+                if ((meta.Name.Values == null || meta.Name.Values.Count == 0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "name");
+                }
+                else
+                {
+                    meta.Name.Validate();
+                }
+            }
+
+            if (meta.SystemName != null && meta.SystemName.Trim() == string.Empty)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "systemName");
+            }
 
             try
             {

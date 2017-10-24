@@ -146,7 +146,7 @@ namespace WebAPI.Models.General
             return null;
         }
 
-        internal void Validate(bool shouldCheckDefaultLanguageIsSent)
+        internal void Validate(bool shouldCheckDefaultLanguageIsSent = true, bool shouldValidateValues = true)
         {
             if (Values != null && Values.Count > 0)
             {
@@ -156,6 +156,11 @@ namespace WebAPI.Models.General
                     if (languageCodes.Contains(token.Language))
                     {
                         throw new BadRequestException(ApiException.DUPLICATE_LANGUAGE_SENT, token.Language);
+                    }
+
+                    if (shouldValidateValues && string.IsNullOrEmpty(token.Value))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaTranslationToken.value");
                     }
                     
                     languageCodes.Add(token.Language);
