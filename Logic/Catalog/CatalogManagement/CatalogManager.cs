@@ -432,8 +432,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddAssetStruct", groupId);
                     return result;
                 }
-
-                //TODO: Lior - System name is already checked in DB, should we double check here before because we already have the info? *** ASK IRA **
+                
                 if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(assetStructToadd.SystemName))
                 {
                     result.Status = new Status((int)eResponseStatus.AssetStructSystemNameAlreadyInUse, eResponseStatus.AssetStructSystemNameAlreadyInUse.ToString());
@@ -661,14 +660,13 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddTopic", groupId);
                     return result;
                 }
-
-                //TODO: Lior - System name is already chcked in DB, should we double check here before because we already have the info? *** ASK IRA **
+                
                 if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(topicToAdd.SystemName))
                 {
                     result.Status = new Status((int)eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
                     return result;
-                }                
-                
+                }
+
                 DataTable dt = CatalogDAL.InsertTopic(groupId, topicToAdd.Names[0].m_sValue, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetFeaturesForDB(),
                                                       topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId);
                 result = CreateTopicResponseFromDataTable(dt);
