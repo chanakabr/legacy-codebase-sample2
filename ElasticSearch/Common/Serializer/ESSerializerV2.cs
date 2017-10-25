@@ -48,6 +48,7 @@ namespace ElasticSearch.Common
         protected readonly string DATE_FORMAT = "yyyyMMddHHmmss";
         protected const string LOWERCASE_ANALYZER = "lowercase_analyzer";
         protected const string PHRASE_STARTS_WITH_ANALYZER = "phrase_starts_with_analyzer";
+        protected const string PHRASE_STARTS_WITH_SEARCH_ANALYZER = "phrase_starts_with_search_analyzer";
         protected const string PHRASE_STARTS_WITH_FILTER = "edgengram_filter";
 
         public ESSerializerV2()
@@ -216,7 +217,7 @@ namespace ElasticSearch.Common
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_ANALYZER,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
                 analyzer = PHRASE_STARTS_WITH_ANALYZER
             });
 
@@ -291,7 +292,7 @@ namespace ElasticSearch.Common
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_ANALYZER,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
                 analyzer = PHRASE_STARTS_WITH_ANALYZER
             });
 
@@ -389,7 +390,7 @@ namespace ElasticSearch.Common
                             type = ElasticSearch.Common.eESFieldType.STRING,
                             null_value = "",
                             index = eMappingIndex.analyzed,
-                            search_analyzer = PHRASE_STARTS_WITH_ANALYZER,
+                            search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
                             analyzer = PHRASE_STARTS_WITH_ANALYZER
                         });
 
@@ -494,7 +495,7 @@ namespace ElasticSearch.Common
                                             type = ElasticSearch.Common.eESFieldType.STRING,
                                             null_value = "",
                                             index = eMappingIndex.analyzed,
-                                            search_analyzer = PHRASE_STARTS_WITH_ANALYZER,
+                                            search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
                                             analyzer = PHRASE_STARTS_WITH_ANALYZER
                                         });
                                     }
@@ -541,7 +542,7 @@ namespace ElasticSearch.Common
                                         type = ElasticSearch.Common.eESFieldType.STRING,
                                         null_value = "",
                                         index = eMappingIndex.analyzed,
-                                        search_analyzer = PHRASE_STARTS_WITH_ANALYZER,
+                                        search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
                                         analyzer = PHRASE_STARTS_WITH_ANALYZER
                                     });
 
@@ -734,7 +735,7 @@ namespace ElasticSearch.Common
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_ANALYZER,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
                 analyzer = PHRASE_STARTS_WITH_ANALYZER
             });
 
@@ -809,7 +810,7 @@ namespace ElasticSearch.Common
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_ANALYZER,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
                 analyzer = PHRASE_STARTS_WITH_ANALYZER
             });
 
@@ -876,7 +877,7 @@ namespace ElasticSearch.Common
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_ANALYZER,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
                 analyzer = PHRASE_STARTS_WITH_ANALYZER
             });
 
@@ -932,7 +933,7 @@ namespace ElasticSearch.Common
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = PHRASE_STARTS_WITH_ANALYZER,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
                 analyzer = PHRASE_STARTS_WITH_ANALYZER
             });
 
@@ -991,7 +992,7 @@ namespace ElasticSearch.Common
                         type = ElasticSearch.Common.eESFieldType.STRING,
                         null_value = "",
                         index = eMappingIndex.analyzed,
-                        search_analyzer = PHRASE_STARTS_WITH_ANALYZER,
+                        search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
                         analyzer = PHRASE_STARTS_WITH_ANALYZER
                     });
 
@@ -1070,7 +1071,7 @@ namespace ElasticSearch.Common
                             type = ElasticSearch.Common.eESFieldType.STRING,
                             null_value = "",
                             index = eMappingIndex.analyzed,
-                            search_analyzer = PHRASE_STARTS_WITH_ANALYZER,
+                            search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
                             analyzer = PHRASE_STARTS_WITH_ANALYZER
                         });
 
@@ -1118,7 +1119,7 @@ namespace ElasticSearch.Common
                         type = ElasticSearch.Common.eESFieldType.STRING,
                         null_value = "",
                         index = eMappingIndex.analyzed,
-                        search_analyzer = PHRASE_STARTS_WITH_ANALYZER,
+                        search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
                         analyzer = PHRASE_STARTS_WITH_ANALYZER
                     });
 
