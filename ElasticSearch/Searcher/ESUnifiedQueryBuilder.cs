@@ -957,6 +957,7 @@ namespace ElasticSearch.Searcher
                     if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
                         leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith || leaf.operand == ApiObjects.ComparisonOperator.Phonetic ||
                         leaf.operand == ApiObjects.ComparisonOperator.Exists || leaf.operand == ApiObjects.ComparisonOperator.NotExists ||
+                        leaf.operand == ApiObjects.ComparisonOperator.PhraseStartsWith ||
                         leaf.shouldLowercase)
                     {
                         queryNode = leaf;
@@ -997,6 +998,7 @@ namespace ElasticSearch.Searcher
                                 if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.WordStartsWith ||
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.PhraseStartsWith ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Phonetic ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Exists ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotExists || 
@@ -1683,6 +1685,7 @@ namespace ElasticSearch.Searcher
                     if (leaf.operand == ApiObjects.ComparisonOperator.Contains ||
                         leaf.operand == ApiObjects.ComparisonOperator.Equals ||
                         leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith ||
+                        leaf.operand == ApiObjects.ComparisonOperator.PhraseStartsWith ||
                         leaf.operand == ApiObjects.ComparisonOperator.Phonetic)
                     {
                         string field = string.Empty;
@@ -1690,6 +1693,10 @@ namespace ElasticSearch.Searcher
                         if (leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
                         {
                             field = string.Format("{0}.autocomplete", leaf.field);
+                        }
+                        else if (leaf.operand == ApiObjects.ComparisonOperator.PhraseStartsWith)
+                        {
+                            field = string.Format("{0}.phrase_autocomplete", leaf.field);
                         }
                         else if (leaf.operand == ApiObjects.ComparisonOperator.Contains)
                         {
