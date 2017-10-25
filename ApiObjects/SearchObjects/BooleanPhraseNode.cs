@@ -52,7 +52,6 @@ namespace ApiObjects.SearchObjects
             ')',
             '~',
             '=',
-            '^',
             ':',
             '*',
             '+'
@@ -62,7 +61,16 @@ namespace ApiObjects.SearchObjects
         {
             '~',
             '=',
-            '+'
+            '+',
+            '^'
+        };
+
+        private static readonly List<char> doubleOpenerComparisonOperators = new List<char>()
+        {
+            '>',
+            '<',
+            '!',
+            '^'
         };
 
         // (chr == ')' || chr == '~' || chr == '=' || chr == '^' || chr == ':' || chr == '*' || chr == '+'
@@ -111,7 +119,7 @@ namespace ApiObjects.SearchObjects
                         stack.Push(eCutType.Or);
                     }
                     // comparison operator - parse to enum and add to stack
-                    else if (token != string.Empty && "!=<=>=!~^:*!+".Contains(token)) 
+                    else if (token != string.Empty && "!=<=>=!~^=:*!+".Contains(token)) 
                     {
                         ComparisonOperator comparisonOperator = GetComparisonOperator(token);
                         stack.Push(comparisonOperator);
@@ -193,47 +201,50 @@ namespace ApiObjects.SearchObjects
             switch (token)
             {
                 case "=":
-                comparisonOperator = ComparisonOperator.Equals;
-                break;
+                    comparisonOperator = ComparisonOperator.Equals;
+                    break;
                 case "!=":
-                comparisonOperator = ComparisonOperator.NotEquals;
-                break;
+                    comparisonOperator = ComparisonOperator.NotEquals;
+                    break;
                 case "<":
-                comparisonOperator = ComparisonOperator.LessThan;
-                break;
+                    comparisonOperator = ComparisonOperator.LessThan;
+                    break;
                 case ">":
-                comparisonOperator = ComparisonOperator.GreaterThan;
-                break;
+                    comparisonOperator = ComparisonOperator.GreaterThan;
+                    break;
                 case "<=":
-                comparisonOperator = ComparisonOperator.LessThanOrEqual;
-                break;
+                    comparisonOperator = ComparisonOperator.LessThanOrEqual;
+                    break;
                 case ">=":
-                comparisonOperator = ComparisonOperator.GreaterThanOrEqual;
-                break;
+                    comparisonOperator = ComparisonOperator.GreaterThanOrEqual;
+                    break;
                 case "~":
-                comparisonOperator = ComparisonOperator.Contains;
-                break;
+                    comparisonOperator = ComparisonOperator.Contains;
+                    break;
                 case "!~":
-                comparisonOperator = ComparisonOperator.NotContains;
-                break;
+                    comparisonOperator = ComparisonOperator.NotContains;
+                    break;
                 case "^":
-                comparisonOperator = ComparisonOperator.WordStartsWith;
-                break;
+                    comparisonOperator = ComparisonOperator.WordStartsWith;
+                    break;
                 case ":":
-                comparisonOperator = ComparisonOperator.In;
-                break;
+                    comparisonOperator = ComparisonOperator.In;
+                    break;
                 case "*":
-                comparisonOperator = ComparisonOperator.Phonetic;
-                break;
+                    comparisonOperator = ComparisonOperator.Phonetic;
+                    break;
                 case "+":
-                comparisonOperator = ComparisonOperator.Exists;
-                break;
+                    comparisonOperator = ComparisonOperator.Exists;
+                    break;
                 case "!+":
-                comparisonOperator = ComparisonOperator.NotExists;
-                break;
+                    comparisonOperator = ComparisonOperator.NotExists;
+                    break;
+                case "^=":
+                    comparisonOperator = ComparisonOperator.PhraseStartsWith;
+                    break;
                 default:
-                comparisonOperator = ComparisonOperator.Contains;
-                break;
+                    comparisonOperator = ComparisonOperator.Contains;
+                    break;
             }
 
             return comparisonOperator;
@@ -346,7 +357,8 @@ namespace ApiObjects.SearchObjects
                         return new Status((int)eResponseStatus.SyntaxError, string.Format("Unexpected char: {0} , on index {1}", chr, i));
                     }
                 }
-                else if ((chr == '>' || chr == '<' || chr == '!') && !isQuote) // double or single comparison operator - get the token from buffer if availible and add to tokens list, add the seperator to tokens list 
+                // double or single comparison operator - get the token from buffer if availible and add to tokens list, add the seperator to tokens list 
+                else if (doubleOpenerComparisonOperators.Contains(chr) && !isQuote) 
                 {
                     if (GetTokenFromBuffer(string.Empty, false, true, ref buffer, ref token))
                     {
@@ -411,7 +423,6 @@ namespace ApiObjects.SearchObjects
             }
 
             return status;
-
         }
 
         // Returns a full token from the buffer:
