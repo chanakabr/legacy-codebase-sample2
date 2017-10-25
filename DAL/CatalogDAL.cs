@@ -4721,7 +4721,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Name", name);
             sp.AddParameter("@SystemName", systemName);
-            sp.AddParameter("@IsPredefined", isPredefined.Value ? 1 : 0);
+            sp.AddParameter("@IsPredefined", isPredefined.HasValue && isPredefined.Value ? 1 : 0);
             sp.AddParameter("@MetaIdsToPriorityExist", metaIdsToPriority != null && metaIdsToPriority.Count > 0);
             sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
             sp.AddParameter("@UpdaterId", userId);
@@ -4775,7 +4775,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@SystemName", systemName);
             sp.AddParameter("@TopicType", (int)topicType);
             sp.AddParameter("@Features", commaSeparatedFeatures);
-            sp.AddParameter("@IsPredefined", isPredefined.Value ? 1 : 0);
+            sp.AddParameter("@IsPredefined", isPredefined.HasValue && isPredefined.Value ? 1 : 0);
             sp.AddParameter("@ParentTopicId", parent_topic_id);
             sp.AddParameter("@HelpText", helpText);
             sp.AddParameter("@UpdaterId", userId);
