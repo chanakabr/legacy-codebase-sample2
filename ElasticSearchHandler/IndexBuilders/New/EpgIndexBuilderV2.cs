@@ -371,6 +371,10 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 // we always want a lowercase analyzer
                 analyzers.Add(LOWERCASE_ANALYZER);
+
+                // we always want "autocomplete" ability
+                filters.Add(PHRASE_STARTS_WITH_FILTER);
+                analyzers.Add(PHRASE_STARTS_WITH_ANALYZER);
             }
         }
 
