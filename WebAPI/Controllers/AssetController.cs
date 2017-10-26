@@ -937,7 +937,7 @@ namespace WebAPI.Controllers
         [Route("count"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaAssetCount Count(KalturaSearchAssetFilter filter = null)//List<KalturaAssetGroupBy> groupBy, 
+        public KalturaAssetCount Count(KalturaSearchAssetFilter filter = null)
         {
             KalturaAssetCount response = null;
 
