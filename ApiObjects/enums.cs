@@ -382,7 +382,8 @@ namespace ApiObjects
         Prefix,
         Phonetic,
         Exists,
-        NotExists
+        NotExists,
+        PhraseStartsWith
     }
 
     [Serializable]
