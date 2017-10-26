@@ -133,8 +133,8 @@ namespace EpgBL
 
             langContainers.Add(new LanguageContainer()
             {
-                m_sLanguageCode3 = languageObj.Code,
-                m_sValue = value
+                LanguageCode = languageObj.Code,
+                Value = value
             });
 
             return langContainers.ToArray();

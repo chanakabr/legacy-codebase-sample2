@@ -4704,22 +4704,23 @@ namespace Tvinci.Core.DAL
 
         #region New Catalog Management
 
-        public static DataSet GetAssetStructsByIds(int groupId, List<long> ids)
+        public static DataSet GetAssetStructsByGroupId(int groupId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetStructsByIds");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetStructsByGroupId");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);            
-            sp.AddIDListParameter("@Ids", ids, "id");
-            sp.AddParameter("@IdsExist", ids != null && ids.Count > 0);
+            sp.AddParameter("@GroupId", groupId);
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertAssetStruct(int groupId, string name, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined, long userId)
+        public static DataSet InsertAssetStruct(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, List<KeyValuePair<long, int>> metaIdsToPriority,
+                                                bool? isPredefined, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Name", name);
+            sp.AddParameter("@NamesInOtherLanguagesExist", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
+            sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
             sp.AddParameter("@SystemName", systemName);
             sp.AddParameter("@IsPredefined", isPredefined.HasValue && isPredefined.Value ? 1 : 0);
             sp.AddParameter("@MetaIdsToPriorityExist", metaIdsToPriority != null && metaIdsToPriority.Count > 0);
@@ -4729,13 +4730,16 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateAssetStruct(int groupId, long id, string name, string systemName, bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority, long userId)
+        public static DataSet UpdateAssetStruct(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName,
+                                                bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
             sp.AddParameter("@Name", name);
+            sp.AddParameter("@ShouldUpdateOtherNames", shouldUpdateOtherNames ? 1 : 0);
+            sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
             sp.AddParameter("@SystemName", systemName);
             sp.AddParameter("@ShouldUpdateMetaIds", shouldUpdateMetaIds ? 1 : 0);                     
             sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
@@ -4755,23 +4759,22 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataTable GetTopicByIds(int groupId, List<long> ids, int topicType)
+        public static DataSet GetTopicsByGroupId(int groupId)
         {                        
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicByIds");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicsByGroupId");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@Type", topicType);
-            sp.AddIDListParameter("@Ids", ids, "id");
-            sp.AddParameter("@IdsExist", ids != null && ids.Count > 0);
-            return sp.Execute();
+            return sp.ExecuteDataSet();
         }
 
-        public static DataTable InsertTopic(int groupId, string name, string systemName, ApiObjects.MetaType topicType, string commaSeparatedFeatures, bool? isPredefined, long parent_topic_id, string helpText, long userId)
+        public static DataSet InsertTopic(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, ApiObjects.MetaType topicType, string commaSeparatedFeatures,
+                                            bool? isPredefined, long parent_topic_id, string helpText, long userId)
         {                        
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@Name", name);
+            sp.AddParameter("@NamesInOtherLanguagesExist", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
+            sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
             sp.AddParameter("@SystemName", systemName);
             sp.AddParameter("@TopicType", (int)topicType);
             sp.AddParameter("@Features", commaSeparatedFeatures);
@@ -4780,23 +4783,25 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@HelpText", helpText);
             sp.AddParameter("@UpdaterId", userId);
 
-            return sp.Execute();
+            return sp.ExecuteDataSet();
         }
 
-        public static DataTable UpdateTopic(int groupId, long id, string name, string systemName, string commaSeparatedFeatures, long parent_topic_id, string helpText, long userId)
+        public static DataSet UpdateTopic(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, string commaSeparatedFeatures,
+                                            long parent_topic_id, string helpText, long userId)
         {            
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
-            sp.AddParameter("@Name", name);
+            sp.AddParameter("@ShouldUpdateOtherNames", shouldUpdateOtherNames ? 1 : 0);
+            sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
             sp.AddParameter("@SystemName", systemName);            
             sp.AddParameter("@Features", commaSeparatedFeatures);            
             sp.AddParameter("@ParentTopicId", parent_topic_id);
             sp.AddParameter("@HelpText", helpText);
             sp.AddParameter("@UpdaterId", userId);
 
-            return sp.Execute();
+            return sp.ExecuteDataSet();
         }
 
         public static bool DeleteTopic(int groupId, long id, long userId)
