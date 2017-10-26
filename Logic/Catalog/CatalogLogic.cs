@@ -574,7 +574,7 @@ namespace Core.Catalog
                             //add is default lang values
                             LanguageObj language = group.GetLangauges().Where(x => x.IsDefault).FirstOrDefault();
                             if (language != null)
-                                tagLangContainerList.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = tagValue });
+                                tagLangContainerList.Add(new LanguageContainer() { LanguageCode = language.Code, Value = tagValue });
 
                             if (tagLangs != null && tagLangs.Rows.Count > 0)
                             {
@@ -919,12 +919,12 @@ namespace Core.Catalog
                         oMediaObj.Name = GetMediaLanguageContainer(dtMedia.Rows[0], mediaMetas, groupLanguages, "NAME");
                         if (oMediaObj.Name != null && oMediaObj.Name.Length > 0)
                         {
-                            oMediaObj.m_sName = oMediaObj.Name[0].m_sValue;
+                            oMediaObj.m_sName = oMediaObj.Name[0].Value;
                         }
                         oMediaObj.Description = GetMediaLanguageContainer(dtMedia.Rows[0], mediaMetas, groupLanguages, "DESCRIPTION");
                         if (oMediaObj.Description != null && oMediaObj.Description.Length > 0)
                         {
-                            oMediaObj.m_sDescription = oMediaObj.Description[0].m_sValue;
+                            oMediaObj.m_sDescription = oMediaObj.Description[0].Value;
                         }
 
                         oMediaObj.m_oMediaType = new MediaType();
@@ -1069,7 +1069,7 @@ namespace Core.Catalog
                     {
                         language = groupLanguages.Where(x => x.ID == langId).FirstOrDefault();
                         if (language != null)
-                            langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
+                            langContainers.Add(new LanguageContainer() { LanguageCode = language.Code, Value = value });
                     }
                 }
             }
@@ -1078,7 +1078,7 @@ namespace Core.Catalog
             language = groupLanguages.Where(x => x.IsDefault).FirstOrDefault();
             value = Utils.GetStrSafeVal(mediaRow, columnName);
             if (language != null)
-                langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
+                langContainers.Add(new LanguageContainer() { LanguageCode = language.Code, Value = value });
 
             return langContainers.ToArray();
         }
@@ -1101,7 +1101,7 @@ namespace Core.Catalog
                     {
                         language = groupLanguages.Where(x => x.ID == langId).FirstOrDefault();
                         if (language != null)
-                            langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
+                            langContainers.Add(new LanguageContainer() { LanguageCode = language.Code, Value = value });
                     }
                 }
             }

@@ -13,8 +13,9 @@ namespace Core.Catalog.CatalogManagement
         private const string MULTIPLE_VALUE = "multipleValue";
         private const string SEARCH_RELATED = "searchRelated";
 
-        public long Id { get; set; }        
-        public LanguageContainer[] Names { get; set; }
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public List<LanguageContainer> NamesInOtherLanguages { get; set; }
         public string SystemName { get; set; }
         public MetaType Type { get; set; }
         public HashSet<string> Features { get; set; }
@@ -29,7 +30,8 @@ namespace Core.Catalog.CatalogManagement
         public Topic()
         {
             this.Id = 0;
-            this.Names = new LanguageContainer[0];
+            this.Name = string.Empty;
+            this.NamesInOtherLanguages = new List<LanguageContainer>();
             this.SystemName = string.Empty;
             this.Type = MetaType.All;
             this.Features = null;
@@ -42,11 +44,12 @@ namespace Core.Catalog.CatalogManagement
             this.UpdateDate = 0;            
         }
 
-        public Topic(long id, string name, string systemName, MetaType type, HashSet<string> features, bool isPredefined, string helpText, long parentId, long createDate, long updateDate)
+        public Topic(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, MetaType type, HashSet<string> features, bool isPredefined, string helpText, long parentId,
+                        long createDate, long updateDate)
         {
             this.Id = id;
-            //TODO: Lior -  support multilanguage, CURRENTY WE ONLY SUPPORT ENG
-            this.Names = new LanguageContainer[1] { new LanguageContainer("eng", name) };
+            this.Name = name;
+            this.NamesInOtherLanguages = new List<LanguageContainer>(namesInOtherLanguages);
             this.SystemName = systemName;
             this.Type = type;
             this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -80,7 +83,8 @@ namespace Core.Catalog.CatalogManagement
         public Topic(Topic topicToCopy)
         {
             this.Id = topicToCopy.Id;
-            this.Names = new List<LanguageContainer>(topicToCopy.Names).ToArray();
+            this.Name = string.Copy(topicToCopy.SystemName);
+            this.NamesInOtherLanguages = new List<LanguageContainer>(topicToCopy.NamesInOtherLanguages);
             this.SystemName = string.Copy(topicToCopy.SystemName);
             this.Type = topicToCopy.Type;
             this.Features = new HashSet<string>(topicToCopy.Features, StringComparer.OrdinalIgnoreCase);
@@ -139,8 +143,9 @@ namespace Core.Catalog.CatalogManagement
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(string.Format("Id: {0}, ", Id));
-            sb.AppendFormat("Names: {0}, ", Names != null && Names.Length > 0 ? string.Join(",", Names.Select(x => string.Format("languageCode: {0}, value: {1}",
-                                                                                                             x.m_sLanguageCode3, x.m_sValue)).ToList()) : string.Empty);
+            sb.AppendFormat("Name: {0},", Name);
+            sb.AppendFormat("NamesInOtherLanguages: {0}, ", NamesInOtherLanguages != null && NamesInOtherLanguages.Count > 0 ?
+                                                            string.Join(",", NamesInOtherLanguages.Select(x => string.Format("languageCode: {0}, value: {1}", x.LanguageCode, x.Value)).ToList()) : string.Empty);
             sb.AppendFormat("SystemName: {0}, ", SystemName);
             sb.AppendFormat("Type: {0}, ", Type);
             sb.AppendFormat("Features: {0}, ", Features != null ? string.Join(",", Features) : string.Empty);

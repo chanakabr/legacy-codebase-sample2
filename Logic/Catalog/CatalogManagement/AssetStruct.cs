@@ -10,7 +10,8 @@ namespace Core.Catalog.CatalogManagement
     public class AssetStruct
     {
         public long Id { get; set; }
-        public LanguageContainer[] Names { get; set; }        
+        public string Name { get; set; }
+        public List<LanguageContainer> NamesInOtherLanguages { get; set; }
         public string SystemName { get; set; }
         public List<long> MetaIds { get; set; }
         public bool? IsPredefined { get; set; }
@@ -20,7 +21,8 @@ namespace Core.Catalog.CatalogManagement
         public AssetStruct()
         {
             this.Id = 0;
-            this.Names = new LanguageContainer[0];
+            this.Name = string.Empty;
+            this.NamesInOtherLanguages = new List<LanguageContainer>();
             this.SystemName = string.Empty;
             this.MetaIds = new List<long>();
             this.IsPredefined = null;
@@ -28,11 +30,11 @@ namespace Core.Catalog.CatalogManagement
             this.UpdateDate = 0;            
         }
 
-        public AssetStruct(long id, string name, string systemName, bool isPredefined, long createDate, long updateDate)
+        public AssetStruct(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, bool isPredefined, long createDate, long updateDate)
         {
             this.Id = id;
-            //TODO: Lior - init languageContainer, currently using "eng" but its wrong to do that
-            this.Names = new LanguageContainer[1] { new LanguageContainer("eng", name) };
+            this.Name = name;
+            this.NamesInOtherLanguages = new List<LanguageContainer>(namesInOtherLanguages);
             this.SystemName = systemName;
             this.MetaIds = new List<long>();
             this.IsPredefined = isPredefined;
@@ -43,7 +45,8 @@ namespace Core.Catalog.CatalogManagement
         public AssetStruct(AssetStruct assetStructToCopy)
         {
             this.Id = assetStructToCopy.Id;
-            this.Names = new List<LanguageContainer>(assetStructToCopy.Names).ToArray();
+            this.Name = string.Copy(assetStructToCopy.SystemName);
+            this.NamesInOtherLanguages = new List<LanguageContainer>(assetStructToCopy.NamesInOtherLanguages);
             this.SystemName = string.Copy(assetStructToCopy.SystemName);
             this.MetaIds = new List<long>(assetStructToCopy.MetaIds);
             this.IsPredefined = assetStructToCopy.IsPredefined;
@@ -54,8 +57,9 @@ namespace Core.Catalog.CatalogManagement
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(string.Format("Id: {0}, ", Id));
-            sb.AppendFormat("Names: {0}, ", Names != null && Names.Length > 0 ? string.Join(",", Names.Select(x => string.Format("languageCode: {0}, value: {1}",
-                                                                                                 x.m_sLanguageCode3, x.m_sValue)).ToList()) : string.Empty);
+            sb.AppendFormat("Name: {0},", Name); 
+            sb.AppendFormat("NamesInOtherLanguages: {0}, ", NamesInOtherLanguages != null && NamesInOtherLanguages.Count > 0 ?
+                                                            string.Join(",", NamesInOtherLanguages.Select(x => string.Format("languageCode: {0}, value: {1}", x.LanguageCode, x.Value)).ToList()) : string.Empty);
             sb.AppendFormat("SystemName: {0}, ", SystemName);
             sb.AppendFormat("MetaIds: {0}, ", MetaIds != null ? string.Join(",", MetaIds) : string.Empty);
             sb.AppendFormat("IsPredefined: {0}, ", IsPredefined.HasValue ? IsPredefined.Value.ToString() : string.Empty);

@@ -5,25 +5,38 @@ namespace ApiObjects
     [Serializable]
     public class LanguageContainer
     {
+
+        public string LanguageCode { get; set; }
+        public string Value { get; set; }
+        public bool IsDefault { get; set; }
+
         public LanguageContainer()
         {
-            m_sLanguageCode3 = string.Empty;
-            m_sValue = string.Empty;
+            this.LanguageCode = string.Empty;
+            this.Value = string.Empty;
+            this.IsDefault = false;
         }
 
-        public LanguageContainer(string sLanguageCode, string sValue)
+        public LanguageContainer(string languageCode, string value)
         {
-            m_sLanguageCode3 = sLanguageCode;
-            m_sValue = sValue;
+            this.LanguageCode = languageCode;
+            this.Value = value;
+            this.IsDefault = false;
         }
 
-        public void Initialize(string sLanguageCode, string sValue)
+        public LanguageContainer(string languageCode, string value, bool isDefault)
         {
-            m_sLanguageCode3 = sLanguageCode;
-            m_sValue = sValue;
+            this.LanguageCode = languageCode;
+            this.Value = value;
+            this.IsDefault = IsDefault;
         }
 
-        public string m_sLanguageCode3;
-        public string m_sValue;
+        public void Initialize(string languageCode, string value)
+        {
+            this.LanguageCode = languageCode;
+            this.Value = value;
+            this.IsDefault = false;
+        }
+
     }
 }

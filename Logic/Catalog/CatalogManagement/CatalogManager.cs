@@ -30,16 +30,16 @@ namespace Core.Catalog.CatalogManagement
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue && groupId.Value > 0)
                     {
-                        DataTable dt = CatalogDAL.GetTopicByIds(groupId.Value, new List<long>(), (int)MetaType.All);
-                        List<Topic> topics = CreateTopicListFromDataTable(dt);
+                        DataSet topicsDs = CatalogDAL.GetTopicsByGroupId(groupId.Value);
+                        List<Topic> topics = CreateTopicListFromDataSet(topicsDs);
                         // return false if no topics are found on group
                         if (topics == null || topics.Count == 0)
                         {
                             return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, false);
                         }
 
-                        DataSet ds = CatalogDAL.GetAssetStructsByIds(groupId.Value, new List<long>());
-                        List<AssetStruct> assetStructs = CreateAssetStructListFromDataSet(ds);
+                        DataSet assetStructsDs = CatalogDAL.GetAssetStructsByGroupId(groupId.Value);
+                        List<AssetStruct> assetStructs = CreateAssetStructListFromDataSet(assetStructsDs);
                         // return false if no asset structs are found on group
                         if (assetStructs == null || assetStructs.Count == 0)
                         {
@@ -98,7 +98,7 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
-        private static AssetStruct CreateAssetStructFromIdAndDataRow(long id, DataRow dr)
+        private static AssetStruct CreateAssetStruct(long id, DataRow dr, List<DataRow> assetStructTranslations)
         {
             AssetStruct result = null;
             if (id > 0)
@@ -110,7 +110,20 @@ namespace Core.Catalog.CatalogManagement
                     bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
                     DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
                     DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
-                    result = new AssetStruct(id, name, systemName, isPredefined, createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
+                    List<LanguageContainer> namesInOtherLanguages = new List<LanguageContainer>();
+                    if (assetStructTranslations != null && assetStructTranslations.Count > 0)
+                    {
+                        foreach (DataRow translationDr in assetStructTranslations)
+                        {
+                            string languageCode = ODBCWrapper.Utils.GetSafeStr(translationDr, "CODE3");
+                            string translation = ODBCWrapper.Utils.GetSafeStr(translationDr, "TRANSLATION");
+                            if (!string.IsNullOrEmpty(languageCode) && !string.IsNullOrEmpty(translation))
+                            {
+                                namesInOtherLanguages.Add(new LanguageContainer(languageCode, translation));
+                            }
+                        }
+                    }
+                    result = new AssetStruct(id, name, namesInOtherLanguages, systemName, isPredefined, createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
                                              updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0);
                 }
             }
@@ -122,14 +135,17 @@ namespace Core.Catalog.CatalogManagement
         {
             AssetStructResponse response = new AssetStructResponse();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {                
+            {
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
                     if (id > 0)
                     {
-                        response.AssetStruct = CreateAssetStructFromIdAndDataRow(id, dt.Rows[0]);
+                        EnumerableRowCollection<DataRow> translations = ds.Tables.Count > 1 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
+                        List<DataRow> assetStructTranslations = (from row in translations
+                                                           select row).ToList();
+                        response.AssetStruct = CreateAssetStruct(id, dt.Rows[0], assetStructTranslations);
                     }
                     else
                     {
@@ -142,9 +158,9 @@ namespace Core.Catalog.CatalogManagement
                     response.Status = CreateAssetStructResponseStatusFromResult(0, new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString()));
                 }
 
-                if (response.AssetStruct != null && ds.Tables.Count == 2)
+                if (response.AssetStruct != null && ds.Tables.Count == 3)
                 {
-                    DataTable metasDt = ds.Tables[1];
+                    DataTable metasDt = ds.Tables[2];
                     if (response.AssetStruct != null && metasDt != null && metasDt.Rows != null && metasDt.Rows.Count > 0)
                     {
                         foreach (DataRow dr in metasDt.Rows)
@@ -171,18 +187,22 @@ namespace Core.Catalog.CatalogManagement
         private static List<AssetStruct> CreateAssetStructListFromDataSet(DataSet ds)
         {
             List <AssetStruct> response = null;
-            if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 Dictionary<long, AssetStruct> idToAssetStructMap = new Dictionary<long, AssetStruct>();
                 DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                EnumerableRowCollection<DataRow> translations = ds.Tables.Count > 1 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
+                if (dt != null && dt.Rows != null)
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
                         long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                         if (id > 0 && !idToAssetStructMap.ContainsKey(id))
                         {
-                            AssetStruct assetStruct = CreateAssetStructFromIdAndDataRow(id, dr);
+                            List<DataRow> assetStructTranslations = (from row in translations
+                                                               where (Int64)row["TEMPLATE_ID"] == id
+                                                               select row).ToList();
+                            AssetStruct assetStruct = CreateAssetStruct(id, dr, assetStructTranslations);
                             if (assetStruct != null)
                             {
                                 idToAssetStructMap.Add(id, assetStruct);
@@ -249,7 +269,7 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
-        private static Topic CreateTopicFromIdAndDataRow(long id, DataRow dr)
+        private static Topic CreateTopic(long id, DataRow dr, List<DataRow> topicTranslations)
         {
             Topic result = null;
             if (id > 0)
@@ -271,7 +291,21 @@ namespace Core.Catalog.CatalogManagement
                     long parentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TOPIC_ID", 0);
                     DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
                     DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
-                    result = new Topic(id, name, systemName, (MetaType)topicType, features, isPredefined, helpText, parentId,
+                    List<LanguageContainer> namesInOtherLanguages = new List<LanguageContainer>();
+                    if (topicTranslations != null && topicTranslations.Count > 0)
+                    {
+                        foreach (DataRow translationDr in topicTranslations)
+                        {
+                            string languageCode = ODBCWrapper.Utils.GetSafeStr(translationDr, "CODE3");
+                            string translation = ODBCWrapper.Utils.GetSafeStr(translationDr, "TRANSLATION");
+                            if (!string.IsNullOrEmpty(languageCode) && !string.IsNullOrEmpty(translation))
+                            {
+                                namesInOtherLanguages.Add(new LanguageContainer(languageCode, translation));
+                            }
+                        }
+                    }
+
+                    result = new Topic(id, name, namesInOtherLanguages, systemName, (MetaType)topicType, features, isPredefined, helpText, parentId,
                                         createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
                                         updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0);
                 }
@@ -280,45 +314,60 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static TopicResponse CreateTopicResponseFromDataTable(DataTable dt)
+        private static TopicResponse CreateTopicResponseFromDataSet(DataSet ds)
         {
             TopicResponse response = new TopicResponse();
-            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
-                long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
-                if (id > 0)
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
-                    response.Topic = CreateTopicFromIdAndDataRow(id, dt.Rows[0]);
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
+                    if (id > 0)
+                    {                        
+                        EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
+                        List<DataRow> topicTranslations = (from row in translations
+                                                           select row).ToList();
+                        response.Topic = CreateTopic(id, dt.Rows[0], topicTranslations);
+                    }
+                    else
+                    {
+                        response.Status = CreateTopicResponseStatusFromResult(id);
+                    }
                 }
-                else
-                {
-                    response.Status = CreateTopicResponseStatusFromResult(id);
-                }
-            }
 
-            if (response.Topic != null)
-            {
-                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                if (response.Topic != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }            
 
             return response;
         }
 
-        private static List<Topic> CreateTopicListFromDataTable(DataTable dt)
+        private static List<Topic> CreateTopicListFromDataSet(DataSet ds)
         {
             List<Topic> response = null;
-            if (dt != null && dt.Rows != null)
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
-                response = new List<Topic>();
-                foreach (DataRow dr in dt.Rows)
+                DataTable topicsDt = ds.Tables[0];                                
+                EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
+                if (topicsDt != null && topicsDt.Rows != null)
                 {
-                    long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-                    if (id > 0)
+                    response = new List<Topic>();
+                    foreach (DataRow dr in topicsDt.Rows)
                     {
-                        Topic topic = CreateTopicFromIdAndDataRow(id, dr);
-                        if (topic != null)
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                        if (id > 0)
                         {
-                            response.Add(topic);
+                            List<DataRow> topicTranslations = (from row in translations
+                                                               where (Int64)row["TOPIC_ID"] == id
+                                                               select row).ToList();
+                            Topic topic = CreateTopic(id, dr, topicTranslations);
+                            if (topic != null)
+                            {
+                                response.Add(topic);
+                            }
                         }
                     }
                 }
@@ -460,7 +509,17 @@ namespace Core.Catalog.CatalogManagement
                         priority++;
                     }
                 }
-                DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Names[0].m_sValue, assetStructToadd.SystemName, metaIdsToPriority, assetStructToadd.IsPredefined, userId);
+
+                List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
+                if (assetStructToadd.NamesInOtherLanguages != null && assetStructToadd.NamesInOtherLanguages.Count > 0)
+                {
+                    foreach (LanguageContainer language in assetStructToadd.NamesInOtherLanguages)
+                    {
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, languageCodeToName, assetStructToadd.SystemName, metaIdsToPriority, assetStructToadd.IsPredefined, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
             }
@@ -526,7 +585,19 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Names[0].m_sValue, assetStructToUpdate.SystemName, shouldUpdateMetaIds, metaIdsToPriority, userId);
+                List<KeyValuePair<string, string>> languageCodeToName = null;
+                bool shouldUpdateOtherNames = false;
+                if (assetStructToUpdate.NamesInOtherLanguages != null)
+                {
+                    shouldUpdateOtherNames = true;
+                    foreach (LanguageContainer language in assetStructToUpdate.NamesInOtherLanguages)
+                    {
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName, shouldUpdateMetaIds,
+                                                            metaIdsToPriority, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
             }
@@ -667,9 +738,18 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                DataTable dt = CatalogDAL.InsertTopic(groupId, topicToAdd.Names[0].m_sValue, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetFeaturesForDB(),
+                List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
+                if (topicToAdd.NamesInOtherLanguages != null && topicToAdd.NamesInOtherLanguages.Count > 0)
+                {
+                    foreach (LanguageContainer language in topicToAdd.NamesInOtherLanguages)
+                    {
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                DataSet ds = CatalogDAL.InsertTopic(groupId, topicToAdd.Name, languageCodeToName, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetFeaturesForDB(),
                                                       topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId);
-                result = CreateTopicResponseFromDataTable(dt);
+                result = CreateTopicResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
             }
             catch (Exception ex)
@@ -704,10 +784,21 @@ namespace Core.Catalog.CatalogManagement
                     result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedMetaSystemName, eResponseStatus.CanNotChangePredefinedMetaSystemName.ToString());
                     return result;
                 }
-                
-                DataTable dt = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Names[0].m_sValue, topicToUpdate.SystemName, topicToUpdate.GetFeaturesForDB(topic.Features),
+
+                List<KeyValuePair<string, string>> languageCodeToName = null;
+                bool shouldUpdateOtherNames = false;
+                if (topicToUpdate.NamesInOtherLanguages != null)
+                {
+                    shouldUpdateOtherNames = true;
+                    foreach (LanguageContainer language in topicToUpdate.NamesInOtherLanguages)
+                    {
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                DataSet ds = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, topicToUpdate.SystemName, topicToUpdate.GetFeaturesForDB(topic.Features),
                                                       topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
-                result = CreateTopicResponseFromDataTable(dt);
+                result = CreateTopicResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
             }
             catch (Exception ex)
