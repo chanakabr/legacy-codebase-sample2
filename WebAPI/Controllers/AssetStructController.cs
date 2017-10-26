@@ -33,16 +33,12 @@ namespace WebAPI.Controllers
             {
                 filter = new KalturaAssetStructFilter();
             }
-            else
-            {
-                filter.Validate();
-            }
 
             KalturaAssetStructListResponse response = new KalturaAssetStructListResponse();
             int groupId = KS.GetFromRequest().GroupId;
-
             try
             {
+                filter.Validate();
                 if (filter.MetaIdEqual.HasValue && filter.MetaIdEqual.Value > 0)
                 {                    
                     response = ClientsManager.CatalogClient().GetAssetStructs(groupId, new List<long>(), filter.OrderBy, filter.IsProtected, filter.MetaIdEqual.Value);

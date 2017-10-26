@@ -354,7 +354,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // AssetStruct to KalturaAssetStruct
             Mapper.CreateMap<AssetStruct, KalturaAssetStruct>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Names)))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
                 .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                 .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsPredefined))
                 .ForMember(dest => dest.MetaIds, opt => opt.MapFrom(src => src.MetaIds != null ? string.Join(",", src.MetaIds) : string.Empty))
@@ -364,7 +364,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // KalturaAssetStruct to AssetStruct
             Mapper.CreateMap<KalturaAssetStruct, AssetStruct>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Names, opt => opt.MapFrom(src => src.Name.GetLanugageContainer()))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
+                .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
                 .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                 .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
                 .ForMember(dest => dest.MetaIds, opt => opt.MapFrom(src => ConvertAssetStructMetaIdsList(src.MetaIds)))
@@ -374,7 +375,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // Topic to KalturaMeta
             Mapper.CreateMap<Topic, Models.API.KalturaMeta>()              
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Names)))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ApiMappings.ConvertMetaType(src.Type)))
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
@@ -388,7 +389,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // KalturaMeta to Topic
             Mapper.CreateMap<Models.API.KalturaMeta, Topic>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.Names, opt => opt.MapFrom(src => src.Name.GetLanugageContainer()))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
+              .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ApiMappings.ConvertMetaType (src.Type)))
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
@@ -402,7 +404,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
         }
 
-        #region New Catalog Management        
+        #region New Catalog Management
 
         private static List<long> ConvertAssetStructMetaIdsList(string metaIds)
         {
@@ -636,8 +638,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         { 
                             new LanguageContainer() 
                             {
-                                m_sLanguageCode3 = WebAPI.Utils.Utils.GetDefaultLanguage(),
-                                m_sValue = tag.Value
+                                LanguageCode = WebAPI.Utils.Utils.GetDefaultLanguage(),
+                                Value = tag.Value
                             } 
                         };
 
@@ -686,8 +688,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     { 
                         new LanguageContainer() 
                         {
-                            m_sLanguageCode3 = WebAPI.Utils.Utils.GetDefaultLanguage(),
-                            m_sValue = meta.Value
+                            LanguageCode = WebAPI.Utils.Utils.GetDefaultLanguage(),
+                            Value = meta.Value
                         } 
                     };
 

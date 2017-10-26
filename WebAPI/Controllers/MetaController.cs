@@ -116,16 +116,12 @@ namespace WebAPI.Controllers
             {
                 filter = new KalturaMetaFilter();
             }
-            else
-            {
-                filter.Validate();
-            }
 
             KalturaMetaListResponse response = new KalturaMetaListResponse();
             int groupId = KS.GetFromRequest().GroupId;
-
             try
             {
+                filter.Validate();
                 if (filter.AssetStructIdEqual.HasValue && filter.AssetStructIdEqual.Value > 0)
                 {
                     response = ClientsManager.CatalogClient().GetMetas(groupId, new List<long>(), filter.TypeEqual, filter.OrderBy, filter.AssetStructIdEqual.Value);

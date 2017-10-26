@@ -168,7 +168,7 @@ namespace WebAPI.Clients
 
             try
             {
-                bool shouldUpdateMetaIds = assetStrcut.MetaIds != null;
+                bool shouldUpdateMetaIds = assetStrcut.MetaIds != null;                
                 AssetStruct assetStructToUpdate = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {

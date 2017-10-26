@@ -44,7 +44,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "metaIdEqual")]
         [JsonProperty("metaIdEqual")]
         [XmlElement(ElementName = "metaIdEqual", IsNullable = true)]
-        [SchemeProperty(DynamicMinInt = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long? MetaIdEqual { get; set; }
 
         /// <summary>

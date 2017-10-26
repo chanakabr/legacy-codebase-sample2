@@ -113,13 +113,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
             // LanguageContainer to TranslationContainer
             Mapper.CreateMap<LanguageContainer, KalturaTranslationToken>()
-               .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.m_sLanguageCode3))
-               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
+               .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.LanguageCode))
+               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
 
             // LanguageContainer to TranslationContainer
             Mapper.CreateMap<LanguageContainer, KalturaTranslationToken>()
-               .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.m_sLanguageCode3))
-               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
+               .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.LanguageCode))
+               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
 
             // BundleCodeContainer to SlimChannel
             Mapper.CreateMap<BundleCodeContainer, KalturaBaseChannel>()

@@ -31,7 +31,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "assetStructIdEqual")]
         [JsonProperty("assetStructIdEqual")]
         [XmlElement(ElementName = "assetStructIdEqual", IsNullable = true)]
-        [SchemeProperty(DynamicMinInt = 1)]
+        [SchemeProperty(MinLong = 1)]
         public long? AssetStructIdEqual { get; set; }
 
         /// <summary>
