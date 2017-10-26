@@ -23,6 +23,7 @@
     <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>29ae49f1</NuGetPackageImportStamp>
     <TargetFrameworkProfile />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

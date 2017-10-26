@@ -7685,6 +7685,11 @@
             Content language
             </summary>
         </member>
+        <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.Currency">
+            <summary>
+            Content currency
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.General.KalturaRequestConfiguration.KS">
             <summary>
             Kaltura API session
