@@ -957,5 +957,20 @@ namespace Core.Domains
 
             return response;
         }
+
+        public static ApiObjects.Response.Status DeleteDevice(int groupId, string udid)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            Core.Users.BaseDomain t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.DeleteDevice(groupId, udid);
+            }
+
+            return response;
+        }
+
     }
 }

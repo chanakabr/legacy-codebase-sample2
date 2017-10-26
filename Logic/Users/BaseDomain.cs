@@ -2008,5 +2008,42 @@ namespace Core.Users
 
             return response;
         }
+
+        internal ApiObjects.Response.Status DeleteDevice(int groupId, string udid)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            int deviceId = Device.GetDeviceIDByUDID(udid, groupId);
+            if (deviceId == 0)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotExists, "Device does not exist");
+            }
+            else
+            {
+                List<Domain> deviceDomains = Domain.GetDeviceDomains(deviceId, groupId);
+
+                if (deviceDomains == null || deviceDomains.Count == 0)
+                {
+                    DomainDal.UpdateDeviceStatus(deviceId, 0, 2);
+                }
+                else
+                {
+                    foreach (var domain in deviceDomains)
+                    {
+                        DomainResponseStatus domainResponseStatus = domain.RemoveDeviceFromDomain(udid);
+                        response = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
+                        if (response.Code != (int)eResponseStatus.OK)
+                        {
+                            log.ErrorFormat("Failed to remove device with UDID = {0} and deviceId = {1} from domainId = {2}", udid, deviceId, domain.Id);
+                        }
+                    }
+                }
+
+                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
+
     }
 }
