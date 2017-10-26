@@ -481,7 +481,8 @@ namespace WebAPI.Controllers
         /// parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
         /// epg_channel_id – the channel identifier of the EPG program.
         /// entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-        /// Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+        /// Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+        /// For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
         /// Search values are limited to 20 characters each.
         /// (maximum length of entire filter is 2048 characters)]]></param>
         /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
@@ -739,7 +740,8 @@ namespace WebAPI.Controllers
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="filter_query"><![CDATA[Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
         /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
-        /// Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+        /// Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+        /// For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
         /// Search values are limited to 20 characters each.
         /// (maximum length of entire filter is 2048 characters)]]></param>
         /// <remarks>Possible status codes: 
