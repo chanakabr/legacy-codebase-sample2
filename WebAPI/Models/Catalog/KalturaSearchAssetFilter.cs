@@ -22,7 +22,8 @@ namespace WebAPI.Models.Catalog
         /// user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
         /// epg_channel_id – the channel identifier of the EPG program.
         /// entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-        /// Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with), + (exists), !+ (not exists).
+        /// Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+        /// For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
         /// Logical conjunction: and, or. 
         /// Search values are limited to 20 characters each.
         /// (maximum length of entire filter is 2048 characters)]]>
