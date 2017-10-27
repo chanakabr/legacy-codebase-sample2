@@ -191,7 +191,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 Dictionary<long, AssetStruct> idToAssetStructMap = new Dictionary<long, AssetStruct>();
                 DataTable dt = ds.Tables[0];
-                EnumerableRowCollection<DataRow> translations = ds.Tables.Count > 1 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
+                EnumerableRowCollection<DataRow> translations = ds.Tables.Count > 2 ? ds.Tables[2].AsEnumerable() : new DataTable().AsEnumerable();
                 if (dt != null && dt.Rows != null)
                 {
                     foreach (DataRow dr in dt.Rows)
