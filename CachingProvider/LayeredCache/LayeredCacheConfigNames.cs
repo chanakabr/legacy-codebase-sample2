@@ -46,6 +46,8 @@ namespace CachingProvider.LayeredCache
         public const string GET_SUBSCRIPTION_SETS_CACHE_CONFIG_NAME = "GetSubscriptionSets";
         public const string GET_GROUP_PRICE_CODES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPriceCodes";
         public const string GET_GROUP_UNIFIED_BILLING_CYCLE = "GetGroupUnifiedBillingCycle";
+        public const string GET_ROLE_BY_ROLE_ID = "GetRoleByRoleId";
+        public const string GET_ROLES_BY_GROUP_ID = "GetRolesByGroupId";
         #endregion
 
         #region Constant Invalidation Keys

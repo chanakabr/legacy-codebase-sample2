@@ -36,7 +36,7 @@ namespace DAL
 
             if (ds != null)
                 return ds.Tables[0];
-            return null;            
+            return null;
         }
 
         public static DataTable Get_GeoBlockRuleForMediaAndCountries(int nGroupID, int nMediaID)
@@ -280,6 +280,49 @@ namespace DAL
             return null;
         }
 
+        public static bool UpdateRole(int groupId, long id, string name, string permissionMap, int isActive = 1 , int status = 1)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_RolePermission");
+                sp.AddParameter("@roleId", id);
+                sp.AddParameter("@roleName", name);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@XmlDoc", permissionMap);
+                sp.AddParameter("@isActive", isActive);
+                sp.AddParameter("@status", status);
+
+                int rowCount = sp.ExecuteReturnValue<int>();
+                return rowCount > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while adding role with its permissions in DB, group id = {0}, roleId = {1}, roleName = {2} , ex={3} ", groupId, id, name, ex);
+            }
+
+            return false;
+        }
+
+        public static bool DeleteRole(int groupId, long id)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_RolePermission");
+                sp.AddParameter("@roleId", id);
+                sp.AddParameter("@groupId", groupId);                
+
+                int rowCount = sp.ExecuteReturnValue<int>();
+                return rowCount > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while delete role with its permissions in DB, group id = {0}, roleId = {1}, ex={3} ", groupId, id, ex);
+            }
+
+            return false;
+        }
+
+
         public static string GetDomainCodeForParentalPIN(int nDomainID, int nRuleID)
         {
             string sPIN = null;
@@ -339,6 +382,8 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
+
+       
 
         public static DataTable Get_UserGroupRules(string sSiteGuid)
         {
@@ -3049,6 +3094,73 @@ namespace DAL
             return roles;
         }
 
+        public static List<Role> GetRolesByNames(int groupId, List<string> rolesNames)
+        {
+            List<Role> roles = new List<Role>();
+
+            // roles permission dictionary holds a dictionary of permissions for each role - dictionary<role id, <permission id, permission>>
+            Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
+
+            // permissions permission items dictionary holds a dictionary of permission items for each permission - dictionary<permission id, <permission item id, permission item>>
+            Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
+
+            try
+            {
+                // get the roles, permissions, permission items tables 
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RolesByNames");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddIDListParameter<string>("@rolesNames", rolesNames, "STR");
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count >= 3)
+                {
+                    DataTable rolesTable = ds.Tables[0];
+                    DataTable permissionsTable = ds.Tables[1];
+                    DataTable permissionItemsTable = ds.Tables[2];
+
+                    Role role;
+
+                    // build permission permission items dictionary
+                    permissionPermissionItems = BuildPermissionItems(permissionItemsTable);
+
+                    // build roles permissions dictionary
+                    rolesPermissions = BuildPermissions(groupId, permissionPermissionItems, permissionsTable);
+
+                    // build roles
+                    if (rolesTable != null && rolesTable.Rows != null && rolesTable.Rows.Count > 0)
+                    {
+                        foreach (DataRow rolesRow in rolesTable.Rows)
+                        {
+                            // create new role
+                            role = new Role()
+                            {
+                                Id = ODBCWrapper.Utils.GetLongSafeVal(rolesRow, "ID"),
+                                Name = ODBCWrapper.Utils.GetSafeStr(rolesRow, "NAME"),
+                            };
+
+                            // add permissions for role if exists
+                            if (rolesPermissions != null && rolesPermissions.ContainsKey(role.Id) && rolesPermissions[role.Id] != null)
+                            {
+                                role.Permissions = rolesPermissions[role.Id].Values.ToList();
+                            }
+
+                            // add role
+                            roles.Add(role);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                roles = null;
+                log.Error(string.Format("Error while group roles from DB, group id = {0}", groupId), ex);
+            }
+
+            return roles;
+        }
+
         private static Dictionary<long, Dictionary<long, Permission>> BuildPermissions(int groupId, Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems, DataTable permissionsTable)
         {
             Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
@@ -3250,6 +3362,34 @@ namespace DAL
             return permissions;
         }
 
+        public static Dictionary<long, string> GetPermissions(int groupId, List<string> permissionNames)
+        {
+            Dictionary<long, string> response = new Dictionary<long, string>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PermissionsByNames");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@group_id", groupId);
+                sp.AddIDListParameter<string>("@permissions_names", permissionNames, "STR");
+
+                DataTable dt = sp.Execute();
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    response = dt.AsEnumerable().Select(x=>  new KeyValuePair<long, string>(x.Field<long>("Id"), x.Field<string>("name"))).
+                        ToDictionary(y=>y.Key, y=>y.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                response = null;
+                log.Error(string.Format("Error while getting permissions from DB, group id = {0}", groupId), ex);
+            }
+            return response;
+
+        }
+
+
         public static Permission InsertPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
         {
             Permission permission = new Permission();
@@ -3309,6 +3449,27 @@ namespace DAL
             }
 
             return rowCount;
+        }
+
+        public static int InsertRolePermission(int groupId, string roleName,string permissionMap)
+        {
+            int roleId = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_RolePermission");
+                sp.AddParameter("@roleName", roleName);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@XmlDoc", permissionMap);
+
+                roleId = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while adding role with its permissions in DB, group id = {0}, roleName = {1} , ex={2} ", groupId, roleName, ex);
+            }
+
+            return roleId;
         }
 
         public static int InsertPermissionPermissionItem(int groupId, long permissionId, long permissionItemId)

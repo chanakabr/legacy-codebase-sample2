@@ -3303,7 +3303,7 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static bool UpdateMPPRenewalSubscriptionStatus(List<int> purchaseIds, int status)
+        public static bool UpdateMPPRenewalSubscriptionStatus(List<int> purchaseIds, int status, int groupId = 0, long householdId = 0, long processId = 0)
         {
             try
             {
@@ -3311,6 +3311,18 @@ namespace DAL
                 sp.SetConnectionKey("CA_CONNECTION_STRING");
                 sp.AddParameter("@SubscriptionStatus", status);
                 sp.AddIDListParameter<int>("@PurchaseID", purchaseIds, "Id");
+                if (groupId > 0)
+                {
+                    sp.AddParameter("@GroupId", groupId);
+                }
+                if (householdId > 0)
+                {
+                    sp.AddParameter("@HouseholdId", householdId);
+                }
+                if (processId > 0)
+                {
+                    sp.AddParameter("@ProcessId", processId);
+                }
                 return sp.ExecuteReturnValue<bool>();
             }
             catch

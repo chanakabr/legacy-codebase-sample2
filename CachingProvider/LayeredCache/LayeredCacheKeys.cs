@@ -72,6 +72,13 @@ namespace CachingProvider.LayeredCache
             return string.Format("domainEntitlements_groupId_{0}_domainId_{1}", groupId, domainId);
         }
 
+
+
+        public static string GetPermissionsRolesIdsKey(int groupId)
+        {
+            return string.Format("getPermissionRoleIds_groupId_{0}", groupId);
+        }
+
         public static string GetFileCdnDataKey(int fileId)
         {
             return string.Format("fileCdnData_fileId_{0}", fileId);
@@ -135,6 +142,11 @@ namespace CachingProvider.LayeredCache
         public static string GetDiscountModuleCodeByCountryAndCurrencyKey(int groupId, int discountCodeId, string countryCode, string currencyCode)
         {
             return string.Format("discountModuleByCountryAndCurrency_g_{0}_dm_{1}_co_{2}_cu_{3}", groupId, discountCodeId, countryCode, currencyCode);
+        }
+
+        public static string GetRoleIdKey(int roleId)
+        {
+            return string.Format("roleId_{0}", roleId);
         }
 
         public static string GetGroupDefaultCurrencyKey(int groupId)
@@ -219,7 +231,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetSubscriptionSetKey(int groupId, long setId)
         {
-            return string.Format("subscriptionSet_groupId_{0}_setId_{1}", groupId, setId );
+            return string.Format("subscriptionSet_groupId_{0}_setId_{1}", groupId, setId);
         }
 
         public static Dictionary<string, string> GetSubscriptionSetsKeysMap(int groupId, List<long> setIds)
@@ -247,7 +259,7 @@ namespace CachingProvider.LayeredCache
             return string.Format("unifiedBillingCycle_groupId_{0}", groupId);
         }
 
-       
+
 
         #endregion
 
@@ -362,7 +374,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyAnnounecements_groupId_{0}", groupId);
         }
-       
+
         public static string GetSubscriptionSetInvalidationKey(int groupId, long setId)
         {
             return string.Format("invalidationKeySubscriptionSet_groupId_{0}_setId_{1}", groupId, setId);
@@ -401,11 +413,23 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyUnifiedBillingCycle_domainId_{0}_renewLifeCycle", domainID, renewLifeCycle);
         }
-        #endregion
-
         public static string GetHouseholdUserInalidationKey(long householId, string siteGuid)
         {
             return string.Format("invalidationKey_domain_{0}_user_{1}", householId, siteGuid);
         }
+
+
+        public static string GetRoleIdInvalidationKey(int roleId)
+        {
+            return string.Format("invalidationKey_roleId_{0}", roleId);
+        }
+
+        public static string GetPermissionsRolesIdsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_permissionRoleIds_groupId_{0}", groupId);
+        }
+
+        #endregion
+
     }
 }
