@@ -65,7 +65,7 @@ namespace WebAPI.Models.Catalog
         {
             if (!string.IsNullOrEmpty(IdIn) && MetaIdEqual.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaAssetStructFilter.idIn, KalturaAssetStructFilter.metaIdEqual");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaAssetStructFilter.idIn", "KalturaAssetStructFilter.metaIdEqual");
             }
         }
 

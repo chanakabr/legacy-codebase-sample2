@@ -130,7 +130,7 @@ namespace WebAPI.Models.API
         {
             if (!string.IsNullOrEmpty(IdIn) && AssetStructIdEqual.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMetaFilter.idIn, KalturaMetaFilter.assetStructIdEqual");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMetaFilter.idIn", "KalturaMetaFilter.assetStructIdEqual");
             }
         }
 

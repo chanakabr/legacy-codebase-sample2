@@ -129,8 +129,7 @@ namespace WebAPI.Managers.Models
         DuplicateLanguageSent = 500064,
         InvalidValueForFeature = 500065,
         DefaultLanguageMustBeSent = 500066,
-        GroupDoesNotContainLanguage = 500067,
-        GlobalLanguageParameterNotSent = 500068,
-        GlobalLanguageParameterNotSentOnMultilingualName = 500069
+        GroupDoesNotContainLanguage = 500067,        
+        GlobalLanguageParameterMustBeAsterisk = 500068
     }
 }

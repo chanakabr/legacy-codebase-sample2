@@ -243,14 +243,9 @@ namespace WebAPI.Models.General
 
                 if (shouldValidateRequestLanguage)
                 {
-                    if (string.IsNullOrEmpty(RequestLanguageCode))
+                    if (string.IsNullOrEmpty(RequestLanguageCode) || RequestLanguageCode != "*")
                     {
-                        throw new BadRequestException(ApiException.GLOABAL_LANGUAGE_PARAMETER_NOT_SENT);
-                    }
-
-                    if (RequestLanguageCode != "*" && !languageCodes.Contains(RequestLanguageCode))
-                    {
-                        throw new BadRequestException(ApiException.MISSING_LANGUAGE_CODE_ON_MULTILINGUAL_NAME, RequestLanguageCode);
+                        throw new BadRequestException(ApiException.GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS);
                     }
                 }
             }
