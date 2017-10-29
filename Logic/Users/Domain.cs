@@ -617,7 +617,7 @@ namespace Core.Users
             Device device = null;
 
             bool bDeviceExist = IsDeviceExistInDomain(this, sUDID, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);
-                      
+
             if (bDeviceExist)
             {
                 try
@@ -643,13 +643,13 @@ namespace Core.Users
                     DeviceFamilyId = device.m_deviceFamilyID
                 };
 
-                bool deleted = domainDevice.Delete();               
+                bool deleted = domainDevice.Delete();
 
                 if (!deleted)
                 {
                     log.Debug("RemoveDeviceFromDomain - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, sUDID));
                     return DomainResponseStatus.Error;
-                }           
+                }
 
                 // if the first update done successfully - remove domain from cache
                 try
@@ -2527,6 +2527,7 @@ namespace Core.Users
                 int deviceID = device.Save(1);
                 DomainDevice domainDevice = new DomainDevice()
                 {
+                    Id = nDbDomainDeviceID,
                     ActivataionStatus = DeviceState.Activated,
                     DeviceId = deviceID,
                     DomainId = m_nDomainID,
