@@ -658,7 +658,35 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).LoginWithPIN(PIN, secret, initObj.UDID);
+                    if (!string.IsNullOrEmpty(PIN))
+                    {
+                        response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).LoginWithPIN(PIN, secret, initObj.UDID, System.Web.HttpContext.Current.Request.Headers);
+                    }
+                    else
+                    {
+                        bool isSingleLogin = TVPApi.ConfigManager.GetInstance()
+                                       .GetConfig(groupID, initObj.Platform)
+                                       .SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+
+                        var logInResponse = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).
+                            LogIn(string.Empty, string.Empty, string.Empty, initObj.UDID, isSingleLogin, System.Web.HttpContext.Current.Request.Headers);
+
+                        if (logInResponse != null)
+                        {
+                            response = new TVPApiModule.Objects.Responses.UserResponse()
+                            {
+                                Result = new UserResult(logInResponse),
+                                Status = new TVPApiModule.Objects.Responses.Status(logInResponse.resp.Code, logInResponse.resp.Message)
+                            };
+                        }
+                        else
+                        {
+                            response = new TVPApiModule.Objects.Responses.UserResponse()
+                            {
+                                Status = new TVPApiModule.Objects.Responses.Status((int)eStatus.Error, eStatus.Error.ToString())
+                            };
+                        }
+                    }
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     if (AuthorizationManager.IsTokenizationEnabled() && response.Status != null && response.Status.Code == (int)eStatus.OK &&

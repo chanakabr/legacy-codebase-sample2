@@ -1087,15 +1087,25 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.UserResponse LoginWithPIN(string PIN, string secret, string deviceID)
+        public TVPApiModule.Objects.Responses.UserResponse LoginWithPIN(string PIN, string secret, string deviceID, System.Collections.Specialized.NameValueCollection extraParams)
         {
             TVPApiModule.Objects.Responses.UserResponse response = null;
             try
             {
+                List<KeyValuePair> keyValueList = new List<KeyValuePair>();
+
+                if (extraParams != null)
+                {
+                    foreach (string key in extraParams.Keys)
+                    {
+                        keyValueList.Add(new KeyValuePair() { key = key, value = extraParams[key] });
+                    }
+                }
+
                 string sessionID = "0";
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.LoginWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, false, null, secret);
+                    var result = m_Module.LoginWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, false, keyValueList.ToArray(), secret);
                     response = new TVPApiModule.Objects.Responses.UserResponse(result);
                 }
             }
@@ -1205,6 +1215,35 @@ namespace TVPApiModule.Services
             }
 
             return clientResponse;
+        }
+
+        public TVPPro.SiteManager.TvinciPlatform.Users.UserResponse LogIn(string sUserName, string sPassword, string sSessionID, string sDeviceID, bool bIsDoubleLogin, System.Collections.Specialized.NameValueCollection extraParams)
+        {
+            TVPPro.SiteManager.TvinciPlatform.Users.UserResponse response = new TVPPro.SiteManager.TvinciPlatform.Users.UserResponse();
+
+            try
+            {
+                List<KeyValuePair> keyValueList = new List<KeyValuePair>();
+
+                if (extraParams != null)
+                {
+                    foreach (string key in extraParams.Keys)
+                    {
+                        keyValueList.Add(new KeyValuePair() { key = key, value = extraParams[key] });
+                    }
+                }
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.LogIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin, keyValueList.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : Login, Error Message: {0}, Parameters :  Username: {1}, Password, {2}", true, ex, ex.Message, sUserName, sPassword);
+            }
+
+            return response;
         }
     }
 }
