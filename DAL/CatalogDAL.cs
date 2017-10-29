@@ -4773,6 +4773,7 @@ namespace Tvinci.Core.DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Name", name);
             sp.AddParameter("@NamesInOtherLanguagesExist", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
             sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
             sp.AddParameter("@SystemName", systemName);
@@ -4792,6 +4793,7 @@ namespace Tvinci.Core.DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Name", name);
             sp.AddParameter("@Id", id);
             sp.AddParameter("@ShouldUpdateOtherNames", shouldUpdateOtherNames ? 1 : 0);
             sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
