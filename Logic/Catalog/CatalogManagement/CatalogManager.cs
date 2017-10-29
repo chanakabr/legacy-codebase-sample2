@@ -590,6 +590,7 @@ namespace Core.Catalog.CatalogManagement
                 if (assetStructToUpdate.NamesInOtherLanguages != null)
                 {
                     shouldUpdateOtherNames = true;
+                    languageCodeToName = new List<KeyValuePair<string, string>>();
                     foreach (LanguageContainer language in assetStructToUpdate.NamesInOtherLanguages)
                     {
                         languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
@@ -790,6 +791,7 @@ namespace Core.Catalog.CatalogManagement
                 if (topicToUpdate.NamesInOtherLanguages != null)
                 {
                     shouldUpdateOtherNames = true;
+                    languageCodeToName = new List<KeyValuePair<string, string>>();
                     foreach (LanguageContainer language in topicToUpdate.NamesInOtherLanguages)
                     {
                         languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
