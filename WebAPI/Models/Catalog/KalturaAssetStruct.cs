@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -44,6 +45,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "isProtected")]
         [JsonProperty("isProtected")]
         [XmlElement(ElementName = "isProtected", IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public bool? IsProtected { get; set; }
 
         /// <summary>

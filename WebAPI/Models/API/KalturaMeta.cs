@@ -77,6 +77,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isProtected")]
         [JsonProperty("isProtected")]
         [XmlElement(ElementName = "isProtected", IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public bool? IsProtected { get; set; }
 
         /// <summary>
