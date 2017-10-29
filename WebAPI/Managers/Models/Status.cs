@@ -128,7 +128,7 @@ namespace WebAPI.Managers.Models
         ExternalError = 500063,
         DuplicateLanguageSent = 500064,
         InvalidValueForFeature = 500065,
-        DefaultLanguageMustBeSnt = 500066,
+        DefaultLanguageMustBeSent = 500066,
         GroupDoesNotContainLanguage = 500067,
         GlobalLanguageParameterNotSent = 500068,
         GlobalLanguageParameterNotSentOnMultilingualName = 500069

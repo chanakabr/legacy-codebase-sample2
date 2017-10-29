@@ -201,12 +201,12 @@ namespace WebAPI.Models.General
             {
                 HashSet<string> languageCodes = new HashSet<string>();
                 HashSet<string> groupLanguageCodes = Utils.Utils.GetGroupLanguageCodes();
-                if (!string.IsNullOrEmpty(GroupDefaultLanguageCode))
+                if (string.IsNullOrEmpty(GroupDefaultLanguageCode))
                 {
                     GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
                 }
 
-                if (!string.IsNullOrEmpty(RequestLanguageCode))
+                if (string.IsNullOrEmpty(RequestLanguageCode))
                 {
                     RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
                 }
@@ -243,7 +243,7 @@ namespace WebAPI.Models.General
 
                 if (shouldValidateRequestLanguage)
                 {
-                    if (string.IsNullOrEmpty(RequestLanguageCode.Trim()))
+                    if (string.IsNullOrEmpty(RequestLanguageCode))
                     {
                         throw new BadRequestException(ApiException.GLOABAL_LANGUAGE_PARAMETER_NOT_SENT);
                     }
