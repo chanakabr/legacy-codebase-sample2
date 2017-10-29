@@ -17,6 +17,8 @@ namespace Core.Users
     public abstract class BaseDomain
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const string DEFAULT_SUSPENDED_ROLE = "DefaultSuspendedRole";
+
         protected int m_nGroupID;
 
         protected BaseDomain() { }
@@ -885,6 +887,15 @@ namespace Core.Users
             {
                 domain.roleId = roleId.Value;
             }
+            else // get default roleId
+            {
+                // get default role 
+                List<ApiObjects.Roles.Role> suspendDefaultRole = ApiDAL.GetRolesByNames(m_nGroupID, new List<string>() { DEFAULT_SUSPENDED_ROLE });
+                if (suspendDefaultRole != null && suspendDefaultRole.Count() > 0)
+                {
+                    domain.roleId = (int)suspendDefaultRole[0].Id;
+                }
+            }
 
             // suspend domain
             bool suspendSucceed = domain.Update();
@@ -1006,7 +1017,10 @@ namespace Core.Users
 
             // update result
             if (resumeSucceed)
+            {
                 result.Code = (int)eResponseStatus.OK;
+                // try to renew all subscription ???? 
+            }
             else
             {
                 result.Code = (int)eResponseStatus.Error;

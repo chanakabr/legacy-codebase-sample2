@@ -783,35 +783,23 @@ namespace Core.ConditionalAccess
 
             try
             {
-                // validate user
+
+                // check purchase permissions 
+
+                RolePermissions rolePermission = transactionType == eTransactionType.PPV ? RolePermissions.PURCHASE_PPV : RolePermissions.PURCHASE_SUBSCRIPTION;
+                if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, rolePermission))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                    log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
+                    return response;
+                }                
+                
+                // validate user           
                 ResponseStatus userValidStatus = ResponseStatus.OK;
                 Core.Users.User user;
-                userValidStatus = Utils.ValidateUser(groupId, siteguid, ref household, out user);
-                if (userValidStatus == ResponseStatus.UserSuspended)
-                {
-                    // check for it specific is the sespende 
-                    Core.Users.Domain domain = null; 
-                    Utils.ValidateDomain(groupId, (int)household, out domain);
-                    if (domain.nextSuspensionStatus == DomainSuspentionStatus.Suspended && domain.roleId.HasValue)
-                    {
-                        // get the role by role id and look for suspended for purchase 
-                        List<ApiObjects.Roles.Role> roles = DAL.ApiDAL.GetRoles(groupId, new List<long>() { domain.roleId.Value });
-                        if (roles != null && roles.Count() > 0)
-                        {
-                            // look for specific enum value 
-                            List<ApiObjects.Roles.Permission> Permissions = roles.SelectMany(x => x.Permissions).ToList();
-                            if (Permissions.Where(x => x.Name == SuspendedPermissions.PURCHASE_PPV.ToString() || x.Name == SuspendedPermissions.PURCHASE_SUBSCRIPTION.ToString()).Count() > 0)
-                            {
-                                // mabye add here for it is suspended ???
-                                response.Status = Utils.SetResponseStatus(userValidStatus);
-                                log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
-                                return response;
-                            }
-                        }
-                    }
+                userValidStatus = Utils.ValidateUser(groupId, siteguid, ref household, out user, true);
 
-                }
-                else if (userValidStatus != ResponseStatus.OK || user == null || user.m_oBasicData == null)
+                if (userValidStatus != ResponseStatus.OK || user == null || user.m_oBasicData == null)
                 {
                     // user validation failed
                     response.Status = Utils.SetResponseStatus(userValidStatus);
@@ -1077,7 +1065,17 @@ namespace Core.ConditionalAccess
                     response.Status.Message = "ProductId doesn't exist";
                     return response;
                 }
-
+                // check permission for subscription with premuim services - by roles 
+                if (subscription.m_lServices != null && subscription.m_lServices.Count() > 0)
+                {
+                    if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, RolePermissions.PURCHASE_SERVICE))
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                        log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
+                        return response;
+                    }
+                }
+                
                 // if unified billing cycle is in the "history" ignore it in purchase ! 
                 if (unifiedBillingCycle != null && unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                 {

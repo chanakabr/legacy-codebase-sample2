@@ -35,13 +35,34 @@ namespace Core.ConditionalAccess
 
             filePrice = null;
 
+            BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK; // default value 
             try
             {
                 Domain domain = null;
                 long domainId = 0;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(groupId, userId, ref domainId, out domain);
+                if (assetType == eAssetTypes.MEDIA && validationStatus.Code == (int)eResponseStatus.UserSuspended)
+                {
+                    // check permissions                     
+                    bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PURCHASE_PPV);
+                    bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PURCHASE_SUBSCRIPTION);
 
-                if (assetType == eAssetTypes.NPVR || assetType == eAssetTypes.EPG)
+                    if (!permittedPpv && !permittedSubscription)
+                    {
+                        blockEntitlement = BlockEntitlementType.BLOCK_ALL;
+                    }
+                    else if (!permittedPpv)
+                    {
+                        blockEntitlement = BlockEntitlementType.BLOCK_PPV;
+                    }
+                    else
+                    {
+                        blockEntitlement = BlockEntitlementType.BLOCK_SUBSCRIPTION;
+                    }
+                    validationStatus = Utils.ValidateDomain(groupId, (int)domainId, out domain);
+                }
+
+                if (assetType == eAssetTypes.NPVR || assetType == eAssetTypes.EPG) 
                 {
                     if (validationStatus.Code != (int)eResponseStatus.OK)
                     {
@@ -120,7 +141,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        prices = cas.GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, true, string.Empty, string.Empty, string.Empty);
+                        prices = cas.GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, string.Empty ,true, string.Empty, string.Empty, string.Empty, null, blockEntitlement);
                         if (prices != null && prices.Length > 0)
                         {
                             AdsControlData adsData;
@@ -128,8 +149,20 @@ namespace Core.ConditionalAccess
                             {
                                 adsData = null;
 
-                                if (Utils.IsItemPurchased(price))
-                                {
+                                // check permitted role 
+                                ApiObjects.ConditionalAccess.PriceReason priceReason = ApiObjects.ConditionalAccess.PriceReason.PPVPurchased;
+
+                                if (Utils.IsItemPurchased(price, ref priceReason))
+                                {                                    
+                                    if (priceReason == ApiObjects.ConditionalAccess.PriceReason.PPVPurchased || priceReason == ApiObjects.ConditionalAccess.PriceReason.SubscriptionPurchased)
+                                    {
+                                        RolePermissions rolePermission = priceReason == ApiObjects.ConditionalAccess.PriceReason.PPVPurchased ? RolePermissions.PLAYBACK_PPV : RolePermissions.PLAYBACK_SUBSCRIPTION;
+                                        if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, rolePermission))
+                                        {
+                                            continue; 
+                                        }
+                                    }
+                                   
                                     adsData = GetFileAdsDataFromBusinessModule(groupId, price, udid);
                                     if (adsData != null)
                                     {

@@ -2996,7 +2996,14 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                response.ItemsPrices = t.GetItemsPrices(mediaFiles, userId, couponCode != null ? couponCode : string.Empty, onlyLowest, languageCode, udid, ip, currencyCode);
+                // get permitted by userId
+
+                BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE;
+                if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupID, userId, RolePermissions.PURCHASE_PPV))
+                {
+                    blockEntitlement = BlockEntitlementType.BLOCK_PPV;
+                }
+                response.ItemsPrices = t.GetItemsPrices(mediaFiles, userId, couponCode != null ? couponCode : string.Empty, onlyLowest, languageCode, udid, ip, currencyCode, blockEntitlement);
                 if (response.ItemsPrices != null)
                     response.Status = new Status((int)eResponseStatus.OK, "OK");
                 else

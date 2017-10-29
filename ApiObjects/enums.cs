@@ -925,7 +925,7 @@ namespace ApiObjects
         Suspend = 1,
     }
 
-    public enum SuspendedPermissions
+    public enum RolePermissions
     {
         PLAYBACK_SUBSCRIPTION = 0,
         PLAYBACK_PPV = 1,
@@ -935,4 +935,12 @@ namespace ApiObjects
         PURCHASE_SERVICE = 5
     }
 
+    public enum BlockEntitlementType
+    {
+        NONE = 0, // to support previous versions 
+        BLOCK_ALL = 1,
+        NO_BLOCK = 2,
+        BLOCK_PPV = 3,
+        BLOCK_SUBSCRIPTION = 4
+    }
 }
