@@ -156,9 +156,7 @@ namespace Core.Users
             get;
             set;
         }
-
-        [XmlIgnore]
-        [JsonIgnore()]
+               
         public int? roleId { get; set; }
 
         [XmlIgnore]
