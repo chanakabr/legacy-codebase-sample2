@@ -89,67 +89,98 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        ///// <summary>
-        ///// Creates a new role
-        ///// </summary>
-        ///// <param name="role">Role to add</param>
-        ///// <remarks></remarks>        
-        //[Route("add"), HttpPost]
-        //[ApiAuthorize]
-        //public KalturaUserRole Add(KalturaUserRole role)
-        //{
-        //    KalturaUserRole response = null;
+        /// <summary>
+        /// Creates a new role
+        /// </summary>
+        /// <param name="role">Role to add</param>
+        /// <remarks></remarks>        
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        public KalturaUserRole Add(KalturaUserRole role)
+        {
+            KalturaUserRole response = null;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.ApiClient().AddRole(groupId, role);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().AddRole(groupId, role);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    if (response == null)
-        //    {
-        //        throw new InternalServerErrorException();
-        //    }
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
 
-        ///// <summary>
-        ///// Adds a new permission to user role
-        ///// </summary>
-        ///// <param name="role_id">The identifier of the role to add to</param>
-        ///// <param name="permission_id">The identifier of the permission to add</param>
-        ///// <remarks></remarks>        
-        //[Route("addPermission"), HttpPost]
-        //[ApiAuthorize]
-        //public bool AddPermission(long role_id, long permission_id)
-        //{
-        //    bool response = false;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+        /// <summary>
+        /// Update role
+        /// </summary>
+        /// <param name="id">Role Id</param>
+        /// <param name="role">Role to Update</param>
+        /// <remarks></remarks>        
+        [Route("update"), HttpPost]       
+        [ApiAuthorize]
+        public KalturaUserRole Update(long id, KalturaUserRole role)
+        {
+            KalturaUserRole response = null;
 
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.ApiClient().AddPermissionToRole(groupId, role_id, permission_id);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    if (response == null)
-        //    {
-        //        throw new InternalServerErrorException();
-        //    }
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().UpdateRole(groupId, id, role);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    return response;
-        //}
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Delete role
+        /// </summary>
+        /// <param name="id">Role id to delete</param>
+        /// <remarks></remarks>        
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        public bool Delete(long id)
+        {
+            bool response = false;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().DeleteRole(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return response;
+        }
     }
 }

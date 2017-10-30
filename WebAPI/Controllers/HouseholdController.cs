@@ -612,7 +612,6 @@ namespace WebAPI.Controllers
         ///</remarks>
         [Route("suspend"), HttpPost]
         [ApiAuthorize]
-        [SchemeArgument("roleId ", RequiresPermission = true)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.DomainAlreadySuspended)]
         public bool Suspend(int? roleId = null)

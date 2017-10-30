@@ -203,6 +203,17 @@ namespace WebAPI.Models.Domains
         [Obsolete]
         public List<KalturaDeviceFamily> DeviceFamilies { get; set; }
 
+
+        /// <summary>
+        /// suspended roleId 
+        /// </summary>
+        [DataMember(Name = "roleId")]
+        [JsonProperty("roleId")]
+        [XmlElement(ElementName = "roleId")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("roleId")]
+        public int? RoleId { get; set; }
+
         internal long getId()
         {
             return Id.HasValue ? (long)Id : 0;

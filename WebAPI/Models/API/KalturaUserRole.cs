@@ -53,7 +53,24 @@ namespace WebAPI.Models.API
         [JsonProperty("permissions")]
         [XmlArray(ElementName = "permissions", IsNullable = true)]
         [XmlArrayItem("item")]
+        [Deprecated("4.6.0.0")]
         public List<KalturaPermission> Permissions { get; set; }
+
+        /// <summary>
+        /// permissions associated with the user role
+        /// </summary>
+        [DataMember(Name = "permissionNames")]
+        [JsonProperty("permissionNames")]
+        [XmlElement(ElementName = "permissionNames")]
+        public string PermissionNames { get; set; }
+
+        /// <summary>
+        /// permissions associated with the user role in is_exclueded = true
+        /// </summary>
+        [DataMember(Name = "excludedPermissionNames")]
+        [JsonProperty("excludedPermissionNames")]
+        [XmlElement(ElementName = "excludedPermissionNames")]
+        public string ExcludedPermissionNames { get; set; }
 
         internal long getId()
         {

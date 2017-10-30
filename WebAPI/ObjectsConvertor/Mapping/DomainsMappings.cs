@@ -80,7 +80,8 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDomainStatus(src.m_DomainStatus)))
                 .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_UsersIDs))
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit))
-                .ForMember(dest => dest.DeviceFamilies, opt => opt.MapFrom(src => src.m_deviceFamilies));
+                .ForMember(dest => dest.DeviceFamilies, opt => opt.MapFrom(src => src.m_deviceFamilies))
+                .ForMember(dest=> dest.RoleId , opt => opt.MapFrom(src => src.roleId));
 
             //string (pin) to KalturaDevicePin
             Mapper.CreateMap<string, KalturaDevicePin>()

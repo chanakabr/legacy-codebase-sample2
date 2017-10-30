@@ -75,6 +75,14 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaUserRole":
+                    switch (propertyName)
+                    {
+                        case "Permissions":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
             }
             
             return false;
@@ -1159,6 +1167,7 @@ namespace WebAPI.Reflection
                         {"masterUsers", "master_users"},
                         {"pendingUsers", "pending_users"},
                         {"regionId", "region_id"},
+                        {"roleId", "roleId"},
                         {"usersLimit", "users_limit"},
                     };
                     break;
@@ -3697,6 +3706,8 @@ namespace WebAPI.Reflection
                             return "regionId";
                         case "Restriction":
                             return "restriction";
+                        case "RoleId":
+                            return "roleId";
                         case "State":
                             return "state";
                         case "Users":
@@ -6323,10 +6334,14 @@ namespace WebAPI.Reflection
                 case "KalturaUserRole":
                     switch(property.Name)
                     {
+                        case "ExcludedPermissionNames":
+                            return "excludedPermissionNames";
                         case "Id":
                             return "id";
                         case "Name":
                             return "name";
+                        case "PermissionNames":
+                            return "permissionNames";
                         case "Permissions":
                             return "permissions";
                     }

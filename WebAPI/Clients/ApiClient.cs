@@ -158,6 +158,74 @@ namespace WebAPI.Clients
             return rules;
         }
 
+        internal KalturaUserRole UpdateRole(int groupId, long id, KalturaUserRole role)
+        {
+            KalturaUserRole userRole = new KalturaUserRole();
+            RolesResponse response = null;
+
+            try
+            {
+                Role roleRequest = AutoMapper.Mapper.Map<Role>(role);
+                roleRequest.Id = id;
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.UpdateRole(groupId, roleRequest);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Roles != null && response.Roles.Count > 0)
+            {
+                userRole = AutoMapper.Mapper.Map<KalturaUserRole>(response.Roles[0]);
+            }
+            
+            return userRole;
+        }
+
+        internal bool DeleteRole(int groupId, long id)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.DeleteRole(groupId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteRole.  groupID: {0}, id: {1}, exception: {2}", groupId, id, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
         internal bool SetUserParentalRule(int groupId, string userId, long ruleId, int isActive)
         {
             bool success = false;
@@ -2383,13 +2451,12 @@ namespace WebAPI.Clients
             KalturaUserRole userRole = new KalturaUserRole();
             RolesResponse response = null;
 
-            
-
             try
             {
+                Role roleRequest = AutoMapper.Mapper.Map<Role>(role);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    //response = Core.Api.Module.AddRole(groupId, role.Name, role.Permissions);
+                {  
+                    response = Core.Api.Module.AddRole(groupId, roleRequest);
                 }
             }
             catch (Exception ex)
@@ -2408,9 +2475,11 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            userRole = AutoMapper.Mapper.Map<KalturaUserRole>(response.Roles);
-
-            return role;
+            if (response.Roles != null && response.Roles.Count > 0)
+            {
+                userRole = AutoMapper.Mapper.Map<KalturaUserRole>(response.Roles[0]);
+            }
+            return userRole;
         }
 
         internal KalturaPermission AddPermission(int groupId, KalturaPermission permission)
