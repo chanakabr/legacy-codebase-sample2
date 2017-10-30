@@ -6350,6 +6350,8 @@ namespace WebAPI.Reflection
                 case "KalturaUserRoleFilter":
                     switch(property.Name)
                     {
+                        case "CurrentUserRoleIdsContains":
+                            return "currentUserRoleIdsContains";
                         case "IdIn":
                             return "idIn";
                         case "Ids":

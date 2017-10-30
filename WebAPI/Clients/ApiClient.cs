@@ -51,6 +51,39 @@ namespace WebAPI.Clients
             }
         }
 
+        internal List<KalturaUserRole> GetUserRoles(int groupId, string userId)
+        {            
+            List<KalturaUserRole> roles = new List<KalturaUserRole>();
+            RolesResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetUserRoles(groupId, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            roles = AutoMapper.Mapper.Map<List<KalturaUserRole>>(response.Roles);
+
+            return roles;
+        }
+
         #region Parental Rules
 
         internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId)

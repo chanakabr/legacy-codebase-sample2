@@ -32,14 +32,25 @@ namespace WebAPI.Controllers
             List<KalturaUserRole> list = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+           
 
             if (filter == null)
+            {
                 filter = new KalturaUserRoleFilter();
-
+            }
+           
             try
             {
-                // call client
-                list = ClientsManager.ApiClient().GetRoles(groupId, filter.getIds());
+
+                if (filter != null && filter.CurrentUserRoleIdsContains.HasValue && filter.CurrentUserRoleIdsContains.Value)
+                {                    
+                    list = ClientsManager.ApiClient().GetUserRoles(groupId, KS.GetFromRequest().UserId);
+                }
+                else
+                {
+                    // call client
+                    list = ClientsManager.ApiClient().GetRoles(groupId, filter.getIds());
+                }
             }
             catch (ClientException ex)
             {
