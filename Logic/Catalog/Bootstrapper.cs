@@ -17,25 +17,33 @@ namespace Core.Catalog
 
         private static Container container;
         private static bool isInitialized = false;
+        private static object syncRoot = new Object();
+
         public static void Bootstrap()
         {
             try
             {
                 if (!isInitialized)
                 {
-                    // Create the container
+                    lock (syncRoot)
+                    {
+                        if (!isInitialized)
+                        {
+                            // Create the container
 
-                    container = new Container();
-                    Type searcherType = Type.GetType(Utils.GetWSURL("media_searcher"));
+                            container = new Container();
+                            Type searcherType = Type.GetType(Utils.GetWSURL("media_searcher"));
 
-                    // Register your types, for instance:
-                    container.Register(typeof(ISearcher), searcherType);
+                            // Register your types, for instance:
+                            container.Register(typeof(ISearcher), searcherType);
 
-                    // Register the container to the SimpleInjectorServiceHostFactory.
-                    SimpleInjectorServiceHostFactory.SetContainer(container);
+                            // Register the container to the SimpleInjectorServiceHostFactory.
+                            SimpleInjectorServiceHostFactory.SetContainer(container);
 
-                    container.Verify();
-                    isInitialized = true;
+                            container.Verify();
+                            isInitialized = true;
+                        }
+                    }
                 }
             }
             catch (Exception ex)

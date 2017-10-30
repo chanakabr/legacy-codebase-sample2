@@ -7084,8 +7084,9 @@ namespace Core.Catalog
             // If the search is contains or not contains, trim the search value to the size of the maximum NGram.
             // Otherwise the search will not work completely 
             if (maxNGram > 0 &&
-                (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains
-                || leaf.operand == ComparisonOperator.WordStartsWith))
+                (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains ||
+                leaf.operand == ComparisonOperator.WordStartsWith || 
+                leaf.operand == ComparisonOperator.PhraseStartsWith))
             {
                 leaf.value = leaf.value.ToString().Truncate(maxNGram);
             }

@@ -623,8 +623,7 @@ namespace Core.Users
             int brandId = 0;
             Device device = null;
 
-            bool bDeviceExist = IsDeviceExistInDomain(this, udid, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);
-                      
+            bool bDeviceExist = IsDeviceExistInDomain(this, udid, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);            
             if (bDeviceExist)
             {
                 try
@@ -656,6 +655,17 @@ namespace Core.Users
                 {
                     log.Debug("RemoveDeviceFromDomain - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, udid));
                     return DomainResponseStatus.Error;
+                }
+
+                // if the first update done successfully - remove domain from cache
+                try
+                {
+                    DomainsCache oDomainCache = DomainsCache.Instance();
+                    oDomainCache.RemoveDomain(m_nDomainID);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, udid, ex), ex);
                 }
 
                 this.InvalidateDomain();
@@ -2552,6 +2562,7 @@ namespace Core.Users
                 int deviceID = device.Save(1);
                 DomainDevice domainDevice = new DomainDevice()
                 {
+                    Id = nDbDomainDeviceID,
                     ActivataionStatus = DeviceState.Activated,
                     DeviceId = deviceID,
                     DomainId = m_nDomainID,
@@ -3054,8 +3065,8 @@ namespace Core.Users
         public void InvalidateDomain()
         {
             List<string> invalidationKeys = new List<string>()
-                { 
-                    string.Format("invalidationKey_domain_{0}", this.m_nDomainID) 
+                {
+                    LayeredCacheKeys.GetHouseholdInvalidationKey(this.m_nDomainID)
                 };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
@@ -3074,8 +3085,8 @@ namespace Core.Users
         public virtual void SetReadingInvalidationKeys()
         {
             List<string> invalidationKeys = new List<string>()
-                { 
-                    string.Format("invalidationKey_domain_{0}", this.m_nDomainID) 
+                {
+                    LayeredCacheKeys.GetHouseholdInvalidationKey(this.m_nDomainID)
                 };
 
             LayeredCache.Instance.SetReadingInvalidationKeys(invalidationKeys);
