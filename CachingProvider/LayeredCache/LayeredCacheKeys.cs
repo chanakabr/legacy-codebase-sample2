@@ -413,11 +413,19 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyUnifiedBillingCycle_domainId_{0}_renewLifeCycle", domainID, renewLifeCycle);
         }
+        #endregion
+
+        #region Domains
+
+        public static string GetHouseholdInvalidationKey(long householdId)
+        {
+            return string.Format("invalidationKey_domain_{0}", householdId);
+        }
         public static string GetHouseholdUserInalidationKey(long householId, string siteGuid)
         {
             return string.Format("invalidationKey_domain_{0}_user_{1}", householId, siteGuid);
         }
-
+        
 
         public static string GetRoleIdInvalidationKey(int roleId)
         {
@@ -431,5 +439,13 @@ namespace CachingProvider.LayeredCache
 
         #endregion
 
+        #region Users
+
+        public static string GetUserInvalidationKey(string siteGuid)
+        {
+            return string.Format("invalidationKey_user_{0}", siteGuid);
+        }
+
+        #endregion
     }
 }

@@ -47,6 +47,9 @@ namespace ElasticSearch.Common
 
         protected readonly string DATE_FORMAT = "yyyyMMddHHmmss";
         protected const string LOWERCASE_ANALYZER = "lowercase_analyzer";
+        protected const string PHRASE_STARTS_WITH_ANALYZER = "phrase_starts_with_analyzer";
+        protected const string PHRASE_STARTS_WITH_SEARCH_ANALYZER = "phrase_starts_with_search_analyzer";
+        protected const string PHRASE_STARTS_WITH_FILTER = "edgengram_filter";
 
         public ESSerializerV2()
         {
@@ -208,6 +211,15 @@ namespace ElasticSearch.Common
                 search_analyzer = LOWERCASE_ANALYZER,
                 analyzer = LOWERCASE_ANALYZER
             });
+            nameProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "phrase_autocomplete",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                analyzer = PHRASE_STARTS_WITH_ANALYZER
+            });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
             {
@@ -273,6 +285,15 @@ namespace ElasticSearch.Common
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
                 analyzer = LOWERCASE_ANALYZER
+            });
+            descProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "phrase_autocomplete",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                analyzer = PHRASE_STARTS_WITH_ANALYZER
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -362,6 +383,15 @@ namespace ElasticSearch.Common
                             index = eMappingIndex.analyzed,
                             search_analyzer = LOWERCASE_ANALYZER,
                             analyzer = LOWERCASE_ANALYZER
+                        });
+                        multiField.fields.Add(new BasicMappingPropertyV2()
+                        {
+                            name = "phrase_autocomplete",
+                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            null_value = "",
+                            index = eMappingIndex.analyzed,
+                            search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                            analyzer = PHRASE_STARTS_WITH_ANALYZER
                         });
 
                         if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -459,6 +489,15 @@ namespace ElasticSearch.Common
                                             search_analyzer = LOWERCASE_ANALYZER,
                                             analyzer = LOWERCASE_ANALYZER,
                                         });
+                                        multiField.fields.Add(new BasicMappingPropertyV2()
+                                        {
+                                            name = "phrase_autocomplete",
+                                            type = ElasticSearch.Common.eESFieldType.STRING,
+                                            null_value = "",
+                                            index = eMappingIndex.analyzed,
+                                            search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                                            analyzer = PHRASE_STARTS_WITH_ANALYZER
+                                        });
                                     }
                                     else
                                     {
@@ -496,6 +535,15 @@ namespace ElasticSearch.Common
                                         index = eMappingIndex.analyzed,
                                         search_analyzer = LOWERCASE_ANALYZER,
                                         analyzer = LOWERCASE_ANALYZER
+                                    });
+                                    multiField.fields.Add(new BasicMappingPropertyV2()
+                                    {
+                                        name = "phrase_autocomplete",
+                                        type = ElasticSearch.Common.eESFieldType.STRING,
+                                        null_value = "",
+                                        index = eMappingIndex.analyzed,
+                                        search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                                        analyzer = PHRASE_STARTS_WITH_ANALYZER
                                     });
 
                                     if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -681,6 +729,15 @@ namespace ElasticSearch.Common
                 search_analyzer = LOWERCASE_ANALYZER,
                 analyzer = LOWERCASE_ANALYZER
             });
+            nameProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "phrase_autocomplete",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                analyzer = PHRASE_STARTS_WITH_ANALYZER
+            });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
             {
@@ -747,6 +804,15 @@ namespace ElasticSearch.Common
                 search_analyzer = LOWERCASE_ANALYZER,
                 analyzer = LOWERCASE_ANALYZER
             });
+            descrpitionMapping.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "phrase_autocomplete",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                analyzer = PHRASE_STARTS_WITH_ANALYZER
+            });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
             {
@@ -805,6 +871,15 @@ namespace ElasticSearch.Common
                 search_analyzer = LOWERCASE_ANALYZER,
                 analyzer = LOWERCASE_ANALYZER
             });
+            epgIdentifierProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "phrase_autocomplete",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                analyzer = PHRASE_STARTS_WITH_ANALYZER
+            });
 
             mappingObj.AddProperty(epgIdentifierProperty);
 
@@ -851,6 +926,15 @@ namespace ElasticSearch.Common
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
                 analyzer = LOWERCASE_ANALYZER
+            });
+            cridProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "phrase_autocomplete",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                analyzer = PHRASE_STARTS_WITH_ANALYZER
             });
 
             mappingObj.AddProperty(cridProperty);
@@ -901,6 +985,15 @@ namespace ElasticSearch.Common
                         index = eMappingIndex.analyzed,
                         search_analyzer = LOWERCASE_ANALYZER,
                         analyzer = LOWERCASE_ANALYZER
+                    });
+                    multiField.fields.Add(new BasicMappingPropertyV2()
+                    {
+                        name = "phrase_autocomplete",
+                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        null_value = "",
+                        index = eMappingIndex.analyzed,
+                        search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                        analyzer = PHRASE_STARTS_WITH_ANALYZER
                     });
 
                     if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -972,6 +1065,16 @@ namespace ElasticSearch.Common
                             search_analyzer = LOWERCASE_ANALYZER,
                             analyzer = LOWERCASE_ANALYZER,
                         });
+                        multiField.fields.Add(new BasicMappingPropertyV2()
+                        {
+                            name = "phrase_autocomplete",
+                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            null_value = "",
+                            index = eMappingIndex.analyzed,
+                            search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                            analyzer = PHRASE_STARTS_WITH_ANALYZER
+                        });
+
                     }
                     else
                     {
@@ -1009,6 +1112,15 @@ namespace ElasticSearch.Common
                         index = eMappingIndex.analyzed,
                         search_analyzer = LOWERCASE_ANALYZER,
                         analyzer = LOWERCASE_ANALYZER
+                    });
+                    multiField.fields.Add(new BasicMappingPropertyV2()
+                    {
+                        name = "phrase_autocomplete",
+                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        null_value = "",
+                        index = eMappingIndex.analyzed,
+                        search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                        analyzer = PHRASE_STARTS_WITH_ANALYZER
                     });
 
                     if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
