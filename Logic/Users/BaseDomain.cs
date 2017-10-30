@@ -2033,11 +2033,13 @@ namespace Core.Users
                 {
                     foreach (var domain in deviceDomains)
                     {
-                        DomainResponseStatus domainResponseStatus = domain.RemoveDeviceFromDomain(udid);
+                        log.DebugFormat("remove device from domainId = {0}", domain.m_nDomainID);
+
+                        DomainResponseStatus domainResponseStatus = domain.RemoveDeviceFromDomain(udid, true);
                         response = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                         if (response.Code != (int)eResponseStatus.OK)
                         {
-                            log.ErrorFormat("Failed to remove device with UDID = {0} and deviceId = {1} from domainId = {2}", udid, deviceId, domain.Id);
+                            log.ErrorFormat("Failed to remove device with UDID = {0} and deviceId = {1} from domainId = {2}", udid, deviceId, domain.m_nDomainID);
                         }
                     }
                 }
