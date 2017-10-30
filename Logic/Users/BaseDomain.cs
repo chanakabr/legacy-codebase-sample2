@@ -903,11 +903,11 @@ namespace Core.Users
             // remove from cache
             if (suspendSucceed)
             {
-                if (roleId.HasValue)
+                if (domain.roleId.HasValue)
                 {
-                    bool resultSuspendedUsers = UpdateSuspendedUserRoles(domain, m_nGroupID, currentRoleId.HasValue ? currentRoleId.Value : 0, roleId.Value);
-                    
+                    bool resultSuspendedUsers = UpdateSuspendedUserRoles(domain, m_nGroupID, currentRoleId.HasValue ? currentRoleId.Value : 0, domain.roleId.Value);                    
                 }
+
                 // Remove Domain
                 oDomainCache.RemoveDomain(nDomainID);
                 UsersCache usersCache = UsersCache.Instance();
@@ -1013,13 +1013,10 @@ namespace Core.Users
 
                 }
                 domain.InvalidateDomain();
-            }
 
-            // update result
-            if (resumeSucceed)
-            {
                 result.Code = (int)eResponseStatus.OK;
-                // try to renew all subscription ???? 
+                // get all subscription in status suspended 
+                ResumeDomainSubscriptions(nDomainID);
             }
             else
             {
@@ -1028,6 +1025,55 @@ namespace Core.Users
             }
 
             return result;
+        }
+        private void ResumeDomainSubscriptions(int domainId)
+        {
+            try
+            {
+                DataTable dt = ConditionalAccessDAL.GetSubscriptionPurchase(m_nGroupID, domainId);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    //create messages to queue as needed
+                    // get all regular subscription 
+                    List<DataRow> drs = dt.AsEnumerable().Where(x => x.Field<long>("unified_process_id") == 0 && x.Field<DateTime>("end_date") < DateTime.UtcNow).ToList();
+                    if (drs != null && drs.Count > 0)
+                    {
+                        foreach (DataRow dr in drs)
+                        {
+                            string siteguid = ODBCWrapper.Utils.GetSafeStr(dr, "SITE_USER_GUID");
+                            long purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
+                            string billingGuid = ODBCWrapper.Utils.GetSafeStr(dr, "billing_guid");
+                            DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "end_date");
+                            if (!Core.ConditionalAccess.RenewManager.HandleResumeDomainSubscription(m_nGroupID, domainId, siteguid, purchaseId, billingGuid, endDate))
+                            {
+                                log.ErrorFormat("fail to add new message to queue groupID:{0}, domainId:{1}, siteguid:{2}, purchaseId:{3}, billingGuid:{4}, endDate:{5}",
+                                    m_nGroupID, domainId, siteguid, purchaseId, billingGuid, endDate);
+                            }
+                        }
+                    }
+                    // get all unified billing renews 
+                    drs = dt.AsEnumerable().Where(x => x.Field<long>("unified_process_id") > 0 && x.Field<DateTime>("unified_end_date") < DateTime.UtcNow).ToList();
+                    Dictionary<string, List<DataRow>> renewUnifiedDict = drs.GroupBy(x => string.Format("{0}_{1}", x.Field<long>("unified_process_id"), x.Field<DateTime>("unified_end_date"))).ToDictionary(g => g.Key, g => g.ToList());
+                    // enqueue unified renew transaction
+                    foreach (KeyValuePair<string, List<DataRow>> dr in renewUnifiedDict)
+                    {
+                        if (dr.Value != null && dr.Value.Count > 0)
+                        {
+                            long processID = ODBCWrapper.Utils.GetLongSafeVal(dr.Value[0], "unified_process_id");
+                            DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr.Value[0], "unified_end_date");
+                            if (!Core.ConditionalAccess.RenewManager.HandleRenewUnifiedSubscriptionPending(m_nGroupID, domainId, endDate, 0, processID))
+                            {
+                                log.ErrorFormat("fail to add new message to unified billing queue groupID:{0}, domainId:{1}, processID:{2}, endDate:{3}",
+                                    m_nGroupID, domainId, processID, endDate);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail ResumeDomainSubscriptions groupId:{0}, domainId:{1}, ex:{2}", m_nGroupID, domainId, ex);
+            }
         }
 
         #endregion

@@ -1681,5 +1681,34 @@ namespace Core.ConditionalAccess
 
             return HandleRenewSubscriptionFailed(cas, groupId, spDetails.UserId, spDetails.PurchaseId, logString, long.Parse(spDetails.ProductId), subscription, householdId, failReasonCode, billingSettingError);
         }
+
+        public static bool HandleResumeDomainSubscription(int groupId, long householdId, string siteguid, long purchaseId, string billingGuid, DateTime endDate)
+        {
+            try
+            {
+                log.DebugFormat("HandleResumeDomainSubscription. groupId: {0}, householdId: {1}, siteguid: {2}, purchaseId: {3}, billingGuid: {4}", groupId, householdId, siteguid, purchaseId, billingGuid);
+
+                DateTime nextRenewalDate = DateTime.UtcNow;
+                // enqueue renew transaction
+                RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
+                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                if (!enqueueSuccessful)
+                {
+                    log.ErrorFormat("Failed enqueue of renew transaction for resume domain {0}", data);
+                    return false;
+                }
+                else
+                {
+                    log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }
