@@ -623,7 +623,7 @@ namespace Core.Users
             int brandId = 0;
             Device device = null;
 
-            bool bDeviceExist = IsDeviceExistInDomain(this, udid, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);            
+            bool bDeviceExist = IsDeviceExistInDomain(this, udid, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);
             if (bDeviceExist)
             {
                 try
