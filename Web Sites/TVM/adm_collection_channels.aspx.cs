@@ -176,66 +176,66 @@ public partial class adm_collection_channels : System.Web.UI.Page
         return "";
     }
 
-    public string initDualObj()
-    {
-        if (Session["collection_id"] == null || Session["collection_id"].ToString() == "" || Session["collection_id"].ToString() == "0")
-        {
-            LoginManager.LogoutFromSite("index.html");
-            return "";
-        }
+    //public string initDualObj()
+    //{
+    //    if (Session["collection_id"] == null || Session["collection_id"].ToString() == "" || Session["collection_id"].ToString() == "0")
+    //    {
+    //        LoginManager.LogoutFromSite("index.html");
+    //        return "";
+    //    }
 
-        Int32 nOwnerGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("collections", "group_id", int.Parse(Session["collection_id"].ToString()), "pricing_connection").ToString());
-        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-        if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
-        {
-            LoginManager.LogoutFromSite("login.html");
-            return "";
-        }
+    //    Int32 nOwnerGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("collections", "group_id", int.Parse(Session["collection_id"].ToString()), "pricing_connection").ToString());
+    //    Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+    //    if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
+    //    {
+    //        LoginManager.LogoutFromSite("login.html");
+    //        return "";
+    //    }
 
-        string sRet = "";
-        sRet += "Channels included in collection";
-        sRet += "~~|~~";
-        sRet += "Available Channels";
-        sRet += "~~|~~";
-        sRet += "<root>";
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select * from channels where is_active=1 and status=1 and channel_type<>3 and watcher_id=0 and ";
-        Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
-        if (nCommerceGroupID == 0)
-            nCommerceGroupID = nLogedInGroupID;
-        selectQuery += "group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
-        log.Debug("Collections group ids - " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, ""));
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            for (int i = 0; i < nCount; i++)
-            {
-                string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
-                string sGroupID = selectQuery.Table("query").DefaultView[i].Row["group_ID"].ToString();
-                string sTitle = "";
+    //    string sRet = "";
+    //    sRet += "Channels included in collection";
+    //    sRet += "~~|~~";
+    //    sRet += "Available Channels";
+    //    sRet += "~~|~~";
+    //    sRet += "<root>";
+    //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+    //    selectQuery += "select * from channels where is_active=1 and status=1 and channel_type<>3 and watcher_id=0 and ";
+    //    Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
+    //    if (nCommerceGroupID == 0)
+    //        nCommerceGroupID = nLogedInGroupID;
+    //    selectQuery += "group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
+    //    log.Debug("Collections group ids - " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, ""));
+    //    if (selectQuery.Execute("query", true) != null)
+    //    {
+    //        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+    //        for (int i = 0; i < nCount; i++)
+    //        {
+    //            string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
+    //            string sGroupID = selectQuery.Table("query").DefaultView[i].Row["group_ID"].ToString();
+    //            string sTitle = "";
 
-                if (selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"] != null &&
-                    selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"] != DBNull.Value)
-                    sTitle = selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"].ToString();
+    //            if (selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"] != null &&
+    //                selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"] != DBNull.Value)
+    //                sTitle = selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"].ToString();
 
-                string sGroupName = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_NAME", int.Parse(sGroupID)).ToString();
-                sTitle += "(" + sGroupName.ToString() + ")";
+    //            string sGroupName = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_NAME", int.Parse(sGroupID)).ToString();
+    //            sTitle += "(" + sGroupName.ToString() + ")";
 
-                string sDescription = "";
+    //            string sDescription = "";
 
-                if (IsChannelBelong(int.Parse(sID)) == true)
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription, true) + "\" inList=\"true\" />";
-                else
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription, true) + "\" inList=\"false\" />";
-            }
-        }
-        selectQuery.Finish();
-        selectQuery = null;
+    //            if (IsChannelBelong(int.Parse(sID)) == true)
+    //                sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription, true) + "\" inList=\"true\" />";
+    //            else
+    //                sRet += "<item id=\"" + sID + "\"  title=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sTitle, true) + "\" description=\"" + TVinciShared.ProtocolsFuncs.XMLEncode(sDescription, true) + "\" inList=\"false\" />";
+    //        }
+    //    }
+    //    selectQuery.Finish();
+    //    selectQuery = null;
 
 
-        sRet += "</root>";
-        return sRet;
-    }
+    //    sRet += "</root>";
+    //    return sRet;
+    //}
 
     protected bool IsChannelBelong(Int32 nChannelID)
     {
@@ -267,5 +267,67 @@ public partial class adm_collection_channels : System.Web.UI.Page
         {
             return false;
         }
+    }
+
+    public string initDualObj()
+    {
+        Int32 logedInGroupID = LoginManager.GetLoginGroupID();
+
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Current Channels");
+        dualList.Add("SecondListTitle", "Available Channels");
+
+        object[] resultData = null;
+        List<object> channels = new List<object>();
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select top(5) ID, NAME, DESCRIPTION, GROUP_ID from channels where is_active=1 and status=1 and channel_type<>3 and watcher_id=0 and ";
+        Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
+        if (nCommerceGroupID == 0)
+            nCommerceGroupID = logedInGroupID;
+        selectQuery += "group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
+        log.Debug("Collections group ids - " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, ""));
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            for (int i = 0; i < nCount; i++)
+            {
+                string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
+                string sGroupID = selectQuery.Table("query").DefaultView[i].Row["group_ID"].ToString();
+                string sTitle = "";
+                string sDescription = "";
+
+                if (selectQuery.Table("query").DefaultView[i].Row["NAME"] != null &&
+                    selectQuery.Table("query").DefaultView[i].Row["NAME"] != DBNull.Value)
+                    sTitle = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
+
+                if (selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != null &&
+                    selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != DBNull.Value)
+                    sDescription = selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"].ToString();
+
+                string sGroupName = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_NAME", int.Parse(sGroupID)).ToString();
+                sTitle += "(" + sGroupName.ToString() + ")";
+
+                var data = new
+                    {
+                        ID = sID,
+                        Title = sTitle,
+                        Description = sDescription,
+                        InList = IsChannelBelong(int.Parse(sID))
+                    };
+                    channels.Add(data);
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+                
+        resultData = new object[channels.Count];
+        resultData = channels.ToArray();
+
+        dualList.Add("Data", resultData);
+        dualList.Add("pageName", "adm_group_services.aspx");
+        dualList.Add("withCalendar", false);
+
+        return dualList.ToJSON();
     }
 }
