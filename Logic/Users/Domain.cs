@@ -3062,6 +3062,30 @@ namespace Core.Users
             return this.MemberwiseClone() as CoreObject;
         }
 
+        public void InvalidateDomainUsersRoles()
+        {
+            List<string> invalidationKeys = new List<string>();
+            foreach (int userID in this.m_UsersIDs)
+            {
+                // Remove Users Roles
+                invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(userID.ToString()));
+            }
+
+            foreach (int userID in this.m_DefaultUsersIDs)
+            {
+                // Remove Users Roles
+                invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(userID.ToString()));
+            }
+
+            foreach (int userID in this.m_masterGUIDs)
+            {
+                // Remove Users Roles
+                invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(userID.ToString()));
+            }
+
+            LayeredCache.Instance.InvalidateKeys(invalidationKeys);
+        }
+
         public void InvalidateDomain()
         {
             List<string> invalidationKeys = new List<string>()
