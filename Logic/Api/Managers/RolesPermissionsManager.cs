@@ -23,24 +23,35 @@ namespace APILogic.Api.Managers
         {
             Dictionary<string, List<long>> dictionary = new Dictionary<string, List<long>>();
 
+            if (roles == null || roles.Count == 0)
+            {
+                return dictionary;
+            }
+
             string key = null;
 
             foreach (Role role in roles)
             {
-                foreach (Permission permission in role.Permissions)
+                if (role.Permissions != null)
                 {
-                    key = permission.Name.ToLower();
-
-                    // if the dictionary already contains the action, try to append the role and /or the users group
-                    if (dictionary.ContainsKey(key))
+                    foreach (Permission permission in role.Permissions)
                     {
-                        if (dictionary.ContainsKey(key))
+                        if (!string.IsNullOrEmpty(permission.Name))
                         {
-                            dictionary[key].Add(role.Id);
-                        }
-                        else
-                        {
-                            dictionary.Add(key, new List<long>() { role.Id });
+                            key = permission.Name.ToLower();
+
+                            // if the dictionary already contains the action, try to append the role and /or the users group
+                            if (dictionary.ContainsKey(key))
+                            {
+                                if (dictionary.ContainsKey(key))
+                                {
+                                    dictionary[key].Add(role.Id);
+                                }
+                                else
+                                {
+                                    dictionary.Add(key, new List<long>() { role.Id });
+                                }
+                            }
                         }
                     }
                 }
