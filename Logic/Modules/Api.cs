@@ -66,6 +66,11 @@ namespace Core.Api
             }
         }
 
+        public static RolesResponse GetUserRoles(int groupId, string userId)
+        {            
+            return Core.Api.api.GetUserRoles(groupId, userId);
+        }
+
         public static MediaInfoStructObject TVAPI_GetMediaStructure(int groupId, InitializationObject oInitObj)
         {
             try

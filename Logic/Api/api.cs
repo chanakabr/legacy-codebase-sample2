@@ -65,7 +65,6 @@ namespace Core.Api
         private const string ADAPTER_NOT_EXIST = "Adapter not exist";
         private const string NO_ADAPTER_TO_INSERT = "No adapter to insert";
         private const string NO_ADAPTER_TO_UPDATE = "No adapter to update";
-
         private const string NO_RECOMMENDATION_ENGINE_TO_INSERT = "No recommendation engine to insert";
         private const string NO_RECOMMENDATION_ENGINE_TO_UPDATE = "No recommendation engine to update";
         private const string RECOMMENDATION_ENGINE_NOT_EXIST = "Recommendation engine not exist";
@@ -8043,6 +8042,33 @@ namespace Core.Api
             catch (Exception ex)
             {
                 log.Error(string.Format("Error while getting roles. group id = {0}", groupId), ex);
+            }
+
+            return response;
+        }
+
+        public static RolesResponse GetUserRoles(int groupId, string userId)
+        {
+            RolesResponse response = new RolesResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            try
+            {
+                LongIdsResponse rolesIds = Core.Users.Module.GetUserRoleIds(groupId, userId);
+                if (rolesIds != null && rolesIds.Ids != null && rolesIds.Ids.Count > 0)
+                {
+                    response.Roles = DAL.ApiDAL.GetRoles(groupId, rolesIds.Ids);
+                    if (response.Roles != null)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting roles. group id = {0}, userId :{1}", groupId, userId), ex);
             }
 
             return response;
