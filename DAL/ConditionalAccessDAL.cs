@@ -3331,5 +3331,16 @@ namespace DAL
             }
         }
 
+
+        public static DataTable GetSubscriptionPurchase(int groupId, long householdId)
+        {   
+            ODBCWrapper.StoredProcedure sp = new StoredProcedure("Get_SubscriptionPurchase");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@HouseholdId", householdId);
+
+            return sp.Execute();
+
+        }
     }
 }
