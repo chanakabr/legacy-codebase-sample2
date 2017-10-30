@@ -905,7 +905,16 @@ namespace Core.Users
             {
                 if (domain.roleId.HasValue)
                 {
-                    bool resultSuspendedUsers = UpdateSuspendedUserRoles(domain, m_nGroupID, currentRoleId.HasValue ? currentRoleId.Value : 0, domain.roleId.Value);                    
+                    bool resultSuspendedUsers = UpdateSuspendedUserRoles(domain, m_nGroupID, currentRoleId.HasValue ? currentRoleId.Value : 0, domain.roleId.Value);
+
+                    // invalidate user roles 
+                    domain.InvalidateDomainUsersRoles();
+
+                    // check if this new roleId excluded renew subscription if so- insert messages to queue
+                    if (APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, domain.m_masterGUIDs[0].ToString(), RolePermissions.RENEW_SUBSCRIPTION))
+                    {
+                        ResumeDomainSubscriptions(nDomainID);
+                    }
                 }
 
                 // Remove Domain
@@ -924,6 +933,7 @@ namespace Core.Users
                 }
 
                 domain.InvalidateDomain();
+
             }
             // update result
              if (suspendSucceed)
@@ -1013,6 +1023,7 @@ namespace Core.Users
 
                 }
                 domain.InvalidateDomain();
+                domain.InvalidateDomainUsersRoles();
 
                 result.Code = (int)eResponseStatus.OK;
                 // get all subscription in status suspended 
