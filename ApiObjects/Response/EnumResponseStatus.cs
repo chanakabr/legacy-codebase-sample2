@@ -228,6 +228,8 @@ namespace ApiObjects.Response
         CDNPartnerSettingsNotFound = 5025,
         NoMetaToUpdate = 5026,
         NotaTopicInterestMeta = 5027,
+        PermissionNameNotExists = 5028,
+        RoleAlreadyExists = 5029,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,

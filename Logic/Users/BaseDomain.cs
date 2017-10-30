@@ -17,6 +17,8 @@ namespace Core.Users
     public abstract class BaseDomain
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const string DEFAULT_SUSPENDED_ROLE = "DefaultSuspendedRole";
+
         protected int m_nGroupID;
 
         protected BaseDomain() { }
@@ -853,7 +855,7 @@ namespace Core.Users
             return res;
         }
 
-        public virtual ApiObjects.Response.Status SuspendDomain(int nDomainID)
+        public virtual ApiObjects.Response.Status SuspendDomain(int nDomainID, int? roleId = null)
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status();
             DomainsCache oDomainCache = DomainsCache.Instance();
@@ -868,22 +870,44 @@ namespace Core.Users
             }
 
             // validate domain is not suspended
-            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !roleId.HasValue)
             {
                 result.Code = (int)eResponseStatus.DomainAlreadySuspended;
                 result.Message = "Domain already suspended";
                 return result;
-            }
+            }            
 
             domain.shouldUpdateSuspendStatus = true;
             domain.nextSuspensionStatus = DomainSuspentionStatus.Suspended;
-            
+
+            // get current domain.roleId ==> to update the users 
+            int? currentRoleId = domain.roleId;
+                        
+            if (roleId.HasValue)
+            {
+                domain.roleId = roleId.Value;
+            }
+            else // get default roleId
+            {
+                // get default role 
+                List<ApiObjects.Roles.Role> suspendDefaultRole = ApiDAL.GetRolesByNames(m_nGroupID, new List<string>() { DEFAULT_SUSPENDED_ROLE });
+                if (suspendDefaultRole != null && suspendDefaultRole.Count() > 0)
+                {
+                    domain.roleId = (int)suspendDefaultRole[0].Id;
+                }
+            }
+
             // suspend domain
             bool suspendSucceed = domain.Update();
 
             // remove from cache
             if (suspendSucceed)
             {
+                if (domain.roleId.HasValue)
+                {
+                    bool resultSuspendedUsers = UpdateSuspendedUserRoles(domain, m_nGroupID, currentRoleId.HasValue ? currentRoleId.Value : 0, domain.roleId.Value);                    
+                }
+
                 // Remove Domain
                 oDomainCache.RemoveDomain(nDomainID);
                 UsersCache usersCache = UsersCache.Instance();
@@ -901,9 +925,8 @@ namespace Core.Users
 
                 domain.InvalidateDomain();
             }
-
             // update result
-            if (suspendSucceed)
+             if (suspendSucceed)
             {
                 result.Code = (int)eResponseStatus.OK;
             }
@@ -914,6 +937,25 @@ namespace Core.Users
             }
 
             return result;
+        }
+
+        private bool UpdateSuspendedUserRoles(Domain domain, int groupId, int? currentRoleId, int? newRoleId)
+        {
+            int rowCount = 0;
+            try
+            {
+                // add roleId to all Users
+                List<int> usersInDomain = domain.m_DefaultUsersIDs;
+                usersInDomain.AddRange(domain.m_UsersIDs);
+
+                rowCount = UsersDal.Upsert_SuspendedUsersRole(groupId, usersInDomain, currentRoleId.HasValue ? currentRoleId.Value : 0, newRoleId.HasValue ? newRoleId.Value : 0);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail Upsert_SuspendedUsersRole in DB m_nGroupID={0}, domainId={1}, currentRoleId={2}, newRoleId={3}, ex={4}", groupId, domain.m_nDomainID,
+                    currentRoleId.HasValue ? currentRoleId.Value : 0, newRoleId.HasValue ? newRoleId.Value : 0, ex);                
+            }
+            return rowCount > 0 ? true : false;
         }
 
         public virtual ApiObjects.Response.Status ResumeDomain(int nDomainID)
@@ -941,12 +983,20 @@ namespace Core.Users
             domain.shouldUpdateSuspendStatus = true;
             domain.nextSuspensionStatus = DomainSuspentionStatus.OK;
 
+            int? currentRoleId = domain.roleId;
+            domain.roleId = null;
+
             // resume domain
             bool resumeSucceed = domain.Update();
 
             // remove from cache
             if (resumeSucceed)
             {
+                // update all users to suspended roleId = null
+                if (currentRoleId.HasValue)
+                {
+                    bool resultSuspendedUsers = UpdateSuspendedUserRoles(domain, m_nGroupID, currentRoleId.HasValue ? currentRoleId.Value : 0, null);
+                }
                 // Remove Domain
                 oDomainCache.RemoveDomain(nDomainID);
                 UsersCache usersCache = UsersCache.Instance();
@@ -963,11 +1013,11 @@ namespace Core.Users
 
                 }
                 domain.InvalidateDomain();
-            }
 
-            // update result
-            if (resumeSucceed)
                 result.Code = (int)eResponseStatus.OK;
+                // get all subscription in status suspended 
+                ResumeDomainSubscriptions(nDomainID);
+            }
             else
             {
                 result.Code = (int)eResponseStatus.Error;
@@ -975,6 +1025,55 @@ namespace Core.Users
             }
 
             return result;
+        }
+        private void ResumeDomainSubscriptions(int domainId)
+        {
+            try
+            {
+                DataTable dt = ConditionalAccessDAL.GetSubscriptionPurchase(m_nGroupID, domainId);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    //create messages to queue as needed
+                    // get all regular subscription 
+                    List<DataRow> drs = dt.AsEnumerable().Where(x => x.Field<long>("unified_process_id") == 0 && x.Field<DateTime>("end_date") < DateTime.UtcNow).ToList();
+                    if (drs != null && drs.Count > 0)
+                    {
+                        foreach (DataRow dr in drs)
+                        {
+                            string siteguid = ODBCWrapper.Utils.GetSafeStr(dr, "SITE_USER_GUID");
+                            long purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
+                            string billingGuid = ODBCWrapper.Utils.GetSafeStr(dr, "billing_guid");
+                            DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "end_date");
+                            if (!Core.ConditionalAccess.RenewManager.HandleResumeDomainSubscription(m_nGroupID, domainId, siteguid, purchaseId, billingGuid, endDate))
+                            {
+                                log.ErrorFormat("fail to add new message to queue groupID:{0}, domainId:{1}, siteguid:{2}, purchaseId:{3}, billingGuid:{4}, endDate:{5}",
+                                    m_nGroupID, domainId, siteguid, purchaseId, billingGuid, endDate);
+                            }
+                        }
+                    }
+                    // get all unified billing renews 
+                    drs = dt.AsEnumerable().Where(x => x.Field<long>("unified_process_id") > 0 && x.Field<DateTime>("unified_end_date") < DateTime.UtcNow).ToList();
+                    Dictionary<string, List<DataRow>> renewUnifiedDict = drs.GroupBy(x => string.Format("{0}_{1}", x.Field<long>("unified_process_id"), x.Field<DateTime>("unified_end_date"))).ToDictionary(g => g.Key, g => g.ToList());
+                    // enqueue unified renew transaction
+                    foreach (KeyValuePair<string, List<DataRow>> dr in renewUnifiedDict)
+                    {
+                        if (dr.Value != null && dr.Value.Count > 0)
+                        {
+                            long processID = ODBCWrapper.Utils.GetLongSafeVal(dr.Value[0], "unified_process_id");
+                            DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr.Value[0], "unified_end_date");
+                            if (!Core.ConditionalAccess.RenewManager.HandleRenewUnifiedSubscriptionPending(m_nGroupID, domainId, endDate, 0, processID))
+                            {
+                                log.ErrorFormat("fail to add new message to unified billing queue groupID:{0}, domainId:{1}, processID:{2}, endDate:{3}",
+                                    m_nGroupID, domainId, processID, endDate);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail ResumeDomainSubscriptions groupId:{0}, domainId:{1}, ex:{2}", m_nGroupID, domainId, ex);
+            }
         }
 
         #endregion

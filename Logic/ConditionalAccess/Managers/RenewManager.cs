@@ -85,7 +85,24 @@ namespace Core.ConditionalAccess
             string couponCode = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "COUPON_CODE");
 
             ResponseStatus userValidStatus = ResponseStatus.OK;
-            userValidStatus = Utils.ValidateUser(groupId, siteguid, ref householdId);
+            userValidStatus = Utils.ValidateUser(groupId, siteguid, ref householdId, true);
+
+            // check if this user permitted to renew 
+            if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, RolePermissions.RENEW_SUBSCRIPTION))
+            {
+                // mark this subscription in special status 
+                if (!ConditionalAccessDAL.UpdateMPPRenewalSubscriptionStatus(new List<int>() { (int)purchaseId }, (int)SubscriptionPurchaseStatus.Suspended))
+                {
+                    log.ErrorFormat("Failed to suspend purchase id  entitlements for payment gateway: UpdateMPPRenewalSubscriptionStatus fail in DB purchaseId={0}, householdId={1}", purchaseId, householdId);
+                }
+                log.ErrorFormat("domain is not permitted to renew process . details : {0}", logString);
+                return true;
+            }
+
+            if (userValidStatus == ResponseStatus.UserSuspended)
+            {
+                userValidStatus = ResponseStatus.OK;
+            }
 
             // get end date
             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
@@ -178,6 +195,8 @@ namespace Core.ConditionalAccess
                     siteguid = masterSiteGuid;
                 }
             }
+
+           
 
             // check if response OK only if we know response is not UserDoesNotExist, shouldSwitchToMasterUser is set to false by default
             if (!shouldSwitchToMasterUser && userValidStatus != ResponseStatus.OK)
@@ -1062,13 +1081,31 @@ namespace Core.ConditionalAccess
                 log.ErrorFormat("Error: Illegal household, data: {0}", logString);
                 return true;
             }
+            
             ApiObjects.Response.Status domainStatus = Utils.ValidateDomain(groupId, (int)householdId, out domain);
-            // validate domain status - returen true 
-            if (domainStatus == null || domainStatus.Code != (int)eResponseStatus.OK || domain == null)
+            if (domain == null || domainStatus == null || domainStatus.Code != (int)eResponseStatus.OK)
             {
                 log.ErrorFormat("RenewUnifiedTransaction ValidateDomain householdId = {0} status.Code = {1} ", householdId, domainStatus.Code);
                 return true;
             }
+
+            // check if this user permitted to renew 
+            if (domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count() > 0)
+            {
+                if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, domain.m_masterGUIDs[0].ToString(), RolePermissions.RENEW_SUBSCRIPTION))
+                {
+                    // mark this subscription in special status 
+                   // get all purchases ids by process ids 
+                    if (!ConditionalAccessDAL.UpdateMPPRenewalSubscriptionStatus(null, (int)SubscriptionPurchaseStatus.Suspended, groupId, householdId, processId))                      
+                    {
+                        log.ErrorFormat("Failed to suspend process id  entitlements : UpdateMPPRenewalSubscriptionStatus fail in DB processId={0}, householdId={1}", processId, householdId);
+                    }
+
+                    log.ErrorFormat("domain is not permitted to renew process . details : {0}", logString);
+                    return true;
+                }
+            }            
+
             #endregion
 
             // Get Process Details 
@@ -1643,6 +1680,35 @@ namespace Core.ConditionalAccess
             logString = string.Format("Unified Purchase request (fail): householdId:{0}, siteguid {1}, purchaseId {2}, billingGuid {3}", householdId, spDetails.UserId, spDetails.PurchaseId, spDetails.BillingGuid);
 
             return HandleRenewSubscriptionFailed(cas, groupId, spDetails.UserId, spDetails.PurchaseId, logString, long.Parse(spDetails.ProductId), subscription, householdId, failReasonCode, billingSettingError);
+        }
+
+        public static bool HandleResumeDomainSubscription(int groupId, long householdId, string siteguid, long purchaseId, string billingGuid, DateTime endDate)
+        {
+            try
+            {
+                log.DebugFormat("HandleResumeDomainSubscription. groupId: {0}, householdId: {1}, siteguid: {2}, purchaseId: {3}, billingGuid: {4}", groupId, householdId, siteguid, purchaseId, billingGuid);
+
+                DateTime nextRenewalDate = DateTime.UtcNow;
+                // enqueue renew transaction
+                RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
+                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                if (!enqueueSuccessful)
+                {
+                    log.ErrorFormat("Failed enqueue of renew transaction for resume domain {0}", data);
+                    return false;
+                }
+                else
+                {
+                    log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

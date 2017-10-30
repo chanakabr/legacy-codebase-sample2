@@ -159,6 +159,10 @@ namespace Core.Users
 
         [XmlIgnore]
         [JsonIgnore()]
+        public int? roleId { get; set; }
+
+        [XmlIgnore]
+        [JsonIgnore()]
         public bool shouldUpdateSuspendStatus
         {
             get;
@@ -1646,13 +1650,14 @@ namespace Core.Users
             int nDeviceRestriction = 0;
             int nGroupConcurrentLimit = 0;
             int regionId = 0;
+            int roleId = 0;
 
             DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
 
             bool res = DomainDal.GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
                 ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit,
-                ref eSuspendStat, ref regionId);
+                ref eSuspendStat, ref regionId, ref roleId);
 
             SetReadingInvalidationKeys();
 
@@ -1683,6 +1688,11 @@ namespace Core.Users
                     if (eSuspendStat == DomainSuspentionStatus.Suspended)
                     {
                         m_DomainStatus = DomainStatus.DomainSuspended;
+                    }
+
+                    if (roleId > 0)
+                    {
+                        this.roleId = roleId;
                     }
 
                     if (m_minPeriodId != 0)
@@ -2953,7 +2963,7 @@ namespace Core.Users
 
             if (shouldUpdateSuspendStatus)
             {
-                bool suspendUpdateSuccess = DAL.DomainDal.ChangeSuspendDomainStatus(m_nDomainID, m_nGroupID, nextSuspensionStatus);
+                bool suspendUpdateSuccess = DAL.DomainDal.ChangeSuspendDomainStatus(m_nDomainID, m_nGroupID, nextSuspensionStatus, roleId);
 
                 result &= suspendUpdateSuccess;
             }

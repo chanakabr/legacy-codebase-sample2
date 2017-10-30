@@ -783,10 +783,22 @@ namespace Core.ConditionalAccess
 
             try
             {
-                // validate user
+
+                // check purchase permissions 
+
+                RolePermissions rolePermission = transactionType == eTransactionType.PPV ? RolePermissions.PURCHASE_PPV : RolePermissions.PURCHASE_SUBSCRIPTION;
+                if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, rolePermission))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                    log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
+                    return response;
+                }                
+                
+                // validate user           
                 ResponseStatus userValidStatus = ResponseStatus.OK;
                 Core.Users.User user;
-                userValidStatus = Utils.ValidateUser(groupId, siteguid, ref household, out user);
+                userValidStatus = Utils.ValidateUser(groupId, siteguid, ref household, out user, true);
+
                 if (userValidStatus != ResponseStatus.OK || user == null || user.m_oBasicData == null)
                 {
                     // user validation failed
@@ -1042,12 +1054,28 @@ namespace Core.ConditionalAccess
                 priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode,
                     ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, ref unifiedBillingCycle, currency, isSubscriptionSetModifySubscription);
 
+                // if unified billing cycle is in the "history" ignore it in purchase ! 
+                if (unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                {
+                    unifiedBillingCycle = null;
+                }
+
                 if (subscription == null)
                 {
                     response.Status.Message = "ProductId doesn't exist";
                     return response;
                 }
-
+                // check permission for subscription with premuim services - by roles 
+                if (subscription.m_lServices != null && subscription.m_lServices.Count() > 0)
+                {
+                    if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, RolePermissions.PURCHASE_SERVICE))
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                        log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
+                        return response;
+                    }
+                }
+                
                 // if unified billing cycle is in the "history" ignore it in purchase ! 
                 if (unifiedBillingCycle != null && unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                 {
