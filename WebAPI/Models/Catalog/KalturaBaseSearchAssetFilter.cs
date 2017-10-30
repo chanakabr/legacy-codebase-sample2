@@ -35,7 +35,7 @@ namespace WebAPI.Models.Catalog
             if (GroupBy == null || GroupBy.Count == 0)
                 return null;
 
-            List<string> values = GroupBy.Select(x=>x.GetValue()).ToList();                
+            List<string> values = GroupBy.Select(x => x.GetValue()).ToList();
 
             return values;
         }
