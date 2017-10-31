@@ -756,8 +756,9 @@ namespace ApiObjects
         String = 1,
         Number = 2,
         Bool = 3,
-        DateTime = 4,
-        Tag = 5 //TODO: Lior - Remove everything that references this
+        Tag = 4,
+        DateTime = 5,
+        MultilingualString = 6
     }
 
     public enum MetaFieldName
