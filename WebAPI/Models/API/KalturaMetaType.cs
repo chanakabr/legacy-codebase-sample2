@@ -10,7 +10,6 @@ namespace WebAPI.Models.API
         STRING,
         NUMBER,
         BOOLEAN,
-        //STRING_ARRAY // tag  this was modified on Yoda (4.6) version, instaed of STRING_ARRAY we have parameter MultipleValue on KalturaMeta.
-        DATE
+        STRING_ARRAY // tag
     }
 }

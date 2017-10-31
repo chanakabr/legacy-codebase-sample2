@@ -34,6 +34,8 @@ namespace WebAPI.Reflection
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "PartnerId":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "Type":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                     };
                     break;
                     
@@ -4306,6 +4308,8 @@ namespace WebAPI.Reflection
                             return "assetType";
                         case "CreateDate":
                             return "createDate";
+                        case "DataType":
+                            return "dataType";
                         case "Features":
                             return "features";
                         case "FieldName":
@@ -4340,6 +4344,8 @@ namespace WebAPI.Reflection
                             return "assetStructIdEqual";
                         case "AssetTypeEqual":
                             return "assetTypeEqual";
+                        case "DataTypeEqual":
+                            return "dataTypeEqual";
                         case "FeaturesIn":
                             return "featuresIn";
                         case "FieldNameEqual":
@@ -4348,6 +4354,8 @@ namespace WebAPI.Reflection
                             return "fieldNameNotEqual";
                         case "IdIn":
                             return "idIn";
+                        case "MultipleValue":
+                            return "multipleValue";
                         case "TypeEqual":
                             return "typeEqual";
                     }

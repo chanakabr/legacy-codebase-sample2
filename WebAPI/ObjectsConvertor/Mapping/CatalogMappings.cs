@@ -377,7 +377,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ApiMappings.ConvertMetaType(src.Type)))
+              .ForMember(dest => dest.DataType, opt => opt.MapFrom(src => ConvertToKalturaMetaDataType(src.Type)))
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsPredefined))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
@@ -392,7 +392,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
               .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ApiMappings.ConvertMetaType (src.Type)))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertToMetaType(src.DataType, src.MultipleValue)))
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
               .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
@@ -429,6 +429,77 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return list;
+        }
+
+        private static KalturaMetaDataType? ConvertToKalturaMetaDataType(ApiObjects.MetaType metaType)
+        {
+            KalturaMetaDataType response;
+            switch (metaType)
+            {                                    
+                case ApiObjects.MetaType.String:
+                case ApiObjects.MetaType.Tag:
+                    response = KalturaMetaDataType.STRING;
+                    break;
+                case ApiObjects.MetaType.Number:
+                    response = KalturaMetaDataType.NUMBER;
+                    break;
+                case ApiObjects.MetaType.Bool:
+                    response = KalturaMetaDataType.BOOLEAN;
+                    break;
+                case ApiObjects.MetaType.DateTime:
+                    response = KalturaMetaDataType.DATE;
+                    break;
+                case ApiObjects.MetaType.MultilingualString:
+                    response = KalturaMetaDataType.MULTILINGUAL_STRING;
+                    break;
+                case ApiObjects.MetaType.All:
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown meta type");
+            }
+
+            return response;
+        }
+
+        internal static ApiObjects.MetaType ConvertToMetaType(KalturaMetaDataType? metaDataType, bool? multipleValue)
+        {
+            ApiObjects.MetaType response;
+            if (metaDataType.HasValue)
+            {
+                switch (metaDataType.Value)
+                {
+                    case KalturaMetaDataType.STRING:
+                        if (multipleValue.HasValue && multipleValue.Value)
+                        {
+                            response = ApiObjects.MetaType.Tag;
+                        }
+                        else
+                        {
+                            response = ApiObjects.MetaType.String;
+                        }
+                        break;
+                    case KalturaMetaDataType.MULTILINGUAL_STRING:
+                        response = ApiObjects.MetaType.MultilingualString;
+                        break;
+                    case KalturaMetaDataType.NUMBER:
+                        response = ApiObjects.MetaType.Number;
+                        break;
+                    case KalturaMetaDataType.BOOLEAN:
+                        response = ApiObjects.MetaType.Bool;
+                        break;
+                    case KalturaMetaDataType.DATE:
+                        response = ApiObjects.MetaType.DateTime;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown meta data type");
+                        break;
+                }
+            }
+            else
+            {
+                response = ApiObjects.MetaType.All;
+            }
+
+            return response;
         }
 
         #endregion

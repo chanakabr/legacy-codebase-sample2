@@ -225,7 +225,8 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public KalturaMetaListResponse GetMetas(int groupId, List<long> ids, KalturaMetaType? type, KalturaMetaOrderBy? orderBy, long assetStructId = 0)
+        public KalturaMetaListResponse GetMetas(int groupId, List<long> ids, KalturaMetaDataType? type, KalturaMetaOrderBy? orderBy,
+                                                bool? multipleValue = null, long assetStructId = 0)
         {
             KalturaMetaListResponse result = new KalturaMetaListResponse() { TotalCount = 0 };
             TopicListResponse response = null;
@@ -237,7 +238,7 @@ namespace WebAPI.Clients
                     ApiObjects.MetaType metaType = ApiObjects.MetaType.All;
                     if (type.HasValue)
                     {
-                        metaType = ApiMappings.ConvertMetaType(type);
+                        metaType = CatalogMappings.ConvertToMetaType(type, multipleValue);
                     }
 
                     if (assetStructId > 0)

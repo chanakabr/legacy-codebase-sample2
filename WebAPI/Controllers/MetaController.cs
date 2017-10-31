@@ -124,11 +124,11 @@ namespace WebAPI.Controllers
                 filter.Validate();
                 if (filter.AssetStructIdEqual.HasValue && filter.AssetStructIdEqual.Value > 0)
                 {
-                    response = ClientsManager.CatalogClient().GetMetas(groupId, new List<long>(), filter.TypeEqual, filter.OrderBy, filter.AssetStructIdEqual.Value);
+                    response = ClientsManager.CatalogClient().GetMetas(groupId, new List<long>(), filter.DataTypeEqual, filter.OrderBy, filter.MultipleValue, filter.AssetStructIdEqual.Value);
                 }
                 else
                 {
-                    response = ClientsManager.CatalogClient().GetMetas(groupId, filter.GetIdIn(), filter.TypeEqual, filter.OrderBy);
+                    response = ClientsManager.CatalogClient().GetMetas(groupId, filter.GetIdIn(), filter.DataTypeEqual, filter.OrderBy, filter.MultipleValue);
                 }
 
             }
@@ -167,7 +167,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
             }
 
-            if (!meta.Type.HasValue)
+            if (!meta.DataType.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
             }

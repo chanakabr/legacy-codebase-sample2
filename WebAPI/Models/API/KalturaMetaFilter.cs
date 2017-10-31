@@ -57,8 +57,25 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "typeEqual")]
         [JsonProperty("typeEqual")]
-        [XmlElement(ElementName = "typeEqual", IsNullable = true)]
+        [XmlElement(ElementName = "typeEqual")]
         public KalturaMetaType? TypeEqual { get; set; }
+
+        /// <summary>
+        /// Meta data type to filter by
+        /// </summary>
+        [DataMember(Name = "dataTypeEqual")]
+        [JsonProperty("dataTypeEqual")]
+        [XmlElement(ElementName = "dataTypeEqual", IsNullable = true)]
+        public KalturaMetaDataType? DataTypeEqual { get; set; }
+
+        /// <summary>
+        /// Filter meta's by multipleValue
+        /// </summary>
+        [DataMember(Name = "multipleValue")]
+        [JsonProperty("multipleValue")]
+        [XmlElement(ElementName = "multipleValue", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public bool? MultipleValue { get; set; }
 
         /// <summary>
         /// Asset type to filter by
@@ -131,6 +148,18 @@ namespace WebAPI.Models.API
             if (!string.IsNullOrEmpty(IdIn) && AssetStructIdEqual.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMetaFilter.idIn", "KalturaMetaFilter.assetStructIdEqual");
+            }
+
+            if (DataTypeEqual.HasValue)
+            {
+                if (DataTypeEqual.Value != KalturaMetaDataType.STRING && MultipleValue.HasValue && MultipleValue.Value)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMetaFilter.dataTypeEqual", "KalturaMetaFilter.multipleValue");
+                }
+                else if (DataTypeEqual.Value == KalturaMetaDataType.STRING && !MultipleValue.HasValue)
+                {
+                    throw new BadRequestException(ApiException.MULTI_VALUE_NOT_SENT_FOR_META_DATA_TYPE_STRING);
+                }
             }
         }
 

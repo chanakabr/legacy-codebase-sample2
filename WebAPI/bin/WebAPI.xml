@@ -5537,6 +5537,16 @@
             Meta type to filter by
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.DataTypeEqual">
+            <summary>
+            Meta data type to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.MultipleValue">
+            <summary>
+            Filter meta's by multipleValue
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaMetaFilter.AssetTypeEqual">
             <summary>
             Asset type to filter by
@@ -5585,6 +5595,11 @@
         <member name="P:WebAPI.Models.API.KalturaMeta.Type">
             <summary>
              Meta value type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.DataType">
+            <summary>
+             Meta data type
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMeta.MultipleValue">

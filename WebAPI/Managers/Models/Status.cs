@@ -130,6 +130,7 @@ namespace WebAPI.Managers.Models
         InvalidValueForFeature = 500065,
         DefaultLanguageMustBeSent = 500066,
         GroupDoesNotContainLanguage = 500067,        
-        GlobalLanguageParameterMustBeAsterisk = 500068
+        GlobalLanguageParameterMustBeAsterisk = 500068,
+        MultiValueWasNotSentForMetaDataTypeString = 500069
     }
 }

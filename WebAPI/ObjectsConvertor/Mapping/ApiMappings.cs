@@ -1566,7 +1566,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return response;
         }
 
-        internal static KalturaMetaType ConvertMetaType(ApiObjects.MetaType metaType)
+        private static KalturaMetaType ConvertMetaType(ApiObjects.MetaType metaType)
         {
             KalturaMetaType response;
 
@@ -1581,8 +1581,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case ApiObjects.MetaType.Bool:
                     response = KalturaMetaType.BOOLEAN;
                     break;
-                case ApiObjects.MetaType.DateTime:
-                    response = KalturaMetaType.DATE;
+                case ApiObjects.MetaType.Tag:
+                    response = KalturaMetaType.STRING_ARRAY;
                     break;
                 case ApiObjects.MetaType.All:
                 default:
@@ -1657,8 +1657,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     case KalturaMetaType.BOOLEAN:
                         response = ApiObjects.MetaType.Bool;
                         break;
-                    case KalturaMetaType.DATE:
-                        response = ApiObjects.MetaType.DateTime;
+                    case KalturaMetaType.STRING_ARRAY:
+                        response = ApiObjects.MetaType.Tag;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown meta type");

@@ -60,8 +60,17 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
-        [XmlElement(ElementName = "type", IsNullable = true)]
-        public KalturaMetaType? Type { get; set; }
+        [XmlElement(ElementName = "type")]
+        [Deprecated("4.6.0.0")]
+        public KalturaMetaType Type { get; set; }
+
+        /// <summary>
+        ///  Meta data type
+        /// </summary>
+        [DataMember(Name = "dataType")]
+        [JsonProperty("dataType")]
+        [XmlElement(ElementName = "dataType", IsNullable = true)]
+        public KalturaMetaDataType? DataType { get; set; }
 
         /// <summary>
         ///  Does the meta contain multiple values
