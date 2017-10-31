@@ -50,6 +50,8 @@ namespace WebAPI.Reflection
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "FieldNameNotEqual":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "TypeEqual":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                     };
                     break;
                     

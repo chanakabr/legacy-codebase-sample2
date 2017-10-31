@@ -58,6 +58,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "typeEqual")]
         [JsonProperty("typeEqual")]
         [XmlElement(ElementName = "typeEqual")]
+        [Deprecated("4.6.0.0")]
         public KalturaMetaType? TypeEqual { get; set; }
 
         /// <summary>
