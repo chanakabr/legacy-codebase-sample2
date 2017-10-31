@@ -3207,6 +3207,8 @@ namespace DAL
                         permission.Id = ODBCWrapper.Utils.GetLongSafeVal(permissionItemsRow, "ID");
                         permission.Name = ODBCWrapper.Utils.GetSafeStr(permissionItemsRow, "NAME");
                         permission.GroupId = groupId;
+                        permission.isExcluded = isExcluded;
+
                         if (permissionPermissionItems != null && permissionPermissionItems.ContainsKey(permission.Id) && permissionPermissionItems[permission.Id] != null)
                         {
                             permission.PermissionItems = permissionPermissionItems[permission.Id].Values.ToList();
@@ -3269,7 +3271,8 @@ namespace DAL
                             permissionItem = new ApiActionPermissionItem()
                             {
                                 Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION"),
-                                Service = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "SERVICE")
+                                Service = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "SERVICE")                                
+
                             };
                             break;
                         case ePermissionItemType.Parameter:
