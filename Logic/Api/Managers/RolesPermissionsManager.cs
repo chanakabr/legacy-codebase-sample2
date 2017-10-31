@@ -105,21 +105,23 @@ namespace APILogic.Api.Managers
         {
             try
             {
-                Dictionary<string, List<KeyValuePair<long,bool>>> rolesPermission = GetPermissionsRolesByGroup(groupId);
+                Dictionary<string, List<KeyValuePair<long, bool>>> rolesPermission = GetPermissionsRolesByGroup(groupId);
                 if (rolesPermission != null && rolesPermission.Count() > 0 && rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))
                 {
                     List<long> userRoleIDs = GetRoleIds(groupId, userId);
 
                     if (userRoleIDs != null && userRoleIDs.Count() > 0)
                     {
-                        if (rolesPermission.ContainsKey(rolePermission.ToString().ToLower())
-                         && rolesPermission[rolePermission.ToString().ToLower()].Where(x => userRoleIDs.Contains(x.Key) && x.Value).Count() > 0)
+                        if (rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))
                         {
-                            return false;                            
+                            var userRoles = rolesPermission[rolePermission.ToString().ToLower()].Where(x => userRoleIDs.Contains(x.Key));
+                            if (userRoles != null && userRoles.Count() > 0
+                                && userRoles.Where(x => x.Value).Count() == 0)
+                            {
+                                return true;
+                            }
                         }
                     }
-
-                    return true;
                 }
             }
             catch
