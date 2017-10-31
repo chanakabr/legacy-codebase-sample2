@@ -3003,6 +3003,10 @@ namespace Core.ConditionalAccess
                 {
                     blockEntitlement = BlockEntitlementType.BLOCK_PPV;
                 }
+                else
+                {
+                    blockEntitlement = BlockEntitlementType.NO_BLOCK;
+                }
                 response.ItemsPrices = t.GetItemsPrices(mediaFiles, userId, couponCode != null ? couponCode : string.Empty, onlyLowest, languageCode, udid, ip, currencyCode, blockEntitlement);
                 if (response.ItemsPrices != null)
                     response.Status = new Status((int)eResponseStatus.OK, "OK");
