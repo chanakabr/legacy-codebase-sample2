@@ -19,9 +19,9 @@ namespace APILogic.Api.Managers
 
         public const long ANONYMOUS_ROLE_ID = 0;
 
-        private static Dictionary<string, List<long>> BuildPermissionItemsDictionary(List<Role> roles)
+        private static Dictionary<string, List<KeyValuePair<long, bool>>> BuildPermissionItemsDictionary(List<Role> roles)
         {
-            Dictionary<string, List<long>> dictionary = new Dictionary<string, List<long>>();
+            Dictionary<string, List<KeyValuePair<long, bool>>> dictionary = new Dictionary<string, List<KeyValuePair<long, bool>>>();
 
             string key = null;
             try
@@ -40,11 +40,11 @@ namespace APILogic.Api.Managers
                         // if the dictionary already contains the action, try to append the role and /or the users group                   
                         if (dictionary.ContainsKey(key))
                         {
-                            dictionary[key].Add(role.Id);
+                            dictionary[key].Add(new KeyValuePair<long, bool>(role.Id, permission.isExcluded));
                         }
                         else
                         {
-                            dictionary.Add(key, new List<long>() { role.Id });
+                            dictionary.Add(key, new List<KeyValuePair<long, bool>>() { new KeyValuePair<long, bool>(role.Id, permission.isExcluded) });
                         }
                     }
                 }
@@ -105,22 +105,21 @@ namespace APILogic.Api.Managers
         {
             try
             {
-                Dictionary<string, List<long>> rolesPermission = GetPermissionsRolesByGroup(groupId);
+                Dictionary<string, List<KeyValuePair<long,bool>>> rolesPermission = GetPermissionsRolesByGroup(groupId);
                 if (rolesPermission != null && rolesPermission.Count() > 0 && rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))
                 {
                     List<long> userRoleIDs = GetRoleIds(groupId, userId);
+
                     if (userRoleIDs != null && userRoleIDs.Count() > 0)
                     {
                         if (rolesPermission.ContainsKey(rolePermission.ToString().ToLower())
-                         && rolesPermission[rolePermission.ToString().ToLower()].Where(x => userRoleIDs.Contains(x)).Count() > 0)
+                         && rolesPermission[rolePermission.ToString().ToLower()].Where(x => userRoleIDs.Contains(x.Key) && x.Value).Count() > 0)
                         {
-                            return true;
+                            return false;                            
                         }
                     }
-                    else
-                    {
-                        return true;
-                    }
+
+                    return true;
                 }
             }
             catch
@@ -129,7 +128,7 @@ namespace APILogic.Api.Managers
             return false;
         }
 
-        private static Dictionary<string, List<long>> GetPermissionsRolesByGroup(int groupId)
+        private static Dictionary<string, List<KeyValuePair<long, bool>>> GetPermissionsRolesByGroup(int groupId)
         {
             try
             {
