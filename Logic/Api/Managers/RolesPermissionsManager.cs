@@ -23,40 +23,36 @@ namespace APILogic.Api.Managers
         {
             Dictionary<string, List<long>> dictionary = new Dictionary<string, List<long>>();
 
-            if (roles == null || roles.Count == 0)
-            {
-                return dictionary;
-            }
-
             string key = null;
-
-            foreach (Role role in roles)
+            try
             {
-                if (role.Permissions != null)
+                if (roles == null)
+                {
+                    return dictionary;
+                }
+
+                foreach (Role role in roles)
                 {
                     foreach (Permission permission in role.Permissions)
                     {
-                        if (!string.IsNullOrEmpty(permission.Name))
-                        {
-                            key = permission.Name.ToLower();
+                        key = permission.Name.ToLower();
 
-                            // if the dictionary already contains the action, try to append the role and /or the users group
-                            if (dictionary.ContainsKey(key))
-                            {
-                                if (dictionary.ContainsKey(key))
-                                {
-                                    dictionary[key].Add(role.Id);
-                                }
-                                else
-                                {
-                                    dictionary.Add(key, new List<long>() { role.Id });
-                                }
-                            }
+                        // if the dictionary already contains the action, try to append the role and /or the users group                   
+                        if (dictionary.ContainsKey(key))
+                        {
+                            dictionary[key].Add(role.Id);
+                        }
+                        else
+                        {
+                            dictionary.Add(key, new List<long>() { role.Id });
                         }
                     }
                 }
             }
-
+            catch (Exception ex)
+            {
+                log.ErrorFormat("BuildPermissionItemsDictionary failed ex:{0}", ex);
+            }
             return dictionary;
         }
         
@@ -115,7 +111,8 @@ namespace APILogic.Api.Managers
                     List<long> userRoleIDs = GetRoleIds(groupId, userId);
                     if (userRoleIDs != null && userRoleIDs.Count() > 0)
                     {
-                        if (rolesPermission[rolePermission.ToString()].Where(x => userRoleIDs.Contains(x)).Count() > 0)
+                        if (rolesPermission.ContainsKey(rolePermission.ToString().ToLower())
+                         && rolesPermission[rolePermission.ToString().ToLower()].Where(x => userRoleIDs.Contains(x)).Count() > 0)
                         {
                             return true;
                         }
