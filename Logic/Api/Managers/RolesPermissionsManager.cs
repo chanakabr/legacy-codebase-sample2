@@ -26,6 +26,10 @@ namespace APILogic.Api.Managers
             string key = null;
             try
             {
+                if (roles == null)
+                {
+                    return dictionary;
+                }
 
                 foreach (Role role in roles)
                 {
