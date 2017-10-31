@@ -281,7 +281,7 @@ public partial class adm_collection_channels : System.Web.UI.Page
         List<object> channels = new List<object>();
 
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select top(5) ID, NAME, DESCRIPTION, GROUP_ID from channels where is_active=1 and status=1 and channel_type<>3 and watcher_id=0 and ";
+        selectQuery += "select ID, NAME, DESCRIPTION, GROUP_ID from channels where is_active=1 and status=1 and channel_type<>3 and watcher_id=0 and ";
         Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
         if (nCommerceGroupID == 0)
             nCommerceGroupID = logedInGroupID;
