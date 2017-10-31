@@ -524,19 +524,32 @@ namespace WebAPI.ObjectsConvertor.Mapping
         private static List<Permission> ConvertPermissionsNames(string permissionNames, string excludedPermissionNames)
         {
             List<Permission> result = new List<Permission>();
+            HashSet<string> duplicatePermission = new HashSet<string>();
             
             if (!string.IsNullOrEmpty(permissionNames))
             {
                 foreach (string permission in permissionNames.Split(','))
                 {
-                    result.Add(new Permission() { isExcluded = false, Name = permission});
+                    if (!duplicatePermission.Contains(permission.ToLower()))
+                    {
+                        duplicatePermission.Add(permission.ToLower());
+                        result.Add(new Permission() { isExcluded = false, Name = permission });
+                    }
                 }
             }
             if (!string.IsNullOrEmpty(excludedPermissionNames))
             {
                 foreach (string permission in excludedPermissionNames.Split(','))
                 {
-                    result.Add(new Permission() { isExcluded = true, Name = permission });
+                    if (!duplicatePermission.Contains(permission.ToLower()))
+                    {
+                        duplicatePermission.Add(permission.ToLower());
+                        result.Add(new Permission() { isExcluded = true, Name = permission });
+                    }
+                    else
+                    {
+                        result.Remove(result.Where(x => x.Name.ToLower() == permission.ToLower()).FirstOrDefault());
+                    }
                 }
             }
             return result;
