@@ -232,7 +232,14 @@ namespace Core.Api
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
-                }                
+                }
+
+                List<Role> roles = DAL.ApiDAL.GetRolesByNames(groupId, new List<string>() { role.Name });
+                if (roles != null && roles.Count() > 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RoleAlreadyExists, eResponseStatus.RoleAlreadyExists.ToString());
+                    return response;
+                }
 
                 Dictionary<long, string> permissionNamesDict = DAL.ApiDAL.GetPermissions(groupId, role.Permissions.Select(x => x.Name).ToList());
                 if (role.Permissions.Select(x => x.Name).ToList().Count != permissionNamesDict.Count)
