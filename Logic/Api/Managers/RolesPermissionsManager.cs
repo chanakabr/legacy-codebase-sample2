@@ -24,16 +24,16 @@ namespace APILogic.Api.Managers
             Dictionary<string, List<long>> dictionary = new Dictionary<string, List<long>>();
 
             string key = null;
-
-            foreach (Role role in roles)
+            try
             {
-                foreach (Permission permission in role.Permissions)
-                {
-                    key = permission.Name.ToLower();
 
-                    // if the dictionary already contains the action, try to append the role and /or the users group
-                    if (dictionary.ContainsKey(key))
+                foreach (Role role in roles)
+                {
+                    foreach (Permission permission in role.Permissions)
                     {
+                        key = permission.Name.ToLower();
+
+                        // if the dictionary already contains the action, try to append the role and /or the users group                   
                         if (dictionary.ContainsKey(key))
                         {
                             dictionary[key].Add(role.Id);
@@ -45,7 +45,10 @@ namespace APILogic.Api.Managers
                     }
                 }
             }
-
+            catch (Exception ex)
+            {
+                log.ErrorFormat("BuildPermissionItemsDictionary failed ex:{0}", ex);
+            }
             return dictionary;
         }
         
@@ -104,7 +107,8 @@ namespace APILogic.Api.Managers
                     List<long> userRoleIDs = GetRoleIds(groupId, userId);
                     if (userRoleIDs != null && userRoleIDs.Count() > 0)
                     {
-                        if (rolesPermission[rolePermission.ToString()].Where(x => userRoleIDs.Contains(x)).Count() > 0)
+                        if (rolesPermission.ContainsKey(rolePermission.ToString().ToLower())
+                         && rolesPermission[rolePermission.ToString().ToLower()].Where(x => userRoleIDs.Contains(x)).Count() > 0)
                         {
                             return true;
                         }
