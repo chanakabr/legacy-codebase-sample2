@@ -2085,6 +2085,11 @@ namespace Core.ConditionalAccess
                 theReason = PriceReason.UserSuspended;
                 return null;
             }
+            else if (blockEntitlement == BlockEntitlementType.BLOCK_ALL)
+            {
+                theReason = PriceReason.UserSuspended;
+                return null;
+            }
             else if (userSuspendStatus == DAL.DomainSuspentionStatus.Suspended)
             {
                 userSuspendStatus = DAL.DomainSuspentionStatus.OK;
@@ -2105,7 +2110,7 @@ namespace Core.ConditionalAccess
                 mediaID = ExtractMediaIDOutOfMediaMapper(mapper, nMediaFileID);
             }
 
-            if (!IsAnonymousUser(sSiteGUID) && blockEntitlement != BlockEntitlementType.BLOCK_ALL)
+            if (!IsAnonymousUser(sSiteGUID))
             {
                 bool bEnd = false;
                 int nWaiver = 0;
