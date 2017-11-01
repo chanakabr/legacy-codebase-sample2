@@ -44,8 +44,8 @@ namespace Core.ConditionalAccess
                 if (assetType == eAssetTypes.MEDIA && validationStatus.Code == (int)eResponseStatus.UserSuspended)
                 {
                     // check permissions                     
-                    bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PURCHASE_PPV);
-                    bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PURCHASE_SUBSCRIPTION);
+                    bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_PPV);
+                    bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
 
                     if (!permittedPpv && !permittedSubscription)
                     {
