@@ -325,7 +325,7 @@ public partial class adm_collection_channels : System.Web.UI.Page
         resultData = channels.ToArray();
 
         dualList.Add("Data", resultData);
-        dualList.Add("pageName", "adm_group_services.aspx");
+        dualList.Add("pageName", "adm_collection_channels.aspx");
         dualList.Add("withCalendar", false);
 
         return dualList.ToJSON();
