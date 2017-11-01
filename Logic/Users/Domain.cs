@@ -156,6 +156,8 @@ namespace Core.Users
             get;
             set;
         }
+               
+        public int? roleId { get; set; }
 
         [XmlIgnore]
         [JsonIgnore()]
@@ -619,7 +621,7 @@ namespace Core.Users
             int brandId = 0;
             Device device = null;
 
-            bool bDeviceExist = IsDeviceExistInDomain(this, udid, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);            
+            bool bDeviceExist = IsDeviceExistInDomain(this, udid, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);
             if (bDeviceExist)
             {
                 try
@@ -1646,13 +1648,14 @@ namespace Core.Users
             int nDeviceRestriction = 0;
             int nGroupConcurrentLimit = 0;
             int regionId = 0;
+            int roleId = 0;
 
             DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
 
             bool res = DomainDal.GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
                 ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit,
-                ref eSuspendStat, ref regionId);
+                ref eSuspendStat, ref regionId, ref roleId);
 
             SetReadingInvalidationKeys();
 
@@ -1683,6 +1686,11 @@ namespace Core.Users
                     if (eSuspendStat == DomainSuspentionStatus.Suspended)
                     {
                         m_DomainStatus = DomainStatus.DomainSuspended;
+                    }
+
+                    if (roleId > 0)
+                    {
+                        this.roleId = roleId;
                     }
 
                     if (m_minPeriodId != 0)
@@ -1811,7 +1819,7 @@ namespace Core.Users
         {
             Dictionary<int, int> res = null;
             List<UserMediaMark> positions = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
-                        new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA });
+                        new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA, ePlayType.EPG });
 
             if (positions != null)
             {
@@ -2953,7 +2961,7 @@ namespace Core.Users
 
             if (shouldUpdateSuspendStatus)
             {
-                bool suspendUpdateSuccess = DAL.DomainDal.ChangeSuspendDomainStatus(m_nDomainID, m_nGroupID, nextSuspensionStatus);
+                bool suspendUpdateSuccess = DAL.DomainDal.ChangeSuspendDomainStatus(m_nDomainID, m_nGroupID, nextSuspensionStatus, roleId);
 
                 result &= suspendUpdateSuccess;
             }
@@ -3050,6 +3058,30 @@ namespace Core.Users
         public override CoreObject CoreClone()
         {
             return this.MemberwiseClone() as CoreObject;
+        }
+
+        public void InvalidateDomainUsersRoles()
+        {
+            List<string> invalidationKeys = new List<string>();
+            foreach (int userID in this.m_UsersIDs)
+            {
+                // Remove Users Roles
+                invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(userID.ToString()));
+            }
+
+            foreach (int userID in this.m_DefaultUsersIDs)
+            {
+                // Remove Users Roles
+                invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(userID.ToString()));
+            }
+
+            foreach (int userID in this.m_masterGUIDs)
+            {
+                // Remove Users Roles
+                invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(userID.ToString()));
+            }
+
+            LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }
 
         public void InvalidateDomain()

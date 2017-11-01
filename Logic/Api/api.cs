@@ -65,7 +65,6 @@ namespace Core.Api
         private const string ADAPTER_NOT_EXIST = "Adapter not exist";
         private const string NO_ADAPTER_TO_INSERT = "No adapter to insert";
         private const string NO_ADAPTER_TO_UPDATE = "No adapter to update";
-
         private const string NO_RECOMMENDATION_ENGINE_TO_INSERT = "No recommendation engine to insert";
         private const string NO_RECOMMENDATION_ENGINE_TO_UPDATE = "No recommendation engine to update";
         private const string RECOMMENDATION_ENGINE_NOT_EXIST = "Recommendation engine not exist";
@@ -171,6 +170,156 @@ namespace Core.Api
                 // TODO print to logger
                 return null;
             }
+        }
+
+        internal static RolesResponse AddRole(int groupId, Role role)
+        {
+            RolesResponse response = new RolesResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            try
+            {
+                if (role == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+
+                List <Role> roles = DAL.ApiDAL.GetRolesByNames(groupId, new List<string>() { role.Name });
+                if (roles != null && roles.Count() > 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RoleAlreadyExists, eResponseStatus.RoleAlreadyExists.ToString());
+                    return response;
+                }
+
+                Dictionary<long, string> permissionNamesDict = DAL.ApiDAL.GetPermissions(groupId, role.Permissions.Select(x => x.Name).ToList());
+                if (role.Permissions.Select(x => x.Name).ToList().Count != permissionNamesDict.Count)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PermissionNameNotExists, eResponseStatus.PermissionNameNotExists.ToString());
+                    return response;
+                }
+                XmlDocument xmlDoc = new XmlDocument();
+                BuildRolePermissionXml(role, permissionNamesDict, ref xmlDoc);
+
+                int roleId = DAL.ApiDAL.InsertRolePermission(groupId, role.Name, xmlDoc.InnerXml.ToString());
+
+                if (roleId > 0)
+                {
+                    role.Id = roleId;
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Roles = new List<Role>() { role };
+
+                    string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Error while adding new role. group id = {0}, ex = {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        internal static RolesResponse UpdateRole(int groupId, Role role)
+        {
+            RolesResponse response = new RolesResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            try
+            {
+                if (role == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+
+                List<Role> roles = DAL.ApiDAL.GetRolesByNames(groupId, new List<string>() { role.Name });
+                if (roles != null && roles.Count() > 0 && roles.Where(x=>x.Id != role.Id).Count() > 0) // same name but diffrent role id 
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RoleAlreadyExists, eResponseStatus.RoleAlreadyExists.ToString());
+                    return response;
+                }
+
+                Dictionary<long, string> permissionNamesDict = DAL.ApiDAL.GetPermissions(groupId, role.Permissions.Select(x => x.Name).ToList());
+                if (role.Permissions.Select(x => x.Name).ToList().Count != permissionNamesDict.Count)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PermissionNameNotExists, eResponseStatus.PermissionNameNotExists.ToString());
+                    return response;
+                }
+
+                XmlDocument xmlDoc = new XmlDocument();
+                BuildRolePermissionXml(role, permissionNamesDict, ref xmlDoc);
+
+                if (DAL.ApiDAL.UpdateRole(groupId, role.Id, role.Name, xmlDoc.InnerXml.ToString()))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Roles = new List<Role>() { role };
+
+                    string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Error while update role. group id = {0}, ex = {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        private static void BuildRolePermissionXml(Role role, Dictionary<long, string> permissionNamesDict, ref XmlDocument xmlDoc)
+        {
+            XmlNode rowNode;
+            XmlNode permissionIdNode;
+            XmlNode isExcludedNode;
+            XmlNode rootNode = xmlDoc.CreateElement("root");
+            xmlDoc.AppendChild(rootNode);
+
+            foreach (KeyValuePair<long, string> item in permissionNamesDict)
+            {
+                rowNode = xmlDoc.CreateElement("row");
+
+                permissionIdNode = xmlDoc.CreateElement("id");
+                permissionIdNode.InnerText = item.Key.ToString();
+                rowNode.AppendChild(permissionIdNode);
+
+                isExcludedNode = xmlDoc.CreateElement("is_excluded");
+                isExcludedNode.InnerText = role.Permissions.Where(x => x.Name == item.Value).Select(x => x.isExcluded).FirstOrDefault() ? "1" : "0";
+                rowNode.AppendChild(isExcludedNode);
+
+                rootNode.AppendChild(rowNode);
+            }
+        }
+
+        internal static ApiObjects.Response.Status DeleteRole(int groupId, long id)
+        {
+            ApiObjects.Response.Status response =  new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                if (DAL.ApiDAL.DeleteRole(groupId, id))
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    
+                    string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Error while delete role. group id = {0}, ex = {1}", groupId, ex);
+            }
+
+            return response;
         }
 
         static public bool InitializeGroupNPlayer(ref ApiObjects.InitializationObject initObj)
@@ -1563,7 +1712,7 @@ namespace Core.Api
             return EPG_ResponseMeta;
         }
 
-        static private Dictionary<string, List<EPGDictionary>> GetAllEPGTagProgram(int nGroupID, DataTable ProgramID)
+               static private Dictionary<string, List<EPGDictionary>> GetAllEPGTagProgram(int nGroupID, DataTable ProgramID)
         {
             Dictionary<string, List<EPGDictionary>> EPG_ResponseTag = new Dictionary<string, List<EPGDictionary>>();
 
@@ -7912,6 +8061,33 @@ namespace Core.Api
             catch (Exception ex)
             {
                 log.Error(string.Format("Error while getting roles. group id = {0}", groupId), ex);
+            }
+
+            return response;
+        }
+
+        public static RolesResponse GetUserRoles(int groupId, string userId)
+        {
+            RolesResponse response = new RolesResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            try
+            {
+                LongIdsResponse rolesIds = Core.Users.Module.GetUserRoleIds(groupId, userId);
+                if (rolesIds != null && rolesIds.Ids != null && rolesIds.Ids.Count > 0)
+                {
+                    response.Roles = DAL.ApiDAL.GetRoles(groupId, rolesIds.Ids);
+                    if (response.Roles != null)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting roles. group id = {0}, userId :{1}", groupId, userId), ex);
             }
 
             return response;

@@ -516,6 +516,7 @@ namespace ApiObjects
     {
         Normal = 1,
         Group = 2
+
     }
 
     public enum eDbActionType
@@ -925,4 +926,22 @@ namespace ApiObjects
         Suspend = 1,
     }
 
+    public enum RolePermissions
+    {
+        PLAYBACK_SUBSCRIPTION = 0,
+        PLAYBACK_PPV = 1,
+        PURCHASE_SUBSCRIPTION = 2,
+        PURCHASE_PPV = 3,
+        RENEW_SUBSCRIPTION = 4,
+        PURCHASE_SERVICE = 5
+    }
+
+    public enum BlockEntitlementType
+    {
+        NONE = 0, // to support previous versions 
+        BLOCK_ALL = 1,
+        NO_BLOCK = 2,
+        BLOCK_PPV = 3,
+        BLOCK_SUBSCRIPTION = 4
+    }
 }

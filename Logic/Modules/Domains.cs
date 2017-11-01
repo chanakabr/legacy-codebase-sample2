@@ -737,12 +737,12 @@ namespace Core.Domains
         }
 
         
-        public static ApiObjects.Response.Status SuspendDomain(int nGroupID, int nDomainID)
+        public static ApiObjects.Response.Status SuspendDomain(int nGroupID, int nDomainID, int? roleId = null)
         {
             Core.Users.BaseDomain d = null;
             Utils.GetBaseImpl(ref d, nGroupID);
             if (d != null)
-                return d.SuspendDomain(nDomainID);
+                return d.SuspendDomain(nDomainID, roleId);
             else
             {
                 return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error }; // suspend failed
