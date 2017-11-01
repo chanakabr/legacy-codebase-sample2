@@ -57,25 +57,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<SubscriptionPurchase, KalturaSubscriptionEntitlement>()
               .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.productId))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.subscription))
-              //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
+                //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
               .ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)))
-              //.ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
+                //.ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
               .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.entitlementDate)))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
               .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => (int)src.purchaseId))
-              //.ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
+                //.ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
               .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
-              //.ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src))
+                //.ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src))
               .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumberOfViews))
-              //.ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.nextRenewalDate)))
-              //.ForMember(dest => dest.IsRenewableForPurchase, opt => opt.MapFrom(src => src.recurringStatus))
+                //.ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.nextRenewalDate)))
+                //.ForMember(dest => dest.IsRenewableForPurchase, opt => opt.MapFrom(src => src.recurringStatus))
               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.isRecurring))
-              //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
+                //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
-              //.ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.paymentMethod)))
-              //.ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
-              //.ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => GetNullableInt(src.paymentGatewayId)))
-              //.ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetNullableInt(src.paymentMethodId)))
+                //.ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.paymentMethod)))
+                //.ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
+                //.ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => GetNullableInt(src.paymentGatewayId)))
+                //.ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetNullableInt(src.paymentMethodId)))
               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
               .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
               ;
@@ -100,27 +100,48 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
                ;
             Mapper.CreateMap<PpvPurchase, KalturaPpvEntitlement>()
-               //.ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.ppv))
+                //.ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.ppv))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.ppv))
                 //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
-               //.ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
-               //.ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
+                //.ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
+                //.ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
                .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.entitlementDate)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
-               //.ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
+                //.ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
                .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
-               //.ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
-               //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
+                //.ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
+                //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
-               //.ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.paymentMethod)))
-               //.ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.mediaFileID)))
+                //.ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.paymentMethod)))
+                //.ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.mediaFileID)))
                .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.contentId)))
-               //.ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.)))
+                //.ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.)))
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumOfViews))
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
                ;
+
+            Mapper.CreateMap<Entitlement, KalturaCollectionEntitlement>()
+              .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
+              .ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
+              .ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
+              .ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
+              .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.purchaseDate)))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.purchaseID))
+              .ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
+              .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
+              .ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
+              .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
+              .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.paymentMethod)))
+              .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.mediaFileID)))
+              .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.mediaID)))
+              .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxUses))
+              .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
+              .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.purchaseID))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.collection))
+              ;
 
             Mapper.CreateMap<PpvPurchase, KalturaEntitlementCancellation>()
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.ppv))
@@ -142,31 +163,31 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.paymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
               .ForMember(dest => dest.paymentMethodId, opt => opt.MapFrom(src => src.PaymentMethodId))
-              .ForMember(dest => dest.type, opt => opt.MapFrom(src=> eTransactionType.Subscription))
+              .ForMember(dest => dest.type, opt => opt.MapFrom(src => eTransactionType.Subscription))
               ;
 
             Mapper.CreateMap<Entitlement, KalturaEntitlement>().ConstructUsing(ConvertToKalturaEntitlement);
 
-           // Mapper.CreateMap<Entitlement, KalturaEntitlement>()
-           //.ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
-           //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
-           //.ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
-           //.ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
-           //.ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.purchaseDate)))
-           //.ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.purchaseID))
-           //.ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
-           //.ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
-           //.ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
-           //.ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxUses))
-           //.ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.nextRenewalDate)))
-           //.ForMember(dest => dest.IsRenewableForPurchase, opt => opt.MapFrom(src => src.recurringStatus))
-           //.ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.isRenewable))
-           //.ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => src.mediaFileID))
-           //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
-           //.ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
-           //.ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentMethod))
-           //.ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
-           //.ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.mediaID));
+            // Mapper.CreateMap<Entitlement, KalturaEntitlement>()
+            //.ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
+            //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
+            //.ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
+            //.ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
+            //.ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.purchaseDate)))
+            //.ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.purchaseID))
+            //.ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
+            //.ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
+            //.ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
+            //.ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxUses))
+            //.ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.nextRenewalDate)))
+            //.ForMember(dest => dest.IsRenewableForPurchase, opt => opt.MapFrom(src => src.recurringStatus))
+            //.ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.isRenewable))
+            //.ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => src.mediaFileID))
+            //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
+            //.ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
+            //.ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentMethod))
+            //.ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
+            //.ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.mediaID));
 
             #endregion
 
@@ -302,17 +323,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<KalturaPersonalAssetRequest, AssetFiles>()
               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.Type))
-              .ForMember(dest => dest.FileIds, opt => opt.MapFrom(src => 
+              .ForMember(dest => dest.FileIds, opt => opt.MapFrom(src =>
                   //{
-                      //if (src.FileIds != null)
-                      //{
-                      //    return null;
-                      //}
-                      //else
-                      //{
+                  //if (src.FileIds != null)
+                  //{
+                  //    return null;
+                  //}
+                  //else
+                  //{
                           src.FileIds
-                          //.Select(i => (long)i).ToList();
-                      //}
+                  //.Select(i => (long)i).ToList();
+                  //}
                   //}
                 ))
               ;
@@ -343,7 +364,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.DynamicLinksSupport, opt => opt.MapFrom(src => src.DynamicLinksSupport))
               .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
-  
+
             // LicensedLinkResponse to KalturaLicensedUrls
             Mapper.CreateMap<LicensedLinkResponse, KalturaLicensedUrl>()
                .ForMember(dest => dest.MainUrl, opt => opt.MapFrom(src => src.mainUrl))
@@ -356,7 +377,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.AssetId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertKalturaRecordingStatus(src.Status)))
-               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.Type)))               
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.Type)))
                .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)));
@@ -371,7 +392,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
-            
+
             // KalturaSeriesRecording to SeriesRecording
             Mapper.CreateMap<KalturaSeriesRecording, SeriesRecording>()
                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgId))
@@ -399,7 +420,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<DomainQuotaResponse, KalturaHouseholdQuota>()
                .ForMember(dest => dest.AvailableQuota, opt => opt.MapFrom(src => src.AvailableQuota))
                .ForMember(dest => dest.TotalQuota, opt => opt.MapFrom(src => src.TotalQuota));
-               
+
             #endregion
 
             //KalturaHouseholdPremiumService
@@ -546,11 +567,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result = AutoMapper.Mapper.Map<KalturaPpvEntitlement>(entitlement);
                     break;
                 case eTransactionType.Collection:
-                    //result = AutoMapper.Mapper.Map<KalturaEntitlement>(entitlement);                   
+                    result = AutoMapper.Mapper.Map<KalturaCollectionEntitlement>(entitlement);
                     break;
                 case eTransactionType.Subscription:
                     result = AutoMapper.Mapper.Map<KalturaSubscriptionEntitlement>(entitlement);
-                    break;               
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown entitlement type");
                     break;
@@ -566,7 +587,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 return false;
             }
-            
+
             long currentUtcTime = SerializationUtils.GetCurrentUtcTimeInUnixTimestamp();
             return protectedUntilEpoch.Value > currentUtcTime;
         }
@@ -907,7 +928,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case ePaymentMethod.Offline:
                     result = KalturaPaymentMethodType.offline;
-                    break;                
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown ePaymentMethod type");
             }
