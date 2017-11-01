@@ -1856,9 +1856,9 @@ namespace Core.ConditionalAccess
         }
 
         internal static Price GetMediaFileFinalPriceForNonGetItemsPrices(Int32 nMediaFileID, PPVModule ppvModule, string sSiteGUID, string sCouponCode, Int32 nGroupID,
-                                                                                       ref PriceReason theReason, ref Subscription relevantSub, ref Collection relevantCol,
-                                                                                       ref PrePaidModule relevantPP, string countryCode, string sLANGUAGE_CODE, string sDEVICE_NAME,
-                                                                                       bool shouldIgnoreBundlePurchases = false, string ip = null, string currencyCode = null)
+                            ref PriceReason theReason, ref Subscription relevantSub, ref Collection relevantCol,
+                            ref PrePaidModule relevantPP, string countryCode, string sLANGUAGE_CODE, string sDEVICE_NAME,
+                            bool shouldIgnoreBundlePurchases = false, string ip = null, string currencyCode = null, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
             Dictionary<int, int> mediaFileTypesMapping = null;
             List<int> allUsersInDomain = null;
@@ -1960,7 +1960,7 @@ namespace Core.ConditionalAccess
                 ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
                 mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID,
                 ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate, ref dtDiscountEndDate, domainID,
-                null, 0, DAL.DomainSuspentionStatus.Suspended, true, shouldIgnoreBundlePurchases);
+                null, 0, DAL.DomainSuspentionStatus.Suspended, true, shouldIgnoreBundlePurchases, blockEntitlement);
         }
 
         internal static void GetApiAndPricingCredentials(int nGroupID, ref string sPricingUsername, ref string sPricingPassword,

@@ -1540,7 +1540,7 @@ namespace Core.ConditionalAccess
                 bool isGiftCard = false;
                 Price priceObject = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppvModule, siteguid, couponCode,
                         groupId, ref priceReason, ref relevantSub, ref relevantCol, ref relevantPP, string.Empty, string.Empty, deviceName,
-                        false, userIp, currency);
+                        false, userIp, currency, BlockEntitlementType.NO_BLOCK);
 
                 if (coupon != null &&
                     coupon.m_CouponStatus == CouponsStatus.Valid &&

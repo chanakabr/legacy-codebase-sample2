@@ -10511,10 +10511,27 @@ namespace Core.ConditionalAccess
 					res = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidInput.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 					return res;
 				}
+                BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK; // default value 
+                // check permissions                     
+                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, sSiteGuid, RolePermissions.PLAYBACK_PPV);
+                bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, sSiteGuid, RolePermissions.PLAYBACK_SUBSCRIPTION);
 
-				MediaFileItemPricesContainer[] prices = GetItemsPrices(mediaFiles, sSiteGuid, sCouponCode, true, sLanguageCode, sDeviceName, sUserIP);
+                if (!permittedPpv && !permittedSubscription)
+                {
+                    blockEntitlement = BlockEntitlementType.BLOCK_ALL;
+                }
+                else if (!permittedPpv)
+                {
+                    blockEntitlement = BlockEntitlementType.BLOCK_PPV;
+                }
+                else if (!permittedSubscription)
+                {
+                    blockEntitlement = BlockEntitlementType.BLOCK_SUBSCRIPTION;
+                }
+              
+                MediaFileItemPricesContainer[] prices = GetItemsPrices(mediaFiles, sSiteGuid, sCouponCode, true, sLanguageCode, sDeviceName, sUserIP,null, blockEntitlement);
 
-				if (prices != null && prices.Length > 0)
+                if (prices != null && prices.Length > 0)
 				{
 					int nMediaID = 0;
 					List<int> lRuleIDS = new List<int>();

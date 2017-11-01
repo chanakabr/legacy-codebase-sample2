@@ -177,6 +177,12 @@ namespace Core.Api
             RolesResponse response = new RolesResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
             try
             {
+                if (role == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+
                 List <Role> roles = DAL.ApiDAL.GetRolesByNames(groupId, new List<string>() { role.Name });
                 if (roles != null && roles.Count() > 0)
                 {
@@ -222,6 +228,19 @@ namespace Core.Api
             RolesResponse response = new RolesResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
             try
             {
+                if (role == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+
+                List<Role> roles = DAL.ApiDAL.GetRolesByNames(groupId, new List<string>() { role.Name });
+                if (roles != null && roles.Count() > 0 && roles.Where(x=>x.Id != role.Id).Count() > 0) // same name but diffrent role id 
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RoleAlreadyExists, eResponseStatus.RoleAlreadyExists.ToString());
+                    return response;
+                }
+
                 Dictionary<long, string> permissionNamesDict = DAL.ApiDAL.GetPermissions(groupId, role.Permissions.Select(x => x.Name).ToList());
                 if (role.Permissions.Select(x => x.Name).ToList().Count != permissionNamesDict.Count)
                 {
