@@ -306,20 +306,27 @@ namespace Core.ConditionalAccess
             DateTime dbTimeNow = ODBCWrapper.Utils.FICTIVE_DATE;
             if (lstCollectionCodes != null && lstCollectionCodes.Count > 0)
             {
-                Collection[] colls = GetCollectionsDataWithCaching(lstCollectionCodes, nGroupID);
+                CollectionsResponse collectionsResponse = GetCollectionsDataWithCaching(lstCollectionCodes, nGroupID);
+
+                if (collectionsResponse.Status.Code != (int)eResponseStatus.OK && collectionsResponse.Collections != null)
+                {
+                    // TODO: log
+                    return res;
+                }
+
                 InitializePPVBulkDoCreditNeedDownloadedDictionary(ref res, lstCollectionCodes);
 
                 if (ConditionalAccessDAL.Get_AllDomainsPPVUsesUsingCollections(lstAllUsersInDomain, nGroupID, nMediaFileID, lstCollectionCodes,
                     ref dbTimeNow, ref collToCreateDateMapping) && collToCreateDateMapping.Count > 0)
                 {
-                    for (int i = 0; i < colls.Length; i++)
+                    for (int i = 0; i < collectionsResponse.Collections.Length; i++)
                     {
                         int collCode = 0;
-                        if (colls[i] != null && Int32.TryParse(colls[i].m_CollectionCode, out collCode) &&
+                        if (collectionsResponse.Collections[i] != null && Int32.TryParse(collectionsResponse.Collections[i].m_CollectionCode, out collCode) &&
                             collCode > 0 && res.ContainsKey(collCode) && collToCreateDateMapping.ContainsKey(collCode)
-                            && colls[i].m_oCollectionUsageModule != null)
+                            && collectionsResponse.Collections[i].m_oCollectionUsageModule != null)
                         {
-                            int nViewLifeCycle = colls[i].m_oCollectionUsageModule.m_tsViewLifeCycle;
+                            int nViewLifeCycle = collectionsResponse.Collections[i].m_oCollectionUsageModule.m_tsViewLifeCycle;
                             DateTime lastCreateDate = collToCreateDateMapping[collCode];
                             DateTime endDate = Utils.GetEndDateTime(lastCreateDate, nViewLifeCycle);
                             res[collCode] = dbTimeNow >= endDate;
@@ -347,7 +354,7 @@ namespace Core.ConditionalAccess
          * 1. Pass string or int or long as T
          * 2. Caching of pricing modules in CAS side is deprecated. Caching is now done on Pricing side.
          */
-        internal static Collection[] GetCollectionsDataWithCaching<T>(List<T> lstCollsCodes, int nGroupID) where T : IComparable, IComparable<T>, IEquatable<T>, IConvertible
+        internal static CollectionsResponse GetCollectionsDataWithCaching<T>(List<T> lstCollsCodes, int nGroupID) where T : IComparable, IComparable<T>, IEquatable<T>, IConvertible
         {
             string[] colls = lstCollsCodes.Select((item) => item.ToString()).Distinct().ToArray();
             return Pricing.Module.GetCollectionsData(nGroupID, colls, string.Empty, string.Empty, string.Empty);
@@ -424,7 +431,7 @@ namespace Core.ConditionalAccess
             ref Dictionary<string, bool> subsRes, ref Dictionary<string, bool> collsRes)
         {
             Subscription[] subs = null;
-            Collection[] colls = null;
+            CollectionsResponse collectionsResponse = null;
 
             subsRes = InitializeCreditDownloadedDict(lstSubCodes);
             collsRes = InitializeCreditDownloadedDict(lstColCodes);
@@ -435,14 +442,14 @@ namespace Core.ConditionalAccess
             }
             if (lstColCodes != null && lstColCodes.Count > 0)
             {
-                colls = GetCollectionsDataWithCaching(lstColCodes, nGroupID);
+                collectionsResponse = GetCollectionsDataWithCaching(lstColCodes, nGroupID);
             }
 
             Dictionary<string, DateTime> subsToCreateDateMapping = null;
             Dictionary<string, DateTime> colsToCreateDateMapping = null;
             DateTime dbTimeNow = ODBCWrapper.Utils.FICTIVE_DATE;
             List<string> subsLst = GetSubCodesForDBQuery(subs);
-            List<string> colsLst = GetColCodesForDBQuery(colls);
+            List<string> colsLst = GetColCodesForDBQuery(collectionsResponse.Collections);
             List<string> domainUsers = allUsersInDomain.Select(item => item.ToString()).ToList<string>();
             if (ConditionalAccessDAL.Get_LatestCreateDateOfBundlesUses(subsLst, colsLst, domainUsers, relatedMediaFiles, nGroupID,
                 ref subsToCreateDateMapping, ref colsToCreateDateMapping, ref dbTimeNow))
@@ -458,13 +465,13 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                if (colls != null && colls.Length > 0)
+                if (collectionsResponse != null && collectionsResponse.Status.Code == (int)eResponseStatus.OK && collectionsResponse.Collections != null && collectionsResponse.Collections.Length > 0)
                 {
-                    for (int i = 0; i < colls.Length; i++)
+                    for (int i = 0; i < collectionsResponse.Collections.Length; i++)
                     {
-                        if (colls[i] != null && colsToCreateDateMapping.ContainsKey(colls[i].m_CollectionCode))
+                        if (collectionsResponse.Collections[i] != null && colsToCreateDateMapping.ContainsKey(collectionsResponse.Collections[i].m_CollectionCode))
                         {
-                            collsRes[colls[i].m_CollectionCode] = CalcIsCreditNeedToBeDownloadedForCol(dbTimeNow, colsToCreateDateMapping[colls[i].m_CollectionCode], colls[i]);
+                            collsRes[collectionsResponse.Collections[i].m_CollectionCode] = CalcIsCreditNeedToBeDownloadedForCol(dbTimeNow, colsToCreateDateMapping[collectionsResponse.Collections[i].m_CollectionCode], collectionsResponse.Collections[i]);
                         }
                     }
                 }
@@ -796,7 +803,8 @@ namespace Core.ConditionalAccess
                     }
                     if (collsToSendToCatalog != null && collsToSendToCatalog.Count > 0)
                     {
-                        collsRes = GetCollectionsDataWithCaching(collsToSendToCatalog, nGroupID);
+                        // TODO: rewrite
+                        collsRes = GetCollectionsDataWithCaching(collsToSendToCatalog, nGroupID).Collections;
                     }
                 }
                 else // only if in the gap between end date to final end date - continue the check
@@ -827,7 +835,8 @@ namespace Core.ConditionalAccess
                         List<int> finalCollCodes = GetFinalCollectionCodes(collsAfterPPVCreditValidation);
                         if (finalCollCodes != null && finalCollCodes.Count > 0)
                         {
-                            collsRes = GetCollectionsDataWithCaching(finalCollCodes, nGroupID);
+                            // TODO: rewrite
+                            collsRes = GetCollectionsDataWithCaching(finalCollCodes, nGroupID).Collections;
                         }
                     }
                 }
@@ -3914,10 +3923,10 @@ namespace Core.ConditionalAccess
 
                 if (domainBundleEntitlements.EntitledCollections != null && domainBundleEntitlements.EntitledCollections.Count > 0)
                 {
-                    Collection[] collectionsArray = Core.Pricing.Module.GetCollectionsData(groupId, domainBundleEntitlements.EntitledCollections.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
-                    if (collectionsArray != null && collectionsArray.Length > 0)
+                    CollectionsResponse collectionsResponse = Core.Pricing.Module.GetCollectionsData(groupId, domainBundleEntitlements.EntitledCollections.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
+                    if (collectionsResponse != null && collectionsResponse.Status.Code == (int)eResponseStatus.OK && collectionsResponse.Collections != null && collectionsResponse.Collections.Length > 0)
                     {
-                        foreach (Collection collection in collectionsArray)
+                        foreach (Collection collection in collectionsResponse.Collections)
                         {
                             int collectionCode;
                             if (int.TryParse(collection.m_sObjectCode, out collectionCode) && !domainBundleEntitlements.CollectionsData.ContainsKey(collectionCode))

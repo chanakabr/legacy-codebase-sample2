@@ -712,7 +712,7 @@ namespace Core.Pricing
             return response;
         }
         
-        public static Collection[] GetCollectionsData(int nGroupID, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public static CollectionsResponse GetCollectionsData(int nGroupID, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             BaseCollection t = null;
             Utils.GetBaseImpl(ref t, nGroupID);

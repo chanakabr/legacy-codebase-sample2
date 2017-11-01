@@ -6302,15 +6302,19 @@ namespace Core.ConditionalAccess
 		/// <summary>
 		/// Get Collections Prices 
 		/// </summary>
-		public virtual CollectionsPricesContainer[] GetCollectionsPrices(string[] sCollections, string sUserGUID, string sCouponCode,
+        public virtual CollectionsPricesResponse GetCollectionsPrices(string[] sCollections, string sUserGUID, string sCouponCode,
 			string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
 		{
-			CollectionsPricesContainer[] ret = null;
+            CollectionsPricesResponse response = new CollectionsPricesResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
 			try
 			{
 				if (sCollections != null && sCollections.Length > 0)
 				{
-					ret = new CollectionsPricesContainer[sCollections.Length];
+					response.CollectionsPrices = new CollectionsPricesContainer[sCollections.Length];
 
 					for (int i = 0; i < sCollections.Length; i++)
 					{
@@ -6323,8 +6327,10 @@ namespace Core.ConditionalAccess
 
 						CollectionsPricesContainer cont = new CollectionsPricesContainer();
 						cont.Initialize(sColCode, price, theReason);
-						ret[i] = cont;
+						response.CollectionsPrices[i] = cont;
 					}
+
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 				}
 			}
 			catch (Exception ex)
@@ -6355,7 +6361,7 @@ namespace Core.ConditionalAccess
 				log.Error("Exception - " + sb.ToString(), ex);
 				#endregion
 			}
-			return ret;
+			return response;
 		}
 
 		/// <summary>
@@ -8850,16 +8856,15 @@ namespace Core.ConditionalAccess
 						string sCollCode = p_sPPVMCode.Substring(3);
 
 						// Get the collection item of this code
-						Collection[] arrCollections =
-							Utils.GetCollectionsDataWithCaching(new List<string>(1) { sCollCode }, m_nGroupID);
+                        CollectionsResponse collectionsResponse = Utils.GetCollectionsDataWithCaching(new List<string>(1) { sCollCode }, m_nGroupID);
 
 						// If there is a valid collection with a valid usage module
-						if (arrCollections != null && arrCollections.Length > 0 && arrCollections[0] != null &&
-							arrCollections[0].m_oCollectionUsageModule != null)
+                        if (collectionsResponse.Status.Code == (int)eResponseStatus.OK && collectionsResponse.Collections != null && collectionsResponse.Collections.Length > 0 && 
+                            collectionsResponse.Collections[0] != null && collectionsResponse.Collections[0].m_oCollectionUsageModule != null)
 						{
-							p_nViewLifeCycle = arrCollections[0].m_oCollectionUsageModule.m_tsViewLifeCycle;
-							p_nFullLifeCycle = arrCollections[0].m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle;
-							p_bIsOfflinePlayback = arrCollections[0].m_oCollectionUsageModule.m_bIsOfflinePlayBack;
+                            p_nViewLifeCycle = collectionsResponse.Collections[0].m_oCollectionUsageModule.m_tsViewLifeCycle;
+                            p_nFullLifeCycle = collectionsResponse.Collections[0].m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle;
+                            p_bIsOfflinePlayback = collectionsResponse.Collections[0].m_oCollectionUsageModule.m_bIsOfflinePlayBack;
 						}
 						else
 						{

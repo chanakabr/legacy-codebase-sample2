@@ -9,6 +9,7 @@ using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Pricing;
+using ApiObjects.Response;
 
 namespace Core.Pricing
 {
@@ -32,9 +33,9 @@ namespace Core.Pricing
                 if (!bGetAlsoUnActive)
                 {
                     // use optimized flow which reduces the num of calls to the db.
-                    Collection[] res = GetCollectionsData(new string[1] { sCollectionCode }, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                    if (res != null && res.Length > 0)
-                        return res[0];
+                    CollectionsResponse collectionsResponse = GetCollectionsData(new string[1] { sCollectionCode }, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                    if (collectionsResponse != null && collectionsResponse.Status.Code == (int)eResponseStatus.OK && collectionsResponse.Collections != null && collectionsResponse.Collections.Length > 0)
+                        return collectionsResponse.Collections[0];
                     return null;
                 }
                 else
@@ -249,9 +250,13 @@ namespace Core.Pricing
             return retCollection;
         }
 
-        public override Collection[] GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName)
+        public override CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName)
         {
-            Collection[] res = null;
+            CollectionsResponse response = new CollectionsResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+            }; 
+
             try
             {
                 if (oCollCodes != null && oCollCodes.Length > 0)
@@ -278,7 +283,7 @@ namespace Core.Pricing
                             Dictionary<long, List<LanguageContainer>> collsDescriptionsMapping = ExtractCollectionsDescriptions(ds);
                             Dictionary<long, List<BundleCodeContainer>> collsChannelsMapping = ExtractCollectionsChannels(ds);
                             Dictionary<long, List<LanguageContainer>> collsNamesMapping = ExtractCollectionsNames(ds);
-                            res = CreateCollections(ds, collsDescriptionsMapping, collsChannelsMapping, collsNamesMapping,
+                            response.Collections = CreateCollections(ds, collsDescriptionsMapping, collsChannelsMapping, collsNamesMapping,
                                 sCountryCd, sLanguageCode, sDeviceName).ToArray();
 
                         }
@@ -320,7 +325,7 @@ namespace Core.Pricing
                 throw;
             }
 
-            return res;
+            return response;
         }
 
         private List<Collection> CreateCollections(DataSet ds, Dictionary<long, List<LanguageContainer>> collsDescriptionsMapping, Dictionary<long, List<BundleCodeContainer>> collsChannelsMapping, Dictionary<long, List<LanguageContainer>> collsNamesMapping, string sCountryCd, string sLanguageCode, string sDeviceName)

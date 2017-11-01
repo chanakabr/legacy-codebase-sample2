@@ -468,6 +468,7 @@
     <Compile Include="Pricing\Campaign.cs" />
     <Compile Include="Pricing\Collection.cs" />
     <Compile Include="Pricing\CollectionCacheWrapper.cs" />
+    <Compile Include="Pricing\CollectionsResponse.cs" />
     <Compile Include="Pricing\PriceDetails.cs" />
     <Compile Include="Pricing\DependencySet.cs" />
     <Compile Include="Pricing\SubscriptionSetsResponse.cs" />
