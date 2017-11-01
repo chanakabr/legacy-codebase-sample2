@@ -1250,12 +1250,7 @@ namespace Core.ConditionalAccess
             Subscription subscription = null;
             //create web service pricing insatance
             try
-            {
-                if (blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION)
-                {
-                    theReason = PriceReason.UserSuspended;
-                    return null;
-                }
+            {                
                 subscription = Core.Pricing.Module.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false);
                 if (subscription == null)
                 {
@@ -1313,6 +1308,12 @@ namespace Core.ConditionalAccess
                         }
 
                         price = TVinciShared.ObjectCopier.Clone<Price>((Price)(theSub.m_oSubscriptionPriceCode.m_oPrise));
+                    }
+
+                    if (blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION)
+                    {
+                        theReason = PriceReason.UserSuspended;
+                        return price;
                     }
 
                     theReason = PriceReason.ForPurchase;
