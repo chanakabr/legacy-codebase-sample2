@@ -55,7 +55,7 @@ namespace Core.ConditionalAccess
                     {
                         blockEntitlement = BlockEntitlementType.BLOCK_PPV;
                     }
-                    else
+                    else if (!permittedSubscription)
                     {
                         blockEntitlement = BlockEntitlementType.BLOCK_SUBSCRIPTION;
                     }

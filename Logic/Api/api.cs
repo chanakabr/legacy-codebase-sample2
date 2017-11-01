@@ -235,7 +235,7 @@ namespace Core.Api
                 }
 
                 List<Role> roles = DAL.ApiDAL.GetRolesByNames(groupId, new List<string>() { role.Name });
-                if (roles != null && roles.Count() > 0)
+                if (roles != null && roles.Count() > 0 && roles.Where(x=>x.Id != role.Id).Count() > 0) // same name but diffrent role id 
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RoleAlreadyExists, eResponseStatus.RoleAlreadyExists.ToString());
                     return response;
