@@ -771,5 +771,40 @@ namespace WebAPI.Clients
 
             return subscriptions;
         }
+
+        internal List<KalturaCollection> GetCollectionsData(int groupId, string[] collectionIds, string udid, string language, KalturaCollectionOrderBy orderBy)
+        {
+            CollectionsResponse response = null;
+            List<KalturaCollection> collections = new List<KalturaCollection>();
+
+            // TODO: add order by
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetCollectionsData(groupId, collectionIds, string.Empty, language, udid);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            collections = AutoMapper.Mapper.Map<List<KalturaCollection>>(response.Collections);
+
+            return collections;
+        }
     }
 }

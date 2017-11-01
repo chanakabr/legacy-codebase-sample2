@@ -822,24 +822,29 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(Core.Pricing.Currency))]
         [System.Xml.Serialization.XmlInclude(typeof(CollectionsPricesContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(PriceReason))]
-        public CollectionsPricesContainer[] GetCollectionsPrices(string sWSUserName, string sWSPassword, string[] sCollections, string sUserGUID,
+        public CollectionsPricesResponse GetCollectionsPrices(string sWSUserName, string sWSPassword, string[] sCollections, string sUserGUID,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
+            CollectionsPricesResponse response = new CollectionsPricesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
             
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.ConditionalAccess.Module.GetCollectionsPrices(nGroupID, sCollections, sUserGUID, sCountryCd2, sLanguageCode3, sDeviceName);
+                response = Core.ConditionalAccess.Module.GetCollectionsPrices(nGroupID, sCollections, sUserGUID, sCountryCd2, sLanguageCode3, sDeviceName);
             }
             else
             {
                 if (nGroupID == 0)
                     HttpContext.Current.Response.StatusCode = 404;
-                return null;
             }
+
+            return response;
         }
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(BaseConditionalAccess))]
@@ -928,24 +933,29 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(Core.Pricing.Currency))]
         [System.Xml.Serialization.XmlInclude(typeof(CollectionsPricesContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(PriceReason))]
-        public CollectionsPricesContainer[] GetCollectionsPricesWithCoupon(string sWSUserName, string sWSPassword, string[] sCollections, string sUserGUID, string sCouponCode,
+        public CollectionsPricesResponse GetCollectionsPricesWithCoupon(string sWSUserName, string sWSPassword, string[] sCollections, string sUserGUID, string sCouponCode,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
+            CollectionsPricesResponse response = new CollectionsPricesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
             
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.ConditionalAccess.Module.GetCollectionsPricesWithCoupon(nGroupID, sCollections, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
+                response = Core.ConditionalAccess.Module.GetCollectionsPricesWithCoupon(nGroupID, sCollections, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
             }
             else
             {
                 if (nGroupID == 0)
                     HttpContext.Current.Response.StatusCode = 404;
-                return null;
             }
+
+            return response;
         }
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(BaseConditionalAccess))]
@@ -1003,23 +1013,29 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(Core.Pricing.Currency))]
         [System.Xml.Serialization.XmlInclude(typeof(CollectionsPricesContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(PriceReason))]
-        public CollectionsPricesContainer[] GetCollectionsPricesST(string sWSUserName, string sWSPassword, string sCollectionsList, string sUserGUID,
+        public CollectionsPricesResponse GetCollectionsPricesST(string sWSUserName, string sWSPassword, string sCollectionsList, string sUserGUID,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
+            CollectionsPricesResponse response = new CollectionsPricesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.ConditionalAccess.Module.GetCollectionsPricesST(nGroupID, sCollectionsList, sUserGUID, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
+                response = Core.ConditionalAccess.Module.GetCollectionsPricesST(nGroupID, sCollectionsList, sUserGUID, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
             }
             else
             {
                 if (nGroupID == 0)
                     HttpContext.Current.Response.StatusCode = 404;
-                return null;
             }
+
+            return response;
         }
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(BaseConditionalAccess))]
@@ -1104,23 +1120,29 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(Core.Pricing.Currency))]
         [System.Xml.Serialization.XmlInclude(typeof(CollectionsPricesContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(PriceReason))]
-        public CollectionsPricesContainer[] GetCollectionsPricesSTWithCoupon(string sWSUserName, string sWSPassword, string sCollectionsList, string sUserGUID, string sCouponCode,
+        public CollectionsPricesResponse GetCollectionsPricesSTWithCoupon(string sWSUserName, string sWSPassword, string sCollectionsList, string sUserGUID, string sCouponCode,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
-            
+
+            CollectionsPricesResponse response = new CollectionsPricesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.ConditionalAccess.Module.GetCollectionsPricesSTWithCoupon(nGroupID, sCollectionsList, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                response = Core.ConditionalAccess.Module.GetCollectionsPricesSTWithCoupon(nGroupID, sCollectionsList, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
             }
             else
             {
                 if (nGroupID == 0)
                     HttpContext.Current.Response.StatusCode = 404;
-                return null;
             }
+
+            return response;
         }
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(BaseConditionalAccess))]

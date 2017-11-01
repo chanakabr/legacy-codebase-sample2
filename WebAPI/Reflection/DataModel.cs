@@ -954,6 +954,12 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaCollection":
+                    ret = new Dictionary<string, string>() { 
+                        {"discountModule", "discount_module"},
+                    };
+                    break;
+                    
                 case "KalturaCollectionEntitlement":
                     ret = new Dictionary<string, string>() { 
                         {"currentDate", "current_date"},
@@ -974,6 +980,13 @@ namespace WebAPI.Reflection
                         {"paymentMethod", "payment_method"},
                         {"purchaseDate", "purchase_date"},
                         {"purchaseId", "purchase_id"},
+                    };
+                    break;
+                    
+                case "KalturaCollectionPrice":
+                    ret = new Dictionary<string, string>() { 
+                        {"productId", "product_id"},
+                        {"productType", "product_type"},
                     };
                     break;
                     
@@ -2772,6 +2785,50 @@ namespace WebAPI.Reflection
                             return "apiVersion";
                         case "ClientTag":
                             return "clientTag";
+                    }
+                    break;
+                    
+                case "KalturaCollection":
+                    switch(property.Name)
+                    {
+                        case "Channels":
+                            return "channels";
+                        case "CouponGroups":
+                            return "couponsGroups";
+                        case "Description":
+                            return "description";
+                        case "DiscountModule":
+                            return "discountModule";
+                        case "EndDate":
+                            return "endDate";
+                        case "ExternalId":
+                            return "externalId";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "Price":
+                            return "price";
+                        case "PricePlanIds":
+                            return "pricePlanIds";
+                        case "StartDate":
+                            return "startDate";
+                    }
+                    break;
+                    
+                case "KalturaCollectionFilter":
+                    switch(property.Name)
+                    {
+                        case "CollectionIdIn":
+                            return "collectionIdIn";
+                    }
+                    break;
+                    
+                case "KalturaCollectionListResponse":
+                    switch(property.Name)
+                    {
+                        case "Collections":
+                            return "objects";
                     }
                     break;
                     
@@ -5080,6 +5137,8 @@ namespace WebAPI.Reflection
                 case "KalturaProductPriceFilter":
                     switch(property.Name)
                     {
+                        case "CollectionIdIn":
+                            return "collectionIdIn";
                         case "CouponCodeEqual":
                             return "couponCodeEqual";
                         case "FileIdIn":
