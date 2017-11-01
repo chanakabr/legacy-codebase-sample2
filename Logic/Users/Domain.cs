@@ -1819,7 +1819,7 @@ namespace Core.Users
         {
             Dictionary<int, int> res = null;
             List<UserMediaMark> positions = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
-                        new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA });
+                        new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA, ePlayType.EPG });
 
             if (positions != null)
             {
