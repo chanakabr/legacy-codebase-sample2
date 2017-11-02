@@ -6241,7 +6241,7 @@ namespace Core.ConditionalAccess
 			{
 				if (subscriptions != null && subscriptions.Length > 0)
 				{
-                    BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE;
+                    BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK;
                     if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, userId, RolePermissions.PURCHASE_SUBSCRIPTION))
                     {
                         blockEntitlement = BlockEntitlementType.BLOCK_SUBSCRIPTION;
