@@ -1279,9 +1279,9 @@
             description of the subscription
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.PricePlanIds">
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.UsageModule">
             <summary>
-            Comma separated subscription price plan IDs
+            Collection usage module
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaCollection.CouponGroups">
@@ -1292,6 +1292,11 @@
         <member name="P:WebAPI.Models.Pricing.KalturaCollection.ExternalId">
             <summary>
             External ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.ProductCodes">
+            <summary>
+            List of Collection product codes
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaCollectionListResponse">

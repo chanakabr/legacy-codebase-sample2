@@ -84,13 +84,14 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "description", IsNullable = true)]
         public KalturaMultilingualString Description { get; set; }
 
+
         /// <summary>
-        /// Comma separated subscription price plan IDs
+        /// Collection usage module
         /// </summary>
-        [DataMember(Name = "pricePlanIds")]
-        [JsonProperty("pricePlanIds")]
-        [XmlElement(ElementName = "pricePlanIds", IsNullable = true)]
-        public string PricePlanIds { get; set; }
+        [DataMember(Name = "usageModule")]
+        [JsonProperty("usageModule")]
+        [XmlElement(ElementName = "usageModule", IsNullable = true)]
+        public KalturaUsageModule UsageModule { get; set; }
 
         /// <summary>
         /// List of Coupons group
@@ -108,6 +109,15 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
         public string ExternalId{ get; set; }
+
+        /// <summary>
+        /// List of Collection product codes
+        /// </summary>
+        [DataMember(Name = "productCodes")]
+        [JsonProperty("productCodes")]
+        [XmlArray(ElementName = "productCodes", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaProductCode> ProductCodes { get; set; }
     }
 
     /// <summary>

@@ -317,12 +317,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_sCodes))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sDescription)))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sName)))
-               //.ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_CollectionCode))
                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_ProductCode))
-               //.ForMember(dest => dest.PricePlanIds, opt => opt.MapFrom(src =>
-               //    src.m_MultiSubscriptionUsageModule != null && src.m_MultiSubscriptionUsageModule.Length > 0 ?
-               //    string.Join(",", src.m_MultiSubscriptionUsageModule.Select(um => um.m_nObjectID).ToArray()) :
-               //    string.Empty))
+               .ForMember(dest => dest.UsageModule, opt => opt.MapFrom(src => src.m_oCollectionUsageModule))
                ;
         }
 
