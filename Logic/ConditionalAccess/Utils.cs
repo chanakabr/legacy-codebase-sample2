@@ -7737,46 +7737,46 @@ namespace Core.ConditionalAccess
 
         internal static ApiObjects.Response.Status ConcurrencyResponseToResponseStatus(DomainResponseStatus mediaConcurrencyResponse)
         {
-            ApiObjects.Response.Status res;
-
+            ApiObjects.Response.Status status;
+            
             switch (mediaConcurrencyResponse)
             {
                 case DomainResponseStatus.LimitationPeriod:
-                    res = new ApiObjects.Response.Status((int)eResponseStatus.LimitationPeriod, "Limitation period");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.LimitationPeriod, "Limitation period");
                     break;
                 case DomainResponseStatus.Error:
-                    res = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     break;
                 case DomainResponseStatus.ExceededLimit:
-                    res = new ApiObjects.Response.Status((int)eResponseStatus.ExceededLimit, "Exceeded limit");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededLimit, "Exceeded limit");
                     break;
                 case DomainResponseStatus.DeviceTypeNotAllowed:
-                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceTypeNotAllowed, "Device type not allowed");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.DeviceTypeNotAllowed, "Device type not allowed");
                     break;
                 case DomainResponseStatus.DeviceNotInDomain:
-                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in household");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in household");
                     break;
                 case DomainResponseStatus.DeviceAlreadyExists:
-                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceAlreadyExists, "Device already exists");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.DeviceAlreadyExists, "Device already exists");
                     break;
                 case DomainResponseStatus.OK:
-                    res = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     break;
                 case DomainResponseStatus.DeviceExistsInOtherDomains:
-                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceExistsInOtherDomains, "Device exists in other household");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.DeviceExistsInOtherDomains, "Device exists in other household");
                     break;
                 case DomainResponseStatus.ConcurrencyLimitation:
-                    res = new ApiObjects.Response.Status((int)eResponseStatus.ConcurrencyLimitation, "Concurrency limitation");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.ConcurrencyLimitation, "Concurrency limitation");
                     break;
                 case DomainResponseStatus.MediaConcurrencyLimitation:
-                    res = new ApiObjects.Response.Status((int)eResponseStatus.MediaConcurrencyLimitation, "Media concurrency limitation");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.MediaConcurrencyLimitation, "Media concurrency limitation");
                     break;
                 default:
-                    res = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     break;
             }
 
-            return res;
+            return status;
         }
 
         public static Subscription GetSubscription(int groupId, int subscriptionId)

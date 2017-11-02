@@ -10497,7 +10497,7 @@ namespace Core.ConditionalAccess
 		public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
 			string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType, ref int fileMainStreamingCoID, ref int mediaId, ref string fileType)
 		{
-			LicensedLinkResponse res = new LicensedLinkResponse();
+			LicensedLinkResponse response = new LicensedLinkResponse();
 
 			try
 			{
@@ -10513,9 +10513,10 @@ namespace Core.ConditionalAccess
 				{
 					log.Debug("GetLicensedLinks - " + string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}", sSiteGuid, nMediaFileID, sDeviceName, sBasicLink));
 
-					res = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidInput.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-					return res;
+					response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidInput.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+					return response;
 				}
+
                 BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK; // default value 
                 // check permissions                     
                 bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, sSiteGuid, RolePermissions.PLAYBACK_PPV);
@@ -10551,16 +10552,16 @@ namespace Core.ConditionalAccess
 					{
 						log.Debug("GetLicensedLinks - " + string.Format("User is suspended. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID));
 						//returns empty url
-						res = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.UserSuspended.ToString(), (int)eResponseStatus.UserSuspended, "User suspended");
-						return res;
+						response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.UserSuspended.ToString(), (int)eResponseStatus.UserSuspended, "User suspended");
+						return response;
 					}
 
 					// validate file parameters
 					if (!TryGetFileUrlLinks(m_nGroupID, nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID, ref fileAltStreamingCoID, ref nMediaID))
 					{
 						log.Debug("GetLicensedLinks - " + string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}", sSiteGuid, nMediaFileID, sBasicLink));
-						res = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidFileData.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-						return res;
+						response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidFileData.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+						return response;
 					}
 
 					mediaId = nMediaID;
@@ -10573,8 +10574,8 @@ namespace Core.ConditionalAccess
 						   nMediaFileID,
 						   prices[0].m_oItemPrices[0].m_PriceReason.ToString(),
 						   prices[0].m_oItemPrices[0].m_oPrice != null ? prices[0].m_oItemPrices[0].m_oPrice.m_dPrice.ToString() : string.Empty));
-						res = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidPrice.ToString(), (int)eResponseStatus.NotEntitled, "Not entitled");
-						return res;
+						response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidPrice.ToString(), (int)eResponseStatus.NotEntitled, "Not entitled");
+						return response;
 					}
 
 					string CdnStrID = string.Empty;
@@ -10584,8 +10585,8 @@ namespace Core.ConditionalAccess
                     if (eLinkType != eObjectType.Recording && !sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) && !bIsDynamic)
 					{
 						log.Debug("GetLicensedLinks - " + string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}", sSiteGuid, nMediaFileID, sBasicLink));
-						res = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidBaseLink.ToString(), (int)eResponseStatus.InvalidBaseLink, "Invalid base link");
-						return res;
+						response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidBaseLink.ToString(), (int)eResponseStatus.InvalidBaseLink, "Invalid base link");
+						return response;
 					}
 
 					int domainID = 0;
@@ -10594,9 +10595,9 @@ namespace Core.ConditionalAccess
 					if (mediaConcurrencyResponse != DomainResponseStatus.OK)
 					{
 						log.Debug("GetLicensedLinks - " + string.Format("{0}, user:{1}, MFID:{2}", mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID));
-						res = new LicensedLinkResponse(string.Empty, string.Empty, mediaConcurrencyResponse.ToString());
-						res.Status = Utils.ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
-						return res;
+						response = new LicensedLinkResponse(string.Empty, string.Empty, mediaConcurrencyResponse.ToString());
+						response.Status = Utils.ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
+						return response;
 					}
 
 					if (Utils.IsItemPurchased(prices[0]))
@@ -10613,8 +10614,8 @@ namespace Core.ConditionalAccess
 
                     if (eLinkType == eObjectType.EPG || eLinkType == eObjectType.Recording)
 					{
-						res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-						return res;
+						response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+						return response;
 					}
 
 					// get adapter
@@ -10634,11 +10635,11 @@ namespace Core.ConditionalAccess
 
 						// main url
 						var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileMainUrl, fileType, nMediaID, nMediaFileID, sUserIP);
-						res.mainUrl = link != null ? link.Url : string.Empty;
+						response.mainUrl = link != null ? link.Url : string.Empty;
 
 						// alt url
 						link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl, fileType, nMediaID, nMediaFileID, sUserIP);
-						res.altUrl = link != null ? link.Url : string.Empty;
+						response.altUrl = link != null ? link.Url : string.Empty;
 					}
 					else if (!string.IsNullOrEmpty(CdnStrID))
 					{
@@ -10660,23 +10661,23 @@ namespace Core.ConditionalAccess
 							}
 						}
 
-						res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
+						response.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
 						licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
-						res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
+						response.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
 					}
 					else
 					{
 						log.DebugFormat("GetLicensedLink: No CDN configuration, fileId = {0}", nMediaFileID);
-						res.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No CDN configuration");
-						res.mainUrl = string.Empty;
-						res.altUrl = string.Empty;
-						return res;
+						response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No CDN configuration");
+						response.mainUrl = string.Empty;
+						response.altUrl = string.Empty;
+						return response;
 					}
 
-					if (!string.IsNullOrEmpty(res.mainUrl))
+					if (!string.IsNullOrEmpty(response.mainUrl))
 					{
-						res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-						res.status = mediaConcurrencyResponse.ToString();
+						response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+						response.status = mediaConcurrencyResponse.ToString();
 					}
 
 					// create PlayCycle
@@ -10687,7 +10688,7 @@ namespace Core.ConditionalAccess
 			}
 			catch (Exception ex)
 			{
-				res = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.Error.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+				response = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.Error.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
 				#region Logging
 				StringBuilder sb = new StringBuilder("Exception at GetLicensedLinks. ");
@@ -10708,7 +10709,7 @@ namespace Core.ConditionalAccess
 				#endregion
 			}
 
-			return res;
+			return response;
 		}
 
 		
