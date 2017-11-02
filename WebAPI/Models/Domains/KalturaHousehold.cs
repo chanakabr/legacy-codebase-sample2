@@ -211,7 +211,6 @@ namespace WebAPI.Models.Domains
         [JsonProperty("roleId")]
         [XmlElement(ElementName = "roleId")]
         [SchemeProperty(ReadOnly = true)]
-        [OldStandardProperty("roleId")]
         public int? RoleId { get; set; }
 
         internal long getId()
