@@ -65,6 +65,8 @@ namespace Kaltura
                         // create pin code                     
                         try
                         {
+                            userResponse.user.m_RespStatus = ResponseStatus.OK;
+
                             PinCodeResponse pinResponse = Core.Users.Module.GenerateLoginPIN(this.GroupId, userResponse.user.m_user.m_sSiteGUID, string.Empty);
                             if (pinResponse != null && pinResponse.resp != null && pinResponse.resp.Code == (int)eResponseStatus.OK)
                             {

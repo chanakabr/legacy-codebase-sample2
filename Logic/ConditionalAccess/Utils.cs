@@ -1259,12 +1259,7 @@ namespace Core.ConditionalAccess
             Subscription subscription = null;
             //create web service pricing insatance
             try
-            {
-                if (blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION)
-                {
-                    theReason = PriceReason.UserSuspended;
-                    return null;
-                }
+            {                
                 subscription = Core.Pricing.Module.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false);
                 if (subscription == null)
                 {
@@ -1322,6 +1317,12 @@ namespace Core.ConditionalAccess
                         }
 
                         price = TVinciShared.ObjectCopier.Clone<Price>((Price)(theSub.m_oSubscriptionPriceCode.m_oPrise));
+                    }
+
+                    if (blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION)
+                    {
+                        theReason = PriceReason.UserSuspended;
+                        return price;
                     }
 
                     theReason = PriceReason.ForPurchase;
@@ -2094,6 +2095,11 @@ namespace Core.ConditionalAccess
                 theReason = PriceReason.UserSuspended;
                 return null;
             }
+            else if (blockEntitlement == BlockEntitlementType.BLOCK_ALL)
+            {
+                theReason = PriceReason.UserSuspended;
+                return null;
+            }
             else if (userSuspendStatus == DAL.DomainSuspentionStatus.Suspended)
             {
                 userSuspendStatus = DAL.DomainSuspentionStatus.OK;
@@ -2114,7 +2120,7 @@ namespace Core.ConditionalAccess
                 mediaID = ExtractMediaIDOutOfMediaMapper(mapper, nMediaFileID);
             }
 
-            if (!IsAnonymousUser(sSiteGUID) && blockEntitlement != BlockEntitlementType.BLOCK_ALL)
+            if (!IsAnonymousUser(sSiteGUID))
             {
                 bool bEnd = false;
                 int nWaiver = 0;
