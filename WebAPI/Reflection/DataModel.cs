@@ -1180,7 +1180,6 @@ namespace WebAPI.Reflection
                         {"masterUsers", "master_users"},
                         {"pendingUsers", "pending_users"},
                         {"regionId", "region_id"},
-                        {"roleId", "roleId"},
                         {"usersLimit", "users_limit"},
                     };
                     break;
