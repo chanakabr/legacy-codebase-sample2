@@ -494,7 +494,6 @@ namespace Core.ConditionalAccess
             CollectionsResponse collectionsResponse = null;
             try
             {
-
                 subsRes = InitializeCreditDownloadedDict(lstSubCodes);
                 collsRes = InitializeCreditDownloadedDict(lstColCodes);
 
@@ -542,11 +541,9 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("fail in DoBundlesCreditNeedToBeDownloaded ", ex);
-
-
+                log.ErrorFormat("fail in DoBundlesCreditNeedToBeDownloaded lstSubCodes:{0}, lstColCodes:{1}, nMediaFileID:{2}, nGroupID:{3}, allUsersInDomain:{4}, ex:{5}",
+                    string.Join(",", lstSubCodes), string.Join(",", lstColCodes), nMediaFileID, nGroupID, string.Join(",", allUsersInDomain), ex);                
             }
-
         }
 
         private static bool CalcIsCreditNeedToBeDownloadedForSub(DateTime dbTimeNow, DateTime lastCreateDate, Subscription s)
