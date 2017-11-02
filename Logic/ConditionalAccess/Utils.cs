@@ -449,17 +449,19 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        private static List<string> GetColCodesForDBQuery(Collection[] colls)
+        private static List<string> GetColCodesForDBQuery(CollectionsResponse colls)
         {
             List<string> res = new List<string>();
-            if (colls != null && colls.Length > 0)
+            if (colls == null || colls.Collections == null || colls.Collections.Length == 0)
             {
-                for (int i = 0; i < colls.Length; i++)
+                return res;
+            }
+
+            for (int i = 0; i < colls.Collections.Length; i++)
+            {
+                if (colls.Collections[i] != null)
                 {
-                    if (colls[i] != null)
-                    {
-                        res.Add(colls[i].m_CollectionCode);
-                    }
+                    res.Add(colls.Collections[i].m_CollectionCode);
                 }
             }
 
@@ -490,49 +492,59 @@ namespace Core.ConditionalAccess
         {
             Subscription[] subs = null;
             CollectionsResponse collectionsResponse = null;
-
-            subsRes = InitializeCreditDownloadedDict(lstSubCodes);
-            collsRes = InitializeCreditDownloadedDict(lstColCodes);
-
-            if (lstSubCodes != null && lstSubCodes.Count > 0)
+            try
             {
-                subs = GetSubscriptionsDataWithCaching(lstSubCodes, nGroupID);
-            }
-            if (lstColCodes != null && lstColCodes.Count > 0)
-            {
-                collectionsResponse = GetCollectionsDataWithCaching(lstColCodes, nGroupID);
-            }
 
-            Dictionary<string, DateTime> subsToCreateDateMapping = null;
-            Dictionary<string, DateTime> colsToCreateDateMapping = null;
-            DateTime dbTimeNow = ODBCWrapper.Utils.FICTIVE_DATE;
-            List<string> subsLst = GetSubCodesForDBQuery(subs);
-            List<string> colsLst = GetColCodesForDBQuery(collectionsResponse.Collections);
-            List<string> domainUsers = allUsersInDomain.Select(item => item.ToString()).ToList<string>();
-            if (ConditionalAccessDAL.Get_LatestCreateDateOfBundlesUses(subsLst, colsLst, domainUsers, relatedMediaFiles, nGroupID,
-                ref subsToCreateDateMapping, ref colsToCreateDateMapping, ref dbTimeNow))
-            {
-                if (subs != null && subs.Length > 0)
+                subsRes = InitializeCreditDownloadedDict(lstSubCodes);
+                collsRes = InitializeCreditDownloadedDict(lstColCodes);
+
+                if (lstSubCodes != null && lstSubCodes.Count > 0)
                 {
-                    for (int i = 0; i < subs.Length; i++)
+                    subs = GetSubscriptionsDataWithCaching(lstSubCodes, nGroupID);
+                }
+                if (lstColCodes != null && lstColCodes.Count > 0)
+                {
+                    collectionsResponse = GetCollectionsDataWithCaching(lstColCodes, nGroupID);
+                }
+
+                Dictionary<string, DateTime> subsToCreateDateMapping = null;
+                Dictionary<string, DateTime> colsToCreateDateMapping = null;
+                DateTime dbTimeNow = ODBCWrapper.Utils.FICTIVE_DATE;
+                List<string> subsLst = GetSubCodesForDBQuery(subs);
+                List<string> colsLst = GetColCodesForDBQuery(collectionsResponse);
+                List<string> domainUsers = allUsersInDomain.Select(item => item.ToString()).ToList<string>();
+                if (ConditionalAccessDAL.Get_LatestCreateDateOfBundlesUses(subsLst, colsLst, domainUsers, relatedMediaFiles, nGroupID,
+                    ref subsToCreateDateMapping, ref colsToCreateDateMapping, ref dbTimeNow))
+                {
+                    if (subs != null && subs.Length > 0)
                     {
-                        if (subs[i] != null && subsToCreateDateMapping.ContainsKey(subs[i].m_SubscriptionCode))
+                        for (int i = 0; i < subs.Length; i++)
                         {
-                            subsRes[subs[i].m_SubscriptionCode] = CalcIsCreditNeedToBeDownloadedForSub(dbTimeNow, subsToCreateDateMapping[subs[i].m_SubscriptionCode], subs[i]);
+                            if (subs[i] != null && subsToCreateDateMapping.ContainsKey(subs[i].m_SubscriptionCode))
+                            {
+                                subsRes[subs[i].m_SubscriptionCode] = CalcIsCreditNeedToBeDownloadedForSub(dbTimeNow, subsToCreateDateMapping[subs[i].m_SubscriptionCode], subs[i]);
+                            }
+                        }
+                    }
+
+                    if (collectionsResponse != null && collectionsResponse.Status.Code == (int)eResponseStatus.OK && collectionsResponse.Collections != null && collectionsResponse.Collections.Length > 0)
+                    {
+                        for (int i = 0; i < collectionsResponse.Collections.Length; i++)
+                        {
+                            if (collectionsResponse.Collections[i] != null && colsToCreateDateMapping.ContainsKey(collectionsResponse.Collections[i].m_CollectionCode))
+                            {
+                                collsRes[collectionsResponse.Collections[i].m_CollectionCode] = CalcIsCreditNeedToBeDownloadedForCol(dbTimeNow, colsToCreateDateMapping[collectionsResponse.Collections[i].m_CollectionCode], collectionsResponse.Collections[i]);
+                            }
                         }
                     }
                 }
 
-                if (collectionsResponse != null && collectionsResponse.Status.Code == (int)eResponseStatus.OK && collectionsResponse.Collections != null && collectionsResponse.Collections.Length > 0)
-                {
-                    for (int i = 0; i < collectionsResponse.Collections.Length; i++)
-                    {
-                        if (collectionsResponse.Collections[i] != null && colsToCreateDateMapping.ContainsKey(collectionsResponse.Collections[i].m_CollectionCode))
-                        {
-                            collsRes[collectionsResponse.Collections[i].m_CollectionCode] = CalcIsCreditNeedToBeDownloadedForCol(dbTimeNow, colsToCreateDateMapping[collectionsResponse.Collections[i].m_CollectionCode], collectionsResponse.Collections[i]);
-                        }
-                    }
-                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail in DoBundlesCreditNeedToBeDownloaded ", ex);
+
+
             }
 
         }
