@@ -334,7 +334,7 @@ public partial class adm_collections_new : System.Web.UI.Page
         theRecord.SetConnectionKey("pricing_connection");
 
         DataRecordShortTextField dr_domain = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_domain.Initialize("Collection Code", "adm_table_header_nbg", "FormInput", "CODE", true);
+        dr_domain.Initialize("External ID", "adm_table_header_nbg", "FormInput", "CODE", true);
         theRecord.AddRecord(dr_domain);
 
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
