@@ -488,7 +488,7 @@ namespace Core.Pricing
             try
             {
                 //get from DB subscription List
-                DataTable dt = PricingDAL.GetCollectionsChannels(m_nGroupID, null);
+                DataTable dt = PricingDAL.GetCollectionsChannels(m_nGroupID);
                 if (dt == null || dt.Rows == null || dt.Rows.Count > 0) 
                     return null;
 
@@ -516,6 +516,8 @@ namespace Core.Pricing
                         mediaId = mapper[0].m_nMediaID;
                     }
                 }
+
+                int fileTypeId = Api.Module.GetMediaFileTypeID(m_nGroupID, mediaFileId);
 
                 List<int> lchannels = Api.Module.ChannelsContainingMedia(m_nGroupID, channelsCollectionsMapping.Keys.ToList(), mediaId, fileTypeId);
                 if (lchannels != null && lchannels.Count > 0)
