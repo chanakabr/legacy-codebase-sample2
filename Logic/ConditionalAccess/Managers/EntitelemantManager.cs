@@ -536,10 +536,7 @@ namespace Core.ConditionalAccess
                     entitlement = CreateCollectionEntitelment(cas, dr, isExpired);
                     if (entitlement != null)
                     {
-                        if (entitlement != null)
-                        {
-                            entitlementsResponse.entitelments.Add(entitlement);
-                        }
+                        entitlementsResponse.entitelments.Add(entitlement);
                     }
                 }
                 entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

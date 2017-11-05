@@ -44,6 +44,7 @@ namespace Core.ConditionalAccess
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly KLogger offlinePpvLogger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "OfflinePpvLogger");
         private static readonly KLogger offlineSubscriptionLogger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "OfflineSubscriptionLogger");
+        private static readonly KLogger offlineCollectionLogger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "offlineCollectionLogger");
         private static object lck = new object();
 
         public const string SERIES_ID = "seriesId";
@@ -7475,7 +7476,7 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error in InsertOfflinePpvUse, groupId: {0}, mediaFileId: {1}, productCode: {2}, userId: {3}, countryCode: {4}, languageCode: {5}, udid: {6}, nRelPP: {7}",
+                log.Error(string.Format("Error in InsertOfflineSubscriptionUse, groupId: {0}, mediaFileId: {1}, productCode: {2}, userId: {3}, countryCode: {4}, languageCode: {5}, udid: {6}, nRelPP: {7}",
                                         groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP), ex);
             }
         }
@@ -8372,6 +8373,22 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 log.ErrorFormat("HandleDomainUnifiedBillingCycle failed with ex = {0}", ex);
+            }
+        }
+
+        internal static void InsertOfflineCollectionUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, ContextData context)
+        {
+            try
+            {
+                context.Load();
+                // We write an empty string as the first parameter to split the start of the log from the offlineCollectionUsesLog row data
+                string infoToLog = string.Join(",", new object[] { " ", groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP });
+                offlineSubscriptionLogger.Info(infoToLog);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in InsertOfflineCollectionUse, groupId: {0}, mediaFileId: {1}, productCode: {2}, userId: {3}, countryCode: {4}, languageCode: {5}, udid: {6}, nRelPP: {7}",
+                                        groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP), ex);
             }
         }
     }

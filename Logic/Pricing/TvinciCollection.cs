@@ -230,6 +230,7 @@ namespace Core.Pricing
             string sDiscountModuleCode = ODBCWrapper.Utils.GetSafeStr(collectionRow["DISCOUNT_ID"]);
             string sName = ODBCWrapper.Utils.GetSafeStr(collectionRow["NAME"]);
             string sCouponGroupCode = ODBCWrapper.Utils.GetSafeStr(collectionRow["COUPON_GROUP_CODE"]);
+            string productCode = ODBCWrapper.Utils.GetSafeStr(collectionRow["CODE"]);
 
             DateTime dStart = new DateTime(2000, 1, 1);
             DateTime dEnd = new DateTime(2099, 1, 1);
@@ -245,7 +246,7 @@ namespace Core.Pricing
 
             retCollection.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, collectionDescription, m_nGroupID,
                                            nCollectionRowCode.ToString(), collectionChannels, dStart, dEnd, null, collectionName, sPriceCode, sUsageModuleCode, sName,
-                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, productCode);
 
             return retCollection;
         }
