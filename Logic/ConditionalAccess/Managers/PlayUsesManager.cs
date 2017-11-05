@@ -59,7 +59,7 @@ namespace Core.ConditionalAccess
                 }
                 else
                 {
-                    HandleCollectionPlayUses(cas, userId, mediaFileId, ip, countryCode, languageCode, udid, couponCode, domainId, groupId, itemPriceContainer, releventCollectionID, nRelPP, purchasingUserId);
+                    HandleCollectionPlayUses(userId, mediaFileId, countryCode, languageCode, udid, domainId, groupId, itemPriceContainer, mediaId, releventCollectionID, nRelPP, tasks, contextData);
                 }
 
                 if (tasks != null && tasks.Count > 0)
