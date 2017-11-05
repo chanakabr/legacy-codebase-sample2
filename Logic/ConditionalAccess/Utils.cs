@@ -2348,12 +2348,12 @@ namespace Core.ConditionalAccess
                     //cancellationWindow by relevantSub
                     if (relevantCol != null && relevantCol.m_oCollectionUsageModule != null)
                     {
-                        if (subsPurchase.ContainsKey(relevantCol.m_CollectionCode))
+                        if (collPurchase.ContainsKey(relevantCol.m_CollectionCode))
                         {
-                            nWaiver = subsPurchase[relevantCol.m_CollectionCode].nWaiver;
-                            dPurchaseDate = subsPurchase[relevantCol.m_CollectionCode].dtPurchaseDate;
+                            nWaiver = collPurchase[relevantCol.m_CollectionCode].nWaiver;
+                            dPurchaseDate = collPurchase[relevantCol.m_CollectionCode].dtPurchaseDate;
                             p_dtStartDate = dPurchaseDate;
-                            p_dtEndDate = subsPurchase[relevantCol.m_CollectionCode].dtEndDate;
+                            p_dtEndDate = collPurchase[relevantCol.m_CollectionCode].dtEndDate;
 
                             bCancellationWindow = IsCancellationWindowPerPurchase(relevantCol.m_oCollectionUsageModule, bCancellationWindow, nWaiver, dPurchaseDate);
                         }

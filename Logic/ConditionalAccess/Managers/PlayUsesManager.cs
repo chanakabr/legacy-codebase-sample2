@@ -59,8 +59,7 @@ namespace Core.ConditionalAccess
                 }
                 else
                 {
-                    //TODO: **************IRA HAS TO LOOK*******************
-                    //HandleCollectionPlayUse(cas, userId, mediaFileId, ip, countryCode, languageCode, udid, couponCode, domainId, groupId, itemPriceContainer, releventCollectionID, nRelPP, purchasingUserId);
+                    HandleCollectionPlayUses(cas, userId, mediaFileId, ip, countryCode, languageCode, udid, couponCode, domainId, groupId, itemPriceContainer, releventCollectionID, nRelPP, purchasingUserId);
                 }
 
                 if (tasks != null && tasks.Count > 0)
