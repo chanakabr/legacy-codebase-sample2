@@ -70,8 +70,6 @@ namespace WebAPI.Clients
             IdsResponse response = null;
             List<int> subscriptions = new List<int>();
 
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -805,6 +803,39 @@ namespace WebAPI.Clients
             collections = AutoMapper.Mapper.Map<List<KalturaCollection>>(response.Collections);
 
             return collections;
+        }
+
+        internal List<int> GetCollectionIdsContainingMediaFile(int groupId, int mediaFileID)
+        {
+            IdsResponse response = null;
+            List<int> subscriptions = new List<int>();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetCollectionIdsContainingMediaFile(groupId, 0, mediaFileID);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            subscriptions = PricingMappings.ConvertToIntList(response.Ids);
+
+            return subscriptions;
         }
     }
 }

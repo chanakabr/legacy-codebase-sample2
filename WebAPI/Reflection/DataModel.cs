@@ -2806,8 +2806,6 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Name":
                             return "name";
-                        case "Price":
-                            return "price";
                         case "PriceDetailsId":
                             return "priceDetailsId";
                         case "ProductCodes":
@@ -2824,6 +2822,8 @@ namespace WebAPI.Reflection
                     {
                         case "CollectionIdIn":
                             return "collectionIdIn";
+                        case "MediaFileIdEqual":
+                            return "mediaFileIdEqual";
                     }
                     break;
                     

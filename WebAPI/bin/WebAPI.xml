@@ -1259,11 +1259,6 @@
             The last date the collection is available for purchasing
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Price">
-            <summary>
-            The price of the subscription
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaCollection.DiscountModule">
             <summary>
             The internal discount module for the subscription
@@ -1322,6 +1317,11 @@
         <member name="P:WebAPI.Models.Pricing.KalturaCollectionFilter.CollectionIdIn">
             <summary>
             Comma separated collection IDs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollectionFilter.MediaFileIdEqual">
+            <summary>
+            Media-file ID to get the subscriptions by
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaPricePlanFilter.IdIn">

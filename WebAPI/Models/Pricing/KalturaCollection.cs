@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
@@ -50,14 +51,6 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("endDate")]
         [XmlElement(ElementName = "endDate")]
         public long? EndDate { get; set; }
-
-        /// <summary>
-        /// The price of the subscription
-        /// </summary>
-        [DataMember(Name = "price")]
-        [JsonProperty("price")]
-        [XmlElement(ElementName = "price", IsNullable = true)]
-        public KalturaPriceDetails Price { get; set; }
 
         /// <summary>
         /// The internal discount module for the subscription
@@ -160,9 +153,25 @@ namespace WebAPI.Models.Pricing
         [SchemeProperty(MinLength=1)]
         public string CollectionIdIn { get; set; }
 
+        /// <summary>
+        /// Media-file ID to get the subscriptions by
+        /// </summary>
+        [DataMember(Name = "mediaFileIdEqual")]
+        [JsonProperty("mediaFileIdEqual")]
+        [XmlElement(ElementName = "mediaFileIdEqual", IsNullable = true)]
+        public int? MediaFileIdEqual { get; set; }
+
         public override KalturaCollectionOrderBy GetDefaultOrderByValue()
         {
             return KalturaCollectionOrderBy.NONE;
+        }
+
+        internal void Validate()
+        {
+            if (MediaFileIdEqual.HasValue && !string.IsNullOrEmpty(CollectionIdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaCollectionFilter.collectionIdIn", "KalturaCollectionFilter.mediaFileIdEqual");
+            }
         }
 
         internal string[] getCollectionIdIn()

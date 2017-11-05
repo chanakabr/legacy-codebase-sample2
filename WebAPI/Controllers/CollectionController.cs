@@ -35,15 +35,30 @@ namespace WebAPI.Controllers
         public KalturaCollectionListResponse List(KalturaCollectionFilter filter)
         {
             KalturaCollectionListResponse response = new KalturaCollectionListResponse();
-            
+
+            filter.Validate();
+
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
 
             try
             {
-                response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, filter.getCollectionIdIn(), udid, language, filter.OrderBy);
-                response.TotalCount = response.Collections != null ? response.Collections.Count : 0;
+                if (!string.IsNullOrEmpty(filter.CollectionIdIn))
+                {
+                    response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, filter.getCollectionIdIn(), udid, language, filter.OrderBy);
+                    response.TotalCount = response.Collections != null ? response.Collections.Count : 0;
+                }
+                else if (filter.MediaFileIdEqual.HasValue)
+                {
+                    List<int> collectionsIds = ClientsManager.PricingClient().GetCollectionIdsContainingMediaFile(groupId, filter.MediaFileIdEqual.Value);
+                    
+                    // get collections
+                    if (collectionsIds != null && collectionsIds.Count > 0)
+                    {
+                        response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, collectionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy);
+                    }
+                }
                 
             }
             catch (ClientException ex)
