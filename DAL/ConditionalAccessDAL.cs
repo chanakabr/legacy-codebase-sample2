@@ -1775,7 +1775,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static long Insert_NewCollectionUse(long groupID, string collCode, long mediaFileID, string siteGuid, bool isCreditDownloaded,
+        public static bool Insert_NewCollectionUse(long groupID, string collCode, long mediaFileID, string siteGuid, bool isCreditDownloaded,
             string countryCode, string langCode, string deviceName)
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewCollectionUse");
@@ -1801,15 +1801,15 @@ namespace DAL
             sp.AddParameter("@IsActive", 1);
             sp.AddParameter("@Status", 1);
 
-            return sp.ExecuteReturnValue<long>();
+            return sp.ExecuteReturnValue<long>() > 0;
         }
 
-        public static bool Update_ColPurchaseNumOfUses(string colCode, string siteGuid, long groupID)
+        public static bool Update_ColPurchaseNumOfUses(string colCode, long domainId, long groupID)
         {
             StoredProcedure sp = new StoredProcedure("Update_ColPurchaseNumOfUses");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@ColCode", colCode);
-            sp.AddParameter("@SiteGuid", siteGuid);
+            sp.AddParameter("@DomainId", domainId);
             sp.AddParameter("@GroupID", groupID);
 
             return sp.ExecuteReturnValue<bool>();
