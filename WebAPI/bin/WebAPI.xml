@@ -1299,6 +1299,11 @@
             List of Collection product codes
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.PriceDetailsId">
+            <summary>
+            The ID of the price details associated with this collection
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Pricing.KalturaCollectionListResponse">
             <summary>
             Collections list

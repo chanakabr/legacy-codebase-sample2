@@ -118,6 +118,15 @@ namespace WebAPI.Models.Pricing
         [XmlArray(ElementName = "productCodes", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaProductCode> ProductCodes { get; set; }
+
+        /// <summary>
+        /// The ID of the price details associated with this collection
+        /// </summary>
+        [DataMember(Name = "priceDetailsId")]
+        [JsonProperty("priceDetailsId")]
+        [XmlElement(ElementName = "priceDetailsId")]
+        [SchemeProperty(MinInteger = 1)]
+        public long? PriceDetailsId { get; set; }
     }
 
     /// <summary>

@@ -2808,6 +2808,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "Price":
                             return "price";
+                        case "PriceDetailsId":
+                            return "priceDetailsId";
                         case "ProductCodes":
                             return "productCodes";
                         case "StartDate":
