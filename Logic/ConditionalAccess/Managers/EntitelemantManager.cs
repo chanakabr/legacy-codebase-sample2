@@ -166,7 +166,27 @@ namespace Core.ConditionalAccess
                         }
 
                         int[] arrMediaFileIDs = { mediaFileId };
-                        MediaFileItemPricesContainer[] arrPrices = cas.GetItemsPrices(arrMediaFileIDs, userId, string.Empty, true, languageCode, deviceName);
+                        
+                        // check permissions      
+                        BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK;
+                        bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_PPV);
+                        bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
+
+                        if (!permittedPpv && !permittedSubscription)
+                        {
+                            blockEntitlement = BlockEntitlementType.BLOCK_ALL;
+                        }
+                        else if (!permittedPpv)
+                        {
+                            blockEntitlement = BlockEntitlementType.BLOCK_PPV;
+                        }
+                        else if (!permittedSubscription)
+                        {
+                            blockEntitlement = BlockEntitlementType.BLOCK_SUBSCRIPTION;
+                        }
+                        
+                        MediaFileItemPricesContainer[] arrPrices = cas.GetItemsPrices(arrMediaFileIDs, userId, string.Empty, true, languageCode, deviceName, string.Empty, null, blockEntitlement);
+
                         if (arrPrices != null && arrPrices.Length > 0)
                         {
                             MediaFileItemPricesContainer objPrice = arrPrices[0];
