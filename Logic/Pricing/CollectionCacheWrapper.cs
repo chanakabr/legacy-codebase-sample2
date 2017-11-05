@@ -161,5 +161,10 @@ namespace Core.Pricing
                 return this.Index.CompareTo(other.Index);
             }
         }
+
+        public override IdsResponse GetCollectionIdsContainingMediaFile(int mediaId, int mediaFileID)
+        {
+            return this.originalBaseCollection.GetCollectionIdsContainingMediaFile(mediaId, mediaFileID);
+        }
     }
 }

@@ -476,5 +476,67 @@ namespace Core.Pricing
         {
             return ds != null && ds.Tables != null && ds.Tables.Count == 4;
         }
+
+        public override IdsResponse GetCollectionIdsContainingMediaFile(int mediaId, int mediaFileId)
+        {
+            IdsResponse response = new IdsResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()),
+                Ids = new List<int>()
+            };
+
+            try
+            {
+                //get from DB subscription List
+                DataTable dt = PricingDAL.GetCollectionsChannels(m_nGroupID, null);
+                if (dt == null || dt.Rows == null || dt.Rows.Count > 0) 
+                    return null;
+
+                Dictionary<int, List<int>> channelsCollectionsMapping = new Dictionary<int, List<int>>(); /*channelID , Collections*/
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    int channelId = ODBCWrapper.Utils.GetIntSafeVal(dr["channel_id"]);
+                    int collectionId = ODBCWrapper.Utils.GetIntSafeVal(dr["collection_id"]);
+                    if (channelsCollectionsMapping.ContainsKey(channelId))
+                    {
+                        channelsCollectionsMapping[channelId].Add(collectionId);
+                    }
+                    else
+                    {
+                        channelsCollectionsMapping.Add(channelId, new List<int>(1) { collectionId });
+                    }
+                }
+
+                if (mediaFileId > 0 && mediaId == 0)
+                {
+                    MeidaMaper[] mapper = Api.Module.MapMediaFiles(m_nGroupID, new int[] { mediaFileId });
+                    if (mapper != null && mapper.Length > 0 && mapper[0] != null)
+                    {
+                        mediaId = mapper[0].m_nMediaID;
+                    }
+                }
+
+                List<int> lchannels = Api.Module.ChannelsContainingMedia(m_nGroupID, channelsCollectionsMapping.Keys.ToList(), mediaId, fileTypeId);
+                if (lchannels != null && lchannels.Count > 0)
+                {
+                    foreach (int channelItem in lchannels)
+                    {
+                        if (channelsCollectionsMapping.ContainsKey(channelItem))
+                        {
+                            response.Ids.AddRange(channelsCollectionsMapping[channelItem]);
+                        }
+                    }
+                }
+
+                response.Ids = response.Ids.Distinct().ToList();
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed to get collections for mediaId = {0}, MediaFileId = {1}", mediaId, mediaFileId), ex);
+            }
+            return response;
+        }
     }
 }

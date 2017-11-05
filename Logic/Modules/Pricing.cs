@@ -1544,5 +1544,19 @@ namespace Core.Pricing
 
             return response;
         }
+
+        public static IdsResponse GetCollectionIdsContainingMediaFile(int groupId, int mediaId, int mediaFileID)
+        {
+            BaseCollection t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                return (new CollectionCacheWrapper(t)).GetCollectionIdsContainingMediaFile(mediaId, mediaFileID);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

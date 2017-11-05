@@ -856,5 +856,24 @@ namespace Core.ConditionalAccess
 
         #endregion
 
+
+        public static int jumps(int n)
+        {
+            int res = 0;
+
+            if (n == 2)
+            {
+                res += 2;
+            }
+
+            else if (res == 1)
+            {
+                res++;
+            }
+
+            else res += jumps(n - 1);
+            return res;
+
+        }
     }
 }
