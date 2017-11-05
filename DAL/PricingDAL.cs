@@ -1564,7 +1564,7 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataTable GetCollectionsChannels(int groupId, List<long> collectionIds)
+        public static DataTable GetCollectionsChannels(int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCollectionsChannels");
             sp.SetConnectionKey("pricing_connection");
