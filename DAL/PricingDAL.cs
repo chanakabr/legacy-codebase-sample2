@@ -1563,5 +1563,13 @@ namespace DAL
             sp.AddParameter("@priceCodeId", priceCodeId);
             return sp.ExecuteReturnValue<int>() > 0;
         }
+
+        public static DataTable GetCollectionsChannels(int groupId, List<long> collectionIds)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCollectionsChannels");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupId);
+            return sp.Execute();
+        }
     }
 }
