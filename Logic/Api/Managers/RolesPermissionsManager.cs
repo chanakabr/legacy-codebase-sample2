@@ -105,15 +105,15 @@ namespace APILogic.Api.Managers
         {
             try
             {
+                if (string.IsNullOrEmpty(userId) || userId == "0")// anonymouse
+                {
+                    return true;
+                }
+
                 Dictionary<string, List<KeyValuePair<long, bool>>> rolesPermission = GetPermissionsRolesByGroup(groupId);
                 if (rolesPermission != null && rolesPermission.Count() > 0 && rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))
-                {
-                    if (userId == "0")// anonymouse
-                    {
-                        return true;
-                    }
+                {   
                     List<long> userRoleIDs = GetRoleIds(groupId, userId);
-
                     if (userRoleIDs != null && userRoleIDs.Count() > 0)
                     {
                         if (rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))
