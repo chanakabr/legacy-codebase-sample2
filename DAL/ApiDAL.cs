@@ -3181,10 +3181,7 @@ namespace DAL
                     retrievedGroupId = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "GROUP_ID");
 
                     // if the role - permission connection is overridden by another group - get the exclusion status of the connection
-                    if (groupId != 0)
-                    {
-                        isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "IS_EXCLUDED") == 1 ? true : false;
-                    }
+                    isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "IS_EXCLUDED") == 1 ? true : false;                  
 
                     // build the permission object depending on the type
                     switch (permissionType)
