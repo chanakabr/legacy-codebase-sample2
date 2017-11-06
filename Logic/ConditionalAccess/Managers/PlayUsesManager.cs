@@ -268,7 +268,7 @@ namespace Core.ConditionalAccess
                     // failed to update num of uses in subscriptions_purchases.
                     #region Logging
                     StringBuilder sb = new StringBuilder("Failed to update num of uses in subscriptions_purchases table. ");
-                    sb.Append(String.Concat("Sub Cd: ", itemPriceContainer.m_relevantSub.m_sObjectCode));
+                    sb.Append(String.Concat("Sub Cd: ", itemPriceContainer.m_relevantCol.m_sObjectCode));
                     sb.Append(String.Concat(" DomainId: ", domainId));
                     sb.Append(String.Concat(" Group ID: ", groupId));
                     sb.Append(String.Concat(" MF ID: ", mediaFileId));
