@@ -47,7 +47,6 @@ namespace WebAPI.Controllers
                 if (!string.IsNullOrEmpty(filter.CollectionIdIn))
                 {
                     response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, filter.getCollectionIdIn(), udid, language, filter.OrderBy);
-                    response.TotalCount = response.Collections != null ? response.Collections.Count : 0;
                 }
                 else if (filter.MediaFileIdEqual.HasValue)
                 {
@@ -59,7 +58,8 @@ namespace WebAPI.Controllers
                         response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, collectionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy);
                     }
                 }
-                
+
+                response.TotalCount = response.Collections != null ? response.Collections.Count : 0;
             }
             catch (ClientException ex)
             {
