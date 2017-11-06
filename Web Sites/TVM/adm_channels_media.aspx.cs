@@ -532,34 +532,41 @@ public partial class adm_channels_media : System.Web.UI.Page
             List<string> mediaIds = new List<string>();
             List<string> epgIds = new List<string>();
 
-            foreach (var item in response)
+            if (response == null)
             {
-                switch (item.AssetType)
-                {
-                    case apiWS.eAssetTypes.EPG:
-                        {
-                            epgIds.Add(item.AssetId);
-                            break;
-                        }
-                    case apiWS.eAssetTypes.MEDIA:
-                        {
-                            mediaIds.Add(item.AssetId);
-                            break;
-                        }
-                    case apiWS.eAssetTypes.NPVR:
-                        break;
-                    case apiWS.eAssetTypes.UNKNOWN:
-                        break;
-                    default:
-                        break;
-                }
+                log.ErrorFormat("GetAssetIdsFromCatalog - GetChannelAssets returned a null response for channelId = {0}", channelId);
             }
+            else
+            {
+                foreach (var item in response)
+                {
+                    switch (item.AssetType)
+                    {
+                        case apiWS.eAssetTypes.EPG:
+                            {
+                                epgIds.Add(item.AssetId);
+                                break;
+                            }
+                        case apiWS.eAssetTypes.MEDIA:
+                            {
+                                mediaIds.Add(item.AssetId);
+                                break;
+                            }
+                        case apiWS.eAssetTypes.NPVR:
+                            break;
+                        case apiWS.eAssetTypes.UNKNOWN:
+                            break;
+                        default:
+                            break;
+                    }
+                }
 
-            media = string.Join(",", mediaIds);
-            epgs = string.Join(",", epgIds);
+                media = string.Join(",", mediaIds);
+                epgs = string.Join(",", epgIds);
 
-            countMedia = mediaIds.Count;
-            countEpg = epgIds.Count;
+                countMedia = mediaIds.Count;
+                countEpg = epgIds.Count;
+            }
         }
         catch (Exception ex)
         {
