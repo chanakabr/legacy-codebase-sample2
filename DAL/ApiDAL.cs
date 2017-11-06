@@ -3259,10 +3259,10 @@ namespace DAL
                     groupId = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "GROUP_ID");
 
                     // if the permission - permission item connection is overridden by another group - get the exclusion status of the connection
-                    if (groupId != 0)
-                    {
+                    //if (groupId != 0)
+                   // {
                         isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "IS_EXCLUDED") == 1 ? true : false;
-                    }
+                    //}
 
                     // build the permission item object depending on the type
                     switch (permissionItemType)
@@ -3271,7 +3271,8 @@ namespace DAL
                             permissionItem = new ApiActionPermissionItem()
                             {
                                 Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION"),
-                                Service = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "SERVICE")                                
+                                Service = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "SERVICE"),
+                                IsExcluded = isExcluded,
 
                             };
                             break;
@@ -3281,6 +3282,7 @@ namespace DAL
                                 Object = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "OBJECT"),
                                 Parameter = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "PARAMETER"),
                                 Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION"),
+                                IsExcluded = isExcluded,
                             };
                             break;
                         case ePermissionItemType.Argument:
@@ -3289,6 +3291,7 @@ namespace DAL
                                 Service = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "SERVICE"),
                                 Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION"),
                                 Parameter = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "PARAMETER"),
+                                IsExcluded = isExcluded
                             };
                             break;
                         default:
@@ -3300,8 +3303,6 @@ namespace DAL
                     {
                         permissionItem.Id = ODBCWrapper.Utils.GetLongSafeVal(permissionsRow, "ID");
                         permissionItem.Name = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "NAME");
-
-
                         permissionId = ODBCWrapper.Utils.GetLongSafeVal(permissionsRow, "PERMISSION_ID");
 
                         // add the connection and the permission item to the permission - permission items dictionary 
