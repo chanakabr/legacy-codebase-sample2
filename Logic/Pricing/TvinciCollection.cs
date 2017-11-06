@@ -489,7 +489,7 @@ namespace Core.Pricing
             {
                 //get from DB subscription List
                 DataTable dt = PricingDAL.GetCollectionsChannels(m_nGroupID);
-                if (dt == null || dt.Rows == null || dt.Rows.Count > 0) 
+                if (dt == null || dt.Rows == null || dt.Rows.Count == 0) 
                     return null;
 
                 Dictionary<int, List<int>> channelsCollectionsMapping = new Dictionary<int, List<int>>(); /*channelID , Collections*/
