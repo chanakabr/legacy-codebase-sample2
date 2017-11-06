@@ -33,6 +33,10 @@ namespace APILogic.Api.Managers
 
                 foreach (Role role in roles)
                 {
+                    if (role.Permissions == null)
+                    {
+                        continue;
+                    }
                     foreach (Permission permission in role.Permissions)
                     {
                         key = permission.Name.ToLower();
