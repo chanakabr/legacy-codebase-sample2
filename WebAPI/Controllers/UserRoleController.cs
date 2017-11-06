@@ -140,7 +140,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>        
         [Route("update"), HttpPost]       
         [ApiAuthorize]
-        [SchemeArgument("id", MinInteger = 1)]
+        [SchemeArgument("id", MinLong = 1)]
         public KalturaUserRole Update(long id, KalturaUserRole role)
         {
             KalturaUserRole response = null;
