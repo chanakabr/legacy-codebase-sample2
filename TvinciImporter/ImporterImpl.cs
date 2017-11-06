@@ -5689,15 +5689,12 @@ namespace TvinciImporter
         {
             internal static Binding CreateInstance()
             {
-                WSHttpBinding binding = new WSHttpBinding();
-                binding.Security.Mode = SecurityMode.None;
+                WSHttpBinding binding = new WSHttpBinding("");
                 binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
                 binding.UseDefaultWebProxy = true;
                 return binding;
             }
-
         }
-
 
         internal static WSCatalog.IserviceClient GetWCFSvc(string sSiteUrl)
         {
