@@ -7642,7 +7642,7 @@ namespace Core.ConditionalAccess
             {
                 if (moduleCode.Contains("s:"))
                     return eTransactionType.Subscription;
-                if (moduleCode.Contains("c:"))
+                if (moduleCode.Contains("b:"))
                     return eTransactionType.Collection;
             }
             return eTransactionType.PPV;
