@@ -168,6 +168,10 @@ namespace WebAPI.Models.Pricing
 
         internal void Validate()
         {
+            if (!MediaFileIdEqual.HasValue && string.IsNullOrEmpty(CollectionIdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaCollectionFilter.collectionIdIn", "KalturaCollectionFilter.mediaFileIdEqual");
+            }
             if (MediaFileIdEqual.HasValue && !string.IsNullOrEmpty(CollectionIdIn))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaCollectionFilter.collectionIdIn", "KalturaCollectionFilter.mediaFileIdEqual");

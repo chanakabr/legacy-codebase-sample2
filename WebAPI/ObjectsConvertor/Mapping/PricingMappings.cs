@@ -321,6 +321,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_ProductCode))
                .ForMember(dest => dest.UsageModule, opt => opt.MapFrom(src => src.m_oCollectionUsageModule))
                .ForMember(dest => dest.PriceDetailsId, opt => opt.MapFrom(src => src.m_oCollectionPriceCode != null ? src.m_oCollectionPriceCode.m_nObjectID : 0))
+               .ForMember(dest => dest.ProductCodes, opt => opt.MapFrom(src => ConvertProductCodes(src.ExternalProductCodes)))
                ;
         }
 
