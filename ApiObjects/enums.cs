@@ -933,7 +933,8 @@ namespace ApiObjects
         PURCHASE_SUBSCRIPTION = 2,
         PURCHASE_PPV = 3,
         RENEW_SUBSCRIPTION = 4,
-        PURCHASE_SERVICE = 5
+        PURCHASE_SERVICE = 5,
+        LOGIN = 6
     }
 
     public enum BlockEntitlementType

@@ -873,20 +873,29 @@ namespace Core.Users
             Role suspendDefaultRole = null;
 
             // validate domain is not suspended
-            if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !roleId.HasValue)
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                //get default sespend role id 
-                suspendDefaultRole = GetDefaultSuspendedRole();
-                if (suspendDefaultRole != null)
+                if (!roleId.HasValue)
                 {
-                    // if domain == the default role id return "Domain already suspended"
-                    if (domain.roleId.HasValue && domain.roleId.Value == (int)suspendDefaultRole.Id)
+                    //get default sespend role id 
+                    suspendDefaultRole = GetDefaultSuspendedRole();
+                    if (suspendDefaultRole != null)
                     {
-                        result.Code = (int)eResponseStatus.DomainAlreadySuspended;
-                        result.Message = "Domain already suspended";
-                        return result;
+                        // if domain == the default role id return "Domain already suspended"
+                        if (domain.roleId.HasValue && domain.roleId.Value == (int)suspendDefaultRole.Id)
+                        {
+                            result.Code = (int)eResponseStatus.DomainAlreadySuspended;
+                            result.Message = "Domain already suspended";
+                            return result;
+                        }
                     }
-                }               
+                }
+                else if (domain.roleId.HasValue && domain.roleId.Value == roleId.Value)
+                {
+                    result.Code = (int)eResponseStatus.DomainAlreadySuspended;
+                    result.Message = "Domain already suspended";
+                    return result;
+                }
             }
 
             domain.shouldUpdateSuspendStatus = true;
