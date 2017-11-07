@@ -5689,7 +5689,7 @@ namespace TvinciImporter
         {
             internal static Binding CreateInstance()
             {
-                WSHttpBinding binding = new WSHttpBinding("");
+                WSHttpBinding binding = new WSHttpBinding("WSHttpBinding_Iservice");
                 binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
                 binding.UseDefaultWebProxy = true;
                 return binding;
