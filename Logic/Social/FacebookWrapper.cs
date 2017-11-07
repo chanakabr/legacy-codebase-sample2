@@ -1657,6 +1657,13 @@ namespace Core.Social
                 //User Exists
                 if (uObj.m_RespStatus == ResponseStatus.OK)
                 {
+                    if (uObj.m_user != null &&
+                       !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, uObj.m_user.m_sSiteGUID, RolePermissions.LOGIN))
+                    {
+                        fbs.status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                        return fbs;
+                    }
+
                     string sFBToken = uObj.m_user.m_oBasicData.m_sFacebookToken;
 
                     //Update user FBToken
