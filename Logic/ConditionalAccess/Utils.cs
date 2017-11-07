@@ -2342,6 +2342,11 @@ namespace Core.ConditionalAccess
                 }
                 else
                 {
+                    if (blockEntitlement == BlockEntitlementType.BLOCK_PPV)
+                    {
+                        theReason = PriceReason.UserSuspended;
+                        return null;
+                    }
                     // the media file was not purchased in any way. calculate its price as a single media file and its price reason
                     price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty, out dtDiscountEndDate);
                     if (IsFreeMediaFile(theReason, price))
