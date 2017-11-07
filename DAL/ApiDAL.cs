@@ -3254,13 +3254,8 @@ namespace DAL
 
                     permissionItemType = (ePermissionItemType)ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "TYPE");
                     groupId = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "GROUP_ID");
-
-                    // if the permission - permission item connection is overridden by another group - get the exclusion status of the connection
-                    //if (groupId != 0)
-                   // {
-                        isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "IS_EXCLUDED") == 1 ? true : false;
-                    //}
-
+                    isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "IS_EXCLUDED") == 1 ? true : false;
+                   
                     // build the permission item object depending on the type
                     switch (permissionItemType)
                     {
@@ -3310,7 +3305,7 @@ namespace DAL
                         }
 
                         // if the connection should be excluded for this group - remove it from the dictionary
-                        if (isExcluded && permissionPermissionItems[permissionId].ContainsKey(permissionItem.Id))
+                        if (isExcluded && permissionPermissionItems[permissionId].ContainsKey(permissionItem.Id) && !permissionPermissionItems[permissionId][permissionItem.Id].IsExcluded)
                         {
                             permissionPermissionItems[permissionId].Remove(permissionItem.Id);
                         }
