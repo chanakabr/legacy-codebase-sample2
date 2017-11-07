@@ -156,10 +156,20 @@ namespace ExcelGenerator
                 int nCount = selectQuery.Table("query").DefaultView.Count;
                 for (int i = 0; i < nCount; i++)
                 {
-                    int nMediaType = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "media_type_id", i);
-                    string sDesc = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "description", i);
+                    try
+                    {
+                        int nMediaType = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "media_type_id", i);
+                        string sDesc = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "description", i);
 
-                    hMediaTypes.Add(nMediaType, sDesc);
+                        if (!hMediaTypes.ContainsKey(nMediaType))
+                        {
+                            hMediaTypes.Add(nMediaType, sDesc);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error when loading media file type, ex = {0}", ex);
+                    }
                 }
             }
             selectQuery.Finish();
