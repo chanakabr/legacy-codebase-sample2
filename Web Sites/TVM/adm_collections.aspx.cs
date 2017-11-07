@@ -80,7 +80,12 @@ public partial class adm_collections : System.Web.UI.Page
             linkColumn1.AddQueryStringValue("collection_id", "field=id");
             theTable.AddLinkColumn(linkColumn1);
         }
-
+        {
+            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_collection_product_codes.aspx", "Product Codes", "");
+            linkColumn1.AddQueryStringValue("collection_id", "field=id");
+            linkColumn1.AddQueryCounterValue("select count(*) as val from Pricing.dbo.products_codes where status=1 and is_active=1 and PRODUCT_TYPE=2 and PRODUCT_ID=", "field=id");
+            theTable.AddLinkColumn(linkColumn1);
+        }
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_collections_new.aspx", "Edit", "");
