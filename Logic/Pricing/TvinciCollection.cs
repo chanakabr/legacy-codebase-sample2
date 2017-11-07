@@ -474,7 +474,7 @@ namespace Core.Pricing
 
         private bool IsCollsDataSetValid(DataSet ds)
         {
-            return ds != null && ds.Tables != null && ds.Tables.Count == 4;
+            return ds != null && ds.Tables != null && ds.Tables.Count == 5;
         }
 
         public override IdsResponse GetCollectionIdsContainingMediaFile(int mediaId, int mediaFileId)
