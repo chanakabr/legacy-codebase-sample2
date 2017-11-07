@@ -31,6 +31,15 @@ namespace WebAPI.Models.API
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
         public string Name { get; set; }
+                        
+        /// <summary>
+        /// Permission isExcluded
+        /// </summary>
+        [DataMember(Name = "isExcluded")]
+        [JsonProperty("isExcluded")]
+        [XmlElement(ElementName = "isExcluded")]
+        public bool IsExcluded { get; set; }
+
 
         internal long getId()
         {

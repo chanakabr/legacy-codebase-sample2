@@ -33,11 +33,13 @@ namespace WebAPI.Managers
         /// <returns>Dictionary of dictionaries, where the key of the first dictionary is a string representing a service action pair (format: {service}_{action}) 
         /// and the value is a dictionary representing all the role IDs containing the permission item of the service action pair, and the users group list that is relevant for the action, 
         /// the second's dictionary key is the role ID and the value is a ';' separated list of users allowed in a group permission</returns>
-        internal static Dictionary<string, Dictionary<long, string>> BuildPermissionItemsDictionary(List<KalturaUserRole> roles)
+       
+       internal static Dictionary<string, Dictionary<long, Tuple<string, bool>>>  BuildPermissionItemsDictionary(List<KalturaUserRole> roles)
         {
-            Dictionary<string, Dictionary<long, string>> dictionary = new Dictionary<string, Dictionary<long, string>>();
-
+            Dictionary<string, Dictionary<long, Tuple<string, bool>>> dictionary = new Dictionary<string, Dictionary<long, Tuple<string, bool>>>();
+       
             string key = null;
+            bool isExcluded = false;
             KalturaApiActionPermissionItem apiActionPermissionItem;
             KalturaApiParameterPermissionItem apiParameterPermissionItem;
             KalturaApiArgumentPermissionItem apiArgumentPermissionItem;
@@ -79,24 +81,26 @@ namespace WebAPI.Managers
                         {
                             continue;
                         }
-
+                        isExcluded = permissionItem.IsExcluded;
 
                         // if the dictionary already contains the action, try to append the role and /or the users group
                         if (dictionary.ContainsKey(key))
                         {
                             if (!dictionary[key].ContainsKey(role.getId()))
                             {
-                                dictionary[key].Add(role.getId(), usersGroup);
+                                dictionary[key].Add(role.getId(), new Tuple<string, bool>(usersGroup, isExcluded));// usersGroup);
                             }
                             else
                             {
-                                dictionary[key][role.getId()] = string.Format("{0};{1}", usersGroup, dictionary[key][role.getId()]);
+                                dictionary[key][role.getId()] = new Tuple<string, bool>(string.Format("{0};{1}", usersGroup, dictionary[key][role.getId()]), isExcluded);
                             }
                         }
                         // add the action to the dictionary
                         else
                         {
-                            dictionary.Add(key, new Dictionary<long, string>() { { role.getId(), usersGroup } });
+                            Dictionary<long, Tuple<string, bool>> d = new Dictionary<long, Tuple<string, bool>>();
+                            d.Add(role.getId(), new Tuple<string, bool>(usersGroup, isExcluded));
+                            dictionary.Add(key, d);
                         }
                     }
                 }
@@ -235,8 +239,8 @@ namespace WebAPI.Managers
             usersGroup = null;
             StringBuilder usersGroupStringBuilder = new StringBuilder();
 
-            // get group's roles schema
-            Dictionary<string, Dictionary<long, string>> permissionItemsDictionary = GroupsManager.GetGroup(groupId).PermissionItemsRolesMapping;
+            // get group's roles schema            
+            Dictionary<string, Dictionary<long, Tuple<string, bool>>>  permissionItemsDictionary = GroupsManager.GetGroup(groupId).PermissionItemsRolesMapping;
 
             // if the permission for the property is not defined in the schema - return false
             if (!permissionItemsDictionary.ContainsKey(objectPropertyKey))
@@ -244,7 +248,7 @@ namespace WebAPI.Managers
                 return false;
             }
 
-            Dictionary<long, string> roles = permissionItemsDictionary[objectPropertyKey];
+            Dictionary<long, Tuple<string, bool>> roles = permissionItemsDictionary[objectPropertyKey];
             bool isPermitted = false;
 
 
@@ -253,6 +257,12 @@ namespace WebAPI.Managers
                 // if the permission item for the action is part of one of the supplied roles - return true
                 if (roles.ContainsKey(roleId))
                 {
+                    if (roles[roleId].Item2)
+                    {
+                        isPermitted = false; // is excluded ! 
+                        break;
+                    }
+
                     isPermitted = true;
 
                     // the action is permitted for the role, append the users group of the permission if defined
