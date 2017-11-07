@@ -91,13 +91,31 @@ namespace Core.Pricing
                         int nCollectionCode = ODBCWrapper.Utils.GetIntSafeVal(collectionRow["ID"]);
 
                         tmpCollection = CreateCollectionObject(collectionRow, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetCollectionDescription(nCollectionCode),
-                                                                   GetCollectionsChannels(nCollectionCode, m_nGroupID), GetCollectionName(nCollectionCode));
+                                                                   GetCollectionsChannels(nCollectionCode, m_nGroupID), GetCollectionName(nCollectionCode), GetCollectionExternalProductCodes(nCollectionCode));
                         retList.Add(tmpCollection);
                     }
 
                 }
             }
             return retList;
+        }
+
+        private List<KeyValuePair<VerificationPaymentGateway, string>> GetCollectionExternalProductCodes(int collectionId)
+        {
+            List<KeyValuePair<VerificationPaymentGateway, string>> response = new List<KeyValuePair<VerificationPaymentGateway, string>>();
+            DataTable dt;
+
+            dt = PricingDAL.Get_ExternalProductCodes(GroupID, new List<long>(1) { collectionId }, eTransactionType.Collection);
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                var productCodes = ExtractCollectionsExternalProductCodes(dt);
+                if (productCodes != null)
+                {
+                    response = productCodes[collectionId];
+                }
+            }
+            return response;
         }
 
         static protected LanguageContainer[] GetCollectionName(Int32 nCollectionID)
@@ -220,7 +238,7 @@ namespace Core.Pricing
 
         private Collection CreateCollectionObject(DataRow collectionRow, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
                                                       LanguageContainer[] collectionDescription, BundleCodeContainer[] collectionChannels,
-                                                      LanguageContainer[] collectionName)
+                                                      LanguageContainer[] collectionName, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes)
         {
             Collection retCollection = new Collection();
 
@@ -246,7 +264,7 @@ namespace Core.Pricing
 
             retCollection.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, collectionDescription, m_nGroupID,
                                            nCollectionRowCode.ToString(), collectionChannels, dStart, dEnd, null, collectionName, sPriceCode, sUsageModuleCode, sName,
-                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, productCode);
+                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, productCode, externalProductCodes);
 
             return retCollection;
         }
@@ -284,8 +302,9 @@ namespace Core.Pricing
                             Dictionary<long, List<LanguageContainer>> collsDescriptionsMapping = ExtractCollectionsDescriptions(ds);
                             Dictionary<long, List<BundleCodeContainer>> collsChannelsMapping = ExtractCollectionsChannels(ds);
                             Dictionary<long, List<LanguageContainer>> collsNamesMapping = ExtractCollectionsNames(ds);
+                            Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> collsExternalProductCodesMapping = ExtractCollectionsExternalProductCodes(ds.Tables[4]);
                             response.Collections = CreateCollections(ds, collsDescriptionsMapping, collsChannelsMapping, collsNamesMapping,
-                                sCountryCd, sLanguageCode, sDeviceName).ToArray();
+                                sCountryCd, sLanguageCode, sDeviceName, collsExternalProductCodesMapping).ToArray();
 
                         }
                         else
@@ -329,7 +348,37 @@ namespace Core.Pricing
             return response;
         }
 
-        private List<Collection> CreateCollections(DataSet ds, Dictionary<long, List<LanguageContainer>> collsDescriptionsMapping, Dictionary<long, List<BundleCodeContainer>> collsChannelsMapping, Dictionary<long, List<LanguageContainer>> collsNamesMapping, string sCountryCd, string sLanguageCode, string sDeviceName)
+        private Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> ExtractCollectionsExternalProductCodes(DataTable dt)
+        {
+            Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> response = new Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>>();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long collectionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PRODUCT_ID");
+                    string productCode = ODBCWrapper.Utils.GetSafeStr(dr, "PRODUCT_CODE");
+                    int paymentGateway = ODBCWrapper.Utils.GetIntSafeVal(dr, "verification_payment_gateway_id");
+
+                    if (Enum.IsDefined(typeof(VerificationPaymentGateway), paymentGateway))
+                    {
+                        VerificationPaymentGateway pg = (VerificationPaymentGateway)paymentGateway;
+                        if (!response.ContainsKey(collectionId))
+                        {
+                            response.Add(collectionId, new List<KeyValuePair<VerificationPaymentGateway, string>>());
+                        }
+
+                        response[collectionId].Add(new KeyValuePair<VerificationPaymentGateway, string>(pg, productCode));
+                    }
+                }
+
+            }
+            return response;
+        }
+
+        private List<Collection> CreateCollections(DataSet ds, Dictionary<long, List<LanguageContainer>> collsDescriptionsMapping, 
+            Dictionary<long, List<BundleCodeContainer>> collsChannelsMapping, Dictionary<long, List<LanguageContainer>> collsNamesMapping,
+            string sCountryCd, string sLanguageCode, string sDeviceName, Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> collsExternalProductCodesMapping)
         {
             DataTable dt = ds.Tables[0];
             List<Collection> res = null;
@@ -361,7 +410,14 @@ namespace Core.Pricing
                         names = collsNamesMapping[lCollCode].ToArray();
                     }
 
-                    res.Add(CreateCollectionObject(dt.Rows[i], sCountryCd, sLanguageCode, sDeviceName, descs, channels, names));
+                    List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes = null;
+
+                    if (collsExternalProductCodesMapping.ContainsKey(lCollCode))
+                    {
+                        externalProductCodes = collsExternalProductCodesMapping[lCollCode];
+                    }
+
+                    res.Add(CreateCollectionObject(dt.Rows[i], sCountryCd, sLanguageCode, sDeviceName, descs, channels, names, externalProductCodes));
                 }
             }
             else
@@ -474,7 +530,7 @@ namespace Core.Pricing
 
         private bool IsCollsDataSetValid(DataSet ds)
         {
-            return ds != null && ds.Tables != null && ds.Tables.Count == 4;
+            return ds != null && ds.Tables != null && ds.Tables.Count >= 5;
         }
 
         public override IdsResponse GetCollectionIdsContainingMediaFile(int mediaId, int mediaFileId)
