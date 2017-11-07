@@ -1378,6 +1378,13 @@ namespace Core.Users
 
                 if (response.resp.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
+                    if (response.user.m_user != null &&
+                               !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(nGroupID, response.user.m_user.m_sSiteGUID, RolePermissions.LOGIN))
+                    {
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                        return response;
+                    }
+
                     // get Kaltura user implementation
                     KalturaBaseUsers kUser = null;
 
