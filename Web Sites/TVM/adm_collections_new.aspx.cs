@@ -10,6 +10,9 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
 using TvinciImporter;
+using System.Collections.Generic;
+using System.Linq;
+using System.Globalization;
 
 public partial class adm_collections_new : System.Web.UI.Page
 {
@@ -45,6 +48,8 @@ public partial class adm_collections_new : System.Web.UI.Page
                 string sCode3 = Session["lang_code"].ToString();
                 Int32 nCollectionDesc = 0;
                 Int32 nCollectionName = 0;
+
+                UpdateCouponsGroup(nCollectionID, LoginManager.GetLoginGroupID());
 
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery += "select id from collection_descriptions with (nolock) where is_active=1 and status=1 and ";
@@ -565,5 +570,318 @@ public partial class adm_collections_new : System.Web.UI.Page
         dT.Columns.Add(PageUtils.GetColumn("ID", n));
         dT.Columns.Add(PageUtils.GetColumn("txt", s));
         return dT.Copy();
+    }
+
+    private void changeItemStatusCouponGroup(string sID)
+    {
+        if (Session["col_coupons_group"] != null && Session["col_coupons_group"] is List<CouponGroup>)
+        {
+            List<CouponGroup> cgObjList = Session["col_coupons_group"] as List<CouponGroup>;
+            CouponGroup data = null;
+            bool addToList = false;
+
+            for (int i = 0; i < cgObjList.Count; i++)
+            {
+                CouponGroup obj = cgObjList[i];
+                if (obj.id.Equals(sID))
+                {
+                    addToList = true;
+                    data = cgObjList[i];
+                    cgObjList.Remove(cgObjList[i]);
+                    break;
+                }
+            }
+
+            if (addToList && data != null)
+            {
+                data.isBelongToCollection = !data.isBelongToCollection;
+                cgObjList.Add(data);
+            }
+
+            Session["col_coupons_group"] = cgObjList;
+        }
+    }
+
+    public string changeItemStatus(string sID, string dualListName)
+    {
+        changeItemStatusCouponGroup(sID);
+        return "";
+    }
+
+    public string changeItemDates(string sID, string sStartDate, string sEndDate)
+    {
+        if (Session["col_coupons_group"] != null && Session["col_coupons_group"] is List<CouponGroup>)
+        {
+            List<CouponGroup> cgObjList = Session["col_coupons_group"] as List<CouponGroup>;
+            CouponGroup obj = cgObjList.Where(x => x.id == sID).Select(x => x).FirstOrDefault();
+            if (obj != null)
+            {
+                cgObjList.Remove(obj);
+
+                obj.startDate = sStartDate;
+                obj.endDate = sEndDate;
+
+                cgObjList.Add(obj);
+
+            }
+            Session["col_coupons_group"] = cgObjList;
+        }
+
+        return "";
+    }
+
+    public string initDualObj()
+    {
+        Dictionary<string, object> dualLists = new Dictionary<string, object>();
+        Dictionary<string, object> couponGroups = new Dictionary<string, object>();
+
+        couponGroups.Add("name", "DualListCouponGroup");
+        couponGroups.Add("FirstListTitle", "Coupon Groups");
+        couponGroups.Add("SecondListTitle", "Available Coupon Groups");
+        couponGroups.Add("pageName", "adm_collections_new.aspx");
+        couponGroups.Add("withCalendar", true);
+        object[] couponGroupsData = null;
+        initCouponsGroup(ref couponGroupsData);
+        couponGroups.Add("Data", couponGroupsData);
+
+        dualLists.Add("0", couponGroups);
+        dualLists.Add("size", dualLists.Count);
+        dualLists.Add("multiple", true);
+
+        return dualLists.ToJSON();
+    }
+
+    private void initCouponsGroup(ref object[] couponGroupsData)
+    {
+        List<object> couponsGroup = new List<object>();
+        List<CouponGroup> cgList = new List<CouponGroup>();
+        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+        int collectionId = 0;
+        if (Session["collection_id"] != null && int.TryParse(Session["collection_id"].ToString(), out collectionId))
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("pricing_connection");
+            selectQuery += " select pcg.COUPON_GROUP_ID, cg.CODE, cg.id, pcg.START_DATE, pcg.END_DATE , cg.group_id ";
+            selectQuery += " from coupons_groups cg (nolock)  left join products_coupons_groups pcg(nolock)  on	pcg.coupon_group_id = cg.id  and pcg.product_type = 2 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("pcg.product_id", "=", collectionId);
+            selectQuery += " and pcg.is_active = 1 and pcg.status = 1  where  ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("cg.group_id", "=", nLogedInGroupID);
+            DataTable dt = selectQuery.Execute("query", true);
+
+            if (dt != null && dt.Rows != null)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    int couponGroupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "COUPON_GROUP_ID");
+                    int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                    string groupID = ODBCWrapper.Utils.GetSafeStr(dr, "group_ID");
+                    string code = ODBCWrapper.Utils.GetSafeStr(dr, "code");
+                    string description = "";
+                    DateTime? date = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "START_DATE");
+                    string startDate = date.HasValue ? date.Value.ToString("dd/MM/yyyy") : string.Empty;
+                    date = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "END_DATE");
+                    string endDate = date.HasValue ? date.Value.ToString("dd/MM/yyyy") : string.Empty;
+                    var data = new
+                    {
+                        ID = id.ToString(),
+                        Title = code,
+                        Description = description,
+                        InList = couponGroupId == 0 ? false : true,
+                        StartDate = startDate,
+                        EndDate = endDate
+                    };
+
+                    CouponGroup cg = new CouponGroup(id.ToString(), code, description, couponGroupId == 0 ? false : true, startDate, endDate);
+                    cgList.Add(cg);
+                    couponsGroup.Add(data);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+
+        couponGroupsData = new object[couponsGroup.Count];
+        couponGroupsData = couponsGroup.ToArray();
+        Session["col_coupons_group"] = cgList;
+    }
+
+    private void UpdateCouponsGroup(int collectionId, int groupID)
+    {
+        if (Session["col_coupons_group"] != null && Session["col_coupons_group"] is List<CouponGroup>)
+        {
+            List<int> tempIDs = new List<int>();
+            List<CouponGroup> newCg = Session["col_coupons_group"] as List<CouponGroup>;
+            List<int> oldCg = BuildCollectionCouponGroup(collectionId, groupID, true);
+
+            foreach (CouponGroup newObj in newCg)
+            {
+                int newID = int.Parse(newObj.id);
+                tempIDs.Add(newID);
+                if (oldCg.Contains(newID))
+                {
+                    if (newObj.isBelongToCollection)
+                    {
+                        UpdateCouponsGroupDB(newID, collectionId, newObj.startDate, newObj.endDate);
+                    }
+                    else
+                    {
+                        RemoveCouponsGroupDB(newID, collectionId);
+                    }
+                }
+                else
+                {
+                    if (newObj.isBelongToCollection)
+                    {
+                        InsertCouponsGroupDB(newID, collectionId, groupID, newObj.startDate, newObj.endDate);
+                    }
+                }
+
+            }
+            foreach (int oldID in oldCg)
+            {
+                if (!tempIDs.Contains(oldID))
+                {
+                    RemoveCouponsGroupDB(oldID, collectionId);
+                }
+            }
+        }
+    }
+
+    private void RemoveCouponsGroupDB(int oldID, int collectionId)
+    {
+        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("products_coupons_groups");
+        updateQuery.SetConnectionKey("pricing_connection");
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+        updateQuery += " where ";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("product_id", "=", collectionId);
+        updateQuery += " and product_type = 2 and ";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COUPON_GROUP_ID", "=", oldID);
+        updateQuery.Execute();
+        updateQuery.Finish();
+        updateQuery = null;
+    }
+
+    private void InsertCouponsGroupDB(int newID, int collectionId, int groupID, string startDate, string endDate)
+    {
+        ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("products_coupons_groups");
+        insertQuery.SetConnectionKey("pricing_connection");
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("product_id", collectionId);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUPON_GROUP_ID", "=", newID);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("product_type", "=", 2);
+
+        DateTime? dStartDate = string.IsNullOrEmpty(startDate) ? null : (DateTime?)(DateTime.ParseExact(startDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+        DateTime? dEndDate = string.IsNullOrEmpty(endDate) ? null : (DateTime?)(DateTime.ParseExact(endDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+        if (dStartDate.HasValue)
+        {
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dStartDate);
+        }
+        else
+        {
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", DBNull.Value);
+        }
+        if (dEndDate.HasValue)
+        {
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dEndDate);
+        }
+        else
+        {
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", DBNull.Value);
+        }
+
+        insertQuery.Execute();
+        insertQuery.Finish();
+        insertQuery = null;
+    }
+
+    private void UpdateCouponsGroupDB(int newID, int collectionId, string startDate, string endDate)
+    {
+        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("products_coupons_groups");
+        updateQuery.SetConnectionKey("pricing_connection");
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+
+        DateTime? dStartDate = string.IsNullOrEmpty(startDate) ? null : (DateTime?)(DateTime.ParseExact(startDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+        DateTime? dEndDate = string.IsNullOrEmpty(endDate) ? null : (DateTime?)(DateTime.ParseExact(endDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+        if (dStartDate.HasValue)
+        {
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dStartDate);
+        }
+        else
+        {
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", DBNull.Value);
+        }
+        if (dEndDate.HasValue)
+        {
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dEndDate);
+        }
+        else
+        {
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", DBNull.Value);
+        }
+        updateQuery += " where ";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("product_id", "=", collectionId);
+        updateQuery += " and product_type = 2 and ";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COUPON_GROUP_ID", "=", newID);
+        updateQuery.Execute();
+        updateQuery.Finish();
+        updateQuery = null;
+    }
+
+    private List<int> BuildCollectionCouponGroup(int collectionId, int collectionGroupID, bool alsoUnActive)
+    {
+        List<int> retVal = new List<int>();
+        //List<CGObj> cgList = new List<CGObj>();
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("pricing_connection");
+        selectQuery += " select pcg.COUPON_GROUP_ID, cg.CODE, cg.id, pcg.START_DATE, pcg.END_DATE , cg.group_id ";
+        selectQuery += " from coupons_groups cg (nolock)  inner join products_coupons_groups pcg(nolock)  on	pcg.coupon_group_id = cg.id  and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("pcg.product_id", "=", collectionId);
+        if (!alsoUnActive)
+        {
+            selectQuery += " and pcg.is_active = 1 and pcg.status = 1 and pcg.product_type = 2 and ";
+        }
+        selectQuery += " where ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("cg.group_id", "=", collectionGroupID);
+        DataTable dt = selectQuery.Execute("query", true);
+
+        selectQuery.Finish();
+        selectQuery = null;
+
+        if (dt != null && dt.Rows != null)
+        {
+            foreach (DataRow dr in dt.Rows)
+            {
+                int couponGroupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "COUPON_GROUP_ID"); // id from subscriptions_coupons_groups table                   
+                int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"); // id from subscriptions_coupons_groups table                   
+               
+                if (couponGroupId != 0)
+                {
+                    retVal.Add(id);
+                }
+            }
+        }
+
+        return retVal;
+    }
+    public class CouponGroup
+    {
+        public string id;
+        public string title;
+        public string description;
+        public bool isBelongToCollection;
+        public string startDate;
+        public string endDate;
+
+        public CouponGroup(string id, string title, string desc, bool isBelong, string startDate, string endDate)
+        {
+            this.id = id;
+            this.title = title;
+            this.description = desc;
+            this.isBelongToCollection = isBelong;
+            this.startDate = startDate;
+            this.endDate = endDate;
+        }
     }
 }

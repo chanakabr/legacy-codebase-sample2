@@ -13,11 +13,22 @@
 <meta content="<% TVinciShared.PageUtils.GetKeyWords(); %>" name="Keywords" />
 <meta http-equiv="Pragma" content="no-cache" />
 <link href="css/styles-en.css" type="text/css" rel="stylesheet" />
+<link href="components/duallist/css/duallist.css" type="text/css" rel="stylesheet" />
+<script language="JavaScript" src="js/jquery-1.10.2.min.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/jquery-placeholder.js" type="text/javascript"></script>
+<script src="js/jquery-ui.js"></script>
 <script language="JavaScript" src="js/rs.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/adm_utils.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/calendar.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/AnchorPosition.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/dom-drag.js" type="text/javascript"></script>
+<!-- dual list -->
+<script type="text/javascript" src="components/duallist/js/script.js"></script>
+<script type="text/javascript" src="components/duallist/js/info.js"></script>
+<script type="text/javascript" src="components/duallist/js/calender.js"></script>
+<script type="text/javascript" src="components/duallist/js/list.js"></script>
+<script type="text/javascript" src="components/duallist/js/duallist.js"></script>
+<!-- end dual list -->
 
 <script type="text/javascript">
     var peek_date_string = '<%=Session["peek_date"]%>';
@@ -33,6 +44,7 @@
     }
     function GetPageTable(orderBy, pageNum) {
         RS.Execute("adm_collections_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
+        initDuallistObj('adm_collections_new.aspx')
     }
 </script>
 </head>
@@ -121,6 +133,8 @@
 								    <td id="page_content" width=100% nowrap=nowrap>
 								    </td>
 								</tr>
+
+                                <tr><td><div id="DualListCouponGroup"></div></td></tr>
 							</table>
 						</td>
 					</tr>

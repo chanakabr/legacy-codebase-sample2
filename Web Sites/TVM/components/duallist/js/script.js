@@ -2,7 +2,7 @@
 function initDualList(data)
 {
     //add: check if size exists
-    if (data["size"] > 1)
+    if (data["size"] > 1 || data["multiple"])
     {
         initMultipleLists(data);
     }
