@@ -145,7 +145,7 @@ namespace Core.ConditionalAccess
 
 		protected internal abstract bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
 															  string userIP, string country, string deviceName, long billingTransactionId, string customData, int productID,
-															  string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID);
+                                                              string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID);
 
 
 		/*
@@ -11648,9 +11648,129 @@ namespace Core.ConditionalAccess
 			return response;
 		}
 
-		private TransactionResponse ProcessCollectionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, string paymentGwType)
+		private TransactionResponse ProcessCollectionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, string paymentGwName)
 		{
-			return null;
+            TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            // log request
+            string logString = string.Format("ProcessCollectionReceipt: siteguid {0}, household {1}, productId {2}, userIp {3}, deviceName {4}, purchaseToken {5}, paymentGwName {6}",
+                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,           // {0}
+                householdId,                                                         // {1}
+                productId,                                                           // {2}   
+                !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,               // {3}
+                !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty,       // {4}
+                !string.IsNullOrEmpty(purchaseToken) ? purchaseToken : string.Empty, // {5}
+                !string.IsNullOrEmpty(paymentGwName) ? paymentGwName : string.Empty);// {6}
+
+            try
+            {
+                string country = string.Empty;
+                if (!string.IsNullOrEmpty(userIp))
+                {
+                    // get country by user IP
+                    country = Utils.GetIP2CountryName(m_nGroupID, userIp);
+                }
+
+                // validate price
+                PriceReason priceReason = PriceReason.UnKnown;
+                Price priceResponse = null;
+                Collection collection = null;
+                priceResponse = Utils.GetCollectionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason,
+                                                              ref collection, country, string.Empty, deviceName, string.Empty);
+
+                if (priceReason == PriceReason.ForPurchase)
+                {
+                    // item is for purchase
+                    // price validated, create the Custom Data
+                    string customData = GetCustomDataForCollection(collection, productId.ToString(), siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
+                                                                   userIp, country, string.Empty, deviceName, string.Empty);
+
+                    // create new GUID for billing_transaction
+                    string billingGuid = Guid.NewGuid().ToString();
+
+                    // purchase
+                    // get the right productCode by paymentGwName
+                    string productCode = collection != null && collection.ExternalProductCodes.Where(x => x.Key.ToString() == paymentGwName).Count() > 0 ?
+                        collection.ExternalProductCodes.Where(x => x.Key.ToString() == paymentGwName).Select(x => x.Value).FirstOrDefault() :
+                        collection.m_ProductCode;
+
+                    response = VerifyPurchase(siteguid, householdId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData,
+                                              productId, productCode, eTransactionType.Collection, billingGuid, paymentGwName, 0, purchaseToken);
+                    if (response != null &&
+                        response.Status != null)
+                    {
+                        // Status OK + (State OK || State Pending) = grant entitlement
+                        if (response.Status.Code == (int)eResponseStatus.OK &&
+                           (response.State.Equals(eTransactionState.OK.ToString()) ||
+                            response.State.Equals(eTransactionState.Pending.ToString())))
+                        {
+                            // purchase passed
+                            long purchaseID = 0;
+
+                            // update entitlement date
+                            DateTime entitlementDate = DateTime.UtcNow;
+                            response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+
+                            // grant entitlement
+                            bool handleBillingPassed = HandleCollectionBillingSuccess(ref response, siteguid, householdId, collection, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
+                                                                                  country, deviceName, long.Parse(response.TransactionID), customData, productId,
+                                                                                  billingGuid.ToString(), false, entitlementDate, ref purchaseID);
+
+                            if (handleBillingPassed)
+                            {
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(householdId));
+                                // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
+
+                                // entitlement passed - build notification message
+                                var dicData = new Dictionary<string, object>()
+                                    {
+                                        {"CollectionCode", productId},
+                                        {"BillingTransactionID", response.TransactionID},
+                                        {"SiteGUID", siteguid},
+                                        {"PurchaseID", purchaseID},
+                                        {"CouponCode", ""},
+                                        {"CustomData", customData}
+                                    };
+
+                                // notify purchase
+                                if (!EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData))
+                                {
+                                    log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
+                                }
+                            }
+                            else
+                            {
+                                // purchase passed, entitlement failed
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed but entitlement failed");
+                                log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+                            }
+                        }
+                        else
+                        {
+                            // purchase failed - received error status
+                            log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+                        }
+                    }
+                    else
+                    {
+                        // purchase failed - no status error
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
+                        log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+                    }
+                }
+                else
+                {
+                    // not for purchase
+                    response.Status = Utils.SetResponseStatus(priceReason);
+                    log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
+                log.Error("Exception occurred. data: " + logString, ex);
+            }
+            return response;
 		}
 
 		protected TransactionResponse VerifyPurchase(string siteGUID, long houseHoldID, double price, string currency, string userIP, string customData,

@@ -149,8 +149,8 @@ namespace Core.Pricing
             string sDiscountModuleCode, string sCouponGroupCode, LanguageContainer[] sDescriptions, Int32 nGroupID,
             string sCollectionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
             Int32[] sFileTypes, LanguageContainer[] sName, string colPriceCode,
-            string sColUsageModule, string sObjectVirtualName,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string productCode, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes)
+            string sColUsageModule, string sObjectVirtualName, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
+            string productCode, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes, List<SubscriptionCouponGroup> couponsGroups)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sCollectionCode, false, sObjectVirtualName,
@@ -191,6 +191,7 @@ namespace Core.Pricing
                 m_oCollectionPriceCode = null;
 
             ExternalProductCodes = externalProductCodes;
+            CouponsGroups = couponsGroups;
         }
 
         public void Initialize(string sPriceCode, string sUsageModuleCode,

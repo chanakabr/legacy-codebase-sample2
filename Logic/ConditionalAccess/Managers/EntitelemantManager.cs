@@ -760,11 +760,11 @@ namespace Core.ConditionalAccess
             entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "COLLECTION_CODE");
 
             entitlement.endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE");
-            int maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_NUM_OF_USES");
-            int currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "NUM_OF_USES");
+            entitlement.maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_NUM_OF_USES");
+            entitlement.currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "NUM_OF_USES");
             entitlement.lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "LAST_VIEW_DATE");
 
-            if (isExpired && maxUses != 0 && currentUses >= maxUses)
+            if (isExpired && entitlement.maxUses != 0 && entitlement.currentUses >= entitlement.maxUses)
             {
                 entitlement.endDate = entitlement.lastViewDate;
             }
@@ -784,7 +784,7 @@ namespace Core.ConditionalAccess
               entitlement.lastViewDate < entitlement.purchaseDate)// user didn't waiver yet and didn't use the PPV yet
             {
                 bool cancellationWindow = false;
-                cas.IsCancellationWindow(ref oUsageModule, entitlement.entitlementId, entitlement.purchaseDate, ref cancellationWindow, eTransactionType.Subscription);
+                cas.IsCancellationWindow(ref oUsageModule, entitlement.entitlementId, entitlement.purchaseDate, ref cancellationWindow, eTransactionType.Collection);
                 entitlement.cancelWindow = cancellationWindow;
             }
             return entitlement;

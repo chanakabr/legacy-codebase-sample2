@@ -726,17 +726,11 @@ namespace Core.ConditionalAccess
             return request;
         }
 
-        private static bool IsUserCanStillUseSub(int numOfUses, int maxNumOfUses)
+        private static bool IsUserCanStillUseEntitlement(int numOfUses, int maxNumOfUses)
         {
             // maxNumOfUses==0 means unlimited uses.
             return maxNumOfUses == 0 || numOfUses < maxNumOfUses;
         }
-
-        private static bool IsUserCanStillUseCol(int numOfUses, int maxNumOfUses)
-        {
-            return maxNumOfUses == 0 || numOfUses < maxNumOfUses;
-        }
-
 
         private static void GetUserValidBundlesFromListOptimized(string sSiteGuid, int nMediaID, int nMediaFileID, MediaFileStatus eMediaFileStatus, int nGroupID,
             int[] nFileTypes, List<int> lstUserIDs, List<int> relatedMediaFiles,
@@ -781,7 +775,7 @@ namespace Core.ConditionalAccess
 
                         // add to bulk query of Bundle_DoesCreditNeedToDownloaded to DB
                         //afterwards, the subs who pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
-                        if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseSub(numOfUses, maxNumOfUses))
+                        if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseEntitlement(numOfUses, maxNumOfUses))
                         {
                             subsToBundleCreditDownloadedQuery.Add(bundleCode);
                         }
@@ -828,7 +822,7 @@ namespace Core.ConditionalAccess
                         // add to bulk query of Bundle_DoesCreditNeedToDownload to DB
                         //afterwards, the colls which pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
                         // finally, the colls which pass the catalog need to be validated against PPV_DoesCreditNeedToDownloadedUsingCollection
-                        if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseCol(numOfUses, maxNumOfUses))
+                        if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseEntitlement(numOfUses, maxNumOfUses))
                         {
                             colsToBundleCreditDownloadedQuery.Add(bundleCode);
                         }
@@ -1708,12 +1702,26 @@ namespace Core.ConditionalAccess
             }
             if (theReason != PriceReason.CollectionPurchased)
             {
-                CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(theCol.m_oCouponsGroup));
+                long couponGroupId = PricingDAL.Get_CouponGroupId(nGroupID, sCouponCode); // return only if valid 
+
+                // look if this coupon group id exsits in coupon list 
+                CouponsGroup couponGroups = null;
+                if (theCol.m_oCouponsGroup != null && theCol.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString())
+                {
+                    couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)theCol.m_oCouponsGroup);
+                }
+                else if (collection.CouponsGroups != null)
+                {
+                    couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>(theCol.CouponsGroups.Where(x => x.m_sGroupCode == couponGroupId.ToString() &&
+                        (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)).Select(x => x).FirstOrDefault());
+                }
+
                 if (theCol.m_oExtDisountModule != null)
                 {
                     DiscountModule externalDisount = TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theCol.m_oExtDisountModule));
                     price = GetPriceAfterDiscount(price, externalDisount, 1);
                 }
+
                 price = CalculateCouponDiscount(ref price, couponGroups, sCouponCode, nGroupID);
             }
             return price;
@@ -3893,7 +3901,9 @@ namespace Core.ConditionalAccess
                                     sBundleCode = bundleCode,
                                     nWaiver = waiver,
                                     dtPurchaseDate = purchaseDate,
-                                    dtEndDate = endDate
+                                    dtEndDate = endDate,
+                                    nNumOfUses = numOfUses,
+                                    nMaxNumOfUses = maxNumOfUses
                                 });
                             }
                         }
@@ -4099,7 +4109,7 @@ namespace Core.ConditionalAccess
                 {
                     // add to bulk query of Bundle_DoesCreditNeedToDownloaded to DB
                     //afterwards, the subs who pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
-                    if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseSub(bundle.nNumOfUses, bundle.nMaxNumOfUses))
+                    if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseEntitlement(bundle.nNumOfUses, bundle.nMaxNumOfUses))
                     {
                         subsToBundleCreditDownloadedQuery.Add(bundle.sBundleCode);
                     }
@@ -4120,7 +4130,7 @@ namespace Core.ConditionalAccess
                 // add to bulk query of Bundle_DoesCreditNeedToDownload to DB
                 //afterwards, the colls which pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
                 // finally, the colls which pass the catalog need to be validated against PPV_DoesCreditNeedToDownloadedUsingCollection
-                if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseSub(bundle.nNumOfUses, bundle.nMaxNumOfUses))
+                if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseEntitlement(bundle.nNumOfUses, bundle.nMaxNumOfUses))
                 {
                     colsToBundleCreditDownloadedQuery.Add(bundle.sBundleCode);
                 }

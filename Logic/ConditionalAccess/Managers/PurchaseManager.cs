@@ -903,10 +903,7 @@ namespace Core.ConditionalAccess
                 priceResponse = Utils.GetCollectionFinalPrice(groupId, productId.ToString(), siteguid, coupon, ref priceReason,
                                                               ref collection, country, string.Empty, deviceName, string.Empty);
 
-                bool isEntitledToPreviewModule = priceReason == PriceReason.EntitledToPreviewModule;
-
-                if (priceReason == PriceReason.ForPurchase ||
-                    isEntitledToPreviewModule)
+                if (priceReason == PriceReason.ForPurchase)
                 {
                     // item is for purchase
                     if (priceResponse != null &&
@@ -940,7 +937,7 @@ namespace Core.ConditionalAccess
                                 bool handleBillingPassed =
                                     cas.HandleCollectionBillingSuccess(ref response, siteguid, householdId, collection, price, currency, coupon, userIp,
                                         country, deviceName, long.Parse(response.TransactionID), customData, productId,
-                                        billingGuid, isEntitledToPreviewModule, entitlementDate, ref purchaseID);
+                                        billingGuid, false, entitlementDate, ref purchaseID);
 
                                 if (handleBillingPassed)
                                 {

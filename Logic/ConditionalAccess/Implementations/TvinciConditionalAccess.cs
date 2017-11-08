@@ -924,7 +924,15 @@ namespace Core.ConditionalAccess
                 // update response object
                 if (response != null)
                 {
-                    response.EndDateSeconds = (long)collectionEndDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    if (response.EndDateSeconds > 0)
+                    {
+                        collectionEndDate = TVinciShared.DateUtils.UnixTimeStampToDateTime(response.EndDateSeconds);
+                    }
+                    else
+                    {
+                        response.EndDateSeconds = (long)collectionEndDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    }
+
                     response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
                 }
 

@@ -91,7 +91,8 @@ namespace Core.Pricing
                         int nCollectionCode = ODBCWrapper.Utils.GetIntSafeVal(collectionRow["ID"]);
 
                         tmpCollection = CreateCollectionObject(collectionRow, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetCollectionDescription(nCollectionCode),
-                                                                   GetCollectionsChannels(nCollectionCode, m_nGroupID), GetCollectionName(nCollectionCode), GetCollectionExternalProductCodes(nCollectionCode));
+                                                                   GetCollectionsChannels(nCollectionCode, m_nGroupID), GetCollectionName(nCollectionCode),
+                                                                   GetCollectionExternalProductCodes(nCollectionCode), GetCollectionCouponsGroups(nCollectionCode));
                         retList.Add(tmpCollection);
                     }
 
@@ -105,7 +106,7 @@ namespace Core.Pricing
             List<KeyValuePair<VerificationPaymentGateway, string>> response = new List<KeyValuePair<VerificationPaymentGateway, string>>();
             DataTable dt;
 
-            dt = PricingDAL.Get_ExternalProductCodes(GroupID, new List<long>(1) { collectionId }, eTransactionType.Collection);
+            dt = PricingDAL.Get_ProductsCouponGroup(GroupID, new List<long>(1) { collectionId }, eTransactionType.Collection);
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
@@ -113,6 +114,24 @@ namespace Core.Pricing
                 if (productCodes != null)
                 {
                     response = productCodes[collectionId];
+                }
+            }
+            return response;
+        }
+
+        private List<SubscriptionCouponGroup> GetCollectionCouponsGroups(int collectionId)
+        {
+            List<SubscriptionCouponGroup> response = new List<SubscriptionCouponGroup>();
+            DataTable dt;
+
+            dt = PricingDAL.Get_ProductsCouponGroup(GroupID, new List<long>(1) { collectionId }, eTransactionType.Collection);
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                var couponsGroups = ExtractCollectionsCouponGroup(dt);
+                if (couponsGroups != null)
+                {
+                    response = couponsGroups[collectionId];
                 }
             }
             return response;
@@ -236,9 +255,9 @@ namespace Core.Pricing
             return theContainer;
         }
 
-        private Collection CreateCollectionObject(DataRow collectionRow, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
-                                                      LanguageContainer[] collectionDescription, BundleCodeContainer[] collectionChannels,
-                                                      LanguageContainer[] collectionName, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes)
+        private Collection CreateCollectionObject(DataRow collectionRow, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, LanguageContainer[] collectionDescription, 
+            BundleCodeContainer[] collectionChannels, LanguageContainer[] collectionName, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes, 
+            List<SubscriptionCouponGroup> couponsGroups)
         {
             Collection retCollection = new Collection();
 
@@ -264,7 +283,7 @@ namespace Core.Pricing
 
             retCollection.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, collectionDescription, m_nGroupID,
                                            nCollectionRowCode.ToString(), collectionChannels, dStart, dEnd, null, collectionName, sPriceCode, sUsageModuleCode, sName,
-                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, productCode, externalProductCodes);
+                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, productCode, externalProductCodes, couponsGroups);
 
             return retCollection;
         }
@@ -303,8 +322,9 @@ namespace Core.Pricing
                             Dictionary<long, List<BundleCodeContainer>> collsChannelsMapping = ExtractCollectionsChannels(ds);
                             Dictionary<long, List<LanguageContainer>> collsNamesMapping = ExtractCollectionsNames(ds);
                             Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> collsExternalProductCodesMapping = ExtractCollectionsExternalProductCodes(ds.Tables[4]);
+                            Dictionary<long, List<SubscriptionCouponGroup>> collsCouponsGroup = ExtractCollectionsCouponGroup(ds.Tables[5]);
                             response.Collections = CreateCollections(ds, collsDescriptionsMapping, collsChannelsMapping, collsNamesMapping,
-                                sCountryCd, sLanguageCode, sDeviceName, collsExternalProductCodesMapping).ToArray();
+                                sCountryCd, sLanguageCode, sDeviceName, collsExternalProductCodesMapping, collsCouponsGroup).ToArray();
 
                         }
                         else
@@ -348,6 +368,48 @@ namespace Core.Pricing
             return response;
         }
 
+        private Dictionary<long, List<SubscriptionCouponGroup>> ExtractCollectionsCouponGroup(DataTable dt)
+        {
+            Dictionary<long, List<SubscriptionCouponGroup>> response = new Dictionary<long, List<SubscriptionCouponGroup>>();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                SubscriptionCouponGroup cg = null;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    cg = new SubscriptionCouponGroup();
+                    long subID = ODBCWrapper.Utils.GetLongSafeVal(dr, "product_id");
+                    long couponGroupID = ODBCWrapper.Utils.GetLongSafeVal(dr, "COUPON_GROUP_ID");
+                    DateTime? startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "START_DATE");
+                    DateTime? endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "END_DATE");
+
+                    CouponsGroup couponGroupData = null;
+                    if (couponGroupID > 0)
+                    {
+                        BaseCoupons c = null;
+                        Utils.GetBaseImpl(ref c, m_nGroupID);
+                        if (c != null)
+                        {
+                            couponGroupData = c.GetCouponGroupData(couponGroupID.ToString());
+                        }
+                    }
+                    cg.Initialize(startDate, endDate, couponGroupData);
+
+                    if (response.ContainsKey(subID))
+                    {
+                        response[subID].Add(cg);
+                    }
+                    else
+                    {
+                        List<SubscriptionCouponGroup> sgList = new List<SubscriptionCouponGroup>();
+                        sgList.Add(cg);
+                        response.Add(subID, sgList);
+                    }
+                }
+            }
+            return response;
+        }
+
         private Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> ExtractCollectionsExternalProductCodes(DataTable dt)
         {
             Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> response = new Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>>();
@@ -376,9 +438,9 @@ namespace Core.Pricing
             return response;
         }
 
-        private List<Collection> CreateCollections(DataSet ds, Dictionary<long, List<LanguageContainer>> collsDescriptionsMapping, 
-            Dictionary<long, List<BundleCodeContainer>> collsChannelsMapping, Dictionary<long, List<LanguageContainer>> collsNamesMapping,
-            string sCountryCd, string sLanguageCode, string sDeviceName, Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> collsExternalProductCodesMapping)
+        private List<Collection> CreateCollections(DataSet ds, Dictionary<long, List<LanguageContainer>> collsDescriptionsMapping, Dictionary<long, List<BundleCodeContainer>> collsChannelsMapping, 
+            Dictionary<long, List<LanguageContainer>> collsNamesMapping, string sCountryCd, string sLanguageCode, string sDeviceName,
+            Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> collsExternalProductCodesMapping, Dictionary<long, List<SubscriptionCouponGroup>> collsCouponsGroup)
         {
             DataTable dt = ds.Tables[0];
             List<Collection> res = null;
@@ -417,7 +479,14 @@ namespace Core.Pricing
                         externalProductCodes = collsExternalProductCodesMapping[lCollCode];
                     }
 
-                    res.Add(CreateCollectionObject(dt.Rows[i], sCountryCd, sLanguageCode, sDeviceName, descs, channels, names, externalProductCodes));
+                    List<SubscriptionCouponGroup> couponsGroups = null;
+
+                    if (collsCouponsGroup.ContainsKey(lCollCode))
+                    {
+                        couponsGroups = collsCouponsGroup[lCollCode];
+                    }
+
+                    res.Add(CreateCollectionObject(dt.Rows[i], sCountryCd, sLanguageCode, sDeviceName, descs, channels, names, externalProductCodes, couponsGroups));
                 }
             }
             else
@@ -530,7 +599,7 @@ namespace Core.Pricing
 
         private bool IsCollsDataSetValid(DataSet ds)
         {
-            return ds != null && ds.Tables != null && ds.Tables.Count >= 5; 
+            return ds != null && ds.Tables != null && ds.Tables.Count >= 6; 
         }
 
         public override IdsResponse GetCollectionIdsContainingMediaFile(int mediaId, int mediaFileId)
