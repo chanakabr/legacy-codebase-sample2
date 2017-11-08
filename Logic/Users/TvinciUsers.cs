@@ -1149,10 +1149,14 @@ namespace Core.Users
                     return resp;
                 }
 
-                if (!string.IsNullOrEmpty(oBasicData.m_CoGuid) && UsersDal.GetUserIDByExternalId(m_nGroupID, oBasicData.m_CoGuid) > 0)
+                if (!string.IsNullOrEmpty(oBasicData.m_CoGuid))
                 {
-                    resp.Initialize(ResponseStatus.ExternalIdAlreadyExists, u);
-                    return resp;
+                    long userIdbyExternal = UsersDal.GetUserIDByExternalId(m_nGroupID, oBasicData.m_CoGuid);
+                    if (userIdbyExternal > 0 && userIdbyExternal != nUserID)
+                    {
+                        resp.Initialize(ResponseStatus.ExternalIdAlreadyExists, u);
+                        return resp;
+                    }
                 }
                 if (m_newsLetterImpl != null)
                 {
