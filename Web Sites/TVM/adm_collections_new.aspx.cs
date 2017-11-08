@@ -81,7 +81,7 @@ public partial class adm_collections_new : System.Web.UI.Page
                 selectQuery2.Finish();
                 selectQuery2 = null;
 
-                Int32 nIter = 7;
+                Int32 nIter = 8;
                 string sLang = "";
 
                 if (int.Parse(Session["lang_id"].ToString()) != GetMainLang(ref sLang, ref sMainCode3))
