@@ -1593,5 +1593,15 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
+
+        public static DataTable Get_ProductsCouponGroup(int groupId, List<long> productIds, ApiObjects.eTransactionType productType)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ProductsCouponGroup");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter<long>("@productIds", productIds, "ID");
+            sp.AddParameter("@productType", (int)productType);
+            return sp.Execute();
+        }
     }
 }
