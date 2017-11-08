@@ -4716,8 +4716,6 @@ namespace WebAPI.Reflection
                     {
                         case "Id":
                             return "id";
-                        case "IsExcluded":
-                            return "isExcluded";
                         case "Name":
                             return "name";
                     }
