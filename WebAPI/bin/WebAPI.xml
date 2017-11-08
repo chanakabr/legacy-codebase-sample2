@@ -7617,6 +7617,11 @@
             Permission item name
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaPermissionItem.IsExcluded">
+            <summary>
+            Permission isExcluded
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.General.KalturaApiArgumentPermissionItem.Service">
             <summary>
             API service name
