@@ -258,7 +258,7 @@ namespace Core.ConditionalAccess
 
                 }
 
-                if (!ConditionalAccessDAL.Update_ColPurchaseNumOfUses(itemPriceContainer.m_relevantCol.m_sObjectCode, domainId, groupId))
+                if (ConditionalAccessDAL.Update_ColPurchaseNumOfUses(itemPriceContainer.m_relevantCol.m_sObjectCode, domainId, groupId))
                 {
                     //Collection Purchases updated - update purchase validation key
                     setPurchaseInvalidationKey = true;
