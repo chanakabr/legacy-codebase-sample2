@@ -113,7 +113,7 @@ namespace APILogic.Api.Managers
                 {
                     return true;
                 }
-
+              
                 Dictionary<string, List<KeyValuePair<long, bool>>> rolesPermission = GetPermissionsRolesByGroup(groupId);
                 if (rolesPermission != null && rolesPermission.Count() > 0 && rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))
                 {   
@@ -136,6 +136,53 @@ namespace APILogic.Api.Managers
             {
             }
             return false;
+        }
+
+        internal static bool IsPermittedPermissionItem(int groupId, string userId, string permissionItem)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(userId) || userId == "0")// anonymouse
+                {
+                    return true;
+                }
+
+                List<Role> roles = null;
+                string key = LayeredCacheKeys.GetPermissionsRolesIdsKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
+                if (!LayeredCache.Instance.Get<List<Role>>(key, ref roles, GetRolesByGroupId, new Dictionary<string, object>() { { "groupId", groupId } },
+                                                        groupId, LayeredCacheConfigNames.GET_ROLES_BY_GROUP_ID, new List<string>() { invalidationKey }))
+                {
+                    log.ErrorFormat("Failed getting GetRolesByGroupId from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+                
+                if (roles != null && roles.Count() > 0)
+                {
+                    List<long> userRoleIDs = GetRoleIds(groupId, userId);
+                    if (userRoleIDs != null && userRoleIDs.Count() > 0)
+                    {
+                        // get list of all user permissions 
+                        List<Permission> permissions = roles.Where(x=> userRoleIDs.Contains(x.Id)).SelectMany(x => x.Permissions).ToList();
+                        if (permissions != null && permissions.Count() > 0)
+                        {
+                            var permissionItems = permissions.Where(x => x.PermissionItems != null).SelectMany(x => x.PermissionItems).ToList();
+
+                            if (permissionItems != null && permissionItems.Where(x => x.Name.ToLower() == permissionItem.ToLower() && x.IsExcluded).Count() > 0)
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            return true;
         }
 
         private static Dictionary<string, List<KeyValuePair<long, bool>>> GetPermissionsRolesByGroup(int groupId)
