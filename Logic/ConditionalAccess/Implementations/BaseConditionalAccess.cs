@@ -9786,13 +9786,13 @@ namespace Core.ConditionalAccess
                                 result.Message = "Domain suspended";
                                 return result;
                             }
-                            else
-                            {
-                                result.Code = (int)eResponseStatus.DomainNotExists;
-                                result.Message = "Domain doesn't exist";
-                                return result;
-                            }                            
                         }
+                        else
+                        {
+                            result.Code = (int)eResponseStatus.DomainNotExists;
+                            result.Message = "Domain doesn't exist";
+                            return result;
+                        } 
                     }
 
                     DataTable userPurchasesTable = null;
