@@ -41,11 +41,11 @@ namespace WebAPI.Controllers
                 filter.Validate();
                 if (filter.MetaIdEqual.HasValue && filter.MetaIdEqual.Value > 0)
                 {                    
-                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, new List<long>(), filter.OrderBy, filter.IsProtected, filter.MetaIdEqual.Value);
+                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, new List<long>(), filter.OrderBy, filter.IsProtectedEqual, filter.MetaIdEqual.Value);
                 }
                 else
                 {                   
-                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, filter.GetIdIn(), filter.OrderBy, filter.IsProtected);
+                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, filter.GetIdIn(), filter.OrderBy, filter.IsProtectedEqual);
                 }
 
             }
@@ -67,6 +67,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetStructNameAlreadyInUse)]
         [Throws(eResponseStatus.AssetStructSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.MetaIdsDoesNotExist)]
+        [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
         public KalturaAssetStruct Add(KalturaAssetStruct assetStruct)
         {
             KalturaAssetStruct response = null;
@@ -109,6 +110,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetStructSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.MetaIdsDoesNotExist)]
         [Throws(eResponseStatus.CanNotChangePredefinedAssetStructSystemName)]
+        [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
         [SchemeArgument("id", MinLong = 1)]
         public KalturaAssetStruct Update(long id, KalturaAssetStruct assetStruct)
         {

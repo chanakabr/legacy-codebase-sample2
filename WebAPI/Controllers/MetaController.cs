@@ -86,7 +86,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                meta.Id = long.Parse(id);
+                meta.Id = id;
                 if (meta.Name != null)
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaMeta.Name");
@@ -124,11 +124,11 @@ namespace WebAPI.Controllers
                 filter.Validate();
                 if (filter.AssetStructIdEqual.HasValue && filter.AssetStructIdEqual.Value > 0)
                 {
-                    response = ClientsManager.CatalogClient().GetMetas(groupId, new List<long>(), filter.DataTypeEqual, filter.OrderBy, filter.MultipleValue, filter.AssetStructIdEqual.Value);
+                    response = ClientsManager.CatalogClient().GetMetas(groupId, new List<long>(), filter.DataTypeEqual, filter.OrderBy, filter.MultipleValueEqual, filter.AssetStructIdEqual.Value);
                 }
                 else
                 {
-                    response = ClientsManager.CatalogClient().GetMetas(groupId, filter.GetIdIn(), filter.DataTypeEqual, filter.OrderBy, filter.MultipleValue);
+                    response = ClientsManager.CatalogClient().GetMetas(groupId, filter.GetIdIn(), filter.DataTypeEqual, filter.OrderBy, filter.MultipleValueEqual);
                 }
 
             }

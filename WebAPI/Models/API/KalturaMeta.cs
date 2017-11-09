@@ -28,7 +28,7 @@ namespace WebAPI.Models.API
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
         [SchemeProperty(ReadOnly = true)]
-        public long Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Meta name for the partner
@@ -51,18 +51,18 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "fieldName")]
         [JsonProperty("fieldName")]
-        [XmlElement(ElementName = "fieldName")]
+        [XmlElement(ElementName = "fieldName", IsNullable = true)]
         [Deprecated("4.6.0.0")]
-        public KalturaMetaFieldName FieldName { get; set; }
+        public KalturaMetaFieldName? FieldName { get; set; }
 
         /// <summary>
         ///  Meta value type
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
-        [XmlElement(ElementName = "type")]
+        [XmlElement(ElementName = "type", IsNullable = true)]
         [Deprecated("4.6.0.0")]
-        public KalturaMetaType Type { get; set; }
+        public KalturaMetaType? Type { get; set; }
 
         /// <summary>
         ///  Meta data type
@@ -102,9 +102,9 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "assetType")]
         [JsonProperty("assetType")]
-        [XmlElement(ElementName = "assetType")]
+        [XmlElement(ElementName = "assetType", IsNullable = true)]
         [Deprecated("4.6.0.0")]
-        public KalturaAssetType AssetType { get; set; }
+        public KalturaAssetType? AssetType { get; set; }
 
         /// <summary>
         /// List of supported features
@@ -121,16 +121,16 @@ namespace WebAPI.Models.API
         [JsonProperty("parentId")]
         [XmlElement(ElementName = "parentId", IsNullable = true)]
         [SchemeProperty (MinLong = 1)]
-        public long? ParentId{ get; set; }
+        public string ParentId{ get; set; }
 
         /// <summary>
         /// Partner Id
         /// </summary>
         [DataMember(Name = "partnerId")]
         [JsonProperty("partnerId")]
-        [XmlElement(ElementName = "partnerId")]
+        [XmlElement(ElementName = "partnerId", IsNullable = true)]
         [Deprecated("4.6.0.0")]
-        public int PartnerId { get; set; }
+        public int? PartnerId { get; set; }
 
         /// <summary>
         /// Specifies when was the meta was created. Date and time represented as epoch.

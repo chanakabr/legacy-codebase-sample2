@@ -41,6 +41,15 @@ namespace WebAPI.Models.General
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(tempValuesList);
         }
 
+        public KalturaMultilingualString(string defaultLanguageValue)
+        {
+            RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
+            GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
+            List<LanguageContainer> tempValuesList = new List<LanguageContainer>();
+            tempValuesList.Add(new LanguageContainer(GroupDefaultLanguageCode, defaultLanguageValue, true));
+            Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(tempValuesList);
+        }
+
         internal List<LanguageContainer> GetLanugageContainer()
         {
             List<LanguageContainer> languageContainer = new List<LanguageContainer>();

@@ -48,13 +48,12 @@ namespace WebAPI.Models.Catalog
         public long? MetaIdEqual { get; set; }
 
         /// <summary>
-        /// Filter Asset Structs by isProtected value
+        /// Filter Asset Structs by isProtectedEqual value
         /// </summary>
-        [DataMember(Name = "isProtected")]
-        [JsonProperty("isProtected")]
-        [XmlElement(ElementName = "isProtected", IsNullable = true)]
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public bool? IsProtected { get; set; }
+        [DataMember(Name = "isProtectedEqual")]
+        [JsonProperty("isProtectedEqual")]
+        [XmlElement(ElementName = "isProtectedEqual", IsNullable = true)]        
+        public bool? IsProtectedEqual { get; set; }
 
         public override KalturaAssetStructOrderBy GetDefaultOrderByValue()
         {

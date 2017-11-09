@@ -70,13 +70,12 @@ namespace WebAPI.Models.API
         public KalturaMetaDataType? DataTypeEqual { get; set; }
 
         /// <summary>
-        /// Filter meta's by multipleValue
+        /// Filter meta's by multipleValueEqual value
         /// </summary>
-        [DataMember(Name = "multipleValue")]
-        [JsonProperty("multipleValue")]
-        [XmlElement(ElementName = "multipleValue", IsNullable = true)]
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public bool? MultipleValue { get; set; }
+        [DataMember(Name = "multipleValueEqual")]
+        [JsonProperty("multipleValueEqual")]
+        [XmlElement(ElementName = "multipleValueEqual", IsNullable = true)]        
+        public bool? MultipleValueEqual { get; set; }
 
         /// <summary>
         /// Asset type to filter by
@@ -153,11 +152,11 @@ namespace WebAPI.Models.API
 
             if (DataTypeEqual.HasValue)
             {
-                if (DataTypeEqual.Value != KalturaMetaDataType.STRING && MultipleValue.HasValue && MultipleValue.Value)
+                if (DataTypeEqual.Value != KalturaMetaDataType.STRING && MultipleValueEqual.HasValue && MultipleValueEqual.Value)
                 {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMetaFilter.dataTypeEqual", "KalturaMetaFilter.multipleValue");
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMetaFilter.dataTypeEqual", "KalturaMetaFilter.multipleValueEqual");
                 }
-                else if (DataTypeEqual.Value == KalturaMetaDataType.STRING && !MultipleValue.HasValue)
+                else if (DataTypeEqual.Value == KalturaMetaDataType.STRING && !MultipleValueEqual.HasValue)
                 {
                     throw new BadRequestException(ApiException.MULTI_VALUE_NOT_SENT_FOR_META_DATA_TYPE_STRING);
                 }

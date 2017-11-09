@@ -3977,9 +3977,9 @@
             Filter Asset Structs that contain a specific meta id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructFilter.IsProtected">
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetStructFilter.IsProtectedEqual">
             <summary>
-            Filter Asset Structs by isProtected value
+            Filter Asset Structs by isProtectedEqual value
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetStruct.Id">
@@ -5542,9 +5542,9 @@
             Meta data type to filter by
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaMetaFilter.MultipleValue">
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.MultipleValueEqual">
             <summary>
-            Filter meta's by multipleValue
+            Filter meta's by multipleValueEqual value
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMetaFilter.AssetTypeEqual">

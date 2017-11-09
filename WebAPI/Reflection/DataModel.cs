@@ -2516,8 +2516,8 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
-                        case "IsProtected":
-                            return "isProtected";
+                        case "IsProtectedEqual":
+                            return "isProtectedEqual";
                         case "MetaIdEqual":
                             return "metaIdEqual";
                     }
@@ -4356,8 +4356,8 @@ namespace WebAPI.Reflection
                             return "fieldNameNotEqual";
                         case "IdIn":
                             return "idIn";
-                        case "MultipleValue":
-                            return "multipleValue";
+                        case "MultipleValueEqual":
+                            return "multipleValueEqual";
                         case "TypeEqual":
                             return "typeEqual";
                     }

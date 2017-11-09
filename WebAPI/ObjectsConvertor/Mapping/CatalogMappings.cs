@@ -377,18 +377,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-              .ForMember(dest => dest.DataType, opt => opt.MapFrom(src => ConvertToKalturaMetaDataType(src.Type)))
+              .ForMember(dest => dest.DataType, opt => opt.MapFrom(src => ConvertToKalturaMetaDataType(src.Type)))              
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsPredefined))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetCommaSeparatedFeatures()))
               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+              .ForMember(dest => dest.Type, opt => opt.Ignore())
+              .ForMember(dest => dest.PartnerId, opt => opt.Ignore())
+              .ForMember(dest => dest.FieldName, opt => opt.Ignore())
+              .ForMember(dest => dest.AssetType, opt => opt.Ignore());
 
             // KalturaMeta to Topic
             Mapper.CreateMap<Models.API.KalturaMeta, Topic>()
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.Id) ? long.Parse(src.Id) : 0))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
               .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
@@ -397,7 +401,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))
-              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId.HasValue ? src.ParentId.Value : 0))
+              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.ParentId) ? long.Parse(src.ParentId) : 0))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));            
 
@@ -828,19 +832,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
             KalturaValue value = null;
             foreach (var meta in list)
             {
-                if (meta.m_oTagMeta.m_sType == typeof(bool).ToString())
+                if (meta.m_oTagMeta.m_sType == typeof(bool).ToString() || meta.m_oTagMeta.m_sType == ApiObjects.MetaType.Bool.ToString())
                 {
                     value = new KalturaBooleanValue() { value = meta.m_sValue == "1" ? true : false };
                 }
-                else if (meta.m_oTagMeta.m_sType == typeof(string).ToString())
+                else if (meta.m_oTagMeta.m_sType.ToLower() == typeof(string).ToString() || meta.m_oTagMeta.m_sType == ApiObjects.MetaType.String.ToString())
+                {
+                    value = new KalturaStringValue() { value = meta.m_sValue };
+                }
+                else if (meta.m_oTagMeta.m_sType == ApiObjects.MetaType.MultilingualString.ToString())
                 {
                     value = new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(meta.Value) };
                 }
-                else if (meta.m_oTagMeta.m_sType == typeof(double).ToString())
+                else if (meta.m_oTagMeta.m_sType.ToLower() == typeof(double).ToString() || meta.m_oTagMeta.m_sType == ApiObjects.MetaType.Number.ToString())
                 {
                     value = new KalturaDoubleValue() { value = double.Parse(meta.m_sValue) };
                 }
-                else if (meta.m_oTagMeta.m_sType == typeof(DateTime).ToString())
+                else if (meta.m_oTagMeta.m_sType.ToLower() == typeof(DateTime).ToString() || meta.m_oTagMeta.m_sType == ApiObjects.MetaType.DateTime.ToString())
                 {
                     if (!string.IsNullOrEmpty(meta.m_sValue))
                     {
