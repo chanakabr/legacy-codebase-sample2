@@ -98,6 +98,7 @@ namespace Core.Pricing
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", nSubCode);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRE_PAID_CODE", "=", nPrePaidCode);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COLLECTION_CODE", "=", nCollectionCode);
                         insertQuery.Execute();
                     }
                     return c.GetCouponStatus();

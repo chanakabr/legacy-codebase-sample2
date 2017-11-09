@@ -7502,12 +7502,12 @@ namespace Core.ConditionalAccess
 				}
 
 				//No media_file and no sub --> do nothing
-				if (nMediaFileID == 0 && nSubCode == 0 && nPrePaidCode == 0)
+                if (nMediaFileID == 0 && nSubCode == 0 && nPrePaidCode == 0 || relevantCollection == 0)
 					return;
 
 				try
 				{
-					Pricing.Module.SetCouponUses(m_nGroupID, sCouponCode, sSiteGUID, nMediaFileID, nSubCode, nPrePaidCode, relevantCollection);
+                    Pricing.Module.SetCouponUses(m_nGroupID, sCouponCode, sSiteGUID, nMediaFileID, nSubCode, relevantCollection, nPrePaidCode);
 				}
 				catch (Exception ex)
 				{
