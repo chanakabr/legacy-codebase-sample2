@@ -9774,224 +9774,229 @@ namespace Core.ConditionalAccess
                     result.Code = (int)eResponseStatus.DomainNotExists;
                     result.Message = "Domain doesn't exist";
                     log.Error("Domain doesn't exist");
+                    return result;
                 }
                 else
                 {
                     if (domain.m_DomainStatus != DomainStatus.OK && domain.m_DomainStatus != DomainStatus.DomainCreatedWithoutNPVRAccount)
                     {
-                        if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+                        log.Error("Domain status: " + domain.m_DomainStatus.ToString());
+
+                        if (!isForce && domain.m_DomainStatus == DomainStatus.DomainSuspended)
                         {
-                            result.Code = (int)eResponseStatus.DomainSuspended;
-                            result.Message = "Domain suspended";
+                            // check is permitted to login becouse if domain suspended to cancel or force cancel it should be done via phoniex (service_action )
+                            if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
+                            {
+                                result.Code = (int)eResponseStatus.DomainSuspended;
+                                result.Message = "Domain suspended";
+                                return result;
+                            }
                         }
                         else
                         {
                             result.Code = (int)eResponseStatus.DomainNotExists;
                             result.Message = "Domain doesn't exist";
-                        }
-
-                        log.Error("Domain status: " + domain.m_DomainStatus.ToString());
+                            return result;
+                        } 
                     }
-                    else
-                    {
-                        DataTable userPurchasesTable = null;
-                        DataRow userPurchaseRow = null;
-                        string purchasingSiteGuid = string.Empty;
-                        string billingGuid = string.Empty;
 
-                        // Check if cancellation allowed for subscription
-                        if (!isForce && transactionType == eTransactionType.Subscription)
+                    DataTable userPurchasesTable = null;
+                    DataRow userPurchaseRow = null;
+                    string purchasingSiteGuid = string.Empty;
+                    string billingGuid = string.Empty;
+
+                    // Check if cancellation allowed for subscription
+                    if (!isForce && transactionType == eTransactionType.Subscription)
+                    {
+                        Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false);
+                        if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
                         {
-                            Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false);
-                            if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                            result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                            result.Message = "Cancellation is blocked for this subscription";
+                            return result;
+                        }
+                    }
+
+                    // Check if within cancellation window
+                    bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid);
+
+
+                    // Check if the user purchased the asset at all
+                    if (userPurchasesTable == null || userPurchasesTable.Rows == null || userPurchasesTable.Rows.Count == 0)
+                    {
+                        result.Code = (int)eResponseStatus.InvalidPurchase;
+                        result.Message = "There is not a valid purchase for this user and asset ID";
+                        return result;
+                    }
+
+                    // check if payment gateway supports this
+                    if (transactionType == eTransactionType.Subscription && !string.IsNullOrEmpty(billingGuid))
+                    {
+                        try
+                        {
+                            PaymentDetails paymentDetails = null;
+                            ApiObjects.Response.Status verificationStatus = Core.Billing.Module.GetPaymentGatewayVerificationStatus(m_nGroupID, billingGuid, ref paymentDetails);
+
+                            if (verificationStatus == null)
                             {
-                                result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
-                                result.Message = "Cancellation is blocked for this subscription";
+                                result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                                return result;
+                            }
+
+                            if (verificationStatus.Code != (int)eResponseStatus.OK)
+                            {
+                                result = verificationStatus;
+                                log.ErrorFormat("Verification payment gateway does not support cancelation. billingGuid = {0}", billingGuid);
                                 return result;
                             }
                         }
-
-                        // Check if within cancellation window
-                        bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid);
-
-
-                        // Check if the user purchased the asset at all
-                        if (userPurchasesTable == null || userPurchasesTable.Rows == null || userPurchasesTable.Rows.Count == 0)
+                        catch (Exception ex)
                         {
-                            result.Code = (int)eResponseStatus.InvalidPurchase;
-                            result.Message = "There is not a valid purchase for this user and asset ID";
-                            return result;
+                            log.Error("Error while calling the billing GetPaymentGatewayVerificationStatus", ex);
+                            return new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         }
+                    }
 
-                        // check if payment gateway supports this
-                        if (transactionType == eTransactionType.Subscription && !string.IsNullOrEmpty(billingGuid))
+                    // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
+                    if (isInCancellationWindow || isForce)
+                    {
+                        userPurchaseRow = userPurchasesTable.Rows[0];
+                        purchasingSiteGuid = ODBCWrapper.Utils.ExtractString(userPurchaseRow, "SITE_USER_GUID");
+                        int nNumOfUses = ODBCWrapper.Utils.ExtractInteger(userPurchaseRow, "NUM_OF_USES");
+
+                        // If user already consumed service - cannot be cancelled without force
+                        if (nNumOfUses > 0 && !isForce)
                         {
-                            try
-                            {
-                                PaymentDetails paymentDetails = null;
-                                ApiObjects.Response.Status verificationStatus = Core.Billing.Module.GetPaymentGatewayVerificationStatus(m_nGroupID, billingGuid, ref paymentDetails);
-
-                                if (verificationStatus == null)
-                                {
-                                    result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                                    return result;
-                                }
-
-                                if (verificationStatus.Code != (int)eResponseStatus.OK)
-                                {
-                                    result = verificationStatus;
-                                    log.ErrorFormat("Verification payment gateway does not support cancelation. billingGuid = {0}", billingGuid);
-                                    return result;
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                log.Error("Error while calling the billing GetPaymentGatewayVerificationStatus", ex);
-                                return new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                            }
-                        }
-
-                        // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
-                        if (isInCancellationWindow || isForce)
-                        {
-                            userPurchaseRow = userPurchasesTable.Rows[0];
-                            purchasingSiteGuid = ODBCWrapper.Utils.ExtractString(userPurchaseRow, "SITE_USER_GUID");
-                            int nNumOfUses = ODBCWrapper.Utils.ExtractInteger(userPurchaseRow, "NUM_OF_USES");
-
-                            // If user already consumed service - cannot be cancelled without force
-                            if (nNumOfUses > 0 && !isForce)
-                            {
-                                result.Code = (int)eResponseStatus.ContentAlreadyConsumed;
-                                result.Message = "Service could not be cancelled because content was already consumed";
-                            }
-                            else
-                            {
-                                bool dalResult = false;
-
-                                // Cancel NOW - according to type
-                                switch (transactionType)
-                                {
-                                    case eTransactionType.PPV:
-                                        {
-                                            long ppvPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
-                                            DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
-                                            DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "CREATE_DATE");
-                                            long billingTransactionId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "BILLING_TRANSACTION_ID");
-                                            string ppvCode = ODBCWrapper.Utils.ExtractString(userPurchaseRow, "assetCode");
-
-                                            PpvPurchase ppvPurchase = new PpvPurchase(this.m_nGroupID)
-                                            {
-                                                siteGuid = purchasingSiteGuid,
-                                                houseHoldId = domain.m_nDomainID,
-                                                contentId = assetID,
-                                                purchaseId = ppvPurchaseId,
-                                                Id = ppvPurchaseId,
-                                                startDate = createDate,
-                                                endDate = endDate,
-                                                entitlementDate = createDate,
-                                                billingTransactionId = billingTransactionId,
-                                                billingGuid = billingGuid,
-                                                ppvCode = ppvCode
-                                            };
-
-                                            dalResult = ppvPurchase.Delete();
-                                        }
-                                        break;
-                                    case eTransactionType.Subscription:
-                                        {
-                                            long subscriptionPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
-                                            if (subscriptionPurchaseId > 0)
-                                            {
-                                                Dictionary<long, long> purchaseIdToScheduledSubscriptionId = Utils.GetPurchaseIdToScheduledSubscriptionIdMap(m_nGroupID, domainId,
-                                                                                                             new List<long>() { subscriptionPurchaseId }, SubscriptionSetModifyType.Downgrade);
-                                                if (purchaseIdToScheduledSubscriptionId != null && purchaseIdToScheduledSubscriptionId.Count > 0)
-                                                {
-                                                    result = new ApiObjects.Response.Status((int)eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending,
-                                                                                                eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending.ToString());
-                                                    return result;
-                                                }
-
-                                                bool cancelAddOns = CancelAddOnByCancelBaseSubscription(assetID, domainId);
-
-                                                int maxNumberOfViews = ODBCWrapper.Utils.ExtractInteger(userPurchaseRow, "MAX_NUM_OF_USES");
-                                                DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
-                                                DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "CREATE_DATE");
-                                                long billingTransactionId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "BILLING_TRANSACTION_ID");
-
-                                                SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(this.m_nGroupID)
-                                                {
-                                                    siteGuid = purchasingSiteGuid,
-                                                    productId = assetID.ToString(),
-                                                    houseHoldId = domain.m_nDomainID,
-                                                    Id = subscriptionPurchaseId,
-                                                    purchaseId = subscriptionPurchaseId,
-                                                    maxNumberOfViews = maxNumberOfViews,
-                                                    endDate = endDate,
-                                                    startDate = createDate,
-                                                    billingTransactionId = billingTransactionId,
-                                                    billingGuid = billingGuid,
-                                                    entitlementDate = createDate
-                                                };
-
-                                                dalResult = subscriptionPurchase.Delete();
-
-                                                if (dalResult)
-                                                {
-                                                    HandleDeleteDomainUnifiedBillingCycle(domainId, assetID);
-                                                }
-                                            }
-                                        }
-                                        break;
-                                    case eTransactionType.Collection:
-                                        {
-                                            dalResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(purchasingSiteGuid, assetID, domainId);
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            break;
-                                        }
-                                }
-
-                                if (dalResult)
-                                {
-                                    // Update domain with last domain DLM
-                                    UpdateDLM(domainId, 0);
-
-                                    // Report to user log
-                                    WriteToUserLog(purchasingSiteGuid,
-                                        string.Format("user :{0} CancelServiceNow for {1} item :{2}", domainId, Enum.GetName(typeof(eTransactionType), transactionType),
-                                        assetID));
-                                    //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
-
-                                    result.Code = (int)eResponseStatus.OK;
-                                    result.Message = "Service successfully cancelled";
-
-                                    if (userPurchaseRow != null)
-                                    {
-                                        DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
-
-                                        EnqueueCancelServiceRecord(domainId, assetID, transactionType, dtEndDate);
-                                    }
-
-                                    string invalidationKey = LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainId);
-                                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                                    {
-                                        log.ErrorFormat("Failed to set invalidation key on CancelServiceNow key = {0}", invalidationKey);
-                                    }
-                                }
-                                else
-                                {
-                                    result.Code = (int)eResponseStatus.Error;
-                                    result.Message = "Cancellation failed";
-                                }
-                            }
+                            result.Code = (int)eResponseStatus.ContentAlreadyConsumed;
+                            result.Message = "Service could not be cancelled because content was already consumed";
                         }
                         else
                         {
-                            result.Code = (int)eResponseStatus.CancelationWindowPeriodExpired;
-                            result.Message = string.Format("{0} could not be cancelled because it is not in cancellation window", transactionType.ToString());
+                            bool dalResult = false;
+
+                            // Cancel NOW - according to type
+                            switch (transactionType)
+                            {
+                                case eTransactionType.PPV:
+                                    {
+                                        long ppvPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
+                                        DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
+                                        DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "CREATE_DATE");
+                                        long billingTransactionId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "BILLING_TRANSACTION_ID");
+                                        string ppvCode = ODBCWrapper.Utils.ExtractString(userPurchaseRow, "assetCode");
+
+                                        PpvPurchase ppvPurchase = new PpvPurchase(this.m_nGroupID)
+                                        {
+                                            siteGuid = purchasingSiteGuid,
+                                            houseHoldId = domain.m_nDomainID,
+                                            contentId = assetID,
+                                            purchaseId = ppvPurchaseId,
+                                            Id = ppvPurchaseId,
+                                            startDate = createDate,
+                                            endDate = endDate,
+                                            entitlementDate = createDate,
+                                            billingTransactionId = billingTransactionId,
+                                            billingGuid = billingGuid,
+                                            ppvCode = ppvCode
+                                        };
+
+                                        dalResult = ppvPurchase.Delete();
+                                    }
+                                    break;
+                                case eTransactionType.Subscription:
+                                    {
+                                        long subscriptionPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
+                                        if (subscriptionPurchaseId > 0)
+                                        {
+                                            Dictionary<long, long> purchaseIdToScheduledSubscriptionId = Utils.GetPurchaseIdToScheduledSubscriptionIdMap(m_nGroupID, domainId,
+                                                                                                         new List<long>() { subscriptionPurchaseId }, SubscriptionSetModifyType.Downgrade);
+                                            if (purchaseIdToScheduledSubscriptionId != null && purchaseIdToScheduledSubscriptionId.Count > 0)
+                                            {
+                                                result = new ApiObjects.Response.Status((int)eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending,
+                                                                                            eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending.ToString());
+                                                return result;
+                                            }
+
+                                            bool cancelAddOns = CancelAddOnByCancelBaseSubscription(assetID, domainId);
+
+                                            int maxNumberOfViews = ODBCWrapper.Utils.ExtractInteger(userPurchaseRow, "MAX_NUM_OF_USES");
+                                            DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
+                                            DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "CREATE_DATE");
+                                            long billingTransactionId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "BILLING_TRANSACTION_ID");
+
+                                            SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(this.m_nGroupID)
+                                            {
+                                                siteGuid = purchasingSiteGuid,
+                                                productId = assetID.ToString(),
+                                                houseHoldId = domain.m_nDomainID,
+                                                Id = subscriptionPurchaseId,
+                                                purchaseId = subscriptionPurchaseId,
+                                                maxNumberOfViews = maxNumberOfViews,
+                                                endDate = endDate,
+                                                startDate = createDate,
+                                                billingTransactionId = billingTransactionId,
+                                                billingGuid = billingGuid,
+                                                entitlementDate = createDate
+                                            };
+
+                                            dalResult = subscriptionPurchase.Delete();
+
+                                            if (dalResult)
+                                            {
+                                                HandleDeleteDomainUnifiedBillingCycle(domainId, assetID);
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case eTransactionType.Collection:
+                                    {
+                                        dalResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(purchasingSiteGuid, assetID, domainId);
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        break;
+                                    }
+                            }
+
+                            if (dalResult)
+                            {
+                                // Update domain with last domain DLM
+                                UpdateDLM(domainId, 0);
+
+                                // Report to user log
+                                WriteToUserLog(purchasingSiteGuid,
+                                    string.Format("user :{0} CancelServiceNow for {1} item :{2}", domainId, Enum.GetName(typeof(eTransactionType), transactionType),
+                                    assetID));
+                                //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
+
+                                result.Code = (int)eResponseStatus.OK;
+                                result.Message = "Service successfully cancelled";
+
+                                if (userPurchaseRow != null)
+                                {
+                                    DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
+
+                                    EnqueueCancelServiceRecord(domainId, assetID, transactionType, dtEndDate);
+                                }
+
+                                string invalidationKey = LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainId);
+                                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                                {
+                                    log.ErrorFormat("Failed to set invalidation key on CancelServiceNow key = {0}", invalidationKey);
+                                }
+                            }
+                            else
+                            {
+                                result.Code = (int)eResponseStatus.Error;
+                                result.Message = "Cancellation failed";
+                            }
                         }
+                    }
+                    else
+                    {
+                        result.Code = (int)eResponseStatus.CancelationWindowPeriodExpired;
+                        result.Message = string.Format("{0} could not be cancelled because it is not in cancellation window", transactionType.ToString());
                     }
                 }
             }
