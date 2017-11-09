@@ -211,6 +211,7 @@ namespace ApiObjects.Response
         CanNotChangePredefinedMetaSystemName = 4035,
         CanNotDeletePredefinedMeta = 4036,
         InvalidMutlipleValueForMetaType = 4037,
+        AssetStructMissingBasicMetaIds = 4038,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

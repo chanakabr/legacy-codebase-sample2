@@ -336,6 +336,11 @@ namespace Core.Catalog
 
             try
             {
+                if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    return CatalogManagement.CatalogManager.GetMedia(groupId, nMedia, filter);
+                }
+
                 MediaObj oMediaObj = new MediaObj();
 
                 string sEndDate = string.Empty;
@@ -461,7 +466,7 @@ namespace Core.Catalog
             }
         }
 
-        private static Dictionary<int, List<string>> GetMediaFilePPVModules(DataTable dtFileMedia)
+        internal static Dictionary<int, List<string>> GetMediaFilePPVModules(DataTable dtFileMedia)
         {
             List<int> mediaFileIds = null;
             int mediaFileId = 0;
@@ -731,8 +736,9 @@ namespace Core.Catalog
         /// <param name="dtPic"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        private static List<Picture> GetAllPic(int groupId, int assetId, DataTable dtPic, ref bool result, int assetGroupId)
+        internal static List<Picture> GetAllPic(int groupId, int assetId, DataTable dtPic, ref bool result, int assetGroupId)
         {
+            // TODO - LIOR handle code to ignore the groupId? + useTemplates = true?
             result = true;
             List<Picture> lPicObject = new List<Picture>();
             Picture picObj;
@@ -4326,7 +4332,7 @@ namespace Core.Catalog
         }
 
         /*Insert all files that return from the "CompleteDetailsForMediaResponse" into List<FileMedia>*/
-        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, ref bool result, bool managementData = false, Dictionary<int, List<string>> dicMediaFilePPVModules = null)
+        internal static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, ref bool result, bool managementData = false, Dictionary<int, List<string>> dicMediaFilePPVModules = null)
         {
             try
             {

@@ -28,7 +28,7 @@ namespace ApiObjects
         {
             this.LanguageCode = languageCode;
             this.Value = value;
-            this.IsDefault = IsDefault;
+            this.IsDefault = isDefault;
         }
 
         public void Initialize(string languageCode, string value)
