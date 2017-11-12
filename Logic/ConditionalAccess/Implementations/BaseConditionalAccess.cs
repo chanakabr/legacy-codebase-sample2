@@ -7503,7 +7503,7 @@ namespace Core.ConditionalAccess
 				}
 
 				//No media_file and no sub --> do nothing
-                if (nMediaFileID == 0 && nSubCode == 0 && nPrePaidCode == 0 || relevantCollection == 0)
+                if (nMediaFileID == 0 && nSubCode == 0 && nPrePaidCode == 0 && relevantCollection == 0)
 					return;
 
 				try
