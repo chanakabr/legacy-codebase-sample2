@@ -7114,7 +7114,7 @@ namespace Core.Catalog
                         if (!string.IsNullOrEmpty(searchValue.m_sKey))
                         {
                             eCutType innerCutType = eCutType.And;
-                            switch (channel.m_eCutWith)
+                            switch (searchValue.m_eInnerCutWith)
                             {
                                 case CutWith.WCF_ONLY_DEFAULT_VALUE:
                                     break;
