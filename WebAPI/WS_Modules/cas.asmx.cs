@@ -823,7 +823,7 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(CollectionsPricesContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(PriceReason))]
         public CollectionsPricesResponse GetCollectionsPrices(string sWSUserName, string sWSPassword, string[] sCollections, string sUserGUID,
-            string sCountryCd2, string sLanguageCode3, string sDeviceName)
+            string sCountryCd2, string sLanguageCode3, string sDeviceName, string clientIP)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
@@ -836,7 +836,7 @@ namespace WS_ConditionalAccess
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                response = Core.ConditionalAccess.Module.GetCollectionsPrices(nGroupID, sCollections, sUserGUID, sCountryCd2, sLanguageCode3, sDeviceName);
+                response = Core.ConditionalAccess.Module.GetCollectionsPrices(nGroupID, sCollections, sUserGUID, sCountryCd2, sLanguageCode3, sDeviceName, clientIP);
             }
             else
             {

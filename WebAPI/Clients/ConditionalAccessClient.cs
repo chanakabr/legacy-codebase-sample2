@@ -1810,9 +1810,6 @@ namespace WebAPI.Clients
                 isRecording = true;
             }
 
-            // get group ID
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -2372,8 +2369,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetCollectionsPricesWithCoupon(groupId,
-                        collectionIds, userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
+                    response = Core.ConditionalAccess.Module.GetCollectionsPricesWithCoupon(groupId, collectionIds, userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP(), currency);
                 }
             }
             catch (Exception ex)
