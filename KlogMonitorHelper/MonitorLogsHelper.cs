@@ -86,7 +86,21 @@ namespace KlogMonitorHelper
                     // get group ID
                     XmlNodeList xmlUserName = doc.GetElementsByTagName("sWSUserName");
                     XmlNodeList xmlPassword = doc.GetElementsByTagName("sWSPassword");
-                    module = GetWsModuleByUserName(xmlUserName[0].InnerText);
+
+                    if (xmlUserName.Count > 0)
+                    {
+                        module = GetWsModuleByUserName(xmlUserName[0].InnerText);
+                    }
+                    else
+                    {
+                        log.ErrorFormat("sWSUserName was not found in XML request. Request: {0}", requestString);
+                    }
+
+                    if (xmlPassword.Count == 0)
+                    {
+                        log.ErrorFormat("sWSPassword was not found in XML request. Request: {0}", requestString);
+                    }
+
                     if (xmlUserName.Count > 0 && xmlPassword.Count > 0)
                         HttpContext.Current.Items[Constants.GROUP_ID] = GetGroupID(module, xmlUserName[0].InnerText, xmlPassword[0].InnerText);
                 }
