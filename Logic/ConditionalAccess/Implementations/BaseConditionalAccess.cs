@@ -6256,7 +6256,7 @@ namespace Core.ConditionalAccess
                         Subscription s = null;
                         UnifiedBillingCycle unifiedBillingCycle = null;
                         Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, couponCode, ref theReason, ref s, string.Empty, languageCode, udid, ip, ref unifiedBillingCycle, 
-                            currencyCode,false,blockEntitlement);
+                            currencyCode, false, blockEntitlement);
 
                         if (price != null)
                         {

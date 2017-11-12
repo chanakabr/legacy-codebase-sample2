@@ -1691,21 +1691,6 @@ namespace Core.ConditionalAccess
             DAL.DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.Suspended; 
             isUserValidRes = IsUserValid(sSiteGUID, groupId, ref nDomainID, ref userSuspendStatus);
 
-            // check user status and validity
-            if (blockEntitlement == BlockEntitlementType.NONE && isUserValidRes && userSuspendStatus == DAL.DomainSuspentionStatus.Suspended)
-            {
-                theReason = PriceReason.UserSuspended;
-                return null;
-            }
-            else if (blockEntitlement == BlockEntitlementType.BLOCK_PPV)
-            {
-                theReason = PriceReason.UserSuspended;
-                return null;
-            }
-            else if (userSuspendStatus == DAL.DomainSuspentionStatus.Suspended)
-            {
-                userSuspendStatus = DAL.DomainSuspentionStatus.OK;
-            }
 
             DiscountModule externalDisount = TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theCol.m_oExtDisountModule));
 
@@ -1749,6 +1734,12 @@ namespace Core.ConditionalAccess
                 }
 
                 price = TVinciShared.ObjectCopier.Clone<Price>((Price)(theCol.m_oCollectionPriceCode.m_oPrise));
+            }
+
+            if (blockEntitlement == BlockEntitlementType.BLOCK_PPV)
+            {
+                theReason = PriceReason.UserSuspended;
+                return null;
             }
 
             theReason = PriceReason.ForPurchase;
