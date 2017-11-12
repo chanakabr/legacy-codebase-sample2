@@ -77,6 +77,7 @@
               <s:element minOccurs="1" maxOccurs="1" name="m_nDomainLimitationModule" type="s:int" />
               <s:element minOccurs="0" maxOccurs="1" name="m_lServices" type="tns:ArrayOfServiceObject" />
               <s:element minOccurs="1" maxOccurs="1" name="m_GracePeriodMinutes" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="BlockCancellation" type="s:boolean" />
               <s:element minOccurs="0" maxOccurs="1" name="SubscriptionSetIdsToPriority" type="tns:ArrayOfKeyValuePair" />
               <s:element minOccurs="0" maxOccurs="1" name="CouponsGroups" type="tns:ArrayOfSubscriptionCouponGroup" />
               <s:element minOccurs="0" maxOccurs="1" name="ExternalProductCodes" type="tns:ArrayOfKeyValuePairOfVerificationPaymentGatewayString" />
@@ -240,6 +241,8 @@
               <s:element minOccurs="1" maxOccurs="1" name="m_fictivicMediaID" type="s:int" />
               <s:element minOccurs="0" maxOccurs="1" name="m_ProductCode" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_CollectionCode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="CouponsGroups" type="tns:ArrayOfSubscriptionCouponGroup" />
+              <s:element minOccurs="0" maxOccurs="1" name="ExternalProductCodes" type="tns:ArrayOfKeyValuePairOfVerificationPaymentGatewayString" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -255,6 +258,17 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="ArrayOfSubscriptionCouponGroup">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SubscriptionCouponGroup" nillable="true" type="tns:SubscriptionCouponGroup" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfKeyValuePairOfVerificationPaymentGatewayString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePairOfVerificationPaymentGatewayString" type="tns:KeyValuePairOfVerificationPaymentGatewayString" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="KeyValuePairOfVerificationPaymentGatewayString" />
       <s:complexType name="ArrayOfUsageModule">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="UsageModule" nillable="true" type="tns:UsageModule" />
@@ -312,17 +326,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="ArrayOfSubscriptionCouponGroup">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="SubscriptionCouponGroup" nillable="true" type="tns:SubscriptionCouponGroup" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfKeyValuePairOfVerificationPaymentGatewayString">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePairOfVerificationPaymentGatewayString" type="tns:KeyValuePairOfVerificationPaymentGatewayString" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="KeyValuePairOfVerificationPaymentGatewayString" />
       <s:simpleType name="SubscriptionType">
         <s:restriction base="s:string">
           <s:enumeration value="NotApplicable" />
@@ -1329,10 +1332,16 @@
       <s:element name="GetCollectionsDataResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetCollectionsDataResult" type="tns:ArrayOfCollection" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetCollectionsDataResult" type="tns:CollectionsResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="CollectionsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Collections" type="tns:ArrayOfCollection" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="ArrayOfCollection">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="Collection" nillable="true" type="tns:Collection" />
@@ -1752,7 +1761,7 @@
       <s:element name="PreviewModule" nillable="true" type="tns:PreviewModule" />
       <s:element name="ArrayOfPreviewModule" nillable="true" type="tns:ArrayOfPreviewModule" />
       <s:element name="SubscriptionsResponse" nillable="true" type="tns:SubscriptionsResponse" />
-      <s:element name="ArrayOfCollection" nillable="true" type="tns:ArrayOfCollection" />
+      <s:element name="CollectionsResponse" nillable="true" type="tns:CollectionsResponse" />
       <s:element name="PPVModuleResponse" nillable="true" type="tns:PPVModuleResponse" />
       <s:element name="BusinessModuleResponse" nillable="true" type="tns:BusinessModuleResponse" />
       <s:element name="PPVModuleDataResponse" nillable="true" type="tns:PPVModuleDataResponse" />
@@ -2610,7 +2619,7 @@
     <wsdl:part name="sDeviceName" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetCollectionsDataHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfCollection" />
+    <wsdl:part name="Body" element="tns:CollectionsResponse" />
   </wsdl:message>
   <wsdl:message name="ValidatePPVModuleForMediaFileHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4818,13 +4827,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://34.249.122.223:8030/PRICING_v4_6/ws_pricing_module.asmx" />
+      <soap:address location="http://34.249.122.223:8030/PRICING_V4_7/ws_pricing_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://34.249.122.223:8030/PRICING_v4_6/ws_pricing_module.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/PRICING_V4_7/ws_pricing_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://34.249.122.223:8030/PRICING_v4_6/ws_pricing_module.asmx" />
+      <http:address location="http://34.249.122.223:8030/PRICING_V4_7/ws_pricing_module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

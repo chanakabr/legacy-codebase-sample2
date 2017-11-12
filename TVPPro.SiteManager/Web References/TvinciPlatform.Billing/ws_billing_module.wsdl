@@ -4484,13 +4484,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://34.249.122.223:8030/Billing_V4_6/ws_billing_module.asmx" />
+      <soap:address location="http://34.249.122.223:8030/BILLING_V4_7/ws_billing_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://34.249.122.223:8030/Billing_V4_6/ws_billing_module.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/BILLING_V4_7/ws_billing_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://34.249.122.223:8030/Billing_V4_6/ws_billing_module.asmx" />
+      <http:address location="http://34.249.122.223:8030/BILLING_V4_7/ws_billing_module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

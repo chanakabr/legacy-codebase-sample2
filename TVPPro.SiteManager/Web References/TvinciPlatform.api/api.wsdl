@@ -258,6 +258,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="PermissionItems" type="tns:ArrayOfPermissionItem" />
           <s:element minOccurs="1" maxOccurs="1" name="GroupId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="isExcluded" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfPermissionItem">
@@ -269,6 +270,7 @@
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsExcluded" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ApiArgumentPermissionItem">
@@ -2846,6 +2848,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sSenderTo" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sBCCAddress" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_emailKey" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="groupId" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_eMailType" type="tns:eMailTemplateType" />
         </s:sequence>
       </s:complexType>
@@ -12931,13 +12934,13 @@
   </wsdl:binding>
   <wsdl:service name="API">
     <wsdl:port name="APISoap" binding="tns:APISoap">
-      <soap:address location="http://34.249.122.223:8030/api_v4_6/api.asmx" />
+      <soap:address location="http://34.249.122.223:8030/api_v4_7/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APISoap12" binding="tns:APISoap12">
-      <soap12:address location="http://34.249.122.223:8030/api_v4_6/api.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/api_v4_7/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APIHttpPost" binding="tns:APIHttpPost">
-      <http:address location="http://34.249.122.223:8030/api_v4_6/api.asmx" />
+      <http:address location="http://34.249.122.223:8030/api_v4_7/api.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

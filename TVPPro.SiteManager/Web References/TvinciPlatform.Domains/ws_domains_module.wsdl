@@ -60,6 +60,7 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_homeNetworks" type="tns:ArrayOfHomeNetwork" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nRegion" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nGroupID" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="roleId" nillable="true" type="s:int" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3797,13 +3798,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://34.249.122.223:8030/Domains_v4_6/ws_domains_module.asmx" />
+      <soap:address location="http://34.249.122.223:8030/DOMAINS_V4_7/ws_domains_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://34.249.122.223:8030/Domains_v4_6/ws_domains_module.asmx" />
+      <soap12:address location="http://34.249.122.223:8030/DOMAINS_V4_7/ws_domains_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://34.249.122.223:8030/Domains_v4_6/ws_domains_module.asmx" />
+      <http:address location="http://34.249.122.223:8030/DOMAINS_V4_7/ws_domains_module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
