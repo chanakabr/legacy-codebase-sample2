@@ -785,8 +785,7 @@ namespace Core.ConditionalAccess
             {
 
                 // check purchase permissions 
-
-                RolePermissions rolePermission = transactionType == eTransactionType.PPV ? RolePermissions.PURCHASE_PPV : RolePermissions.PURCHASE_SUBSCRIPTION;
+                RolePermissions rolePermission = transactionType == eTransactionType.PPV || transactionType == eTransactionType.Collection ? RolePermissions.PURCHASE_PPV : RolePermissions.PURCHASE_SUBSCRIPTION;
                 if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, rolePermission))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
@@ -901,7 +900,7 @@ namespace Core.ConditionalAccess
                 Price priceResponse = null;
                 Collection collection = null;
                 priceResponse = Utils.GetCollectionFinalPrice(groupId, productId.ToString(), siteguid, coupon, ref priceReason,
-                                                              ref collection, country, string.Empty, deviceName, string.Empty);
+                                                              ref collection, country, string.Empty, deviceName, string.Empty, userIp, currency);
 
                 if (priceReason == PriceReason.ForPurchase)
                 {

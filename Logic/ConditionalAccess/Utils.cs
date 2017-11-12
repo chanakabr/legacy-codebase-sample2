@@ -1672,12 +1672,12 @@ namespace Core.ConditionalAccess
         }
 
 
-        internal static Price GetCollectionFinalPrice(Int32 nGroupID, string sColCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref Collection theCol,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr)
+        internal static Price GetCollectionFinalPrice(Int32 groupId, string sColCode, string sSiteGUID, string couponCode, ref PriceReason theReason, ref Collection theCol,
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr, string ip, string currencyCode = null, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
             Price price = null;
             Collection collection = null;
-            collection = Pricing.Module.GetCollectionData(nGroupID, sColCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
+            collection = Pricing.Module.GetCollectionData(groupId, sColCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
             theCol = TVinciShared.ObjectCopier.Clone<Collection>((Collection)(collection));
             if (collection == null)
             {
@@ -1685,12 +1685,76 @@ namespace Core.ConditionalAccess
                 return null;
             }
 
-            if (collection.m_oCollectionPriceCode != null)
-                price = TVinciShared.ObjectCopier.Clone<Price>((Price)(collection.m_oCollectionPriceCode.m_oPrise));
+            bool isUserValidRes = true;
+            // get user status and validity if needed
+            int nDomainID = 0;
+            DAL.DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.Suspended; 
+            isUserValidRes = IsUserValid(sSiteGUID, groupId, ref nDomainID, ref userSuspendStatus);
+
+            // check user status and validity
+            if (blockEntitlement == BlockEntitlementType.NONE && isUserValidRes && userSuspendStatus == DAL.DomainSuspentionStatus.Suspended)
+            {
+                theReason = PriceReason.UserSuspended;
+                return null;
+            }
+            else if (blockEntitlement == BlockEntitlementType.BLOCK_PPV)
+            {
+                theReason = PriceReason.UserSuspended;
+                return null;
+            }
+            else if (userSuspendStatus == DAL.DomainSuspentionStatus.Suspended)
+            {
+                userSuspendStatus = DAL.DomainSuspentionStatus.OK;
+            }
+
+            DiscountModule externalDisount = TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theCol.m_oExtDisountModule));
+
+            if (theCol.m_oCollectionPriceCode != null)
+            {
+                bool isValidCurrencyCode = false;
+                // Validate currencyCode if it was passed in the request
+                if (!string.IsNullOrEmpty(currencyCode))
+                {
+                    if (!Utils.IsValidCurrencyCode(groupId, currencyCode))
+                    {
+                        theReason = PriceReason.InvalidCurrency;
+                        return new Price();
+                    }
+                    else
+                    {
+                        isValidCurrencyCode = true;
+                    }
+                }
+
+                // Get collection price code according to country and currency (if exists on the request)
+                if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(groupId, ref currencyCode)))
+                {
+                    string countryCode = Utils.GetIP2CountryCode(groupId, ip);
+                    PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(groupId, theCol.m_oCollectionPriceCode.m_nObjectID, countryCode, currencyCode);
+                    if (priceCodeWithCurrency != null)
+                    {
+                        theCol.m_oCollectionPriceCode = TVinciShared.ObjectCopier.Clone<PriceCode>(priceCodeWithCurrency);
+                    }
+                    else
+                    {
+                        theReason = PriceReason.CurrencyNotDefinedOnPriceCode;
+                        return new Price();
+                    }
+
+                    if (externalDisount != null)
+                    {
+                        DiscountModule externalDisountWithCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, externalDisount.m_nObjectID, countryCode, currencyCode);
+                        externalDisount = externalDisountWithCurrency != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>(externalDisountWithCurrency) : externalDisount;
+                    }
+                }
+
+                price = TVinciShared.ObjectCopier.Clone<Price>((Price)(theCol.m_oCollectionPriceCode.m_oPrise));
+            }
+
             theReason = PriceReason.ForPurchase;
 
             int domainID = 0;
-            List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, nGroupID, ref domainID);
+            List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, groupId, ref domainID);
 
             DataTable dt = ConditionalAccessDAL.Get_CollectionByCollectionCodeAndUserIDs(lUsersIds, sColCode, domainID);
 
@@ -1702,7 +1766,7 @@ namespace Core.ConditionalAccess
             }
             if (theReason != PriceReason.CollectionPurchased)
             {
-                long couponGroupId = PricingDAL.Get_CouponGroupId(nGroupID, sCouponCode); // return only if valid 
+                long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
 
                 // look if this coupon group id exsits in coupon list 
                 CouponsGroup couponGroups = null;
@@ -1710,19 +1774,19 @@ namespace Core.ConditionalAccess
                 {
                     couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)theCol.m_oCouponsGroup);
                 }
-                else if (collection.CouponsGroups != null)
+                else if (theCol.CouponsGroups != null)
                 {
                     couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>(theCol.CouponsGroups.Where(x => x.m_sGroupCode == couponGroupId.ToString() &&
                         (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)).Select(x => x).FirstOrDefault());
                 }
 
-                if (theCol.m_oExtDisountModule != null)
+                if (externalDisount != null)
                 {
-                    DiscountModule externalDisount = TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theCol.m_oExtDisountModule));
                     price = GetPriceAfterDiscount(price, externalDisount, 1);
                 }
 
-                price = CalculateCouponDiscount(ref price, couponGroups, sCouponCode, nGroupID);
+                price = CalculateCouponDiscount(ref price, couponGroups, couponCode, groupId);
+
             }
             return price;
         }

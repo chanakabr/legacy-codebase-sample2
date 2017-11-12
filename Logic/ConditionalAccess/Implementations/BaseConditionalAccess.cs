@@ -5439,7 +5439,7 @@ namespace Core.ConditionalAccess
 							case eBundleType.COLLECTION:
 								{
 									Collection theCol = null;
-									price = Utils.GetCollectionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theCol, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, "");
+                                    price = Utils.GetCollectionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theCol, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, sUserIP, sCurrency);
 									theBundle = theCol;
 									break;
 								}
@@ -5955,7 +5955,7 @@ namespace Core.ConditionalAccess
 							case eBundleType.COLLECTION:
 								{
 									Collection theCol = null;
-									p = Utils.GetCollectionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theCol, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
+									p = Utils.GetCollectionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theCol, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, sUserIP, sCurrency);
 									theBundle = theCol;
 									break;
 								}
@@ -6311,7 +6311,7 @@ namespace Core.ConditionalAccess
 		/// Get Collections Prices 
 		/// </summary>
         public virtual CollectionsPricesResponse GetCollectionsPrices(string[] sCollections, string sUserGUID, string sCouponCode,
-			string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string clientIp, string currencyCode = null, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
 		{
             CollectionsPricesResponse response = new CollectionsPricesResponse()
             {
@@ -6331,7 +6331,8 @@ namespace Core.ConditionalAccess
 						Collection collection = null;
 						Price price = null;
 
-						price = Utils.GetCollectionFinalPrice(m_nGroupID, sColCode, sUserGUID, sCouponCode, ref theReason, ref collection, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
+                        price = Utils.GetCollectionFinalPrice(m_nGroupID, sColCode, sUserGUID, sCouponCode, ref theReason, ref collection, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
+                            clientIp, currencyCode, blockEntitlement);
 
 						CollectionsPricesContainer cont = new CollectionsPricesContainer();
 						cont.Initialize(sColCode, price, theReason);
@@ -11681,7 +11682,7 @@ namespace Core.ConditionalAccess
                 Price priceResponse = null;
                 Collection collection = null;
                 priceResponse = Utils.GetCollectionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason,
-                                                              ref collection, country, string.Empty, deviceName, string.Empty);
+                                                              ref collection, country, string.Empty, deviceName, string.Empty, userIp);
 
                 if (priceReason == PriceReason.ForPurchase)
                 {

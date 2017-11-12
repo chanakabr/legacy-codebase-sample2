@@ -674,7 +674,7 @@ namespace Core.ConditionalAccess
         }
 
         public static CollectionsPricesResponse GetCollectionsPrices(int groupID, string[] sCollections, string sUserGUID,
-            string sCountryCd2, string sLanguageCode3, string sDeviceName)
+            string sCountryCd2, string sLanguageCode3, string sDeviceName, string clientIp)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
@@ -688,7 +688,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                response = t.GetCollectionsPrices(sCollections, sUserGUID, string.Empty, sCountryCd2, sLanguageCode3, sDeviceName);
+                response = t.GetCollectionsPrices(sCollections, sUserGUID, string.Empty, sCountryCd2, sLanguageCode3, sDeviceName, clientIp);
             }
 
             return response;
@@ -767,7 +767,7 @@ namespace Core.ConditionalAccess
 
 
         public static CollectionsPricesResponse GetCollectionsPricesWithCoupon(int groupID, string[] sCollections, string sUserGUID, string sCouponCode,
-            string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
+            string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP, string currencyCode = null)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
@@ -781,7 +781,15 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                response = t.GetCollectionsPrices(sCollections, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK;
+                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupID, sUserGUID, RolePermissions.PLAYBACK_PPV);
+ 
+                if (!permittedPpv)
+                {
+                    blockEntitlement = BlockEntitlementType.BLOCK_PPV;
+                }
+
+                response = t.GetCollectionsPrices(sCollections, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP, currencyCode, blockEntitlement);
             }
 
             return response;
@@ -845,7 +853,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                response = t.GetCollectionsPrices(sCollections, sUserGUID, string.Empty, sCountryCd2, sLanguageCode3, sDeviceName);
+                response = t.GetCollectionsPrices(sCollections, sUserGUID, string.Empty, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
             }
 
             return response;
@@ -916,7 +924,7 @@ namespace Core.ConditionalAccess
         }
 
         public static CollectionsPricesResponse GetCollectionsPricesSTWithCoupon(int groupID, string sCollectionsList, string sUserGUID, string sCouponCode,
-            string sCountryCd2, string sLanguageCode3, string sDeviceName)
+            string sCountryCd2, string sLanguageCode3, string sDeviceName, string clientIp = null, string currencyCode = null)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
@@ -933,7 +941,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                response = t.GetCollectionsPrices(sCollections, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                response = t.GetCollectionsPrices(sCollections, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, clientIp, currencyCode);
             }
 
             return response;
