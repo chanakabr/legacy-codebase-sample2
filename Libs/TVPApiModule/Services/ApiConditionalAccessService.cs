@@ -1008,7 +1008,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    retVal = m_Module.GetCollectionsPrices(m_wsUserName, m_wsPassword, collections, userGuid, countryCode2, languageCode3, deviceName);
+                    var res = m_Module.GetCollectionsPrices(m_wsUserName, m_wsPassword, collections, userGuid, countryCode2, languageCode3, deviceName, SiteHelper.GetClientIP());
+                    if (res != null)
+                    {
+                        retVal = res.CollectionsPrices;
+                    }
                 }
             }
             catch (Exception ex)
@@ -1026,7 +1030,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    retVal = m_Module.GetCollectionsPricesWithCoupon(m_wsUserName, m_wsPassword, collections, userGuid, couponCode, countryCode2, languageCode3, deviceName, clientIp);
+                    var res = m_Module.GetCollectionsPricesWithCoupon(m_wsUserName, m_wsPassword, collections, userGuid, couponCode, countryCode2, languageCode3, deviceName, clientIp);
+                    if (res != null)
+                    {
+                        retVal = res.CollectionsPrices;
+                    }
                 }
             }
             catch (Exception ex)
