@@ -344,6 +344,36 @@ namespace Core.ConditionalAccess
 
         }
 
+        public override NPVRResponse DeleteNPVR(string siteGuid, string seriesId, int seasonNumber, string channelId, NPVRRecordingStatus status)
+        {
+            NPVRResponse res = new NPVRResponse();
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+
+            try
+            {
+                int domainID = 0;
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
+                {
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                    if (npvr != null)
+                    {
+                        NPVRCancelDeleteResponse response = null;
+                        response = npvr.DeleteSeries(new NPVRDeleteObj() { EntityID = domainID.ToString(),  Status = status , SeriesID = seriesId ,
+                            ChannelId = channelId, SeasonNumber = seasonNumber});
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail DeleteNPVR siteGuid:{0}, seriesId:{1}, seasonNumber:{2}, channelId:{3}, status:{4}, ex:{5}", siteGuid, seriesId, seasonNumber, channelId, status.ToString(),
+                    ex);
+                res.status = NPVRStatus.Error.ToString();
+            }
+
+            return res;
+        }
+
+
         // here assetID will be the recording ID in ALU
         public override NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries)
         {
@@ -362,6 +392,7 @@ namespace Core.ConditionalAccess
                             NPVRCancelDeleteResponse response = null;
                             if (isSeries)
                             {
+                                // get epg details                                
                                 response = npvr.DeleteSeries(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
                             }
                             else
@@ -575,12 +606,10 @@ namespace Core.ConditionalAccess
                 {
                     res = prog.m_oProgram.EPG_IDENTIFIER;
                     epgChannelID = prog.m_oProgram.EPG_CHANNEL_ID;
-
                     if (!DateTime.TryParseExact(prog.m_oProgram.START_DATE, "dd/MM/yyyy HH:mm:ss", new CultureInfo("he-IL"), DateTimeStyles.None, out startDate))
                     {
                         // failed to parse date.
                         startDate = UNIX_ZERO_TIME;
-
                     }
                 }
             }
