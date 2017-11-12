@@ -163,7 +163,7 @@ namespace Core.Billing
             Utils.GetBaseCreditCardImpl(ref oCreditCard, nGroupID);
             if (oCreditCard != null)
             {
-                log.Error("group_id found " + TVinciShared.PageUtils.GetCallerIP());
+                log.Debug("group_id found " + TVinciShared.PageUtils.GetCallerIP());
                 return oCreditCard.UpdatePurchaseIDInBillingTable(purchaseID, billingRefTransactionID);
             }
             else
