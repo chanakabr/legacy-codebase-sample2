@@ -9782,10 +9782,10 @@ namespace Core.ConditionalAccess
                     {
                         log.Error("Domain status: " + domain.m_DomainStatus.ToString());
 
-                        if (!isForce && domain.m_DomainStatus == DomainStatus.DomainSuspended)
+                        if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
                         {
                             // check is permitted to login becouse if domain suspended to cancel or force cancel it should be done via phoniex (service_action )
-                            if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
+                            if (!isForce && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
                             {
                                 result.Code = (int)eResponseStatus.DomainSuspended;
                                 result.Message = "Domain suspended";
