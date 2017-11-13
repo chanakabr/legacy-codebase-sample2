@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -96,6 +97,19 @@ public partial class adm_media_concurrency_rule_new : System.Web.UI.Page
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
 
+        DataRecordDropDownField restrictionPolicy = new DataRecordDropDownField("", "NAME", "ID", "", null, 60, true);
+        DataTable restrictionPoliciesTable = new DataTable("restriction_policies");
+        restrictionPoliciesTable.Columns.Add("id", typeof(int));
+        restrictionPoliciesTable.Columns.Add("txt", typeof(string));
+
+        foreach (ApiObjects.ConcurrencyRestrictionPolicy r in Enum.GetValues(typeof(ApiObjects.ConcurrencyRestrictionPolicy)))
+        {
+            restrictionPoliciesTable.Rows.Add((int)r, r);
+        }
+
+        restrictionPolicy.SetSelectsDT(restrictionPoliciesTable);
+        restrictionPolicy.Initialize("Restriction Policy", "adm_table_header_nbg", "FormInput", "restriction_policy", false);
+        theRecord.AddRecord(restrictionPolicy);
 
         string sTable = theRecord.GetTableHTML("adm_media_concurrency_rule_new.aspx?submited=1");
 
