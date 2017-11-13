@@ -2373,7 +2373,8 @@ namespace Core.Catalog
 
         public static void UpdateFollowMe(int nGroupID, string sAssetID, string sSiteGUID, int nPlayTime, string sUDID, int duration,
             string assetAction, int mediaTypeId,
-            int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
+            int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, 
+            bool isLinearChannel = false, long recordingId = 0, int mediaConcurrencyRuleId = 0)
         {
             if (CatalogLogic.IsAnonymousUser(sSiteGUID))
             {
@@ -2404,7 +2405,7 @@ namespace Core.Catalog
                 {
                     case ePlayType.MEDIA:
                         CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, int.Parse(sAssetID), nGroupID,
-                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, isLinearChannel, finishedPercentThreshold);
+                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, isLinearChannel, finishedPercentThreshold, mediaConcurrencyRuleId);
                         break;
                     case ePlayType.NPVR:
                         CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sAssetID, nGroupID, nPlayTime, duration, assetAction, recordingId, isFirstPlay);

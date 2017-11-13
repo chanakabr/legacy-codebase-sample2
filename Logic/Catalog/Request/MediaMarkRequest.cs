@@ -557,8 +557,9 @@ namespace Core.Catalog.Request
             return actionId == 4;
         }
 
-        private PlayCycleSession HandleMediaPlayAction(MediaPlayActions mediaMarkAction, int nCountryID, int nPlatform, ref int nActionID, ref int nPlay, ref int nStop, ref int nPause, ref int nFinish, ref int nFull, ref int nExitFull,
-                                           ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref bool isConcurrent, ref bool isError, ref int nSwoosh, ref int fileDuration, ref int mediaTypeId)
+        private PlayCycleSession HandleMediaPlayAction(MediaPlayActions mediaMarkAction, int nCountryID, int nPlatform, ref int nActionID, 
+            ref int nPlay, ref int nStop, ref int nPause, ref int nFinish, ref int nFull, ref int nExitFull,
+            ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref bool isConcurrent, ref bool isError, ref int nSwoosh, ref int fileDuration, ref int mediaTypeId)
         {
             int mediaId = int.Parse(m_oMediaPlayRequestData.m_sAssetID);
 
@@ -582,7 +583,9 @@ namespace Core.Catalog.Request
             }
 
             int nDomainID = 0;
-            PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_nGroupID, this.m_oMediaPlayRequestData.m_sUDID, nPlatform);
+            PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaFileID, 
+                this.m_nGroupID, this.m_oMediaPlayRequestData.m_sUDID, nPlatform);
+
             if (playCycleSession != null && playCycleSession.DomainID > 0)
             {
                 nDomainID = playCycleSession.DomainID;
@@ -700,9 +703,15 @@ namespace Core.Catalog.Request
                             }
                         }
 
+                        int mediaConcurrencyRuleId = 0;
+
+                        if (playCycleSession != null)
+                        {
+                            mediaConcurrencyRuleId = playCycleSession.MediaConcurrencyRuleID;
+                        }
                         CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid,
                             this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId, nDomainID,
-                            ePlayType.MEDIA, true, isLinearChannel);
+                            ePlayType.MEDIA, true, isLinearChannel, 0, mediaConcurrencyRuleId);
                     }
 
                     break;

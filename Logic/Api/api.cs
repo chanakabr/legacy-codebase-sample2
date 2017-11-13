@@ -4331,25 +4331,22 @@ namespace Core.Api
             //MediaConcurrencyRule rule = null;
             try
             {
-                // check if media concurrency rule exists for group
-                string key = LayeredCacheKeys.GetGroupMediaConcurrencyRulesKey(groupId);
-                List<MediaConcurrencyRule> mcr = null;
-                List<int> ruleIds = null;
-                // try to get from cache  
-
-                bool cacheResult = LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(key, ref mcr, APILogic.Utils.Get_MCRulesByGroup, new Dictionary<string, object>() { { "groupId", groupId } },
-                                                                                        groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME);
-                if (!cacheResult)
-                {
-                    log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId = {0}", groupId));
-                    return null;
-                }
+                var groupMediaConcurrencyRules = GetGroupMediaConcurrencyRules(groupId);
+                List<int> ruleIds = new List<int>();
 
                 // get all related rules to media 
-                key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
-                cacheResult = LayeredCache.Instance.Get<List<int>>(key, ref ruleIds, Get_MCRulesIdsByMediaId, new Dictionary<string, object>() { { "groupId", groupId }, { "mediaId", mediaId }, { "mcr", mcr } },
-                                                                    groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
-                                                                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
+                string key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
+                bool cacheResult = LayeredCache.Instance.Get<List<int>>(
+                    key, ref ruleIds, Get_MCRulesIdsByMediaId, 
+                    new Dictionary<string, object>()
+                        {
+                        { "groupId", groupId },
+                        { "mediaId", mediaId },
+                        { "mcr", groupMediaConcurrencyRules }
+                        },
+                    groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
+                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
+
                 if (!cacheResult)
                 {
                     log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
@@ -4357,7 +4354,7 @@ namespace Core.Api
                 }
                 else if (ruleIds != null && ruleIds.Count > 0)
                 {
-                    res = mcr.Where(x => ruleIds.Contains(x.RuleID) && x.bmId == bmID && x.Type == type).ToList();
+                    res = groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) && x.bmId == bmID && x.Type == type).ToList();
                 }
                 return res;
             }
@@ -4366,6 +4363,28 @@ namespace Core.Api
                 log.Error("GetMediaConcurrencyRules - Failed  due ex = " + ex.Message, ex);
                 return null;
             }
+        }
+
+        public static List<MediaConcurrencyRule> GetGroupMediaConcurrencyRules(int groupId)
+        {
+            List<MediaConcurrencyRule> result = null;
+
+            // check if media concurrency rule exists for group
+            string key = LayeredCacheKeys.GetGroupMediaConcurrencyRulesKey(groupId);
+
+            // try to get from cache  
+
+            bool cacheResult = LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(
+                key, ref result, APILogic.Utils.Get_MCRulesByGroup, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME);
+
+            if (!cacheResult)
+            {
+                log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId = {0}", groupId));
+                result = null;
+            }
+
+            return result;
         }
 
         private static Dictionary<string, List<string>> GetMediaTags(int nMediaID, int nGroupID)

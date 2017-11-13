@@ -454,7 +454,6 @@ namespace APILogic
                             {
                                 if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
                                 {
-                                    MediaConcurrencyRule rule = new MediaConcurrencyRule();
                                     foreach (DataRow dr in ds.Tables[0].Rows)
                                     {
                                         int ruleID = APILogic.Utils.GetIntSafeVal(dr, "rule_id");
@@ -464,7 +463,8 @@ namespace APILogic
                                         int MCLimitation = APILogic.Utils.GetIntSafeVal(dr, "media_concurrency_limit");
                                         int bmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "BM_ID");
                                         int bmType = ODBCWrapper.Utils.GetIntSafeVal(dr, "type");
-                                        rule = new MediaConcurrencyRule(ruleID, tagTypeID, tagType, name, 1, bmId, (eBusinessModule)bmType);
+                                        MediaConcurrencyRule rule = new MediaConcurrencyRule(ruleID, tagTypeID, tagType, name, 1, bmId, (eBusinessModule)bmType, MCLimitation);
+
                                         //get all tagValues
                                         if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
                                         {

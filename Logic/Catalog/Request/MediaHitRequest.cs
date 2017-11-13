@@ -199,6 +199,7 @@ namespace Core.Catalog.Request
             MediaPlayActions action;
             List<Task> tasks = new List<Task>();
             ContextData contextData = new ContextData();
+            int mediaConcurrencyRuleId = 0;
 
             if (m_oMediaPlayRequestData.m_nLoc > 0)
                 nPlayTime = m_oMediaPlayRequestData.m_nLoc;
@@ -240,6 +241,7 @@ namespace Core.Catalog.Request
                 {
                     domainId = playCycleSession.DomainID;
                     playCycleKey = playCycleSession.PlayCycleKey;
+                    mediaConcurrencyRuleId = playCycleSession.MediaConcurrencyRuleID;
                 }
                 else
                 {
@@ -255,7 +257,8 @@ namespace Core.Catalog.Request
                 {
                     bool isFirstPlay = action == MediaPlayActions.FIRST_PLAY;
                     CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid,
-                        nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, domainId, ePlayType.MEDIA, isFirstPlay, isLinearChannel);
+                        nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, domainId, ePlayType.MEDIA, isFirstPlay, isLinearChannel,
+                        0, mediaConcurrencyRuleId);
                 }
 
                 if (m_oMediaPlayRequestData.m_nAvgBitRate > 0)
