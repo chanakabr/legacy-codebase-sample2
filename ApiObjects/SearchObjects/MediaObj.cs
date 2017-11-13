@@ -25,12 +25,15 @@ namespace ApiObjects.SearchObjects
         public string m_sFinalEndDate;
         public string m_sCreateDate;
         public string m_sUpdateDate;
+        public string CatalogStartDate { get; set; }
 
         public string m_sMFTypes;
 
         public string m_sName;
         public string m_sDescription;
         public string m_sUserTypes;
+        public string CoGuid { get; set; }
+        public string EntryId { get; set; }
 
         public Dictionary<string, Dictionary<long, string>> m_dTagValues;
         public Dictionary<string, string> m_dMeatsValues;
@@ -89,7 +92,7 @@ namespace ApiObjects.SearchObjects
             m_sUpdateDate = sNow;
             m_sStartDate = sNow;
             m_sCreateDate = sNow;
-
+            CatalogStartDate = sNow;
             m_sEndDate = sMax;
             m_sFinalEndDate = sMax;
 
@@ -99,6 +102,8 @@ namespace ApiObjects.SearchObjects
             freeFileTypes = new List<int>();
 
             epgIdentifier = null;
+            CoGuid = string.Empty;
+            EntryId = string.Empty;
         }
 
         #endregion
@@ -126,11 +131,14 @@ namespace ApiObjects.SearchObjects
                 m_sMFTypes = this.m_sMFTypes,
                 m_sFinalEndDate = this.m_sFinalEndDate,
                 m_sStartDate = this.m_sStartDate,
+                CatalogStartDate =this.CatalogStartDate,
                 m_sUpdateDate = this.m_sUpdateDate,
                 m_sUserTypes = this.m_sUserTypes,
                 geoBlockRule = this.geoBlockRule,
                 epgIdentifier = this.epgIdentifier,
-                isFree = this.isFree
+                isFree = this.isFree,
+                CoGuid = this.CoGuid,
+                EntryId = this.EntryId
             };
 
             clone.m_dMeatsValues = (from meta in this.m_dMeatsValues select meta).ToDictionary(x => x.Key, x => x.Value);

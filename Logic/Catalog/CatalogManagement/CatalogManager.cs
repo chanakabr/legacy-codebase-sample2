@@ -18,7 +18,7 @@ namespace Core.Catalog.CatalogManagement
     public class CatalogManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly List<string> basicMetasSystemNames = new List<string>() { "Title", "Description", "CO_GUID", "Entry_ID", "Status", "Playback start date", "Playback end date", "Catalog start date", "Catalog end date" };
+        private static readonly List<string> basicMetasSystemNames = new List<string>() { "name", "description", "co_guid", "entry_id", "is_active", "playback_start_date", "playback_end_date", "catalog_start_date", "catalog_end_date" };
 
         #region Private Methods
 
@@ -140,7 +140,7 @@ namespace Core.Catalog.CatalogManagement
             List<long> basicMetaIds = new List<long>();
             if (catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.Count > 0)
             {
-                basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => basicMetasSystemNames.Contains(x.Key)).Select(x => x.Value.Id).ToList();
+                basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => basicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
                 if (assetStructToValidate.MetaIds != null && assetStructToValidate.MetaIds.Count >= basicMetasSystemNames.Count)
                 {
                     List<long> noneExistingBasicMetaIds = basicMetaIds.Except(assetStructToValidate.MetaIds).ToList();
@@ -448,7 +448,7 @@ namespace Core.Catalog.CatalogManagement
             long assetStructId = ODBCWrapper.Utils.GetLongSafeVal(basicDataRow, "ASSET_STRUCT_ID", 0);
             if (!TryGetMediaTypeFromAssetStructId(groupId, assetStructId, out result.m_oMediaType))
             {
-                log.WarnFormat("media type (assetStrucT) is not valid for media with Id: {0}, assetStructId: {1}", id, assetStructId);
+                log.WarnFormat("media type (assetStruct) is not valid for media with Id: {0}, assetStructId: {1}", id, assetStructId);
                 return null;
             }
 
@@ -465,8 +465,7 @@ namespace Core.Catalog.CatalogManagement
                 log.WarnFormat("CreateMediaFromDataSet - last updatedbasic  table is not valid, Id: {0}", id);
                 return null;
             }
-
-            // TODO - Lior - update date is not parsed correctly???
+            
             DataRow lastUpdatedDr = ds.Tables[5].Rows[0];
             result.m_dUpdateDate = ODBCWrapper.Utils.GetDateSafeVal(lastUpdatedDr, "UPDATE_DATE");
 
@@ -508,7 +507,7 @@ namespace Core.Catalog.CatalogManagement
                 tagsTable = ds.Tables[4];
             }
 
-            if (!TryGetMediaAndTags(groupId, id, defaultLanguage.ID, groupLanguages, metasTable, tagsTable, ref result))
+            if (!TryGetMetasAndTags(groupId, id, defaultLanguage.ID, groupLanguages, metasTable, tagsTable, ref result))
             {
                 log.WarnFormat("CreateMediaFromDataSet - failed to get media metas and tags for Id: {0}", id);
                 return null;
@@ -538,7 +537,7 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        private static bool TryGetMediaAndTags(int groupId, long mediaId, int defaultLanguageId, List<LanguageObj> groupLanguages, DataTable metasTable, DataTable tagsTable, ref MediaObj media)
+        private static bool TryGetMetasAndTags(int groupId, long mediaId, int defaultLanguageId, List<LanguageObj> groupLanguages, DataTable metasTable, DataTable tagsTable, ref MediaObj media)
         {
             bool res = false;
             Dictionary<long, List<LanguageContainer>> topicIdToMeta = new Dictionary<long, List<LanguageContainer>>();
@@ -628,6 +627,255 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return res;
+        }
+
+        private static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> CreateGroupMediaMapFromDataSet(int groupId, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
+        {
+            // <assetId, <languageId, media>>
+            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
+            try
+            {
+                if (ds == null || ds.Tables == null || ds.Tables.Count < 5)
+                {
+                    log.WarnFormat("CreateGroupMediaMapFromDataSet didn't receive dataset with 5 or more tables");
+                    return null;
+                }
+
+                // Basic details tables
+                if (ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count <= 0)
+                {
+                    log.WarnFormat("CreateGroupMediaMapFromDataSet - basic details table is not valid");
+                    return null;
+                }
+
+                foreach (DataRow basicDataRow in ds.Tables[0].Rows)
+                {                    
+                    int id = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "ID", 0);
+                    if (id > 0 && !groupAssetsMap.ContainsKey(id))
+                    {
+                        ApiObjects.SearchObjects.Media asset = BuildMediaFromDataRow(groupId, basicDataRow, id);
+                        groupAssetsMap.Add(asset.m_nMediaID, new Dictionary<int, ApiObjects.SearchObjects.Media>() { { defaultLanguage.ID, asset } });
+                    }
+                }
+
+                //get all the media files types for each mediaId that have been selected.
+                if (ds.Tables[1] != null && ds.Tables[1].Columns != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                {
+                    foreach (DataRow row in ds.Tables[1].Rows)
+                    {
+                        int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
+                        string sMFT = ODBCWrapper.Utils.GetSafeStr(row, "media_type_id");
+                        bool isTypeFree = ODBCWrapper.Utils.ExtractBoolean(row, "is_free");
+
+                        if (groupAssetsMap.ContainsKey(mediaID) && groupAssetsMap[mediaID].ContainsKey(defaultLanguage.ID))
+                        {
+                            ApiObjects.SearchObjects.Media theMedia = groupAssetsMap[mediaID][defaultLanguage.ID];
+                            theMedia.m_sMFTypes += string.Format("{0};", sMFT);
+                            int mediaTypeId;
+                            if (isTypeFree)
+                            {
+                                // if at least one of the media types is free - this media is free
+                                theMedia.isFree = true;
+
+                                if (int.TryParse(sMFT, out mediaTypeId))
+                                {
+                                    theMedia.freeFileTypes.Add(mediaTypeId);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Metas and Tags table
+                DataTable metasTable = null;
+                DataTable tagsTable = null;
+                if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
+                {
+                    metasTable = ds.Tables[2];
+                }
+                if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+                {
+                    tagsTable = ds.Tables[3];
+                }
+
+                List<DataRow> defaultLanguageMetas = new List<DataRow>();
+                List<DataRow> defaultLanguageTopics = new List<DataRow>();
+                List<DataRow> otherLanguageMetas = new List<DataRow>();
+                List<DataRow> otherLanguageTopics = new List<DataRow>();
+                if (metasTable != null && metasTable.Rows != null && metasTable.Rows.Count > 0)
+                {
+                    defaultLanguageMetas = (from row in metasTable.AsEnumerable()
+                                            where (Int64)row["LANGUAGE_ID"] == defaultLanguage.ID
+                                            select row).ToList();
+                    otherLanguageMetas = (from row in metasTable.AsEnumerable()
+                                          where (Int64)row["LANGUAGE_ID"] != defaultLanguage.ID
+                                          select row).ToList();
+                }
+
+                if (tagsTable != null && tagsTable.Rows != null && tagsTable.Rows.Count > 0)
+                {
+                    defaultLanguageTopics = (from row in tagsTable.AsEnumerable()
+                                             where (Int64)row["LANGUAGE_ID"] == defaultLanguage.ID
+                                             select row).ToList();
+                    otherLanguageTopics = (from row in tagsTable.AsEnumerable()
+                                           where (Int64)row["LANGUAGE_ID"] != defaultLanguage.ID
+                                           select row).ToList();
+                }
+
+                // Fill Default Language Metas and Tags
+                FillAssetMetasAndTags(groupId, defaultLanguageMetas, defaultLanguageTopics, ref groupAssetsMap);
+
+                // Clone Assets
+                foreach (int mediaId in groupAssetsMap.Keys)
+                {                    
+                    foreach (LanguageObj language in groupLanguages.Where(x => !x.IsDefault))
+                    {
+                        groupAssetsMap[mediaId].Add(language.ID, groupAssetsMap[mediaId][defaultLanguage.ID].Clone());
+                    }
+                }
+
+                // Fill Other Language Metas and Tags
+                FillAssetMetasAndTags(groupId, otherLanguageMetas, otherLanguageTopics, ref groupAssetsMap);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed CreateGroupMediaMapFromDataSet for groupId: {0}", groupId), ex);
+            }
+
+            return groupAssetsMap;
+        }
+
+        private static ApiObjects.SearchObjects.Media BuildMediaFromDataRow(int groupId, DataRow basicDataRow, int id)
+        {
+            ApiObjects.SearchObjects.Media asset = new ApiObjects.SearchObjects.Media();
+            asset.m_nMediaID = id;
+            asset.m_nWPTypeID = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "watch_permission_type_id");
+            asset.m_nMediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "ASSET_STRUCT_ID", 0);
+            if (!ValidateAssetStructIdExists(groupId, asset.m_nMediaTypeID))
+            {
+                log.WarnFormat("media type Id: {0} is not valid for media with Id: {1}", asset.m_nMediaTypeID, id);
+            }
+
+            asset.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "group_id");
+            asset.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "is_active");
+            asset.m_nDeviceRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "device_rule_id");
+            asset.m_nLikeCounter = 0;
+            asset.m_nViews = 0;
+            asset.m_sUserTypes = ODBCWrapper.Utils.GetSafeStr(basicDataRow["user_types"]);
+            asset.EntryId = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "ENTRY_ID");
+            asset.CoGuid = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "CO_GUID");
+            // by default - media is not free
+            asset.isFree = false;
+            asset.geoBlockRule = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "geo_block_rule_id");
+            asset.m_sName = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "NAME");
+            asset.m_sDescription = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "DESCRIPTION");
+            if (string.IsNullOrEmpty(asset.m_sName) || string.IsNullOrEmpty(asset.m_sDescription))
+            {
+                log.WarnFormat("Name or description is not valid for media with Id: {0}", id);
+            }
+
+            if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(basicDataRow, "create_date")))
+            {
+                DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "create_date");
+                asset.m_sCreateDate = dt.ToString("yyyyMMddHHmmss");
+            }
+
+            if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(basicDataRow, "update_date")))
+            {
+                DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "update_date");
+                asset.m_sUpdateDate = dt.ToString("yyyyMMddHHmmss");
+            }
+
+            if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(basicDataRow, "start_date")))
+            {
+                DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "start_date");
+                asset.m_sStartDate = dt.ToString("yyyyMMddHHmmss");
+            }
+
+            if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(basicDataRow, "end_date")))
+            {
+                DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "end_date");
+                asset.m_sEndDate = dt.ToString("yyyyMMddHHmmss");
+
+            }
+
+            if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(basicDataRow, "final_end_date")))
+            {
+                DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "final_end_date");
+                asset.m_sFinalEndDate = dt.ToString("yyyyMMddHHmmss");
+            }
+
+            if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(basicDataRow, "catalog_start_date")))
+            {
+                DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "catalog_start_date");
+                asset.CatalogStartDate = dt.ToString("yyyyMMddHHmmss");
+            }
+
+            return asset;
+        }
+
+        private static bool ValidateAssetStructIdExists(int groupId, int assetStructId)
+        {
+            bool res = false;            
+            CatalogGroupCache catalogGroupCache;
+            if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetStructsByIds", groupId);
+                return res;
+            }
+
+            if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
+            {
+                log.WarnFormat("assetStructId: {0} doesn't exist for groupId: {1}", assetStructId, groupId);
+                return res;
+            }
+            
+            return true;
+        }
+
+        private static void FillAssetMetasAndTags(int groupId, List<DataRow> metaRows, List<DataRow> tagRows, ref Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupAssetsMap)
+        {            
+            CatalogGroupCache catalogGroupCache;
+            if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling TryGetAssetMetasAndTags", groupId);
+                return;
+            }
+
+            Dictionary<long, List<LanguageContainer>> topicIdToMeta = new Dictionary<long, List<LanguageContainer>>();
+            // TODO - Lior - need to handle basic meta's differently
+            foreach (DataRow dr in metaRows)
+            {
+                int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "asset_id");
+                long topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
+                int languageId = ODBCWrapper.Utils.GetIntSafeVal(dr, "language_id");
+                string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");                
+                if (groupAssetsMap.ContainsKey(mediaId) && catalogGroupCache.TopicsMapById.ContainsKey(topicId) && groupAssetsMap[mediaId].ContainsKey(languageId))
+                {
+                    groupAssetsMap[mediaId][languageId].m_dMeatsValues[catalogGroupCache.TopicsMapById[topicId].SystemName] = translation;
+                }               
+            }
+
+            foreach (DataRow dr in tagRows)
+            {
+                int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "asset_id");
+                long topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
+                long tagId = ODBCWrapper.Utils.GetLongSafeVal(dr, "tag_id");
+                int languageId = ODBCWrapper.Utils.GetIntSafeVal(dr, "language_id");
+                string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
+                if (groupAssetsMap.ContainsKey(mediaId) && catalogGroupCache.TopicsMapById.ContainsKey(topicId) && groupAssetsMap[mediaId].ContainsKey(languageId))
+                {
+                    if (!groupAssetsMap[mediaId][languageId].m_dTagValues.ContainsKey(catalogGroupCache.TopicsMapById[topicId].SystemName))
+                    {
+                        groupAssetsMap[mediaId][languageId].m_dTagValues.Add(catalogGroupCache.TopicsMapById[topicId].SystemName, new Dictionary<long, string>());
+                    }
+
+                    if (!groupAssetsMap[mediaId][languageId].m_dTagValues[catalogGroupCache.TopicsMapById[topicId].SystemName].ContainsKey(tagId))
+                    {
+                        groupAssetsMap[mediaId][languageId].m_dTagValues[catalogGroupCache.TopicsMapById[topicId].SystemName].Add(tagId, translation);
+                    }
+                }
+            }
         }
 
         #endregion
@@ -1119,35 +1367,64 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static MediaObj GetMedia(int groupId, long id, Filter filter)
+        public static MediaObj GetAsset(int groupId, Group group, long id, Filter filter)
         {
             MediaObj result = null;
             try
             {
-                GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(groupId);
+                GroupManager groupManager = new GroupManager();                
                 if (group == null)
                 {
-                    log.WarnFormat("GetMedia - Failed to get Group object for groupId: {0}", groupId);
+                    log.WarnFormat("GetAsset - Failed to get Group object for groupId: {0}", groupId);
                     return result;
                 }
 
                 LanguageObj defaultLanguage = group.GetGroupDefaultLanguage();
                 if (defaultLanguage == null || defaultLanguage.ID <= 0)
                 {
-                    log.WarnFormat("GetMedia - Failed to get defaultLanguage object for groupId: {0}", groupId);
+                    log.WarnFormat("GetAsset - Failed to get defaultLanguage object for groupId: {0}", groupId);
                     return result;
                 }
 
-                DataSet ds = CatalogDAL.GetMedia(groupId, id, defaultLanguage.ID);
+                DataSet ds = CatalogDAL.GetAsset(groupId, id, defaultLanguage.ID);
                 result = CreateMediaFromDataSet(groupId, ds, defaultLanguage, group.GetLangauges(), filter);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetMedia for groupId: {0} and id: {1}", groupId, id), ex);
+                log.Error(string.Format("Failed GetAsset for groupId: {0} and id: {1}", groupId, id), ex);
             }
 
             return result;
+        }
+
+        public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupAssets(int groupId, Group group)
+        {
+            // <assetId, <languageId, media>>
+            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
+            try
+            {
+                if (group == null)
+                {
+                    log.WarnFormat("GetGroupAssets - Failed to get Group object for groupId: {0}", groupId);
+                    return groupAssetsMap;
+                }
+
+                LanguageObj defaultLanguage = group.GetGroupDefaultLanguage();
+                if (defaultLanguage == null || defaultLanguage.ID <= 0)
+                {
+                    log.WarnFormat("GetGroupAssets - Failed to get defaultLanguage object for groupId: {0}", groupId);
+                    return groupAssetsMap;
+                }
+
+                DataSet groupAssetsDs = CatalogDAL.GetGroupAssets(groupId, defaultLanguage.ID);
+                groupAssetsMap = CreateGroupMediaMapFromDataSet(groupId, groupAssetsDs, defaultLanguage, group.GetLangauges());
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupAssets for groupId: {0}", groupId), ex);
+            }
+
+            return groupAssetsMap;
         }
 
         public static bool DoesGroupUsesTemplates(int groupId)

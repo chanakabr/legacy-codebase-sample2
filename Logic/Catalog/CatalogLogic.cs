@@ -338,7 +338,7 @@ namespace Core.Catalog
             {
                 if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
                 {
-                    return CatalogManagement.CatalogManager.GetMedia(groupId, nMedia, filter);
+                    return CatalogManagement.CatalogManager.GetAsset(groupId, group, nMedia, filter);
                 }
 
                 MediaObj oMediaObj = new MediaObj();
