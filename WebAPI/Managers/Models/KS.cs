@@ -67,6 +67,8 @@ namespace WebAPI.Managers.Models
             }
         }
 
+        public string OriginalUserId { get; set; }
+
         public KalturaSessionType SessionType
         {
             get { return sessionType; }
