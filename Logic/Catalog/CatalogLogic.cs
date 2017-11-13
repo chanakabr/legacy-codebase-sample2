@@ -2371,12 +2371,12 @@ namespace Core.Catalog
             }
         }
 
-        public static void UpdateFollowMe(int nGroupID, string sAssetID, string sSiteGUID, int nPlayTime, string sUDID, int duration,
+        public static void UpdateFollowMe(int groupId, string assetID, string siteGUID, int nPlayTime, string sUDID, int duration,
             string assetAction, int mediaTypeId,
             int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, 
             bool isLinearChannel = false, long recordingId = 0, int mediaConcurrencyRuleId = 0)
         {
-            if (CatalogLogic.IsAnonymousUser(sSiteGUID))
+            if (CatalogLogic.IsAnonymousUser(siteGUID))
             {
                 return;
             }
@@ -2386,12 +2386,12 @@ namespace Core.Catalog
                 DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
                 int opID = 0;
                 bool isMaster = false;
-                nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster, ref eSuspendStat);
+                nDomainID = DomainDal.GetDomainIDBySiteGuid(groupId, int.Parse(siteGUID), ref opID, ref isMaster, ref eSuspendStat);
             }
 
             // take finished percent threshold
             int finishedPercentThreshold = 0;
-            object dbThresholdVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", nGroupID, 86400);
+            object dbThresholdVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", groupId, 86400);
             if (dbThresholdVal == null ||
                 dbThresholdVal == DBNull.Value ||
                 !int.TryParse(dbThresholdVal.ToString(), out finishedPercentThreshold))
@@ -2404,14 +2404,14 @@ namespace Core.Catalog
                 switch (ePlayType)
                 {
                     case ePlayType.MEDIA:
-                        CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, int.Parse(sAssetID), nGroupID,
-                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, isLinearChannel, finishedPercentThreshold, mediaConcurrencyRuleId);
+                        CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(siteGUID), sUDID, int.Parse(assetID), groupId,
+                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleId, isLinearChannel, finishedPercentThreshold);
                         break;
                     case ePlayType.NPVR:
-                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sAssetID, nGroupID, nPlayTime, duration, assetAction, recordingId, isFirstPlay);
+                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(siteGUID), sUDID, assetID, groupId, nPlayTime, duration, assetAction, recordingId, isFirstPlay);
                         break;
                     case ePlayType.EPG:
-                        CatalogDAL.UpdateOrInsert_UsersEpgMark(nDomainID, int.Parse(sSiteGUID), sUDID, int.Parse(sAssetID), nGroupID, nPlayTime, duration, assetAction, isFirstPlay);
+                        CatalogDAL.UpdateOrInsert_UsersEpgMark(nDomainID, int.Parse(siteGUID), sUDID, int.Parse(assetID), groupId, nPlayTime, duration, assetAction, isFirstPlay);
                         break;
 
                     default:

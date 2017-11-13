@@ -192,7 +192,7 @@ namespace Core.Catalog.Request
             int nPlatform = 0;
             int nSwhoosh = 0;
             int nCountryID = 0;
-            int nSiteGuid;
+            int siteGuid;
             int fileDuration = 0;
             int mediaId = int.Parse(m_oMediaPlayRequestData.m_sAssetID);
             string playCycleKey = string.Empty;
@@ -230,10 +230,10 @@ namespace Core.Catalog.Request
             }
 
             bool resultParse = Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
-            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
+            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
 
             //non-anonymous user
-            if (nSiteGuid > 0)
+            if (siteGuid > 0)
             {
                 // Get from CB and insert into MediaEOH
                 PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, m_oMediaPlayRequestData.m_sUDID, nPlatform);
@@ -263,8 +263,8 @@ namespace Core.Catalog.Request
 
                 if (m_oMediaPlayRequestData.m_nAvgBitRate > 0)
                 {
-                    int siteGuid = 0;
-                    int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
+                    int siteGuidUnkown = 0;
+                    int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuidUnkown);
                 }
             }
             //if this is not a bit rate change, log for mediahit for statistics
