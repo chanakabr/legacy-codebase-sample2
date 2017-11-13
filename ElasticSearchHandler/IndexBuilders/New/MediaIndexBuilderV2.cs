@@ -13,6 +13,7 @@ using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Response;
 using KlogMonitorHelper;
+using Core.Catalog.CatalogManagement;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -144,50 +145,84 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 #region Join tags and metas of EPG and media to same mapping
 
-                List<string> tags = new List<string>();
-
-                if (group.m_oGroupTags != null)
+                List<string> tags = new List<string>();                
+                Dictionary<string, KeyValuePair<eESFieldType, string>> metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();
+                // Check if group supports Templates
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
                 {
-                    tags.AddRange(group.m_oGroupTags.Values);
-                }
-
-                if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lTagsName != null)
-                {
-                    foreach (var item in group.m_oEpgGroupSettings.m_lTagsName)
+                    try
                     {
-                        if (!tags.Contains(item))
+                        CatalogGroupCache catalogGroupCache;
+                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                         {
-                            tags.Add(item);
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
+                            return false;
+                        }
+
+                        tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Key).ToList();
+                        foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => !x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value).Select(x => x.Value))
+                        {
+                            string nullValue;
+                            eESFieldType metaType;
+                            serializer.GetMetaType(topic.Type, out metaType, out nullValue);
+                            metas.Add(topic.SystemName, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                        }                        
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(string.Format("Failed BuildIndex for groupId: {0} because CatalogGroupCache", groupId), ex);
+                        return false;
+                    }                    
+                }
+                else
+                {
+                    if (group.m_oGroupTags != null)
+                    {
+                        tags.AddRange(group.m_oGroupTags.Values);
+                    }
+
+                    if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lTagsName != null)
+                    {
+                        foreach (var item in group.m_oEpgGroupSettings.m_lTagsName)
+                        {
+                            if (!tags.Contains(item))
+                            {
+                                tags.Add(item);
+                            }
+                        }
+                    }                    
+
+                    if (group.m_oMetasValuesByGroupId != null)
+                    {
+                        foreach (Dictionary<string,string> metaMap in group.m_oMetasValuesByGroupId.Values)
+                        {
+                            foreach (KeyValuePair<string, string> meta in metaMap)
+                            {
+                                string nullValue;
+                                eESFieldType metaType;
+                                serializer.GetMetaType(meta.Key, out metaType, out nullValue);
+                                metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                            }
                         }
                     }
-                }
 
-                Dictionary<int, Dictionary<string, string>> metas = new Dictionary<int, Dictionary<string, string>>();
-
-                if (group.m_oMetasValuesByGroupId != null)
-                {
-                    foreach (var item in group.m_oMetasValuesByGroupId)
+                    if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lMetasName != null)
                     {
-                        metas.Add(item.Key, item.Value);
-                    }
-                }
-
-                if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lMetasName != null)
-                {
-                    metas.Add(0, new Dictionary<string, string>());
-
-                    foreach (var item in group.m_oEpgGroupSettings.m_lMetasName)
-                    {
-                        metas[0].Add(item, item);
+                        foreach (string epgMeta in group.m_oEpgGroupSettings.m_lMetasName)
+                        {
+                            string nullValue;
+                            eESFieldType metaType;
+                            serializer.GetMetaType(epgMeta, out metaType, out nullValue);
+                            metas.Add(epgMeta, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                        }
                     }
                 }
 
                 #endregion
 
                 // Ask serializer to create the mapping definitions string
-                string mapping = serializer.CreateMediaMapping(
-                    metas, tags,
-                    indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix, phoneticIndexAnalyzer, phoneticSearchAnalyzer);      
+                string mapping = serializer.CreateMediaMapping(metas, tags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix, phoneticIndexAnalyzer,
+                                                                phoneticSearchAnalyzer);      
 
                 bool mappingResult = api.InsertMapping(newIndexName, type, mapping.ToString());
 

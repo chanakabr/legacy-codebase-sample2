@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Response;
+using Core.Catalog.CatalogManagement;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -107,10 +108,54 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
 
                 List<string> tags = new List<string>();
+                Dictionary<string, KeyValuePair<eESFieldType, string>> metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();      
+                // Check if group supports Templates
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    try
+                    {
+                        CatalogGroupCache catalogGroupCache;
+                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        {
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
+                            return false;
+                        }
 
-                tags.AddRange(group.m_oGroupTags.Values);
+                        tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Key).ToList();
+                        foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => !x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value).Select(x => x.Value))
+                        {
+                            string nullValue;
+                            eESFieldType metaType;
+                            serializer.GetMetaType(topic.Type, out metaType, out nullValue);
+                            metas.Add(topic.SystemName, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(string.Format("Failed BuildIndex for groupId: {0} because CatalogGroupCache", groupId), ex);
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (group.m_oMetasValuesByGroupId != null)
+                    {
+                        foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
+                        {
+                            foreach (KeyValuePair<string, string> meta in metaMap)
+                            {
+                                string nullValue;
+                                eESFieldType metaType;
+                                serializer.GetMetaType(meta.Key, out metaType, out nullValue);
+                                metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                            }
+                        }
+                    }
 
-                string mapping = serializer.CreateMediaMapping(group.m_oMetasValuesByGroupId, tags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
+                    tags.AddRange(group.m_oGroupTags.Values);
+                }
+
+                string mapping = serializer.CreateMediaMapping(metas, tags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
                 string type = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
                 bool bMappingRes = api.InsertMapping(newIndexName, type, mapping.ToString());
 

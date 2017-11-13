@@ -852,7 +852,7 @@ namespace ElasticsearchTasksCommon
         #endregion
 
         // This is taken from Media index builder!
-        public static Dictionary<int, Dictionary<int, Media>> GetGroupMediasTotal(int nGroupID, int nMediaID)
+        public static Dictionary<int, Dictionary<int, Media>> GetGroupMediasTotal(int groupId, int nMediaID)
         {
             //dictionary contains medias such that first key is media_id, which returns a dictionary with a key language_id and value Media object.
             //E.g. dMedias[123][2] --> will return media 123 of the hebrew language
@@ -863,26 +863,31 @@ namespace ElasticsearchTasksCommon
 
             try
             {
-                Group oGroup = GroupsCache.Instance().GetGroup(nGroupID);
+                Group group = GroupsCache.Instance().GetGroup(groupId);
 
-                if (oGroup == null)
+                if (group == null)
                 {
                     log.Error("Could not load group from cache in GetGroupMedias");
                     return dMediaTrans;
                 }
 
-                ApiObjects.LanguageObj oDefaultLangauge = oGroup.GetGroupDefaultLanguage();
+                ApiObjects.LanguageObj oDefaultLangauge = group.GetGroupDefaultLanguage();
 
                 if (oDefaultLangauge == null)
                 {
                     log.Error("Could not get group default language from cache in GetGroupMedias");
                     return dMediaTrans;
                 }
+                
+                if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    return Core.Catalog.CatalogManagement.CatalogManager.GetGroupAssets(groupId, group);
+                }
 
                 ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
                 GroupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-                GroupMedias.AddParameter("@GroupID", nGroupID);
+                GroupMedias.AddParameter("@GroupID", groupId);
                 GroupMedias.AddParameter("@MediaID", nMediaID);
 
                 Task<DataSet> tDS = Task<DataSet>.Factory.StartNew(() => GroupMedias.ExecuteDataSet());
@@ -966,7 +971,7 @@ namespace ElasticsearchTasksCommon
                                 #region - get all metas by groupId
                                 Dictionary<string, string> dMetas;
                                 //Get Meta - MetaNames (e.g. will contain key/value <META1_STR, show>)
-                                if (oGroup.m_oMetasValuesByGroupId.TryGetValue(media.m_nGroupID, out dMetas))
+                                if (group.m_oMetasValuesByGroupId.TryGetValue(media.m_nGroupID, out dMetas))
                                 {
                                     foreach (string sMeta in dMetas.Keys)
                                     {
@@ -984,7 +989,7 @@ namespace ElasticsearchTasksCommon
                                             }
                                             else
                                             {
-                                                log.WarnFormat("Duplicate meta found. group Id = {0}, name = {1}, media_id = {2}", nGroupID, sMetaName, media.m_nMediaID);
+                                                log.WarnFormat("Duplicate meta found. group Id = {0}, name = {1}, media_id = {2}", groupId, sMetaName, media.m_nMediaID);
                                             }
                                         }
                                     }
@@ -1064,9 +1069,9 @@ namespace ElasticsearchTasksCommon
 
                                 try
                                 {
-                                    if (oGroup.m_oGroupTags.ContainsKey(mttn))
+                                    if (group.m_oGroupTags.ContainsKey(mttn))
                                     {
-                                        string sTagName = oGroup.m_oGroupTags[mttn];
+                                        string sTagName = group.m_oGroupTags[mttn];
 
                                         if (!string.IsNullOrEmpty(sTagName))
                                         {
@@ -1121,7 +1126,7 @@ namespace ElasticsearchTasksCommon
                             Media media = medias[mediaID];
 
                             Dictionary<int, Media> tempMediaTrans = new Dictionary<int, Media>();
-                            foreach (ApiObjects.LanguageObj oLanguage in oGroup.GetLangauges())
+                            foreach (ApiObjects.LanguageObj oLanguage in group.GetLangauges())
                             {
                                 tempMediaTrans.Add(oLanguage.ID, media.Clone());
                             }
@@ -1146,7 +1151,7 @@ namespace ElasticsearchTasksCommon
                                 {
                                     Media oMedia = dMediaTrans[mediaID][nLanguageID];
 
-                                    if (oGroup.m_oMetasValuesByGroupId.TryGetValue(oMedia.m_nGroupID, out dMetas))
+                                    if (group.m_oMetasValuesByGroupId.TryGetValue(oMedia.m_nGroupID, out dMetas))
                                     {
                                         #region get media translated name
                                         string sTransName = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
@@ -1200,14 +1205,14 @@ namespace ElasticsearchTasksCommon
                                 int nLangID = ODBCWrapper.Utils.GetIntSafeVal(row, "language_id");
                                 long tagID = ODBCWrapper.Utils.GetLongSafeVal(row, "tag_id");
 
-                                if (oGroup.m_oGroupTags.ContainsKey(mttn) && !string.IsNullOrEmpty(val))
+                                if (group.m_oGroupTags.ContainsKey(mttn) && !string.IsNullOrEmpty(val))
                                 {
                                     Media oMedia;
 
                                     if (dMediaTrans.ContainsKey(nTagMediaID) && dMediaTrans[nTagMediaID].ContainsKey(nLangID))
                                     {
                                         oMedia = dMediaTrans[nTagMediaID][nLangID];
-                                        string sTagTypeName = oGroup.m_oGroupTags[mttn];
+                                        string sTagTypeName = group.m_oGroupTags[mttn];
 
                                         if (oMedia.m_dTagValues.ContainsKey(sTagTypeName))
                                         {
