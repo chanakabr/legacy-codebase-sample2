@@ -2374,7 +2374,7 @@ namespace Core.Catalog
         public static void UpdateFollowMe(int groupId, string assetID, string siteGUID, int nPlayTime, string sUDID, int duration,
             string assetAction, int mediaTypeId,
             int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, 
-            bool isLinearChannel = false, long recordingId = 0, int mediaConcurrencyRuleId = 0)
+            bool isLinearChannel = false, long recordingId = 0, List<MediaConcurrencyRule> mediaConcurrencyRules = null)
         {
             if (CatalogLogic.IsAnonymousUser(siteGUID))
             {
@@ -2405,7 +2405,7 @@ namespace Core.Catalog
                 {
                     case ePlayType.MEDIA:
                         CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(siteGUID), sUDID, int.Parse(assetID), groupId,
-                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleId, isLinearChannel, finishedPercentThreshold);
+                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRules, isLinearChannel, finishedPercentThreshold);
                         break;
                     case ePlayType.NPVR:
                         CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(siteGUID), sUDID, assetID, groupId, nPlayTime, duration, assetAction, recordingId, isFirstPlay);
@@ -4253,6 +4253,16 @@ namespace Core.Catalog
                 else // get from DB incase getting from CB failed
                 {
                     mediaConcurrencyRuleID = CatalogDAL.GetRuleIDPlayCycleKey(siteGuid, mediaID, mediaFileID, udid, platform);
+                }
+
+                if (mediaConcurrencyRuleID == 0)
+                {
+                    var mediaConcurrencyRules = Api.api.GetMediaConcurrencyRules(mediaID, string.Empty, groupID);
+
+                    if (mediaConcurrencyRules != null)
+                    {
+                        mediaConcurrencyRuleID = mediaConcurrencyRules.First().RuleID;
+                    }
                 }
             }
 

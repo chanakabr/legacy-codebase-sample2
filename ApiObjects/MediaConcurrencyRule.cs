@@ -57,7 +57,8 @@ namespace ApiObjects
             }
         }
 
-        public MediaConcurrencyRule(int ruleID, int tagTypeID, string tagVal, string name, int isActive, int nBmID, eBusinessModule type, int limitation = 0)
+        public MediaConcurrencyRule(int ruleID, int tagTypeID, string tagVal, string name, int isActive, int nBmID, eBusinessModule type, 
+            int limitation = 0, ConcurrencyRestrictionPolicy policy = ConcurrencyRestrictionPolicy.Single)
         {
             RuleID = ruleID;
             TagTypeID = tagTypeID;
@@ -75,6 +76,7 @@ namespace ApiObjects
             this.Type = type;
 
             this.Limitation = limitation;
+            this.RestrictionPolicy = policy;
         }
     }
 }

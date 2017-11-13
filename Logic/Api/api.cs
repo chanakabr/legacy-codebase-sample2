@@ -4268,27 +4268,24 @@ namespace Core.Api
                 {
                     if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("mcr"))
                     {
-                        int? groupId, mediaId;
-                        List<MediaConcurrencyRule> mcr = new List<MediaConcurrencyRule>();
-                        UnifiedSearchResult[] medias;
-                        string filter = string.Empty;
-
-                        groupId = funcParams["groupId"] as int?;
-                        mediaId = funcParams["mediaId"] as int?;
-                        mcr = funcParams["mcr"] as List<MediaConcurrencyRule>;
+                        int? groupId = funcParams["groupId"] as int?;
+                        int? mediaId = funcParams["mediaId"] as int?;
+                        List<MediaConcurrencyRule> mcr = funcParams["mcr"] as List<MediaConcurrencyRule>;
 
                         if (groupId.HasValue && mediaId.HasValue && mcr != null && mcr.Count > 0)
                         {
+
                             // find all asset ids that match the tag + tag value ==> if so save the rule id
                             //build serach for each tag and tag values
-
-                            List<string> tempFilter = new List<string>();
-
-
                             mcr = mcr.GroupBy(x => x.RuleID).Select(x => x.First()).ToList();
+
                             Parallel.ForEach(mcr, (rule) =>
                             {
-                                tempFilter = rule.AllTagValues.Select(x => string.Format("{0}='{1}'", rule.TagType, x)).ToList();
+                                UnifiedSearchResult[] medias;
+                                string filter = string.Empty;
+
+                                var tempFilter = rule.AllTagValues.Select(x => string.Format("{0}='{1}'", rule.TagType, x)).ToList();
+
                                 if (tempFilter != null && tempFilter.Count > 0)
                                 {
                                     if (tempFilter.Count > 1)
@@ -4299,8 +4296,11 @@ namespace Core.Api
                                     {
                                         filter = string.Format("(and media_id = '{0}' {1})", mediaId.Value, tempFilter.First());
                                     }
+
                                     medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
-                                    if (medias != null && medias.Count() > 0)// there is a match 
+
+                                    // If there is a match, add rule to list
+                                    if (medias != null && medias.Count() > 0) 
                                     {
                                         ruleIds.Add(rule.RuleID);
                                     }
@@ -4325,7 +4325,7 @@ namespace Core.Api
          This methode get mediaID and business Module id and return list of MediaConcurrencyRule rules that relevant to this media
          * 
          ***************************************************************************************************************************/
-        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, string sIP, int groupId, int bmID, eBusinessModule type)
+        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, string sIP, int groupId, int bmID = -1, eBusinessModule? type = null)
         {
             List<MediaConcurrencyRule> res = new List<MediaConcurrencyRule>();
             //MediaConcurrencyRule rule = null;
@@ -4354,7 +4354,9 @@ namespace Core.Api
                 }
                 else if (ruleIds != null && ruleIds.Count > 0)
                 {
-                    res = groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) && x.bmId == bmID && x.Type == type).ToList();
+                    res = groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) && 
+                    (bmID == -1 || x.bmId == bmID) && 
+                    (type == null || x.Type == type)).ToList();
                 }
                 return res;
             }

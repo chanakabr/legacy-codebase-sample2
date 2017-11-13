@@ -43,8 +43,8 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("ts_epoch")]
         public long CreatedAtEpoch { get; set; }
 
-        [JsonProperty("mediaConcurrencyRuleId")]
-        public long? MediaConcurrencyRuleId { get; set; }
+        [JsonProperty("mediaConcurrencyRuleIds")]
+        public List<int> MediaConcurrencyRuleIds { get; set; }
 
         public UserMediaMark()
         {

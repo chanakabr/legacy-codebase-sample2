@@ -2697,7 +2697,8 @@ namespace Core.Users
                         case ConcurrencyRestrictionPolicy.Group:
                             {
                                 assetMediaMarks = domainMediaMarks.Where(
-                                    currentMark => !currentMark.UDID.Equals(udid) && currentMark.MediaConcurrencyRuleId == ruleId &&
+                                    currentMark => !currentMark.UDID.Equals(udid) && 
+                                    (currentMark.MediaConcurrencyRuleIds == null || currentMark.MediaConcurrencyRuleIds.Contains(ruleId)) &&
                                     currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
                                 break;
                             }
