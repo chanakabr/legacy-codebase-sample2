@@ -11696,7 +11696,7 @@ namespace Core.ConditionalAccess
 
                     // purchase
                     // get the right productCode by paymentGwName
-                    string productCode = collection != null && collection.ExternalProductCodes.Where(x => x.Key.ToString() == paymentGwName).Count() > 0 ?
+                    string productCode = collection != null && collection.ExternalProductCodes != null && collection.ExternalProductCodes.Where(x => x.Key.ToString() == paymentGwName).Count() > 0 ?
                         collection.ExternalProductCodes.Where(x => x.Key.ToString() == paymentGwName).Select(x => x.Value).FirstOrDefault() :
                         collection.m_ProductCode;
 
