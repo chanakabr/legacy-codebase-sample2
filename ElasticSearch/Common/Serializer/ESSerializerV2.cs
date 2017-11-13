@@ -61,14 +61,14 @@ namespace ElasticSearch.Common
         /// </summary>
         /// <param name="autocompleteSearchAnalyzer"></param>
         /// <returns></returns>
-        public override string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, List<string> groupTags,
+        public override string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags,
             string normalIndexAnalyzer, string normalSearchAnalyzer,
             string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
             string suffix = null,
             string phoneticIndexAnalyzer = null,
             string phoneticSearchAnalyzer = null)
         {
-            if (oMetasValuesByGroupId == null || groupTags == null)
+            if (metasMap == null || groupTags == null)
                 return string.Empty;
 
             ESMappingObj mappingObj = new ESMappingObj(AddSuffix("media", suffix));
@@ -405,141 +405,125 @@ namespace ElasticSearch.Common
                 name = "metas"
             };
 
-            if (oMetasValuesByGroupId != null)
+            if (metasMap != null && metasMap.Count > 0)
             {
                 HashSet<string> mappedMetas = new HashSet<string>();
-
-                foreach (int groupID in oMetasValuesByGroupId.Keys)
+                foreach (KeyValuePair<string, KeyValuePair<eESFieldType, string>> meta in metasMap)
                 {
-                    Dictionary<string, string> dMetas = oMetasValuesByGroupId[groupID];
-
-                    if (dMetas != null)
+                    string sMetaName = meta.Key;
+                    if (!string.IsNullOrEmpty(sMetaName))
                     {
-                        foreach (string sMeta in dMetas.Keys)
+                        sMetaName = sMetaName.ToLower();
+                        // Don't create double mapping for metas in order to avoid errors
+                        if (mappedMetas.Contains(sMetaName))
                         {
-                            string sMetaName = dMetas[sMeta];
-
-                            if (!string.IsNullOrEmpty(sMetaName))
-                            {
-                                sMetaName = sMetaName.ToLower();
-
-                                // Don't create double mapping for metas to avoid errors
-                                if (mappedMetas.Contains(sMetaName))
-                                {
-                                    continue;
-                                }
-
-                                string sNullValue;
-                                eESFieldType eMetaType;
-
-                                GetMetaType(sMeta, out eMetaType, out sNullValue);
-
-                                if (eMetaType != eESFieldType.DATE)
-                                {
-                                    FieldsMappingPropertyV2 multiField = null;
-
-                                    if (eMetaType == eESFieldType.STRING)
-                                    {
-                                        multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
-                                        {
-                                            name = AddSuffix(sMetaName, suffix),
-                                            type = eMetaType,
-                                            index = eMappingIndex.analyzed,
-                                            search_analyzer = LOWERCASE_ANALYZER,
-                                            analyzer = LOWERCASE_ANALYZER,
-                                            null_value = sNullValue
-                                        };
-
-                                        multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
-                                        {
-                                            name = AddSuffix(sMetaName, suffix),
-                                            type = eMetaType,
-                                            null_value = sNullValue,
-                                            index = eMappingIndex.analyzed,
-                                            search_analyzer = LOWERCASE_ANALYZER,
-                                            analyzer = LOWERCASE_ANALYZER,
-                                        });
-                                    }
-                                    else
-                                    {
-                                        multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
-                                        {
-                                            name = AddSuffix(sMetaName, suffix),
-                                            type = eMetaType,
-                                            index = eMappingIndex.not_analyzed,
-                                            null_value = sNullValue
-                                        };
-
-                                        multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
-                                        {
-                                            name = AddSuffix(sMetaName, suffix),
-                                            type = eMetaType,
-                                            null_value = sNullValue,
-                                            index = eMappingIndex.not_analyzed,
-                                        });
-                                    }
-
-                                    multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
-                                    {
-                                        name = "analyzed",
-                                        type = ElasticSearch.Common.eESFieldType.STRING,
-                                        null_value = "",
-                                        index = eMappingIndex.analyzed,
-                                        search_analyzer = normalSearchAnalyzer,
-                                        analyzer = normalIndexAnalyzer
-                                    });
-                                    multiField.fields.Add(new BasicMappingPropertyV2()
-                                    {
-                                        name = "lowercase",
-                                        type = ElasticSearch.Common.eESFieldType.STRING,
-                                        null_value = "",
-                                        index = eMappingIndex.analyzed,
-                                        search_analyzer = LOWERCASE_ANALYZER,
-                                        analyzer = LOWERCASE_ANALYZER
-                                    });
-
-                                    if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
-                                    {
-                                        multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
-                                        {
-                                            name = "autocomplete",
-                                            type = ElasticSearch.Common.eESFieldType.STRING,
-                                            null_value = "",
-                                            index = eMappingIndex.analyzed,
-                                            search_analyzer = autocompleteSearchAnalyzer,
-                                            analyzer = autocompleteIndexAnalyzer
-                                        });
-                                    }
-
-                                    if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
-                                    {
-                                        multiField.fields.Add(new BasicMappingPropertyV2()
-                                        {
-                                            name = "phonetic",
-                                            type = ElasticSearch.Common.eESFieldType.STRING,
-                                            null_value = "",
-                                            index = eMappingIndex.analyzed,
-                                            search_analyzer = phoneticSearchAnalyzer,
-                                            analyzer = phoneticIndexAnalyzer
-                                        });
-                                    }
-
-                                    metas.AddProperty(multiField);
-                                }
-                                else
-                                {
-                                    metas.AddProperty(new BasicMappingPropertyV2()
-                                    {
-                                        name = sMetaName,
-                                        type = eESFieldType.DATE,
-                                        index = eMappingIndex.not_analyzed,
-                                        format = DATE_FORMAT
-                                    });
-                                }
-
-                                mappedMetas.Add(sMetaName);
-                            }
+                            continue;
                         }
+
+                        if (meta.Value.Key != eESFieldType.DATE)
+                        {
+                            FieldsMappingPropertyV2 multiField = null;
+
+                            if (meta.Value.Key == eESFieldType.STRING)
+                            {
+                                multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
+                                {
+                                    name = AddSuffix(sMetaName, suffix),
+                                    type = meta.Value.Key,
+                                    index = eMappingIndex.analyzed,
+                                    search_analyzer = LOWERCASE_ANALYZER,
+                                    analyzer = LOWERCASE_ANALYZER,
+                                    null_value = meta.Value.Value
+                                };
+
+                                multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
+                                {
+                                    name = AddSuffix(sMetaName, suffix),
+                                    type = meta.Value.Key,
+                                    null_value = meta.Value.Value,
+                                    index = eMappingIndex.analyzed,
+                                    search_analyzer = LOWERCASE_ANALYZER,
+                                    analyzer = LOWERCASE_ANALYZER,
+                                });
+                            }
+                            else
+                            {
+                                multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
+                                {
+                                    name = AddSuffix(sMetaName, suffix),
+                                    type = meta.Value.Key,
+                                    index = eMappingIndex.not_analyzed,
+                                    null_value = meta.Value.Value
+                                };
+
+                                multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
+                                {
+                                    name = AddSuffix(sMetaName, suffix),
+                                    type = meta.Value.Key,
+                                    null_value = meta.Value.Value,
+                                    index = eMappingIndex.not_analyzed,
+                                });
+                            }
+
+                            multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
+                            {
+                                name = "analyzed",
+                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                null_value = "",
+                                index = eMappingIndex.analyzed,
+                                search_analyzer = normalSearchAnalyzer,
+                                analyzer = normalIndexAnalyzer
+                            });
+                            multiField.fields.Add(new BasicMappingPropertyV2()
+                            {
+                                name = "lowercase",
+                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                null_value = "",
+                                index = eMappingIndex.analyzed,
+                                search_analyzer = LOWERCASE_ANALYZER,
+                                analyzer = LOWERCASE_ANALYZER
+                            });
+
+                            if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+                            {
+                                multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
+                                {
+                                    name = "autocomplete",
+                                    type = ElasticSearch.Common.eESFieldType.STRING,
+                                    null_value = "",
+                                    index = eMappingIndex.analyzed,
+                                    search_analyzer = autocompleteSearchAnalyzer,
+                                    analyzer = autocompleteIndexAnalyzer
+                                });
+                            }
+
+                            if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
+                            {
+                                multiField.fields.Add(new BasicMappingPropertyV2()
+                                {
+                                    name = "phonetic",
+                                    type = ElasticSearch.Common.eESFieldType.STRING,
+                                    null_value = "",
+                                    index = eMappingIndex.analyzed,
+                                    search_analyzer = phoneticSearchAnalyzer,
+                                    analyzer = phoneticIndexAnalyzer
+                                });
+                            }
+
+                            metas.AddProperty(multiField);
+                        }
+                        else
+                        {
+                            metas.AddProperty(new BasicMappingPropertyV2()
+                            {
+                                name = sMetaName,
+                                type = eESFieldType.DATE,
+                                index = eMappingIndex.not_analyzed,
+                                format = DATE_FORMAT
+                            });
+                        }
+
+                        mappedMetas.Add(sMetaName);
                     }
                 }
             }

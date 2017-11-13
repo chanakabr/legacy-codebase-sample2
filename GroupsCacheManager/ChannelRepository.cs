@@ -784,7 +784,7 @@ namespace GroupsCacheManager
                     }
                 }
             }
-            else
+            else if(group.m_nSubGroup.Count > 1)
             {
                 if (group != null)
                 {
