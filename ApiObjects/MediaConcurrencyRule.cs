@@ -16,13 +16,17 @@ namespace ApiObjects
         public int TagTypeID { get; set; }
         public string TagType { get; set; }
         public List<string> AllTagValues { get; set; }
-             
+
         public List<int> TagValues { get; set; }
 
         public int bmId { get; set; }
         public bool IsActive { get; set; }
                 
         public eBusinessModule Type { get; set; }
+
+        public ConcurrencyRestrictionPolicy RestrictionPolicy { get; set; }
+        
+        public int Limitation { get; set; }
 
         public MediaConcurrencyRule()
         {
@@ -34,6 +38,7 @@ namespace ApiObjects
             TagValues = new List<int>();
             bmId = 0;
             IsActive = false;
+            RestrictionPolicy = ConcurrencyRestrictionPolicy.Single;
         }
 
         public MediaConcurrencyRule(int ruleID, int tagTypeID, string tagVal, string name, int isActive, int nBmID)
@@ -52,7 +57,8 @@ namespace ApiObjects
             }
         }
 
-        public MediaConcurrencyRule(int ruleID, int tagTypeID, string tagVal, string name, int isActive, int nBmID, eBusinessModule type)
+        public MediaConcurrencyRule(int ruleID, int tagTypeID, string tagVal, string name, int isActive, int nBmID, eBusinessModule type, 
+            int limitation = 0, ConcurrencyRestrictionPolicy policy = ConcurrencyRestrictionPolicy.Single)
         {
             RuleID = ruleID;
             TagTypeID = tagTypeID;
@@ -68,6 +74,9 @@ namespace ApiObjects
             AllTagValues = new List<string>();
             this.TagValues = new List<int>();
             this.Type = type;
+
+            this.Limitation = limitation;
+            this.RestrictionPolicy = policy;
         }
     }
 }

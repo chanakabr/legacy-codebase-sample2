@@ -945,4 +945,10 @@ namespace ApiObjects
         BLOCK_PPV = 3,
         BLOCK_SUBSCRIPTION = 4
     }
+
+    public enum ConcurrencyRestrictionPolicy
+    {
+        Single = 0,
+        Group = 1
+    }
 }

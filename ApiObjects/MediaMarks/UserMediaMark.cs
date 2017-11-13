@@ -43,6 +43,9 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("ts_epoch")]
         public long CreatedAtEpoch { get; set; }
 
+        [JsonProperty("mediaConcurrencyRuleIds")]
+        public List<int> MediaConcurrencyRuleIds { get; set; }
+
         public UserMediaMark()
         {
             /*default values to members from joker version*/
