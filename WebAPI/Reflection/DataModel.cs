@@ -1735,6 +1735,7 @@ namespace WebAPI.Reflection
                     
                 case "AssetHistoryController":
                     ret = new Dictionary<string, string>() { 
+                        {"cleanOldStandard", "clean"},
                         {"listOldStandard", "list"},
                     };
                     break;
