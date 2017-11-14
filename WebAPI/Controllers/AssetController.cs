@@ -914,7 +914,6 @@ namespace WebAPI.Controllers
 
                                 foreach (var scheme in schemes)
                                 {
-                                    
                                     drmData = DrmUtils.GetDrmPlaybackPluginData(group, scheme, source, string.Format("{0}&id={1}", caSystemUrl, source.Id));
                                     source.Drm.Add(drmData);
                                 }
