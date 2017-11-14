@@ -183,7 +183,7 @@ namespace Core.Users
             return new DomainResponseObject(domain, eDomainResponseStatus);
         }
 
-        public virtual DomainResponseStatus RemoveDomain(int domainId, bool purge)
+        public virtual DomainResponseStatus RemoveDomain(int domainId)
         {
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
             try
@@ -213,7 +213,6 @@ namespace Core.Users
                     }
                 }
 
-                domain.shouldPurge = purge;
                 res = domain.Remove();
 
                 if (res != DomainResponseStatus.OK)

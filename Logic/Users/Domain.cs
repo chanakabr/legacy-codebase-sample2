@@ -165,14 +165,6 @@ namespace Core.Users
             set;
         }
 
-        [XmlIgnore]
-        [JsonIgnore()]
-        public bool shouldPurge
-        {
-            get;
-            set;
-        }
-
         public Domain()
         {
             m_sName = string.Empty;
@@ -3031,7 +3023,7 @@ namespace Core.Users
             domainUserIds.AddRange(m_UsersIDs);
             domainUserIds = domainUserIds.Distinct().ToList();
 
-            int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status, shouldPurge);
+            int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
 
             //return statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
             if (IsDomainRemovedSuccessfully(statusRes))

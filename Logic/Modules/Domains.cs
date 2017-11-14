@@ -61,13 +61,13 @@ namespace Core.Domains
         }
 
 
-        public static DomainResponseStatus RemoveDomain(int nGroupID, int nDomainID, bool purge)
+        public static DomainResponseStatus RemoveDomain(int nGroupID, int nDomainID)
         {
             Core.Users.BaseDomain t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.RemoveDomain(nDomainID, purge);
+                return t.RemoveDomain(nDomainID);
             }
 
             return DomainResponseStatus.Error;
@@ -857,7 +857,7 @@ namespace Core.Domains
         }
 
 
-        public static ApiObjects.Response.Status RemoveDomainById(int nGroupID, int nDomainID, bool purge)
+        public static ApiObjects.Response.Status RemoveDomainById(int nGroupID, int nDomainID)
         {
 
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -865,7 +865,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                DomainResponseStatus domainResponseStatus = t.RemoveDomain(nDomainID, purge);
+                DomainResponseStatus domainResponseStatus = t.RemoveDomain(nDomainID);
                 status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
             }
 
@@ -873,7 +873,7 @@ namespace Core.Domains
         }
 
         
-        public static ApiObjects.Response.Status RemoveDomainByCoGuid(int nGroupID, string coGuid, bool purge)
+        public static ApiObjects.Response.Status RemoveDomainByCoGuid(int nGroupID, string coGuid)
         {
 
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -884,7 +884,7 @@ namespace Core.Domains
                 int householdId = t.GetDomainIDByCoGuid(coGuid);
                 if (householdId > 0)
                 {
-                    DomainResponseStatus domainResponseStatus = t.RemoveDomain(householdId, purge);
+                    DomainResponseStatus domainResponseStatus = t.RemoveDomain(householdId);
                     status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                 }
             }
