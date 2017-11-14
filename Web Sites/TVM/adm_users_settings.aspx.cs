@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using KLogMonitor;
+using System;
 using System.Reflection;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_users_settings : System.Web.UI.Page
@@ -202,6 +197,11 @@ public partial class adm_users_settings : System.Web.UI.Page
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
             shortTextField.Initialize("Close account mail subject", "adm_table_header_nbg", "FormInput", "CLOSE_ACCOUNT_MAIL_SUBJECT", false);
             theRecord.AddRecord(shortTextField);
+
+            checkBoxField = new DataRecordCheckBoxField(true);
+            checkBoxField.Initialize("Is Purge Needed", "adm_table_header_nbg", "FormInput", "PURGE", false);
+            checkBoxField.SetDefault(0);
+            theRecord.AddRecord(checkBoxField);
 
             sTable = theRecord.GetTableHTML("adm_users_settings.aspx?submited=1");
         }
