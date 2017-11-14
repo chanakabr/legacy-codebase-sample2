@@ -811,7 +811,7 @@ namespace ApiObjects
         InternalError = 999,
         LoginServerDown = 22,
         UserSuspended = 23,
-        UserCreatedWithNoRole = 24,        
+        UserCreatedWithNoRole = 24,
         ExternalIdAlreadyExists = 25,
         ExternalError = 26
     }
@@ -950,5 +950,11 @@ namespace ApiObjects
     {
         Single = 0,
         Group = 1
+    }
+
+    public enum DowngradePolicy
+    {
+        FIFO = 0,
+        LIFO = 1
     }
 }
