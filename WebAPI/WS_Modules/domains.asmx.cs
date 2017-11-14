@@ -78,12 +78,12 @@ namespace WS_Domains
 
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(DomainResponseStatus))]
-        public DomainResponseStatus RemoveDomain(string sWSUserName, string sWSPassword, int nDomainID, bool purge)
+        public DomainResponseStatus RemoveDomain(string sWSUserName, string sWSPassword, int nDomainID)
         {
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.RemoveDomain(nGroupID, nDomainID, purge);
+                return Core.Domains.Module.RemoveDomain(nGroupID, nDomainID);
             }
             else
             {
@@ -1144,7 +1144,7 @@ namespace WS_Domains
 
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(DomainResponseStatus))]
-        public ApiObjects.Response.Status RemoveDomainById(string sWSUserName, string sWSPassword, int nDomainID, bool purge)
+        public ApiObjects.Response.Status RemoveDomainById(string sWSUserName, string sWSPassword, int nDomainID)
         {
 
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1152,7 +1152,7 @@ namespace WS_Domains
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                DomainResponseStatus domainResponseStatus = Core.Domains.Module.RemoveDomain(nGroupID, nDomainID, purge);
+                DomainResponseStatus domainResponseStatus = Core.Domains.Module.RemoveDomain(nGroupID, nDomainID);
                 status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
             }
             else
@@ -1166,7 +1166,7 @@ namespace WS_Domains
 
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(DomainResponseStatus))]
-        public ApiObjects.Response.Status RemoveDomainByCoGuid(string sWSUserName, string sWSPassword, string coGuid, bool purge)
+        public ApiObjects.Response.Status RemoveDomainByCoGuid(string sWSUserName, string sWSPassword, string coGuid)
         {
 
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1177,7 +1177,7 @@ namespace WS_Domains
                 int householdId = Core.Domains.Module.GetDomainIDByCoGuid(nGroupID, coGuid);
                 if (householdId > 0)
                 {
-                    DomainResponseStatus domainResponseStatus = Core.Domains.Module.RemoveDomain(nGroupID, householdId, purge);
+                    DomainResponseStatus domainResponseStatus = Core.Domains.Module.RemoveDomain(nGroupID, householdId);
                     status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                 }
             }

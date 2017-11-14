@@ -496,8 +496,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
         /// </summary>
-        /// <param name="id">Household identifier</param>
-        /// <param name="purge">Purge Household</param>
+        /// <param name="id">Household identifier</param>        
         /// <remarks>Possible status codes: 
         ///</remarks>
         [Route("delete"), HttpPost]
@@ -505,7 +504,7 @@ namespace WebAPI.Controllers
         [SchemeArgument("id", RequiresPermission = true)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.DomainNotExists)]
-        public bool Delete(int? id = null, bool? purge = false)
+        public bool Delete(int? id = null)
         {
             var ks = KS.GetFromRequest();
 
@@ -545,7 +544,7 @@ namespace WebAPI.Controllers
                 }
 
                 // remove users, devices and household
-                ClientsManager.DomainsClient().RemoveDomain(groupId, id.Value, purge.Value);
+                ClientsManager.DomainsClient().RemoveDomain(groupId, id.Value);
             }
             catch (ClientException ex)
             {
@@ -559,13 +558,12 @@ namespace WebAPI.Controllers
         /// Fully delete a household per specified internal or external ID. Delete all of the household information, including users, devices, transactions and assets.
         /// </summary>                
         /// <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>
-        /// <param name="purge">Purge Household</param>
         /// <remarks>Possible status codes: 
         ///</remarks>
         [Route("deleteByOperator"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public bool DeleteByOperator(KalturaIdentifierTypeFilter filter, bool purge)
+        public bool DeleteByOperator(KalturaIdentifierTypeFilter filter)
         {
             var ks = KS.GetFromRequest();
 
@@ -585,7 +583,7 @@ namespace WebAPI.Controllers
                     if (int.TryParse(filter.Identifier, out householdId))
                     {
                         // call client
-                        return ClientsManager.DomainsClient().RemoveDomain(groupId, householdId, purge);
+                        return ClientsManager.DomainsClient().RemoveDomain(groupId, householdId);
                     }
 
                 }
@@ -593,7 +591,7 @@ namespace WebAPI.Controllers
                 else if (filter.By == KalturaIdentifierTypeBy.external_id)
                 {
                     // call client
-                    return ClientsManager.DomainsClient().RemoveDomain(groupId, filter.Identifier, purge);
+                    return ClientsManager.DomainsClient().RemoveDomain(groupId, filter.Identifier);
                 }
             }
             catch (ClientException ex)
