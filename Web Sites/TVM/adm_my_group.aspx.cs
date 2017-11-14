@@ -1,13 +1,4 @@
 using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using TVinciShared;
 
 public partial class adm_my_group : System.Web.UI.Page
@@ -270,6 +261,11 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_device_limits.Initialize("Default Device Limit", "adm_table_header_nbg", "FormInput", "max_device_limit", false);
         theRecord.AddRecord(dr_device_limits);
 
+        DataRecordDropDownField dropDownField = new DataRecordDropDownField("", "name", "id", "", null, 60, false);
+        dropDownField.SetSelectsDT(GetDowngradePolicy());
+        dropDownField.Initialize("Downgrade policy", "adm_table_header_nbg", "FormInput", "downgrade_policy", false);        
+        theRecord.AddRecord(dropDownField);
+
         //MEDIA
         DataRecordDropDownField dr_ratios = new DataRecordDropDownField("lu_pics_ratios", "ratio", "id", "", "", 60, false);
         dr_ratios.Initialize("VOD Main Ratio", "adm_table_header_nbg", "FormInput", "RATIO_ID", false);        
@@ -439,5 +435,17 @@ public partial class adm_my_group : System.Web.UI.Page
         }
 
         return imageUrl;
+    }
+
+    private System.Data.DataTable GetDowngradePolicy()
+    {
+        System.Data.DataTable dt = new System.Data.DataTable();
+        dt.Columns.Add("id", typeof(int));
+        dt.Columns.Add("txt", typeof(string));
+        foreach (ApiObjects.DowngradePolicy r in Enum.GetValues(typeof(ApiObjects.DowngradePolicy)))
+        {
+            dt.Rows.Add((int)r, r);
+        }
+        return dt;
     }
 }

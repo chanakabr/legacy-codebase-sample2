@@ -199,7 +199,7 @@ public partial class adm_users_settings : System.Web.UI.Page
             theRecord.AddRecord(shortTextField);
 
             checkBoxField = new DataRecordCheckBoxField(true);
-            checkBoxField.Initialize("Is Purge Needed", "adm_table_header_nbg", "FormInput", "PURGE", false);
+            checkBoxField.Initialize("Purge user data", "adm_table_header_nbg", "FormInput", "PURGE", false);
             checkBoxField.SetDefault(0);
             theRecord.AddRecord(checkBoxField);
 
