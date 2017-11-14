@@ -524,7 +524,7 @@ namespace ElasticsearchTasksCommon
                 };
 
                 CatalogLogic.UpdateNodeTreeFields(dummyRequest,
-                    ref definitions.filterPhrase, definitions, group);
+                    ref definitions.filterPhrase, definitions, group, channel.m_nParentGroupID);
             }
 
             return definitions;
