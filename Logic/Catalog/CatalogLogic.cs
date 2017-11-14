@@ -5331,6 +5331,7 @@ namespace Core.Catalog
                     args.SeriesIDs.AddRange(request.m_lSeriesIDs.Distinct());
                     args.SearchBy.Add(SearchByField.bySeasonId);
                 }
+                args.SeasonNumber = request.seasonNumber;
 
                 NPVRRetrieveAssetsResponse npvrResp = npvr.RetrieveAssets(args);
                 if (npvrResp != null)

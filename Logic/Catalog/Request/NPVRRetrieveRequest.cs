@@ -40,6 +40,9 @@ namespace Core.Catalog.Request
         [DataMember]
         public List<string> m_lSeriesIDs;
 
+        [DataMember]
+        public int seasonNumber;
+
         protected override void CheckRequestValidness()
         {
             switch (m_eNPVRSearchBy)

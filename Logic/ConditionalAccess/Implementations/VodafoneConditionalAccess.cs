@@ -344,11 +344,13 @@ namespace Core.ConditionalAccess
 
         }
 
+        //Delete Series Nokia new implementation
         public override NPVRResponse DeleteNPVR(string siteGuid, string seriesId, int seasonNumber, string channelId, NPVRRecordingStatus status)
         {
             NPVRResponse res = new NPVRResponse();
             DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
 
+            string logString = string.Format("siteGuid:{0}, seriesId:{1}, seasonNumber:{2}, channelId:{3}, status:{4}", siteGuid, seriesId, seasonNumber, channelId, status.ToString());
             try
             {
                 int domainID = 0;
@@ -360,20 +362,54 @@ namespace Core.ConditionalAccess
                         NPVRCancelDeleteResponse response = null;
                         response = npvr.DeleteSeries(new NPVRDeleteObj() { EntityID = domainID.ToString(),  Status = status , SeriesID = seriesId ,
                             ChannelId = channelId, SeasonNumber = seasonNumber});
+                        if (response != null)
+                        {
+                            switch (response.status)
+                            {
+                                case CancelDeleteStatus.OK:
+                                    res.status = NPVRStatus.OK.ToString();
+                                    break;
+                                case CancelDeleteStatus.AssetDoesNotExist:
+                                    res.status = NPVRStatus.InvalidAssetID.ToString();
+                                    break;
+                                case CancelDeleteStatus.Error:
+                                    res.status = NPVRStatus.Error.ToString();
+                                    break;
+                                default:
+                                    log.DebugFormat("DeleteNPVR - Unrecognized CancelDeleteStatus enum: responseStatus:{0}, {1}", response.status.ToString(), logString );
+                                    res.status = NPVRStatus.Unknown.ToString();
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            // log here response is null
+                            log.DebugFormat("DeleteNPVR - NPVR layer response is null. {0}, ", logString);
+                            res.status = NPVRStatus.Error.ToString();
+                        }
                     }
+                    else
+                    {
+                        // log here npvr layer instance is null
+                        log.DebugFormat("DeleteNPVR INPVRProvider instance is null. {0}", logString);
+                    }
+                }
+                else
+                {
+                    // either user or domain is invalid
+                    log.DebugFormat("DeleteNPVR Invalid user. SG: {0}", logString);
+                    res.status = NPVRStatus.InvalidUser.ToString();
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("fail DeleteNPVR siteGuid:{0}, seriesId:{1}, seasonNumber:{2}, channelId:{3}, status:{4}, ex:{5}", siteGuid, seriesId, seasonNumber, channelId, status.ToString(),
-                    ex);
+                log.ErrorFormat("fail DeleteNPVR {0} , ex:{1}", logString, ex);
                 res.status = NPVRStatus.Error.ToString();
             }
 
             return res;
         }
-
-
+        
         // here assetID will be the recording ID in ALU
         public override NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries)
         {
