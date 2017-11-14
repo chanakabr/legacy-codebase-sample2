@@ -10803,11 +10803,14 @@ namespace Core.ConditionalAccess
 						skipValidateLimitationModule = true;
 						foreach (MediaConcurrencyRule mcRule in mcRules)
 						{
-							lRuleIDS.Add(mcRule.RuleID); // for future use
+                            // for future use
+                            lRuleIDS.Add(mcRule.RuleID);
 
 							validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
 								Users.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
-							if (response == DomainResponseStatus.OK && validationResponse != null) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
+
+                            // when there is more then one rule - change response status only when status is still OK (It means that this is the first time it changed)
+                            if (response == DomainResponseStatus.OK && validationResponse != null)
 							{
 								response = validationResponse.m_eStatus;
 							}
