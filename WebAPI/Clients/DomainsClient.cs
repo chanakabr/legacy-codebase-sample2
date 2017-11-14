@@ -1,23 +1,18 @@
-﻿using AutoMapper;
+﻿using ApiObjects;
+using AutoMapper;
+using Core.Users;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Web;
-using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Mapping.ObjectsConvertor;
 using WebAPI.Models.Domains;
-using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
-using System.Net;
-using System.ServiceModel;
-using ApiObjects;
-using Core.Users;
 
 namespace WebAPI.Clients
 {
@@ -710,7 +705,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool RemoveDomain(int groupId, int householdId)
+        internal bool RemoveDomain(int groupId, int householdId, bool purge)
         {
             ApiObjects.Response.Status response = null;
 
@@ -718,7 +713,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.RemoveDomainById(groupId, householdId);
+                    response = Core.Domains.Module.RemoveDomainById(groupId, householdId, purge);
                 }
             }
             catch (Exception ex)
@@ -740,7 +735,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal bool RemoveDomain(int groupId, string externalId)
+        internal bool RemoveDomain(int groupId, string externalId, bool purge)
         {
             ApiObjects.Response.Status response = null;
 
@@ -750,7 +745,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.RemoveDomainByCoGuid(groupId, externalId);
+                    response = Core.Domains.Module.RemoveDomainByCoGuid(groupId, externalId, purge);
                 }
             }
             catch (Exception ex)

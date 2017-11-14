@@ -1,11 +1,11 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using Core.Users;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Web;
 using System.Web.Services;
-using Core.Users;
 
 namespace WS_Domains
 {
@@ -78,12 +78,12 @@ namespace WS_Domains
 
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(DomainResponseStatus))]
-        public DomainResponseStatus RemoveDomain(string sWSUserName, string sWSPassword, int nDomainID)
+        public DomainResponseStatus RemoveDomain(string sWSUserName, string sWSPassword, int nDomainID, bool purge)
         {
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.RemoveDomain(nGroupID, nDomainID);
+                return Core.Domains.Module.RemoveDomain(nGroupID, nDomainID, purge);
             }
             else
             {
@@ -1144,7 +1144,7 @@ namespace WS_Domains
 
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(DomainResponseStatus))]
-        public ApiObjects.Response.Status RemoveDomainById(string sWSUserName, string sWSPassword, int nDomainID)
+        public ApiObjects.Response.Status RemoveDomainById(string sWSUserName, string sWSPassword, int nDomainID, bool purge)
         {
 
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1152,7 +1152,7 @@ namespace WS_Domains
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                DomainResponseStatus domainResponseStatus = Core.Domains.Module.RemoveDomain(nGroupID, nDomainID);
+                DomainResponseStatus domainResponseStatus = Core.Domains.Module.RemoveDomain(nGroupID, nDomainID, purge);
                 status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
             }
             else
@@ -1166,7 +1166,7 @@ namespace WS_Domains
 
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(DomainResponseStatus))]
-        public ApiObjects.Response.Status RemoveDomainByCoGuid(string sWSUserName, string sWSPassword, string coGuid)
+        public ApiObjects.Response.Status RemoveDomainByCoGuid(string sWSUserName, string sWSPassword, string coGuid, bool purge)
         {
 
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1177,7 +1177,7 @@ namespace WS_Domains
                 int householdId = Core.Domains.Module.GetDomainIDByCoGuid(nGroupID, coGuid);
                 if (householdId > 0)
                 {
-                    DomainResponseStatus domainResponseStatus = Core.Domains.Module.RemoveDomain(nGroupID, householdId);
+                    DomainResponseStatus domainResponseStatus = Core.Domains.Module.RemoveDomain(nGroupID, householdId, purge);
                     status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                 }
             }

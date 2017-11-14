@@ -10771,19 +10771,21 @@
             <param name="description">Description for the household</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdController.Delete(System.Nullable{System.Int32})">
+        <member name="M:WebAPI.Controllers.HouseholdController.Delete(System.Nullable{System.Int32},System.Nullable{System.Boolean})">
              <summary>
              Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
              </summary>
              <param name="id">Household identifier</param>
+             <param name="purge">Purge Household</param>
              <remarks>Possible status codes: 
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdController.DeleteByOperator(WebAPI.Models.General.KalturaIdentifierTypeFilter)">
+        <member name="M:WebAPI.Controllers.HouseholdController.DeleteByOperator(WebAPI.Models.General.KalturaIdentifierTypeFilter,System.Boolean)">
              <summary>
              Fully delete a household per specified internal or external ID. Delete all of the household information, including users, devices, transactions and assets.
              </summary>                
              <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>
+             <param name="purge">Purge Household</param>
              <remarks>Possible status codes: 
             </remarks>
         </member>

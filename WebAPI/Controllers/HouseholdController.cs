@@ -1,5 +1,4 @@
 ﻿using ApiObjects.Response;
-using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,6 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
-using WebAPI.Models.Users;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -499,6 +497,7 @@ namespace WebAPI.Controllers
         /// Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
         /// </summary>
         /// <param name="id">Household identifier</param>
+        /// <param name="purge">Purge Household</param>
         /// <remarks>Possible status codes: 
         ///</remarks>
         [Route("delete"), HttpPost]
@@ -506,16 +505,16 @@ namespace WebAPI.Controllers
         [SchemeArgument("id", RequiresPermission = true)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.DomainNotExists)]
-        public bool Delete(int? id = null)
+        public bool Delete(int? id = null, bool? purge = false)
         {
             var ks = KS.GetFromRequest();
 
             int groupId = KS.GetFromRequest().GroupId;
-            
+
             try
             {
                 KalturaHousehold household = null;
-                
+
                 if (!id.HasValue || id.Value == 0)
                 {
                     household = HouseholdUtils.GetHouseholdFromRequest();
@@ -546,7 +545,7 @@ namespace WebAPI.Controllers
                 }
 
                 // remove users, devices and household
-                ClientsManager.DomainsClient().RemoveDomain(groupId, id.Value);
+                ClientsManager.DomainsClient().RemoveDomain(groupId, id.Value, purge.Value);
             }
             catch (ClientException ex)
             {
@@ -560,12 +559,13 @@ namespace WebAPI.Controllers
         /// Fully delete a household per specified internal or external ID. Delete all of the household information, including users, devices, transactions and assets.
         /// </summary>                
         /// <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>
+        /// <param name="purge">Purge Household</param>
         /// <remarks>Possible status codes: 
         ///</remarks>
         [Route("deleteByOperator"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public bool DeleteByOperator(KalturaIdentifierTypeFilter filter)
+        public bool DeleteByOperator(KalturaIdentifierTypeFilter filter, bool purge)
         {
             var ks = KS.GetFromRequest();
 
@@ -585,7 +585,7 @@ namespace WebAPI.Controllers
                     if (int.TryParse(filter.Identifier, out householdId))
                     {
                         // call client
-                        return ClientsManager.DomainsClient().RemoveDomain(groupId, householdId);
+                        return ClientsManager.DomainsClient().RemoveDomain(groupId, householdId, purge);
                     }
 
                 }
@@ -593,7 +593,7 @@ namespace WebAPI.Controllers
                 else if (filter.By == KalturaIdentifierTypeBy.external_id)
                 {
                     // call client
-                    return ClientsManager.DomainsClient().RemoveDomain(groupId, filter.Identifier);
+                    return ClientsManager.DomainsClient().RemoveDomain(groupId, filter.Identifier, purge);
                 }
             }
             catch (ClientException ex)
