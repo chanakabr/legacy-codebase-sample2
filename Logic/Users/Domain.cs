@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using ApiObjects.MediaMarks;
-using Tvinci.Core.DAL;
-using DAL;
-using System.Xml.Serialization;
-
-using Core.Users.Cache;
-using NPVR;
-using Newtonsoft.Json;
-using ApiObjects;
-using ApiObjects.Response;
-using KLogMonitor;
-using System.Reflection;
-using CachingProvider.LayeredCache;
+﻿using ApiObjects;
 using ApiObjects.DRM;
+using ApiObjects.MediaMarks;
+using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using Core.Users.Cache;
+using DAL;
+using KLogMonitor;
+using Newtonsoft.Json;
+using NPVR;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
+using Tvinci.Core.DAL;
 
 namespace Core.Users
 {
@@ -162,6 +160,14 @@ namespace Core.Users
         [XmlIgnore]
         [JsonIgnore()]
         public bool shouldUpdateSuspendStatus
+        {
+            get;
+            set;
+        }
+
+        [XmlIgnore]
+        [JsonIgnore()]
+        public bool shouldPurge
         {
             get;
             set;
@@ -2765,7 +2771,7 @@ namespace Core.Users
         {
             try
             {
-                if (oLimitationsManager != null) // initialize all fileds 
+                if (oLimitationsManager != null) // initialize all fields 
                 {
                     #region Devices
                     List<string> devicesChange = new List<string>();
@@ -2784,7 +2790,7 @@ namespace Core.Users
                                 {
                                     // get from DB the last update date domains_devices table  change status to is_active = 0  update the update _date
                                     List<int> lDevicesID = currentDC.DeviceInstances.Select(x => int.Parse(x.m_id)).ToList<int>();
-                                    if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity) // only if there is a gap between current devices to needed quntity
+                                    if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity) // only if there is a gap between current devices to needed quantity
                                     {
                                         int nDeviceToDelete = lDevicesID.Count - item.quantity;
                                         devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID);
@@ -3025,7 +3031,7 @@ namespace Core.Users
             domainUserIds.AddRange(m_UsersIDs);
             domainUserIds = domainUserIds.Distinct().ToList();
 
-            int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
+            int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status, shouldPurge);
 
             //return statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
             if (IsDomainRemovedSuccessfully(statusRes))

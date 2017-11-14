@@ -1,17 +1,16 @@
-﻿using DAL;
+﻿using ApiObjects;
+using ApiObjects.DRM;
+using ApiObjects.Response;
+using ApiObjects.Roles;
+using Core.Users.Cache;
+using DAL;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using Core.Users.Cache;
-using ApiObjects;
-using ApiObjects.Response;
-using KLogMonitor;
 using System.Reflection;
-using ApiObjects.DRM;
-using Newtonsoft.Json;
-using ApiObjects.Roles;
+using System.Text;
 
 namespace Core.Users
 {
@@ -184,7 +183,7 @@ namespace Core.Users
             return new DomainResponseObject(domain, eDomainResponseStatus);
         }
 
-        public virtual DomainResponseStatus RemoveDomain(int domainId)
+        public virtual DomainResponseStatus RemoveDomain(int domainId, bool purge)
         {
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
             try
@@ -214,6 +213,7 @@ namespace Core.Users
                     }
                 }
 
+                domain.shouldPurge = purge;
                 res = domain.Remove();
 
                 if (res != DomainResponseStatus.OK)

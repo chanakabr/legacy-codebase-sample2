@@ -4,9 +4,6 @@ using Core.Users;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace Core.Domains
@@ -63,14 +60,14 @@ namespace Core.Domains
             return response;
         }
 
-        
-        public static DomainResponseStatus RemoveDomain(int nGroupID, int nDomainID)
+
+        public static DomainResponseStatus RemoveDomain(int nGroupID, int nDomainID, bool purge)
         {
             Core.Users.BaseDomain t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.RemoveDomain(nDomainID);
+                return t.RemoveDomain(nDomainID, purge);
             }
 
             return DomainResponseStatus.Error;
@@ -859,8 +856,8 @@ namespace Core.Domains
             return response;
         }
 
-        
-        public static ApiObjects.Response.Status RemoveDomainById(int nGroupID, int nDomainID)
+
+        public static ApiObjects.Response.Status RemoveDomainById(int nGroupID, int nDomainID, bool purge)
         {
 
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -868,7 +865,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                DomainResponseStatus domainResponseStatus = t.RemoveDomain(nDomainID);
+                DomainResponseStatus domainResponseStatus = t.RemoveDomain(nDomainID, purge);
                 status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
             }
 
@@ -876,7 +873,7 @@ namespace Core.Domains
         }
 
         
-        public static ApiObjects.Response.Status RemoveDomainByCoGuid(int nGroupID, string coGuid)
+        public static ApiObjects.Response.Status RemoveDomainByCoGuid(int nGroupID, string coGuid, bool purge)
         {
 
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -887,7 +884,7 @@ namespace Core.Domains
                 int householdId = t.GetDomainIDByCoGuid(coGuid);
                 if (householdId > 0)
                 {
-                    DomainResponseStatus domainResponseStatus = t.RemoveDomain(householdId);
+                    DomainResponseStatus domainResponseStatus = t.RemoveDomain(householdId, purge);
                     status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                 }
             }
