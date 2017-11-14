@@ -76,6 +76,7 @@
     <Compile Include="enums.cs" />
     <Compile Include="INPVRProvider.cs" />
     <Compile Include="NPVRCancelDeleteResponse.cs" />
+    <Compile Include="NPVRDeleteObj.cs" />
     <Compile Include="NPVRLicensedLinkResponse.cs" />
     <Compile Include="NPVRParamsObj.cs" />
     <Compile Include="NPVRProtectResponse.cs" />

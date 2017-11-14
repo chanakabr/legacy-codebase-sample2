@@ -39,6 +39,8 @@ namespace NPVR
         private static readonly string ALU_ENDPOINT_RECORD = "Record/";
         private static readonly string ALU_ENDPOINT_SEASON = "Season/"; // Series
         private static readonly string ALU_ENDPOINT_USER = "User/";
+        private static readonly string ALU_ENDPOINT_SERIES = "Series/";
+
 
         private static readonly string ALU_CREATE_ACCOUNT_COMMAND = "addById";
         private static readonly string ALU_DELETE_ACCOUNT_COMMAND = "delete";
@@ -81,6 +83,21 @@ namespace NPVR
         private static readonly string ALU_RATING = "rating";
 
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
+       
+        /*********************************************************************************/
+
+        private static readonly string ALU_RECORD_COMMAND = "record";
+        private static readonly string ALU_DELETE_BY_COMMAND = "deleteBy";
+        private static readonly string ALU_BY_SERIES_ID_PARAM = "bySeriesId";
+        private static readonly string ALU_BY_SEASON_NUMBER_PARAM = "bySeasonNumber";
+        private static readonly string ALU_BY_CHANNEL_ID_PARAM = "byChannelId";
+        private static readonly string ALU_BY_STATUS_PARAM = "byStatus";
+        
+        private static readonly string ALU_SERIES_ID_PARAM = "seriesId";
+        private static readonly string ALU_ENTRIES = "entries";
+        private static readonly string ALU_ENDPOINT_UPDATE_FIELD = "updateField/";
+        /********************************************************************************/
+
 
         private int groupID;
         public bool SynchronizeNpvrWithDomain { get; set; }
@@ -455,6 +472,11 @@ namespace NPVR
             return args != null && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.AssetID);
         }
 
+        private bool IsCancelDeleteAssetInputValid(NPVRDeleteObj args)
+        {
+            return args != null && !string.IsNullOrEmpty(args.EntityID);
+        }
+
 
         public NPVRCancelDeleteResponse CancelAsset(NPVRParamsObj args)
         {
@@ -662,6 +684,11 @@ namespace NPVR
             return args != null && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.AssetID);
         }
 
+        private bool IsSetAssetAlreadyWatchedInputValid(NPVRParamsObj args)
+        {
+            return args != null && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.AssetID) && args.Value > 0;
+        }
+
         public NPVRProtectResponse SetAssetProtectionStatus(NPVRParamsObj args)
         {
             NPVRProtectResponse res = new NPVRProtectResponse();
@@ -718,6 +745,62 @@ namespace NPVR
             return res;
         }
 
+        public NPVRProtectResponse SetAssetAlreadyWatchedValue(NPVRParamsObj args)
+        {
+            NPVRProtectResponse res = new NPVRProtectResponse();
+            try
+            {
+                if (IsSetAssetAlreadyWatchedInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "3.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_NAME_URL_PARAM, "alreadyWatched"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_VALUE_URL_PARAM, args.Value.ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
+
+                    string url = BuildRestCommand(ALU_RECORD_COMMAND, ALU_ENDPOINT_UPDATE_FIELD, urlParams);
+
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetSetAssetAlreadyWatchedStatusResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("SetAssetAlreadyWatchedValue. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
+                    }
+                    else
+                    {
+                        log.Error(LOG_HEADER_ERROR + string.Format("SetAssetAlreadyWatchedValue. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
+                        res.recordingID = args.AssetID;
+                        res.status = ProtectStatus.Error;
+                        res.entityID = args.EntityID;
+                        res.msg = "An error occurred. Refer to server log files.";
+                    }
+
+
+                }
+                else
+                {
+                    throw new ArgumentException("Either args obj is null or entity id is empty or asset id is empty.");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at SetAssetAlreadyWatchedValue.", args, ex), ex);
+                throw;
+            }
+
+            return res;
+        }
+
         private void GetSetAssetProtectionStatusResponse(string responseJson, NPVRParamsObj args, NPVRProtectResponse response)
         {
             string unbeautified = JSON_UNBEAUTIFIER.Replace(responseJson, string.Empty);
@@ -749,6 +832,43 @@ namespace NPVR
                 catch (Exception ex)
                 {
                     log.Error("Error - " + GetLogMsg(String.Concat("Failed to deserialize JSON at GetSetAssetProtectionStatusResponse. Response JSON: ", responseJson), null, ex), ex);
+                    throw;
+                }
+            }
+        }
+
+        private void GetSetAssetAlreadyWatchedStatusResponse(string responseJson, NPVRParamsObj args, NPVRProtectResponse response)
+        {
+            string unbeautified = JSON_UNBEAUTIFIER.Replace(responseJson, string.Empty);
+            if (unbeautified.Equals(EMPTY_JSON))
+            {
+                response.entityID = args.EntityID;
+                response.msg = string.Empty;
+                response.recordingID = args.AssetID;
+                // what eill be status here ?????? 
+               // response.status = args.IsProtect ? ProtectStatus.Protected : ProtectStatus.NotProtected;
+            }
+            else
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    response.entityID = args.EntityID;
+                    response.msg = error.Description;
+                    response.recordingID = args.AssetID;
+                    switch (error.ResultCode)
+                    {
+                        case 404:
+                            response.status = ProtectStatus.RecordingDoesNotExist;
+                            break;
+                        default:
+                            response.status = ProtectStatus.Error;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error - Failed to deserialize JSON at GetSetAssetAlreadyWatchedStatusResponse. Response JSON: {0}, ex:{1}", responseJson, ex);
                     throw;
                 }
             }
@@ -801,6 +921,7 @@ namespace NPVR
             return false;
         }
 
+        // return all recordings (series + single )
         public NPVRRetrieveAssetsResponse RetrieveAssets(NPVRRetrieveParamsObj args)
         {
             NPVRRetrieveAssetsResponse res = new NPVRRetrieveAssetsResponse();
@@ -814,6 +935,11 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_COUNT_URL_PARAM, "true"));
+
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SERIES_ID_PARAM, args.SeriesIDs != null && args.SeriesIDs.Count > 0 ? args.SeriesIDs[0] : ""));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_NUMBER, args.SeasonNumber.ToString()));
+
+                    // remove this page size page index ? 
                     if (args.PageSize > 0)
                     {
                         // Because ALU handles "page index" as "first entry", we will not send the regular page index we are used to,
@@ -864,8 +990,9 @@ namespace NPVR
 
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SORT_FIELD_URL_PARAM, args.OrderBy.ToString()));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SORT_DIRECTION_URL_PARAM, args.Direction.ToString().ToLower()));
-
-                    string url = BuildRestCommand(ALU_READ_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
+                    
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_ENTRIES, "true"));// default value
+                    string url = BuildRestCommand(ALU_READ_COMMAND, ALU_ENDPOINT_SERIES/*ALU_ENDPOINT_RECORD*/, urlParams);
 
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
@@ -922,7 +1049,6 @@ namespace NPVR
 
                 }
 
-
                 foreach (EntryJSON entry in aluResponse.entries)
                 {
                     RecordedEPGChannelProgrammeObject obj = new RecordedEPGChannelProgrammeObject();
@@ -941,17 +1067,28 @@ namespace NPVR
                     // return seasonId + seasonName
                     if (!string.IsNullOrEmpty(entry.SeasonID))
                     {
-                        EPGDictionary oEPGDictionary = new EPGDictionary();
-                        oEPGDictionary.Key = ALU_SEASON_ID;
-                        oEPGDictionary.Value = entry.SeasonID;
-                        obj.EPG_TAGS.Add(oEPGDictionary);
+                        obj.EPG_TAGS.Add(new EPGDictionary()
+                        {
+                            Key = ALU_SEASON_ID,
+                            Value = entry.SeasonID
+                        });
                     }
                     if (!string.IsNullOrEmpty(entry.SeasonName))
                     {
-                        EPGDictionary oEPGDictionary = new EPGDictionary();
-                        oEPGDictionary.Key = ALU_SEASON_NAME;
-                        oEPGDictionary.Value = entry.SeasonName;
-                        obj.EPG_TAGS.Add(oEPGDictionary);
+                        obj.EPG_TAGS.Add(new EPGDictionary()
+                        {
+                            Key = ALU_SEASON_NAME,
+                            Value = entry.SeasonName
+                        });
+                    }
+
+                    if (!string.IsNullOrEmpty(entry.SeriesId))
+                    {
+                        obj.EPG_TAGS.Add(new EPGDictionary()
+                        {
+                            Key = ALU_SERIES_ID_PARAM,
+                            Value = entry.SeriesId
+                        });
                     }
 
                     if (entry.Duration != 0)
@@ -1367,7 +1504,8 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ID_URL_PARAM, args.AssetID));
 
-                    string url = BuildRestCommand(ALU_CANCEL_COMMAND, ALU_ENDPOINT_SEASON, urlParams);
+                    string url = BuildRestCommand(ALU_CANCEL_COMMAND, ALU_ENDPOINT_SERIES /*ALU_ENDPOINT_SEASON*/, urlParams);
+                    // need to change to ALU_ENDPOINT_SERIES ????
 
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
@@ -1421,6 +1559,62 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ID_URL_PARAM, args.AssetID));
 
                     string url = BuildRestCommand(ALU_DELETE_COMMAND, ALU_ENDPOINT_SEASON, urlParams);
+
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetDeleteAssetResponse(responseJson, args, res);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("DeleteSeries. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
+                    }
+                    else
+                    {
+                        log.Error(LOG_HEADER_ERROR + string.Format("DeleteSeries. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
+                        res.entityID = args.EntityID;
+                        res.recordingID = string.Empty;
+                        res.status = CancelDeleteStatus.Error;
+                        res.msg = "An error occurred. Refer to server log files.";
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("Either args obj is null or entity id is empty or asset id is empty.");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at DeleteSeries.", args, ex), ex);
+                throw;
+            }
+
+            return res;
+        }
+
+        // new implementation for NOKIA 
+        public NPVRCancelDeleteResponse DeleteSeries(NPVRDeleteObj args)
+        {
+            NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
+            try
+            {
+                if (IsCancelDeleteAssetInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "3.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SERIES_ID_PARAM, args.SeriesID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SEASON_NUMBER_PARAM, args.SeasonNumber.ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_BY_CHANNEL_ID_PARAM, args.ChannelId));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_BY_STATUS_PARAM, args.Status.ToString().ToLower()));
+
+                    string url = BuildRestCommand(ALU_RECORD_COMMAND, ALU_DELETE_BY_COMMAND, urlParams);
 
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
@@ -1622,6 +1816,7 @@ namespace NPVR
             }
         }
 
+        // return all series you are following (return series not assets !)
         public NPVRRetrieveSeriesResponse RetrieveSeries(NPVRRetrieveParamsObj args)
         {
             NPVRRetrieveSeriesResponse res = new NPVRRetrieveSeriesResponse();

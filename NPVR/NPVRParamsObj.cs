@@ -18,6 +18,8 @@ namespace NPVR
         protected string streamType;
         protected string hasFormat;
 
+        protected int value;
+
         public virtual string AssetID
         {
             get
@@ -123,6 +125,18 @@ namespace NPVR
             set
             {
                 hasFormat = value;
+            }
+        }
+
+        public virtual int Value
+        {
+            get
+            {
+                return value;
+            }
+            set
+            {
+                this.value = value;
             }
         }
 

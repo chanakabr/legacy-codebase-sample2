@@ -37,5 +37,7 @@ namespace NPVR
         NPVRRetrieveSeriesResponse RetrieveSeries(NPVRRetrieveParamsObj args);
 
         NPVRUserActionResponse UpdateAccount(NPVRParamsObj args);
+
+        NPVRCancelDeleteResponse DeleteSeries(NPVRDeleteObj args);
     }
 }
