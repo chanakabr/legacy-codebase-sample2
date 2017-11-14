@@ -59,7 +59,7 @@ namespace Core.Catalog
 
                 if (request.filterTree != null)
                 {
-                    CatalogLogic.UpdateNodeTreeFields(request, ref request.filterTree, definitions, group);
+                    CatalogLogic.UpdateNodeTreeFields(request, ref request.filterTree, definitions, group, parentGroupID);
                 }
 
                 // Get days offset for EPG search from TCM

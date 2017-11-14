@@ -878,6 +878,33 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
+        private static Type GetMetaType(Topic topic)
+        {
+            Type res = typeof(string);
+            switch (topic.Type)
+            {
+                case MetaType.String:
+                case MetaType.MultilingualString:
+                case MetaType.Tag:
+                    res = typeof(string);
+                    break;                
+                case MetaType.Number:
+                    res = typeof(double);
+                    break;
+                case MetaType.Bool:
+                    res = typeof(int);
+                    break;                    
+                case MetaType.DateTime:
+                    res = typeof(DateTime);
+                    break;                    
+                case MetaType.All:                    
+                default:
+                    break;
+            }
+
+            return res;
+        }
+
         #endregion
 
         #region Public Methods
@@ -1425,6 +1452,84 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return groupAssetsMap;
+        }
+
+        public static HashSet<string> GetUnifiedSearchKey(int groupId, string originalKey, out bool isTagOrMeta, out Type type)
+        {
+            isTagOrMeta = false;
+            type = typeof(string);
+            HashSet<string> searchKeys = new HashSet<string>();
+            try
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetUnifiedSearchKey", groupId);
+                    return searchKeys;
+                }
+
+                List<string> tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Key).ToList();
+                List<string> metas = catalogGroupCache.TopicsMapBySystemName.Where(x => !x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value).Select(x => x.Key).ToList();
+                if (originalKey.StartsWith("tags."))
+                {
+                    foreach (string tag in tags)
+                    {
+                        if (tag.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
+                        {
+                            isTagOrMeta = true;
+                            searchKeys.Add(originalKey.ToLower());
+                            break;
+                        }
+                    }
+                }
+                else if (originalKey.StartsWith("metas."))
+                {
+                    foreach (var meta in metas)
+                    {
+                        if (meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
+                        {
+                            isTagOrMeta = true;
+                            searchKeys.Add(originalKey.ToLower());
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (string tag in tags)
+                    {
+                        if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                        {
+                            isTagOrMeta = true;
+
+                            searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
+                            break;
+                        }
+                    }
+
+                    foreach (string meta in metas)
+                    {
+                        if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                        {
+                            isTagOrMeta = true;
+                            type = catalogGroupCache.TopicsMapBySystemName.ContainsKey(meta) ? GetMetaType(catalogGroupCache.TopicsMapBySystemName[meta]) : typeof(string);
+                            searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
+                            break;
+                        }
+                    }
+                }
+
+                if (!isTagOrMeta)
+                {
+                    searchKeys.Add(originalKey.ToLower());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetUnifiedSearchKey for groupId: {0}, originalKey: {1}", groupId, originalKey), ex);               
+            }
+
+            return searchKeys;
         }
 
         public static bool DoesGroupUsesTemplates(int groupId)

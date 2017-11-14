@@ -1454,10 +1454,17 @@ namespace Core.Catalog
         /// <param name="group"></param>
         /// <param name="isTagOrMeta"></param>
         /// <returns></returns>
-        public static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta)
+        public static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta, int groupId)
         {
             Type type;
-            return GetUnifiedSearchKey(originalKey, group, out isTagOrMeta, out type);
+            if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+            {
+                return CatalogManagement.CatalogManager.GetUnifiedSearchKey(groupId, originalKey, out isTagOrMeta, out type);
+            }
+            else
+            {
+                return GetUnifiedSearchKey(originalKey, group, out isTagOrMeta, out type);
+            }
         }
 
         /// <summary>
@@ -2582,7 +2589,7 @@ namespace Core.Catalog
                     if (!string.IsNullOrEmpty(keyValue.m_sKey) && !string.IsNullOrEmpty(keyValue.m_sValue))
                     {
                         bool isTagOrMeta;
-                        var searchKeys = GetUnifiedSearchKey(keyValue.m_sKey, group, out isTagOrMeta);
+                        var searchKeys = GetUnifiedSearchKey(keyValue.m_sKey, group, out isTagOrMeta, groupId);
 
                         switch (cutWith)
                         {
@@ -2704,7 +2711,7 @@ namespace Core.Catalog
                         else
                         {
                             bool isTagOrMeta;
-                            var searchKeys = GetUnifiedSearchKey(searchValue.m_sKey, group, out isTagOrMeta);
+                            var searchKeys = GetUnifiedSearchKey(searchValue.m_sKey, group, out isTagOrMeta, searchObject.m_nGroupId);
 
                             switch (cutWith)
                             {
@@ -6174,7 +6181,7 @@ namespace Core.Catalog
             }
 
             // Build search object
-            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group);
+            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group, parentGroupID);
 
             int pageIndex = 0;
             int pageSize = 0;
@@ -6313,7 +6320,7 @@ namespace Core.Catalog
 
             // Build search object
             UnifiedSearchDefinitions unifiedSearchDefinitions = null;
-            status = BuildRelatedObject(request, group, out unifiedSearchDefinitions);
+            status = BuildRelatedObject(request, group, out unifiedSearchDefinitions, parentGroupID);
 
             if (status.Code != (int)eResponseStatus.OK)
             {
@@ -6354,7 +6361,7 @@ namespace Core.Catalog
             return status;
         }
 
-        private static ApiObjects.Response.Status BuildRelatedObject(MediaRelatedRequest request, Group group, out UnifiedSearchDefinitions definitions)
+        private static ApiObjects.Response.Status BuildRelatedObject(MediaRelatedRequest request, Group group, out UnifiedSearchDefinitions definitions, int groupId)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             definitions = new UnifiedSearchDefinitions();
@@ -6532,8 +6539,15 @@ namespace Core.Catalog
                         string value = keyValue.m_sValue;
 
                         bool dummyBoolean;
-                        Type type;
-                        GetUnifiedSearchKey(key, group, out dummyBoolean, out type);
+                        Type type;                        
+                        if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+                        {
+                            CatalogManagement.CatalogManager.GetUnifiedSearchKey(groupId, key, out dummyBoolean, out type);
+                        }
+                        else
+                        {
+                            GetUnifiedSearchKey(key, group, out dummyBoolean, out type);
+                        }      
 
                         bool shouldLowercase = false;
 
@@ -6569,7 +6583,7 @@ namespace Core.Catalog
                 }
 
                 // Add prefixes, check if non start/end date exist
-                UpdateNodeTreeFields(request, ref filterTree, definitions, group);
+                UpdateNodeTreeFields(request, ref filterTree, definitions, group, groupId);
 
                 if (phrase != null)
                 {
@@ -6617,7 +6631,7 @@ namespace Core.Catalog
         /// <param name="filterTree"></param>
         /// <param name="definitions"></param>
         /// <param name="group"></param>
-        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
+        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group, int groupId)
         {
             if (group != null && filterTree != null)
             {
@@ -6634,7 +6648,7 @@ namespace Core.Catalog
                     // If it is a leaf, just replace the field name
                     if (node.type == BooleanNodeType.Leaf)
                     {
-                        TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping);
+                        TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping, groupId);
                     }
                     else if (node.type == BooleanNodeType.Parent)
                     {
@@ -6660,7 +6674,7 @@ namespace Core.Catalog
         /// <param name="group"></param>
         /// <param name="node"></param>
         public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
-            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping)
+            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, int groupId)
         {
             bool shouldUseCache = WS_Utils.GetTcmBoolValue("Use_Search_Cache");
 
@@ -6679,7 +6693,15 @@ namespace Core.Catalog
 
             // Add prefix (meta/tag) e.g. metas.{key}
             Type metaType;
-            HashSet<string> searchKeys = GetUnifiedSearchKey(leaf.field, group, out isTagOrMeta, out metaType);
+            HashSet<string> searchKeys = new HashSet<string>();            
+            if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+            {
+                searchKeys = CatalogManagement.CatalogManager.GetUnifiedSearchKey(groupId, leaf.field, out isTagOrMeta, out metaType);
+            }
+            else
+            {
+                searchKeys = GetUnifiedSearchKey(leaf.field, group, out isTagOrMeta, out metaType);
+            }
 
             string suffix = string.Empty;
 
@@ -7120,7 +7142,7 @@ namespace Core.Catalog
             }
         }
 
-        public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
+        public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group, int groupId)
         {           
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
@@ -7209,7 +7231,7 @@ namespace Core.Catalog
                 else
                 {
                     initialTree = filterTree;
-                    CatalogLogic.UpdateNodeTreeFields(request, ref initialTree, definitions, group);
+                    CatalogLogic.UpdateNodeTreeFields(request, ref initialTree, definitions, group, groupId);
                 }
 
                 #region Asset Types
@@ -7410,7 +7432,7 @@ namespace Core.Catalog
                     throw new KalturaException(status.Message, status.Code);
                 }
 
-                CatalogLogic.UpdateNodeTreeFields(request, ref requestFilterTree, definitions, group);
+                CatalogLogic.UpdateNodeTreeFields(request, ref requestFilterTree, definitions, group, groupId);
 
                 if (initialTree != null)
                 {
@@ -7466,7 +7488,7 @@ namespace Core.Catalog
             return definitions;
         }
 
-        public static UnifiedSearchDefinitions BuildInternalChannelSearchObjectWithBaseRequest(GroupsCacheManager.Channel channel, BaseRequest request, Group group)
+        public static UnifiedSearchDefinitions BuildInternalChannelSearchObjectWithBaseRequest(GroupsCacheManager.Channel channel, BaseRequest request, Group group, int groupId)
         {
             InternalChannelRequest channelRequest = new InternalChannelRequest(
                 channel.m_nChannelID.ToString(),
@@ -7485,7 +7507,7 @@ namespace Core.Catalog
                 }
                 );
 
-            return BuildInternalChannelSearchObject(channel, channelRequest, group);
+            return BuildInternalChannelSearchObject(channel, channelRequest, group, groupId);
         }
 
         private static MediaSearchObj BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, int groupId, LanguageObj languageObj, List<string> lPermittedWatchRules)
