@@ -180,8 +180,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CAN_NOT_CHANGE_PREDEFINED_ASSET_STRUCT_SYSTEM_NAME = new ClientExceptionType(eResponseStatus.CanNotChangePredefinedAssetStructSystemName, "System Name Can Not Be Changed",
                                                                                                                         "can not change predefined asset struct name");
         public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedAssetStruct, "Predefined Asset Struct Can not be deleted",
-                                                                                                            "can not delete predefined asset struct");
-        public static ClientExceptionType META_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.MetaNameAlreadyInUse, "Name Already Used", "The meta name is already in use");
+                                                                                                            "can not delete predefined asset struct");        
         public static ClientExceptionType META_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.MetaSystemNameAlreadyInUse, "System Name Already Used", "The meta system name is already in use");        
         public static ClientExceptionType META_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MetaDoesNotExist, "Invalid Asset Struct Id", "The specified meta id does not exist");
         public static ClientExceptionType CAN_NOT_CHANGE_PREDEFINED_META_SYSTEM_NAME = new ClientExceptionType(eResponseStatus.CanNotChangePredefinedMetaSystemName, "System Name Can Not Be Changed",
@@ -189,6 +188,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_META= new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedMeta, "Predefined meta Can not be deleted",
                                                                                                             "can not delete predefined meta");
         public static ClientExceptionType ASSET_STRUCT_MISSING_BASIC_META_IDS = new ClientExceptionType(eResponseStatus.AssetStructMissingBasicMetaIds, "Missing Basic Meta Ids", "One or more of the basic meta ids was not sent");
+        public static ClientExceptionType ASSET_EXTERNAL_ID_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.AssetExternalIdMustBeUnique, "The Specified External Id Must Be Unique");
+        public static ClientExceptionType INVALID_META_TYPE = new ClientExceptionType(eResponseStatus.InvalidMetaType, "Invalid Meta Type Sent");
+        public static ClientExceptionType INVALID_VALUE_SENT_FOR_META = new ClientExceptionType(eResponseStatus.InvalidValueSentForMeta, "Invalid Value Sent For Meta");
 
         public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");        
         public static ApiExceptionType INVALID_VALUE_FOR_FEATURE = new ApiExceptionType(StatusCode.InvalidValueForFeature, "Invalid value for feature: @feature@. feature can only contain alphanumeric values and/or underscore up until 64 characters", "feature");

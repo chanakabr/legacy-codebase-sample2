@@ -1023,5 +1023,61 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Add a new asset
+        /// </summary>
+        /// <param name="asset">Asset object</param>
+        /// <returns></returns>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
+        [Throws(eResponseStatus.AssetExternalIdMustBeUnique)]
+        public KalturaMediaAsset Add(KalturaMediaAsset asset)
+        {
+            KalturaMediaAsset response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+            if (asset.Name == null || asset.Name.Values == null || asset.Name.Values.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+            }
+
+            asset.Name.Validate();
+
+            if (asset.Description != null && asset.Description.Values != null && asset.Description.Values.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
+            }
+
+            asset.Description.Validate();
+
+            if (asset.Type.HasValue && !string.IsNullOrEmpty(asset.TypeDescription))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "type", "typeDescription");
+            }
+            if (!asset.Type.HasValue && string.IsNullOrEmpty(asset.TypeDescription))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "type, typeDescription");
+            }
+
+            if (string.IsNullOrEmpty(asset.ExternalId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
+            }            
+
+            try
+            {
+                response = ClientsManager.CatalogClient().AddAsset(groupId, asset, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

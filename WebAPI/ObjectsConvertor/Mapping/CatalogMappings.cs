@@ -403,7 +403,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))
               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.ParentId) ? long.Parse(src.ParentId) : 0))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));            
+              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+
+            //KalturaMediaAsset to Media
+            Mapper.CreateMap<KalturaMediaAsset, MediaObj>()
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Id.HasValue ? src.Id.ToString() : string.Empty))
+                .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
+                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetDefaultLanugageValue() : string.Empty))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetNoneDefaultLanugageContainer().ToArray() : null))
+                .ForMember(dest => dest.m_dStartDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(src.StartDate.Value) : DateTime.UtcNow))
+                .ForMember(dest => dest.m_dEndDate, opt => opt.MapFrom(src => src.EndDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(src.EndDate.Value) : DateTime.MaxValue))
+                .ForMember(dest => dest.m_oMediaType, opt => opt.MapFrom(src => src.Type.HasValue ? new Core.Catalog.MediaType(src.TypeDescription, src.Type.Value) : new Core.Catalog.MediaType(src.TypeDescription, 0)))
+                .ForMember(dest => dest.m_lMetas, opt => opt.MapFrom(src => src.Metas != null ? GetMetaList(src.Metas) : new List<Metas>()))
+                .ForMember(dest => dest.m_lTags, opt => opt.MapFrom(src => src.Tags != null ? GetTagsList(src.Tags) : new List<Tags>()))
+                .ForMember(dest => dest.DeviceRule, opt => opt.MapFrom(src => src.DeviceRule))
+                .ForMember(dest => dest.GeoblockRule, opt => opt.MapFrom(src => src.GeoBlockRule))
+                .ForMember(dest => dest.WatchPermissionRule, opt => opt.MapFrom(src => src.WatchPermissionRule))
+                .ForMember(dest => dest.CoGuid, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
 
             #endregion
         }
@@ -506,6 +524,77 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return response;
         }
 
+        private static List<Metas> GetMetaList(SerializableDictionary<string, KalturaValue> metasDictionary)
+        {
+            List<Metas> metas = new List<Metas>();
+
+            if (metasDictionary == null || metasDictionary.Count == 0)
+            {
+                return metas;
+            }
+
+            foreach (KeyValuePair<string, KalturaValue> meta in metasDictionary)
+            {
+                Metas metaToAdd = new Metas() { m_oTagMeta = new TagMeta() { m_sName = meta.Key } };
+                Type metaType = meta.Value.GetType();
+                if (metaType == typeof(KalturaBooleanValue))
+                {
+                    KalturaBooleanValue metaValue = meta.Value as KalturaBooleanValue;
+                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.Bool.ToString();
+                    metaToAdd.m_sValue = metaValue.value ? "1" : "0";
+                }
+                else if (metaType == typeof(KalturaStringValue))
+                {
+                    KalturaStringValue metaValue = meta.Value as KalturaStringValue;
+                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.String.ToString();
+                    metaToAdd.m_sValue = metaValue.value;
+                }
+                else if (metaType == typeof(KalturaMultilingualStringValue))
+                {
+                    KalturaMultilingualStringValue metaValue = meta.Value as KalturaMultilingualStringValue;
+                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.MultilingualString.ToString();
+                    metaToAdd.m_sValue = metaValue.value != null ? metaValue.value.GetDefaultLanugageValue() : null;
+                    metaToAdd.Value = metaValue.value != null ? metaValue.value.GetNoneDefaultLanugageContainer().ToArray() : null;
+                }
+                else if (metaType == typeof(KalturaDoubleValue))
+                {
+                    KalturaDoubleValue metaValue = meta.Value as KalturaDoubleValue;
+                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.Number.ToString();
+                    metaToAdd.m_sValue = metaValue.value.ToString();
+                }
+                else if (metaType == typeof(KalturaLongValue))
+                {
+                    KalturaLongValue metaValue = meta.Value as KalturaLongValue;
+                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.DateTime.ToString();
+                    metaToAdd.m_sValue = SerializationUtils.ConvertFromUnixTimestamp(metaValue.value).ToString();
+                }
+
+                metas.Add(metaToAdd);
+            }
+
+            return metas;
+        }
+
+        private static List<Tags> GetTagsList(SerializableDictionary<string, KalturaMultilingualStringValueArray> tagsDictionary)
+        {
+            List<Tags> tags = new List<Tags>();            
+
+            if (tagsDictionary == null || tagsDictionary.Count == 0)
+            {
+                return tags;
+            }
+
+            foreach (KeyValuePair<string, KalturaMultilingualStringValueArray> tag in tagsDictionary)
+            {
+                Tags tagToAdd = new Tags() { m_oTagMeta = new TagMeta(tag.Key, ApiObjects.MetaType.Tag.ToString()) };
+                tagToAdd.m_lValues = tag.Value.Objects != null ? tag.Value.Objects.Select(x => x.value.GetDefaultLanugageValue()).ToList() : new List<string>();
+                tagToAdd.Values = tag.Value.Objects != null ? tag.Value.Objects.Select(x => x.value.GetNoneDefaultLanugageContainer().ToArray()).ToList() : new List<LanguageContainer[]>();
+                tags.Add(tagToAdd);
+            }
+
+            return tags;
+        }
+
         #endregion
 
         private static KalturaAssetGroupBy ConvertToGroupBy(SearchAggregationGroupBy searchAggregationGroupBy)
@@ -554,7 +643,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return result;
         }
-
 
         //eAssetType to KalturaAssetType
         public static KalturaAssetType ConvertToKalturaAssetType(eAssetType assetType)

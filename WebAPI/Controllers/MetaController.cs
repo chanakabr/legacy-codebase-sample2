@@ -146,8 +146,7 @@ namespace WebAPI.Controllers
         /// <param name="meta">Meta Object</param>
         /// <returns></returns>
         [Route("add"), HttpPost]
-        [ApiAuthorize]
-        [Throws(eResponseStatus.MetaNameAlreadyInUse)]
+        [ApiAuthorize]        
         [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.InvalidMutlipleValueForMetaType)]
         public KalturaMeta Add(KalturaMeta meta)
@@ -192,8 +191,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.MetaDoesNotExist)]
-        [Throws(eResponseStatus.MetaNameAlreadyInUse)]
+        [Throws(eResponseStatus.MetaDoesNotExist)]        
         [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]        
         [Throws(eResponseStatus.CanNotChangePredefinedMetaSystemName)]        
         [SchemeArgument("id", MinLong = 1)]

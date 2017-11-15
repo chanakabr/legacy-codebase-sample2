@@ -409,6 +409,39 @@ namespace WebAPI.Clients
             return true;
         }
 
+        public KalturaMediaAsset AddAsset(int groupId, KalturaMediaAsset asset, long userId)
+        {
+            KalturaMediaAsset result = null;
+            AssetResponse response = null;
+
+            try
+            {
+                MediaObj assetToadd = AutoMapper.Mapper.Map<MediaObj>(asset);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAsset(groupId, assetToadd, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
+            return result;
+        }
+
         #endregion        
 
         public int CacheDuration { get; set; }

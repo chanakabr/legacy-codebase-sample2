@@ -323,6 +323,13 @@
             <param name="assetType">Asset type</param>
             <param name="contextDataParams">Parameters for the request</param>
         </member>
+        <member name="M:WebAPI.Controllers.AssetController.Add(WebAPI.Models.Catalog.KalturaMediaAsset)">
+            <summary>
+            Add a new asset
+            </summary>
+            <param name="asset">Asset object</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
             <summary>
             get KalturaAssetFileContext
