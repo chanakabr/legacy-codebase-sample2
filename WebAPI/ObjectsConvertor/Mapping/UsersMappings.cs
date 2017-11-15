@@ -155,7 +155,8 @@ namespace ObjectsConvertor.Mapping
             Mapper.CreateMap<FavoritObject, KalturaFavorite>()
                 .ForMember(dest => dest.ExtraData, opt => opt.MapFrom(src => src.m_sExtraData))
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_sItemCode))
-                .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode));
+                .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreateDate)));
 
             // UserItemsList to KalturaUserAssetsList
             Mapper.CreateMap<UserItemsList, KalturaUserAssetsList>()
