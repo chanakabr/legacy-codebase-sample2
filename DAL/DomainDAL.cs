@@ -21,8 +21,7 @@ namespace DAL
         private const string SP_GET_USER_IN_DOMAIN = "Get_UserInDomain";
         private const string SP_GET_USERS_IN_DOMAIN = "Get_UsersInDomain";
         private const string SP_GET_USERS_IN_DOMAIN_INCLUDE_DELETED = "Get_UserInDomainInIncludeDeleted";
-        private const string SP_GET_DOMAIN_SETTINGS = "sp_GetDomainSettings";
-        private const string SP_GET_DEVICE_FAMILIES_LIMITS = "sp_GetDeviceFamiliesLimits";
+        private const string SP_GET_DOMAIN_SETTINGS = "sp_GetDomainSettings";        
         private const string SP_GET_DOMAIN_IDS_BY_EMAIL = "sp_GetDomainIDsByEmail";
         private const string SP_GET_DOMAIN_IDS_BY_OPERATOR_COGUID = "sp_GetDomainIDsByOperatorCoGuid";
         private const string SP_GET_DEVICE_DOMAIN_DATA = "Get_DeviceDomainData";
@@ -1312,7 +1311,7 @@ namespace DAL
 
         }
 
-        public static int SetDomainStatus(int nGroupID, int nDomainID, int nIsActive, int nStatus, bool purge)
+        public static int SetDomainStatus(int nGroupID, int nDomainID, int nIsActive, int nStatus)
         {
             int status = (-1);
 
@@ -1323,8 +1322,7 @@ namespace DAL
             spRemoveDomain.AddParameter("@DomainID", nDomainID);
             spRemoveDomain.AddParameter("@GroupID", nGroupID);
             spRemoveDomain.AddParameter("@Status", nStatus);
-            spRemoveDomain.AddParameter("@IsActive", nIsActive);
-            spRemoveDomain.AddParameter("@purge", purge);
+            spRemoveDomain.AddParameter("@IsActive", nIsActive);            
 
             status = spRemoveDomain.ExecuteReturnValue<int>();
 
@@ -1966,7 +1964,7 @@ namespace DAL
             return usersChange;
         }
 
-        public static List<string> SetDevicesDomainStatus(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)
+        public static List<string> SetDevicesDomainStatus(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, DowngradePolicy downgradePolicy, int? status = null)
         {
             List<string> devicesChange = new List<string>();
             StoredProcedure sp = new StoredProcedure("SetDevicesDomainStatus");
@@ -1978,6 +1976,8 @@ namespace DAL
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
             if (status != null)
                 sp.AddParameter("@status", status);
+
+            sp.AddParameter("@downgradePolicy", (int)downgradePolicy);
 
             DataSet ds = sp.ExecuteDataSet();
 
