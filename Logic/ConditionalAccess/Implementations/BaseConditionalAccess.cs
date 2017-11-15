@@ -10787,7 +10787,7 @@ namespace Core.ConditionalAccess
 					}
 					else if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased)
 					{
-						bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
+						bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_relevantSub.m_SubscriptionCode, out bmID);
 						eBM = eBusinessModule.Subscription;
 					}
 					if (!bSuccess)
