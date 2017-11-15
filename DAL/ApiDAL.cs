@@ -280,7 +280,7 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateRole(int groupId, long id, string name, string permissionMap, int isActive = 1 , int status = 1)
+        public static bool UpdateRole(int groupId, long id, string name, string permissionMap, int isActive = 1, int status = 1)
         {
             try
             {
@@ -309,7 +309,7 @@ namespace DAL
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_RolePermission");
                 sp.AddParameter("@roleId", id);
-                sp.AddParameter("@groupId", groupId);                
+                sp.AddParameter("@groupId", groupId);
 
                 int rowCount = sp.ExecuteReturnValue<int>();
                 return rowCount > 0;
@@ -383,7 +383,7 @@ namespace DAL
             return null;
         }
 
-       
+
 
         public static DataTable Get_UserGroupRules(string sSiteGuid)
         {
@@ -1126,7 +1126,7 @@ namespace DAL
                     bool markResult = mediaMarkManager.Remove(documentKey);
                     bool hitResult = mediaHitManager.Remove(documentKey);
                     Thread.Sleep(r.Next(50));
-                
+
                     if (!markResult || !hitResult)
                     {
                         retVal = false;
@@ -1738,14 +1738,14 @@ namespace DAL
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@BillingProcessor", billingProcessor);
             sp.AddParameter("@BillingProvider", billingProvider);
-            sp.AddParameter("@PaymentGatewayId", paymentGatewayId);            
+            sp.AddParameter("@PaymentGatewayId", paymentGatewayId);
             sp.AddParameter("@BillingTransactionStatus", billingTransactionStatus);
             sp.AddParameter("@BillingProviderReference", billingProviderReferance);
             sp.AddParameter("@XmlDoc", xml);
 
             sp.AddParameter("@IsActive", 1);
             sp.AddParameter("@Status", 1);
-            sp.AddParameter("@GroupID", groupId);                        
+            sp.AddParameter("@GroupID", groupId);
             sp.AddParameter("@CurrentDate", DateTime.UtcNow);
             sp.AddParameter("@UpdaterID", DBNull.Value);
 
@@ -1819,7 +1819,7 @@ namespace DAL
 
         private static Dictionary<long, eRuleLevel> CreateUserParentalRules(DataTable dt)
         {
-            Dictionary<long, eRuleLevel> result = new Dictionary<long,eRuleLevel>();
+            Dictionary<long, eRuleLevel> result = new Dictionary<long, eRuleLevel>();
 
             // Validate tables count
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -1844,9 +1844,9 @@ namespace DAL
 
                 if (level != 0)
                 {
-                    eLevel = (eRuleLevel)level; 
+                    eLevel = (eRuleLevel)level;
                     return new KeyValuePair<long, eRuleLevel>(id, eLevel);
-                }               
+                }
             }
             return new KeyValuePair<long, eRuleLevel>();
         }
@@ -2849,7 +2849,7 @@ namespace DAL
                 storedProcedure.AddParameter("@is_active", null);
             }
             storedProcedure.AddIDListParameter("@vod_types", vodTypes, "ID");
-            
+
             DataSet dataSet = storedProcedure.ExecuteDataSet();
             DataTable tasksTable = dataSet.Tables[0];
 
@@ -3181,7 +3181,7 @@ namespace DAL
                     retrievedGroupId = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "GROUP_ID");
 
                     // if the role - permission connection is overridden by another group - get the exclusion status of the connection
-                    isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "IS_EXCLUDED") == 1 ? true : false;                  
+                    isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "IS_EXCLUDED") == 1 ? true : false;
 
                     // build the permission object depending on the type
                     switch (permissionType)
@@ -3255,7 +3255,7 @@ namespace DAL
                     permissionItemType = (ePermissionItemType)ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "TYPE");
                     groupId = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "GROUP_ID");
                     isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "IS_EXCLUDED") == 1 ? true : false;
-                   
+
                     // build the permission item object depending on the type
                     switch (permissionItemType)
                     {
@@ -3372,8 +3372,8 @@ namespace DAL
 
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    response = dt.AsEnumerable().Select(x=>  new KeyValuePair<long, string>(x.Field<long>("Id"), x.Field<string>("name"))).
-                        ToDictionary(y=>y.Key, y=>y.Value);
+                    response = dt.AsEnumerable().Select(x => new KeyValuePair<long, string>(x.Field<long>("Id"), x.Field<string>("name"))).
+                        ToDictionary(y => y.Key, y => y.Value);
                 }
             }
             catch (Exception ex)
@@ -3447,7 +3447,7 @@ namespace DAL
             return rowCount;
         }
 
-        public static int InsertRolePermission(int groupId, string roleName,string permissionMap)
+        public static int InsertRolePermission(int groupId, string roleName, string permissionMap)
         {
             int roleId = 0;
 
@@ -4108,7 +4108,7 @@ namespace DAL
                 log.Error("Error occurred while trying to execute GetCdnRegularGroupId", ex);
             }
 
-            return regularGroupId;        
+            return regularGroupId;
         }
 
         public static List<int> GetEpgChannelIdsWithNoCatchUp(int groupID)
@@ -4206,7 +4206,7 @@ namespace DAL
                         Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "duration"),
                         ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "co_guid"),
                         Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id"),
-                        Type = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"), 
+                        Type = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"),
                         IsTrailer = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false,
                         CdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
                         StreamerType = (StreamerType)ODBCWrapper.Utils.GetIntSafeVal(dr, "streamer_type"),
@@ -4316,7 +4316,7 @@ namespace DAL
             // for alcr_geo_block table
             sp.AddParameter("@GeoBlockRuleId", rule.Actions.GeoBlockRuleToSet);
 
-            return sp.ExecuteReturnValue<long>();            
+            return sp.ExecuteReturnValue<long>();
         }
 
         public static bool InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(AssetLifeCycleRule rule)
@@ -4341,7 +4341,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCountriesLocale");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
-            sp.AddIDListParameter("@CountryIds", countryIds, "id");            
+            sp.AddIDListParameter("@CountryIds", countryIds, "id");
 
             return sp.ExecuteDataSet();
         }
@@ -4351,7 +4351,7 @@ namespace DAL
             bool isLanguageCodesExists = languageCodes != null && languageCodes.Count > 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetLanguages");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);            
+            sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter("@LanguageCodes", isLanguageCodesExists ? languageCodes : null, "STR");
             sp.AddParameter("@IsLanguageCodesExists", isLanguageCodesExists ? 1 : 0);
 
@@ -4383,7 +4383,7 @@ namespace DAL
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetProxyByIp");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@Ip", ip);            
+            sp.AddParameter("@Ip", ip);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
@@ -4416,6 +4416,16 @@ namespace DAL
                 log.Error("", ex);
                 return false;
             }
+        }
+
+        public static int GetGroupDowngradePolicy(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupsDowngradePolicy");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+
+            var downgradePolicyId = sp.ExecuteReturnValue<int>();
+            return downgradePolicyId;
         }
     }
 }
