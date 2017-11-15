@@ -4544,15 +4544,7 @@ namespace Core.Api
 
             return response;
         }
-
-        public static int GetGroupDowngradePolicy(int groupId)
-        {
-            int response = 0;
-            response = ApiDAL.GetGroupDowngradePolicy(groupId);
-
-            return response;
-        }
-
+     
         #region Parental Rules
 
         public static ParentalRulesResponse GetParentalRules(int groupId)
