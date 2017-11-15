@@ -783,7 +783,7 @@ namespace Validator.Managers.Scheme
                 else if (property.PropertyType == typeof(KalturaMultilingualString))
                 {
                     writeProperty(typeName, property, typeof(string));
-                    writeProperty(typeName, property, typeof(KalturaMultilingualString), KalturaMultilingualString.GetMultilingualName(name));
+                    writeProperty(typeName, property, typeof(List<KalturaTranslationToken>), KalturaMultilingualString.GetMultilingualName(name));
                     return;
                 }
                 else
