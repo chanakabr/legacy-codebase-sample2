@@ -7,24 +7,23 @@ using System.Threading.Tasks;
 namespace Core.Catalog.CatalogManagement
 {
     public class CatalogGroupCache
-    {
-
+    {        
         public Dictionary<string, AssetStruct> AssetStructsMapBySystemName { get; set; }
         public Dictionary<long, AssetStruct> AssetStructsMapById { get; set; }
         public Dictionary<string, Topic> TopicsMapBySystemName { get; set; }
         public Dictionary<long, Topic> TopicsMapById { get; set; }
 
         public CatalogGroupCache()
-        {
-            AssetStructsMapBySystemName = new Dictionary<string, AssetStruct>();
+        {            
+            AssetStructsMapBySystemName = new Dictionary<string, AssetStruct>(StringComparer.OrdinalIgnoreCase);
             AssetStructsMapById = new Dictionary<long, AssetStruct>();
-            TopicsMapBySystemName = new Dictionary<string, Topic>();
+            TopicsMapBySystemName = new Dictionary<string, Topic>(StringComparer.OrdinalIgnoreCase);
             TopicsMapById = new Dictionary<long, Topic>();
         }
 
         public CatalogGroupCache(List<AssetStruct> assetStructs, List<Topic> topics)
-        {            
-            AssetStructsMapBySystemName = new Dictionary<string, AssetStruct>();
+        {
+            AssetStructsMapBySystemName = new Dictionary<string, AssetStruct>(StringComparer.OrdinalIgnoreCase);
             AssetStructsMapById = new Dictionary<long, AssetStruct>();
             if (assetStructs != null && assetStructs.Count > 0)
             {
@@ -42,7 +41,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
 
-            TopicsMapBySystemName = new Dictionary<string, Topic>();
+            TopicsMapBySystemName = new Dictionary<string, Topic>(StringComparer.OrdinalIgnoreCase);
             TopicsMapById = new Dictionary<long, Topic>();
             if (topics != null && topics.Count > 0)
             {

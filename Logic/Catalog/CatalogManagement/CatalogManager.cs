@@ -18,7 +18,7 @@ namespace Core.Catalog.CatalogManagement
     public class CatalogManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly List<string> basicMetasSystemNames = new List<string>() { "name", "description", "co_guid", "entry_id", "is_active", "playback_start_date", "playback_end_date", "catalog_start_date", "catalog_end_date" };
+        private static readonly HashSet<string> basicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Title", "SummaryMedium", "ExternalID", "EntryID", "Status", "PlaybackStartDateTime", "PlaybackEndDateTime", "CatalogStratDateTime", "CatalogEndDateTime" };        
 
         #region Private Methods
 
@@ -141,7 +141,7 @@ namespace Core.Catalog.CatalogManagement
             if (catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.Count > 0)
             {
                 basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => basicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
-                if (assetStructToValidate.MetaIds != null && assetStructToValidate.MetaIds.Count >= basicMetasSystemNames.Count)
+                if (assetStructToValidate.MetaIds != null)
                 {
                     List<long> noneExistingBasicMetaIds = basicMetaIds.Except(assetStructToValidate.MetaIds).ToList();
                     if (noneExistingBasicMetaIds == null || noneExistingBasicMetaIds.Count == 0)
@@ -280,10 +280,7 @@ namespace Core.Catalog.CatalogManagement
         {
             Status responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             switch (result)
-            {                
-                case -111:
-                    responseStatus = new Status((int)eResponseStatus.MetaNameAlreadyInUse, eResponseStatus.MetaNameAlreadyInUse.ToString());
-                    break;
+            {
                 case -222:
                     responseStatus = new Status((int)eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
                     break;
@@ -903,6 +900,151 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return res;
+        }
+
+        private static Status ValidateAsset(CatalogGroupCache catalogGroupCache, AssetStruct assetStruct, MediaObj asset)
+        {
+            // TODO - Lior - change error codes and add new ones
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
+            result = ValidateAssetMetasAndTags(catalogGroupCache, asset, assetStructMetaIds);
+            if (result.Code != (int)eResponseStatus.OK)
+            {
+                return result;
+            }
+
+            // Validate meta values are correct
+            foreach (Metas meta in asset.m_lMetas)
+            {
+                MetaType metaType;
+                bool isValidMeta = false;
+                bool isValidMetaValue = false;
+                if (!Enum.TryParse<MetaType>(meta.m_oTagMeta.m_sType, out metaType))
+                {
+                    result = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), meta.m_oTagMeta.m_sName));
+                    return result;
+                }
+
+                switch (metaType)
+                {
+                    case MetaType.String:
+                    case MetaType.MultilingualString:
+                        isValidMeta = true;
+                        isValidMetaValue = true;
+                        break;
+                    case MetaType.Number:
+                        isValidMeta = true;
+                        double doubleVal;
+                        isValidMetaValue = double.TryParse(meta.m_sValue, out doubleVal);
+                        break;
+                    case MetaType.Bool:
+                        isValidMeta = true;
+                        int intVal;
+                        isValidMetaValue = int.TryParse(meta.m_sValue, out intVal);
+                        break;                        
+                    case MetaType.DateTime:
+                        isValidMeta = true;
+                        DateTime dateTimeVal;
+                        isValidMetaValue = DateTime.TryParse(meta.m_sValue, out dateTimeVal);
+                        break;                        
+                    default:
+                    case MetaType.All:
+                    case MetaType.Tag:
+                        break;
+                }
+
+                if (!isValidMeta)
+                {
+                    result = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), meta.m_oTagMeta.m_sName));
+                    return result;
+                }
+
+                if (!isValidMetaValue)
+                {
+                    result = new Status((int)eResponseStatus.InvalidValueSentForMeta, string.Format("{0} metaName: {1}", eResponseStatus.InvalidValueSentForMeta.ToString(), meta.m_oTagMeta.m_sName));
+                    return result;
+                }
+            }
+           
+            return result;
+        }
+
+        private static Status ValidateAssetMetasAndTags(CatalogGroupCache catalogGroupCache, MediaObj asset, HashSet<long> assetStructMetaIds)
+        {
+            // TODO - Lior - change error codes and add new ones
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            HashSet<string> tempHashSet = new HashSet<string>();
+            foreach (Metas meta in asset.m_lMetas)
+            {
+                // validate duplicates do not exist
+                if (tempHashSet.Contains(meta.m_oTagMeta.m_sName))
+                {
+                    result.Message = string.Format("Duplicate meta sent, meta name: {0}", meta.m_oTagMeta.m_sName);
+                    return result;
+                }
+
+                tempHashSet.Add(meta.m_oTagMeta.m_sName);
+
+                // validate meta exists on group
+                if (!catalogGroupCache.TopicsMapBySystemName.ContainsKey(meta.m_oTagMeta.m_sName))
+                {
+                    result.Message = string.Format("meta: {0} does not exist for group", meta.m_oTagMeta.m_sName);
+                    return result;
+                }
+
+                // validate meta exists on asset struct
+                if (!assetStructMetaIds.Contains(catalogGroupCache.TopicsMapBySystemName[meta.m_oTagMeta.m_sName].Id))
+                {
+                    result.Message = string.Format("meta: {0} is not part of assetStruct", meta.m_oTagMeta.m_sName);                    
+                    return result;
+                }
+
+                Topic topic = catalogGroupCache.TopicsMapBySystemName[meta.m_oTagMeta.m_sName];
+                // validate correct type was sent
+                if (topic.Type.ToString().ToLower() != meta.m_oTagMeta.m_sType.ToLower())
+                {
+                    result = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), meta.m_oTagMeta.m_sName));
+                    return result;
+                }
+            }
+
+            tempHashSet.Clear();
+            foreach (Tags tag in asset.m_lTags)
+            {
+                // validate duplicates do not exist
+                if (tempHashSet.Contains(tag.m_oTagMeta.m_sName))
+                {
+                    result.Message = string.Format("Duplicate tag sent, tag name: {0}", tag.m_oTagMeta.m_sName);
+                    return result;
+                }
+
+                tempHashSet.Add(tag.m_oTagMeta.m_sName);
+
+                // validate tag exists on group
+                if (!catalogGroupCache.TopicsMapBySystemName.ContainsKey(tag.m_oTagMeta.m_sName))
+                {
+                    result.Message = string.Format("tag: {0} does not exist for group", tag.m_oTagMeta.m_sName);
+                    return result;
+                }
+
+                // validate tag exists on asset struct
+                if (!assetStructMetaIds.Contains(catalogGroupCache.TopicsMapBySystemName[tag.m_oTagMeta.m_sName].Id))
+                {
+                    result.Message = string.Format("tag: {0} is not part of assetStruct", tag.m_oTagMeta.m_sName);
+                    return result;
+                }
+
+                Topic topic = catalogGroupCache.TopicsMapBySystemName[tag.m_oTagMeta.m_sName];
+                // validate correct type was sent
+                if (topic.Type != MetaType.Tag || topic.Type.ToString().ToLower() != tag.m_oTagMeta.m_sType.ToLower())
+                {
+                    result = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), tag.m_oTagMeta.m_sName));
+                    return result;
+                }
+            }
+
+            result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            return result;
         }
 
         #endregion
@@ -1530,6 +1672,74 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return searchKeys;
+        }
+
+        public static AssetResponse AddAsset(int groupId, MediaObj assetToAdd, long userId)
+        {
+            AssetResponse result = new AssetResponse();
+            try
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddAsset", groupId);
+                    return result;
+                }
+
+                // validate assetStruct Exists
+                AssetStruct assetStruct = null;
+                if (assetToAdd.m_oMediaType.m_nTypeID > 0 && catalogGroupCache.AssetStructsMapById.ContainsKey(assetToAdd.m_oMediaType.m_nTypeID))
+                {
+                    assetStruct = catalogGroupCache.AssetStructsMapById[assetToAdd.m_oMediaType.m_nTypeID];
+                }
+                else if (!string.IsNullOrEmpty(assetToAdd.m_oMediaType.m_sTypeName) && catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(assetToAdd.m_oMediaType.m_sTypeName))
+                {
+                    assetStruct = catalogGroupCache.AssetStructsMapBySystemName[assetToAdd.m_oMediaType.m_sTypeName];
+                }
+                else
+                {                    
+                    result.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                    return result;
+                }
+
+                // validate topics
+                Status validateAssetTopicsResult = ValidateAsset(catalogGroupCache, assetStruct, assetToAdd);
+                if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
+                {
+                    result.Status = validateAssetTopicsResult;
+                    return result;
+                }
+
+                List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
+                if (assetToAdd.Name != null && assetToAdd.Name.Length > 0)
+                {
+                    foreach (LanguageContainer language in assetToAdd.Name)
+                    {
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                List<KeyValuePair<string, string>> languageCodeToDescription = new List<KeyValuePair<string, string>>();
+                if (assetToAdd.Description != null && assetToAdd.Description.Length > 0)
+                {
+                    foreach (LanguageContainer language in assetToAdd.Description)
+                    {
+                        languageCodeToDescription.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                //DataSet ds = CatalogDAL.InsertAsset(groupId, asset.m_sName, languageCodeToName, asset.m_sDescription, languageCodeToDescription, metaIdsToPriority, assetStructToadd.IsPredefined, userId);
+                //result = CreateAssetStructResponseFromDataSet(ds);
+                //InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
+                
+                // ***** Call update index using remote task*******
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddAssetStruct for groupId: {0} and asset: {1}", groupId, assetToAdd.ToString()), ex);
+            }
+
+            return result;
         }
 
         public static bool DoesGroupUsesTemplates(int groupId)
