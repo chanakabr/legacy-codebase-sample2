@@ -2785,7 +2785,10 @@ namespace Core.Users
                                     if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity) // only if there is a gap between current devices to needed quantity
                                     {
                                         int nDeviceToDelete = lDevicesID.Count - item.quantity;
-                                        devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID);
+
+                                        // Get group downgrade policy for desc/Asc
+                                        var downgradePolicy = ApiDAL.GetGroupDowngradePolicy(this.GroupId);
+                                        devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID, (DowngradePolicy)downgradePolicy);
                                         if (devicesChange != null && devicesChange.Count > 0)
                                         {
                                             oChangeDLMObj.devices.AddRange(devicesChange);
@@ -2814,7 +2817,7 @@ namespace Core.Users
                             int nDeviceToDelete = lDevicesID.Count();
                             if (nDeviceToDelete > 0)
                             {
-                                devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID);
+                                devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID, DowngradePolicy.FIFO);
                                 oChangeDLMObj.devices.AddRange(devicesChange);
                             }
                         }

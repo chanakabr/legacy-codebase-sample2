@@ -813,6 +813,11 @@ namespace Core.Api
             return Core.Api.api.GetGroupLanguages(groupId);
         }
 
+        public static int GetGroupDowngradePolicy(int groupId)
+        {
+            return Core.Api.api.GetGroupDowngradePolicy(groupId);
+        }
+
         #region Parental Rules
 
         /// <summary>
