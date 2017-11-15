@@ -9,6 +9,8 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using System.Text;
 using System.Collections.Generic;
+using KLogMonitor;
+using System.Reflection;
 
 namespace TVinciShared
 {
@@ -3587,6 +3589,7 @@ namespace TVinciShared
 
     public class DataRecordDateTimeField : BaseDataRecordField
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected bool m_bEnabled;
         protected string m_filedPrivateName;
         protected string m_timeZone;
@@ -3675,6 +3678,7 @@ namespace TVinciShared
 
         public override string GetFieldHtml(long nID)
         {
+            log.DebugFormat("GetFieldHtml nid:{0}", nID);
             string sStartDate = "";
             string sStartTime = "";
             string sStartDay = "";
@@ -3684,10 +3688,13 @@ namespace TVinciShared
             string sStartMin = "";
             if (m_sStartValue == "")
                 m_sStartValue = m_sDefaultVal;
+
+           
             if (m_sStartValue != "")
             {
+                m_sStartValue = m_sStartValue.Replace(".", "/");
                 if (!string.IsNullOrEmpty(m_timeZone))
-                {                    
+                {                   
                     DateTime dateTime = ODBCWrapper.Utils.GetDateSafeVal(m_sStartValue, "dd/MM/yyyy H:mm");
                     dateTime = ODBCWrapper.Utils.ConvertFromUtc(dateTime, m_timeZone);
                     m_sStartValue = dateTime.ToString("dd/MM/yyyy HH:mm");                    
@@ -4050,32 +4057,44 @@ namespace TVinciShared
             return sTable;
         }
 
-
+       
         public string GetTableHTMLInnerCB(Int32 nStart, Int32 nEnd, object epg, ref Int32 nRows)
         {
-            if (nStart < 0)
-                nStart = 0;
-            if (nEnd <= 0)
-                nEnd = m_Records.Count;
             StringBuilder sTable = new StringBuilder();
-            sTable.Append("<tr><td width=100% nowrap><table width=100%>");
-            Int32 nC = nStart;
-            for (int i = nStart; i < nEnd; i++)
+            try
             {
-                nRows++;
-                Int32 nToAdd = 1;
-                if (m_Records[i.ToString()].GetType() == typeof(DataRecordOnePicBrowserField))
-                {
-                    sTable.Append(((DataRecordOnePicBrowserField)(m_Records[i.ToString()])).GetFieldHtmlCB(nC));
+
+                if (nStart < 0)
+                    nStart = 0;
+                if (nEnd <= 0)
+                    nEnd = m_Records.Count;
+                             
+
+                sTable.Append("<tr><td width=100% nowrap><table width=100%>");
+                Int32 nC = nStart;
+                
+                for (int i = nStart; i < nEnd; i++)
+                {                    
+                    nRows++;
+                    Int32 nToAdd = 1;                   
+
+                    if (m_Records[i.ToString()].GetType() == typeof(DataRecordOnePicBrowserField))
+                    {                        
+                        sTable.Append(((DataRecordOnePicBrowserField)(m_Records[i.ToString()])).GetFieldHtmlCB(nC));
+                    }
+                    else
+                    {
+                        sTable.Append(((BaseDataRecordField)(m_Records[i.ToString()])).GetFieldHtml(nC, ref nToAdd));
+                    }                    
+                    sTable.Append("<tr><td width=100% nowrap class=horizon_line_space colspan=3></td></tr>");
+                    nC += nToAdd;
                 }
-                else
-                {
-                    sTable.Append(((BaseDataRecordField)(m_Records[i.ToString()])).GetFieldHtml(nC, ref nToAdd));
-                }
-                sTable.Append("<tr><td width=100% nowrap class=horizon_line_space colspan=3></td></tr>");
-                nC += nToAdd;
+                sTable.Append("</table></td></tr>");
             }
-            sTable.Append("</table></td></tr>");
+            catch (Exception ex)
+            {
+               
+            }
             return sTable.ToString();
         }
     }
