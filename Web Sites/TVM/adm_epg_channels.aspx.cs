@@ -66,7 +66,7 @@ public partial class adm_epg_channels : System.Web.UI.Page
         theTable += "where c.status<>2 and lcs.id=c.status ";
         if (Session["search_free"] != null && Session["search_free"].ToString() != "")
         {
-            string sLike = "like('%" + Session["search_free"].ToString().Replace("'", "''") + "%')";
+            string sLike = "like(N'%" + Session["search_free"].ToString().Replace("'", "''") + "%')";
             theTable += " and ( c.NAME " + sLike + " OR c.DESCRIPTION " + sLike + ")";
         }
         theTable += "and ";
