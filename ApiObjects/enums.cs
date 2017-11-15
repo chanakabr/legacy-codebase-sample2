@@ -954,7 +954,7 @@ namespace ApiObjects
 
     public enum DowngradePolicy
     {
-        FIFO = 0,
-        LIFO = 1
+        LIFO = 0,
+        FIFO = 1
     }
 }
