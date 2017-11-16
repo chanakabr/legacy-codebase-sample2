@@ -134,6 +134,17 @@ namespace WebAPI.Managers
                 {
                     roleIds.AddRange(userRoleIds);
                 }
+
+                // if the ks was originally of operator - get he's roles too
+                if (!string.IsNullOrEmpty(ks.OriginalUserId))
+                {
+                    userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.OriginalUserId);
+                    if (userRoleIds != null && userRoleIds.Count > 0)
+                    {
+                        roleIds.AddRange(userRoleIds);
+                    }
+                }
+
             }
             return roleIds;
         }
@@ -175,6 +186,7 @@ namespace WebAPI.Managers
                     (allowedUsersGroup.Contains(RolesManager.PARTNER_WILDCARD) && AuthorizationManager.IsUserInGroup(userId, ks.GroupId)) ||
                     (allowedUsersGroup.Contains(RolesManager.HOUSEHOLD_WILDCARD) && AuthorizationManager.IsUserInHousehold(userId, ks.GroupId))))
                 {
+                    ks.OriginalUserId = ks.UserId;
                     ks.UserId = userId;
                     KS.SaveOnRequest(ks);
                 }
