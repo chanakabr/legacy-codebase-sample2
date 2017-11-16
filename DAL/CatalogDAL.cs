@@ -4840,6 +4840,36 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
+        public static DataSet InsertMediaAsset(int groupId, string name, string description, List<KeyValuePair<long, KeyValuePair<int, string>>> topicIdToMetaLanguageAndValue,
+                                                List<KeyValuePair<long, KeyValuePair<int, string>>> topicIdToTagLanguageAndValue, string coGuid, string entryId, int deviceRuleId, int geoblockRuleId, bool isActive,
+                                                DateTime startDate, DateTime endDate, DateTime catalogStartDate, DateTime finalEndDate, DateTime? lastWatchDate, DateTime publishDate, long assetStructId, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaAsset");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Name", name);
+            sp.AddParameter("@Description", description);
+            sp.AddParameter("@TopicIdToMetaLanguagExist", topicIdToMetaLanguageAndValue != null && topicIdToMetaLanguageAndValue.Count > 0);
+            //sp.AddKeyValueListParameter<string, string>("@TopicIdToMetaLanguageAndValue", topicIdToMetaLanguageAndValue, "key", "value");
+            sp.AddParameter("@TopicIdToTagLanguagExist", topicIdToTagLanguageAndValue != null && topicIdToTagLanguageAndValue.Count > 0);
+            //sp.AddKeyValueListParameter<string, string>("@TopicIdToTagLanguageAndValue", descriptionInOtherLanguages, "key", "value");
+            sp.AddParameter("@EntryId", entryId);
+            sp.AddParameter("@CoGuid", coGuid);
+            sp.AddParameter("@DeviceRuleId", deviceRuleId);
+            sp.AddParameter("@GeoblockRuleId", geoblockRuleId);
+            sp.AddParameter("@IsActive", isActive ? 1 : 0);
+            sp.AddParameter("@GeoblockRuleId", geoblockRuleId);
+            sp.AddParameter("@StartDate", startDate);
+            sp.AddParameter("@EndDate", endDate);
+            sp.AddParameter("@CatalogStartDate", catalogStartDate);
+            sp.AddParameter("@FinalEndDate", finalEndDate);
+            sp.AddParameter("@LastWatchDate", lastWatchDate);
+            sp.AddParameter("@PublishDate", publishDate);
+            sp.AddParameter("@UpdaterId", userId);
+
+            return sp.ExecuteDataSet();
+        }
+
         #endregion
 
     }

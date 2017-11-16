@@ -252,6 +252,16 @@ namespace CachingProvider.LayeredCache
             return string.Format("CatalogGroupCache_groupId_{0}", groupId);
         }
 
+        public static string GetGroupDeviceRulesKey(int groupId)
+        {
+            return string.Format("GroupDeviceRules_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupGeoBlockRulesKey(int groupId)
+        {
+            return string.Format("GroupGeoBlockRules_groupId_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -409,7 +419,17 @@ namespace CachingProvider.LayeredCache
         public static string GetCatalogGroupCacheInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyCatalogGroupCache_groupId_{0}", groupId);
-        }        
+        }
+
+        public static string GetGroupDeviceRulesInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyGroupDeviceRules_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupGeoBlockRulesInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyGroupGeoBlockRules_groupId_{0}", groupId);
+        }
 
         #endregion
 
