@@ -154,10 +154,22 @@ public partial class adm_media_concurrency_business_modules : System.Web.UI.Page
         return nRet;
     }
 
-    //PPV
+    //PPV + Subscription 
     public string changeItemStatus(string sID, string sAction)
     {
-        if (Session["rule_id"] == null || Session["rule_id"].ToString() == "" || Session["rule_id"].ToString() == "0")
+        switch (sAction)
+        {
+            case "DualListS":
+                return changeItemStatusSubscription(sID, sAction);                
+            case "DualListPH":
+                return changeItemStatusPPV(sID, sAction);                
+        }
+        return "";
+    }
+
+    public string changeItemStatusPPV(string sID, string sAction)
+    { 
+            if (Session["rule_id"] == null || Session["rule_id"].ToString() == "" || Session["rule_id"].ToString() == "0")
         {
             LoginManager.LogoutFromSite("index.html");
             return "";
@@ -315,7 +327,7 @@ public partial class adm_media_concurrency_business_modules : System.Web.UI.Page
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("pricing_connection");
             selectQuery += "select s.ID, s.NAME , mc.RULE_ID from Pricing.dbo.subscriptions s ";
-            selectQuery += " left join   Tvinci.dbo.media_concurrency_bm mc on  mc.status=1 and mc.BM_ID = s.ID  and mc.type = 1 and ";
+            selectQuery += " left join   Tvinci.dbo.media_concurrency_bm mc on  mc.status=1 and mc.BM_ID = s.ID  and mc.type = 2 and ";
             selectQuery +=  ODBCWrapper.Parameter.NEW_PARAM("mc.RULE_ID", "=", ruleId);
             selectQuery +=  " where s.status =1 and  s.is_active = 1 and s.START_DATE <= getdate()  and s.END_DATE >= GETDATE() and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("s.group_id", "=", nSubscriptionGroupID);
