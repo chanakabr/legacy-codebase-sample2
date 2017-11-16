@@ -1964,7 +1964,7 @@ namespace DAL
             return usersChange;
         }
 
-        public static List<string> SetDevicesDomainStatus(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, DowngradePolicy downgradePolicy, int? status = null)
+        public static List<string> SetDevicesDomainStatus(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)
         {
             List<string> devicesChange = new List<string>();
             StoredProcedure sp = new StoredProcedure("SetDevicesDomainStatus");
@@ -1977,8 +1977,6 @@ namespace DAL
             if (status != null)
                 sp.AddParameter("@status", status);
 
-            sp.AddParameter("@downgradePolicy", (int)downgradePolicy);
-
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null)
@@ -1990,6 +1988,30 @@ namespace DAL
             }
             return devicesChange;
         }
+
+        
+        public static List<string> GetDevicesDomainByDowngradePolicy(int nDeviceToDelete, int domainId, List<int> devicesId, DowngradePolicy downgradePolicy)
+        {
+            List<string> devicesToBeModified = new List<string>();
+            StoredProcedure sp = new StoredProcedure("Get_DevicesDomainByDowngradePolicy");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@top", nDeviceToDelete);
+            sp.AddParameter("@domainId", domainId);
+            sp.AddIDListParameter<int>("@devicesId", devicesId, "Id");            
+            sp.AddParameter("@downgradePolicy", (int)downgradePolicy);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    devicesToBeModified.Add(ODBCWrapper.Utils.GetSafeStr(dr, "device_id"));
+                }
+            }
+            return devicesToBeModified;
+        }
+
 
         public static List<string> SetDevicesDomainStatusNotInList(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)
         {
