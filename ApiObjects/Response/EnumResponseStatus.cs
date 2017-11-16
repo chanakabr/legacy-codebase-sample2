@@ -214,6 +214,8 @@ namespace ApiObjects.Response
         AssetExternalIdMustBeUnique = 4038,
         InvalidMetaType = 4039,
         InvalidValueSentForMeta = 4040,
+        DeviceRuleDoesNotExistForGroup = 4041,
+        GeoBlockRuleDoesNotExistForGroup = 4042,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

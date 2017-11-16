@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using CachingProvider;
+using CachingProvider.LayeredCache;
 using DAL;
 using KLogMonitor;
 using System;
@@ -535,6 +536,46 @@ namespace Core.Catalog.Cache
                 log.ErrorFormat("Error while getting group device rules. GID {0}, ex: {1}", groupID, ex);
             }
             return deviceRules;
+        }
+
+        internal Dictionary<string, int> GetGroupGeoBlockRulesFromLayeredCache(int groupId)
+        {
+            Dictionary<string, int> result = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetGroupGeoBlockRulesKey(groupId);
+                if (!LayeredCache.Instance.Get<Dictionary<string, int>>(key, ref result, Utils.GetGroupGeoblockRules, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                            LayeredCacheConfigNames.GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupGeoBlockRulesInvalidationKey(groupId) }))
+                {
+                    log.ErrorFormat("Failed getting GetGroupGeoBlockRules from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupGeoBlockRulesFromLayeredCache for groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        internal Dictionary<string, int> GetGroupDeviceRulesFromLayeredCache(int groupId)
+        {
+            Dictionary<string, int> result = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetGroupDeviceRulesKey(groupId);
+                if (!LayeredCache.Instance.Get<Dictionary<string, int>>(key, ref result, Utils.GetGroupDeviceRules, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                            LayeredCacheConfigNames.GET_GROUP_DEVICE_RULES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupDeviceRulesInvalidationKey(groupId) }))
+                {
+                    log.ErrorFormat("Failed getting GroupDeviceRules from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupDeviceRulesFromLayeredCache for groupId: {0}", groupId), ex);
+            }
+
+            return result;
         }
 
         internal Dictionary<int, string> GetMediaQualities()

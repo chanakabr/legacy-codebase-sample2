@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using Core.Catalog.Cache;
 using Core.Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
@@ -17,8 +18,26 @@ namespace Core.Catalog.CatalogManagement
 {
     public class CatalogManager
     {
+
+        #region Constants and Readonly
+
+        private const string NAME_META_SYSTEM_NAME = "Title";
+        private const string DESCRIPTION_META_SYSTEM_NAME = "SummaryMedium";
+        private const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
+        private const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
+        private const string STATUS_META_SYSTEM_NAME = "Status";
+        private const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
+        private const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
+        private const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStratDateTime";
+        private const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly HashSet<string> basicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Title", "SummaryMedium", "ExternalID", "EntryID", "Status", "PlaybackStartDateTime", "PlaybackEndDateTime", "CatalogStratDateTime", "CatalogEndDateTime" };        
+        private static readonly HashSet<string> basicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, "ExternalID", "EntryID", "Status", "PlaybackStartDateTime", "PlaybackEndDateTime", "CatalogStratDateTime", "CatalogEndDateTime"
+        };        
+
+        #endregion
 
         #region Private Methods
 
@@ -33,6 +52,13 @@ namespace Core.Catalog.CatalogManagement
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue && groupId.Value > 0)
                     {
+                        List<LanguageObj> languages = CatalogDAL.GetGroupLanguages(groupId.Value);
+                        // return false if no languages were found or not only 1 default language found
+                        if (languages == null || languages.Count == 0 || languages.Where(x => x.IsDefault).Count() != 1)
+                        {
+                            return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, false);
+                        }
+
                         DataSet topicsDs = CatalogDAL.GetTopicsByGroupId(groupId.Value);
                         List<Topic> topics = CreateTopicListFromDataSet(topicsDs);
                         // return false if no topics are found on group
@@ -49,7 +75,7 @@ namespace Core.Catalog.CatalogManagement
                             return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, false);
                         }
 
-                        catalogGroupCache = new CatalogGroupCache(assetStructs, topics);
+                        catalogGroupCache = new CatalogGroupCache(languages, assetStructs, topics);
                         res = true;
                     }                    
                 }
@@ -902,74 +928,53 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static Status ValidateAsset(CatalogGroupCache catalogGroupCache, AssetStruct assetStruct, MediaObj asset)
+        private static Status ValidateAsset(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaObj asset, ref List<KeyValuePair<long, KeyValuePair<int, string>>> topicIdToMetaLanguageAndValue,
+                                            ref List<KeyValuePair<long, KeyValuePair<int, string>>> topicIdToTagLanguageAndValue, ref int deviceRuleId, ref int geoBlockRuleId)
         {
             // TODO - Lior - change error codes and add new ones
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
-            result = ValidateAssetMetasAndTags(catalogGroupCache, asset, assetStructMetaIds);
+            result = ValidateAssetMetasAndTagsNamesAndTypes(catalogGroupCache, ref asset, assetStructMetaIds, ref topicIdToMetaLanguageAndValue, ref topicIdToTagLanguageAndValue);
             if (result.Code != (int)eResponseStatus.OK)
             {
                 return result;
             }
 
-            // Validate meta values are correct
-            foreach (Metas meta in asset.m_lMetas)
+            // validate device rule 
+            // TODO - Lior save all device rules in cache - table name = device_rules
+            // need to return the ID to insert into the DB
+            if (!string.IsNullOrEmpty(asset.DeviceRule))
             {
-                MetaType metaType;
-                bool isValidMeta = false;
-                bool isValidMetaValue = false;
-                if (!Enum.TryParse<MetaType>(meta.m_oTagMeta.m_sType, out metaType))
+                Dictionary<string, int> deviceRules = CatalogCache.Instance().GetGroupDeviceRulesFromLayeredCache(groupId);
+                if (deviceRules == null || deviceRules.Count == 0 || !deviceRules.ContainsKey(asset.DeviceRule))
                 {
-                    result = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), meta.m_oTagMeta.m_sName));
+                    result = new Status((int)eResponseStatus.DeviceRuleDoesNotExistForGroup, eResponseStatus.DeviceRuleDoesNotExistForGroup.ToString());
                     return result;
                 }
 
-                switch (metaType)
-                {
-                    case MetaType.String:
-                    case MetaType.MultilingualString:
-                        isValidMeta = true;
-                        isValidMetaValue = true;
-                        break;
-                    case MetaType.Number:
-                        isValidMeta = true;
-                        double doubleVal;
-                        isValidMetaValue = double.TryParse(meta.m_sValue, out doubleVal);
-                        break;
-                    case MetaType.Bool:
-                        isValidMeta = true;
-                        int intVal;
-                        isValidMetaValue = int.TryParse(meta.m_sValue, out intVal);
-                        break;                        
-                    case MetaType.DateTime:
-                        isValidMeta = true;
-                        DateTime dateTimeVal;
-                        isValidMetaValue = DateTime.TryParse(meta.m_sValue, out dateTimeVal);
-                        break;                        
-                    default:
-                    case MetaType.All:
-                    case MetaType.Tag:
-                        break;
-                }
-
-                if (!isValidMeta)
-                {
-                    result = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), meta.m_oTagMeta.m_sName));
-                    return result;
-                }
-
-                if (!isValidMetaValue)
-                {
-                    result = new Status((int)eResponseStatus.InvalidValueSentForMeta, string.Format("{0} metaName: {1}", eResponseStatus.InvalidValueSentForMeta.ToString(), meta.m_oTagMeta.m_sName));
-                    return result;
-                }
+                deviceRuleId = deviceRules[asset.DeviceRule];
             }
-           
+
+            // validate geoblock rule 
+            // TODO - Lior save all geoblock rules in cache - table name = geo_block_types
+            // need to return the ID to insert into the DB
+            if (!string.IsNullOrEmpty(asset.GeoblockRule))
+            {
+                Dictionary<string, int> geoBlockRules = CatalogCache.Instance().GetGroupGeoBlockRulesFromLayeredCache(groupId);
+                if (geoBlockRules == null || geoBlockRules.Count == 0 || !geoBlockRules.ContainsKey(asset.GeoblockRule))
+                {
+                    result = new Status((int)eResponseStatus.GeoBlockRuleDoesNotExistForGroup, eResponseStatus.GeoBlockRuleDoesNotExistForGroup.ToString());
+                    return result;
+                }
+
+                deviceRuleId = geoBlockRules[asset.GeoblockRule];
+            }
+
             return result;
         }
 
-        private static Status ValidateAssetMetasAndTags(CatalogGroupCache catalogGroupCache, MediaObj asset, HashSet<long> assetStructMetaIds)
+        private static Status ValidateAssetMetasAndTagsNamesAndTypes(CatalogGroupCache catalogGroupCache, ref MediaObj asset, HashSet<long> assetStructMetaIds, ref List<KeyValuePair<long, KeyValuePair<int, string>>> topicIdToMetaLanguageAndValue,
+                                                                    ref List<KeyValuePair<long, KeyValuePair<int, string>>> topicIdToTagLanguageAndValue)
         {
             // TODO - Lior - change error codes and add new ones
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1006,6 +1011,12 @@ namespace Core.Catalog.CatalogManagement
                     result = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), meta.m_oTagMeta.m_sName));
                     return result;
                 }
+
+                // Validate meta values are correct and add to to topicIdToMetaLanguageAndValue
+                if (!IsMetaValueValid(ref asset, meta, topic.Id, catalogGroupCache.DefaultLanguage.ID, catalogGroupCache.LanguageMapByCode, ref result, ref topicIdToMetaLanguageAndValue))
+                {
+                    return result;
+                }   
             }
 
             tempHashSet.Clear();
@@ -1041,11 +1052,152 @@ namespace Core.Catalog.CatalogManagement
                     result = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), tag.m_oTagMeta.m_sName));
                     return result;
                 }
+
+                // insert into topicIdToTagLanguageAndValue default language values
+                foreach (string tagValue in tag.m_lValues)
+                {
+                    topicIdToTagLanguageAndValue.Add(new KeyValuePair<long, KeyValuePair<int, string>>(topic.Id, new KeyValuePair<int, string>(catalogGroupCache.DefaultLanguage.ID, tagValue)));
+                }
+
+                // insert into topicIdToTagLanguageAndValue other language values
+                foreach (LanguageContainer[] languageArray in tag.Values)
+                {
+                    foreach (LanguageContainer language in languageArray)
+                    {
+                        if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
+                        {
+                            topicIdToMetaLanguageAndValue.Add(new KeyValuePair<long, KeyValuePair<int, string>>(topic.Id,
+                                                                                        new KeyValuePair<int, string>(catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value)));
+                        }
+                    }
+                }
             }
 
             result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             return result;
         }
+
+        private static bool IsMetaValueValid(ref MediaObj asset, Metas meta, long topicId, int defaultLanguageId, Dictionary<string, LanguageObj> LanguageMapByCode, ref Status resultStatus,
+                                                ref List<KeyValuePair<long, KeyValuePair<int, string>>> topicIdToMetaLanguageAndValue)
+        {            
+            // Validate meta values are correct
+            MetaType metaType;
+            bool isValidMeta = false;
+            bool isValidMetaValue = false;
+            bool isMultilingualStringValue = false;
+            if (!Enum.TryParse<MetaType>(meta.m_oTagMeta.m_sType, out metaType))
+            {
+                resultStatus = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), meta.m_oTagMeta.m_sName));
+                return false;
+            }
+
+            switch (metaType)
+            {
+                case MetaType.String:
+                    isValidMeta = true;
+                    isValidMetaValue = true;
+                    break;
+                case MetaType.MultilingualString:
+                    isValidMeta = true;
+                    isValidMetaValue = true;
+                    isMultilingualStringValue = true;
+                    break;
+                case MetaType.Number:
+                    isValidMeta = true;
+                    double doubleVal;
+                    isValidMetaValue = double.TryParse(meta.m_sValue, out doubleVal);
+                    break;
+                case MetaType.Bool:
+                    isValidMeta = true;
+                    int intVal;
+                    isValidMetaValue = int.TryParse(meta.m_sValue, out intVal);                    
+                    break;
+                case MetaType.DateTime:
+                    isValidMeta = true;
+                    DateTime dateTimeVal;
+                    isValidMetaValue = DateTime.TryParse(meta.m_sValue, out dateTimeVal);
+                    break;
+                default:
+                case MetaType.All:
+                case MetaType.Tag:
+                    break;
+            }
+
+            if (!isValidMeta)
+            {
+                resultStatus = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), meta.m_oTagMeta.m_sName));
+                return false;
+            }
+
+            if (!isValidMetaValue)
+            {
+                resultStatus = new Status((int)eResponseStatus.InvalidValueSentForMeta, string.Format("{0} metaName: {1}", eResponseStatus.InvalidValueSentForMeta.ToString(), meta.m_oTagMeta.m_sName));
+                return false;
+            }
+
+            if (basicMetasSystemNames.Contains(meta.m_oTagMeta.m_sName))
+            {
+                switch (meta.m_oTagMeta.m_sName)
+                {
+                    case ENTRY_ID_META_SYSTEM_NAME:
+                        asset.EntryId = meta.m_sValue;
+                        break;
+                    case STATUS_META_SYSTEM_NAME:
+                        bool isActive;
+                        if (bool.TryParse(meta.m_sValue, out isActive))
+                        {
+                            asset.IsActive = isActive;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("IsMetaValueValid failed to parse {0} meta, value: {1}", STATUS_META_SYSTEM_NAME, meta.m_sValue);
+                        }               
+                        break;
+                    case CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
+                        DateTime catalogStartDate;
+                        if (DateTime.TryParse(meta.m_sValue, out catalogStartDate))
+                        {
+                            asset.m_dCatalogStartDate = catalogStartDate;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("IsMetaValueValid failed to parse {0} meta, value: {1}", CATALOG_START_DATE_TIME_META_SYSTEM_NAME, meta.m_sValue);
+                        }
+                        break;
+                    case CATALOG_END_DATE_TIME_META_SYSTEM_NAME:
+                        DateTime catalogEndDate;
+                        if (DateTime.TryParse(meta.m_sValue, out catalogEndDate))
+                        {
+                            asset.m_dFinalDate = catalogEndDate;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("IsMetaValueValid failed to parse {0} meta, value: {1}", CATALOG_END_DATE_TIME_META_SYSTEM_NAME, meta.m_sValue);
+                        }
+                        break;
+                    default:
+                        log.WarnFormat("IsMetaValueValid found basic meta that isn't on switch case, meta name: {0}", meta.m_oTagMeta.m_sName);
+                        break;
+                }
+            }
+            else
+            {
+                topicIdToMetaLanguageAndValue.Add(new KeyValuePair<long, KeyValuePair<int, string>>(topicId, new KeyValuePair<int, string>(defaultLanguageId, meta.m_sValue)));
+            }
+
+            if (isMultilingualStringValue)
+            {
+                foreach (LanguageContainer language in meta.Value)
+                {
+                    if (LanguageMapByCode.ContainsKey(language.LanguageCode))
+                    {
+                        topicIdToMetaLanguageAndValue.Add(new KeyValuePair<long, KeyValuePair<int, string>>(topicId, new KeyValuePair<int, string>(LanguageMapByCode[language.LanguageCode].ID, language.Value)));
+                    }
+                }
+            }
+
+            return true;
+        }        
 
         #endregion
 
@@ -1702,35 +1854,51 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                // validate topics
-                Status validateAssetTopicsResult = ValidateAsset(catalogGroupCache, assetStruct, assetToAdd);
+                // validate asset
+                List<KeyValuePair<long, KeyValuePair<int, string>>> topicIdToMetaLanguageAndValue = new List<KeyValuePair<long, KeyValuePair<int, string>>>();
+                List<KeyValuePair<long, KeyValuePair<int, string>>> topicIdToTagLanguageAndValue = new List<KeyValuePair<long, KeyValuePair<int, string>>>();
+                int deviceRuleId = 0,  geoBlockRuleId = 0;
+                Status validateAssetTopicsResult = ValidateAsset(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref topicIdToMetaLanguageAndValue, ref topicIdToTagLanguageAndValue,
+                                                                    ref deviceRuleId, ref geoBlockRuleId);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
                     result.Status = validateAssetTopicsResult;
                     return result;
                 }
-
-                List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
-                if (assetToAdd.Name != null && assetToAdd.Name.Length > 0)
+                
+                // Add Name meta values (for languages that are not default)
+                if (assetToAdd.Name != null && assetToAdd.Name.Length > 0 && catalogGroupCache.TopicsMapBySystemName.ContainsKey(NAME_META_SYSTEM_NAME))
                 {
+                    Topic topic = catalogGroupCache.TopicsMapBySystemName[NAME_META_SYSTEM_NAME];
                     foreach (LanguageContainer language in assetToAdd.Name)
                     {
-                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
+                        {
+                            topicIdToMetaLanguageAndValue.Add(new KeyValuePair<long, KeyValuePair<int, string>>(topic.Id,
+                                                                    new KeyValuePair<int, string>(catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value)));
+                        }
                     }
                 }
 
-                List<KeyValuePair<string, string>> languageCodeToDescription = new List<KeyValuePair<string, string>>();
-                if (assetToAdd.Description != null && assetToAdd.Description.Length > 0)
+                // Add Description meta values (for languages that are not default)
+                if (assetToAdd.Description != null && assetToAdd.Description.Length > 0 && catalogGroupCache.TopicsMapBySystemName.ContainsKey(DESCRIPTION_META_SYSTEM_NAME))
                 {
+                    Topic topic = catalogGroupCache.TopicsMapBySystemName[DESCRIPTION_META_SYSTEM_NAME];
                     foreach (LanguageContainer language in assetToAdd.Description)
                     {
-                        languageCodeToDescription.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
+                        {
+                            topicIdToMetaLanguageAndValue.Add(new KeyValuePair<long, KeyValuePair<int, string>>(topic.Id,
+                                                                    new KeyValuePair<int, string>(catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value)));
+                        }
                     }
                 }
 
-                //DataSet ds = CatalogDAL.InsertAsset(groupId, asset.m_sName, languageCodeToName, asset.m_sDescription, languageCodeToDescription, metaIdsToPriority, assetStructToadd.IsPredefined, userId);
-                //result = CreateAssetStructResponseFromDataSet(ds);
-                //InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
+                // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
+                DataSet ds = CatalogDAL.InsertMediaAsset(groupId, assetToAdd.m_sName, assetToAdd.m_sDescription, topicIdToMetaLanguageAndValue, topicIdToTagLanguageAndValue, assetToAdd.CoGuid, assetToAdd.EntryId,
+                                                        deviceRuleId, geoBlockRuleId, assetToAdd.IsActive, assetToAdd.m_dStartDate, assetToAdd.m_dEndDate, assetToAdd.m_dCatalogStartDate, assetToAdd.m_dFinalDate,
+                                                        assetToAdd.m_dLastWatchedDate, assetToAdd.m_dPublishDate, assetStruct.Id, userId);
+                //result = CreateAssetStructResponseFromDataSet(ds);                
                 
                 // ***** Call update index using remote task*******
             }
