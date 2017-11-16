@@ -4266,6 +4266,10 @@ namespace Core.Catalog
                         mediaConcurrencyRuleIds = mediaConcurrencyRules.Select(rule => rule.RuleID).Distinct().ToList();
                     }
                 }
+                else
+                {
+                    mediaConcurrencyRuleIds.Add(mediaConcurrencyRuleID);
+                }
             }
 
             if (mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0)
