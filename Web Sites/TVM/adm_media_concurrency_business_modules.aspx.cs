@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -219,94 +220,51 @@ public partial class adm_media_concurrency_business_modules : System.Web.UI.Page
         return "";
     }
 
-    protected bool IsModuleBelongToRule(Int32 nRuleID, Int32 bmID, int nType)
-    {
-        bool bRet = false;
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select RULE_ID from media_concurrency_bm where status=1 and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("BM_ID", "=", bmID);
-        selectQuery += " and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("RULE_ID", "=", nRuleID);
-        selectQuery += " and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("type", "=", nType);
-
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            if (nCount > 0)
-                bRet = true;
-        }
-        selectQuery.Finish();
-        selectQuery = null;
-        return bRet;
-    }
-
-    public void GetRuleID()
+     public void GetRuleID()
     {
         Response.Write(Session["rule_id"].ToString());
     }
     
-    //PPV
+    //PPV + Subscriptions
     public string initDualObj()
     {
-        if (Session["rule_id"] == null || Session["rule_id"].ToString() == "" || Session["rule_id"].ToString() == "0")
-        {
-            LoginManager.LogoutFromSite("index.html");
-            return "";
-        }
+        Dictionary<string, object> dualLists = new Dictionary<string, object>();
 
-        Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("media_concurrency_rules", "group_id", int.Parse(Session["rule_id"].ToString())).ToString());
-        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-        if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
-        {
-            LoginManager.LogoutFromSite("login.html");
-            return "";
-        }
+        Dictionary<string, object> ppvModule = new Dictionary<string, object>();
+        Dictionary<string, object> subscriptionModule = new Dictionary<string, object>();
 
-        string sRet = "";
-        sRet += "Current PPV Module";
-        sRet += "~~|~~";
-        sRet += "Available PPV Module";
-        sRet += "~~|~~";
+        ppvModule.Add("name", "DualListPH");
+        ppvModule.Add("FirstListTitle", "Current PPV Module");
+        ppvModule.Add("SecondListTitle", "Available PPV Module");
+        ppvModule.Add("pageName", "adm_media_concurrency_business_modules.aspx");        
+        object[] ppvModuleData = null;
+        
+        initppvModule(ref ppvModuleData);
+        ppvModule.Add("Data", ppvModuleData);
 
-        string sIP = "1.1.1.1";
-        Int32 nPPVModuleGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", nLogedInGroupID).ToString());
-        if (nPPVModuleGroupID == 0)
-            nPPVModuleGroupID = nLogedInGroupID;
+        subscriptionModule.Add("name", "DualListS");
+        subscriptionModule.Add("FirstListTitle", "Current Subscription Module");
+        subscriptionModule.Add("SecondListTitle", "Available Subscription Module");
+        subscriptionModule.Add("pageName", "adm_media_concurrency_business_modules.aspx");
+        object[] subscriptionData = null;
+        initSubscriptionModule(ref subscriptionData);
+        subscriptionModule.Add("Data", subscriptionData);
 
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery.SetConnectionKey("pricing_connection");
-        selectQuery += "select ID, NAME from ppv_modules where status=1 and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nPPVModuleGroupID);
-        selectQuery += "order by name";
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            sRet += "<root>";
-            for (int i = 0; i < nCount; i++)
-            {
-                string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();                               
-                string sTitle = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
-                if (IsModuleBelongToRule(int.Parse(Session["rule_id"].ToString()), int.Parse(sID), 1) == true)
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle +  "\" inList=\"true\" />";
-                else
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" inList=\"false\" />";
-            }
-            sRet += "</root>";
-        }
-        selectQuery.Finish();
-        selectQuery = null;
+        dualLists.Add("0", ppvModule);
+        dualLists.Add("1", subscriptionModule);
 
-        return sRet;
+        dualLists.Add("size", dualLists.Count);
+
+
+        return dualLists.ToJSON();        
     }
 
-    //Subscription
-    public string initDualObjSubscription()
+    private void initSubscriptionModule(ref object[] resultData)
     {
         if (Session["rule_id"] == null || Session["rule_id"].ToString() == "" || Session["rule_id"].ToString() == "0")
         {
             LoginManager.LogoutFromSite("index.html");
-            return "";
+            return;
         }
 
         Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("media_concurrency_rules", "group_id", int.Parse(Session["rule_id"].ToString())).ToString());
@@ -314,47 +272,133 @@ public partial class adm_media_concurrency_business_modules : System.Web.UI.Page
         if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
         {
             LoginManager.LogoutFromSite("login.html");
-            return "";
+            return;
         }
-
-        string sRet = "";
-        sRet += "Current Subscription Module";
-        sRet += "~~|~~";
-        sRet += "Available Subscription Module";
-        sRet += "~~|~~";
-
-        string sIP = "1.1.1.1";
         Int32 nSubscriptionGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", nLogedInGroupID).ToString());
         if (nSubscriptionGroupID == 0)
             nSubscriptionGroupID = nLogedInGroupID;
 
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery.SetConnectionKey("pricing_connection");
-        selectQuery += "select ID, NAME from subscriptions where status=1 and  is_active = 1 and START_DATE <= getdate()  and END_DATE >= GETDATE() and ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nSubscriptionGroupID);
-        selectQuery += "order by name";
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            sRet += "<root>";
-            for (int i = 0; i < nCount; i++)
-            {
-                string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
-                string sTitle = selectQuery.Table("query").DefaultView[i].Row["NAME"].ToString();
-                if (IsModuleBelongToRule(int.Parse(Session["rule_id"].ToString()), int.Parse(sID), 1) == true)
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" inList=\"true\" />";
-                else
-                    sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" inList=\"false\" />";
-            }
-            sRet += "</root>";
-        }
-        selectQuery.Finish();
-        selectQuery = null;
+        DataTable dt = GetSubscriptionModule(nSubscriptionGroupID, int.Parse(Session["rule_id"].ToString()));
 
-        return sRet;
+        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+        {
+            List<object> temp = new List<object>();
+            Int32 count = dt.Rows.Count;
+            resultData = new object[count];
+            for (int i = 0; i < count; i++)
+            {
+                System.Data.DataRow currentRow = dt.Rows[i];
+
+                string id = ODBCWrapper.Utils.ExtractString(currentRow, "ID");
+                string title = ODBCWrapper.Utils.ExtractString(currentRow, "NAME");
+                bool inList = ODBCWrapper.Utils.GetIntSafeVal(currentRow, "rule_id") == 0 ? false : true;
+                string description = "";
+
+                var data = new
+                {
+                    ID = id,
+                    Title = title,
+                    Description = description,
+                    InList = inList
+                };
+                temp.Add(data);                
+            }
+            resultData = temp.ToArray();
+        }
     }
 
-  
+    private DataTable GetSubscriptionModule(int nSubscriptionGroupID, int ruleId)
+    {
+        try
+        {
 
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("pricing_connection");
+            selectQuery += "select s.ID, s.NAME , mc.RULE_ID from Pricing.dbo.subscriptions s ";
+            selectQuery += " left join   Tvinci.dbo.media_concurrency_bm mc on  mc.status=1 and mc.BM_ID = s.ID  and mc.type = 1 and ";
+            selectQuery +=  ODBCWrapper.Parameter.NEW_PARAM("mc.RULE_ID", "=", ruleId);
+            selectQuery +=  " where s.status =1 and  s.is_active = 1 and s.START_DATE <= getdate()  and s.END_DATE >= GETDATE() and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("s.group_id", "=", nSubscriptionGroupID);
+            selectQuery += "order by s.name";
+            return selectQuery.Execute("query", true);
+        }
+        catch (Exception ex)
+        {
+            return null;
+        };
+    }
 
+    private void initppvModule(ref object[] resultData)
+    {
+        if (Session["rule_id"] == null || Session["rule_id"].ToString() == "" || Session["rule_id"].ToString() == "0")
+        {
+            LoginManager.LogoutFromSite("index.html");
+            return;
+        }
+
+        Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("media_concurrency_rules", "group_id", int.Parse(Session["rule_id"].ToString())).ToString());
+        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+        if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
+        {
+            LoginManager.LogoutFromSite("login.html");
+            return;
+        }
+
+        Int32 nPPVModuleGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", nLogedInGroupID).ToString());
+        if (nPPVModuleGroupID == 0)
+        {
+            nPPVModuleGroupID = nLogedInGroupID;
+        }
+
+        DataTable dt = GetPPVModule(nPPVModuleGroupID, int.Parse(Session["rule_id"].ToString()));
+       
+        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+        {
+            List<object> temp = new List<object>();
+            int count = dt.Rows.Count;            
+
+            for (int i = 0; i < count; i++)
+            {
+                System.Data.DataRow currentRow = dt.Rows[i];
+
+                string id = ODBCWrapper.Utils.ExtractString(currentRow, "ID");
+                string title = ODBCWrapper.Utils.ExtractString(currentRow, "NAME");
+                bool inList = ODBCWrapper.Utils.GetIntSafeVal(currentRow, "rule_id") == 0 ? false : true; ;
+                string description = "";
+
+                var data = new
+                {
+                    ID = id,
+                    Title = title,
+                    Description = description,
+                    InList = inList
+                };
+                temp.Add(data);                
+            }
+            resultData = temp.ToArray();
+        }
+        
+    }
+
+    private DataTable GetPPVModule(int groupId, int ruleId)
+    {
+        try
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("pricing_connection");
+            selectQuery += "select ppv.ID, ppv.NAME, mc.rule_id from Pricing.dbo.ppv_modules ppv ";
+            selectQuery += " left join Tvinci.dbo.media_concurrency_bm mc ";
+            selectQuery += " on  mc.status=1 and mc.BM_ID = ppv.id and mc.type = 1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mc.RULE_ID", "=", ruleId);
+            selectQuery += " where ppv.status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ppv.group_id", "=", groupId);
+            selectQuery += "order by ppv.name";
+            return selectQuery.Execute("query", true);
+        }
+        catch (Exception ex)
+        {
+            return null;
+        };
+    }
+    
 }

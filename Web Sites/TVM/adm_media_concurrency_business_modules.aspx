@@ -13,6 +13,10 @@
 <meta content="<% TVinciShared.PageUtils.GetKeyWords(); %>" name="Keywords" />
 <meta http-equiv="Pragma" content="no-cache" />
 <link href="css/styles-en.css" type="text/css" rel="stylesheet" />
+<link href="components/duallist/css/duallist.css" type="text/css" rel="stylesheet" />
+<script language="JavaScript" src="js/jquery-1.10.2.min.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/jquery-placeholder.js" type="text/javascript"></script>
+<script src="js/jquery-ui.js"></script>
 <script language="JavaScript" src="js/rs.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/adm_utils.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/ajaxFuncs.js" type="text/javascript"></script>
@@ -22,105 +26,19 @@
 <script type="text/javascript" src="js/FlashUtils.js" language="javascript"></script>
 <script type="text/javascript" src="js/Player.js" language="javascript"></script>
 <script type="text/javascript" src="js/VGObject.js" language="javascript"></script>
-<script type="text/javascript">
-    var flashObj1 = new SWFObj
-    (
-        'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
-        'width', '100%',
-        'height', '100%',
-        'src', 'flash/DualList',
-        'scale', 'NoScale',
-        'id', 'DualList',
-        'bgcolor', '#869CA7',
-        'wmode', 'Window',
-        'name', 'DualList',
-        'allowFullScreen', 'false',
-        'allowScriptAccess', 'sameDomain',
-        'movie', 'flash/DualList'
-    ); //end AC code
-    var flashObj2 = new SWFObj
-   (
-       'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',
-       'width', '100%',
-       'height', '100%',
-       'src', 'flash/DualList',
-       'scale', 'NoScale',
-       'id', 'DualListSubscription',
-       'bgcolor', '#869CA7',
-       'wmode', 'Window',
-       'name', 'DualListSubscription',
-       'allowFullScreen', 'false',
-       'allowScriptAccess', 'sameDomain',
-       'movie', 'flash/DualList'
-   );
-    function flashEvents(json) {
+     <!-- dual list -->
+    <script type="text/javascript" src="components/duallist/js/script.js"></script>
+    <script type="text/javascript" src="components/duallist/js/info.js"></script>
+    <script type="text/javascript" src="components/duallist/js/calender.js"></script>
+    <script type="text/javascript" src="components/duallist/js/list.js"></script>
+    <script type="text/javascript" src="components/duallist/js/duallist.js"></script>
+    <!-- end dual list -->
 
-        
-        switch (json.eventType) {
-            case "move":
-                if (json.callerID == 'DualList') {
-                    RS.Execute("adm_media_concurrency_business_modules.aspx", "changeItemStatus", json.id, json.kindc, callback_changeItemStatus, errorCallback);
-                }
-                else if (json.callerID == 'DualListSubscription') {
-                    RS.Execute("adm_media_concurrency_business_modules.aspx", "changeItemStatusSubscription", json.id, json.kindc, callback_changeItemStatus_Subscription, errorCallback);
-                }
-                break;
-            case "ready":
-                if (json.id == 'DualList') {
-                    var flashObj1 = document.getElementById(json.id);
-                    initDualObj();
-                }
-                else if (json.id == 'DualListSubscription') {
-                    var flashObj2 = document.getElementById(json.id);
-                    initDualObjSubscription();
-                    break;
-                }
+    <script>
+        function initPage() {
+            initDuallistObj('adm_media_concurrency_business_modules.aspx');
         }
-    }
-
-    function callback_changeItemStatus(ret) {
-    }
-    function callback_changeItemStatus_Subscription(ret) {
-    }
-
-    function callback_init_dobj(ret) {
-       // alert(ret);
-        var flashObj1 = document.getElementById("DualList");
-        var split_array = ret.split("~~|~~");
-        if (split_array.length == 3) {
-            theTitle1 = split_array[0];
-            theTitle2 = split_array[1];
-            var xmlStr = split_array[2];
-            flashObj1.callFlashAction({ action: "setList", data: xmlStr, title1: theTitle1, title2: theTitle2 });
-        }
-    }
-
-    function callback_init_dobj_subscription(ret) {
-        // alert(ret);
-        var flashObj1 = document.getElementById("DualListSubscription");
-        var split_array = ret.split("~~|~~");
-        if (split_array.length == 3) {
-            theTitle1 = split_array[0];
-            theTitle2 = split_array[1];
-            var xmlStr = split_array[2];
-            flashObj1.callFlashAction({ action: "setList", data: xmlStr, title1: theTitle1, title2: theTitle2 });
-        }
-    }
-
-    function initDualObj() {
-        RS.Execute("adm_media_concurrency_business_modules.aspx", "initDualObj", callback_init_dobj, errorCallback);
-    }
-
-    function initDualObjSubscription() {
-        RS.Execute("adm_media_concurrency_business_modules.aspx", "initDualObjSubscription", callback_init_dobj_subscription, errorCallback);
-    }
-
-    function initPage() {
-        flashObj1.write("DualListPH");
-        
-        flashObj2.write("DualListS");
-    }
-</script>
+    </script>
 </head>
 <body class="admin_body" onload="initPage();">
 <form id="form1" name="form1" action="" method="post" runat=server>
@@ -219,11 +137,12 @@
 									</td>
 								</tr-->
 								<tr>
-									<td id="page_content">
-									    <div id="DualListPH"></div>
-                                        <div id="DualListS"></div>
+									<td id="page_content">									
 									</td>
 								</tr>
+                                <tr><td><div id="DualListPH"></div></td></tr>
+                                <tr><td><div id="DualListS"></div></td></tr>
+
 								<tr>
 								    <td onclick='window.document.location.href="adm_media_concurrency_business_modules.aspx?search_save=1&rule_id=<% GetRuleID(); %>";'><a href="#" class="btn_back"></a></td>
 								</tr>
