@@ -2780,18 +2780,27 @@ namespace Core.Users
                                 // quntity of the new dlm is less than the cuurent dlm only if new dlm is <> 0 (0 = unlimited)
                                 if (currentDC.m_oLimitationsManager.Quantity > item.quantity && item.quantity != 0) // need to delete the laset devices
                                 {
-                                    // get from DB the last update date domains_devices table  change status to is_active = 0  update the update _date
+                                    // get from DB the last update date domains_devices table. 
                                     List<int> lDevicesID = currentDC.DeviceInstances.Select(x => int.Parse(x.m_id)).ToList<int>();
                                     if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity) // only if there is a gap between current devices to needed quantity
                                     {
                                         int nDeviceToDelete = lDevicesID.Count - item.quantity;
 
                                         // Get group downgrade policy for desc/Asc
-                                        var downgradePolicy = ApiDAL.GetGroupDowngradePolicy(this.GroupId);
-                                        devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID, (DowngradePolicy)downgradePolicy);
-                                        if (devicesChange != null && devicesChange.Count > 0)
+                                        var downgradePolicy = ApiDAL.GetGroupDowngradePolicy(this.GroupId); 
+                                        
+                                        //Get the devices that need to be deleted according to downgrade policy
+                                        List<string> devicesToDelete= DomainDal.GetDevicesDomainByDowngradePolicy(nDeviceToDelete, this.m_nDomainID, lDevicesID, (DowngradePolicy)downgradePolicy);
+
+                                        if (devicesToDelete != null)
                                         {
-                                            oChangeDLMObj.devices.AddRange(devicesChange);
+                                            // update status, active fileds to deleted + call device.delete for event.
+                                            DeleteDevice(currentDC, devicesToDelete);
+
+                                            if (devicesToDelete.Count > 0)
+                                            {
+                                                oChangeDLMObj.devices.AddRange(devicesToDelete);
+                                            }
                                         }
                                     }
                                 }
@@ -2813,12 +2822,12 @@ namespace Core.Users
                         }
                         if (bNeedToDelete) // family device id not exsits in new DLM - delete all devices
                         {
-                            List<int> lDevicesID = currentItem.Value.DeviceInstances.Select(x => int.Parse(x.m_id)).ToList<int>();
-                            int nDeviceToDelete = lDevicesID.Count();
-                            if (nDeviceToDelete > 0)
+                            List<string> lDevicesID = currentItem.Value.DeviceInstances.Select(x => x.m_id).ToList<string>();                            
+                            if (lDevicesID.Count > 0)
                             {
-                                devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID, DowngradePolicy.FIFO);
-                                oChangeDLMObj.devices.AddRange(devicesChange);
+                                // update status, active fileds to deleted + call device.delete for event.
+                                DeleteDevice(currentDC, lDevicesID);
+                                oChangeDLMObj.devices.AddRange(lDevicesID);
                             }
                         }
                     }
@@ -2886,6 +2895,36 @@ namespace Core.Users
                 log.Error("", ex);
                 oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return false;
+            }
+        }
+
+        private void DeleteDevice(DeviceContainer currentDC, List<string> devicesToDelete)
+        {
+            DomainDevice domainDevice = null;
+            foreach (var deviceId in devicesToDelete)
+            {
+                // get current device data                                                
+                Device device = currentDC.DeviceInstances.Where(x => x.m_id == deviceId).FirstOrDefault();
+                // set is_Active = 2; status = 2
+                domainDevice = new DomainDevice()
+                {
+                    Udid = device.m_deviceUDID,
+                    DeviceId = int.Parse(deviceId),
+                    GroupId = m_nGroupID,
+                    DomainId = m_nDomainID,
+                    ActivataionStatus = device.m_state,
+                    DeviceBrandId = device.m_deviceBrandID,
+                    ActivatedOn = device.m_activationDate,
+                    Name = device.m_deviceName,
+                    DeviceFamilyId = device.m_deviceFamilyID
+                };
+
+                bool deleted = domainDevice.Delete();
+
+                if (!deleted)
+                {
+                    log.Debug("CompareDLM - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, domainDevice.Udid));
+                }
             }
         }
 
