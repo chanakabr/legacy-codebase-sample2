@@ -341,11 +341,11 @@ namespace Core.ConditionalAccess
                 BillingResponse billingResponse = new BillingResponse();
                 billingResponse.m_oStatus = BillingResponseStatus.UnKnown;
                 long lBillingTransactionID = 0;
+
                 if (saveHistory)
                 {
                     billingResponse = cas.HandleCCChargeUser(userId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, ip, customData,
                        1, 1, string.Empty, string.Empty, string.Empty, true, false);
-
                 }
                 else
                 {

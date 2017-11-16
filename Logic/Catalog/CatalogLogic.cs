@@ -4263,7 +4263,7 @@ namespace Core.Catalog
                     if (mediaConcurrencyRules != null && mediaConcurrencyRules.Count > 0)
                     {
                         mediaConcurrencyRuleID = mediaConcurrencyRules.First().RuleID;
-                        mediaConcurrencyRuleIds = mediaConcurrencyRules.Select(rule => rule.RuleID).ToList();
+                        mediaConcurrencyRuleIds = mediaConcurrencyRules.Select(rule => rule.RuleID).Distinct().ToList();
                     }
                 }
             }
@@ -4277,7 +4277,7 @@ namespace Core.Catalog
                 foreach (var ruleId in mediaConcurrencyRuleIds)
                 {
                     ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule(
-                        groupID, udid, 0, siteGuidLong, 0, ValidationType.Concurrency, mediaConcurrencyRuleID, 0, mediaID);
+                        groupID, udid, 0, siteGuidLong, 0, ValidationType.Concurrency, ruleId, 0, mediaID);
 
                     if (domainsResp != null)
                     {
@@ -4297,7 +4297,8 @@ namespace Core.Catalog
                                 }
                             default:
                                 {
-                                    throw new Exception(GetIsConcurrentLogMsg(String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
+                                    throw new Exception(GetIsConcurrentLogMsg(
+                                        String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
                                 }
                         }
                     }
@@ -4342,7 +4343,8 @@ namespace Core.Catalog
                             }
                         default:
                             {
-                                throw new Exception(GetIsConcurrentLogMsg(String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
+                                throw new Exception(GetIsConcurrentLogMsg(
+                                    String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
                             }
                     }
                 }
@@ -5247,7 +5249,8 @@ namespace Core.Catalog
         /*This method return all last position (desc order by create date) by domain and \ or user_id 
          * if userType is household and user is default - return all last positions of all users in domain by assetID (BY MEDIA ID)         
          else return last position of user_id (incase userType is not household or last position of user_id and default_user (incase userType is household) */
-        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, List<int> defaultUsers, Dictionary<string, User> usersDictionary)
+        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, 
+            List<int> users, List<int> defaultUsers, Dictionary<string, User> usersDictionary)
         {
             AssetBookmarks response = null;
 
@@ -7969,7 +7972,7 @@ namespace Core.Catalog
                     }
                 }
 
-                // get views
+                // get view results
                 CouchbaseManager.ViewManager viewManager = new CouchbaseManager.ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                 {
                     startKey = new object[] { long.Parse(siteGuid), minFilterdate },
@@ -7984,6 +7987,7 @@ namespace Core.Catalog
                 {
                     GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
                     Group group = groupManager.GetGroup(groupId);
+
                     if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
                     {
                         string watchRules = string.Join(" ", group.m_sPermittedWatchRules);
@@ -8011,17 +8015,20 @@ namespace Core.Catalog
                             searchDefinitions.shouldSearchMedia = true;
                         }
 
+                        // From the unfiltered list get only the recordings;
+                        
                         List<string> listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
                             .Select(x =>
                                 {
+                                    // For each recording,
                                     // map the recording to its domain recording id
                                     searchDefinitions.recordingIdToSearchableRecordingMapping[x.RecordingId.ToString()] = new ApiObjects.TimeShiftedTv.SearchableRecording() 
-                                    { 
-                                        DomainRecordingId = x.AssetId,
-                                        EpgId = x.EpgId,
-                                        RecordingId = x.RecordingId,
-                                        RecordingType = null
-                                    };
+                                        { 
+                                            DomainRecordingId = x.AssetId,
+                                            EpgId = x.EpgId,
+                                            RecordingId = x.RecordingId,
+                                            RecordingType = null
+                                        };
                                     return x.RecordingId.ToString();
                                 }).ToList();
 

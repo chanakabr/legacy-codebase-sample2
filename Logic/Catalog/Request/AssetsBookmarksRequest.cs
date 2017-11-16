@@ -54,11 +54,13 @@ namespace Core.Catalog.Request
                         int userDomainID = 0;
                         int userID;
                         DomainResponse domainResponse = null;
+
                         if (CatalogLogic.IsUserValid(request.m_sSiteGuid, request.m_nGroupID, ref userDomainID) && int.TryParse(request.m_sSiteGuid, out userID))
                         {
                             if(userDomainID == request.domainId)
                             {
                                 domainResponse = CatalogLogic.GetDomain(request.domainId, request.m_nGroupID);
+
                                 if (domainResponse != null && domainResponse.Status != null &&  domainResponse.Status.Code == (int)eResponseStatus.OK)
                                 { 
                                     // Get users list, default users list and check if user is in default users list
@@ -66,14 +68,17 @@ namespace Core.Catalog.Request
                                     List<int> usersToGet = new List<int>();
                                     usersToGet.AddRange(users);
                                     usersToGet.AddRange(defaultUsers);
+
                                     Dictionary<string, User> usersDictionary = CatalogLogic.GetUsers(request.m_nGroupID, usersToGet);
+
                                     foreach (AssetBookmarkRequest asset in request.Data.Assets)
                                     {
                                         AssetBookmarks assetPositionResponseInfo = null;
 
                                         if (asset.AssetType != eAssetTypes.UNKNOWN)
                                         {
-                                            assetPositionResponseInfo = CatalogLogic.GetAssetLastPosition(asset.AssetID, asset.AssetType, userID, isDefaultUser, users, defaultUsers, usersDictionary);
+                                            assetPositionResponseInfo = 
+                                                CatalogLogic.GetAssetLastPosition(asset.AssetID, asset.AssetType, userID, isDefaultUser, users, defaultUsers, usersDictionary);
                                         }
                                         else
                                         {
@@ -85,6 +90,7 @@ namespace Core.Catalog.Request
                                             response.AssetsBookmarks.Add(assetPositionResponseInfo);
                                         }
                                     }
+
                                     response.m_nTotalItems = response.AssetsBookmarks.Count();
                                 }
                                 else
