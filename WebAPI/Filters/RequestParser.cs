@@ -995,9 +995,13 @@ namespace WebAPI.Filters
                     parameterName = oldStandardProperties[parameterName];
                 }
 
-                if (typeof(KalturaMultilingualString).IsAssignableFrom(property.PropertyType))
+                bool isMultilingualString = false;
+                Type propertyType = property.PropertyType;
+                if (typeof(KalturaMultilingualString).IsAssignableFrom(propertyType))
                 {
                     parameterName = KalturaMultilingualString.GetMultilingualName(parameterName);
+                    propertyType = propertyType.GetProperty("Values").PropertyType;
+                    isMultilingualString = true;
                 }
 
                 if (!parameters.ContainsKey(parameterName) || !property.CanWrite)
@@ -1009,30 +1013,30 @@ namespace WebAPI.Filters
                 if (schemaProperty != null)
                     schemaProperty.Validate(type.Name, parameterName, parameters[parameterName]);
 
-                if (property.PropertyType.IsPrimitive || property.PropertyType == typeof(string))
+                if (propertyType.IsPrimitive || propertyType == typeof(string))
                 {
-                    property.SetValue(instance, Convert.ChangeType(parameters[parameterName], property.PropertyType), null);
+                    property.SetValue(instance, Convert.ChangeType(parameters[parameterName], propertyType), null);
                     continue;
                 }
 
-                if (property.PropertyType.IsEnum)
+                if (propertyType.IsEnum)
                 {
-                    var eValue = Enum.Parse(property.PropertyType, parameters[parameterName].ToString(), true);
+                    var eValue = Enum.Parse(propertyType, parameters[parameterName].ToString(), true);
                     property.SetValue(instance, eValue, null);
                     continue;
                 }
 
-                if (property.PropertyType.IsArray || property.PropertyType.IsGenericType) // array or list
+                if (propertyType.IsArray || propertyType.IsGenericType) // array or list
                 {
                     Type dictType = typeof(SerializableDictionary<,>);
                     object res = null;
 
-                    if (property.PropertyType.GetGenericArguments().Count() == 1)
+                    if (propertyType.GetGenericArguments().Count() == 1)
                     {
                         // if nullable
-                        if (property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                        if (propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
                         {
-                            Type underlyingType = Nullable.GetUnderlyingType(property.PropertyType);
+                            Type underlyingType = Nullable.GetUnderlyingType(propertyType);
 
                             if (underlyingType.IsEnum)
                             {
@@ -1051,18 +1055,25 @@ namespace WebAPI.Filters
                         }
                         else // list
                         {
-                            res = buildList(property.PropertyType, (JArray)parameters[parameterName]);
+                            res = buildList(propertyType, (JArray)parameters[parameterName]);
                         }
                     }
 
                     //if Dictionary
-                    else if (property.PropertyType.GetGenericArguments().Count() == 2)
+                    else if (propertyType.GetGenericArguments().Count() == 2)
                     {
                         if (parameters[parameterName].GetType().IsPrimitive || parameters[parameterName].GetType() == typeof(System.String))
                         {
                             continue;
                         }
-                        res = buildDictionary(property.PropertyType, ((JObject)parameters[parameterName]).ToObject<Dictionary<string, object>>());
+                        res = buildDictionary(propertyType, ((JObject)parameters[parameterName]).ToObject<Dictionary<string, object>>());
+                    }
+
+                    if (isMultilingualString)
+                    {
+                        KalturaMultilingualString multilingualString = new KalturaMultilingualString();
+                        multilingualString.Values = res as List<KalturaTranslationToken>;
+                        res = multilingualString;
                     }
 
                     property.SetValue(instance, res, null);
