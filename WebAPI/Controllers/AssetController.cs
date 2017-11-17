@@ -1035,6 +1035,10 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.AssetExternalIdMustBeUnique)]
+        [Throws(eResponseStatus.InvalidMetaType)]
+        [Throws(eResponseStatus.InvalidValueSentForMeta)]
+        [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
+        [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
         public KalturaMediaAsset Add(KalturaMediaAsset asset)
         {
             KalturaMediaAsset response = null;

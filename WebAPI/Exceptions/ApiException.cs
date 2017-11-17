@@ -191,6 +191,8 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ASSET_EXTERNAL_ID_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.AssetExternalIdMustBeUnique, "The Specified External Id Must Be Unique");
         public static ClientExceptionType INVALID_META_TYPE = new ClientExceptionType(eResponseStatus.InvalidMetaType, "Invalid Meta Type Sent");
         public static ClientExceptionType INVALID_VALUE_SENT_FOR_META = new ClientExceptionType(eResponseStatus.InvalidValueSentForMeta, "Invalid Value Sent For Meta");
+        public static ClientExceptionType INVALID_DEVICE_RULE = new ClientExceptionType(eResponseStatus.DeviceRuleDoesNotExistForGroup, "Invalid Device Rules Sent");
+        public static ClientExceptionType INVALID_GEO_BLOCK_RULE = new ClientExceptionType(eResponseStatus.GeoBlockRuleDoesNotExistForGroup, "Invalid Geo Block Rules Sent");
 
         public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");        
         public static ApiExceptionType INVALID_VALUE_FOR_FEATURE = new ApiExceptionType(StatusCode.InvalidValueForFeature, "Invalid value for feature: @feature@. feature can only contain alphanumeric values and/or underscore up until 64 characters", "feature");
