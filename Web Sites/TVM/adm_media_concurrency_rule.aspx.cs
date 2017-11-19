@@ -1,13 +1,18 @@
-﻿using System;
+﻿using CachingProvider.LayeredCache;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
+using System.Reflection;
 
 public partial class adm_media_concurrency_rule : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -157,5 +162,15 @@ public partial class adm_media_concurrency_rule : System.Web.UI.Page
     {
         Response.Write(PageUtils.GetPreHeader() + ": Device Managment:  Rules: MediaConcurrency");
     }
-  
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        int groupId = LoginManager.GetLoginGroupID();
+        // invalidation keys
+        string invalidationKey = LayeredCacheKeys.GetGroupMediaConcurrencyRulesKey(groupId);
+        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+        {
+            log.ErrorFormat("Failed to set invalidation key for media concurrency rules. key = {0}", invalidationKey);
+        }
+    }
 }

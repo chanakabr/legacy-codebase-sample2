@@ -1,7 +1,10 @@
-﻿using System;
+﻿using CachingProvider.LayeredCache;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -10,6 +13,8 @@ using TVinciShared;
 
 public partial class adm_media_concurrency_business_modules : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -164,6 +169,16 @@ public partial class adm_media_concurrency_business_modules : System.Web.UI.Page
             case "DualListPH":
                 return changeItemStatusPPV(sID, sAction);                
         }
+
+        int groupId = LoginManager.GetLoginGroupID();
+        // invalidation keys
+        string invalidationKey = LayeredCacheKeys.GetGroupMediaConcurrencyRulesKey(groupId);
+        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+        {
+            log.ErrorFormat("Failed to set invalidation key for media concurrency rules. key = {0}", invalidationKey);
+        }
+
+
         return "";
     }
 
