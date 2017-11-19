@@ -840,7 +840,14 @@ namespace WebAPI.Filters
                             }
                             else // list
                             {
-                                res = buildList(t, (JArray)reqParams[name]);
+                                if (typeof(JArray).IsAssignableFrom(reqParams[name].GetType()))
+                                {
+                                    res = buildList(t, (JArray)reqParams[name]);
+                                }
+                                else if(reqParams[name].GetType().IsArray)
+                                {
+                                    res = buildList(t, reqParams[name] as object[]);
+                                }
                             }
                         }
 
@@ -1097,6 +1104,21 @@ namespace WebAPI.Filters
             return instance;
         }
 
+        private static dynamic buildList(Type type, object[] array)
+        {
+            Type itemType = type.GetGenericArguments()[0];
+            Type listType = typeof(List<>).MakeGenericType(itemType);
+            dynamic list = Activator.CreateInstance(listType);
+
+            foreach (object item in array)
+            {
+                var obj = buildObject(itemType, item as Dictionary<string, object>);
+                list.Add((dynamic) obj);
+            }
+
+            return list;
+        }
+
         private static dynamic buildList(Type type, JArray array)
         {
             Type itemType = type.GetGenericArguments()[0];
@@ -1113,7 +1135,6 @@ namespace WebAPI.Filters
                 }
                 else
                 {
-                    //list.Add((dynamic)item);
                     list.Add((dynamic)Convert.ChangeType(item, itemType));
                 }
             }
