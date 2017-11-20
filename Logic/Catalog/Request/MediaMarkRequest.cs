@@ -445,8 +445,8 @@ namespace Core.Catalog.Request
                 {
                     bool isError = false;
                     bool isConcurrent = false;
-                    playCycleSession = HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
-                                          ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, ref fileDuration, ref nMediaTypeID);
+                    playCycleSession = HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, 
+                        ref nExitFull, ref nSendToFriend, ref nLoad, ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, ref fileDuration, ref nMediaTypeID);
                     if (isConcurrent)
                     {
                         isTerminateRequest = true;
@@ -613,12 +613,14 @@ namespace Core.Catalog.Request
                 if (playCycleSession.MediaConcurrencyRuleID > 0)
                 {
                     mediaConcurrencyRuleId = playCycleSession.MediaConcurrencyRuleID;
+                    log.DebugFormat("playCycleSession with MediaConcurrencyRuleID: mediaFileId:{0}, rule:{1}, user:{2}",
+                        this.m_oMediaPlayRequestData.m_nMediaFileID, mediaConcurrencyRuleId, this.m_oMediaPlayRequestData.m_sSiteGuid);
                 }
             }
-            else
-            {
-                mediaConcurrencyRules = Api.api.GetMediaConcurrencyRules(mediaId, this.m_sUserIP, this.m_nGroupID);
-            }
+            //else
+            //{
+            //    mediaConcurrencyRules = Api.api.GetMediaConcurrencyRules(mediaId, this.m_sUserIP, this.m_nGroupID);
+            //}
 
             switch (mediaMarkAction)
             {
