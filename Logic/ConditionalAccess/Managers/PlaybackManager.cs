@@ -345,6 +345,7 @@ namespace Core.ConditionalAccess
                     if (domainId > 0 && Utils.IsItemPurchased(price))
                     {
                         PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
+                        cas.CreatePlayCycle(userId, (int)file.Id, ip, udid, (int)mediaId, mediaConcurrencyRuleIds, (int)domainId);
                     }
                 }
             }

@@ -10760,6 +10760,7 @@ namespace Core.ConditionalAccess
             MediaFileItemPricesContainer[] prices, int nMediaID, string sUserIP, ref List<int> lRuleIDS, ref int domainID)
         {
             DomainResponseStatus response = DomainResponseStatus.OK;
+            lRuleIDS = new List<int>();
 
             if (Utils.IsAnonymousUser(sSiteGuid))
             {
@@ -10800,13 +10801,19 @@ namespace Core.ConditionalAccess
                     /* MediaConurrency Check */
                     if (mcRules != null && mcRules.Count() > 0)
                     {
-                        log.DebugFormat("MediaConcurrencyRule for userId:{0}, mediaId:{1}, BusinessModule:{2}, rules:{3}", sSiteGuid, nMediaID,
-                            eBM.ToString(), string.Join(",", mcRules));
 
+                        log.DebugFormat("MediaConcurrencyRule for userId:{0}, mediaId:{1}, BusinessModule:{2}, rules:{3}", sSiteGuid, nMediaID,
+                            eBM.ToString(), string.Join(",", mcRules.Select(x => x.RuleID).ToList()));
+                        
                         MediaConcurrencyRule minRule = null;
 
                         foreach (MediaConcurrencyRule mcRule in mcRules)
                         {
+                            if (mcRule == null)
+                            {
+                                continue;
+                            }
+
                             if (minRule == null || minRule.Limitation > mcRule.Limitation
                                 || (minRule.Limitation == mcRule.Limitation && minRule.RuleID > mcRule.RuleID))
                             {
