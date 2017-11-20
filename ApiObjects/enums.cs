@@ -958,4 +958,10 @@ namespace ApiObjects
         LIFO = 0,
         FIFO = 1
     }
+
+    public enum DeleteMediaPolicy
+    {
+        Disable = 0,
+        Delete = 1
+    }
 }
