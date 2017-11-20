@@ -262,7 +262,7 @@ public partial class adm_my_group : System.Web.UI.Page
         theRecord.AddRecord(dr_device_limits);
 
         DataRecordDropDownField dropDownField = new DataRecordDropDownField("", "name", "id", "", null, 60, false);
-        dropDownField.SetSelectsDT(GetDowngradePolicy());
+        dropDownField.SetSelectsDT(GetEnumTable<ApiObjects.DowngradePolicy>());
         dropDownField.Initialize("Downgrade policy", "adm_table_header_nbg", "FormInput", "downgrade_policy", false);        
         theRecord.AddRecord(dropDownField);
 
@@ -382,6 +382,11 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_mail_settings.Initialize("Mail Settings  ", "adm_table_header_nbg", "FormInput", "mail_settings", false);
         theRecord.AddRecord(dr_mail_settings);
 
+        dropDownField = new DataRecordDropDownField("", "name", "id", "", null, 60, false);        
+        dropDownField.SetSelectsDT(GetEnumTable<ApiObjects.DeleteMediaPolicy>());
+        dropDownField.Initialize("Delete media policy", "adm_table_header_nbg", "FormInput", "DELETE_MEDIA_POLICY", false);
+        theRecord.AddRecord(dropDownField);
+
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 
         return sTable;
@@ -436,15 +441,15 @@ public partial class adm_my_group : System.Web.UI.Page
 
         return imageUrl;
     }
-
-    private System.Data.DataTable GetDowngradePolicy()
+  
+    private System.Data.DataTable GetEnumTable<T>()
     {
         System.Data.DataTable dt = new System.Data.DataTable();
         dt.Columns.Add("id", typeof(int));
         dt.Columns.Add("txt", typeof(string));
-        foreach (ApiObjects.DowngradePolicy r in Enum.GetValues(typeof(ApiObjects.DowngradePolicy)))
+        foreach (T r in Enum.GetValues(typeof(T)))
         {
-            dt.Rows.Add((int)r, r);
+            dt.Rows.Add(r.GetHashCode(), r);
         }
         return dt;
     }
