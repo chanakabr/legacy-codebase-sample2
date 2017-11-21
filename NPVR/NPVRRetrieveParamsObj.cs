@@ -17,8 +17,9 @@ namespace NPVR
         protected List<string> assetIDs;
         protected List<string> seriesIDs;
 
+        protected int seasonId;
         protected int seasonNumber;
-
+        protected string type;
 
         public virtual List<SearchByField> SearchBy
         {
@@ -162,8 +163,32 @@ namespace NPVR
             {
                 seasonNumber = value;
             }
+        }
+
+        public virtual int SeasonId
+        {
+            get
+            {
+                return seasonId;
+            }
+            set
+            {
+                seasonId = value;
+            }
+        }
+        public virtual string Type
+        {
+            get
+            {
+                return type;
+            }
+            set
+            {
+                type = value;
+            }
 
         }
+              
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(String.Concat("NPVRRetrieveParamsObj. Base Obj:", base.ToString()));
@@ -187,7 +212,11 @@ namespace NPVR
                     sb.Append(String.Concat(RecordingStatus[0], ";"));
                 }
             }
-            sb.Append(String.Concat(" seriesID: ", SeriesID));
+            sb.Append(String.Concat(" seriesIDs: ", SeriesIDs != null && SeriesIDs.Count > 0 ? string.Join(",",SeriesIDs) : string.Empty));
+
+            sb.Append(String.Concat(" SeasonNumber : ", SeasonNumber));
+            sb.Append(String.Concat(" SeasonId : ", SeasonId));
+            sb.Append(String.Concat(" Type : ", Type));
 
             return sb.ToString();
         }

@@ -8,7 +8,7 @@ namespace NPVR
 {
     public class NPVRDeleteObj : NPVRParamsObj
     {
-        public NPVRRecordingStatus Status { get; set; }
+        public List<NPVRRecordingStatus> Status { get; set; }
 
         public string SeriesID { get; set; }
 
@@ -19,7 +19,7 @@ namespace NPVR
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(String.Concat("NPVRDeleteObj. Base Obj:", base.ToString()));
-            sb.Append(String.Concat("Status: ", Status.ToString()));
+            sb.Append(String.Concat("Status: ", string.Join(",", Status.Select(x=>x.ToString().ToLower())))); 
             sb.Append(String.Concat(" SeriesID: ", SeriesID));
             sb.Append(String.Concat(" SeasonNumber: ", SeasonNumber));            
             sb.Append(String.Concat(" ChannelId: ", ChannelId));

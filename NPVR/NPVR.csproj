@@ -83,6 +83,7 @@
     <Compile Include="NPVRProviderFactory.cs" />
     <Compile Include="NPVRProviderImp.cs" />
     <Compile Include="NPVRQuotaResponse.cs" />
+    <Compile Include="NPVRRecordObj.cs" />
     <Compile Include="NPVRRecordResponse.cs" />
     <Compile Include="NPVRRetrieveAssetsResponse.cs" />
     <Compile Include="NPVRRetrieveParamsObj.cs" />

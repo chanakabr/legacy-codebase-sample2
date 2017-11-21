@@ -39,5 +39,7 @@ namespace NPVR
         NPVRUserActionResponse UpdateAccount(NPVRParamsObj args);
 
         NPVRCancelDeleteResponse DeleteSeries(NPVRDeleteObj args);
+
+        NPVRRecordResponse RecordSeries(NPVRRecordObj args);
     }
 }
