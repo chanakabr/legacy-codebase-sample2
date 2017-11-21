@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using CachingProvider;
 using KLogMonitor;
+using System.Data;
 
 namespace Core.Users.Cache
 {
@@ -48,6 +49,110 @@ namespace Core.Users.Cache
 
             return res;
         }
+
+        public List<int> GetInvalidDomains(int groupId)
+        {
+            CouchBaseCache<Domain> couchbaseCache = this.cache as CouchBaseCache<Domain>;
+
+            if (couchbaseCache == null)
+            {
+                return null;
+            }
+
+            List<int> invalidDomainIds = new List<int>();
+
+            ODBCWrapper.DataSetSelectQuery query = new ODBCWrapper.DataSetSelectQuery();
+
+            query.SetConnectionKey("USERS_CONNECTION_STRING");
+            query += "SELECT ID, IS_ACTIVE, STATUS, UPDATE_DATE FROM domains WHERE status = 1 and is_active = 1 and";
+            query += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
+
+            Dictionary<int, DateTime> allDomains = new Dictionary<int, DateTime>();
+            
+            if (query.Execute("query", true) != null)
+            {
+                int count = query.Table("query").DefaultView.Count;
+
+                if (count > 0)
+                {
+                    var table = query.Table("query").Rows;
+
+                    foreach (DataRow row in table)
+                    {
+                        var domainId = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+                        var updateDate = ODBCWrapper.Utils.ExtractDateTime(row, "UPDATE_DATE");
+                        allDomains.Add(domainId, updateDate);
+                    }
+                }
+            }
+
+            int sizeOfBulk = 1000;
+            Dictionary<string, int> cacheKeys = new Dictionary<string, int>();
+            Domain domain;
+
+            foreach (var domainId in allDomains.Keys)
+            {
+                DateTime updateDate = allDomains[domainId];
+                string cacheKey = string.Format("{0}{1}", sDomainKeyCache, domainId);
+
+                cacheKeys.Add(cacheKey, domainId);
+
+                if (cacheKeys.Count > sizeOfBulk)
+                {
+                    IDictionary<string, Domain> domains = new Dictionary<string, Domain>();
+                    var keysList = cacheKeys.Keys.ToList();
+                    couchbaseCache.GetValues<Domain>(keysList, ref domains, true, true);
+
+                    if (domains == null)
+                    {
+                        invalidDomainIds.AddRange(cacheKeys.Values);
+                    }
+                    else
+                    {
+                        foreach (var key in cacheKeys)
+                        {
+                            domains.TryGetValue(key.Key, out domain);
+
+                            if ((domain !=  null) && (domain.m_nStatus != 1 || domain.m_nIsActive != 1))
+                            {
+                                invalidDomainIds.Add(key.Value);
+                            }
+                        }
+                    }
+
+                    cacheKeys.Clear();
+                }
+
+                //this.cache.GetValues<Domain>(
+                //bool getSuccess = this.cache.GetJsonAsT<Domain>(cacheKey, out domain);
+            }
+
+            if (cacheKeys.Count > 0)
+            {
+                IDictionary<string, Domain> domains = new Dictionary<string, Domain>();
+                var keysList = cacheKeys.Keys.ToList();
+                couchbaseCache.GetValues<Domain>(keysList, ref domains, true, true);
+
+                if (domains == null)
+                {
+                    invalidDomainIds.AddRange(cacheKeys.Values);
+                }
+                else
+                {
+                    foreach (var key in cacheKeys)
+                    {
+                        domains.TryGetValue(key.Key, out domain);
+                        
+                        if ((domain != null) && (domain.m_nStatus != 1 || domain.m_nIsActive != 1))
+                        {
+                            invalidDomainIds.Add(key.Value);
+                        }
+                    }
+                }
+            }
+            return invalidDomainIds;
+        }
+
         #endregion
 
         #region ExternalCache
