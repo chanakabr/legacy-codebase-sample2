@@ -2373,8 +2373,8 @@ namespace Core.Catalog
 
         public static void UpdateFollowMe(int groupId, string assetID, string siteGUID, int nPlayTime, string sUDID, int duration,
             string assetAction, int mediaTypeId,
-            int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, 
-            bool isLinearChannel = false, long recordingId = 0, List<MediaConcurrencyRule> mediaConcurrencyRules = null)
+            int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false,
+            bool isLinearChannel = false, long recordingId = 0, int mediaConcurrencyRuleId = 0)
         {
             if (CatalogLogic.IsAnonymousUser(siteGUID))
             {
@@ -2405,7 +2405,7 @@ namespace Core.Catalog
                 {
                     case ePlayType.MEDIA:
                         CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(siteGUID), sUDID, int.Parse(assetID), groupId,
-                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRules, isLinearChannel, finishedPercentThreshold);
+                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleId, isLinearChannel, finishedPercentThreshold);
                         break;
                     case ePlayType.NPVR:
                         CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(siteGUID), sUDID, assetID, groupId, nPlayTime, duration, assetAction, recordingId, isFirstPlay);
@@ -4243,7 +4243,6 @@ namespace Core.Catalog
 
             // Get MCRuleID from PlayCycleSession on CB
             int mediaConcurrencyRuleID = 0;
-            List<int> mediaConcurrencyRuleIds = null;
 
             if (playType == ePlayType.MEDIA)
             {
@@ -4255,107 +4254,37 @@ namespace Core.Catalog
                 {
                     mediaConcurrencyRuleID = CatalogDAL.GetRuleIDPlayCycleKey(siteGuid, mediaID, mediaFileID, udid, platform);
                 }
-
-                if (mediaConcurrencyRuleID == 0)
-                {
-                    var mediaConcurrencyRules = Api.api.GetMediaConcurrencyRules(mediaID, string.Empty, groupID);
-
-                    if (mediaConcurrencyRules != null && mediaConcurrencyRules.Count > 0)
-                    {
-                        mediaConcurrencyRuleID = mediaConcurrencyRules.First().RuleID;
-                        mediaConcurrencyRuleIds = mediaConcurrencyRules.Select(rule => rule.RuleID).Distinct().ToList();
-                    }
-                }
-                else
-                {
-                    mediaConcurrencyRuleIds = new List<int>() { mediaConcurrencyRuleID };
-                }
             }
 
-            if (mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0)
+            ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule(groupID, udid, 0, siteGuidLong, domainID,
+                ValidationType.Concurrency, mediaConcurrencyRuleID, 0, mediaID);
+
+            if (domainsResp != null)
             {
-                // not concurrent until proved otherwise
-                bool temporaryResult = false;
-
-                // Perform validation of limitation for all rules
-                foreach (var ruleId in mediaConcurrencyRuleIds)
+                domainID = (int)domainsResp.m_lDomainID;
+                switch (domainsResp.m_eStatus)
                 {
-                    ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule(
-                        groupID, udid, 0, siteGuidLong, 0, ValidationType.Concurrency, ruleId, 0, mediaID);
-
-                    if (domainsResp != null)
-                    {
-                        domainID = (int)domainsResp.m_lDomainID;
-                        switch (domainsResp.m_eStatus)
+                    case DomainResponseStatus.ConcurrencyLimitation:
+                    case DomainResponseStatus.MediaConcurrencyLimitation:
                         {
-                            case DomainResponseStatus.ConcurrencyLimitation:
-                            case DomainResponseStatus.MediaConcurrencyLimitation:
-                                {
-                                    temporaryResult |= true;
-                                    break;
-                                }
-                            case DomainResponseStatus.OK:
-                                {
-                                    temporaryResult |= false;
-                                    break;
-                                }
-                            default:
-                                {
-                                    throw new Exception(GetIsConcurrentLogMsg(
-                                        String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
-                                }
+                            result = true;
+                            break;
                         }
-                    }
-                    else
-                    {
-                        throw new Exception(GetIsConcurrentLogMsg("WS_Domains response is null.", siteGuid, udid, groupID));
-                    }
-
-                    if (temporaryResult)
-                    {
-                        result = temporaryResult;
-                        break;
-                    }
-                }
-
-                // if not concurrent, update final result
-                if (!temporaryResult)
-                {
-                    result = temporaryResult;
+                    case DomainResponseStatus.OK:
+                        {
+                            result = false;
+                            break;
+                        }
+                    default:
+                        {
+                            throw new Exception(GetIsConcurrentLogMsg(
+                                String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
+                        }
                 }
             }
             else
             {
-                ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule(
-                    groupID, udid, 0, siteGuidLong, 0, ValidationType.Concurrency, mediaConcurrencyRuleID, 0, mediaID);
-
-                if (domainsResp != null)
-                {
-                    domainID = (int)domainsResp.m_lDomainID;
-                    switch (domainsResp.m_eStatus)
-                    {
-                        case DomainResponseStatus.ConcurrencyLimitation:
-                        case DomainResponseStatus.MediaConcurrencyLimitation:
-                            {
-                                result = true;
-                                break;
-                            }
-                        case DomainResponseStatus.OK:
-                            {
-                                result = false;
-                                break;
-                            }
-                        default:
-                            {
-                                throw new Exception(GetIsConcurrentLogMsg(
-                                    String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
-                            }
-                    }
-                }
-                else
-                {
-                    throw new Exception(GetIsConcurrentLogMsg("WS_Domains response is null.", siteGuid, udid, groupID));
-                }
+                throw new Exception(GetIsConcurrentLogMsg("WS_Domains response is null.", siteGuid, udid, groupID));
             }
 
             return result;
