@@ -101,6 +101,45 @@ namespace Core.Users.Cache
                 {
                     IDictionary<string, Domain> domains = new Dictionary<string, Domain>();
                     var keysList = cacheKeys.Keys.ToList();
+                    try
+                    {
+                        couchbaseCache.GetValues<Domain>(keysList, ref domains, true, true);
+
+                        if (domains == null)
+                        {
+                            invalidDomainIds.AddRange(cacheKeys.Values);
+                        }
+                        else
+                        {
+                            foreach (var key in cacheKeys)
+                            {
+                                domains.TryGetValue(key.Key, out domain);
+
+                                if ((domain != null) && (domain.m_nStatus != 1 || domain.m_nIsActive != 1))
+                                {
+                                    invalidDomainIds.Add(key.Value);
+                                }
+                            }
+                        }
+
+                        cacheKeys.Clear();
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Get invalid domains - failed getting values from couchbase. Error = {0}", ex);
+                    } 
+                }
+
+                //this.cache.GetValues<Domain>(
+                //bool getSuccess = this.cache.GetJsonAsT<Domain>(cacheKey, out domain);
+            }
+
+            if (cacheKeys.Count > 0)
+            {
+                IDictionary<string, Domain> domains = new Dictionary<string, Domain>();
+                var keysList = cacheKeys.Keys.ToList();
+                try
+                {
                     couchbaseCache.GetValues<Domain>(keysList, ref domains, true, true);
 
                     if (domains == null)
@@ -113,41 +152,16 @@ namespace Core.Users.Cache
                         {
                             domains.TryGetValue(key.Key, out domain);
 
-                            if ((domain !=  null) && (domain.m_nStatus != 1 || domain.m_nIsActive != 1))
+                            if ((domain != null) && (domain.m_nStatus != 1 || domain.m_nIsActive != 1))
                             {
                                 invalidDomainIds.Add(key.Value);
                             }
                         }
                     }
-
-                    cacheKeys.Clear();
                 }
-
-                //this.cache.GetValues<Domain>(
-                //bool getSuccess = this.cache.GetJsonAsT<Domain>(cacheKey, out domain);
-            }
-
-            if (cacheKeys.Count > 0)
-            {
-                IDictionary<string, Domain> domains = new Dictionary<string, Domain>();
-                var keysList = cacheKeys.Keys.ToList();
-                couchbaseCache.GetValues<Domain>(keysList, ref domains, true, true);
-
-                if (domains == null)
+                catch (Exception ex)
                 {
-                    invalidDomainIds.AddRange(cacheKeys.Values);
-                }
-                else
-                {
-                    foreach (var key in cacheKeys)
-                    {
-                        domains.TryGetValue(key.Key, out domain);
-                        
-                        if ((domain != null) && (domain.m_nStatus != 1 || domain.m_nIsActive != 1))
-                        {
-                            invalidDomainIds.Add(key.Value);
-                        }
-                    }
+                    log.ErrorFormat("Get invalid domains - failed getting values from couchbase. Error = {0}", ex);
                 }
             }
             return invalidDomainIds;
