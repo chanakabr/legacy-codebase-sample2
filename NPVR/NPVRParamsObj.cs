@@ -18,6 +18,8 @@ namespace NPVR
         protected string streamType;
         protected string hasFormat;
 
+        protected int value;
+
         public virtual string AssetID
         {
             get
@@ -126,7 +128,19 @@ namespace NPVR
             }
         }
 
-        public override string ToString()
+        public virtual int Value
+        {
+            get
+            {
+                return value;
+            }
+            set
+            {
+                this.value = value;
+            }
+        }
+
+       public override string ToString()
         {
             StringBuilder sb = new StringBuilder("NPVRParamsObj. ");
             sb.Append(String.Concat("Asset ID: ", AssetID));

@@ -60,7 +60,8 @@ namespace NPVR
         byStatus = 4,
         byChannelId = 8,
         byProgramId = 16, // epg program id
-        bySeasonId = 32 // series id
+        bySeasonId = 32, // series id
+        bySeriesId = 64, // series id
     }
 
     public enum NPVROrderDir

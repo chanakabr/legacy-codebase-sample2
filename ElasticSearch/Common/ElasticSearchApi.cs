@@ -445,33 +445,33 @@ namespace ElasticSearch.Common
             return deleteResult;
         }
 
-        public bool DeleteDocsByQuery(string index, string type, ref string query)
+        public bool DeleteDocsByQuery(string sIndex, string sType, ref string sQuery)
         {
-            bool result = true;
+            bool bResult = true;
             try
             {
-                string url = string.Format("{0}/{1}/{2}/_query", baseUrl, index, type);
-                int httpStatus = 0;
+                string sUrl = string.Format("{0}/{1}/{2}/_query", baseUrl, sIndex, sType);
+                int nStatus = 0;
 
-                string deleteQueryResult = SendDeleteHttpReq(url, ref httpStatus, string.Empty, string.Empty, query, true);
-                log.Debug(string.Format("Status - DeleteDocsByQuery. Returned JSON from ES: {0}, Query: {1}", deleteQueryResult, query));
-                result = httpStatus == 200;
+                string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
+                log.Debug("Status - " + string.Format("DeleteDocsByQuery. Returned JSON from ES: ", sResult, " Query: ", sQuery));
+                bResult = nStatus == 200;
 
             }
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at DeleteDocsByQuery.");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" Index: ", index));
-                sb.Append(String.Concat(" Type: ", type));
-                sb.Append(String.Concat(" Query: ", query));
+                sb.Append(String.Concat(" Index: ", sIndex));
+                sb.Append(String.Concat(" Type: ", sType));
+                sb.Append(String.Concat(" Query: ", sQuery));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
                 log.Error("Exception - " + sb.ToString(), ex);
-                result = false;
+                bResult = false;
             }
 
-            return result;
+            return bResult;
         }
 
         /// <summary>

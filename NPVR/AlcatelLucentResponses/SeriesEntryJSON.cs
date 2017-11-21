@@ -20,5 +20,14 @@ namespace NPVR.AlcatelLucentResponses
 
         [JsonProperty("channelId")]
         public string ChannelID { get; set; }
+
+        [JsonProperty("seasonNumber")]
+        public string seasonNumber { get; set; }
+
+        [JsonProperty("seasonId")]
+        public string seasonId { get; set; }
+
+        [JsonProperty("type")]
+        public string type { get; set; }
     }
 }

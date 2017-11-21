@@ -570,8 +570,8 @@ namespace Tvinci.Core.DAL
         }
 
         public static void UpdateOrInsert_UsersMediaMark(int nDomainID, int nSiteUserGuid, string sUDID, int nMediaID,
-            int nGroupID, int nLoactionSec, int fileDuration, string action, int mediaTypeId, bool isFirstPlay, List<MediaConcurrencyRule> mediaConcurrencyRules,
-            bool isLinearChannel = false, int finishedPercentThreshold = 95)
+          int nGroupID, int nLoactionSec, int fileDuration, string action, int mediaTypeId, bool isFirstPlay, List<MediaConcurrencyRule> mediaConcurrencyRules,
+          bool isLinearChannel = false, int finishedPercentThreshold = 95)
         {
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             var mediaHitsManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
@@ -649,6 +649,7 @@ namespace Tvinci.Core.DAL
                 }
             }
         }
+
 
         private static bool UpdateDomainConcurrency(string udid,
             CouchbaseManager.CouchbaseManager couchbase, string documentKey, UserMediaMark userMediaMark)
