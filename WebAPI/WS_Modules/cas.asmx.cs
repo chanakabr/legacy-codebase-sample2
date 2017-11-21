@@ -2061,6 +2061,9 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(ProtectNPVRCommand))]
         [System.Xml.Serialization.XmlInclude(typeof(LicensedLinkNPVRCommand))]
         [System.Xml.Serialization.XmlInclude(typeof(LicensedLinkNPVRResponse))]
+        [System.Xml.Serialization.XmlInclude(typeof(DeleteSeriesRecordingByNPVRCommand))]
+        [System.Xml.Serialization.XmlInclude(typeof(RecordSeriesBySeriesIdNPVRCommand))]
+             
         public NPVRResponse GetNPVRResponse(BaseNPVRCommand command)
         {
             // add siteguid to logs/monitor
