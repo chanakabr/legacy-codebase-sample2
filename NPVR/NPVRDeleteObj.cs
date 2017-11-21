@@ -12,7 +12,7 @@ namespace NPVR
 
         public string SeriesID { get; set; }
 
-        public int SeasonNumber { get; set; }
+        public string SeasonNumber { get; set; }
 
         public string ChannelId { get; set; }
 

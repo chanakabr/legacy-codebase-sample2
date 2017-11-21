@@ -921,7 +921,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "3.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SERIES_ID_PARAM, args.SeriesID));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SEASON_NUMBER_PARAM, args.SeasonNumber.ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SEASON_NUMBER_PARAM, args.SeasonNumber));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_BY_CHANNEL_ID_PARAM, args.ChannelId));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_BY_STATUS_PARAM, string.Join(",", args.Status.Select(x => x.ToString().ToLower()))));
 
