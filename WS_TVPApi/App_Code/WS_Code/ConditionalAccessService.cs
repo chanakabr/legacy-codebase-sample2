@@ -1275,7 +1275,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Delete Recordings By")]
         [PrivateMethod]
-        public NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string seriesId, int seasonNumber, int channelId,
+        public NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string seriesId, string seasonNumber, string channelId,
             List<TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.NPVRRecordingStatus> status)
         {
             NPVRResponse res = null;

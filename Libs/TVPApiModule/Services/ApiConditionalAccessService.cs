@@ -1377,7 +1377,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public NPVRResponse DeleteRecordingsBy(string siteGuid, long domainId, string udid, string seriesId, int seasonNumber, int channelId, 
+        public NPVRResponse DeleteRecordingsBy(string siteGuid, long domainId, string udid, string seriesId, string seasonNumber, string channelId, 
             List<TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.NPVRRecordingStatus> status)
         {
             NPVRResponse res = null;
