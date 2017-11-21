@@ -570,8 +570,8 @@ namespace Tvinci.Core.DAL
         }
 
         public static void UpdateOrInsert_UsersMediaMark(int nDomainID, int nSiteUserGuid, string sUDID, int nMediaID,
-          int nGroupID, int nLoactionSec, int fileDuration, string action, int mediaTypeId, bool isFirstPlay, List<MediaConcurrencyRule> mediaConcurrencyRules,
-          bool isLinearChannel = false, int finishedPercentThreshold = 95)
+            int nGroupID, int nLoactionSec, int fileDuration, string action, int mediaTypeId, bool isFirstPlay, int mediaConcurrencyRuleId,
+            bool isLinearChannel = false, int finishedPercentThreshold = 95)
         {
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             var mediaHitsManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
@@ -583,10 +583,9 @@ namespace Tvinci.Core.DAL
 
             List<int> mediaConcurrencyRuleIds = null;
 
-            if (mediaConcurrencyRules != null)
+            if (mediaConcurrencyRuleId > 0)
             {
-                // Convert list of media concurrency rules to just their ID (unique)
-                mediaConcurrencyRuleIds = mediaConcurrencyRules.Select(rule => rule.RuleID).Distinct().ToList();
+                mediaConcurrencyRuleIds = new List<int>() { mediaConcurrencyRuleId };
             }
 
             string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
