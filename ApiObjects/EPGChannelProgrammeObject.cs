@@ -148,8 +148,6 @@ namespace ApiObjects
         public bool IsAssetProtected;
         public string ChannelName;
         public string RecordSource;
-        public string ActualStartTime;
-        public string ActualEndTime;
     }
 
     [Serializable]
