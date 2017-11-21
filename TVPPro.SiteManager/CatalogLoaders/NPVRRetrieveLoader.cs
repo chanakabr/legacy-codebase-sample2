@@ -24,10 +24,17 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public RecordedEPGOrderObj RecordedEPGOrderObj { get; set; }
         public List<string> SeriesIDs { get; set; }
 
+        public int SeasonNumber { get; set; }
+        
+        public string SeasonId { get; set; }
+
+        public string Type { get; set; }
+
         #region ctr
 
         public NPVRRetrieveLoader(int groupID, string userIP, string siteGuid, int pageSize, int pageIndex,
-            NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
+            NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, List<string> seriesIDs, DateTime startDate, 
+            RecordedEPGOrderObj recordedEPGOrderObj, int seasonNumber, string seasonId, string type)
             : base(groupID, userIP, pageSize, pageIndex)
         {
             NPVRSearchBy = searchBy;
@@ -39,6 +46,9 @@ namespace TVPPro.SiteManager.CatalogLoaders
             RecordedEPGOrderObj = recordedEPGOrderObj;
             SiteGuid = siteGuid;
             SeriesIDs = seriesIDs;
+            SeasonNumber = seasonNumber;
+            SeasonId = seasonId;
+            Type = type;
         }
 
 
@@ -56,7 +66,10 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_dtStartDate = StartDate,
                 m_oOrderObj = RecordedEPGOrderObj,
                 m_sSiteGuid = SiteGuid,
-                m_lSeriesIDs = SeriesIDs
+                m_lSeriesIDs = SeriesIDs,
+                seasonNumber = SeasonNumber,
+                seasonId = SeasonId,
+                type = Type
             };
         }
 

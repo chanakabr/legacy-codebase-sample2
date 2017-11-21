@@ -16,18 +16,27 @@ namespace TVPPro.SiteManager.CatalogLoaders
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public RecordedEPGOrderObj RecordedEPGOrderObj { get; set; }
+        
+        public string SeriesId { get; set; } 
+
+        public int SeasonNumber { get; set; }
+
 
         #region ctr
 
-        public NPVRSeriesLoader(int groupID, string userIP, string siteGuid, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj)
+        public NPVRSeriesLoader(int groupID, string userIP, string siteGuid, int pageSize, int pageIndex, 
+            RecordedEPGOrderObj recordedEPGOrderObj, string seriesId, int seasonNumber)
             : base(groupID, userIP, pageSize, pageIndex)
         {
             RecordedEPGOrderObj = recordedEPGOrderObj;
             SiteGuid = siteGuid;
+            SeriesId = seriesId;
+            SeasonNumber = seasonNumber;
+
         }
 
-        public NPVRSeriesLoader(string userName, string userIP, string siteGuid, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj)
-            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, siteGuid, pageSize, pageIndex, recordedEPGOrderObj)
+        public NPVRSeriesLoader(string userName, string userIP, string siteGuid, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj, string seriesId, int seasonNumber)
+            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, siteGuid, pageSize, pageIndex, recordedEPGOrderObj, seriesId, seasonNumber)
         {
         }
 
@@ -38,7 +47,9 @@ namespace TVPPro.SiteManager.CatalogLoaders
             m_oRequest = new NPVRSeriesRequest()
             {
                 m_sSiteGuid = SiteGuid,
-                m_oOrderObj = RecordedEPGOrderObj
+                m_oOrderObj = RecordedEPGOrderObj,
+                seriesID = SeriesId,
+                seasonNumber = SeasonNumber
             };
         }
 
