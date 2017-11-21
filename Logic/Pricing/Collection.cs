@@ -56,6 +56,7 @@ namespace Core.Pricing
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("pricing_connection");
                 selectQuery += "select FICTIVIC_MEDIA_META_NAME, FICTIVIC_GROUP_ID from groups_parameters with (nolock)";
                 selectQuery += " where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);

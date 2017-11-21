@@ -43,6 +43,12 @@ namespace Core.Catalog.Request
         [DataMember]
         public int seasonNumber;
 
+        [DataMember]
+        public string seasonId;
+
+        [DataMember]
+        public string type;
+        
         protected override void CheckRequestValidness()
         {
             switch (m_eNPVRSearchBy)

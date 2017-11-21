@@ -19,7 +19,12 @@ namespace Core.Catalog.Request
         [DataMember]
         public RecordedEPGOrderObj m_oOrderObj;
 
+        [DataMember]
+        public string seriesID;
 
+        [DataMember]
+        public int seasonNumber;
+        
         public override BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             NPVRSeriesResponse res = new NPVRSeriesResponse();

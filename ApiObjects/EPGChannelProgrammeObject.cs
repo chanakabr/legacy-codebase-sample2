@@ -148,6 +148,8 @@ namespace ApiObjects
         public bool IsAssetProtected;
         public string ChannelName;
         public string RecordSource;
+        public string ActualStartTime;
+        public string ActualEndTime;
     }
 
     [Serializable]
@@ -189,6 +191,8 @@ namespace ApiObjects
         public string epgChannelID;
         public string seriesID;
         public string seriesName;
-
+        public string seasonNumber;
+        public string seasonId;
+        public string type;
     }
 }

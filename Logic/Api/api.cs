@@ -21,6 +21,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification;
 using Core.Pricing;
+using DAL;
 using EpgBL;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
@@ -182,7 +183,7 @@ namespace Core.Api
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
                 }
-              
+
                 Dictionary<long, string> permissionNamesDict = DAL.ApiDAL.GetPermissions(groupId, role.Permissions.Select(x => x.Name).ToList());
                 if (role.Permissions.Select(x => x.Name).ToList().Count != permissionNamesDict.Count)
                 {
@@ -284,14 +285,14 @@ namespace Core.Api
 
         internal static ApiObjects.Response.Status DeleteRole(int groupId, long id)
         {
-            ApiObjects.Response.Status response =  new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             try
             {
                 if (DAL.ApiDAL.DeleteRole(groupId, id))
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    
+
                     string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
@@ -1698,7 +1699,7 @@ namespace Core.Api
             return EPG_ResponseMeta;
         }
 
-               static private Dictionary<string, List<EPGDictionary>> GetAllEPGTagProgram(int nGroupID, DataTable ProgramID)
+        static private Dictionary<string, List<EPGDictionary>> GetAllEPGTagProgram(int nGroupID, DataTable ProgramID)
         {
             Dictionary<string, List<EPGDictionary>> EPG_ResponseTag = new Dictionary<string, List<EPGDictionary>>();
 
@@ -4268,27 +4269,24 @@ namespace Core.Api
                 {
                     if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("mcr"))
                     {
-                        int? groupId, mediaId;
-                        List<MediaConcurrencyRule> mcr = new List<MediaConcurrencyRule>();
-                        UnifiedSearchResult[] medias;
-                        string filter = string.Empty;
-
-                        groupId = funcParams["groupId"] as int?;
-                        mediaId = funcParams["mediaId"] as int?;
-                        mcr = funcParams["mcr"] as List<MediaConcurrencyRule>;
+                        int? groupId = funcParams["groupId"] as int?;
+                        int? mediaId = funcParams["mediaId"] as int?;
+                        List<MediaConcurrencyRule> mcr = funcParams["mcr"] as List<MediaConcurrencyRule>;
 
                         if (groupId.HasValue && mediaId.HasValue && mcr != null && mcr.Count > 0)
                         {
+
                             // find all asset ids that match the tag + tag value ==> if so save the rule id
                             //build serach for each tag and tag values
-
-                            List<string> tempFilter = new List<string>();
-
-
                             mcr = mcr.GroupBy(x => x.RuleID).Select(x => x.First()).ToList();
+
                             Parallel.ForEach(mcr, (rule) =>
                             {
-                                tempFilter = rule.AllTagValues.Select(x => string.Format("{0}='{1}'", rule.TagType, x)).ToList();
+                                UnifiedSearchResult[] medias;
+                                string filter = string.Empty;
+
+                                var tempFilter = rule.AllTagValues.Select(x => string.Format("{0}='{1}'", rule.TagType, x)).ToList();
+
                                 if (tempFilter != null && tempFilter.Count > 0)
                                 {
                                     if (tempFilter.Count > 1)
@@ -4299,8 +4297,11 @@ namespace Core.Api
                                     {
                                         filter = string.Format("(and media_id = '{0}' {1})", mediaId.Value, tempFilter.First());
                                     }
+
                                     medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
-                                    if (medias != null && medias.Count() > 0)// there is a match 
+
+                                    // If there is a match, add rule to list
+                                    if (medias != null && medias.Count() > 0)
                                     {
                                         ruleIds.Add(rule.RuleID);
                                     }
@@ -4325,31 +4326,28 @@ namespace Core.Api
          This methode get mediaID and business Module id and return list of MediaConcurrencyRule rules that relevant to this media
          * 
          ***************************************************************************************************************************/
-        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, string sIP, int groupId, int bmID, eBusinessModule type)
+        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, string sIP, int groupId, int bmID = -1, eBusinessModule? type = null)
         {
             List<MediaConcurrencyRule> res = new List<MediaConcurrencyRule>();
             //MediaConcurrencyRule rule = null;
             try
             {
-                // check if media concurrency rule exists for group
-                string key = LayeredCacheKeys.GetGroupMediaConcurrencyRulesKey(groupId);
-                List<MediaConcurrencyRule> mcr = null;
-                List<int> ruleIds = null;
-                // try to get from cache  
-
-                bool cacheResult = LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(key, ref mcr, APILogic.Utils.Get_MCRulesByGroup, new Dictionary<string, object>() { { "groupId", groupId } },
-                                                                                        groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME);
-                if (!cacheResult)
-                {
-                    log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId = {0}", groupId));
-                    return null;
-                }
+                var groupMediaConcurrencyRules = GetGroupMediaConcurrencyRules(groupId);
+                List<int> ruleIds = new List<int>();
 
                 // get all related rules to media 
-                key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
-                cacheResult = LayeredCache.Instance.Get<List<int>>(key, ref ruleIds, Get_MCRulesIdsByMediaId, new Dictionary<string, object>() { { "groupId", groupId }, { "mediaId", mediaId }, { "mcr", mcr } },
-                                                                    groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
-                                                                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
+                string key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
+                bool cacheResult = LayeredCache.Instance.Get<List<int>>(
+                    key, ref ruleIds, Get_MCRulesIdsByMediaId,
+                    new Dictionary<string, object>()
+                        {
+                        { "groupId", groupId },
+                        { "mediaId", mediaId },
+                        { "mcr", groupMediaConcurrencyRules }
+                        },
+                    groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
+                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
+
                 if (!cacheResult)
                 {
                     log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
@@ -4357,7 +4355,9 @@ namespace Core.Api
                 }
                 else if (ruleIds != null && ruleIds.Count > 0)
                 {
-                    res = mcr.Where(x => ruleIds.Contains(x.RuleID) && x.bmId == bmID && x.Type == type).ToList();
+                    res = groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) &&
+                    (bmID == -1 || x.bmId == bmID) &&
+                    (type == null || x.Type == type)).ToList();
                 }
                 return res;
             }
@@ -4366,6 +4366,28 @@ namespace Core.Api
                 log.Error("GetMediaConcurrencyRules - Failed  due ex = " + ex.Message, ex);
                 return null;
             }
+        }
+
+        public static List<MediaConcurrencyRule> GetGroupMediaConcurrencyRules(int groupId)
+        {
+            List<MediaConcurrencyRule> result = null;
+
+            // check if media concurrency rule exists for group
+            string key = LayeredCacheKeys.GetGroupMediaConcurrencyRulesKey(groupId);
+
+            // try to get from cache  
+
+            bool cacheResult = LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(
+                key, ref result, APILogic.Utils.Get_MCRulesByGroup, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME);
+
+            if (!cacheResult)
+            {
+                log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId = {0}", groupId));
+                result = null;
+            }
+
+            return result;
         }
 
         private static Dictionary<string, List<string>> GetMediaTags(int nMediaID, int nGroupID)
@@ -4522,7 +4544,7 @@ namespace Core.Api
 
             return response;
         }
-
+     
         #region Parental Rules
 
         public static ParentalRulesResponse GetParentalRules(int groupId)
@@ -10034,7 +10056,7 @@ namespace Core.Api
         internal static Status CleanUserAssetHistory(int groupId, string userId, List<KeyValuePair<int, eAssetTypes>> assets)
         {
             Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-      
+
             try
             {
                 List<string> assetHistoryKeys = new List<string>();

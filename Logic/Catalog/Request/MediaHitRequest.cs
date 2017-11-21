@@ -192,13 +192,14 @@ namespace Core.Catalog.Request
             int nPlatform = 0;
             int nSwhoosh = 0;
             int nCountryID = 0;
-            int nSiteGuid;
+            int siteGuid;
             int fileDuration = 0;
             int mediaId = int.Parse(m_oMediaPlayRequestData.m_sAssetID);
             string playCycleKey = string.Empty;
             MediaPlayActions action;
             List<Task> tasks = new List<Task>();
             ContextData contextData = new ContextData();
+            int mediaConcurrencyRuleId = 0;
 
             if (m_oMediaPlayRequestData.m_nLoc > 0)
                 nPlayTime = m_oMediaPlayRequestData.m_nLoc;
@@ -229,10 +230,10 @@ namespace Core.Catalog.Request
             }
 
             bool resultParse = Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
-            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
+            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
 
             //non-anonymous user
-            if (nSiteGuid > 0)
+            if (siteGuid > 0)
             {
                 // Get from CB and insert into MediaEOH
                 PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, m_oMediaPlayRequestData.m_sUDID, nPlatform);
@@ -240,6 +241,7 @@ namespace Core.Catalog.Request
                 {
                     domainId = playCycleSession.DomainID;
                     playCycleKey = playCycleSession.PlayCycleKey;
+                    mediaConcurrencyRuleId = playCycleSession.MediaConcurrencyRuleID;
                 }
                 else
                 {
@@ -254,14 +256,18 @@ namespace Core.Catalog.Request
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
                 {
                     bool isFirstPlay = action == MediaPlayActions.FIRST_PLAY;
+
+                    var mediaConcurrencyRules = Api.api.GetMediaConcurrencyRules(mediaId, this.m_sUserIP, this.m_nGroupID);
+
                     CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid,
-                        nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, domainId, ePlayType.MEDIA, isFirstPlay, isLinearChannel);
+                        nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, domainId, ePlayType.MEDIA, isFirstPlay, isLinearChannel,
+                        0, mediaConcurrencyRules);
                 }
 
                 if (m_oMediaPlayRequestData.m_nAvgBitRate > 0)
                 {
-                    int siteGuid = 0;
-                    int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
+                    int siteGuidUnkown = 0;
+                    int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuidUnkown);
                 }
             }
             //if this is not a bit rate change, log for mediahit for statistics

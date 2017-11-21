@@ -4,9 +4,6 @@ using Core.Users;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace Core.Domains
@@ -63,7 +60,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DomainResponseStatus RemoveDomain(int nGroupID, int nDomainID)
         {
             Core.Users.BaseDomain t = null;
@@ -859,7 +856,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static ApiObjects.Response.Status RemoveDomainById(int nGroupID, int nDomainID)
         {
 

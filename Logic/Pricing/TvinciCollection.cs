@@ -106,7 +106,7 @@ namespace Core.Pricing
             List<KeyValuePair<VerificationPaymentGateway, string>> response = new List<KeyValuePair<VerificationPaymentGateway, string>>();
             DataTable dt;
 
-            dt = PricingDAL.Get_ProductsCouponGroup(GroupID, new List<long>(1) { collectionId }, eTransactionType.Collection);
+            dt = PricingDAL.Get_ExternalProductCodes(GroupID, new List<long>(1) { collectionId }, eTransactionType.Collection);
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
@@ -146,6 +146,7 @@ namespace Core.Pricing
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery += "select * from collection_names with (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("collection_id", "=", nCollectionID);
+                selectQuery.SetConnectionKey("pricing_connection");
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -186,6 +187,7 @@ namespace Core.Pricing
                 selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(nGroupID, "MAIN_CONNECTION_STRING");
                 selectQuery += " and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("COLLECTION_ID", "=", nCollectionCode);
+                selectQuery.SetConnectionKey("pricing_connection");
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -225,6 +227,7 @@ namespace Core.Pricing
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery += "select * from collection_descriptions with (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("collection_id", "=", nCollectionID);
+                selectQuery.SetConnectionKey("pricing_connection");
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;

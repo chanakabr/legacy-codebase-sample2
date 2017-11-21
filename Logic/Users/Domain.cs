@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using ApiObjects.MediaMarks;
-using Tvinci.Core.DAL;
-using DAL;
-using System.Xml.Serialization;
-
-using Core.Users.Cache;
-using NPVR;
-using Newtonsoft.Json;
-using ApiObjects;
-using ApiObjects.Response;
-using KLogMonitor;
-using System.Reflection;
-using CachingProvider.LayeredCache;
+﻿using ApiObjects;
 using ApiObjects.DRM;
+using ApiObjects.MediaMarks;
+using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using Core.Users.Cache;
+using DAL;
+using KLogMonitor;
+using Newtonsoft.Json;
+using NPVR;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
+using Tvinci.Core.DAL;
 
 namespace Core.Users
 {
@@ -2642,35 +2640,77 @@ namespace Core.Users
          * This method get MediaConcurrencyLimit (int) , domain and mediaID 
          * Get from CB all media play at the last 
          ************************************************************************************************************* */
-        internal DomainResponseStatus ValidateAssetConcurrency(int nRuleID, int mediaConcurrencyLimit, long lDomainID, int assetID, string sUDID)
+        internal DomainResponseStatus ValidateAssetConcurrency(int ruleId, int mediaConcurrencyLimit, long domainID, int assetID, string udid)
         {
             DomainResponseStatus response = DomainResponseStatus.OK;
+            ConcurrencyRestrictionPolicy policy = ConcurrencyRestrictionPolicy.Single;
 
             if (mediaConcurrencyLimit == 0)
             {
-                // get limitation from DB
-                DataTable dt = ApiDAL.GetMCRulesByID(nRuleID);
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                // Get all group's media concurrency rules
+                var groupConcurrencyRules = Api.api.GetGroupMediaConcurrencyRules(this.m_nGroupID);
+
+                // Search for the relevant rules
+                var mediaConcurrencyRule = groupConcurrencyRules.FirstOrDefault(rule => rule.RuleID == ruleId);
+
+                // If we got one from the cache/api method, we will use its dat
+                if (mediaConcurrencyRule != null)
                 {
-                    mediaConcurrencyLimit = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "media_concurrency_limit");
+                    mediaConcurrencyLimit = mediaConcurrencyRule.Limitation;
+                    policy = mediaConcurrencyRule.RestrictionPolicy;
+                }
+                // Otherwise we get the limiation from DB in the old fashion
+                else
+                {
+                    // get limitation from DB
+                    DataTable dt = ApiDAL.GetMCRulesByID(ruleId);
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        mediaConcurrencyLimit = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "media_concurrency_limit");
+                        policy = (ConcurrencyRestrictionPolicy)ODBCWrapper.Utils.ExtractInteger(dt.Rows[0], "restriction_policy");
+                    }
                 }
             }
 
-            if (mediaConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
+            // check concurrency only if limitation  > 0
+            if (mediaConcurrencyLimit > 0) 
             {
-                List<UserMediaMark> lUserMediaMark = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
+                // Get all domain media marks
+                List<UserMediaMark> domainMediaMarks = CatalogDAL.GetDomainLastPositions((int)domainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
                         new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA });
-                if (lUserMediaMark != null)
-                {
-                    List<UserMediaMark> assetConcurrency = lUserMediaMark.Where(currentMark => !currentMark.UDID.Equals(sUDID) && currentMark.AssetID == assetID && 
 
-                        currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
-                    if (assetConcurrency != null && assetConcurrency.Count >= mediaConcurrencyLimit)
+                if (domainMediaMarks != null)
+                {
+                    List<UserMediaMark> assetMediaMarks = null;
+
+                    switch (policy)
+                    {
+                        case ConcurrencyRestrictionPolicy.Single:
+                            {
+                                assetMediaMarks = domainMediaMarks.Where(
+                                    currentMark => !currentMark.UDID.Equals(udid) && currentMark.AssetID == assetID &&
+                                    currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
+                                break;
+                            }
+                        case ConcurrencyRestrictionPolicy.Group:
+                            {
+                                assetMediaMarks = domainMediaMarks.Where(
+                                    currentMark => !currentMark.UDID.Equals(udid) && 
+                                    (currentMark.MediaConcurrencyRuleIds == null || currentMark.MediaConcurrencyRuleIds.Contains(ruleId)) &&
+                                    currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
+                                break;
+                            }
+                        default:
+                            break;
+                    }
+
+                    if (assetMediaMarks != null && assetMediaMarks.Count >= mediaConcurrencyLimit)
                     {
                         response = DomainResponseStatus.MediaConcurrencyLimitation;
                     }
                 }
             }
+
             return response;
         }
 
@@ -2723,7 +2763,7 @@ namespace Core.Users
         {
             try
             {
-                if (oLimitationsManager != null) // initialize all fileds 
+                if (oLimitationsManager != null) // initialize all fields 
                 {
                     #region Devices
                     List<string> devicesChange = new List<string>();
@@ -2740,15 +2780,27 @@ namespace Core.Users
                                 // quntity of the new dlm is less than the cuurent dlm only if new dlm is <> 0 (0 = unlimited)
                                 if (currentDC.m_oLimitationsManager.Quantity > item.quantity && item.quantity != 0) // need to delete the laset devices
                                 {
-                                    // get from DB the last update date domains_devices table  change status to is_active = 0  update the update _date
+                                    // get from DB the last update date domains_devices table. 
                                     List<int> lDevicesID = currentDC.DeviceInstances.Select(x => int.Parse(x.m_id)).ToList<int>();
-                                    if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity) // only if there is a gap between current devices to needed quntity
+                                    if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity) // only if there is a gap between current devices to needed quantity
                                     {
                                         int nDeviceToDelete = lDevicesID.Count - item.quantity;
-                                        devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID);
-                                        if (devicesChange != null && devicesChange.Count > 0)
+
+                                        // Get group downgrade policy for desc/Asc
+                                        var downgradePolicy = ApiDAL.GetGroupDowngradePolicy(this.GroupId); 
+                                        
+                                        //Get the devices that need to be deleted according to downgrade policy
+                                        List<string> devicesToDelete= DomainDal.GetDevicesDomainByDowngradePolicy(nDeviceToDelete, this.m_nDomainID, lDevicesID, (DowngradePolicy)downgradePolicy);
+
+                                        if (devicesToDelete != null)
                                         {
-                                            oChangeDLMObj.devices.AddRange(devicesChange);
+                                            // update status, active fileds to deleted + call device.delete for event.
+                                            DeleteDevice(currentDC, devicesToDelete);
+
+                                            if (devicesToDelete.Count > 0)
+                                            {
+                                                oChangeDLMObj.devices.AddRange(devicesToDelete);
+                                            }
                                         }
                                     }
                                 }
@@ -2770,12 +2822,12 @@ namespace Core.Users
                         }
                         if (bNeedToDelete) // family device id not exsits in new DLM - delete all devices
                         {
-                            List<int> lDevicesID = currentItem.Value.DeviceInstances.Select(x => int.Parse(x.m_id)).ToList<int>();
-                            int nDeviceToDelete = lDevicesID.Count();
-                            if (nDeviceToDelete > 0)
+                            List<string> lDevicesID = currentItem.Value.DeviceInstances.Select(x => x.m_id).ToList<string>();                            
+                            if (lDevicesID.Count > 0)
                             {
-                                devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID);
-                                oChangeDLMObj.devices.AddRange(devicesChange);
+                                // update status, active fileds to deleted + call device.delete for event.
+                                DeleteDevice(currentDC, lDevicesID);
+                                oChangeDLMObj.devices.AddRange(lDevicesID);
                             }
                         }
                     }
@@ -2843,6 +2895,36 @@ namespace Core.Users
                 log.Error("", ex);
                 oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return false;
+            }
+        }
+
+        private void DeleteDevice(DeviceContainer currentDC, List<string> devicesToDelete)
+        {
+            DomainDevice domainDevice = null;
+            foreach (var deviceId in devicesToDelete)
+            {
+                // get current device data                                                
+                Device device = currentDC.DeviceInstances.Where(x => x.m_id == deviceId).FirstOrDefault();
+                // set is_Active = 2; status = 2
+                domainDevice = new DomainDevice()
+                {
+                    Udid = device.m_deviceUDID,
+                    DeviceId = int.Parse(deviceId),
+                    GroupId = m_nGroupID,
+                    DomainId = m_nDomainID,
+                    ActivataionStatus = device.m_state,
+                    DeviceBrandId = device.m_deviceBrandID,
+                    ActivatedOn = device.m_activationDate,
+                    Name = device.m_deviceName,
+                    DeviceFamilyId = device.m_deviceFamilyID
+                };
+
+                bool deleted = domainDevice.Delete();
+
+                if (!deleted)
+                {
+                    log.Debug("CompareDLM - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, domainDevice.Udid));
+                }
             }
         }
 
