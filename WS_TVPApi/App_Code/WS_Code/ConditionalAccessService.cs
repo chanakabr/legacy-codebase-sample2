@@ -1212,6 +1212,38 @@ namespace TVPApiServices
             return res;
         }
 
+       
+        [WebMethod(EnableSession = true, Description = "Issues a record series request by SeriesId")]
+        [PrivateMethod]
+        public NPVRResponse RecordSeriesBySeriesId(InitializationObject initObj, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId, List<string> lookupCriteria)
+        {
+            NPVRResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "RecordSeriesBySeriesId", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordSeriesBySeriesId(initObj.SiteGuid, initObj.DomainID, initObj.UDID, 
+                        seriesId, seasonNumber, seasonSeed, episodeSeed, channelId, lookupCriteria);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+            }
+
+            return res;
+        }
+
+
         [WebMethod(EnableSession = true, Description = "Issues a delete series request")]
         [PrivateMethod]
         public NPVRResponse DeleteSeriesRecording(InitializationObject initObj, string seriesRecordingId)
@@ -1240,6 +1272,38 @@ namespace TVPApiServices
 
             return res;
         }
+
+        [WebMethod(EnableSession = true, Description = "Delete Recordings By")]
+        [PrivateMethod]
+        public NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string seriesId, int seasonNumber, int channelId,
+            List<TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.NPVRRecordingStatus> status)
+        {
+            NPVRResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "DeleteRecordingsBy", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).DeleteRecordingsBy(initObj.SiteGuid, initObj.DomainID, initObj.UDID, seriesId,
+                      seasonNumber, channelId, status);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+            }
+
+            return res;
+        }
+
 
         [WebMethod(EnableSession = true, Description = "Issues a cancel series request")]
         [PrivateMethod]

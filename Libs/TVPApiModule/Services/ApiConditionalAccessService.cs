@@ -1346,6 +1346,7 @@ namespace TVPApiModule.Services
             }
             return res;
         }
+        
 
         public NPVRResponse DeleteSeriesRecording(string siteGuid, long domainId, string udid, string seriesRecordingId)
         {
@@ -1372,6 +1373,75 @@ namespace TVPApiModule.Services
             {
                 logger.ErrorFormat("CancelSeriesRecording: Error calling webservice protocol : GetNPVRResponse with CancelSeriesNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, seriesRecordingId: {4}",
                     ex.Message, siteGuid, domainId, udid, seriesRecordingId);
+            }
+            return res;
+        }
+
+        public NPVRResponse DeleteRecordingsBy(string siteGuid, long domainId, string udid, string seriesId, int seasonNumber, int channelId, 
+            List<TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.NPVRRecordingStatus> status)
+        {
+            NPVRResponse res = null;
+
+            try
+            {
+                DeleteSeriesRecordingByNPVRCommand commend = new DeleteSeriesRecordingByNPVRCommand()
+                {   
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName,
+                    ChannelId = channelId,
+                    SeriesId = seriesId,
+                    SeasonNumber = seasonNumber,
+                    Status = status.ToArray()
+                };
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetNPVRResponse(commend);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("DeleteRecordingsBy: Error calling webservice protocol : GetNPVRResponse with DeleteSeriesRecordingByNPVRCommand, Error Message: {0}, " +
+                    " Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, seriesId: {4}, seasonNumber: {5}, channelId: {6}, status: {7}",
+                    ex.Message, siteGuid, domainId, udid, seriesId, seasonNumber, channelId, status != null ? string.Join(",", status.Select(x=>x.ToString())) : string.Empty);
+            }
+            return res;
+        }
+
+        public NPVRResponse RecordSeriesBySeriesId(string siteGuid, long domainId, string udid, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId, List<string> lookupCriteria)
+        {
+            NPVRResponse res = null;
+
+            try
+            {
+                RecordSeriesBySeriesIdNPVRCommand commend = new RecordSeriesBySeriesIdNPVRCommand()
+                {                   
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName,
+                    SeriesId = seriesId,
+                    SeasonNumber = seasonNumber,
+                    SeasonSeed = seasonSeed,
+                    EpisodeSeed = episodeSeed,
+                    ChannelId = channelId,
+                    LookupCriteria = lookupCriteria.ToArray(),
+                };
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = m_Module.GetNPVRResponse(commend);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("RecordSeriesBySeriesId: Error calling webservice protocol : GetNPVRResponse with RecordSeriesBySeriesIdNPVRCommand, Error Message: {0}, " +
+                    " Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, seriesId: {4}, seasonNumber: {5}, seasonSeed: {6}, episodeSeed: {7}, channelId: {8},lookupCriteria:{9} ",
+                    ex.Message, siteGuid, domainId, udid, seriesId, seasonNumber, seasonSeed, episodeSeed, channelId, lookupCriteria!= null ? string.Join(",", lookupCriteria): string.Empty);
             }
             return res;
         }

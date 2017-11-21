@@ -3588,6 +3588,41 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "NPVR Retrieves Recordings for User ")]
+        [PrivateMethod]
+        public List<RecordedEPGChannelProgrammeObject> NPVRGetRecordings(InitializationObject initObj, int pageSize, int pageIndex,
+            NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
+        {
+            List<RecordedEPGChannelProgrammeObject> res = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "NPVRGetRecordings", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj catalogOrderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.RecordedEPGOrderObj()
+                    {
+                        m_eOrderBy = recordedEPGOrderObj.m_eOrderBy,
+                        m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
+                    };
+                    res = new NPVRRetrieveLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, searchBy, epgChannelID, recordingStatus, recordingIDs, 
+                        programIDs, seriesIDs, startDate, catalogOrderObj, true)
+                    {
+                        Platform = initObj.Platform.ToString()
+                    }.Execute() as List<RecordedEPGChannelProgrammeObject>;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+                HttpContext.Current.Items["Error"] = "Unknown group";
+
+            return res;
+        }
+
         [WebMethod(EnableSession = true, Description = "Retrieves Recordings of Series for User")]
         [PrivateMethod]
         public List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj)
@@ -3622,6 +3657,7 @@ namespace TVPApiServices
             return res;
         }
 
+        
         [WebMethod(EnableSession = true, Description = "Search Media and EPG")]
         public TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj, List<int> filter_types, string filter, string order_by,
             List<string> with, int page_index, int? page_size, string request_id)
