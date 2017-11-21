@@ -259,6 +259,11 @@ namespace CachingProvider
         {
             return new CouchbaseManager.CouchbaseManager(bucket).GetValues<T>(keys, ref results, shouldAllowPartialQuery);
         }
+        public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false, bool asJson = false)
+        {
+            results = new CouchbaseManager.CouchbaseManager(bucket).GetValues<T>(keys, shouldAllowPartialQuery, asJson);
 
+            return true;
+        }
     }
 }
