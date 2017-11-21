@@ -10971,7 +10971,7 @@ namespace Core.ConditionalAccess
         {
             throw new NotImplementedException("Not implemented yet.");
         }
-        public virtual NPVRResponse DeleteNPVR(string siteGuid, string seriesId, int seasonNumber, int channelId, List<NPVRRecordingStatus> status)
+        public virtual NPVRResponse DeleteNPVR(string siteGuid, string seriesId, string seasonNumber, string channelId, List<NPVRRecordingStatus> status)
         {
             throw new NotImplementedException("Not implemented yet.");
         }

@@ -422,7 +422,7 @@ namespace Core.ConditionalAccess
         }
 
         //Delete Series Nokia new implementation
-        public override NPVRResponse DeleteNPVR(string siteGuid, string seriesId, int seasonNumber, int channelId, List<NPVRRecordingStatus> status)
+        public override NPVRResponse DeleteNPVR(string siteGuid, string seriesId, string seasonNumber, string channelId, List<NPVRRecordingStatus> status)
         {
             NPVRResponse res = new NPVRResponse();
             DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;

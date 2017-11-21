@@ -13,11 +13,11 @@ namespace Core.ConditionalAccess
     {
         public string SeriesId { get; set; }
 
-        public int SeasonNumber { get; set; }
+        public string SeasonNumber { get; set; }
 
         public List<NPVRRecordingStatus> Status { get; set; }
 
-        public int ChannelId { get; set; }
+        public string ChannelId { get; set; }
         
 
         protected override NPVRResponse ExecuteFlow(BaseConditionalAccess cas)
