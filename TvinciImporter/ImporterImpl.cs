@@ -252,10 +252,34 @@ namespace TvinciImporter
             return nMediaID;
         }
 
-        static protected void DeleteMedia(Int32 nMediaID)
+        static protected DeleteMediaPolicy GetGroupDeleteMediaPolicy(int groupID)
         {
-            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+            int deleteMediaPolicy = 0;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetCachedSec(0);
+            selectQuery += string.Format("select Delete_media_policy from groups (nolock) where id= (SELECT PARENT_GROUP_ID FROM F_Get_GroupsParent ({0}))", groupID);
+            if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView.Count > 0)
+            {
+                deleteMediaPolicy = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "Delete_media_policy", 0);
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            log.DebugFormat("GetGroupDeleteMediaPolicy: groupID: {0}", groupID);
+
+            if (typeof(DeleteMediaPolicy).IsEnumDefined(deleteMediaPolicy))
+                return (DeleteMediaPolicy)deleteMediaPolicy;
+            else
+                return 0;
+        }
+
+        static protected void DeleteMedia(Int32 nMediaID, DeleteMediaPolicy deleteMediaPolicy)
+        {
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");            
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
+            if (deleteMediaPolicy == DeleteMediaPolicy.Delete)
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
             updateQuery += "where";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nMediaID);
             updateQuery.Execute();
@@ -1692,7 +1716,7 @@ namespace TvinciImporter
                 }
                 //delete media
                 log.DebugFormat("Delete Media:{0}", nMediaID);
-                DeleteMedia(nMediaID);
+                DeleteMedia(nMediaID, GetGroupDeleteMediaPolicy(nGroupID));
             }
             else if (sAction == "insert" || sAction == "update")
             {

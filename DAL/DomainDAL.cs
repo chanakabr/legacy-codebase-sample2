@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Tvinci.Core.DAL;
-using System.Data;
-using ApiObjects;
-using ODBCWrapper;
+﻿using ApiObjects;
 using ApiObjects.DRM;
 using KLogMonitor;
-using System.Reflection;
 using Newtonsoft.Json;
+using ODBCWrapper;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Reflection;
+using Tvinci.Core.DAL;
 
 namespace DAL
 {
@@ -24,7 +22,6 @@ namespace DAL
         private const string SP_GET_USERS_IN_DOMAIN = "Get_UsersInDomain";
         private const string SP_GET_USERS_IN_DOMAIN_INCLUDE_DELETED = "Get_UserInDomainInIncludeDeleted";
         private const string SP_GET_DOMAIN_SETTINGS = "sp_GetDomainSettings";
-        private const string SP_GET_DEVICE_FAMILIES_LIMITS = "sp_GetDeviceFamiliesLimits";
         private const string SP_GET_DOMAIN_IDS_BY_EMAIL = "sp_GetDomainIDsByEmail";
         private const string SP_GET_DOMAIN_IDS_BY_OPERATOR_COGUID = "sp_GetDomainIDsByOperatorCoGuid";
         private const string SP_GET_DEVICE_DOMAIN_DATA = "Get_DeviceDomainData";
@@ -1967,7 +1964,7 @@ namespace DAL
             return usersChange;
         }
 
-        public static List<string> SetDevicesDomainStatus(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)
+        public static List<string> SetDevicesDomainStatus(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, DowngradePolicy downgradePolicy, int? status = null)
         {
             List<string> devicesChange = new List<string>();
             StoredProcedure sp = new StoredProcedure("SetDevicesDomainStatus");
@@ -1979,6 +1976,7 @@ namespace DAL
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
             if (status != null)
                 sp.AddParameter("@status", status);
+            sp.AddParameter("@downgradePolicy", (int)downgradePolicy);
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -1991,6 +1989,30 @@ namespace DAL
             }
             return devicesChange;
         }
+
+
+        public static List<string> GetDevicesDomainByDowngradePolicy(int nDeviceToDelete, int domainId, List<int> devicesId, DowngradePolicy downgradePolicy)
+        {
+            List<string> devicesToBeModified = new List<string>();
+            StoredProcedure sp = new StoredProcedure("Get_DevicesDomainByDowngradePolicy");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@top", nDeviceToDelete);
+            sp.AddParameter("@domainId", domainId);
+            sp.AddIDListParameter<int>("@devicesId", devicesId, "Id");
+            sp.AddParameter("@downgradePolicy", (int)downgradePolicy);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    devicesToBeModified.Add(ODBCWrapper.Utils.GetSafeStr(dr, "device_id"));
+                }
+            }
+            return devicesToBeModified;
+        }
+
 
         public static List<string> SetDevicesDomainStatusNotInList(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)
         {
@@ -2268,7 +2290,7 @@ namespace DAL
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            CouchbaseManager.eResultStatus getResult = CouchbaseManager.eResultStatus.ERROR;            
+            CouchbaseManager.eResultStatus getResult = CouchbaseManager.eResultStatus.ERROR;
             string drmIdKey = UtilsDal.GetDrmIdKey(drmId, groupId);
             if (string.IsNullOrEmpty(drmIdKey))
             {
@@ -2329,7 +2351,7 @@ namespace DAL
             }
             return result;
         }
-        
+
         public static bool SetDevicePinToNull(int groupId, string udid, string pin)
         {
             StoredProcedure sp = new StoredProcedure("SetDevicePinToNull");
@@ -2389,7 +2411,7 @@ namespace DAL
             }
             return result;
         }
-                
+
         public static KeyValuePair<string, KeyValuePair<int, string>> GetDrmId(string drmId, int groupId, ref bool res)
         {
             KeyValuePair<string, KeyValuePair<int, string>> response = new KeyValuePair<string, KeyValuePair<int, string>>();
