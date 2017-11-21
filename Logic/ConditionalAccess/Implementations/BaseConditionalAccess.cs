@@ -10723,7 +10723,7 @@ namespace Core.ConditionalAccess
         /*******************************************************************************************
          * This method create the PlayCycleSession in CB and also inserts into DB with the (media_concurrency) mc_rule_id 
          ***************************************************************************************** */
-        private void CreatePlayCycle(string sSiteGuid, Int32 nMediaFileID, string sUserIP, string sDeviceName, int nMediaID, List<int> lRuleIDS, int domainID)
+        public void CreatePlayCycle(string sSiteGuid, Int32 nMediaFileID, string sUserIP, string sDeviceName, int nMediaID, List<int> lRuleIDS, int domainID)
         {
             int ruleID = 0;
             // create PlayCycle       
@@ -10731,12 +10731,14 @@ namespace Core.ConditionalAccess
             {
                 ruleID = lRuleIDS[0]; // take the first rule (probably will be just one rule)
             }
+            
             string sPlayCycleKey;
             PlayCycleSession playCycleSession = null;
             if (!Utils.IsAnonymousUser(sSiteGuid))
             {
                 playCycleSession = Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleSession(sSiteGuid, nMediaFileID, m_nGroupID, sDeviceName, 0, ruleID, domainID);
             }
+
             if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
             {
                 sPlayCycleKey = playCycleSession.PlayCycleKey;
@@ -10758,6 +10760,7 @@ namespace Core.ConditionalAccess
             MediaFileItemPricesContainer[] prices, int nMediaID, string sUserIP, ref List<int> lRuleIDS, ref int domainID)
         {
             DomainResponseStatus response = DomainResponseStatus.OK;
+            lRuleIDS = new List<int>();
 
             if (Utils.IsAnonymousUser(sSiteGuid))
             {
@@ -10770,8 +10773,6 @@ namespace Core.ConditionalAccess
                 long lSiteGuid = 0;
                 long.TryParse(sSiteGuid, out lSiteGuid);
                 ValidationResponseObject validationResponse = new ValidationResponseObject();
-
-                bool skipValidateLimitationModule = false;
 
                 if (prices != null && prices.Length > 0)
                 {
@@ -10800,10 +10801,19 @@ namespace Core.ConditionalAccess
                     /* MediaConurrency Check */
                     if (mcRules != null && mcRules.Count() > 0)
                     {
+
+                        log.DebugFormat("MediaConcurrencyRule for userId:{0}, mediaId:{1}, BusinessModule:{2}, rules:{3}", sSiteGuid, nMediaID,
+                            eBM.ToString(), string.Join(",", mcRules.Select(x => x.RuleID).ToList()));
+                        
                         MediaConcurrencyRule minRule = null;
 
                         foreach (MediaConcurrencyRule mcRule in mcRules)
                         {
+                            if (mcRule == null)
+                            {
+                                continue;
+                            }
+
                             if (minRule == null || minRule.Limitation > mcRule.Limitation
                                 || (minRule.Limitation == mcRule.Limitation && minRule.RuleID > mcRule.RuleID))
                             {
@@ -16152,7 +16162,8 @@ namespace Core.ConditionalAccess
         public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType, string mediaProtocol,
             PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice)
         {
-            return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out filePrice);
+            List<int> mediaConcurrencyRuleIds = null;
+            return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out filePrice, out mediaConcurrencyRuleIds);
         }
 
         public PlayContextType? FilterNotAllowedServices(long domainId, PlayContextType context)

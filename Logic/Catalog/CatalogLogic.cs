@@ -4268,7 +4268,7 @@ namespace Core.Catalog
                 }
                 else
                 {
-                    mediaConcurrencyRuleIds.Add(mediaConcurrencyRuleID);
+                    mediaConcurrencyRuleIds = new List<int>() { mediaConcurrencyRuleID };
                 }
             }
 

@@ -549,7 +549,8 @@ namespace ApiObjects
         DeleteUser = 4,
         ChangeUsers = 5,
         EnableUserNotifications = 6,
-        DisableUserNotifications = 7
+        DisableUserNotifications = 7,
+        DeleteDevice = 8
     }
 
     public enum eAnnouncementStatus
@@ -956,5 +957,11 @@ namespace ApiObjects
     {
         LIFO = 0,
         FIFO = 1
+    }
+
+    public enum DeleteMediaPolicy
+    {
+        Disable = 0,
+        Delete = 1
     }
 }
