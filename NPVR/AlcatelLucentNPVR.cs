@@ -137,7 +137,7 @@ namespace NPVR
                 if (IsCreateOrUpdateInputValid(args))
                 {
                     log.Debug("CreateAccount - " + string.Format("CreateAccount request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()));
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_QUOTA_URL_PARAM, (args.Quota * 60).ToString()));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
@@ -192,7 +192,7 @@ namespace NPVR
                 if (IsDeleteInputValid(args))
                 {
                     log.Debug("DeleteAccount - " + string.Format("DeleteAccount request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()));
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_FORM_URL_PARAM, "json"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
@@ -244,7 +244,7 @@ namespace NPVR
             {
                 if (IsGetQuotaInputValid(args))
                 {
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(2);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
 
@@ -294,7 +294,7 @@ namespace NPVR
             {
                 if (IsRecordAssetInputValid(args))
                 {
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "2.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
@@ -350,7 +350,7 @@ namespace NPVR
             {
                 if (IsCancelDeleteAssetInputValid(args))
                 {
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
 
@@ -404,7 +404,7 @@ namespace NPVR
             {
                 if (IsCancelDeleteAssetInputValid(args))
                 {
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
@@ -456,7 +456,7 @@ namespace NPVR
             {
                 if (IsSetAssetProtectionStatusInputValid(args))
                 {
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_NAME_URL_PARAM, "protected"));
@@ -512,7 +512,7 @@ namespace NPVR
             {
                 if (IsSetAssetAlreadyWatchedInputValid(args))
                 {
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "3.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_NAME_URL_PARAM, "alreadyWatched"));
@@ -684,7 +684,7 @@ namespace NPVR
             {
                 if (IsRecordAssetInputValid(args))
                 {
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "2.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
@@ -740,7 +740,7 @@ namespace NPVR
             {
                 if (IsRecordAssetInputValid(args))
                 {
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SERIES_ID_PARAM, args.SeriesId));
@@ -811,7 +811,7 @@ namespace NPVR
             {
                 if (IsCancelDeleteAssetInputValid(args))
                 {
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ID_URL_PARAM, args.AssetID));
@@ -864,7 +864,7 @@ namespace NPVR
             {
                 if (IsCancelDeleteAssetInputValid(args))
                 {
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ID_URL_PARAM, args.AssetID));
@@ -917,7 +917,7 @@ namespace NPVR
             {
                 if (IsCancelDeleteAssetInputValid(args))
                 {
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "3.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SERIES_ID_PARAM, args.SeriesID));
@@ -972,7 +972,7 @@ namespace NPVR
             {
                 if (IsLicensedLinkInputValid(args))
                 {
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_FORM_URL_PARAM, "json"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
@@ -1096,7 +1096,7 @@ namespace NPVR
                 if (IsCreateOrUpdateInputValid(args))
                 {
                     log.Debug("UpdateAccount - " + string.Format("UpdateAccount request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()));
-                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_QUOTA_URL_PARAM, (args.Quota * 60).ToString()));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
