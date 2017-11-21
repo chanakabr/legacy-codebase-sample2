@@ -13,7 +13,7 @@ using System.Reflection;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using CachingProvider.LayeredCache;
-
+using Newtonsoft.Json.Linq;
 
 namespace NPVR
 {
@@ -58,11 +58,11 @@ namespace NPVR
         private static readonly string ALU_SCHEMA_URL_PARAM = "schema";
         private static readonly string ALU_USER_ID_URL_PARAM = "userId";
         private static readonly string ALU_ACCOUNT_ID_URL_PARAM = "accountId";
-        private static readonly string ALU_PROGRAM_ID_URL_PARAM = "programId";
-        private static readonly string ALU_CHANNEL_ID_URL_PARAM = "channelId";
-        private static readonly string ALU_START_TIME_URL_PARAM = "startTime";
-        private static readonly string ALU_ASSET_ID_URL_PARAM = "assetId";
-        private static readonly string ALU_NAME_URL_PARAM = "name";
+        private const string ALU_PROGRAM_ID_URL_PARAM = "programId";
+        private const string ALU_CHANNEL_ID_URL_PARAM = "channelId";
+        private const string ALU_START_TIME_URL_PARAM = "startTime";
+        private const string ALU_ASSET_ID_URL_PARAM = "assetId";
+        private const string ALU_NAME_URL_PARAM = "name";
         private static readonly string ALU_VALUE_URL_PARAM = "value";
         private static readonly string ALU_COUNT_URL_PARAM = "count";
         private static readonly string ALU_ENTRIES_START_INDEX_URL_PARAM = "entriesStartIndex";
@@ -84,6 +84,21 @@ namespace NPVR
         private static readonly string ALU_RATING = "rating";
 
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
+
+        private const string ALU_CHANNEL_NAME = "channelName";
+        private const string ALU_DESCRIPTION = "description";
+        private const string ALU_PROTECTED = "protected";
+        private const string ALU_END_TIME = "endTime";
+        private const string ALU_THUMBNAIL = "thumbnail";
+        private const string ALU_STATUS = "status";
+        private const string ALU_SOURCE = "source";
+        private const string ALU_ACTUAL_START_TIME = "actualStartTime";
+        private const string ALU_ACTUAL_END_TIME = "actualEndTime";
+        private const string ALU_BOOKING_TIME = "bookingTime";
+        private const string ALU_ALREADY_WATCHED = "alreadyWatched";
+        private const string ALU_EVENT_ID = "eventId";
+        private const string ALU_PIN_PROTECTED = "pinProtected";
+
 
         /*********************************************************************************/
 
@@ -1324,183 +1339,319 @@ namespace NPVR
             return args != null && !string.IsNullOrEmpty(args.EntityID);
         }
 
-
-        private List<RecordedEPGChannelProgrammeObject> ParseALUReadResponse(ReadResponseJSON aluResponse)
+        private List<RecordedEPGChannelProgrammeObject> ParseALUReadResponse(JObject aluResponse, int entriesLength)
         {
-            List<RecordedEPGChannelProgrammeObject> res = new List<RecordedEPGChannelProgrammeObject>(aluResponse.EntriesLength);
-            if (aluResponse != null && aluResponse.entries != null && aluResponse.entries.Count > 0)
+            List<RecordedEPGChannelProgrammeObject> res = new List<RecordedEPGChannelProgrammeObject>(entriesLength);
+
+            if (aluResponse != null)
             {
-                List<Ratio> epgRatios = new List<Ratio>();
-                Dictionary<int, List<EpgPicture>> picGroupTree = CatalogDAL.GetGroupTreeMultiPicEpgUrl(groupID, ref epgRatios);
-
-                // choose the higher domain number  ( not the Parent domain) 
-                int epgGroupId = groupID;
-
-                if (picGroupTree != null & picGroupTree.Keys.Count > 0)
+                var entries = aluResponse["entries"];
+                if (entries != null)
                 {
-                    epgGroupId = picGroupTree.Keys.Max();
-                    log.Debug("NPVRPics " + string.Format("picGroupTree[{0}] count {1}", epgGroupId, picGroupTree[epgGroupId].Count));
+                    List<Ratio> epgRatios = new List<Ratio>();
+                    Dictionary<int, List<EpgPicture>> picGroupTree = CatalogDAL.GetGroupTreeMultiPicEpgUrl(groupID, ref epgRatios);
 
-                }
+                    // choose the higher domain number  ( not the Parent domain) 
+                    int epgGroupId = groupID;
 
-                foreach (EntryJSON entry in aluResponse.entries)
-                {
-                    RecordedEPGChannelProgrammeObject obj = new RecordedEPGChannelProgrammeObject();
-                    obj.RecordingID = entry.AssetID;
-                    obj.IsAssetProtected = entry.Protected;
-                    obj.ChannelName = entry.ChannelName;
-                    obj.DESCRIPTION = entry.Description;
-                    obj.START_DATE = GetStartTime(entry);
-                    obj.END_DATE = GetEndTime(entry);
-                    obj.EPG_CHANNEL_ID = ConvertExternalIDToEpgChannelId(entry.ChannelID);
-                    obj.EPG_ID = 0;
-                    obj.EPG_IDENTIFIER = entry.ProgramID;
-                    obj.EPG_Meta = new List<EPGDictionary>();
-                    obj.EPG_TAGS = new List<EPGDictionary>();
-                    obj.EPG_PICTURES = new List<EpgPicture>();
-
-                    obj.ActualStartTime = entry.ActualStartTime;
-                    obj.ActualEndTime = entry.ActualEndTime;
-
-                    // return seasonId + seasonName
-                    if (!string.IsNullOrEmpty(entry.SeasonID))
+                    if (picGroupTree != null & picGroupTree.Keys.Count > 0)
                     {
-                        obj.EPG_TAGS.Add(new EPGDictionary()
-                        {
-                            Key = ALU_SEASON_ID,
-                            Value = entry.SeasonID
-                        });
-                    }
-                    if (!string.IsNullOrEmpty(entry.SeasonName))
-                    {
-                        obj.EPG_TAGS.Add(new EPGDictionary()
-                        {
-                            Key = ALU_SEASON_NAME,
-                            Value = entry.SeasonName
-                        });
+                        epgGroupId = picGroupTree.Keys.Max();
+                        log.Debug("NPVRPics " + string.Format("picGroupTree[{0}] count {1}", epgGroupId, picGroupTree[epgGroupId].Count));
                     }
 
-                    if (!string.IsNullOrEmpty(entry.SeriesId))
+                    foreach (JObject entry in entries)
                     {
-                        obj.EPG_TAGS.Add(new EPGDictionary()
+                        RecordedEPGChannelProgrammeObject obj = new RecordedEPGChannelProgrammeObject();
+                        obj.EPG_Meta = new List<EPGDictionary>();
+                        obj.EPG_TAGS = new List<EPGDictionary>();
+                        obj.EPG_PICTURES = new List<EpgPicture>();
+                        obj.EPG_ID = 0;
+
+                        foreach (var item in entry)
                         {
-                            Key = ALU_SERIES_ID_PARAM,
-                            Value = entry.SeriesId
-                        });
-                    }
-
-                    if (entry.Duration != 0)
-                    {
-                        obj.EPG_TAGS.Add(new EPGDictionary()
-                        {
-                            Key = ALU_DURATION,
-                            Value = entry.Duration.ToString()
-                        });
-                    }
-
-                    if (!string.IsNullOrEmpty(entry.Genre))
-                    {
-                        obj.EPG_TAGS.Add(new EPGDictionary()
-                        {
-                            Key = ALU_GENRE,
-                            Value = entry.Genre
-                        });
-                    }
-
-                    if (!string.IsNullOrEmpty(entry.Episode))
-                    {
-                        obj.EPG_TAGS.Add(new EPGDictionary()
-                        {
-                            Key = ALU_EPISODE,
-                            Value = entry.Episode
-                        });
-                    }
-
-                    if (!string.IsNullOrEmpty(entry.Year))
-                    {
-                        obj.EPG_TAGS.Add(new EPGDictionary()
-                        {
-                            Key = ALU_YEAR,
-                            Value = entry.Year
-                        });
-                    }
-
-                    if (!string.IsNullOrEmpty(entry.Rating))
-                    {
-                        obj.EPG_TAGS.Add(new EPGDictionary()
-                        {
-                            Key = ALU_RATING,
-                            Value = entry.Rating
-                        });
-                    }
-
-                    if (!string.IsNullOrEmpty(entry.SeasonNumber))
-                    {
-                        obj.EPG_TAGS.Add(new EPGDictionary()
-                        {
-                            Key = ALU_SEASON_NUMBER,
-                            Value = entry.SeasonNumber
-                        });
-                    }
-
-                    obj.PIC_URL = entry.Thumbnail;
-
-                    if (!string.IsNullOrEmpty(entry.Thumbnail))
-                    {
-
-                        if (!entry.Thumbnail.ToLower().StartsWith("http://"))
-                        {
-
-                            Dictionary<int, KeyValuePair<string, string>> ratioDictionary = SetRatioList(entry.Thumbnail);
-
-                            if (picGroupTree != null && picGroupTree.Count > 0 && picGroupTree.ContainsKey(epgGroupId))
+                            switch (item.Key)
                             {
-                                SetEpgPictures(ratioDictionary, obj, picGroupTree[epgGroupId]);
-                                if (obj.EPG_PICTURES.Count > 0)
-                                {
-                                    obj.PIC_URL = obj.EPG_PICTURES[0].Url;
-                                }
+                                case ALU_ASSET_ID_URL_PARAM:
+                                    obj.RecordingID = item.Value.ToString();
+                                    break;
+                                case ALU_CHANNEL_NAME:
+                                    obj.ChannelName = item.Value.ToString();
+                                    break;
+                                case ALU_DESCRIPTION:
+                                    obj.DESCRIPTION = item.Value.ToString();
+                                    break;
+                                case ALU_PROGRAM_ID_URL_PARAM:
+                                    obj.EPG_IDENTIFIER = item.Value.ToString();
+                                    break;
+                                case ALU_CHANNEL_ID_URL_PARAM:
+                                    obj.EPG_CHANNEL_ID = ConvertExternalIDToEpgChannelId(item.Value.ToString());
+                                    break;
+                                case ALU_PROTECTED:
+                                    obj.IsAssetProtected = GetBooleanValueFromJson(item.Value, item.Key);
+                                    break;
+                                case ALU_NAME_URL_PARAM:
+                                    obj.NAME = item.Value.ToString();
+                                    break;
+                                case ALU_STATUS:
+                                    obj.STATUS = item.Value.ToString();
+                                    break;
+                                case ALU_SOURCE:
+                                    obj.RecordSource = item.Value.ToString();
+                                    break;
+                                case ALU_START_TIME_URL_PARAM:
+                                    obj.START_DATE = GetStartTime(entry);
+                                    break;
+                                case ALU_END_TIME:
+                                    obj.END_DATE = GetEndTime(entry);
+                                    break;
+                                // special cases (do nothing) 
+                                case ALU_THUMBNAIL:
+                                    obj.PIC_URL = item.Value.ToString();
+                                    break;
+                                /* in case this data is not needed at the response object remove the remark 
+                                  case ALU_ACTUAL_START_TIME:
+                                case ALU_ACTUAL_END_TIME:
+                                case ALU_BOOKING_TIME:
+                                case ALU_ALREADY_WATCHED:
+                                case ALU_EVENT_ID:
+                                case ALU_PIN_PROTECTED:
+                                    break;
+                                 */
+                                default:
+                                    obj.EPG_TAGS.Add(new EPGDictionary() { Key = item.Key, Value = item.Value.ToString() });
+                                    break;
                             }
-                            else
+                        }
+
+                        if (!string.IsNullOrEmpty(obj.PIC_URL))
+                        {
+                            if (!obj.PIC_URL.ToLower().StartsWith("http://"))
                             {
-                                // no sizes defined
-                                if (!WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';') &&
-                                    epgRatios != null &&
-                                    epgRatios.Count > 0)
+                                Dictionary<int, KeyValuePair<string, string>> ratioDictionary = SetRatioList(obj.PIC_URL);
+
+                                if (picGroupTree != null && picGroupTree.Count > 0 && picGroupTree.ContainsKey(epgGroupId))
                                 {
-                                    // use new image server flow
-                                    foreach (var item in ratioDictionary)
+                                    SetEpgPictures(ratioDictionary, obj, picGroupTree[epgGroupId]);
+                                    if (obj.EPG_PICTURES.Count > 0)
                                     {
-                                        obj.EPG_PICTURES.Add(new EpgPicture()
+                                        obj.PIC_URL = obj.EPG_PICTURES[0].Url;
+                                    }
+                                }
+                                else
+                                {
+                                    // no sizes defined
+                                    if (!WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';') &&
+                                        epgRatios != null &&
+                                        epgRatios.Count > 0)
+                                    {
+                                        // use new image server flow
+                                        foreach (var item in ratioDictionary)
                                         {
-                                            PicHeight = 0,
-                                            PicID = 0,
-                                            PicWidth = 0,
-                                            Ratio = epgRatios.Where(x => x.Id == item.Key).First().Name,
-                                            RatioId = item.Key,
-                                            Url = ImageUtils.BuildImageUrl(groupID, item.Value.Key)
-                                        });
+                                            obj.EPG_PICTURES.Add(new EpgPicture()
+                                            {
+                                                PicHeight = 0,
+                                                PicID = 0,
+                                                PicWidth = 0,
+                                                Ratio = epgRatios.Where(x => x.Id == item.Key).First().Name,
+                                                RatioId = item.Key,
+                                                Url = ImageUtils.BuildImageUrl(groupID, item.Value.Key)
+                                            });
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        obj.GROUP_ID = groupID.ToString();
+                        obj.IS_ACTIVE = "true";
+                        obj.LIKE_COUNTER = 0;
+                        obj.media_id = string.Empty;
+                        obj.PUBLISH_DATE = string.Empty;
+                        res.Add(obj);
                     }
-
-
-                    obj.GROUP_ID = groupID.ToString();
-                    obj.IS_ACTIVE = "true";
-                    obj.LIKE_COUNTER = 0;
-                    obj.media_id = string.Empty;
-                    obj.NAME = entry.Name;
-                    obj.PUBLISH_DATE = string.Empty;
-                    obj.STATUS = entry.Status;
-                    obj.RecordSource = entry.Source;
-                    res.Add(obj);
                 }
-
             }
             return res;
         }
+
+
+        //private List<RecordedEPGChannelProgrammeObject> ParseALUReadResponse(ReadResponseJSON aluResponse)
+        //{
+        //    List<RecordedEPGChannelProgrammeObject> res = new List<RecordedEPGChannelProgrammeObject>(aluResponse.EntriesLength);
+        //    if (aluResponse != null && aluResponse.entries != null && aluResponse.entries.Count > 0)
+        //    {
+        //        List<Ratio> epgRatios = new List<Ratio>();
+        //        Dictionary<int, List<EpgPicture>> picGroupTree = CatalogDAL.GetGroupTreeMultiPicEpgUrl(groupID, ref epgRatios);
+
+        //        // choose the higher domain number  ( not the Parent domain) 
+        //        int epgGroupId = groupID;
+
+        //        if (picGroupTree != null & picGroupTree.Keys.Count > 0)
+        //        {
+        //            epgGroupId = picGroupTree.Keys.Max();
+        //            log.Debug("NPVRPics " + string.Format("picGroupTree[{0}] count {1}", epgGroupId, picGroupTree[epgGroupId].Count));
+
+        //        }
+
+        //        foreach (EntryJSON entry in aluResponse.entries)
+        //        {
+        //            RecordedEPGChannelProgrammeObject obj = new RecordedEPGChannelProgrammeObject();
+        //            obj.RecordingID = entry.AssetID;
+        //            obj.IsAssetProtected = entry.Protected;
+        //            obj.ChannelName = entry.ChannelName;
+        //            obj.DESCRIPTION = entry.Description;
+        //            obj.START_DATE = GetStartTime(entry);
+        //            obj.END_DATE = GetEndTime(entry);
+        //            obj.EPG_CHANNEL_ID = ConvertExternalIDToEpgChannelId(entry.ChannelID);
+        //            obj.EPG_ID = 0;
+        //            obj.EPG_IDENTIFIER = entry.ProgramID;
+        //            obj.EPG_Meta = new List<EPGDictionary>();
+        //            obj.EPG_TAGS = new List<EPGDictionary>();
+        //            obj.EPG_PICTURES = new List<EpgPicture>();
+
+        //            obj.ActualStartTime = entry.ActualStartTime;
+        //            obj.ActualEndTime = entry.ActualEndTime;
+
+        //            // return seasonId + seasonName
+        //            if (!string.IsNullOrEmpty(entry.SeasonID))
+        //            {
+        //                obj.EPG_TAGS.Add(new EPGDictionary()
+        //                {
+        //                    Key = ALU_SEASON_ID,
+        //                    Value = entry.SeasonID
+        //                });
+        //            }
+        //            if (!string.IsNullOrEmpty(entry.SeasonName))
+        //            {
+        //                obj.EPG_TAGS.Add(new EPGDictionary()
+        //                {
+        //                    Key = ALU_SEASON_NAME,
+        //                    Value = entry.SeasonName
+        //                });
+        //            }
+
+        //            if (!string.IsNullOrEmpty(entry.SeriesId))
+        //            {
+        //                obj.EPG_TAGS.Add(new EPGDictionary()
+        //                {
+        //                    Key = ALU_SERIES_ID_PARAM,
+        //                    Value = entry.SeriesId
+        //                });
+        //            }
+
+        //            if (entry.Duration != 0)
+        //            {
+        //                obj.EPG_TAGS.Add(new EPGDictionary()
+        //                {
+        //                    Key = ALU_DURATION,
+        //                    Value = entry.Duration.ToString()
+        //                });
+        //            }
+
+        //            if (!string.IsNullOrEmpty(entry.Genre))
+        //            {
+        //                obj.EPG_TAGS.Add(new EPGDictionary()
+        //                {
+        //                    Key = ALU_GENRE,
+        //                    Value = entry.Genre
+        //                });
+        //            }
+
+        //            if (!string.IsNullOrEmpty(entry.Episode))
+        //            {
+        //                obj.EPG_TAGS.Add(new EPGDictionary()
+        //                {
+        //                    Key = ALU_EPISODE,
+        //                    Value = entry.Episode
+        //                });
+        //            }
+
+        //            if (!string.IsNullOrEmpty(entry.Year))
+        //            {
+        //                obj.EPG_TAGS.Add(new EPGDictionary()
+        //                {
+        //                    Key = ALU_YEAR,
+        //                    Value = entry.Year
+        //                });
+        //            }
+
+        //            if (!string.IsNullOrEmpty(entry.Rating))
+        //            {
+        //                obj.EPG_TAGS.Add(new EPGDictionary()
+        //                {
+        //                    Key = ALU_RATING,
+        //                    Value = entry.Rating
+        //                });
+        //            }
+
+        //            if (!string.IsNullOrEmpty(entry.SeasonNumber))
+        //            {
+        //                obj.EPG_TAGS.Add(new EPGDictionary()
+        //                {
+        //                    Key = ALU_SEASON_NUMBER,
+        //                    Value = entry.SeasonNumber
+        //                });
+        //            }
+
+        //            obj.PIC_URL = entry.Thumbnail;
+
+        //            if (!string.IsNullOrEmpty(entry.Thumbnail))
+        //            {
+
+        //                if (!entry.Thumbnail.ToLower().StartsWith("http://"))
+        //                {
+
+        //                    Dictionary<int, KeyValuePair<string, string>> ratioDictionary = SetRatioList(entry.Thumbnail);
+
+        //                    if (picGroupTree != null && picGroupTree.Count > 0 && picGroupTree.ContainsKey(epgGroupId))
+        //                    {
+        //                        SetEpgPictures(ratioDictionary, obj, picGroupTree[epgGroupId]);
+        //                        if (obj.EPG_PICTURES.Count > 0)
+        //                        {
+        //                            obj.PIC_URL = obj.EPG_PICTURES[0].Url;
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        // no sizes defined
+        //                        if (!WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';') &&
+        //                            epgRatios != null &&
+        //                            epgRatios.Count > 0)
+        //                        {
+        //                            // use new image server flow
+        //                            foreach (var item in ratioDictionary)
+        //                            {
+        //                                obj.EPG_PICTURES.Add(new EpgPicture()
+        //                                {
+        //                                    PicHeight = 0,
+        //                                    PicID = 0,
+        //                                    PicWidth = 0,
+        //                                    Ratio = epgRatios.Where(x => x.Id == item.Key).First().Name,
+        //                                    RatioId = item.Key,
+        //                                    Url = ImageUtils.BuildImageUrl(groupID, item.Value.Key)
+        //                                });
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+
+
+        //            obj.GROUP_ID = groupID.ToString();
+        //            obj.IS_ACTIVE = "true";
+        //            obj.LIKE_COUNTER = 0;
+        //            obj.media_id = string.Empty;
+        //            obj.NAME = entry.Name;
+        //            obj.PUBLISH_DATE = string.Empty;
+        //            obj.STATUS = entry.Status;
+        //            obj.RecordSource = entry.Source;
+        //            res.Add(obj);
+        //        }
+
+        //    }
+        //    return res;
+        //}
 
         private bool IsDeleteInputValid(NPVRParamsObj args)
         {
@@ -1584,36 +1735,82 @@ namespace NPVR
             return list;
         }
 
-        private string GetEndTime(EntryJSON entry)
+        private string GetEndTime(JToken entry)
         {
             long unixTime = 0;
-            if (!string.IsNullOrEmpty(entry.EndTime) && Int64.TryParse(entry.EndTime, out unixTime))
+
+            var jsonField = entry["endTime"];
+            if (jsonField != null && Int64.TryParse(jsonField.ToString(), out unixTime))
+            {
                 return TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
-            if (entry.Duration > 0 && !string.IsNullOrEmpty(entry.StartTime) && Int64.TryParse(entry.StartTime, out unixTime))
-                return TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(unixTime).AddSeconds(entry.Duration).ToString(DATE_FORMAT);
+            }
+
+            var duration = GetIntValueFromJson(entry, ALU_DURATION);
+            var startTime = entry[ALU_START_TIME_URL_PARAM];
+
+            if (duration > 0 && startTime != null && Int64.TryParse(startTime.ToString(), out unixTime))
+            {
+                return TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(unixTime).AddSeconds(duration).ToString(DATE_FORMAT);
+            }
+
             return UNIX_ZERO_TIME.ToString(DATE_FORMAT);
         }
 
-        private string GetStartTime(EntryJSON entry)
+        private string GetStartTime(JToken entry)
         {
             long unixTime = 0;
-            if (!string.IsNullOrEmpty(entry.StartTime) && Int64.TryParse(entry.StartTime, out unixTime))
+
+            var jsonField = entry[ALU_START_TIME_URL_PARAM];
+            if (jsonField != null && Int64.TryParse(jsonField.ToString(), out unixTime))
+            {
                 return TVinciShared.DateUtils.UnixTimeStampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
-            return UNIX_ZERO_TIME.ToString(DATE_FORMAT);
+            }
+            else
+            {
+                return UNIX_ZERO_TIME.ToString(DATE_FORMAT);
+            }
         }
+
+        private bool GetBooleanValueFromJson(JToken token, string field)
+        {
+            bool value = false;
+
+            if (token != null)
+            {
+                bool.TryParse(token.ToString(), out value);
+            }
+
+            return value;
+        }
+
+        private int GetIntValueFromJson(JToken token, string field)
+        {
+            int value = 0;
+
+            var jsonField = token[field];
+
+            if (jsonField != null)
+            {
+                int.TryParse(jsonField.ToString(), out value);
+            }
+
+            return value;
+        }
+
 
         private void GetRetrieveAssetsResponse(string responseJson, NPVRRetrieveParamsObj args, NPVRRetrieveAssetsResponse response)
         {
             try
             {
-                ReadResponseJSON success = JsonConvert.DeserializeObject<ReadResponseJSON>(responseJson);
-                if (success != null)
+                JObject responseJObject = JObject.Parse(responseJson);
+
+                if (responseJObject != null)
                 {
                     response.entityID = args.EntityID;
                     response.isOK = true;
                     response.msg = string.Empty;
-                    response.totalItems = success.EntriesLength;
-                    response.results = ParseALUReadResponse(success);
+                    response.totalItems = GetIntValueFromJson(responseJObject, "entriesLength");
+                    response.results = ParseALUReadResponse(responseJObject, response.totalItems);
                 }
                 else
                 {
