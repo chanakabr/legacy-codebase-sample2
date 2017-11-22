@@ -10814,6 +10814,8 @@ namespace Core.ConditionalAccess
                             response = validationResponse.m_eStatus;
                         }
 
+                        lRuleIDS = mcRules.Select(x => x.RuleID).ToList();
+
                         return response;
                     }
 
