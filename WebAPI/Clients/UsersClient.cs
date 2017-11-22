@@ -716,8 +716,6 @@ namespace WebAPI.Clients
             List<long> roleIds = null;
             LongIdsResponse response = null;
 
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

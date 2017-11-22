@@ -3801,5 +3801,43 @@ namespace WebAPI.Clients
                 }
             }
         }
+
+        internal string GetCustomDrmLicenseData(int groupId, int drmAdapterId, string userId, string assetId, KalturaAssetType assetType, int contentId, string udid, out string code, out string message)
+        {
+            StringResponse drmAdapterResponse = null;
+            message = null;
+            code = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    drmAdapterResponse = Core.Api.Module.GetCustomDrmLicenseData(groupId, drmAdapterId, userId, assetId, ApiMappings.ConvertAssetType(assetType), contentId, Utils.Utils.GetClientIP(), udid);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (drmAdapterResponse == null || drmAdapterResponse.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (drmAdapterResponse.Status.Code != (int)eResponseStatus.OK && drmAdapterResponse.Status.Code != (int)eResponseStatus.AdapterNotExists &&
+                drmAdapterResponse.Status.Code != (int)eResponseStatus.AdapterUrlRequired && drmAdapterResponse.Status.Code != (int)eResponseStatus.AdapterAppFailure)
+            {
+                throw new ClientException(drmAdapterResponse.Status.Code, drmAdapterResponse.Status.Message);
+            }
+            else if (drmAdapterResponse.Status.Code != (int)eResponseStatus.OK)
+            {
+                message = string.Format("Failed for sourceId = {0}, reason: {1}", contentId, drmAdapterResponse.Status.Message);
+                code = drmAdapterResponse.Status.Code.ToString();
+            }
+
+            return drmAdapterResponse.Value;
+        }
     }
 }

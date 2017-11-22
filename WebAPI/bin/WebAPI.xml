@@ -1979,6 +1979,11 @@
             Custom data string
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCustomDrmPlaybackPluginData.Data">
+            <summary>
+            Custom DRM license data
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation">
             <summary>
             Cancellation of a user's entitlement

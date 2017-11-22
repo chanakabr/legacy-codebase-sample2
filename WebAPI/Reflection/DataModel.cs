@@ -3094,6 +3094,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCustomDrmPlaybackPluginData":
+                    switch(property.Name)
+                    {
+                        case "Data":
+                            return "data";
+                    }
+                    break;
+                    
                 case "KalturaDetachedResponseProfile":
                     switch(property.Name)
                     {
