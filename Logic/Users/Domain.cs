@@ -154,7 +154,7 @@ namespace Core.Users
             get;
             set;
         }
-               
+
         public int? roleId { get; set; }
 
         [XmlIgnore]
@@ -415,7 +415,7 @@ namespace Core.Users
                 this.m_totalNumOfDevices = domain.m_totalNumOfDevices;
                 this.m_UsersIDs = domain.m_UsersIDs;
                 if (m_UsersIDs != null)
-                    this.m_totalNumOfUsers = this.m_UsersIDs.Count();             
+                    this.m_totalNumOfUsers = this.m_UsersIDs.Count();
 
                 return true;
             }
@@ -480,7 +480,7 @@ namespace Core.Users
             }
 
             int nUserDomainID;
-            nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);   
+            nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
 
             if (nUserDomainID <= 0)
             {
@@ -513,11 +513,11 @@ namespace Core.Users
             }
 
             // Check master and default users
-            List<int> masterUserKV = dTypedUserIDs.Where(x => x.Value == (int)UserDomainType.Master).Select( y => y.Key).ToList();
+            List<int> masterUserKV = dTypedUserIDs.Where(x => x.Value == (int)UserDomainType.Master).Select(y => y.Key).ToList();
             List<int> defaultUserKV = dTypedUserIDs.Where(x => x.Value == (int)UserDomainType.Household).Select(y => y.Key).ToList();
 
             //User can be removed in case there is more than 1 master in domain
-            if ((masterUserKV.Contains(nUserID) && masterUserKV.Count == 1) || defaultUserKV.Contains(nUserID))     
+            if ((masterUserKV.Contains(nUserID) && masterUserKV.Count == 1) || defaultUserKV.Contains(nUserID))
             {
                 eRetVal = DomainResponseStatus.UserNotAllowed;
                 return eRetVal;
@@ -575,7 +575,7 @@ namespace Core.Users
             try
             {
                 // changes made on the domain - remove it from Cache
-                if (removeSuccess) 
+                if (removeSuccess)
                 {
                     //Remove domain from cache
                     DomainsCache domainCache = DomainsCache.Instance();
@@ -760,7 +760,7 @@ namespace Core.Users
             Dictionary<int, string> domainDrmId;
             if (deviceIds != null && deviceIds.Count > 0)
             {
-                domainDrmId = Utils.GetDomainDrmId(m_nGroupID, m_nDomainID); 
+                domainDrmId = Utils.GetDomainDrmId(m_nGroupID, m_nDomainID);
 
                 if (DomainDal.ClearDevicesDrmID(m_nGroupID, deviceIds, m_nDomainID))
                 {
@@ -773,7 +773,7 @@ namespace Core.Users
             return false;
         }
 
-        private bool IsDeviceExistInDomain(Domain domain, string sUDID, ref int isActive, ref int nDeviceID, 
+        private bool IsDeviceExistInDomain(Domain domain, string sUDID, ref int isActive, ref int nDeviceID,
                                             ref DateTime activationDate, ref int brandId, ref string name, out Device resultDevice)
         {
             resultDevice = null;
@@ -1748,7 +1748,7 @@ namespace Core.Users
                         MapDeviceToFamily(device);
                         IncrementDeviceCount(device);
                     }
-                    
+
                     device.SetReadingInvalidationKeys();
                 }
             }
@@ -2397,8 +2397,8 @@ namespace Core.Users
             User user = null;
             UsersCache usersCache = UsersCache.Instance();
             user = usersCache.GetUser(nUserID, nGroupID);
-            
-            if(user != null)
+
+            if (user != null)
             {
                 sNewUsername = user.m_oBasicData.m_sUserName;
                 sNewFirstName = user.m_oBasicData.m_sFirstName;
@@ -2673,7 +2673,7 @@ namespace Core.Users
             }
 
             // check concurrency only if limitation  > 0
-            if (mediaConcurrencyLimit > 0) 
+            if (mediaConcurrencyLimit > 0)
             {
                 // Get all domain media marks
                 List<UserMediaMark> domainMediaMarks = CatalogDAL.GetDomainLastPositions((int)domainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
@@ -2695,7 +2695,7 @@ namespace Core.Users
                         case ConcurrencyRestrictionPolicy.Group:
                             {
                                 assetMediaMarks = domainMediaMarks.Where(
-                                    currentMark => !currentMark.UDID.Equals(udid) && 
+                                    currentMark => !currentMark.UDID.Equals(udid) &&
                                     (currentMark.MediaConcurrencyRuleIds == null || currentMark.MediaConcurrencyRuleIds.Contains(ruleId)) &&
                                     currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
                                 break;
@@ -2785,10 +2785,22 @@ namespace Core.Users
                                     if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity) // only if there is a gap between current devices to needed quantity
                                     {
                                         int nDeviceToDelete = lDevicesID.Count - item.quantity;
-                                        devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID);
+
+                                        // Get group downgrade policy for desc/Asc
+                                        var downgradePolicy = ApiDAL.GetGroupDowngradePolicy(this.GroupId);
+                                        devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID, (DowngradePolicy)downgradePolicy);
                                         if (devicesChange != null && devicesChange.Count > 0)
                                         {
                                             oChangeDLMObj.devices.AddRange(devicesChange);
+
+                                            //remove device notification
+                                            foreach (string deviceId in devicesChange)
+                                            {
+                                                Device device = null;
+                                                device = currentDC.DeviceInstances.Where(x => x.m_id == deviceId).FirstOrDefault();
+                                                if (device != null && !string.IsNullOrEmpty(device.m_deviceUDID))
+                                                    Utils.AddInitiateNotificationActionToQueue(this.GroupId, eUserMessageAction.DeleteDevice, 0, device.m_deviceUDID);
+                                            }
                                         }
                                     }
                                 }
@@ -2814,8 +2826,16 @@ namespace Core.Users
                             int nDeviceToDelete = lDevicesID.Count();
                             if (nDeviceToDelete > 0)
                             {
-                                devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID);
+                                devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID, DowngradePolicy.FIFO);
                                 oChangeDLMObj.devices.AddRange(devicesChange);
+                                //remove device notification
+                                foreach (string deviceId in devicesChange)
+                                {
+                                    Device device = null;
+                                    device = currentDC.DeviceInstances.Where(x => x.m_id == deviceId).FirstOrDefault();
+                                    if (device != null && !string.IsNullOrEmpty(device.m_deviceUDID))
+                                        Utils.AddInitiateNotificationActionToQueue(this.GroupId, eUserMessageAction.DeleteDevice, 0, device.m_deviceUDID);
+                                }
                             }
                         }
                     }

@@ -132,6 +132,8 @@ namespace Core.Catalog.Request
 
             if (assetType == eAssetTypes.EPG)
             {
+                #region EPG
+
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(this.m_nGroupID);
                 List<EpgCB> epgProgramList = epgBL.GetEpgs(new List<string>() { this.m_oMediaPlayRequestData.m_sAssetID });
 
@@ -150,19 +152,29 @@ namespace Core.Catalog.Request
                 {
                     mediaMarkResponse.status = new Status((int)eResponseStatus.ProgramDoesntExist, "Program doesn't exist");
                     return mediaMarkResponse;
-                }
+                } 
+
+                #endregion
             }
             else if (assetType == eAssetTypes.NPVR)
             {
-                NPVR.INPVRProvider npvr;
-                bool result = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr);
+                #region NPVR
+
+                NPVR.INPVRProvider npvrProvider;
+
+                // First check if group has old NPVR implementation
+                bool result = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider);
+
                 if (result)
                 {
+                    // old, external implementation
                     recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
                 }
                 else
                 {
-                    result = CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, ref recordingId, this.m_nGroupID, mediaMarkRequest.domainId);
+                    // new, internal implentation
+                    result = CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, 
+                        ref recordingId, this.m_nGroupID, mediaMarkRequest.domainId);
                 }
 
                 if (!result)
@@ -170,6 +182,8 @@ namespace Core.Catalog.Request
                     mediaMarkResponse.status = new Status((int)eResponseStatus.RecordingNotFound, "Recording doesn't exist");
                     return mediaMarkResponse;
                 }
+
+                #endregion
             }
 
             // check action
@@ -218,7 +232,7 @@ namespace Core.Catalog.Request
             ref int nFinish, ref int nFull, ref int nExitFull, ref int nSendToFriend, ref int nLoad, ref int firstPlay, ref bool isConcurrent,
             ref bool isError, ref int nSwoosh, ref int fileDuration, eAssetTypes assetType, long recordingId = 0, long linearChannelMediaId = 0)
         {
-            int nDomainID = 0;
+            int domainID = 0;
             ePlayType playType = assetType == eAssetTypes.EPG ? ePlayType.EPG : ePlayType.NPVR;
 
             PlayCycleSession playCycleSession = null;
@@ -238,7 +252,7 @@ namespace Core.Catalog.Request
                 case MediaPlayActions.HIT:
                     {
                         CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
-                            this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType,
+                            this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, domainID, playType,
                             false, false, recordingId);
                         break;
                     }
@@ -247,14 +261,14 @@ namespace Core.Catalog.Request
                         nPlay = 1;
 
                         if (playType == ePlayType.NPVR &&
-                            CatalogLogic.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref nDomainID,
+                            CatalogLogic.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref domainID,
                             int.Parse(this.m_oMediaPlayRequestData.m_sAssetID),
                             this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID, playCycleSession, playType))
                         {
                             isConcurrent = true;
                         }
                         else if (playType == ePlayType.EPG &&
-                            CatalogLogic.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref nDomainID,
+                            CatalogLogic.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref domainID,
                             (int)linearChannelMediaId, this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID, playCycleSession, ePlayType.EPG))
                         {
                             isConcurrent = true;
@@ -263,7 +277,7 @@ namespace Core.Catalog.Request
                         if (!isConcurrent)
                         {
                             CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
-                                this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType,
+                                this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, domainID, playType,
                                 false, false, recordingId);
                         }
 
@@ -276,7 +290,7 @@ namespace Core.Catalog.Request
                     {
                         nStop = 1;
                         CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
-                            this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType,
+                            this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, domainID, playType,
                             false, false, recordingId);
                         break;
                     }
@@ -284,7 +298,7 @@ namespace Core.Catalog.Request
                     {
                         nPause = 1;
                         CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
-                            this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType,
+                            this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, domainID, playType,
                             false, false, recordingId);
                         break;
                     }
@@ -292,7 +306,7 @@ namespace Core.Catalog.Request
                     {
                         nFinish = 1;
                         CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID,
-                            fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType,
+                            fileDuration, mediaMarkAction.ToString(), (int)assetType, domainID, playType,
                             false, false, recordingId);
                         break;
                     }
@@ -321,14 +335,14 @@ namespace Core.Catalog.Request
                         firstPlay = 1;
 
                         if (playType == ePlayType.NPVR &&
-                            CatalogLogic.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref nDomainID,
+                            CatalogLogic.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref domainID,
                             int.Parse(this.m_oMediaPlayRequestData.m_sAssetID),
                             this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID, playCycleSession, playType))
                         {
                             isConcurrent = true;
                         }
                         else if (playType == ePlayType.EPG &&
-                            CatalogLogic.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref nDomainID,
+                            CatalogLogic.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref domainID,
                             (int)linearChannelMediaId, this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID, playCycleSession, ePlayType.EPG))
                         {
                             isConcurrent = true;
@@ -337,7 +351,7 @@ namespace Core.Catalog.Request
                         if (!isConcurrent)
                         {
                             CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
-                                this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType, true, false, recordingId);
+                                this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, domainID, playType, true, false, recordingId);
                         }
 
                         break;
@@ -353,7 +367,7 @@ namespace Core.Catalog.Request
                     {
                         nSwoosh = 1;
                         CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
-                            this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType, false, false, recordingId);
+                            this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, domainID, playType, false, false, recordingId);
                         break;
                     }
             }
@@ -431,8 +445,8 @@ namespace Core.Catalog.Request
                 {
                     bool isError = false;
                     bool isConcurrent = false;
-                    playCycleSession = HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
-                                          ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, ref fileDuration, ref nMediaTypeID);
+                    playCycleSession = HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, 
+                        ref nExitFull, ref nSendToFriend, ref nLoad, ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, ref fileDuration, ref nMediaTypeID);
                     if (isConcurrent)
                     {
                         isTerminateRequest = true;
@@ -584,7 +598,6 @@ namespace Core.Catalog.Request
 
             int domainId = 0;
             int mediaConcurrencyRuleId = 0;
-            var mediaConcurrencyRules = new List<MediaConcurrencyRule>();
 
             PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaFileID,
                 this.m_nGroupID, this.m_oMediaPlayRequestData.m_sUDID, nPlatform);
@@ -599,161 +612,157 @@ namespace Core.Catalog.Request
                 if (playCycleSession.MediaConcurrencyRuleID > 0)
                 {
                     mediaConcurrencyRuleId = playCycleSession.MediaConcurrencyRuleID;
+                    log.DebugFormat("playCycleSession with MediaConcurrencyRuleID: mediaFileId:{0}, rule:{1}, user:{2}",
+                        this.m_oMediaPlayRequestData.m_nMediaFileID, mediaConcurrencyRuleId, this.m_oMediaPlayRequestData.m_sSiteGuid);
                 }
             }
-            else
-            {
-                mediaConcurrencyRules = Api.api.GetMediaConcurrencyRules(mediaId, this.m_sUserIP, this.m_nGroupID);
-            }
+            //else
+            //{
+            //    mediaConcurrencyRules = Api.api.GetMediaConcurrencyRules(mediaId, this.m_sUserIP, this.m_nGroupID);
+            //}
 
             switch (mediaMarkAction)
             {
                 case MediaPlayActions.HIT:
-                {
-                    CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration,
-                        mediaMarkAction.ToString(), mediaTypeId, domainId, ePlayType.MEDIA, false, isLinearChannel, 0, mediaConcurrencyRules);
-                    break;
-                }
+                    {
+                        CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration,
+                            mediaMarkAction.ToString(), mediaTypeId, domainId, ePlayType.MEDIA, false, isLinearChannel, 0, mediaConcurrencyRuleId);
+                        break;
+                    }
                 case MediaPlayActions.ERROR:
-                {
-                    int nErrorCode = 0;
-                    int.TryParse(this.m_sErrorCode, out nErrorCode);
-                    int nSiteGuid = 0;
-                    int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
-                    CatalogDAL.Insert_NewPlayerErrorMessage(this.m_nGroupID, mediaId, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_nLoc, nPlatform,
-                                                            nSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_sErrorCode, this.m_sErrorMessage);
+                    {
+                        int nErrorCode = 0;
+                        int.TryParse(this.m_sErrorCode, out nErrorCode);
+                        int nSiteGuid = 0;
+                        int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
+                        CatalogDAL.Insert_NewPlayerErrorMessage(this.m_nGroupID, mediaId, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_nLoc, nPlatform,
+                                                                nSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_sErrorCode, this.m_sErrorMessage);
 
-                    isError = true;
-                    break;
+                        isError = true;
+                        break;
 
-                }
+                    }
                 case MediaPlayActions.PLAY:
-                {
-                    nPlay = 1;
-                    if (CatalogLogic.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref domainId, mediaId,
-                        this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID, playCycleSession))
                     {
-                        isConcurrent = true;
+                        nPlay = 1;
+                        if (CatalogLogic.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref domainId, mediaId,
+                            this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID, playCycleSession))
+                        {
+                            isConcurrent = true;
+                        }
+                        else
+                        {
+                            CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid,
+                                this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(),
+                                mediaTypeId, domainId, ePlayType.MEDIA, false, isLinearChannel, 0, mediaConcurrencyRuleId);
+                        }
+                        break;
                     }
-                    else
-                    {
-                        CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid,
-                            this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(),
-                            mediaTypeId, domainId, ePlayType.MEDIA, false, isLinearChannel, 0, mediaConcurrencyRules);
-                    }
-                    break;
-                }
                 case MediaPlayActions.STOP:
-                {
-                    nStop = 1;
-                    CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId, domainId,
-                        ePlayType.MEDIA, false, isLinearChannel, 0, mediaConcurrencyRules);
-                    break;
-                }
+                    {
+                        nStop = 1;
+                        CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId, domainId,
+                            ePlayType.MEDIA, false, isLinearChannel, 0, mediaConcurrencyRuleId);
+                        break;
+                    }
                 case MediaPlayActions.PAUSE:
-                {
-                    nPause = 1;
-                    if (mediaId != 0)
                     {
-                        CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, 
-                            this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId, domainId,
-                            ePlayType.MEDIA, false, isLinearChannel, 0, mediaConcurrencyRules);
+                        nPause = 1;
+                        if (mediaId != 0)
+                        {
+                            CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid,
+                                this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId, domainId,
+                                ePlayType.MEDIA, false, isLinearChannel, 0, mediaConcurrencyRuleId);
+                        }
+                        break;
                     }
-                    break;
-                }
                 case MediaPlayActions.FINISH:
-                {
-                    nFinish = 1;
-                    CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID,
-                        fileDuration, mediaMarkAction.ToString(), mediaTypeId, domainId,
-                            ePlayType.MEDIA, true, isLinearChannel, 0, mediaConcurrencyRules);
-                    break;
-                }
-                case MediaPlayActions.FULL_SCREEN:
-                {
-                    nFull = 1;
-                    break;
-                }
-                case MediaPlayActions.FULL_SCREEN_EXIT:
-                {
-                    nExitFull = 1;
-                    break;
-                }
-                case MediaPlayActions.SEND_TO_FRIEND:
-                {
-                    nSendToFriend = 1;
-                    break;
-                }
-                case MediaPlayActions.LOAD:
-                {
-                    nLoad = 1;
-                    break;
-                }
-                case MediaPlayActions.FIRST_PLAY:
-                {
-                    nFirstPlay = 1;
-                    if (CatalogLogic.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref domainId, mediaId,
-                        this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID, playCycleSession))
                     {
-                        isConcurrent = true;
+                        nFinish = 1;
+                        CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID,
+                            fileDuration, mediaMarkAction.ToString(), mediaTypeId, domainId,
+                                ePlayType.MEDIA, true, isLinearChannel, 0, mediaConcurrencyRuleId);
+                        break;
                     }
-                    else
+                case MediaPlayActions.FULL_SCREEN:
                     {
-                        if (CatalogLogic.IsGroupUseFPNPC(this.m_nGroupID)) //FPNPC -  on First Play create New Play Cycle
+                        nFull = 1;
+                        break;
+                    }
+                case MediaPlayActions.FULL_SCREEN_EXIT:
+                    {
+                        nExitFull = 1;
+                        break;
+                    }
+                case MediaPlayActions.SEND_TO_FRIEND:
+                    {
+                        nSendToFriend = 1;
+                        break;
+                    }
+                case MediaPlayActions.LOAD:
+                    {
+                        nLoad = 1;
+                        break;
+                    }
+                case MediaPlayActions.FIRST_PLAY:
+                    {
+                        nFirstPlay = 1;
+                        if (CatalogLogic.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref domainId, mediaId,
+                            this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID, playCycleSession))
                         {
-                            playCycleSession = null;
+                            isConcurrent = true;
+                        }
+                        else
+                        {
+                            if (CatalogLogic.IsGroupUseFPNPC(this.m_nGroupID)) //FPNPC -  on First Play create New Play Cycle
+                            {
+                                playCycleSession = null;
 
-                            // Insert to CB if user is not anonymous                            
-                            if (!CatalogLogic.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
-                            {
-                                playCycleSession = CatalogDAL.InsertPlayCycleSession(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_nGroupID, this.m_oMediaPlayRequestData.m_sUDID, nPlatform, 0, domainId);
+                                // Insert to CB if user is not anonymous                            
+                                if (!CatalogLogic.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
+                                {
+                                    playCycleSession = CatalogDAL.InsertPlayCycleSession(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_nGroupID, this.m_oMediaPlayRequestData.m_sUDID, nPlatform, 0, domainId);
+                                }
+                                // We still insert to DB incase needed by other process                            
+                                if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
+                                {
+                                    CatalogDAL.InsertPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, mediaId, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, this.m_nGroupID, playCycleSession.PlayCycleKey);
+                                }
+                                else
+                                {
+                                    CatalogDAL.GetOrInsert_PlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, mediaId, this.m_oMediaPlayRequestData.m_nMediaFileID,
+                                        this.m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, this.m_nGroupID, true);
+                                }
                             }
-                            // We still insert to DB incase needed by other process                            
-                            if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
-                            {
-                                CatalogDAL.InsertPlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, mediaId, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, this.m_nGroupID, playCycleSession.PlayCycleKey);
-                            }
-                            else
-                            {
-                                CatalogDAL.GetOrInsert_PlayCycleKey(this.m_oMediaPlayRequestData.m_sSiteGuid, mediaId, this.m_oMediaPlayRequestData.m_nMediaFileID,
-                                    this.m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, this.m_nGroupID, true);
-                            }
+
+                            //if (playCycleSession != null)
+                            //{
+                            //    mediaConcurrencyRuleId = playCycleSession.MediaConcurrencyRuleID;
+                            //}
+
+                            CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid,
+                                this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId, domainId,
+                                ePlayType.MEDIA, true, isLinearChannel, 0, mediaConcurrencyRuleId);
                         }
 
-                        if (playCycleSession != null)
-                        {
-                            mediaConcurrencyRuleId = playCycleSession.MediaConcurrencyRuleID;
-                        }
-
-                        if (mediaConcurrencyRules == null)
-                        {
-                            mediaConcurrencyRules =
-                                Api.api.GetMediaConcurrencyRules(mediaId, this.m_sUserIP, this.m_nGroupID);
-                        }
-
+                        break;
+                    }
+                case MediaPlayActions.BITRATE_CHANGE:
+                    {
+                        nActionID = 40;
+                        int siteGuid = 0;
+                        int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
+                        break;
+                    }
+                case MediaPlayActions.SWOOSH:
+                    {
+                        nSwoosh = 1;
                         CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid,
                             this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId, domainId,
-                            ePlayType.MEDIA, true, isLinearChannel, 0, mediaConcurrencyRules);
+                            ePlayType.MEDIA, false, isLinearChannel, 0, mediaConcurrencyRuleId);
+                        break;
                     }
-
-                    break;
-                }
-                case MediaPlayActions.BITRATE_CHANGE:
-                {
-                    nActionID = 40;
-                    int siteGuid = 0;
-                    int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
-                    break;
-                }
-                case MediaPlayActions.SWOOSH:
-                {
-                    nSwoosh = 1;
-                    CatalogLogic.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid,
-                        this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId, domainId,
-                        ePlayType.MEDIA, false, isLinearChannel, 0, mediaConcurrencyRules);
-                    break;
-                }
-                }
+            }
 
             return playCycleSession;
         }

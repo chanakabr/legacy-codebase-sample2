@@ -340,11 +340,13 @@
     <Compile Include="ConditionalAccess\Commands\CancelSeriesNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\DeleteNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\DeleteSeriesNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\DeleteSeriesRecordingByNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\LicensedLinkNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\ProtectNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RecordNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RecordSeriesByNameNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RecordSeriesByProgramIdNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\RecordSeriesBySeriesIdNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RetrieveQuotaNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\ConditionalAccessCache.cs" />
     <Compile Include="ConditionalAccess\DomainEntitlements.cs" />

@@ -812,7 +812,7 @@ namespace Core.Api
         {
             return Core.Api.api.GetGroupLanguages(groupId);
         }
-
+        
         #region Parental Rules
 
         /// <summary>

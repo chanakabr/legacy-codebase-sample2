@@ -21,6 +21,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification;
 using Core.Pricing;
+using DAL;
 using EpgBL;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
@@ -182,7 +183,7 @@ namespace Core.Api
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
                 }
-              
+
                 Dictionary<long, string> permissionNamesDict = DAL.ApiDAL.GetPermissions(groupId, role.Permissions.Select(x => x.Name).ToList());
                 if (role.Permissions.Select(x => x.Name).ToList().Count != permissionNamesDict.Count)
                 {
@@ -284,14 +285,14 @@ namespace Core.Api
 
         internal static ApiObjects.Response.Status DeleteRole(int groupId, long id)
         {
-            ApiObjects.Response.Status response =  new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             try
             {
                 if (DAL.ApiDAL.DeleteRole(groupId, id))
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    
+
                     string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
@@ -1698,7 +1699,7 @@ namespace Core.Api
             return EPG_ResponseMeta;
         }
 
-               static private Dictionary<string, List<EPGDictionary>> GetAllEPGTagProgram(int nGroupID, DataTable ProgramID)
+        static private Dictionary<string, List<EPGDictionary>> GetAllEPGTagProgram(int nGroupID, DataTable ProgramID)
         {
             Dictionary<string, List<EPGDictionary>> EPG_ResponseTag = new Dictionary<string, List<EPGDictionary>>();
 
@@ -4300,7 +4301,7 @@ namespace Core.Api
                                     medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
 
                                     // If there is a match, add rule to list
-                                    if (medias != null && medias.Count() > 0) 
+                                    if (medias != null && medias.Count() > 0)
                                     {
                                         ruleIds.Add(rule.RuleID);
                                     }
@@ -4337,7 +4338,7 @@ namespace Core.Api
                 // get all related rules to media 
                 string key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
                 bool cacheResult = LayeredCache.Instance.Get<List<int>>(
-                    key, ref ruleIds, Get_MCRulesIdsByMediaId, 
+                    key, ref ruleIds, Get_MCRulesIdsByMediaId,
                     new Dictionary<string, object>()
                         {
                         { "groupId", groupId },
@@ -4354,8 +4355,8 @@ namespace Core.Api
                 }
                 else if (ruleIds != null && ruleIds.Count > 0)
                 {
-                    res = groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) && 
-                    (bmID == -1 || x.bmId == bmID) && 
+                    res = groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) &&
+                    (bmID == -1 || x.bmId == bmID) &&
                     (type == null || x.Type == type)).ToList();
                 }
                 return res;
@@ -4543,7 +4544,7 @@ namespace Core.Api
 
             return response;
         }
-
+     
         #region Parental Rules
 
         public static ParentalRulesResponse GetParentalRules(int groupId)
@@ -10055,7 +10056,7 @@ namespace Core.Api
         internal static Status CleanUserAssetHistory(int groupId, string userId, List<KeyValuePair<int, eAssetTypes>> assets)
         {
             Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-      
+
             try
             {
                 List<string> assetHistoryKeys = new List<string>();
