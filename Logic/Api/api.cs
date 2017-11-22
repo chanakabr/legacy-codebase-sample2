@@ -10087,5 +10087,118 @@ namespace Core.Api
 
             return response;
         }
+
+        internal static DrmAdapterResponse SendDrmConfigurationToAdapter(int groupId, int adapterID)
+        {
+            DrmAdapterResponse response = new DrmAdapterResponse();
+
+            try
+            {
+                if (adapterID <= 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterIdentifierRequired, ADAPTER_ID_REQUIRED);
+                    return response;
+                }
+
+                // get adapter from DB 
+                //check alias uniqueness 
+                DrmAdapter adapter = DAL.ApiDAL.GetDrmAdapter(adapterID);
+
+                if (adapter == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+                if (string.IsNullOrEmpty(adapter.Name))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.ExternalIdentifier))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AliasRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.AdapterUrl))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    return response;
+                }
+
+                bool isSetSucceeded = SendConfigurationToDrmAdapter(groupId, adapter);
+                if (!isSetSucceeded)
+                {
+                    log.DebugFormat("SetCDNAdapter - SendDrmConfigurationToAdapter failed : AdapterID = {0}", adapter.ID);
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}, adapterId={1}", groupId, adapterID), ex);
+            }
+            return response;
+        }
+
+        private static bool SendConfigurationToDrmAdapter(int groupId, DrmAdapter adapter)
+        {
+            try
+            {
+                DrmAdapterController drmAdapter = DrmAdapterController.GetInstance();
+                return drmAdapter.SetConfiguration(adapter, groupId);
+            }
+            catch
+            {
+                log.ErrorFormat("SendConfigurationToDrmAdapter failed : groupID = {0}, AdapterID = {1}", groupId, adapter.ID);
+                return false;
+            }
+        }
+
+        internal static StringResponse GetCustomDrmLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int contentId, string ip, string udid)
+        {
+            StringResponse response = new StringResponse();
+
+            try
+            {
+                DrmAdapter adapter = DAL.ApiDAL.GetDrmAdapter(drmAdapterId);
+
+                if (adapter == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                DrmAdapterController drmAdapter = DrmAdapterController.GetInstance();
+                response.Value = drmAdapter.GetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            }
+            catch (KalturaException ex)
+            {
+                object statusCode = ex.Data["StatusCode"];
+                int code = (int)eResponseStatus.Error;
+                if (statusCode != null)
+                {
+                    code = (int)statusCode;
+                }
+                response.Status = new ApiObjects.Response.Status(code, ex.Message);
+                log.Error(string.Format("Failed in GetCustomDrmLicenseData groupId={0}, drmAdapterId={1}, userId={2}, assetId={3}, eAssetTypes={4}, contentId={5}, ip={6}, udid={7}",
+                    groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid), ex);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed in GetCustomDrmLicenseData groupId={0}, drmAdapterId={1}, userId={2}, assetId={3}, eAssetTypes={4}, contentId={5}, ip={6}, udid={7}",
+                    groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid), ex);
+            }
+            return response;
+        }
     }
 }

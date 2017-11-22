@@ -1816,5 +1816,15 @@ namespace Core.Api
         {
             return Core.Api.api.AddRole(groupId, role);
         }
+
+        public static DrmAdapterResponse SendDrmAdapterConfiguration(int groupId, int adapterID)
+        {
+            return Core.Api.api.SendDrmConfigurationToAdapter(groupId, adapterID);
+        }
+
+        public static StringResponse GetCustomDrmLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int contentId, string ip, string udid)
+        {
+            return Core.Api.api.GetCustomDrmLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid);
+        }
     }
 }

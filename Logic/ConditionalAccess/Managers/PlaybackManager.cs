@@ -95,7 +95,7 @@ namespace Core.ConditionalAccess
                 long mediaId;
                 Recording recording = null;
                 EPGChannelProgrammeObject program = null;
-                response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out  recording, out program);
+                response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out recording, out program);
                 if (response.Status.Code != (int)eResponseStatus.OK)
                 {
                     return response;
