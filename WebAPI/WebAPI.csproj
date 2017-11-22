@@ -302,6 +302,7 @@
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySetFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetType.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencyType .cs" />
+    <Compile Include="Models\Users\KalturaOTTUserDynamicData.cs" />
     <Compile Include="Models\Users\KalturaUserInterestListResponse.cs" />
     <Compile Include="Models\API\KalturaLanguageOrderBy.cs" />
     <Compile Include="Models\API\KalturaLanguageFilter.cs" />

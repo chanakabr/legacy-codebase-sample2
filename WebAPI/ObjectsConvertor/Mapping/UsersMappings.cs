@@ -208,6 +208,12 @@ namespace ObjectsConvertor.Mapping
              ;
 
             #endregion
+
+            //add mapping
+            // UserDynamicData to KalturaOTTUserDynamicData
+            Mapper.CreateMap<UserDynamicData, KalturaOTTUserDynamicData> ()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src)));
         }
 
         private static Core.Users.Country ConvertContry(KalturaCountry country, int? countryId)

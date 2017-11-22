@@ -1326,6 +1326,12 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaOTTUserDynamicData":
+                    ret = new Dictionary<string, string>() { 
+                        {"dynamicData", "dynamic_data"},
+                    };
+                    break;
+                    
                 case "KalturaParentalRule":
                     ret = new Dictionary<string, string>() { 
                         {"blockAnonymousAccess", "block_anonymous_access"},
@@ -4533,6 +4539,16 @@ namespace WebAPI.Reflection
                             return "userType";
                         case "Zip":
                             return "zip";
+                    }
+                    break;
+                    
+                case "KalturaOTTUserDynamicData":
+                    switch(property.Name)
+                    {
+                        case "DynamicData":
+                            return "dynamicData";
+                        case "UserId":
+                            return "userId";
                     }
                     break;
                     
