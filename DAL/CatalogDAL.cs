@@ -570,7 +570,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static void UpdateOrInsert_UsersMediaMark(int nDomainID, int nSiteUserGuid, string sUDID, int nMediaID,
-            int nGroupID, int nLoactionSec, int fileDuration, string action, int mediaTypeId, bool isFirstPlay, int mediaConcurrencyRuleId,
+            int nGroupID, int nLoactionSec, int fileDuration, string action, int mediaTypeId, bool isFirstPlay, List<int> mediaConcurrencyRuleIds,
             bool isLinearChannel = false, int finishedPercentThreshold = 95)
         {
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
@@ -580,13 +580,6 @@ namespace Tvinci.Core.DAL
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
             DateTime currentDate = DateTime.UtcNow;
-
-            List<int> mediaConcurrencyRuleIds = null;
-
-            if (mediaConcurrencyRuleId > 0)
-            {
-                mediaConcurrencyRuleIds = new List<int>() { mediaConcurrencyRuleId };
-            }
 
             string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
             UserMediaMark dev = new UserMediaMark()
@@ -4358,7 +4351,7 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static PlayCycleSession InsertPlayCycleSession(string siteGuid, int MediaFileID, int groupID, string UDID, int platform, int mediaConcurrencyRuleID, int domainID)
+        public static PlayCycleSession InsertPlayCycleSession(string siteGuid, int MediaFileID, int groupID, string UDID, int platform, int domainID, List<int> mediaConcurrencyRuleIds)
         {
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SOCIAL);
             int limitRetries = RETRY_LIMIT;
@@ -4370,6 +4363,7 @@ namespace Tvinci.Core.DAL
 
             try
             {
+                int mediaConcurrencyRuleID = (mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0) ? mediaConcurrencyRuleIds[0] : 0;
                 string docKey = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
 
                 ulong version;
@@ -4377,6 +4371,7 @@ namespace Tvinci.Core.DAL
 
                 if (version != 0 && playCycleSession != null)
                 {
+                    playCycleSession.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
                     playCycleSession.MediaConcurrencyRuleID = mediaConcurrencyRuleID;
                     playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                     playCycleSession.PlayCycleKey = playCycleKey;
@@ -4384,7 +4379,7 @@ namespace Tvinci.Core.DAL
                 }
                 else
                 {
-                    playCycleSession = new PlayCycleSession(mediaConcurrencyRuleID, playCycleKey, Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), domainID);
+                    playCycleSession = new PlayCycleSession(mediaConcurrencyRuleID, playCycleKey, Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), domainID, mediaConcurrencyRuleIds);
                 }
 
                 int ttl = 0;
@@ -4400,13 +4395,17 @@ namespace Tvinci.Core.DAL
             catch (Exception ex)
             {
                 log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, Exception: {7}",
-                                 siteGuid, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, MediaFileID, ex.Message);
+                    siteGuid, groupID, UDID, platform,
+                    mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0 ? string.Join(",", mediaConcurrencyRuleIds) : "0", 
+                    playCycleKey, MediaFileID, ex.Message);
             }
 
             if (playCycleSession == null)
             {
                 log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}",
-                                 siteGuid, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, MediaFileID);
+                                 siteGuid, groupID, UDID, platform,
+                                 mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0 ? string.Join(",", mediaConcurrencyRuleIds) : "0",
+                                 playCycleKey, MediaFileID);
             }
             return playCycleSession;
         }
