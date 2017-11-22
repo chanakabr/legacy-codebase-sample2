@@ -145,7 +145,7 @@ public partial class adm_business_types_new : System.Web.UI.Page
         return dt;
     }
 
-    private System.Data.DataTable GetDrmTypeDT()
+    private static System.Data.DataTable GetDrmTypeDT()
     {
         System.Data.DataTable dt = new System.Data.DataTable();
         dt.Columns.Add("id", typeof(int));
@@ -154,6 +154,12 @@ public partial class adm_business_types_new : System.Web.UI.Page
         {
             dt.Rows.Add((int)r, r);
         }
+        List<ApiObjects.DrmAdapter> drmAdapters = DAL.ApiDAL.GetDrmAdapters(LoginManager.GetLoginGroupID());
+        foreach (var adapter in drmAdapters)
+        {
+            dt.Rows.Add(adapter.ID, adapter.Name);
+        }
+
         return dt;
     }
 }
