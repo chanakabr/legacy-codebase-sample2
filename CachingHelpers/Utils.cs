@@ -78,7 +78,36 @@ namespace CachingHelpers
                 log.Error(string.Format("GetCdnSettings failed params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
             return new Tuple<CDNPartnerSettings, bool>(result, res);
-        }    
+        }
 
+
+        internal static Tuple<DrmAdapter, bool> GetDrmAdapter(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            DrmAdapter result = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count >= 1)
+                {
+                    bool shouldGetOnlyActive = true;
+                    if (funcParams.ContainsKey("shouldGetOnlyActive"))
+                    {
+                        shouldGetOnlyActive = (bool)funcParams["shouldGetOnlyActive"];
+                    }
+                    if (funcParams.ContainsKey("adapterId"))
+                    {
+                        int? adapterId;
+                        adapterId = funcParams["adapterId"] as int?;
+                        result = DAL.ApiDAL.GetDrmAdapter(adapterId.Value, shouldGetOnlyActive);
+                        res = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetDrmAdapter failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<DrmAdapter, bool>(result, res);
+        }
     }
 }

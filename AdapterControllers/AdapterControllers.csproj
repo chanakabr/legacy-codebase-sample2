@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="CDNAdapterController.cs" />
     <Compile Include="CDVR\CdvrAdapterController.cs" />
+    <Compile Include="DrmAdapterController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecommendationAdapterController.cs" />
     <Compile Include="RecommendationResult.cs" />
@@ -63,6 +64,11 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Service References\cdvrAdap\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\drmAdapter\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -141,6 +147,25 @@
     <None Include="Service References\cdvrAdap\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\drmAdapter\AdapterControllers.drmAdapter.AdapterStatus.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\drmAdapter\AdapterControllers.drmAdapter.DrmAdapterResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\drmAdapter\Service.wsdl" />
+    <None Include="Service References\drmAdapter\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\drmAdapter\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\drmAdapter\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\drmAdapter\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\RecommendationEngineAdapter\AdapterControllers.RecommendationEngineAdapter.AdapterStatus.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
@@ -183,6 +208,7 @@
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\CdnAdapter\" />
     <WCFMetadataStorage Include="Service References\cdvrAdap\" />
+    <WCFMetadataStorage Include="Service References\drmAdapter\" />
     <WCFMetadataStorage Include="Service References\RecommendationEngineAdapter\" />
   </ItemGroup>
   <ItemGroup>
@@ -233,6 +259,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\RecommendationEngineAdapter\Service12.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\drmAdapter\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\drmAdapter\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\drmAdapter\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\drmAdapter\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -48,6 +48,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_GROUP_UNIFIED_BILLING_CYCLE = "GetGroupUnifiedBillingCycle";
         public const string GET_ROLE_BY_ROLE_ID = "GetRoleByRoleId";
         public const string GET_ROLES_BY_GROUP_ID = "GetRolesByGroupId";
+        public const string DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "DrmAdapter";
         #endregion
 
         #region Constant Invalidation Keys

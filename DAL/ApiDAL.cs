@@ -4417,5 +4417,72 @@ namespace DAL
                 return false;
             }
         }
+
+        public static DrmAdapter GetDrmAdapter(int adapterId, bool shouldGetOnlyActive = true)
+        {
+            DrmAdapter adapterResponse = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DrmAdapter");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@id", adapterId);
+                if (!shouldGetOnlyActive)
+                {
+                    sp.AddParameter("@shouldGetOnlyActive", 0);
+                }
+
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    adapterResponse = CreateDrmAdapter(dt.Rows[0]);
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return adapterResponse;
+        }
+
+        private static DrmAdapter CreateDrmAdapter(DataRow dr)
+        {
+            DrmAdapter adapterResponse = null;
+
+            adapterResponse = new DrmAdapter();
+            adapterResponse.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier");
+            adapterResponse.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
+            adapterResponse.Settings = ODBCWrapper.Utils.GetSafeStr(dr, "settings");
+            adapterResponse.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+            int is_Active = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+            adapterResponse.IsActive = is_Active == 1 ? true : false;
+            adapterResponse.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+            adapterResponse.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
+
+            return adapterResponse;
+        }
+
+        public static List<DrmAdapter> GetDrmAdapters(int groupID)
+        {
+            List<DrmAdapter> res = new List<DrmAdapter>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DrmAdapters");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        res.Add(CreateDrmAdapter(dr));
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                res = new List<DrmAdapter>();
+            }
+            return res;
+        }
     }
 }

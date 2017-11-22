@@ -94,6 +94,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("cdnDefaultAdapter_groupId_{0}_adapterId_{1}", groupId, defaultAdapterId);
         }
 
+        public static string GetDrmAdapterKey(int groupId, int defaultAdapterId)
+        {
+            return string.Format("drmDefaultAdapter_groupId_{0}_adapterId_{1}", groupId, defaultAdapterId);
+        }
+
         public static string GetMediaFilesKey(long mediaId, string assetType)
         {
             return string.Format("mediaFiles_mediaId_{0}_assetType_{1}", mediaId, assetType);
