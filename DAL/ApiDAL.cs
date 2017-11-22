@@ -4484,5 +4484,15 @@ namespace DAL
             }
             return res;
         }
+
+        public static int GetGroupDowngradePolicy(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupsDowngradePolicy");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+
+            var downgradePolicyId = sp.ExecuteReturnValue<int>();
+            return downgradePolicyId;
+        }
     }
 }

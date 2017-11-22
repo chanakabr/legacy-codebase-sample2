@@ -252,10 +252,35 @@ namespace TvinciImporter
             return nMediaID;
         }
 
-        static protected void DeleteMedia(Int32 nMediaID)
+        static protected DeleteMediaPolicy GetGroupDeleteMediaPolicy(int parentGroupId)
+        {
+            int deleteMediaPolicy = 0;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetCachedSec(0);
+            selectQuery += string.Format("select Delete_media_policy from groups (nolock) where id= {0}", parentGroupId);
+            if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView.Count > 0)
+            {
+                deleteMediaPolicy = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "Delete_media_policy", 0);
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            log.DebugFormat("GetGroupDeleteMediaPolicy: parentGroupId: {0}", parentGroupId);
+
+            if (typeof(DeleteMediaPolicy).IsEnumDefined(deleteMediaPolicy))
+                return (DeleteMediaPolicy)deleteMediaPolicy;
+            else
+                return 0;
+        }
+
+        static protected void DeleteMedia(Int32 nMediaID, DeleteMediaPolicy deleteMediaPolicy)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+            if (deleteMediaPolicy == DeleteMediaPolicy.Delete)
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
             updateQuery += "where";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nMediaID);
             updateQuery.Execute();
@@ -1635,10 +1660,10 @@ namespace TvinciImporter
 
         }
 
-        static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID, ref bool isActive, ref IngestAssetStatus ingestAssetStatus)
+        static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID, ref bool isActive, ref IngestAssetStatus ingestAssetStatus, int parentGroupId, out eAction action)
         {
             sErrorMessage = "";
-
+            action = eAction.Update; // default
             sCoGuid = GetItemParameterVal(ref theItem, "co_guid");
             if (string.IsNullOrEmpty(sCoGuid))
             {
@@ -1692,7 +1717,12 @@ namespace TvinciImporter
                 }
                 //delete media
                 log.DebugFormat("Delete Media:{0}", nMediaID);
-                DeleteMedia(nMediaID);
+
+                DeleteMediaPolicy groupDeleteMediaPolicy = GetGroupDeleteMediaPolicy(parentGroupId);
+                // according to groupDeleteMediaPolicy  set the index action
+                action = groupDeleteMediaPolicy == DeleteMediaPolicy.Delete ? eAction.Delete : eAction.Update;
+
+                DeleteMedia(nMediaID, groupDeleteMediaPolicy);
             }
             else if (sAction == "insert" || sAction == "update")
             {
@@ -4974,7 +5004,8 @@ namespace TvinciImporter
                             string sCoGuid = "";
                             string sErrorMessage = "";
                             bool isActive = false;
-                            bool bProcess = ProcessItem(mediaItems[mediaIndex], ref sCoGuid, ref nMediaID, ref sErrorMessage, nGroupID, ref isActive, ref ingestAssetStatus);
+                            eAction action = eAction.Update;
+                            bool bProcess = ProcessItem(mediaItems[mediaIndex], ref sCoGuid, ref nMediaID, ref sErrorMessage, nGroupID, ref isActive, ref ingestAssetStatus, nParentGroupID, out action);
 
                             if (bProcess == false)
                             {
@@ -4990,6 +5021,7 @@ namespace TvinciImporter
                                 sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"OK\" message=\"" + ProtocolsFuncs.XMLEncode(sErrorMessage, true) + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";
 
                                 // Update record in Catalog (see the flow inside Update Index
+                                //change eAction.Delete
                                 bool resultMQ = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update);
                                 if (resultMQ)
                                     log.DebugFormat("UpdateIndex: Succeeded. CoGuid:{0}, MediaID:{1}, isActive:{2}, ErrorMessage:{3}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage);

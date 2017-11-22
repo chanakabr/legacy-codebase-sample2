@@ -76,12 +76,14 @@
     <Compile Include="enums.cs" />
     <Compile Include="INPVRProvider.cs" />
     <Compile Include="NPVRCancelDeleteResponse.cs" />
+    <Compile Include="NPVRDeleteObj.cs" />
     <Compile Include="NPVRLicensedLinkResponse.cs" />
     <Compile Include="NPVRParamsObj.cs" />
     <Compile Include="NPVRProtectResponse.cs" />
     <Compile Include="NPVRProviderFactory.cs" />
     <Compile Include="NPVRProviderImp.cs" />
     <Compile Include="NPVRQuotaResponse.cs" />
+    <Compile Include="NPVRRecordObj.cs" />
     <Compile Include="NPVRRecordResponse.cs" />
     <Compile Include="NPVRRetrieveAssetsResponse.cs" />
     <Compile Include="NPVRRetrieveParamsObj.cs" />
