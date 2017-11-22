@@ -2374,7 +2374,7 @@ namespace Core.Catalog
         public static void UpdateFollowMe(int groupId, string assetID, string siteGUID, int nPlayTime, string sUDID, int duration,
             string assetAction, int mediaTypeId,
             int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false,
-            bool isLinearChannel = false, long recordingId = 0, int mediaConcurrencyRuleId = 0)
+            bool isLinearChannel = false, long recordingId = 0, List<int> mediaConcurrencyRuleIds = null)
         {
             if (CatalogLogic.IsAnonymousUser(siteGUID))
             {
@@ -2405,7 +2405,7 @@ namespace Core.Catalog
                 {
                     case ePlayType.MEDIA:
                         CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(siteGUID), sUDID, int.Parse(assetID), groupId,
-                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleId, isLinearChannel, finishedPercentThreshold);
+                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleIds, isLinearChannel, finishedPercentThreshold);
                         break;
                     case ePlayType.NPVR:
                         CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(siteGUID), sUDID, assetID, groupId, nPlayTime, duration, assetAction, recordingId, isFirstPlay);
@@ -4242,22 +4242,34 @@ namespace Core.Catalog
             }
 
             // Get MCRuleID from PlayCycleSession on CB
-            int mediaConcurrencyRuleID = 0;
+            List<int> mediaConcurrencyRuleIds = null;
 
             if (playType == ePlayType.MEDIA)
             {
                 if (playCycleSession != null)
                 {
-                    mediaConcurrencyRuleID = playCycleSession.MediaConcurrencyRuleID;
+
+                    if (playCycleSession.MediaConcurrencyRuleIds != null && playCycleSession.MediaConcurrencyRuleIds.Count > 0)
+                    {
+                        mediaConcurrencyRuleIds = playCycleSession.MediaConcurrencyRuleIds;
+                    }
+                    else if (playCycleSession.MediaConcurrencyRuleID > 0)
+                    {
+                        mediaConcurrencyRuleIds = new List<int>() { playCycleSession.MediaConcurrencyRuleID };
+                    }
                 }
                 else // get from DB incase getting from CB failed
                 {
-                    mediaConcurrencyRuleID = CatalogDAL.GetRuleIDPlayCycleKey(siteGuid, mediaID, mediaFileID, udid, platform);
+                    int mediaConcurrencyRuleID = CatalogDAL.GetRuleIDPlayCycleKey(siteGuid, mediaID, mediaFileID, udid, platform);
+                    if (mediaConcurrencyRuleID > 0)
+                    {
+                        mediaConcurrencyRuleIds = new List<int>() { mediaConcurrencyRuleID };
+                    }
                 }
             }
 
             ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule(groupID, udid, 0, siteGuidLong, domainID,
-                ValidationType.Concurrency, mediaConcurrencyRuleID, 0, mediaID);
+                ValidationType.Concurrency, mediaConcurrencyRuleIds, mediaID);
 
             if (domainsResp != null)
             {

@@ -2637,52 +2637,55 @@ namespace Core.Users
 
 
         /***************************************************************************************************************
-         * This method get MediaConcurrencyLimit (int) , domain and mediaID 
+         * This method get List of Media Concurrency Rules, Domain and MediaId
          * Get from CB all media play at the last 
          ************************************************************************************************************* */
-        internal DomainResponseStatus ValidateAssetConcurrency(int ruleId, int mediaConcurrencyLimit, long domainID, int assetID, string udid)
+        internal DomainResponseStatus ValidateAssetConcurrency(List<int> ruleIds, long domainID, int assetID, string udid)
         {
             DomainResponseStatus response = DomainResponseStatus.OK;
-            ConcurrencyRestrictionPolicy policy = ConcurrencyRestrictionPolicy.Single;
 
-            if (mediaConcurrencyLimit == 0)
+            // Get all domain media marks
+            List<UserMediaMark> domainMediaMarks = CatalogDAL.GetDomainLastPositions((int)domainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
+                    new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA });
+
+            if (domainMediaMarks != null)
             {
                 // Get all group's media concurrency rules
                 var groupConcurrencyRules = Api.api.GetGroupMediaConcurrencyRules(this.m_nGroupID);
 
-                // Search for the relevant rules
-                var mediaConcurrencyRule = groupConcurrencyRules.FirstOrDefault(rule => rule.RuleID == ruleId);
+                if (groupConcurrencyRules == null || groupConcurrencyRules.Count == 0)
+                    return response;
 
-                // If we got one from the cache/api method, we will use its dat
-                if (mediaConcurrencyRule != null)
+                ConcurrencyRestrictionPolicy policy = ConcurrencyRestrictionPolicy.Single;
+                int mediaConcurrencyLimit = 0;
+                List<UserMediaMark> assetMediaMarks = null;
+
+                foreach (int ruleId in ruleIds)
                 {
-                    mediaConcurrencyLimit = mediaConcurrencyRule.Limitation;
-                    policy = mediaConcurrencyRule.RestrictionPolicy;
-                }
-                // Otherwise we get the limiation from DB in the old fashion
-                else
-                {
-                    // get limitation from DB
-                    DataTable dt = ApiDAL.GetMCRulesByID(ruleId);
-                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    // Search for the relevant rules
+                    var mediaConcurrencyRule = groupConcurrencyRules.FirstOrDefault(rule => rule.RuleID == ruleId);
+
+                    // If we got one from the cache/api method, we will use its dat
+                    if (mediaConcurrencyRule != null)
                     {
-                        mediaConcurrencyLimit = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "media_concurrency_limit");
-                        policy = (ConcurrencyRestrictionPolicy)ODBCWrapper.Utils.ExtractInteger(dt.Rows[0], "restriction_policy");
+                        mediaConcurrencyLimit = mediaConcurrencyRule.Limitation;
+                        policy = mediaConcurrencyRule.RestrictionPolicy;
                     }
-                }
-            }
+                    // Otherwise we get the limiation from DB in the old fashion
+                    else
+                    {
+                        // get limitation from DB
+                        DataTable dt = ApiDAL.GetMCRulesByID(ruleId);
+                        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                        {
+                            mediaConcurrencyLimit = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "media_concurrency_limit");
+                            policy = (ConcurrencyRestrictionPolicy)ODBCWrapper.Utils.ExtractInteger(dt.Rows[0], "restriction_policy");
+                        }
+                    }
 
-            // check concurrency only if limitation  > 0
-            if (mediaConcurrencyLimit > 0)
-            {
-                // Get all domain media marks
-                List<UserMediaMark> domainMediaMarks = CatalogDAL.GetDomainLastPositions((int)domainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
-                        new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA });
-
-                if (domainMediaMarks != null)
-                {
-                    List<UserMediaMark> assetMediaMarks = null;
-
+                    if (mediaConcurrencyLimit == 0)
+                        continue;
+                    
                     switch (policy)
                     {
                         case ConcurrencyRestrictionPolicy.Single:
@@ -2706,10 +2709,10 @@ namespace Core.Users
 
                     if (assetMediaMarks != null && assetMediaMarks.Count >= mediaConcurrencyLimit)
                     {
-                        response = DomainResponseStatus.MediaConcurrencyLimitation;
+                        return DomainResponseStatus.MediaConcurrencyLimitation;
                     }
-                }
-            }
+                }   
+            } 
 
             return response;
         }

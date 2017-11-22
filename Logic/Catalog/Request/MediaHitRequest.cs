@@ -199,7 +199,6 @@ namespace Core.Catalog.Request
             MediaPlayActions action;
             List<Task> tasks = new List<Task>();
             ContextData contextData = new ContextData();
-            int mediaConcurrencyRuleId = 0;
 
             if (m_oMediaPlayRequestData.m_nLoc > 0)
                 nPlayTime = m_oMediaPlayRequestData.m_nLoc;
@@ -235,13 +234,19 @@ namespace Core.Catalog.Request
             //non-anonymous user
             if (siteGuid > 0)
             {
+                List<int> MediaConcurrencyRuleIds = null;
+
                 // Get from CB and insert into MediaEOH
                 PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, m_oMediaPlayRequestData.m_sUDID, nPlatform);
                 if (playCycleSession != null)
                 {
                     domainId = playCycleSession.DomainID;
                     playCycleKey = playCycleSession.PlayCycleKey;
-                    mediaConcurrencyRuleId = playCycleSession.MediaConcurrencyRuleID;
+                    MediaConcurrencyRuleIds = playCycleSession.MediaConcurrencyRuleIds;
+                    if (MediaConcurrencyRuleIds == null || MediaConcurrencyRuleIds.Count == 0)
+                    {
+                        MediaConcurrencyRuleIds = new List<int>() { playCycleSession.MediaConcurrencyRuleID };
+                    }
                 }
                 else
                 {
@@ -259,7 +264,7 @@ namespace Core.Catalog.Request
 
                     CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid,
                         nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, domainId, ePlayType.MEDIA, isFirstPlay, isLinearChannel,
-                        0, mediaConcurrencyRuleId);
+                        0, MediaConcurrencyRuleIds);
                 }
 
                 if (m_oMediaPlayRequestData.m_nAvgBitRate > 0)

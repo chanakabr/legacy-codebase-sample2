@@ -767,7 +767,7 @@ namespace Core.Users
         }
 
         public virtual ValidationResponseObject ValidateLimitationModule(string udid, int deviceBrandID, long siteGuid, long domainID, ValidationType validationType,
-            int ruleID = 0, int mediaConcurrencyLimit = 0, int mediaID = 0)
+            List<int> ruleIds, int mediaID = 0)
         {
             ValidationResponseObject res = new ValidationResponseObject();
 
@@ -788,10 +788,11 @@ namespace Core.Users
                 {
                     case ValidationType.Concurrency:
                         {
-                            if (ruleID > 0)
+                            if (ruleIds != null && ruleIds.Count > 0)
                             {
-                                res.m_eStatus = domain.ValidateAssetConcurrency(ruleID, mediaConcurrencyLimit, res.m_lDomainID, mediaID, udid);
+                                res.m_eStatus = domain.ValidateAssetConcurrency(ruleIds, res.m_lDomainID, mediaID, udid);
                             }
+
                             if (res.m_eStatus == DomainResponseStatus.OK || res.m_eStatus == DomainResponseStatus.UnKnown) // if it's MediaConcurrencyLimitation no need to check this one 
                             {
                                 res.m_eStatus = domain.ValidateConcurrency(udid, deviceBrandID, res.m_lDomainID);

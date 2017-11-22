@@ -10736,7 +10736,7 @@ namespace Core.ConditionalAccess
             PlayCycleSession playCycleSession = null;
             if (!Utils.IsAnonymousUser(sSiteGuid))
             {
-                playCycleSession = Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleSession(sSiteGuid, nMediaFileID, m_nGroupID, sDeviceName, 0, ruleID, domainID);
+                playCycleSession = Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleSession(sSiteGuid, nMediaFileID, m_nGroupID, sDeviceName, 0, domainID, lRuleIDS);
             }
 
             if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
@@ -10804,61 +10804,30 @@ namespace Core.ConditionalAccess
 
                         log.DebugFormat("MediaConcurrencyRule for userId:{0}, mediaId:{1}, BusinessModule:{2}, rules:{3}", sSiteGuid, nMediaID,
                             eBM.ToString(), string.Join(",", mcRules.Select(x => x.RuleID).ToList()));
-                        
-                        MediaConcurrencyRule minRule = null;
 
-                        foreach (MediaConcurrencyRule mcRule in mcRules)
+                        validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
+                                Users.ValidationType.Concurrency, mcRules.Select(x => x.RuleID).ToList(), nMediaID);
+
+                        if (validationResponse != null)
                         {
-                            if (mcRule == null)
-                            {
-                                continue;
-                            }
-
-                            if (minRule == null || minRule.Limitation > mcRule.Limitation
-                                || (minRule.Limitation == mcRule.Limitation && minRule.RuleID > mcRule.RuleID))
-                            {
-                                minRule = mcRule;
-                            }
-
-                            validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
-                                Users.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
-
-                            if (validationResponse != null)
-                            {
-                                domainID = (int)validationResponse.m_lDomainID;
-
-                                if (validationResponse.m_eStatus != DomainResponseStatus.OK)
-                                {
-                                    response = validationResponse.m_eStatus;
-                                    //return response;
-
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (minRule != null)
-                        {
-                            // for future use
-                            lRuleIDS.Add(minRule.RuleID);
+                            domainID = (int)validationResponse.m_lDomainID;
+                            response = validationResponse.m_eStatus;
                         }
 
                         return response;
                     }
+
+                    //validate Concurrency for domain
+                    validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
+                           Users.ValidationType.Concurrency, null, nMediaID);
+
+                    // get domainID from response
+                    if (validationResponse != null)
+                    {
+                        response = validationResponse.m_eStatus;
+                        domainID = (int)validationResponse.m_lDomainID;
+                    }
                 }
-
-                //validate Concurrency for domain
-                validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
-                       Users.ValidationType.Concurrency, 0, 0, nMediaID);
-
-                // get domainID from response
-                if (validationResponse != null)
-                {
-                    response = validationResponse.m_eStatus;
-                    domainID = (int)validationResponse.m_lDomainID;
-                }
-
-                return response;
             }
             catch (Exception ex)
             {
