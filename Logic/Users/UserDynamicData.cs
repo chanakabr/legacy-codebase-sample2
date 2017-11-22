@@ -21,7 +21,7 @@ namespace Core.Users
         List<KeyValuePair<string, string>> dynamicDataToInsert = new List<KeyValuePair<string, string>>(); //rows to insert in DB
         int groupId = 0;
         public int UserId = 0;
-            
+
         public UserDynamicData()
         {
             m_sUserData = null;
@@ -215,7 +215,7 @@ namespace Core.Users
             UserId = nUserID;
             groupId = nGroupID;
 
-            if (dynamicDataToInsert?.Count > 0)
+            if (dynamicDataToInsert != null && dynamicDataToInsert.Count > 0)
             {
                 insertResult = this.Insert();
                 if (!insertResult)
@@ -224,7 +224,7 @@ namespace Core.Users
                 }
             }
 
-            if (dynamicDataToRemoved?.Count > 0)
+            if (dynamicDataToRemoved != null && dynamicDataToRemoved.Count > 0)
             {
                 deleteResult = this.Delete();
                 if (!deleteResult)
@@ -233,7 +233,7 @@ namespace Core.Users
                 }
             }
 
-            if (dynamicDataToUpdate?.Count > 0)
+            if (dynamicDataToUpdate != null && dynamicDataToUpdate.Count > 0)
             {
                 updateResult = this.Update();
                 if (!updateResult)
