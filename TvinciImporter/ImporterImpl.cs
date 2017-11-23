@@ -286,6 +286,12 @@ namespace TvinciImporter
             updateQuery.Execute();
             updateQuery.Finish();
             updateQuery = null;
+
+
+            if (deleteMediaPolicy == DeleteMediaPolicy.Delete)
+            {
+                ClearMediaFiles(nMediaID);
+            }
         }
 
         static protected void DeleteEPGSched(Int32 nEPGSchedID)
@@ -570,6 +576,7 @@ namespace TvinciImporter
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_files");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
             updateQuery += " where ";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", "=", nMediaID);
             updateQuery.Execute();
