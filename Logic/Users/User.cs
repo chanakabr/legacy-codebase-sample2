@@ -1,14 +1,14 @@
-﻿using System;
+﻿using ApiObjects;
+using CachingProvider.LayeredCache;
+using DAL;
+using KLogMonitor;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using ApiObjects;
-using DAL;
-using KLogMonitor;
-using Newtonsoft.Json;
-using CachingProvider.LayeredCache;
 
 namespace Core.Users
 {
@@ -595,9 +595,9 @@ namespace Core.Users
                 else
                     // Existing user - Remove & Update from cache
                     if (int.TryParse(m_sSiteGUID, out this.userId))
-                    {
-                        this.Update();
-                    }
+                {
+                    this.Update();
+                }
             }
             catch
             {
@@ -657,10 +657,15 @@ namespace Core.Users
                 return success;
             }
 
-            if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null && (!m_oDynamicData.Save(this.userId)))
+
+            if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
             {
-                this.userId = -1;
-                return success;
+                m_oDynamicData.UserId = this.userId;
+                if (!m_oDynamicData.Save())
+                {
+                    this.userId = -1;
+                    return success;
+                }
             }
 
             if (this.userId > 0)
@@ -681,7 +686,7 @@ namespace Core.Users
             {
                 UsersCache usersCache = UsersCache.Instance();
                 usersCache.RemoveUser(this.userId, this.GroupId);
-                
+
                 this.InvalidateUser();
             }
 
@@ -708,7 +713,9 @@ namespace Core.Users
 
                 if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
                 {
-                    saved = m_oDynamicData.Save(this.userId);
+                    m_oDynamicData.GroupId = this.GroupId;
+                    m_oDynamicData.UserId = this.userId;
+                    saved = m_oDynamicData.Save();
 
                     if (!saved)
                     {
@@ -1251,7 +1258,7 @@ namespace Core.Users
         {
             User.InvalidateUser(this.m_sSiteGUID);
         }
-        
+
         public static void InvalidateUser(string siteGuid)
         {
 

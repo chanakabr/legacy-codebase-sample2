@@ -14,12 +14,13 @@ namespace Core.Users
 {
     public class UserDynamicData : ApiObjects.CoreObject
     {
+        public UserDynamicDataContainer[] m_sUserData;
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         Dictionary<int, KeyValuePair<string, string>> dynamicDataToUpdate = new Dictionary<int, KeyValuePair<string, string>>(); //rows to update in DB
         List<int> dynamicDataToRemoved = new List<int>(); //rows to remove from DB
-        List<KeyValuePair<string, string>> dynamicDataToInsert = new List<KeyValuePair<string, string>>(); //rows to insert in DB
-        int groupId = 0;
+        List<KeyValuePair<string, string>> dynamicDataToInsert = new List<KeyValuePair<string, string>>(); //rows to insert in DB        
         public int UserId = 0;
 
         public UserDynamicData()
@@ -32,35 +33,9 @@ namespace Core.Users
             return m_sUserData;
         }
 
-        protected bool UpdateUserDynamicDataStatus(Int32 nUserID, Int32 nStatus)
-        {
-            bool res = false;
-
-            try
-            {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_dynamic_data");
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", nStatus);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
-                updateQuery += " where ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", nUserID);
-                res = updateQuery.Execute();
-                updateQuery.Finish();
-                updateQuery = null;
-
-                return res;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return false;
-        }
-
-        public bool Save(Int32 nUserID)
+        public bool Save()
         {
             bool saved = false;
-            int nGroupID = 0;
             int nID = 0;
             string sDataType = ""; //the data_type from the DB
             string sDataValue = ""; //the data_value from the DB                   
@@ -73,12 +48,11 @@ namespace Core.Users
             KeyValuePair<string, string> kvp;
             try
             {
-                nGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("users", "group_id", nUserID, "USERS_CONNECTION_STRING").ToString());
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery.SetCachedSec(0);
                 selectQuery += "SELECT ID, DATA_TYPE, DATA_VALUE FROM USERS_DYNAMIC_DATA WITH (NOLOCK) WHERE STATUS=1 AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", nUserID);
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", this.UserId);
                 if (selectQuery.Execute("query", true) != null)
                 {
                     int nCount = selectQuery.Table("query").DefaultView.Count;
@@ -120,32 +94,12 @@ namespace Core.Users
                         dynamicDataToInsert.Add(kvp);
                     }
 
-                    saved = UpdateAllDynamicData(nUserID, nGroupID);
+                    saved = UpdateAllDynamicData();
                 }
                 selectQuery.Finish();
                 selectQuery = null;
             }
             catch { }
-
-            #region previous Code
-            //Int32 nCount = m_sUserData.Length;
-            //saved = UpdateUserDynamicDataStatus(nUserID, 0);
-            //if (!saved) { return false; } 
-
-            //for (int i = 0; i < nCount; i++)
-            //{
-            //    UserDynamicDataContainer t = (UserDynamicDataContainer)(m_sUserData[i]);
-            //    string sType = t.m_sDataType;
-            //    string sVal = t.m_sValue;
-
-            //    if (sType != "")
-            //    {
-            //        saved = UpdateUserDynamicData(nUserID, sType, sVal, nGroupID);
-
-            //        if (!saved) { return false; } 
-            //    }
-            //} 
-            #endregion
 
             return saved;
         }
@@ -207,20 +161,18 @@ namespace Core.Users
         }
 
         //generate a temporary table and insert to it all the data that need to be updated\inserted
-        private bool UpdateAllDynamicData(int nUserID, int nGroupID)
+        private bool UpdateAllDynamicData()
         {
             bool insertResult = false;
             bool updateResult = false;
             bool deleteResult = false;
-            UserId = nUserID;
-            groupId = nGroupID;
 
             if (dynamicDataToInsert != null && dynamicDataToInsert.Count > 0)
             {
                 insertResult = this.Insert();
                 if (!insertResult)
                 {
-                    log.ErrorFormat("Error inserting dynamicData: {0}. userId: {1}, groupId: {2}", JsonConvert.SerializeObject(dynamicDataToInsert), UserId, groupId);
+                    log.ErrorFormat("Error inserting dynamicData: {0}. userId: {1}, groupId: {2}", JsonConvert.SerializeObject(dynamicDataToInsert), UserId, this.GroupId);
                 }
             }
 
@@ -229,7 +181,7 @@ namespace Core.Users
                 deleteResult = this.Delete();
                 if (!deleteResult)
                 {
-                    log.ErrorFormat("Error deleting dynamicData: {0}. userId: {1}, groupId: {2}", string.Join(",", dynamicDataToRemoved), UserId, groupId);
+                    log.ErrorFormat("Error deleting dynamicData: {0}. userId: {1}, groupId: {2}", string.Join(",", dynamicDataToRemoved), UserId, this.GroupId);
                 }
             }
 
@@ -238,7 +190,7 @@ namespace Core.Users
                 updateResult = this.Update();
                 if (!updateResult)
                 {
-                    log.ErrorFormat("Error updating dynamicData: {0}. userId: {1}, groupId: {2}", string.Join(",", dynamicDataToUpdate), UserId, groupId);
+                    log.ErrorFormat("Error updating dynamicData: {0}. userId: {1}, groupId: {2}", string.Join(",", dynamicDataToUpdate), UserId, this.GroupId);
                 }
             }
 
@@ -386,7 +338,7 @@ namespace Core.Users
             foreach (KeyValuePair<string, string> kvp in dynamicDataToInsert)
             {
                 directQuery += "insert into #x (id, user_id, data_type, data_value, is_active, status, group_id, create_date, update_date, publish_date) values";
-                directQuery += "(0, " + UserId.ToString() + ", '" + kvp.Key + "' , '" + kvp.Value + "' ,1 , 1, " + groupId.ToString() + ",";
+                directQuery += "(0, " + UserId.ToString() + ", '" + kvp.Key + "' , '" + kvp.Value + "' ,1 , 1, " + this.GroupId.ToString() + ",";
                 directQuery += "getdate() , getdate(), getdate() )";
             }
 
@@ -459,7 +411,5 @@ namespace Core.Users
         {
             return this.Clone();
         }
-
-        public UserDynamicDataContainer[] m_sUserData;
     }
 }
