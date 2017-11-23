@@ -333,7 +333,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaHouseholdDevice GetDevice(int groupId, int householdId, string udid)
+        internal KalturaHouseholdDevice GetDevice(int groupId, int householdId, string udid, string userId)
         {
             KalturaHouseholdDevice result;
             DeviceResponse response = null;
@@ -342,7 +342,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.GetDevice(groupId, udid, householdId);
+                    response = Core.Domains.Module.GetDevice(groupId, udid, householdId, userId, Utils.Utils.GetClientIP());
                 }
             }
             catch (Exception ex)

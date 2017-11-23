@@ -1123,7 +1123,7 @@ namespace WS_Domains
         }
 
         [WebMethod]
-        public DeviceResponse GetDevice(string sWSUserName, string sWSPassword, string udid, int domainId)
+        public DeviceResponse GetDevice(string sWSUserName, string sWSPassword, string udid, int domainId, string userId, string ip)
         {
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1132,7 +1132,7 @@ namespace WS_Domains
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.GetDevice(nGroupID, udid, domainId);
+                return Core.Domains.Module.GetDevice(nGroupID, udid, domainId, userId, ip);
             }
             else
             {

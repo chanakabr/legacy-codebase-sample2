@@ -3803,6 +3803,8 @@ namespace WebAPI.Reflection
                             return "brandId";
                         case "DeviceFamilyId":
                             return "deviceFamilyId";
+                        case "Drm":
+                            return "drm";
                         case "HouseholdId":
                             return "householdId";
                         case "Name":
