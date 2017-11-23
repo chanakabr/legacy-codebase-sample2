@@ -485,7 +485,7 @@ namespace TVPApiServices
             {
                 // Tokenization: validate domain 
                 if (AuthorizationManager.IsTokenizationEnabled() &&
-                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, initObj.UDID, groupId, initObj.Platform))
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupId, initObj.Platform))
                 {
                     return null;
                 }
