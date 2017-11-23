@@ -109,5 +109,36 @@ namespace CachingHelpers
             }
             return new Tuple<DrmAdapter, bool>(result, res);
         }
+
+        internal static Tuple<int, bool> GetGroupAdapterId(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            int result = 0;
+            try
+            {
+                if (funcParams != null && funcParams.Count >= 1)
+                {
+                    if (funcParams.ContainsKey("groupId"))
+                    {
+                        int? groupId;
+                        groupId = funcParams["groupId"] as int?;
+                        if (groupId.HasValue)
+                        {
+                            result = DAL.UsersDal.GetGroupAdapterId(groupId.Value);
+                            res = true;
+                        }
+                        else
+                        {
+                            res = false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupAdapterId failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<int, bool>(result, res);
+        }
     }
 }

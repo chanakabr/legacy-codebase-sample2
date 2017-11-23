@@ -49,6 +49,8 @@ namespace CachingProvider.LayeredCache
         public const string GET_ROLE_BY_ROLE_ID = "GetRoleByRoleId";
         public const string GET_ROLES_BY_GROUP_ID = "GetRolesByGroupId";
         public const string DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "DrmAdapter";
+        public const string GROUP_DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "GroupDrmAdapter";
+
         #endregion
 
         #region Constant Invalidation Keys

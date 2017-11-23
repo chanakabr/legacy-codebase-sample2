@@ -53,7 +53,7 @@ namespace CachingHelpers
             DrmAdapter adapter = null;
             string key = LayeredCacheKeys.GetDrmAdapterKey(groupId, adapterId);
             bool cacheResult = LayeredCache.Instance.Get<DrmAdapter>(key, ref adapter, Utils.GetDrmAdapter, new Dictionary<string, object>() { { "adapterId", adapterId } },
-                groupId, LayeredCacheConfigNames.DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
+                groupId, LayeredCacheConfigNames.DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetDrmAdapterInvalidationKey(groupId, adapterId) });
 
             if (!cacheResult || adapter == null)
             {
@@ -61,6 +61,22 @@ namespace CachingHelpers
             }
 
             return adapter;
+        }
+
+        public int GetGroupDrmAdapterId(int groupId)
+        {
+            int adapterId = 0;
+            // get group cdn settings
+            string key = LayeredCacheKeys.GetGroupDrmAdapterIdKey(groupId);
+            bool cacheResult = LayeredCache.Instance.Get<int>(key, ref adapterId, Utils.GetGroupAdapterId, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GROUP_DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupDrmAdapterIdInvalidationKey(groupId) });
+
+            if (cacheResult)
+            {
+                log.ErrorFormat("Failed GetCdnAdapterSettings, groupId: {0}", groupId);
+            }
+
+            return adapterId;
         }
 
         #endregion

@@ -119,7 +119,72 @@ namespace AdapterControllers
             return result;
         }
 
-        public string GetLicenseData(int groupId, int adapterId, string userId, string assetId, eAssetTypes assetType, long contentId, string ip, string udid)
+        public string GetDeviceLicenseData(int groupId, int adapterId, string userId, string udid, string ip)
+        {
+            string licenseData = null;
+
+            DrmAdapter adapter = DrmAdapterCache.Instance.GetDrmAdapter(groupId, adapterId);
+
+            if (adapter == null)
+            {
+                throw new KalturaException(string.Format("DRM adapter {0} doesn't exist", adapterId), (int)eResponseStatus.AdapterNotExists);
+            }
+
+            if (string.IsNullOrEmpty(adapter.AdapterUrl))
+            {
+                throw new KalturaException("DRM adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
+            }
+
+            drmAdapter.ServiceClient adapterClient = new drmAdapter.ServiceClient();
+            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
+
+            //set unixTimestamp
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+            string signature = string.Concat(adapterId, userId, udid, ip, unixTimestamp);
+
+            try
+            {
+                string inputParameters = string.Format("adapterId = {0}, userId = {1}, udid = {2}, ip = {3}",
+                adapterId, userId, udid, ip);
+                log.DebugFormat("Sending request to DRM adapter, GetDeviceLicenseData. {0}", inputParameters);
+
+                drmAdapter.DrmAdapterResponse adapterResponse = CallGetDeviceLicenseData(adapterId, userId, udid, ip, adapter, adapterClient, unixTimestamp, signature);
+
+                if (adapterResponse != null && adapterResponse.Status != null &&
+                    adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
+                {
+                    // Send Configuration if not found
+
+                    string key = string.Format(LOCKER_STRING_FORMAT, adapter.ID);
+
+                    // Build dictionary for synchronized action
+                    Dictionary<string, object> parameters = new Dictionary<string, object>()
+                    {
+                        {PARAMETER_ADAPTER, adapter},
+                        {PARAMETER_GROUP_ID, groupId}
+                    };
+
+                    configurationSynchronizer.DoAction(key, parameters);
+
+                    // call adapter again after setting the configuration
+                    adapterResponse = CallGetDeviceLicenseData(adapterId, userId, udid, ip, adapter, adapterClient, unixTimestamp, signature);
+
+                }
+
+                licenseData = ParseDrmAdapterResponse(adapterResponse);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in GetDeviceLicenseData: adapterId = {0}",
+                    adapterId, ex);
+                throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
+            }
+
+            return licenseData;
+        }
+
+        public string GetAssetLicenseData(int groupId, int adapterId, string userId, string assetId, eAssetTypes assetType, long contentId, string ip, string udid)
         {
             string licenseData = null;
 
@@ -149,7 +214,7 @@ namespace AdapterControllers
                 adapterId, userId, assetId, assetType, contentId, contentId, ip, udid);
                 log.DebugFormat("Sending request to DRM adapter. {0}", inputParameters);
 
-                drmAdapter.DrmAdapterResponse adapterResponse = CallGetLicenseData(adapterId, userId, assetId, assetType, contentId, ip, udid, adapter, adapterClient, unixTimestamp, signature);
+                drmAdapter.DrmAdapterResponse adapterResponse = CallGetAssetLicenseData(adapterId, userId, assetId, assetType, contentId, ip, udid, adapter, adapterClient, unixTimestamp, signature);
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
                     adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -168,7 +233,7 @@ namespace AdapterControllers
                     configurationSynchronizer.DoAction(key, parameters);
 
                     // call adapter again after setting the configuration
-                    adapterResponse = CallGetLicenseData(adapterId, userId, assetId, assetType, contentId, ip, udid, adapter, adapterClient, unixTimestamp, signature);
+                    adapterResponse = CallGetAssetLicenseData(adapterId, userId, assetId, assetType, contentId, ip, udid, adapter, adapterClient, unixTimestamp, signature);
 
                 }
 
@@ -176,50 +241,12 @@ namespace AdapterControllers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in GetVodLink: adapterId = {0}",
+                log.ErrorFormat("Error in GetAssetLicenseData: adapterId = {0}",
                     adapterId, ex);
                 throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
 
             return licenseData;
-        }
-
-        private static string ParseDrmAdapterResponse(drmAdapter.DrmAdapterResponse adapterResponse)
-        {
-            if (adapterResponse != null && adapterResponse.Status != null)
-            {
-                // If something went wrong in the adapter, throw relevant exception
-                if (adapterResponse.Status.Code != (int)eResponseStatus.OK)
-                {
-                    throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
-                }
-            }
-
-            return adapterResponse.Data;
-        }
-
-        private static drmAdapter.DrmAdapterResponse CallGetLicenseData(int adapterId, string userId, string assetId, eAssetTypes assetType, long contentId, string ip, string udid, DrmAdapter adapter, drmAdapter.ServiceClient adapterClient, long unixTimestamp, string signature)
-        {
-            drmAdapter.DrmAdapterResponse adapterResponse;
-
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-            {
-                //call adapter
-                adapterResponse = adapterClient.GetLicenseData(adapterId, userId, assetId, (drmAdapter.AssetType)assetType, contentId, ip, udid, unixTimestamp,
-                    System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
-            }
-
-            if (adapterResponse != null)
-            {
-                log.DebugFormat("DRM adapter response for GetLicenseUrl: status.code = {0}, licenseData = {1}, providerResponse = {2}",
-                    adapterResponse.Status != null ? adapterResponse.Status.Code.ToString() : "null", adapterResponse.Data, adapterResponse.ProviderResponse);
-            }
-            else
-            {
-                log.Error("DRM adapter response for GetLicenseUrl is null");
-            }
-
-            return adapterResponse;
         }
 
         #endregion
@@ -250,6 +277,68 @@ namespace AdapterControllers
             }
 
             return result;
+        }
+
+        private static string ParseDrmAdapterResponse(drmAdapter.DrmAdapterResponse adapterResponse)
+        {
+            if (adapterResponse != null && adapterResponse.Status != null)
+            {
+                // If something went wrong in the adapter, throw relevant exception
+                if (adapterResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
+                }
+            }
+
+            return adapterResponse.Data;
+        }
+
+        private static drmAdapter.DrmAdapterResponse CallGetAssetLicenseData(int adapterId, string userId, string assetId, eAssetTypes assetType, long contentId, string ip, string udid, DrmAdapter adapter, drmAdapter.ServiceClient adapterClient, long unixTimestamp, string signature)
+        {
+            drmAdapter.DrmAdapterResponse adapterResponse;
+
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+            {
+                //call adapter
+                adapterResponse = adapterClient.GetAssetLicenseData(adapterId, userId, assetId, (drmAdapter.AssetType)assetType, contentId, ip, udid, unixTimestamp,
+                    System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
+            }
+
+            if (adapterResponse != null)
+            {
+                log.DebugFormat("DRM adapter response for GetLicenseUrl: status.code = {0}, licenseData = {1}, providerResponse = {2}",
+                    adapterResponse.Status != null ? adapterResponse.Status.Code.ToString() : "null", adapterResponse.Data, adapterResponse.ProviderResponse);
+            }
+            else
+            {
+                log.Error("DRM adapter response for GetLicenseUrl is null");
+            }
+
+            return adapterResponse;
+        }
+
+        private static drmAdapter.DrmAdapterResponse CallGetDeviceLicenseData(int adapterId, string userId, string udid, string ip, DrmAdapter adapter, drmAdapter.ServiceClient adapterClient, long unixTimestamp, string signature)
+        {
+            drmAdapter.DrmAdapterResponse adapterResponse;
+
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+            {
+                //call adapter
+                adapterResponse = adapterClient.GetDeviceLicenseData(adapterId, userId, udid, ip, unixTimestamp,
+                    System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
+            }
+
+            if (adapterResponse != null)
+            {
+                log.DebugFormat("DRM adapter response for GetLicenseUrl: status.code = {0}, licenseData = {1}, providerResponse = {2}",
+                    adapterResponse.Status != null ? adapterResponse.Status.Code.ToString() : "null", adapterResponse.Data, adapterResponse.ProviderResponse);
+            }
+            else
+            {
+                log.Error("DRM adapter response for GetLicenseUrl is null");
+            }
+
+            return adapterResponse;
         }
 
         #endregion

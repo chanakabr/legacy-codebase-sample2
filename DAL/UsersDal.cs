@@ -2152,5 +2152,13 @@ namespace DAL
             sp.AddParameter("@externalId", externalId);
             return sp.ExecuteReturnValue<long>();
         }
+
+        public static int GetGroupAdapterId(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupAdapterId");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            return sp.ExecuteReturnValue<int>();
+        }
     }     
 }

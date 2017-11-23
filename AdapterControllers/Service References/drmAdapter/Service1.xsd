@@ -20,7 +20,7 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="GetLicenseData">
+  <xs:element name="GetAssetLicenseData">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="adapterId" type="xs:int" />
@@ -35,10 +35,29 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="GetLicenseDataResponse">
+  <xs:element name="GetAssetLicenseDataResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="GetLicenseDataResult" nillable="true" type="q3:DrmAdapterResponse" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="GetAssetLicenseDataResult" nillable="true" type="q3:DrmAdapterResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetDeviceLicenseData">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:int" />
+        <xs:element minOccurs="0" name="userId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="udid" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ip" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetDeviceLicenseDataResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/DRMAdapter" minOccurs="0" name="GetDeviceLicenseDataResult" nillable="true" type="q4:DrmAdapterResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

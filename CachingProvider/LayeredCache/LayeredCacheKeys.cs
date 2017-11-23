@@ -72,8 +72,6 @@ namespace CachingProvider.LayeredCache
             return string.Format("domainEntitlements_groupId_{0}_domainId_{1}", groupId, domainId);
         }
 
-
-
         public static string GetPermissionsRolesIdsKey(int groupId)
         {
             return string.Format("getPermissionRoleIds_groupId_{0}", groupId);
@@ -96,7 +94,12 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDrmAdapterKey(int groupId, int defaultAdapterId)
         {
-            return string.Format("drmDefaultAdapter_groupId_{0}_adapterId_{1}", groupId, defaultAdapterId);
+            return string.Format("drmAdapter_groupId_{0}_adapterId_{1}", groupId, defaultAdapterId);
+        }
+
+        public static string GetGroupDrmAdapterIdKey(int groupId)
+        {
+            return string.Format("drmGroupAdapter_groupId_{0}", groupId);
         }
 
         public static string GetMediaFilesKey(long mediaId, string assetType)
@@ -335,6 +338,16 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeySeriesReminder_groupId_{0}_id_{1}", groupId, seriesReminderId);
         }
 
+        public static string GetGroupDrmAdapterIdInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyGroupDrmAdapter_groupId_{0}", groupId);
+        }
+
+        public static string GetDrmAdapterInvalidationKey(int groupId, int adapterId)
+        {
+            return string.Format("invalidationKeyDrmAdapter_groupId_{0}_adapterId_{1}", groupId, adapterId);
+        }
+
         public static Dictionary<string, List<string>> GetSeriesRemindersInvalidationKeysMap(int groupId, List<long> seriesReminderIds)
         {
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
@@ -452,5 +465,6 @@ namespace CachingProvider.LayeredCache
         }
 
         #endregion
+
     }
 }
