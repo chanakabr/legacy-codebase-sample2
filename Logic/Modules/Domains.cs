@@ -631,7 +631,7 @@ namespace Core.Domains
 
         
         public static ValidationResponseObject ValidateLimitationModule(int nGroupID, string sUDID, int nDeviceBrandID,
-            long lSiteGuid, long lDomainID, ValidationType eValidation, List<int> ruleIds, int nMediaConcurrencyLimit = 0, int nMediaID = 0)
+            long lSiteGuid, long lDomainID, ValidationType eValidation, List<int> ruleIds, int nMediaID = 0)
         {
             // add siteguid to logs/monitor
             if (HttpContext.Current != null && HttpContext.Current.Items != null)
