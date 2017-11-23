@@ -2017,7 +2017,10 @@ namespace WebAPI.Clients
                         }
                     };
             }
-
+            else
+            {
+                kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response);
+            }
 
             if (kalturaPlaybackContext.Sources == null || kalturaPlaybackContext.Sources.Count == 0)
             {
