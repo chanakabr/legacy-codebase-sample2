@@ -763,8 +763,9 @@ namespace Core.Users
             bool saved = false;
             if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
             {
-                int nID = int.Parse(m_sSiteGUID);
-                saved = m_oDynamicData.Save(nID, nGroupID);
+                m_oDynamicData.UserId = int.Parse(m_sSiteGUID);
+                m_oDynamicData.GroupId = nGroupID;                
+                saved = m_oDynamicData.Save();
             }
 
             try
