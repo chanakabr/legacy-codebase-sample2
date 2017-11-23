@@ -45,6 +45,8 @@ namespace Core.Users
 
         public string m_sProfile;
 
+        public string LicenseData;
+
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string deviceName, int domainID)
         {
             int nFamilyID = 0;

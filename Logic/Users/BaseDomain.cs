@@ -1728,7 +1728,7 @@ namespace Core.Users
             return response;
         }
 
-        public virtual DeviceResponse GetDevice(string udid, int domainId)
+        public virtual DeviceResponse GetDevice(string udid, int domainId, string userId, string ip)
         {
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1768,6 +1768,19 @@ namespace Core.Users
 
                             response.Device = new DeviceResponseObject();
                             response.Device.m_oDevice = device;
+
+                            // get drmAdapterId if configured and call adapter
+                            int drmAdapterId = CachingHelpers.DrmAdapterCache.Instance.GetGroupDrmAdapterId(m_nGroupID);
+                            if (drmAdapterId > 0)
+                            {
+                                var adapterResponse = Api.api.GetCustomDrmDeviceLicenseData(m_nGroupID, drmAdapterId, userId, udid, ip);
+                                if (adapterResponse.Status.Code != (int)eResponseStatus.OK)
+                                {
+                                    response.Status = adapterResponse.Status;
+                                    return response;
+                                }
+                                response.Device.m_oDevice.LicenseData = adapterResponse.Value;
+                            }
 
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         }

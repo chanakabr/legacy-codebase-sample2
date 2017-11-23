@@ -841,7 +841,7 @@ namespace Core.Domains
         }
 
         
-        public static DeviceResponse GetDevice(int nGroupID, string udid, int domainId)
+        public static DeviceResponse GetDevice(int nGroupID, string udid, int domainId, string userId, string ip)
         {
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -850,7 +850,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.GetDevice(udid, domainId);
+                return t.GetDevice(udid, domainId, userId, ip);
             }
 
             return response;
