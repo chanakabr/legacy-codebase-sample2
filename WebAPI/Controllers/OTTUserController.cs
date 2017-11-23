@@ -914,5 +914,38 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Update user dynamic data
+        /// </summary>
+        /// <param name="key">Type of dynamicData </param>
+        /// <param name="value">Value of dynamicData </param>
+        /// <param name="userId">User identifier</param>
+        /// <returns></returns>
+        [Route("updateDynamicData"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public KalturaOTTUserDynamicData UpdateDynamicData(string key, KalturaStringValue value)
+        {
+            KalturaOTTUserDynamicData response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                response = ClientsManager.UsersClient().SetUserDynamicData(groupId, KS.GetFromRequest().UserId, key, value);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
+        }
     }
 }

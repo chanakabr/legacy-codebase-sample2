@@ -9,6 +9,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
+using System;
 
 namespace ObjectsConvertor.Mapping
 {
@@ -211,7 +212,7 @@ namespace ObjectsConvertor.Mapping
 
             //add mapping
             // UserDynamicData to KalturaOTTUserDynamicData
-            Mapper.CreateMap<UserDynamicData, KalturaOTTUserDynamicData> ()
+            Mapper.CreateMap<UserDynamicData, KalturaOTTUserDynamicData>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src)));
         }
@@ -416,6 +417,13 @@ namespace ObjectsConvertor.Mapping
                     throw new ClientException((int)StatusCode.Error, "Unknown export task order by");
             }
 
+            return result;
+        }
+
+        internal static KalturaOTTUserDynamicData ConvertOTTUserDynamicData(string userId, string key, KalturaStringValue value)
+        {
+            KalturaOTTUserDynamicData result = new KalturaOTTUserDynamicData() { UserId = userId, DynamicData = new SerializableDictionary<string, KalturaStringValue>() };
+            result.DynamicData.Add(key, value = value);
             return result;
         }
     }

@@ -1071,7 +1071,7 @@ namespace WebAPI.Clients
             listItem = Mapper.Map<KalturaUserAssetsListItem>(response.Item);
 
             return listItem;
-        }
+        }       
 
         [Obsolete]
         internal KalturaUserAssetsListItem GetItemFromUsersList(int groupId, string userId, KalturaUserAssetsListItem userAssetsListItem)
@@ -1400,6 +1400,35 @@ namespace WebAPI.Clients
             user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
 
             return user;
+        }
+
+        internal KalturaOTTUserDynamicData SetUserDynamicData(int groupId, string userId, string key, KalturaStringValue value)
+        {
+            KalturaOTTUserDynamicData response = null;
+            bool success = false;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    success = Core.Users.Module.SetUserDynamicData(groupId, userId, key,value.value);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetUserDynamicData. siteGuid: {0}, exception: {1}", userId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (!success)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+
+            response = UsersMappings.ConvertOTTUserDynamicData(userId, key, value);
+
+            return response;
         }
     }
 }
