@@ -2008,18 +2008,16 @@ namespace WebAPI.Clients
             }
             else if (response.Status.Code != (int)eResponseStatus.OK)
             {
-                kalturaPlaybackContext = new KalturaPlaybackContext()
-                {
-                    Messages = new List<KalturaAccessControlMessage>()
+                kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response);
+
+                kalturaPlaybackContext.Messages = new List<KalturaAccessControlMessage>()
                     {
                         new KalturaAccessControlMessage() {
                             Code = ((eResponseStatus)response.Status.Code).ToString(), Message = response.Status.Message
                         }
-                    }
-                };
+                    };
             }
 
-            kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response);
 
             if (kalturaPlaybackContext.Sources == null || kalturaPlaybackContext.Sources.Count == 0)
             {
