@@ -1,5 +1,7 @@
-﻿using KLogMonitor;
+﻿using CachingProvider.LayeredCache;
+using KLogMonitor;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using TVinciShared;
 
@@ -25,6 +27,13 @@ public partial class adm_users_settings : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork("users_connection_string");
+
+                // invalidation keys
+                string invalidationKey = LayeredCacheKeys.GetGroupDrmAdapterIdInvalidationKey(LoginManager.GetLoginGroupID());
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for group DRM adapter. key = {0}", invalidationKey);
+                }
             }
         }
     }
@@ -203,6 +212,11 @@ public partial class adm_users_settings : System.Web.UI.Page
             checkBoxField.SetDefault(0);
             theRecord.AddRecord(checkBoxField);
 
+            DataRecordDropDownField dr_drmType = new DataRecordDropDownField("", "NAME", "id", "", null, 60, false);
+            dr_drmType.SetSelectsDT(GetDrmTypeDT());
+            dr_drmType.Initialize("DRM", "adm_table_header_nbg", "FormInput", "DRM_ADAPTER_ID", false);
+            theRecord.AddRecord(dr_drmType);
+
             sTable = theRecord.GetTableHTML("adm_users_settings.aspx?submited=1");
         }
         return sTable;
@@ -265,5 +279,22 @@ public partial class adm_users_settings : System.Web.UI.Page
             userSettingId = 0;
         }
         return userSettingId;
+    }
+
+    private static System.Data.DataTable GetDrmTypeDT()
+    {
+        System.Data.DataTable dt = new System.Data.DataTable();
+        dt.Columns.Add("id", typeof(int));
+        dt.Columns.Add("txt", typeof(string));
+
+        List<ApiObjects.DrmAdapter> drmAdapters = DAL.ApiDAL.GetDrmAdapters(LoginManager.GetLoginGroupID());
+        dt.Rows.Add(0, "---");
+
+        foreach (var adapter in drmAdapters)
+        {
+            dt.Rows.Add(adapter.ID, adapter.Name);
+        }
+
+        return dt;
     }
 }

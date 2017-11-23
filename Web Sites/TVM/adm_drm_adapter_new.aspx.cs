@@ -8,6 +8,7 @@ using System.Web.UI.WebControls;
 using KLogMonitor;
 using TVinciShared;
 using ca_ws;
+using CachingProvider.LayeredCache;
 
 public partial class adm_drm_adapter_new : System.Web.UI.Page
 {
@@ -80,6 +81,13 @@ public partial class adm_drm_adapter_new : System.Web.UI.Page
                                 {
                                     log.Error("Exception - " + string.Format("drm adapter id :{0}, ex msg:{1}, ex st: {2} ", id, ex.Message, ex.StackTrace), ex);
                                 }
+                            }
+
+                            // invalidation keys
+                            string invalidationKey = LayeredCacheKeys.GetDrmAdapterInvalidationKey(LoginManager.GetLoginGroupID(), id);
+                            if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key for group DRM adapter. key = {0}", invalidationKey);
                             }
                         }
                         return;
