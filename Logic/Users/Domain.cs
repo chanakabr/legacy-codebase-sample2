@@ -2685,7 +2685,7 @@ namespace Core.Users
 
                     if (mediaConcurrencyLimit == 0)
                         continue;
-                    
+
                     switch (policy)
                     {
                         case ConcurrencyRestrictionPolicy.Single:
@@ -2709,6 +2709,8 @@ namespace Core.Users
 
                     if (assetMediaMarks != null && assetMediaMarks.Count >= mediaConcurrencyLimit)
                     {
+                        log.DebugFormat("MediaConcurrencyLimitation, domainId:{0}, assetId:{1}, ruleId:{2}, limit:{3}, count:{4}",
+                            domainID, assetID, ruleId, mediaConcurrencyLimit, assetMediaMarks.Count);
                         return DomainResponseStatus.MediaConcurrencyLimitation;
                     }
                 }   

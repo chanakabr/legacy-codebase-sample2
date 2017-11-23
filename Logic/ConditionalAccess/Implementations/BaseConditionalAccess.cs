@@ -10731,7 +10731,7 @@ namespace Core.ConditionalAccess
             {
                 ruleID = lRuleIDS[0]; // take the first rule (probably will be just one rule)
             }
-            
+
             string sPlayCycleKey;
             PlayCycleSession playCycleSession = null;
             if (!Utils.IsAnonymousUser(sSiteGuid))
@@ -10757,10 +10757,10 @@ namespace Core.ConditionalAccess
         }
 
         internal DomainResponseStatus CheckMediaConcurrency(string sSiteGuid, Int32 nMediaFileID, string sDeviceName,
-            MediaFileItemPricesContainer[] prices, int nMediaID, string sUserIP, ref List<int> lRuleIDS, ref int domainID)
+            MediaFileItemPricesContainer[] prices, int nMediaID, string sUserIP, ref List<int> mediaConcurrencyRuleIds, ref int domainID)
         {
             DomainResponseStatus response = DomainResponseStatus.OK;
-            lRuleIDS = new List<int>();
+            mediaConcurrencyRuleIds = new List<int>();
 
             if (Utils.IsAnonymousUser(sSiteGuid))
             {
@@ -10774,13 +10774,12 @@ namespace Core.ConditionalAccess
                 long.TryParse(sSiteGuid, out lSiteGuid);
                 ValidationResponseObject validationResponse = new ValidationResponseObject();
 
+                int bmID = 0;
+                bool bSuccess = false;
+                eBusinessModule eBM = eBusinessModule.PPV;
+
                 if (prices != null && prices.Length > 0)
                 {
-                    /*Get Media Concurrency Rules*/
-                    int bmID = 0;
-                    bool bSuccess = false;
-                    eBusinessModule eBM = eBusinessModule.PPV;
-
                     if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased)
                     {
                         bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
@@ -10796,39 +10795,30 @@ namespace Core.ConditionalAccess
                         return response;
                     }
 
+                    /*Get Media Concurrency Rules*/
                     List<MediaConcurrencyRule> mcRules = Core.Api.Module.GetMediaConcurrencyRules(m_nGroupID, nMediaID, sUserIP, bmID, eBM);
 
                     /* MediaConurrency Check */
                     if (mcRules != null && mcRules.Count() > 0)
                     {
+                        mediaConcurrencyRuleIds = mcRules.Select(x => x.RuleID).ToList();
 
                         log.DebugFormat("MediaConcurrencyRule for userId:{0}, mediaId:{1}, BusinessModule:{2}, rules:{3}", sSiteGuid, nMediaID,
                             eBM.ToString(), string.Join(",", mcRules.Select(x => x.RuleID).ToList()));
-
-                        validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
-                                Users.ValidationType.Concurrency, mcRules.Select(x => x.RuleID).ToList(), nMediaID);
-
-                        if (validationResponse != null)
-                        {
-                            domainID = (int)validationResponse.m_lDomainID;
-                            response = validationResponse.m_eStatus;
-                        }
-
-                        lRuleIDS = mcRules.Select(x => x.RuleID).ToList();
-
-                        return response;
                     }
 
-                    //validate Concurrency for domain
-                    validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
-                           Users.ValidationType.Concurrency, null, nMediaID);
+                }
 
-                    // get domainID from response
-                    if (validationResponse != null)
-                    {
-                        response = validationResponse.m_eStatus;
-                        domainID = (int)validationResponse.m_lDomainID;
-                    }
+                //validate Concurrency for domain
+                validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
+                       Users.ValidationType.Concurrency, mediaConcurrencyRuleIds, nMediaID);
+
+                // get domainID from response
+                if (validationResponse != null)
+                {
+                    log.DebugFormat("ValidateLimitationModule result:{0}", validationResponse.m_eStatus);
+                    response = validationResponse.m_eStatus;
+                    domainID = (int)validationResponse.m_lDomainID;
                 }
             }
             catch (Exception ex)
