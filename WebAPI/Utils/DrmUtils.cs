@@ -78,6 +78,9 @@ namespace WebAPI.Utils
                 case KalturaDrmSchemeName.WIDEVINE:
                     response = string.Format(UDRM_LICENSED_URL_FORMAT, baseUdrmUrl, WIDEVINE, customDataString, signature);
                     break;
+                case KalturaDrmSchemeName.PLAYREADY:
+                    response = string.Format(UDRM_LICENSED_URL_FORMAT, baseUdrmUrl, PLAYREADY, customDataString, signature);
+                    break;
                 default:
                     break;
             }
@@ -125,6 +128,7 @@ namespace WebAPI.Utils
                         ((KalturaFairPlayPlaybackPluginData)drmData).Certificate = group.FairplayCertificate;
                     }
                     break;
+                case KalturaDrmSchemeName.PLAYREADY:
                 case KalturaDrmSchemeName.PLAYREADY_CENC:
                 case KalturaDrmSchemeName.WIDEVINE_CENC:
                 case KalturaDrmSchemeName.WIDEVINE:
