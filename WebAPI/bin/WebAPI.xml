@@ -11346,6 +11346,15 @@
             UserDoesNotExist = 2000 </remarks>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.OttUserController.UpdateDynamicData(System.String,WebAPI.Models.General.KalturaStringValue)">
+            <summary>
+            Update user dynamic data
+            </summary>
+            <param name="key">Type of dynamicData </param>
+            <param name="value">Value of dynamicData </param>
+            <param name="userId">User identifier</param>
+            <returns></returns>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetInfoListResponse">
             <summary>
             Asset info wrapper
