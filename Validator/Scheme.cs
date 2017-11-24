@@ -494,10 +494,12 @@ namespace Validator.Managers.Scheme
 
             writer.WriteStartElement("clientTag");
             writer.WriteAttributeString("type", "string");
+            writer.WriteAttributeString("description", "Client tag");
             writer.WriteEndElement(); // clientTag
 
             writer.WriteStartElement("apiVersion");
             writer.WriteAttributeString("type", "string");
+            writer.WriteAttributeString("description", "API Version");
             writer.WriteEndElement(); // apiVersion
 
             writer.WriteEndElement(); // client
