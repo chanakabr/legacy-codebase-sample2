@@ -2162,6 +2162,8 @@ namespace WebAPI.Reflection
                 case "KalturaAsset":
                     switch(property.Name)
                     {
+                        case "CreateDate":
+                            return "createDate";
                         case "Description":
                             return "description";
                         case "EnableCatchUp":
@@ -2194,6 +2196,8 @@ namespace WebAPI.Reflection
                             return "tags";
                         case "Type":
                             return "type";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     
