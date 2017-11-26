@@ -1370,6 +1370,36 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Recording Watche Status")]
+        [PrivateMethod]
+        public NPVRResponse RecordingWatcheStatus(InitializationObject initObj, string recordingId, int alreadyWatched)
+        {
+            NPVRResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "RecordingWatcheStatus", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordingWatcheStatus(initObj.SiteGuid, initObj.DomainID, initObj.UDID, 
+                        recordingId, alreadyWatched);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+            }
+
+            return res;
+        }
+
         [WebMethod(EnableSession = true, Description = "Retrieves NPVR Licensed Link")]
         [PrivateMethod]
         public LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink, string referrer, string couponCode)
