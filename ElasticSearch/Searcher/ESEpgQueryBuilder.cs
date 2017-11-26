@@ -80,16 +80,16 @@ namespace ElasticSearch.Searcher
                     {
                         wildCard = new ESWildcard()
                         {
-                            Key = Common.Utils.ReplaceQueryReservedCharacters(ref kvp.m_sKey),
-                            Value = string.Format("*{0}*", Common.Utils.ReplaceQueryReservedCharacters(ref kvp.m_sValue))
+                            Key = Common.Utils.ReplaceQueryReservedCharacters(kvp.m_sKey),
+                            Value = string.Format("*{0}*", Common.Utils.ReplaceQueryReservedCharacters(kvp.m_sValue))
                         };
                     }
                     else
                     {
                         wildCard = new ESWildcard()
                         {
-                            Key = Common.Utils.ReplaceQueryReservedCharacters(ref kvp.m_sKey),
-                            Value = string.Format("{0}", Common.Utils.ReplaceQueryReservedCharacters(ref kvp.m_sValue))
+                            Key = Common.Utils.ReplaceQueryReservedCharacters(kvp.m_sKey),
+                            Value = string.Format("{0}", Common.Utils.ReplaceQueryReservedCharacters(kvp.m_sValue))
                         };
                     }
                     textBooleanQueryOR.AddChild(wildCard, CutWith.OR);
@@ -104,8 +104,8 @@ namespace ElasticSearch.Searcher
 
                         wildCard = new ESWildcard()
                         {
-                            Key = Common.Utils.ReplaceQueryReservedCharacters(ref kvp.m_sKey),
-                            Value = string.Format("{0}", Common.Utils.ReplaceQueryReservedCharacters(ref kvp.m_sValue))
+                            Key = Common.Utils.ReplaceQueryReservedCharacters(kvp.m_sKey),
+                            Value = string.Format("{0}", Common.Utils.ReplaceQueryReservedCharacters(kvp.m_sValue))
                         };
 
                         textBooleanQueryAnd.AddChild(wildCard, CutWith.AND);

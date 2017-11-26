@@ -30,8 +30,8 @@ namespace ElasticSearch.Common
                 "\"{20}\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, ",
                 media.m_nMediaID, media.m_nGroupID, media.m_nMediaTypeID, media.m_nWPTypeID, media.m_nIsActive,
                 media.m_nDeviceRuleId, media.m_nLikeCounter, media.m_nViews, media.m_dRating, media.m_nVotes, media.m_sStartDate,
-                media.m_sEndDate, media.m_sFinalEndDate, media.m_sCreateDate, media.m_sUpdateDate, Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sName, shouldLowerCase),
-                Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sDescription, shouldLowerCase), DateTime.UtcNow.ToString("yyyyMMddHHmmss"), media.geoBlockRule,
+                media.m_sEndDate, media.m_sFinalEndDate, media.m_sCreateDate, media.m_sUpdateDate, Common.Utils.ReplaceDocumentReservedCharacters(media.m_sName, shouldLowerCase),
+                Common.Utils.ReplaceDocumentReservedCharacters(media.m_sDescription, shouldLowerCase), DateTime.UtcNow.ToString("yyyyMMddHHmmss"), media.geoBlockRule,
                 // {19}
                 AddSuffix("name", suffix),
                 // {20}
@@ -106,7 +106,7 @@ namespace ElasticSearch.Common
 
                             metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"", 
                                 AddSuffix(sMetaName.ToLower(), suffix),
-                                Common.Utils.ReplaceDocumentReservedCharacters(ref sMetaValue, shouldLowerCase)));
+                                Common.Utils.ReplaceDocumentReservedCharacters(sMetaValue, shouldLowerCase)));
                         }
                     }
                 }
@@ -132,10 +132,9 @@ namespace ElasticSearch.Common
                         continue;
 
                     List<string> lTagValues = new List<string>();
-                    foreach (var tagID in media.m_dTagValues[sTagName].Keys)
+                    foreach (string tagVal in media.m_dTagValues[sTagName])
                     {
-                        string sTagVal = media.m_dTagValues[sTagName][tagID];
-                        string sEscapedTagVal = Common.Utils.ReplaceDocumentReservedCharacters(ref sTagVal, shouldLowerCase);
+                        string sEscapedTagVal = Common.Utils.ReplaceDocumentReservedCharacters(tagVal, shouldLowerCase);
 
                         if (!string.IsNullOrEmpty(sEscapedTagVal))
                             lTagValues.Add(string.Concat("\"", sEscapedTagVal, "\""));
@@ -917,7 +916,7 @@ namespace ElasticSearch.Common
                 " \"{13}\": \"{6}\", \"{14}\": \"{7}\", \"cache_date\": \"{8}\", \"create_date\": \"{9}\", \"update_date\": \"{10}\"," +
                 "\"search_end_date\": \"{11}\", \"crid\": \"{12}\", \"epg_identifier\" : \"{15}\",",
                 oEpg.EpgID, oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"), oEpg.EndDate.ToString("yyyyMMddHHmmss"),
-                Common.Utils.ReplaceDocumentReservedCharacters(ref name, shouldLowerCase), Common.Utils.ReplaceDocumentReservedCharacters(ref description, shouldLowerCase),
+                Common.Utils.ReplaceDocumentReservedCharacters(name, shouldLowerCase), Common.Utils.ReplaceDocumentReservedCharacters(description, shouldLowerCase),
                 /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"), 
                 oEpg.CreateDate.ToString("yyyyMMddHHmmss"),
                 oEpg.UpdateDate.ToString("yyyyMMddHHmmss"),
@@ -955,7 +954,7 @@ namespace ElasticSearch.Common
                                 if (!string.IsNullOrEmpty(lMetaValues[i]))
                                 {
                                     sTrimed = lMetaValues[i].Trim();
-                                    lMetaValues[i] = string.Format("\"{0}\"", Common.Utils.ReplaceDocumentReservedCharacters(ref sTrimed, shouldLowerCase));
+                                    lMetaValues[i] = string.Format("\"{0}\"", Common.Utils.ReplaceDocumentReservedCharacters(sTrimed, shouldLowerCase));
                                 }
                             }
 
@@ -991,7 +990,7 @@ namespace ElasticSearch.Common
                                 if (!string.IsNullOrEmpty(lTagValues[i]))
                                 {
                                     sTrimed = lTagValues[i].Trim();
-                                    lTagValues[i] = string.Format("\"{0}\"", Common.Utils.ReplaceDocumentReservedCharacters(ref sTrimed, shouldLowerCase));
+                                    lTagValues[i] = string.Format("\"{0}\"", Common.Utils.ReplaceDocumentReservedCharacters(sTrimed, shouldLowerCase));
                                 }
                             }
 

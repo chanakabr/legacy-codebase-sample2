@@ -78,9 +78,9 @@ namespace ElasticSearch.Common
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static string ReplaceDocumentReservedCharacters(ref string values, bool toLower = true)
+        public static string ReplaceDocumentReservedCharacters(string values, bool toLower = true)
         {
-            return Replace(ref values, m_dicDocumentReservedCharacters, toLower);
+            return Replace(values, m_dicDocumentReservedCharacters, toLower);
         }
 
         /// <summary>
@@ -88,12 +88,12 @@ namespace ElasticSearch.Common
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static string ReplaceQueryReservedCharacters(ref string values)
+        public static string ReplaceQueryReservedCharacters(string values)
         {
-            return Replace(ref values, m_dicQueryReservedCharacters);
+            return Replace(values, m_dicQueryReservedCharacters);
         }
 
-        private static string Replace(ref string value, Dictionary<string, string> replacements, bool toLower = true)
+        private static string Replace(string value, Dictionary<string, string> replacements, bool toLower = true)
         {
             if (string.IsNullOrEmpty(value))
             {

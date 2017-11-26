@@ -4840,31 +4840,27 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertMediaAsset(int groupId, string name, string description, List<KeyValuePair<long, KeyValuePair<int, string>>> topicIdToMetaLanguageAndValue,
-                                                List<KeyValuePair<long, KeyValuePair<int, string>>> topicIdToTagLanguageAndValue, string coGuid, string entryId, int deviceRuleId, int geoblockRuleId, bool isActive,
-                                                DateTime startDate, DateTime endDate, DateTime catalogStartDate, DateTime finalEndDate, DateTime? lastWatchDate, DateTime publishDate, long assetStructId, long userId)
+        public static DataSet InsertMediaAsset(int groupId, long defaultLanguageId, System.Xml.XmlDocument metas, System.Xml.XmlDocument tags, string coGuid, string entryId, int deviceRuleId, int geoBlockRuleId,
+                                                bool? isActive, DateTime startDate, DateTime? endDate, DateTime catalogStartDate, DateTime? finalEndDate, long assetStructId, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@Name", name);
-            sp.AddParameter("@Description", description);
-            sp.AddParameter("@TopicIdToMetaLanguagExist", topicIdToMetaLanguageAndValue != null && topicIdToMetaLanguageAndValue.Count > 0);
-            //sp.AddKeyValueListParameter<string, string>("@TopicIdToMetaLanguageAndValue", topicIdToMetaLanguageAndValue, "key", "value");
-            sp.AddParameter("@TopicIdToTagLanguagExist", topicIdToTagLanguageAndValue != null && topicIdToTagLanguageAndValue.Count > 0);
-            //sp.AddKeyValueListParameter<string, string>("@TopicIdToTagLanguageAndValue", descriptionInOtherLanguages, "key", "value");
-            sp.AddParameter("@EntryId", entryId);
+            sp.AddParameter("@DefaultLanguageId", defaultLanguageId);
+            sp.AddParameter("@MetasExist", metas != null && !string.IsNullOrEmpty(metas.InnerXml) ? 1 : 0);
+            sp.AddParameter("@MetasXml", metas != null ? metas.InnerXml : string.Empty);
+            sp.AddParameter("@TagsExist", tags != null && !string.IsNullOrEmpty(tags.InnerXml) ? 1 : 0);
+            sp.AddParameter("@TagsXml", tags != null ? tags.InnerXml : string.Empty);            
             sp.AddParameter("@CoGuid", coGuid);
+            sp.AddParameter("@EntryId", entryId);            
             sp.AddParameter("@DeviceRuleId", deviceRuleId);
-            sp.AddParameter("@GeoblockRuleId", geoblockRuleId);
-            sp.AddParameter("@IsActive", isActive ? 1 : 0);
-            sp.AddParameter("@GeoblockRuleId", geoblockRuleId);
+            sp.AddParameter("@GeoBlockRuleId", geoBlockRuleId);
+            sp.AddParameter("@MediaTypeId", assetStructId);
+            sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);            
             sp.AddParameter("@StartDate", startDate);
             sp.AddParameter("@EndDate", endDate);
             sp.AddParameter("@CatalogStartDate", catalogStartDate);
-            sp.AddParameter("@FinalEndDate", finalEndDate);
-            sp.AddParameter("@LastWatchDate", lastWatchDate);
-            sp.AddParameter("@PublishDate", publishDate);
+            sp.AddParameter("@FinalEndDate", finalEndDate);            
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();

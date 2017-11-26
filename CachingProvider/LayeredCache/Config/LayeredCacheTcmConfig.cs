@@ -38,7 +38,7 @@ namespace CachingProvider.LayeredCache
             InvalidationKeySettings = null;
             BucketSettings = new List<LayeredCacheBucketSettings>();
             DefaultSettings = new List<LayeredCacheConfig>();
-            LayeredCacheSettings = new Dictionary<string, List<LayeredCacheConfig>>(StringComparer.InvariantCultureIgnoreCase);
+            LayeredCacheSettings = new Dictionary<string, List<LayeredCacheConfig>>(StringComparer.OrdinalIgnoreCase);
         }
 
     }
