@@ -588,11 +588,11 @@ namespace NPVR
                     }
 
                     //new seriesId",”seasonId”, "seasonNumber",type", "id", "channelId
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_SERIES_ID_PARAM, args.SeriesIDs != null && args.SeriesIDs.Count > 0 ? args.SeriesIDs[0] : ""));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_NUMBER, args.SeasonNumber.ToString()));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_TYPE, args.Type));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_ID, args.SeasonId.ToString()));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
+                    //urlParams.Add(new KeyValuePair<string, string>(ALU_SERIES_ID_PARAM, args.SeriesIDs != null && args.SeriesIDs.Count > 0 ? args.SeriesIDs[0] : ""));
+                    //urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_NUMBER, args.SeasonNumber.ToString()));
+                    //urlParams.Add(new KeyValuePair<string, string>(ALU_TYPE, args.Type));
+                    //urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_ID, args.SeasonId.ToString()));
+                    //urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
 
 
                     IEnumerable<SearchByField> searchByFields = args.GetUniqueSearchBy();
