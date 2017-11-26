@@ -1372,7 +1372,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Recording Watche Status")]
         [PrivateMethod]
-        public NPVRResponse RecordingWatcheStatus(InitializationObject initObj, string recordingId, int alreadyWatched)
+        public NPVRResponse RecordingWatcheStatus(InitializationObject initObj, int recordingId, int alreadyWatched)
         {
             NPVRResponse res = null;
 
@@ -1385,7 +1385,7 @@ namespace TVPApiServices
                 try
                 {
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordingWatcheStatus(initObj.SiteGuid, initObj.DomainID, initObj.UDID, 
-                        recordingId, alreadyWatched);
+                        recordingId.ToString(), alreadyWatched);
                 }
                 catch (Exception ex)
                 {
