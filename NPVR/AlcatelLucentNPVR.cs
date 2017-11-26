@@ -505,9 +505,9 @@ namespace NPVR
             return res;
         }
 
-        public NPVRProtectResponse SetAssetAlreadyWatchedValue(NPVRParamsObj args)
+        public NPVRRecordResponse SetAssetAlreadyWatchedValue(NPVRParamsObj args)
         {
-            NPVRProtectResponse res = new NPVRProtectResponse();
+            NPVRRecordResponse res = new NPVRRecordResponse();
             try
             {
                 if (IsSetAssetAlreadyWatchedInputValid(args))
@@ -515,9 +515,9 @@ namespace NPVR
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "3.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_NAME_URL_PARAM, "alreadyWatched"));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_VALUE_URL_PARAM, args.Value.ToString()));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_NAME_URL_PARAM, "alreadyWatched"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_VALUE_URL_PARAM, args.Value.ToString()));                    
 
                     string url = BuildRestCommand(ALU_RECORD_COMMAND, ALU_ENDPOINT_UPDATE_FIELD, urlParams);
 
@@ -529,7 +529,7 @@ namespace NPVR
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
-                            GetSetAssetAlreadyWatchedStatusResponse(responseJson, args, res);
+                            GetRecordSeriesResponse(responseJson, args, res);                            
                         }
                         else
                         {
@@ -540,12 +540,10 @@ namespace NPVR
                     {
                         log.Error(LOG_HEADER_ERROR + string.Format("SetAssetAlreadyWatchedValue. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
                         res.recordingID = args.AssetID;
-                        res.status = ProtectStatus.Error;
+                        res.status = RecordStatus.Error;
                         res.entityID = args.EntityID;
-                        res.msg = "An error occurred. Refer to server log files.";
+                        res.msg = "An error occurred. Refer to server log files.";                        
                     }
-
-
                 }
                 else
                 {
@@ -1281,44 +1279,7 @@ namespace NPVR
                 }
             }
         }
-
-        private void GetSetAssetAlreadyWatchedStatusResponse(string responseJson, NPVRParamsObj args, NPVRProtectResponse response)
-        {
-            string unbeautified = JSON_UNBEAUTIFIER.Replace(responseJson, string.Empty);
-            if (unbeautified.Equals(EMPTY_JSON))
-            {
-                response.entityID = args.EntityID;
-                response.msg = string.Empty;
-                response.recordingID = args.AssetID;
-                // what eill be status here ?????? 
-                // response.status = args.IsProtect ? ProtectStatus.Protected : ProtectStatus.NotProtected;
-            }
-            else
-            {
-                try
-                {
-                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
-                    response.entityID = args.EntityID;
-                    response.msg = error.Description;
-                    response.recordingID = args.AssetID;
-                    switch (error.ResultCode)
-                    {
-                        case 404:
-                            response.status = ProtectStatus.RecordingDoesNotExist;
-                            break;
-                        default:
-                            response.status = ProtectStatus.Error;
-                            break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Error - Failed to deserialize JSON at GetSetAssetAlreadyWatchedStatusResponse. Response JSON: {0}, ex:{1}", responseJson, ex);
-                    throw;
-                }
-            }
-        }
-
+              
         private string GetLogMsg(string msg, NPVRParamsObj obj, Exception ex)
         {
             StringBuilder sb = new StringBuilder(String.Concat(msg, "."));
