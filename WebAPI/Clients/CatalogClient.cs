@@ -416,7 +416,7 @@ namespace WebAPI.Clients
 
             try
             {
-                MediaObj assetToadd = AutoMapper.Mapper.Map<MediaObj>(asset);
+                MediaAsset assetToadd = AutoMapper.Mapper.Map<MediaAsset>(asset);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.CatalogManager.AddAsset(groupId, assetToadd, userId);

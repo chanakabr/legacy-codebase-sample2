@@ -129,6 +129,24 @@ namespace WebAPI.Models.Catalog
         public long? EndDate { get; set; }
 
         /// <summary>
+        /// Specifies when was the Asset was created. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Specifies when was the Asset last updated. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
+        /// <summary>
         /// Enable cDVR
         /// </summary>
         [DataMember(Name = "enableCdvr")]

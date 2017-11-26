@@ -4401,6 +4401,16 @@
             Date and time represented as epoch. For VOD – till when the asset be available in the catalog. For EPG/Linear – program end time and date
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.CreateDate">
+            <summary>
+            Specifies when was the Asset was created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.UpdateDate">
+            <summary>
+            Specifies when was the Asset last updated. Date and time represented as epoch.
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAsset.EnableCdvr">
             <summary>
             Enable cDVR

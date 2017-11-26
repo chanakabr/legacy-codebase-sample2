@@ -289,8 +289,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //Media to KalturaMediaAsset
             Mapper.CreateMap<MediaObj, KalturaMediaAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description)))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name.ToList(), src.m_sName)))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description.ToList(), src.m_sDescription)))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID))
@@ -400,27 +400,80 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
               .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
-              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))
+              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))              
               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.ParentId) ? long.Parse(src.ParentId) : 0))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));              
+
+            // KalturaAsset to Asset
+            Mapper.CreateMap<KalturaAsset, Asset>()
+                .Include<KalturaMediaAsset, MediaAsset>();
 
             //KalturaMediaAsset to Media
-            Mapper.CreateMap<KalturaMediaAsset, MediaObj>()
-                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Id.HasValue ? src.Id.ToString() : string.Empty))
-                .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
-                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetDefaultLanugageValue() : string.Empty))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetNoneDefaultLanugageContainer().ToArray() : null))
-                .ForMember(dest => dest.m_dStartDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(src.StartDate.Value) : DateTime.UtcNow))
-                .ForMember(dest => dest.m_dEndDate, opt => opt.MapFrom(src => src.EndDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(src.EndDate.Value) : DateTime.MaxValue))
-                .ForMember(dest => dest.m_oMediaType, opt => opt.MapFrom(src => src.Type.HasValue ? new Core.Catalog.MediaType(src.TypeDescription, src.Type.Value) : new Core.Catalog.MediaType(src.TypeDescription, 0)))
-                .ForMember(dest => dest.m_lMetas, opt => opt.MapFrom(src => src.Metas != null ? GetMetaList(src.Metas) : new List<Metas>()))
-                .ForMember(dest => dest.m_lTags, opt => opt.MapFrom(src => src.Tags != null ? GetTagsList(src.Tags) : new List<Tags>()))
+            Mapper.CreateMap<KalturaMediaAsset, MediaAsset>()                 
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
+                .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetDefaultLanugageValue() : string.Empty))
+                .ForMember(dest => dest.DescriptionsWithLanguages, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetNoneDefaultLanugageContainer().ToArray() : null))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.StartDate)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.EndDate)))
+                .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => src.Type.HasValue ? new Core.Catalog.MediaType(src.TypeDescription, src.Type.Value) : new Core.Catalog.MediaType(src.TypeDescription, 0)))
+                .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => src.Metas != null ? GetMetaList(src.Metas) : new List<Metas>()))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags != null ? GetTagsList(src.Tags) : new List<Tags>()))
                 .ForMember(dest => dest.DeviceRule, opt => opt.MapFrom(src => src.DeviceRule))
-                .ForMember(dest => dest.GeoblockRule, opt => opt.MapFrom(src => src.GeoBlockRule))
-                .ForMember(dest => dest.WatchPermissionRule, opt => opt.MapFrom(src => src.WatchPermissionRule))
+                .ForMember(dest => dest.GeoBlockRule, opt => opt.MapFrom(src => src.GeoBlockRule))                
                 .ForMember(dest => dest.CoGuid, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
+
+            // Asset to KalturaAsset
+            Mapper.CreateMap<Asset, KalturaAsset>()
+                .Include<MediaAsset, KalturaMediaAsset>();
+
+            //MediaAsset to KalturaMediaAsset
+            Mapper.CreateMap<MediaAsset, KalturaMediaAsset>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.StartDate)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.EndDate)))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.MediaType.m_nTypeID))
+                .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.Metas)))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.Tags)))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Pictures))
+                .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.Files))
+                .ForMember(dest => dest.TypeDescription, opt => opt.MapFrom(src => src.MediaType.m_sTypeName))
+                .ForMember(dest => dest.DeviceRule, opt => opt.MapFrom(src => src.DeviceRule))                
+                .ForMember(dest => dest.WatchPermissionRule, opt => opt.Ignore())
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
+                .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
+
+            //LinearMediaAsset to KalturaMediaAsset
+            Mapper.CreateMap<LinearMediaAsset, KalturaMediaAsset>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.StartDate)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.EndDate)))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.MediaType.m_nTypeID))
+                .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.Metas)))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.Tags)))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Pictures))
+                .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.Files))
+                .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.EpgChannelId))
+                .ForMember(dest => dest.EnableCdvr, opt => opt.MapFrom(src => src.EnableCDVR))
+                .ForMember(dest => dest.EnableCatchUp, opt => opt.MapFrom(src => src.EnableCatchUp))
+                .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.EnableStartOver))
+                .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.EnableTrickPlay))
+                .ForMember(dest => dest.CatchUpBuffer, opt => opt.MapFrom(src => src.CatchUpBuffer))
+                .ForMember(dest => dest.TrickPlayBuffer, opt => opt.MapFrom(src => src.TrickPlayBuffer))
+                .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannel, opt => opt.MapFrom(src => src.EnableRecordingPlaybackNonEntitledChannel))
+                .ForMember(dest => dest.TypeDescription, opt => opt.MapFrom(src => src.MediaType.m_sTypeName))
+                .ForMember(dest => dest.DeviceRule, opt => opt.MapFrom(src => src.DeviceRule))
+                .ForMember(dest => dest.GeoBlockRule, opt => opt.MapFrom(src => src.GeoBlockRule))
+                .ForMember(dest => dest.WatchPermissionRule, opt => opt.Ignore())
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
 
             #endregion
@@ -593,6 +646,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return tags;
+        }
+
+        private static DateTime? ConvertToNullableDatetime(long? date)
+        {
+            DateTime? respone = null;
+            if (date.HasValue)
+            {
+                respone = SerializationUtils.ConvertFromUnixTimestamp(date.Value);
+            }
+
+            return respone;
         }
 
         #endregion
