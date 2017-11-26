@@ -693,6 +693,73 @@ namespace Core.ConditionalAccess
             return res;
         }
         
+        public override NPVRResponse SetAssetAlreadyWatchedStatus(string siteGuid, string assetID, int alreadyWatched)
+        {
+            NPVRResponse res = new NPVRResponse();
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+            try
+            {
+                int domainID = 0;
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
+                {
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+
+                    if (npvr != null)
+                    {
+                        NPVRRecordResponse response = npvr.SetAssetAlreadyWatchedValue(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID, Value = alreadyWatched });
+                        if (response != null)
+                        {
+                            switch (response.status)
+                            {
+                                case RecordStatus.OK:
+                                    res.status = NPVRStatus.OK.ToString();
+                                    break;
+                                case RecordStatus.ResourceAlreadyExists:
+                                    res.status = NPVRStatus.AssetAlreadyScheduled.ToString();
+                                    break;
+                                case RecordStatus.Error:
+                                    res.status = NPVRStatus.Error.ToString();
+                                    break;
+                                case RecordStatus.QuotaExceeded:
+                                    res.status = NPVRStatus.QuotaExceeded.ToString();
+                                    break;
+                                default:
+                                    log.ErrorFormat("Error - SetAssetAlreadyWatchedValue. Unrecognized ProtectStatus enum: status:{0}, siteGuid:{1}, assetID:{2}", 
+                                        response.status.ToString(), siteGuid, assetID);
+                                    res.status = NPVRStatus.Unknown.ToString();
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            // log here response is null.
+                            log.ErrorFormat("Error - SetAssetAlreadyWatchedValue. NPVR layer response is null. DomainId:{0}, siteGuid:{1} ", domainID, siteGuid);
+                            res.status = NPVRStatus.Error.ToString();
+                        }                        
+                    }
+                    else
+                    {
+                        // INPVRProvider instance is null
+                        log.ErrorFormat("Error - SetAssetAlreadyWatchedValue. Failed to instantiate INPVRProvider instance.", siteGuid, assetID);
+                        res.status = NPVRStatus.Error.ToString();
+                    }
+                }
+                else
+                {
+                    // either user does not exist or domain is not valid
+                    log.ErrorFormat("Error - SetNPVRProtectionStatus. Either user or domain is not valid. DomainId:{0},siteGuid:{1},assetID:{2} ", 
+                        domainID, siteGuid, assetID);
+                    res.status = NPVRStatus.InvalidUser.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception - at SetNPVRProtectionStatus.siteGuid:{0}, assetID:{1}, ex:{2}", siteGuid, assetID, ex);
+                res.status = NPVRStatus.Error.ToString();
+            }
+
+            return res;
+        }
         private string GetEpgProgramCoGuid(string assetID, ref string epgChannelID, ref DateTime startDate)
         {
             int progID = 0;

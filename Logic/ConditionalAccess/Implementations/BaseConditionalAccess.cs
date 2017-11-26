@@ -10946,6 +10946,10 @@ namespace Core.ConditionalAccess
         {
             throw new NotImplementedException("Not implemented yet.");
         }
+        public virtual NPVRResponse SetAssetAlreadyWatchedStatus(string siteGuid, string assetID, int alreadyWatched)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
 
         protected string GetNPVRLogMsg(string msg, string siteGuid, string assetID, bool isSeries, Exception ex)
         {
