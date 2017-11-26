@@ -881,7 +881,7 @@ namespace ElasticsearchTasksCommon
                 
                 if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
                 {
-                    return Core.Catalog.CatalogManagement.CatalogManager.GetGroupAssets(groupId, group);
+                    return Core.Catalog.CatalogManagement.CatalogManager.GetGroupAssets(groupId);
                 }
 
                 ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
@@ -1077,12 +1077,12 @@ namespace ElasticsearchTasksCommon
                                         {
                                             if (!medias[nTagMediaID].m_dTagValues.ContainsKey(sTagName))
                                             {
-                                                medias[nTagMediaID].m_dTagValues.Add(sTagName, new Dictionary<long, string>());
+                                                medias[nTagMediaID].m_dTagValues.Add(sTagName, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
                                             }
 
-                                            if (!medias[nTagMediaID].m_dTagValues[sTagName].ContainsKey(tagID))
+                                            if (!medias[nTagMediaID].m_dTagValues[sTagName].Contains(val))
                                             {
-                                                medias[nTagMediaID].m_dTagValues[sTagName].Add(tagID, val);
+                                                medias[nTagMediaID].m_dTagValues[sTagName].Add(val);
                                             }
                                         }
                                     }
@@ -1214,15 +1214,14 @@ namespace ElasticsearchTasksCommon
                                         oMedia = dMediaTrans[nTagMediaID][nLangID];
                                         string sTagTypeName = group.m_oGroupTags[mttn];
 
-                                        if (oMedia.m_dTagValues.ContainsKey(sTagTypeName))
+                                        if (!oMedia.m_dTagValues.ContainsKey(sTagTypeName))
                                         {
-                                            oMedia.m_dTagValues[sTagTypeName][tagID] = val;
+                                            oMedia.m_dTagValues.Add(sTagTypeName, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
                                         }
-                                        else
+
+                                        if (!oMedia.m_dTagValues[sTagTypeName].Contains(val))
                                         {
-                                            Dictionary<long, string> dTemp = new Dictionary<long, string>();
-                                            dTemp[tagID] = val;
-                                            oMedia.m_dTagValues[sTagTypeName] = dTemp;
+                                            oMedia.m_dTagValues[sTagTypeName].Add(val);
                                         }
                                     }
                                 }
