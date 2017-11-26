@@ -274,7 +274,7 @@ namespace TVPApiServices
         [OperationContract]
         List<RecordedEPGChannelProgrammeObject> GetRecordings(InitializationObject initObj, int pageSize, int pageIndex, 
             NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, 
-            List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj, int seasonNumber, string seasonId, string type);
+            List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj);
 
         [OperationContract]
         List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, 
