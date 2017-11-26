@@ -1282,8 +1282,8 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Delete Recordings By")]
         [PrivateMethod]
-        public NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string seriesId, string seasonNumber, string channelId,
-            List<TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.NPVRRecordingStatus> status)
+        public NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string bySeriesId, string bySeasonNumber, string byChannelId,
+            List<TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.NPVRRecordingStatus> byStatus)
         {
             NPVRResponse res = null;
 
@@ -1295,8 +1295,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).DeleteRecordingsBy(initObj.SiteGuid, initObj.DomainID, initObj.UDID, seriesId,
-                      seasonNumber, channelId, status);
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).DeleteRecordingsBy(initObj.SiteGuid, initObj.DomainID, initObj.UDID, bySeriesId,
+                      bySeasonNumber, byChannelId, byStatus);
                 }
                 catch (Exception ex)
                 {
