@@ -115,16 +115,17 @@ namespace Core.Catalog.Response
             CoGuid = string.Copy(mediaAsset.CoGuid);
             m_oMediaType = new MediaType(mediaAsset.MediaType.m_sTypeName, mediaAsset.MediaType.m_nTypeID);
             m_dCreationDate = mediaAsset.CreateDate.Value;
-            m_dFinalDate = mediaAsset.FinalEndDate.Value;
+            m_dFinalDate = mediaAsset.FinalEndDate.HasValue ? mediaAsset.FinalEndDate.Value : DateTime.MaxValue;
             // TODO: Lior - Ask Ira about value of publish date
             m_dPublishDate = mediaAsset.CreateDate.Value;
             m_dStartDate = mediaAsset.StartDate.Value;
-            m_dEndDate = mediaAsset.EndDate.Value;
+            m_dEndDate = mediaAsset.EndDate.HasValue ? mediaAsset.EndDate.Value : DateTime.MaxValue;
             m_dCatalogStartDate = mediaAsset.CatalogStartDate.Value;
             AssetType = eAssetTypes.MEDIA;
+            IsActive = mediaAsset.IsActive.Value;
             m_dUpdateDate = mediaAsset.UpdateDate.Value;
             m_lMetas = new List<Metas>(mediaAsset.Metas);
-            m_lTags = new List<Tags>(mediaAsset.Tags);
+            m_lTags = new List<Tags>(mediaAsset.Tags);            
         }
     }
 

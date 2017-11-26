@@ -32,9 +32,9 @@ namespace Core.Catalog.CatalogManagement
             this.UserTypes = string.Empty;
         }
 
-        public MediaAsset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages, DateTime createDate, DateTime updateDate,
-                        DateTime startDate, DateTime endDate, List<Metas> metas, List<Tags> tags, List<Picture> pictures, string coGuid, bool isActive, DateTime catalogStartDate, DateTime finalEndDate,
-                        MediaType mediaType, string entryId, string deviceRule, string geoBlockRule, List<FileMedia> files, string userTypes)
+        public MediaAsset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages, DateTime? createDate,
+                        DateTime? updateDate, DateTime? startDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Picture> pictures, string coGuid, bool isActive, DateTime? catalogStartDate,
+                        DateTime? finalEndDate, MediaType mediaType, string entryId, string deviceRule, string geoBlockRule, List<FileMedia> files, string userTypes)
             : base(id, assetType, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, updateDate, startDate, endDate, metas, tags, pictures, coGuid, isActive)
         {
             this.CatalogStartDate = catalogStartDate;

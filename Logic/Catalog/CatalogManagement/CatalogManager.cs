@@ -427,122 +427,7 @@ namespace Core.Catalog.CatalogManagement
             }            
 
             return response;
-        }
-
-        /*  ***** TODO: Lior - Delete this funciton **********
-         * saving this at the moment so later I can look how to handle pictures and files
-        private static MediaObj CreateMediaFromDataSet(int groupId, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages, Filter filter)
-        {
-            MediaObj result = null;
-            if (ds == null || ds.Tables == null || ds.Tables.Count < 6)
-            {
-                log.WarnFormat("CreateMediaFromDataSet didn't receive dataset with 6 or more tables");
-                return null;
-            }
-
-            // Basic details tables
-            if (ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count != 1)
-            {
-                log.WarnFormat("CreateMediaFromDataSet - basic details table is not valid");
-                return null;
-            }
-
-            DataRow basicDataRow = ds.Tables[0].Rows[0];
-            long id = ODBCWrapper.Utils.GetLongSafeVal(basicDataRow, "ID", 0);
-            if (id <= 0)
-            {
-                return null;
-            }
-
-            result = new MediaObj();
-            result.AssetId = id.ToString();
-            string name = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "NAME");
-            string description = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "DESCRIPTION");
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(description))
-            {
-                log.WarnFormat("Name or description is not valid for media with Id: {0}", id);
-                return null;
-            }
-
-            result.EntryId = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "ENTRY_ID");
-            result.CoGuid = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "CO_GUID");
-            List<LanguageContainer> names = new List<LanguageContainer>();
-            names.Add(new LanguageContainer(defaultLanguage.Code, name, true));
-            result.Name = names.ToArray();
-            List<LanguageContainer> descriptions = new List<LanguageContainer>();
-            descriptions.Add(new LanguageContainer(defaultLanguage.Code, description, true));
-            result.Description = descriptions.ToArray();
-            long assetStructId = ODBCWrapper.Utils.GetLongSafeVal(basicDataRow, "ASSET_STRUCT_ID", 0);
-            if (!TryGetMediaTypeFromAssetStructId(groupId, assetStructId, out result.m_oMediaType))
-            {
-                log.WarnFormat("media type (assetStruct) is not valid for media with Id: {0}, assetStructId: {1}", id, assetStructId);
-                return null;
-            }
-
-            result.m_dCreationDate = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "CREATE_DATE");
-            result.m_dFinalDate = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "FINAL_END_DATE");
-            result.m_dPublishDate = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "PUBLISH_DATE");
-            result.m_dStartDate = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "START_DATE");
-            result.m_dEndDate = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "END_DATE");
-            result.m_dCatalogStartDate = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "CATALOG_START_DATE");
-
-            // Last updated table
-            if (ds.Tables[5] == null || ds.Tables[5].Rows == null || ds.Tables[5].Rows.Count != 1)
-            {
-                log.WarnFormat("CreateMediaFromDataSet - last updatedbasic  table is not valid, Id: {0}", id);
-                return null;
-            }
-            
-            DataRow lastUpdatedDr = ds.Tables[5].Rows[0];
-            result.m_dUpdateDate = ODBCWrapper.Utils.GetDateSafeVal(lastUpdatedDr, "UPDATE_DATE");
-
-            // Pictures table
-            if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
-            {
-                bool picturesResult = false;
-                result.m_lPicture = CatalogLogic.GetAllPic(groupId, (int)id, ds.Tables[1], ref picturesResult, groupId);
-                if (!picturesResult)
-                {
-                    log.WarnFormat("CreateMediaFromDataSet - failed to get pictures for Id: {0}", id);
-                    return null;
-                }
-            }
-
-            // Files table
-            if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
-            {
-                bool filesResult = false;
-                Dictionary<int, List<string>> mediaFilePPVModules = mediaFilePPVModules = CatalogLogic.GetMediaFilePPVModules(ds.Tables[2]);
-                // TODO - Lior - what to do with management data
-                result.m_lFiles = CatalogLogic.FilesValues(ds.Tables[2], ref result.m_lBranding, filter.m_noFileUrl, ref filesResult, true, mediaFilePPVModules);
-                if (!filesResult)
-                {
-                    log.WarnFormat("CreateMediaFromDataSet - failed to get files for Id: {0}", id);
-                    return null;
-                }
-            }
-
-            // Metas and Tags table
-            DataTable metasTable = null;
-            DataTable tagsTable = null;
-            if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
-            {
-                metasTable = ds.Tables[3];
-            }
-            if (ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
-            {
-                tagsTable = ds.Tables[4];
-            }
-
-            if (!TryGetMetasAndTags(groupId, id, defaultLanguage.ID, groupLanguages, metasTable, tagsTable, ref result.m_lMetas, ref result.m_lTags))
-            {
-                log.WarnFormat("CreateMediaFromDataSet - failed to get media metas and tags for Id: {0}", id);
-                return null;
-            }
-
-            return result;
-        }
-        */
+        }        
 
         private static AssetResponse CreateAssetResponseFromDataSet(int groupId, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
         {
@@ -597,12 +482,12 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
 
-            DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "CREATE_DATE");
-            DateTime finalEndDate = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "FINAL_END_DATE");
-            DateTime startDate = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "START_DATE");
-            DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "END_DATE");
-            DateTime catalogStartDate = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "CATALOG_START_DATE");
-            DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "UPDATE_DATE");
+            DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "CREATE_DATE");
+            DateTime? finalEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "FINAL_END_DATE");
+            DateTime? startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "START_DATE");
+            DateTime? endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "END_DATE");
+            DateTime? catalogStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "CATALOG_START_DATE");
+            DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "UPDATE_DATE");
 
             // Pictures table
             List<Picture> pictures = null;
@@ -654,7 +539,6 @@ namespace Core.Catalog.CatalogManagement
                 return null;
             }
 
-            // TODO - Lior Extract name and description
             string name = string.Empty;
             string description = string.Empty;
             List<LanguageContainer> namesWithLanguages = null;
@@ -669,7 +553,7 @@ namespace Core.Catalog.CatalogManagement
             string coGuid = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "CO_GUID");
             bool isActive = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "IS_ACTIVE", 0) == 1;
             int deviceRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "DEVICE_RULE_ID", 0);
-            int geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "BLOCK_TEMPLATE_ID", 0);
+            int geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "GEO_BLOCK_RULE_ID", 0);
             string userTypes = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "user_types");
             string deviceRule = CatalogLogic.GetDeviceRuleName(groupId, deviceRuleId);
             string geoBlockRule = CatalogLogic.GetGeoBlockRuleName(groupId, geoBlockRuleId);
@@ -722,7 +606,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
 
-            // TODO - Lior - needs Ira help here in tags and meta
+            // TODO - Lior - Remove TagId, not needed
             Dictionary<long, Dictionary<long, List<LanguageContainer>>> topicIdToTag = new Dictionary<long, Dictionary<long, List<LanguageContainer>>>();
             foreach (DataRow dr in tagsTable.Rows)
             {
@@ -959,6 +843,8 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
+                string now = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+                string max = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
                 ApiObjects.SearchObjects.Media media = new ApiObjects.SearchObjects.Media()
                 {
                     m_nMediaID = (int)mediaAsset.Id,
@@ -968,11 +854,11 @@ namespace Core.Catalog.CatalogManagement
                     m_nIsActive = mediaAsset.IsActive.HasValue && mediaAsset.IsActive.Value ? 1 : 0,
                     m_nGroupID = groupId,
                     m_sCreateDate = mediaAsset.CreateDate.Value.ToString("yyyyMMddHHmmss"),
-                    m_sEndDate = mediaAsset.EndDate.Value.ToString("yyyyMMddHHmmss"),
-                    m_sFinalEndDate = mediaAsset.FinalEndDate.Value.ToString("yyyyMMddHHmmss"),
-                    m_sStartDate = mediaAsset.StartDate.Value.ToString("yyyyMMddHHmmss"),
-                    CatalogStartDate = mediaAsset.CatalogStartDate.Value.ToString("yyyyMMddHHmmss"),
-                    m_sUpdateDate = mediaAsset.UpdateDate.Value.ToString("yyyyMMddHHmmss"),
+                    m_sEndDate = mediaAsset.EndDate.HasValue ? mediaAsset.EndDate.Value.ToString("yyyyMMddHHmmss") : max,
+                    m_sFinalEndDate = mediaAsset.FinalEndDate.HasValue ? mediaAsset.FinalEndDate.Value.ToString("yyyyMMddHHmmss") : max,
+                    m_sStartDate = mediaAsset.StartDate.HasValue ? mediaAsset.StartDate.Value.ToString("yyyyMMddHHmmss") : now,
+                    CatalogStartDate = mediaAsset.CatalogStartDate.HasValue ? mediaAsset.CatalogStartDate.Value.ToString("yyyyMMddHHmmss") : now,
+                    m_sUpdateDate = mediaAsset.UpdateDate.HasValue ? mediaAsset.UpdateDate.Value.ToString("yyyyMMddHHmmss") : now,
                     m_sUserTypes = mediaAsset.UserTypes,
                     m_nDeviceRuleId = CatalogLogic.GetDeviceRuleId(groupId, mediaAsset.DeviceRule),
                     geoBlockRule = CatalogLogic.GetGeoBlockRuleId(groupId, mediaAsset.GeoBlockRule),
@@ -986,237 +872,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
-
-        //private static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> CreateGroupMediaMapFromDataSet(int groupId, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
-        //{
-        //    // <assetId, <languageId, media>>
-        //    Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
-        //    try
-        //    {
-        //        if (ds == null || ds.Tables == null || ds.Tables.Count < 5)
-        //        {
-        //            log.WarnFormat("CreateGroupMediaMapFromDataSet didn't receive dataset with 5 or more tables");
-        //            return null;
-        //        }
-
-        //        // Basic details tables
-        //        if (ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count <= 0)
-        //        {
-        //            log.WarnFormat("CreateGroupMediaMapFromDataSet - basic details table is not valid");
-        //            return null;
-        //        }
-
-        //        foreach (DataRow basicDataRow in ds.Tables[0].Rows)
-        //        {                    
-        //            int id = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "ID", 0);
-        //            if (id > 0 && !groupAssetsMap.ContainsKey(id))
-        //            {
-        //                ApiObjects.SearchObjects.Media asset = BuildMediaFromDataRow(groupId, basicDataRow, id);
-        //                groupAssetsMap.Add(asset.m_nMediaID, new Dictionary<int, ApiObjects.SearchObjects.Media>() { { defaultLanguage.ID, asset } });
-        //            }
-        //        }
-
-        //        //get all the media files types for each mediaId that have been selected.
-        //        if (ds.Tables[1] != null && ds.Tables[1].Columns != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
-        //        {
-        //            foreach (DataRow row in ds.Tables[1].Rows)
-        //            {
-        //                int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
-        //                string sMFT = ODBCWrapper.Utils.GetSafeStr(row, "media_type_id");
-        //                bool isTypeFree = ODBCWrapper.Utils.ExtractBoolean(row, "is_free");
-
-        //                if (groupAssetsMap.ContainsKey(mediaID) && groupAssetsMap[mediaID].ContainsKey(defaultLanguage.ID))
-        //                {
-        //                    ApiObjects.SearchObjects.Media theMedia = groupAssetsMap[mediaID][defaultLanguage.ID];
-        //                    theMedia.m_sMFTypes += string.Format("{0};", sMFT);
-        //                    int mediaTypeId;
-        //                    if (isTypeFree)
-        //                    {
-        //                        // if at least one of the media types is free - this media is free
-        //                        theMedia.isFree = true;
-
-        //                        if (int.TryParse(sMFT, out mediaTypeId))
-        //                        {
-        //                            theMedia.freeFileTypes.Add(mediaTypeId);
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-
-        //        // Metas and Tags table
-        //        DataTable metasTable = null;
-        //        DataTable tagsTable = null;
-        //        if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
-        //        {
-        //            metasTable = ds.Tables[2];
-        //        }
-        //        if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
-        //        {
-        //            tagsTable = ds.Tables[3];
-        //        }
-
-        //        List<DataRow> defaultLanguageMetas = new List<DataRow>();
-        //        List<DataRow> defaultLanguageTopics = new List<DataRow>();
-        //        List<DataRow> otherLanguageMetas = new List<DataRow>();
-        //        List<DataRow> otherLanguageTopics = new List<DataRow>();
-        //        if (metasTable != null && metasTable.Rows != null && metasTable.Rows.Count > 0)
-        //        {
-        //            defaultLanguageMetas = (from row in metasTable.AsEnumerable()
-        //                                    where (Int64)row["LANGUAGE_ID"] == defaultLanguage.ID
-        //                                    select row).ToList();
-        //            otherLanguageMetas = (from row in metasTable.AsEnumerable()
-        //                                  where (Int64)row["LANGUAGE_ID"] != defaultLanguage.ID
-        //                                  select row).ToList();
-        //        }
-
-        //        if (tagsTable != null && tagsTable.Rows != null && tagsTable.Rows.Count > 0)
-        //        {
-        //            defaultLanguageTopics = (from row in tagsTable.AsEnumerable()
-        //                                     where (Int64)row["LANGUAGE_ID"] == defaultLanguage.ID
-        //                                     select row).ToList();
-        //            otherLanguageTopics = (from row in tagsTable.AsEnumerable()
-        //                                   where (Int64)row["LANGUAGE_ID"] != defaultLanguage.ID
-        //                                   select row).ToList();
-        //        }
-
-        //        // Fill Default Language Metas and Tags
-        //        FillAssetMetasAndTags(groupId, defaultLanguageMetas, defaultLanguageTopics, ref groupAssetsMap);
-
-        //        // Clone Assets
-        //        foreach (int mediaId in groupAssetsMap.Keys)
-        //        {                    
-        //            foreach (LanguageObj language in groupLanguages.Where(x => !x.IsDefault))
-        //            {
-        //                groupAssetsMap[mediaId].Add(language.ID, groupAssetsMap[mediaId][defaultLanguage.ID].Clone());
-        //            }
-        //        }
-
-        //        // Fill Other Language Metas and Tags
-        //        FillAssetMetasAndTags(groupId, otherLanguageMetas, otherLanguageTopics, ref groupAssetsMap);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.Error(string.Format("Failed CreateGroupMediaMapFromDataSet for groupId: {0}", groupId), ex);
-        //    }
-
-        //    return groupAssetsMap;
-        //}
-
-        //private static ApiObjects.SearchObjects.Media BuildMediaFromDataRow(int groupId, DataRow basicDataRow, int id)
-        //{
-        //    ApiObjects.SearchObjects.Media asset = new ApiObjects.SearchObjects.Media();
-        //    asset.m_nMediaID = id;
-        //    asset.m_nWPTypeID = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "watch_permission_type_id");
-        //    asset.m_nMediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "ASSET_STRUCT_ID", 0);
-        //    if (!ValidateAssetStructIdExists(groupId, asset.m_nMediaTypeID))
-        //    {
-        //        log.WarnFormat("media type Id: {0} is not valid for media with Id: {1}", asset.m_nMediaTypeID, id);
-        //    }
-
-        //    asset.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "group_id");
-        //    asset.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "is_active");
-        //    asset.m_nDeviceRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "device_rule_id");
-        //    asset.m_nLikeCounter = 0;
-        //    asset.m_nViews = 0;
-        //    asset.m_sUserTypes = ODBCWrapper.Utils.GetSafeStr(basicDataRow["user_types"]);
-        //    asset.EntryId = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "ENTRY_ID");
-        //    asset.CoGuid = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "CO_GUID");
-        //    // by default - media is not free
-        //    asset.isFree = false;
-        //    asset.geoBlockRule = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "geo_block_rule_id");
-        //    asset.m_sName = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "NAME");
-        //    asset.m_sDescription = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "DESCRIPTION");
-        //    if (string.IsNullOrEmpty(asset.m_sName) || string.IsNullOrEmpty(asset.m_sDescription))
-        //    {
-        //        log.WarnFormat("Name or description is not valid for media with Id: {0}", id);
-        //    }
-
-        //    if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(basicDataRow, "create_date")))
-        //    {
-        //        DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "create_date");
-        //        asset.m_sCreateDate = dt.ToString("yyyyMMddHHmmss");
-        //    }
-
-        //    if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(basicDataRow, "update_date")))
-        //    {
-        //        DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "update_date");
-        //        asset.m_sUpdateDate = dt.ToString("yyyyMMddHHmmss");
-        //    }
-
-        //    if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(basicDataRow, "start_date")))
-        //    {
-        //        DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "start_date");
-        //        asset.m_sStartDate = dt.ToString("yyyyMMddHHmmss");
-        //    }
-
-        //    if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(basicDataRow, "end_date")))
-        //    {
-        //        DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "end_date");
-        //        asset.m_sEndDate = dt.ToString("yyyyMMddHHmmss");
-
-        //    }
-
-        //    if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(basicDataRow, "final_end_date")))
-        //    {
-        //        DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "final_end_date");
-        //        asset.m_sFinalEndDate = dt.ToString("yyyyMMddHHmmss");
-        //    }
-
-        //    if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(basicDataRow, "catalog_start_date")))
-        //    {
-        //        DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(basicDataRow, "catalog_start_date");
-        //        asset.CatalogStartDate = dt.ToString("yyyyMMddHHmmss");
-        //    }
-
-        //    return asset;
-        //}
-
-        //private static void FillAssetMetasAndTags(int groupId, List<DataRow> metaRows, List<DataRow> tagRows, ref Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupAssetsMap)
-        //{            
-        //    CatalogGroupCache catalogGroupCache;
-        //    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-        //    {
-        //        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling TryGetAssetMetasAndTags", groupId);
-        //        return;
-        //    }
-
-        //    Dictionary<long, List<LanguageContainer>> topicIdToMeta = new Dictionary<long, List<LanguageContainer>>();
-        //    // TODO - Lior - need to handle basic meta's differently
-        //    foreach (DataRow dr in metaRows)
-        //    {
-        //        int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "asset_id");
-        //        long topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
-        //        int languageId = ODBCWrapper.Utils.GetIntSafeVal(dr, "language_id");
-        //        string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");                
-        //        if (groupAssetsMap.ContainsKey(mediaId) && catalogGroupCache.TopicsMapById.ContainsKey(topicId) && groupAssetsMap[mediaId].ContainsKey(languageId))
-        //        {
-        //            groupAssetsMap[mediaId][languageId].m_dMeatsValues[catalogGroupCache.TopicsMapById[topicId].SystemName] = translation;
-        //        }               
-        //    }
-
-        //    foreach (DataRow dr in tagRows)
-        //    {
-        //        int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "asset_id");
-        //        long topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
-        //        long tagId = ODBCWrapper.Utils.GetLongSafeVal(dr, "tag_id");
-        //        int languageId = ODBCWrapper.Utils.GetIntSafeVal(dr, "language_id");
-        //        string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
-        //        if (groupAssetsMap.ContainsKey(mediaId) && catalogGroupCache.TopicsMapById.ContainsKey(topicId) && groupAssetsMap[mediaId].ContainsKey(languageId))
-        //        {
-        //            if (!groupAssetsMap[mediaId][languageId].m_dTagValues.ContainsKey(catalogGroupCache.TopicsMapById[topicId].SystemName))
-        //            {
-        //                groupAssetsMap[mediaId][languageId].m_dTagValues.Add(catalogGroupCache.TopicsMapById[topicId].SystemName, new Dictionary<long, string>());
-        //            }
-
-        //            if (!groupAssetsMap[mediaId][languageId].m_dTagValues[catalogGroupCache.TopicsMapById[topicId].SystemName].ContainsKey(tagId))
-        //            {
-        //                groupAssetsMap[mediaId][languageId].m_dTagValues[catalogGroupCache.TopicsMapById[topicId].SystemName].Add(tagId, translation);
-        //            }
-        //        }
-        //    }
-        //}
+        }        
 
         private static Type GetMetaType(Topic topic)
         {
@@ -1982,7 +1638,8 @@ namespace Core.Catalog.CatalogManagement
                         List<long> topicIds = catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds;
                         if (topicIds != null && topicIds.Count > 0)
                         {
-                            response.Topics = topicIds.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x)).Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
+                            response.Topics = topicIds.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
+                                                            .Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
                         }
                     }
 

@@ -48,8 +48,8 @@ namespace Core.Catalog.CatalogManagement
             this.IsActive = null;
         }
 
-        public Asset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages, DateTime createDate, 
-                    DateTime startDate, DateTime updateDate, DateTime endDate, List<Metas> metas, List<Tags> tags, List<Picture> pictures, string coGuid, bool isActive, Dictionary<string, int> tagNameToIdMap = null)
+        public Asset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages, DateTime? createDate, 
+                    DateTime? startDate, DateTime? updateDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Picture> pictures, string coGuid, bool isActive, Dictionary<string, int> tagNameToIdMap = null)
         {
             this.Id = id;
             this.AssetType = assetType;
