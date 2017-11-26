@@ -35,7 +35,7 @@ namespace ApiObjects.SearchObjects
         public string CoGuid { get; set; }
         public string EntryId { get; set; }
 
-        public Dictionary<string, Dictionary<long, string>> m_dTagValues;
+        public Dictionary<string, HashSet<string>> m_dTagValues;
         public Dictionary<string, string> m_dMeatsValues;
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace ApiObjects.SearchObjects
             m_sFinalEndDate = sMax;
 
             m_dMeatsValues = new Dictionary<string, string>();
-            m_dTagValues = new Dictionary<string, Dictionary<long, string>>();
+            m_dTagValues = new Dictionary<string, HashSet<string>>();
             regions = new List<int>();
             freeFileTypes = new List<int>();
 
@@ -143,17 +143,11 @@ namespace ApiObjects.SearchObjects
 
             clone.m_dMeatsValues = (from meta in this.m_dMeatsValues select meta).ToDictionary(x => x.Key, x => x.Value);
 
-            clone.m_dTagValues = new Dictionary<string, Dictionary<long, string>>();
+            clone.m_dTagValues = new Dictionary<string, HashSet<string>>();
 
             foreach (string tagName in this.m_dTagValues.Keys)
-            {
-                Dictionary<long, string> dTag = new Dictionary<long, string>();
-                foreach (int tagID in this.m_dTagValues[tagName].Keys)
-                {
-                    dTag.Add(tagID, this.m_dTagValues[tagName][tagID]);
-                }
-
-                clone.m_dTagValues[tagName] = dTag;
+            {               
+                clone.m_dTagValues[tagName] = new HashSet<string>(this.m_dTagValues[tagName], StringComparer.OrdinalIgnoreCase);
             }
 
             clone.regions.AddRange(this.regions);

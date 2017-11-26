@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using Core.Catalog.CatalogManagement;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -100,6 +101,30 @@ namespace Core.Catalog.Response
             CatchUpBuffer = 0;
             TrickPlayBuffer = 0;
             EnableRecordingPlaybackNonEntitledChannel = false;
+        }
+
+        public MediaObj(MediaAsset mediaAsset)
+            : base()
+        {
+            AssetId = mediaAsset.Id.ToString();
+            m_sName = string.Copy(mediaAsset.Name);
+            Name = mediaAsset.NamesWithLanguages.ToArray();
+            m_sDescription = string.Copy(mediaAsset.Description);
+            Description = mediaAsset.DescriptionsWithLanguages.ToArray();
+            EntryId = string.Copy(mediaAsset.EntryId);
+            CoGuid = string.Copy(mediaAsset.CoGuid);
+            m_oMediaType = new MediaType(mediaAsset.MediaType.m_sTypeName, mediaAsset.MediaType.m_nTypeID);
+            m_dCreationDate = mediaAsset.CreateDate.Value;
+            m_dFinalDate = mediaAsset.FinalEndDate.Value;
+            // TODO: Lior - Ask Ira about value of publish date
+            m_dPublishDate = mediaAsset.CreateDate.Value;
+            m_dStartDate = mediaAsset.StartDate.Value;
+            m_dEndDate = mediaAsset.EndDate.Value;
+            m_dCatalogStartDate = mediaAsset.CatalogStartDate.Value;
+            AssetType = eAssetTypes.MEDIA;
+            m_dUpdateDate = mediaAsset.UpdateDate.Value;
+            m_lMetas = new List<Metas>(mediaAsset.Metas);
+            m_lTags = new List<Tags>(mediaAsset.Tags);
         }
     }
 

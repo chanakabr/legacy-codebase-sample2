@@ -9,8 +9,7 @@ namespace Core.Catalog.CatalogManagement
 {
     public class Topic
     {
-
-        private const string MULTIPLE_VALUE = "multipleValue";
+                
         private const string SEARCH_RELATED = "searchRelated";
 
         public long Id { get; set; }
@@ -52,21 +51,11 @@ namespace Core.Catalog.CatalogManagement
             this.NamesInOtherLanguages = new List<LanguageContainer>(namesInOtherLanguages);
             this.SystemName = systemName;
             this.Type = type;
+            this.MultipleValue = this.Type == MetaType.Tag;
             this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (this.Features.Contains(MULTIPLE_VALUE))
-            {
-                this.MultipleValue = true;
-                this.Features.Remove(MULTIPLE_VALUE);
-            }
-            else
-            {
-                this.MultipleValue = false;
-            }
-
             if (this.Features.Contains(SEARCH_RELATED))
             {
-                this.SearchRelated = true;
-                this.Features.Remove(SEARCH_RELATED);
+                this.SearchRelated = true;                
             }
             else
             {
@@ -110,34 +99,18 @@ namespace Core.Catalog.CatalogManagement
         }
 
         internal string GetFeaturesForDB(HashSet<string> existingFeatures = null)
-        {            
-            StringBuilder regularFeatures = new StringBuilder(GetCommaSeparatedFeatures());
-            HashSet<string> featuresWithLogic = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            // if its for new topic --> existing features == null we take the value according to MultipleValue property            
-            if ((existingFeatures == null && MultipleValue.HasValue && MultipleValue.Value) ||
-                // if its for updating topic we take multipleValue according to existing features
-                (existingFeatures != null && existingFeatures.Contains(MULTIPLE_VALUE)))
+        {
+            string result = string.Empty;
+            if (this.Features == null && existingFeatures != null && existingFeatures.Count > 0)
             {
-                featuresWithLogic.Add(MULTIPLE_VALUE);
-            }
-
-            if (SearchRelated)
-            {
-                featuresWithLogic.Add(SEARCH_RELATED);
-            }
-
-            if (regularFeatures.Length > 0 && featuresWithLogic.Count > 0)
-            {
-                return string.Format("{0},{1}", regularFeatures.ToString(), string.Join(",", featuresWithLogic));
-            }
-            else if (regularFeatures.Length > 0)
-            {
-                return regularFeatures.ToString();
+                result = string.Join(",", existingFeatures);
             }
             else
             {
-                return string.Join(",", featuresWithLogic);
+                result = GetCommaSeparatedFeatures();
             }
+
+            return result;
         }
 
         public override string ToString()

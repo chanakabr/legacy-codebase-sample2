@@ -466,76 +466,42 @@ namespace Core.Catalog.Cache
             return watchPermissionsTypes;
         }
 
-        internal Dictionary<int, string> GetGroupGeoBlockRules(int groupID)
+        internal Dictionary<int, string> GetGroupGeoBlockRules(int groupId)
         {
-            Dictionary<int, string> geoblockRules = null;
+            Dictionary<int, string> result = null;
             try
             {
-                string sKey = "GroupGeoblockRules_" + groupID.ToString();
-                geoblockRules = Get<Dictionary<int, string>>(sKey);
-
-                if (geoblockRules == null || geoblockRules.Count == 0)
+                Dictionary<string, int> groupGeoBlockRules = GetGroupGeoBlockRulesFromLayeredCache(groupId);
+                if (groupGeoBlockRules != null)
                 {
-                    DataTable dataTable = CatalogDAL.GetGroupGeoblockRules(groupID);
-
-                    if (dataTable == null || dataTable.Rows.Count == 0)
-                        return null;
-                    else
-                    {
-                        geoblockRules = new Dictionary<int, string>();
-                        foreach (DataRow row in dataTable.Rows)
-                        {
-                            geoblockRules.Add(Utils.GetIntSafeVal(row, "ID"), Utils.GetStrSafeVal(row, "NAME"));
-                        }
-                    }
-
-                    if (geoblockRules == null)
-                        Set(sKey, new Dictionary<int, string>(), SHORT_IN_CACHE_MINUTES);
-                    else
-                        Set(sKey, geoblockRules);
+                    result = groupGeoBlockRules.ToDictionary(x => x.Value, x => x.Key);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while getting group geo block Rules. GID {0}, ex: {1}", groupID, ex);
+                log.Error(string.Format("Failed GetGroupGeoBlockRules for groupId: {0}", groupId), ex);
             }
-            return geoblockRules;
+
+            return result;
         }
 
-        internal Dictionary<int, string> GetGroupDeviceRules(int groupID)
+        internal Dictionary<int, string> GetGroupDeviceRules(int groupId)
         {
-            Dictionary<int, string> deviceRules = null;
+            Dictionary<int, string> result = null;
             try
             {
-                string sKey = "GroupDeviceRules_" + groupID.ToString();
-                deviceRules = Get<Dictionary<int, string>>(sKey);
-
-                if (deviceRules == null || deviceRules.Count == 0)
+                Dictionary<string, int> groupDeviceRules = GetGroupDeviceRulesFromLayeredCache(groupId);
+                if (groupDeviceRules != null)
                 {
-                    DataTable dataTable = CatalogDAL.GetGroupDeviceRules(groupID);
-
-                    if (dataTable == null || dataTable.Rows.Count == 0)
-                        return null;
-                    else
-                    {
-                        deviceRules = new Dictionary<int, string>();
-                        foreach (DataRow row in dataTable.Rows)
-                        {
-                            deviceRules.Add(Utils.GetIntSafeVal(row, "ID"), Utils.GetStrSafeVal(row, "NAME"));
-                        }
-                    }
-
-                    if (deviceRules == null)
-                        Set(sKey, new Dictionary<int, string>(), SHORT_IN_CACHE_MINUTES);
-                    else
-                        Set(sKey, deviceRules);
+                    result = groupDeviceRules.ToDictionary(x => x.Value, x => x.Key);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while getting group device rules. GID {0}, ex: {1}", groupID, ex);
+                log.Error(string.Format("Failed GetGroupDeviceRules for groupId: {0}", groupId), ex);
             }
-            return deviceRules;
+
+            return result;
         }
 
         internal Dictionary<string, int> GetGroupGeoBlockRulesFromLayeredCache(int groupId)

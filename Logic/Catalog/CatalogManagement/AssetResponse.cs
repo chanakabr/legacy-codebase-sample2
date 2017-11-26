@@ -11,7 +11,7 @@ namespace Core.Catalog.CatalogManagement
     public class AssetResponse
     {
         public Status Status { get; set; }
-        public MediaObj Asset { get; set; }
+        public Asset Asset { get; set; }
 
         public AssetResponse()
         {
