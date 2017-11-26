@@ -783,7 +783,8 @@ namespace TVinciShared
             HandleMany2Many(ref coll, ref selectQuery, sConnectionKey);
         }
 
-        static public void HandleMany2Many(ref System.Collections.Specialized.NameValueCollection coll, ref ODBCWrapper.DataSetSelectQuery selectQuery, string sConnectionKey)
+        static public void HandleMany2Many(ref System.Collections.Specialized.NameValueCollection coll, ref ODBCWrapper.DataSetSelectQuery selectQuery, string sConnectionKey,
+            bool shouldReplaceQuotes = true)
         {
             //string sTableName = coll["table_name"].ToString();
             Int32 nCount = coll.Count;
@@ -896,7 +897,14 @@ namespace TVinciShared
                     Int32 nRound = 0;
                     while (bEntered == false)
                     {
-                        string sText = splitedStr[i].ToString().Trim().Replace("\"", "&quot;");
+                        // replace quotes - not always!
+                        string sText = splitedStr[i].ToString().Trim();
+
+                        if (shouldReplaceQuotes)
+                        {
+                            sText = sText.Replace("\"", "&quot;");
+                        }
+
                         if (sText == "")
                         {
                             break;

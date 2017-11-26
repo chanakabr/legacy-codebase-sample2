@@ -4583,7 +4583,8 @@ namespace TvinciImporter
                 if (nCount1 > 0)
                 {
                     if (nTagTypeID != 0 || sName.ToLower().Trim() == "free")
-                        IngestionUtils.M2MHandling("ID", "TAG_TYPE_ID", nTagTypeID.ToString(), "int", "ID", "tags", "media_tags", "media_id", "tag_id", "true", sMainLang, metaHolder, nGroupID, nMediaID);
+                        IngestionUtils.M2MHandling("ID", "TAG_TYPE_ID", nTagTypeID.ToString(), "int", "ID", "tags", "media_tags", "media_id", "tag_id", "true", 
+                            sMainLang, metaHolder, nGroupID, nMediaID);
 
                 }
             }
@@ -5045,7 +5046,7 @@ namespace TvinciImporter
                         }
                         catch (Exception exc)
                         {
-                            log.ErrorFormat("Failed process MediaID: {0}. Exception:{2}", nMediaID, exc);
+                            log.ErrorFormat("Failed process MediaID: {0}. Exception:{1}", nMediaID, exc);
                         }
                     }
 

@@ -591,7 +591,7 @@ namespace TVinciShared
                 nMediaID.ToString(),
                 sFinalVal,
                 nGroupID);
-            TVinciShared.DBManipulator.HandleMany2Many(ref coll, ref selectQuery1, "");
+            TVinciShared.DBManipulator.HandleMany2Many(ref coll, ref selectQuery1, "", false);
         }
 
 
