@@ -167,9 +167,6 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
         gv.DataSource = resultTable;
         gv.DataBind();
 
-        //gv.HeaderRow.BackColor = System.Drawing.ColorTranslator.FromHtml("#000941");
-        //gv.HeaderRow.ForeColor = System.Drawing.Color.White;
-
         Int32 nCount = gv.HeaderRow.Cells.Count;
         string color = string.Empty;
 
@@ -230,13 +227,17 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
 
         HttpContext.Current.Response.Clear();
         HttpContext.Current.Response.AddHeader("content-disposition", "attachment;filename=myFileName.xls");
-        HttpContext.Current.Response.Charset = "UTF-8";
-        HttpContext.Current.Response.ContentEncoding = System.Text.Encoding.GetEncoding("windows-1250");
+        HttpContext.Current.Response.Charset = "";
+        // addition to solve the Hebrew - gibberish issue
+        HttpContext.Current.Response.ContentEncoding = System.Text.Encoding.Unicode;
+        Response.BinaryWrite(System.Text.Encoding.Unicode.GetPreamble());
+        //till here
         HttpContext.Current.Response.ContentType = "application/vnd.ms-excel";
         System.IO.StringWriter stringWrite = new System.IO.StringWriter();
         HtmlTextWriter htmlWrite = new HtmlTextWriter(stringWrite);
 
         gv.RenderControl(htmlWrite);
+
         HttpContext.Current.Response.Write(style);
         HttpContext.Current.Response.Write(stringWrite.ToString());
         HttpContext.Current.Response.End();

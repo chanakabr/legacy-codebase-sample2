@@ -60,7 +60,7 @@ public partial class adm_epg_pics_templates : System.Web.UI.Page
               
         theTable += " select eps.id, eps.Name as 'Name', eps.Description as 'Description', eps.WIDTH as 'Widht', eps.HEIGHT as 'Height', eps.status , lur.ratio as 'Ratio' ";
         theTable += " from  epg_pics_sizes eps ";
-        theTable += " left  join lu_pics_ratios lur ";
+        theTable += " left  join lu_pics_epg_ratios lur "    //" left  join lu_pics_ratios lur ";
         theTable += " on    lur.id = eps.ratio_id ";
         theTable += " where eps.status<>2 and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("eps.group_id", "=", nGroupID);
