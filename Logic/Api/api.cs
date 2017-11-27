@@ -1625,7 +1625,7 @@ namespace Core.Api
                 List<int> ruleIds = new List<int>();
 
                 // get all related rules to media 
-                string key = LayeredCacheKeys.GetMediaConcurrencyRulesDomainLimitationModuleKey(dlmId);
+                string key = LayeredCacheKeys.GetMediaConcurrencyRulesDeviceLimitationModuleKey(dlmId);
 
                 bool cacheResult = LayeredCache.Instance.Get<List<int>>(
                     key, ref result, Get_MCRulesIdsByDeviceLimitationModule,
@@ -1635,7 +1635,7 @@ namespace Core.Api
                         { "dlmId", dlmId }
                         },
                     groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_BY_LIMITATION_MODULE_CACHE_CONFIG_NAME,
-                    new List<string>() { LayeredCacheKeys.GetMediaConcurrencyRulesDomainLimitationModuleInvalidationKey(groupId, dlmId) });
+                    new List<string>() { LayeredCacheKeys.GetMediaConcurrencyRulesDeviceLimitationModuleInvalidationKey(groupId, dlmId) });
 
                 if (!cacheResult)
                 {
