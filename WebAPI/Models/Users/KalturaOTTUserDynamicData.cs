@@ -26,14 +26,21 @@ namespace WebAPI.Models.Users
         [SchemeProperty(ReadOnly = true)]        
         public string UserId{ get; set; }
 
-        /// <summary>
-        /// Dynamic data
+
+        /// <summary>Key
         /// </summary>
-        [DataMember(Name = "dynamicData")]
-        [JsonProperty("dynamicData")]
-        [XmlElement(ElementName = "dynamicData", IsNullable = true)]
-        [OldStandardProperty("dynamic_data")]
-        public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
+        [DataMember(Name = "key")]
+        [JsonProperty("key")]
+        [XmlElement(ElementName = "key")]
+        public string Key { get; set; }
+
+        /// <summary>
+        /// Value
+        /// </summary>
+        [DataMember(Name = "value")]
+        [JsonProperty("value")]
+        [XmlElement(ElementName = "value")]
+        public  KalturaStringValue Value { get; set; }
     }
 }
 
