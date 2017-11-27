@@ -22,7 +22,8 @@ namespace CachingProvider.LayeredCache
         public const string COUNTRY_BY_COUNTRY_NAME_LAYERED_CACHE_CONFIG_NAME = "GetCountryByCountryName";
         public const string CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME = "CheckGeoBlockMedia";
         public const string MEDIA_USER_TYPE_LAYERED_CACHE_CONFIG_NAME = "CheckMediaUserType";
-        public const string MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME = "GetMediaConcurrencyRules";        
+        public const string MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME = "GetMediaConcurrencyRules";
+        public const string MEDIA_CONCURRENCY_RULES_BY_LIMITATION_MODULE_CACHE_CONFIG_NAME = "GetMediaConcurrencyRulesByDomainLimitionModule";
         public const string GROUP_CDN_SETTINGS_LAYERED_CACHE_CONFIG_NAME = "GroupCDNSettings";
         public const string CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "CdnAdapter";
         public const string GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "GroupParentalRules";

@@ -4494,5 +4494,30 @@ namespace DAL
             var downgradePolicyId = sp.ExecuteReturnValue<int>();
             return downgradePolicyId;
         }
+
+        public static List<int> GetMCRulesByDLM(int groupId, int dlmId)
+        {
+            List<int> result = new List<int>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("GetMCRulesByDLM");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@DlmID", dlmId);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && dataSet.Tables[0] != null &&
+                dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+
+                    result.Add(id);
+                }
+            }
+
+            return result;
+        }
     }
 }

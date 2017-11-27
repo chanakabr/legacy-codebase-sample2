@@ -47,6 +47,12 @@ namespace CachingProvider.LayeredCache
             return string.Format("mediaConcurrencyRules_mediaId_{0}", mediaId);
         }
 
+        public static string GetMediaConcurrencyRulesDomainLimitationModuleKey(int dlmId)
+        {
+            return string.Format("mediaConcurrencyRules_dlmId_{0}", dlmId);
+
+        }
+
         public static string GetKeyForIp(string ip)
         {
             return string.Format("ip_{0}", ip);
@@ -431,6 +437,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyUnifiedBillingCycle_domainId_{0}_renewLifeCycle", domainID, renewLifeCycle);
         }
+        public static string GetMediaConcurrencyRulesDomainLimitationModuleInvalidationKey(int groupId, int dlmId)
+        {
+            return string.Format("invalidationKey_mediaConcurrencyRules_by_domainLimitationModule_{0}", dlmId);
+        }
+
         #endregion
 
         #region Domains
