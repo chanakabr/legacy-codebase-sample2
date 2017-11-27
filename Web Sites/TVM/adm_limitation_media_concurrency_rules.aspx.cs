@@ -1,6 +1,9 @@
-﻿using System;
+﻿using CachingProvider.LayeredCache;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -8,6 +11,8 @@ using TVinciShared;
 
 public partial class adm_limitation_media_concurrency_rules : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -148,7 +153,9 @@ public partial class adm_limitation_media_concurrency_rules : System.Web.UI.Page
             return "";
         }
 
-        Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("groups_device_limitation_modules", "group_id", int.Parse(Session["limit_module_id"].ToString())).ToString());
+        int limitModuleId = int.Parse(Session["limit_module_id"].ToString());
+
+        Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("groups_device_limitation_modules", "group_id", limitModuleId).ToString());
         Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
         if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
         {
@@ -167,8 +174,15 @@ public partial class adm_limitation_media_concurrency_rules : System.Web.UI.Page
         }
         else
         {
-            InsertDeviceMediaConcurrencyRules(int.Parse(sID), int.Parse(Session["limit_module_id"].ToString()), nLogedInGroupID);
-                                                    
+            InsertDeviceMediaConcurrencyRules(int.Parse(sID), limitModuleId, nLogedInGroupID);
+        }
+
+        int groupId = LoginManager.GetLoginGroupID();
+        // invalidation keys
+        string invalidationKey = LayeredCacheKeys.GetMediaConcurrencyRulesDeviceLimitationModuleInvalidationKey(groupId, limitModuleId);
+        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+        {
+            log.ErrorFormat("Failed to set invalidation key for DLM media concurrency rules. key = {0}", invalidationKey);
         }
 
         return "";
