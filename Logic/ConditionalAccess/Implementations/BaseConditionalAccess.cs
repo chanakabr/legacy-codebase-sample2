@@ -10775,41 +10775,62 @@ namespace Core.ConditionalAccess
                 ValidationResponseObject validationResponse = new ValidationResponseObject();
 
                 int bmID = 0;
-                bool bSuccess = false;
+                bool success = false;
                 eBusinessModule eBM = eBusinessModule.PPV;
 
                 if (prices != null && prices.Length > 0)
                 {
                     if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased)
                     {
-                        bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
+                        success = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
                     }
                     else if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased)
                     {
-                        bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_relevantSub.m_SubscriptionCode, out bmID);
+                        success = int.TryParse(prices[0].m_oItemPrices[0].m_relevantSub.m_SubscriptionCode, out bmID);
                         eBM = eBusinessModule.Subscription;
                     }
 
-                    if (!bSuccess)
+                    if (!success)
                     {
                         return response;
                     }
 
                     /*Get Media Concurrency Rules*/
-                    List<MediaConcurrencyRule> mcRules = Core.Api.Module.GetMediaConcurrencyRules(m_nGroupID, nMediaID, sUserIP, bmID, eBM);
+                    List<MediaConcurrencyRule> mediaConcurrencyRules = Core.Api.Module.GetMediaConcurrencyRules(m_nGroupID, nMediaID, sUserIP, bmID, eBM);
 
-                    /* MediaConurrency Check */
-                    if (mcRules != null && mcRules.Count() > 0)
+                    // get domain limit Id (whether we have domain Id or not)
+
+                    DomainResponse domainResponse = null;
+
+                    if (domainID == 0)
                     {
-                        mediaConcurrencyRuleIds = mcRules.Select(x => x.RuleID).ToList();
-
-                        log.DebugFormat("MediaConcurrencyRule for userId:{0}, mediaId:{1}, BusinessModule:{2}, rules:{3}", sSiteGuid, nMediaID,
-                            eBM.ToString(), string.Join(",", mcRules.Select(x => x.RuleID).ToList()));
+                        domainResponse = Core.Domains.Module.GetDomainByUser(this.m_nGroupID, sSiteGuid);
                     }
+                    else
+                    {
+                        domainResponse = Core.Domains.Module.GetDomainInfo(this.m_nGroupID, domainID);
+                    }
+                    
+                    if (domainResponse != null && domainResponse.Domain != null)
+                    {
+                        int dlmId = domainResponse.Domain.m_nLimit;
 
+                        List<int> limitationModulesRules = Core.Api.Module.GetMediaConcurrencyRulesByDomainLimitionModule(this.m_nGroupID, dlmId);
+
+                        /* MediaConurrency Check */
+                        if (limitationModulesRules != null && limitationModulesRules.Count > 0 &&
+                            mediaConcurrencyRules != null && mediaConcurrencyRules.Count() > 0)
+                        {
+                            mediaConcurrencyRuleIds =
+                                mediaConcurrencyRules.Where(rule => limitationModulesRules.Contains(rule.RuleID)).Select(x => x.RuleID).ToList();
+
+                            log.DebugFormat("MediaConcurrencyRule for userId:{0}, mediaId:{1}, BusinessModule:{2}, rules:{3}", sSiteGuid, nMediaID,
+                                eBM.ToString(), string.Join(",", mediaConcurrencyRules.Select(x => x.RuleID).ToList()));
+                        }
+                    }
                 }
 
-                //validate Concurrency for domain
+                // validate Concurrency for domain
                 validationResponse = Core.Domains.Module.ValidateLimitationModule(m_nGroupID, sDeviceName, nDeviceFamilyBrand, lSiteGuid, domainID,
                        Users.ValidationType.Concurrency, mediaConcurrencyRuleIds, nMediaID);
 

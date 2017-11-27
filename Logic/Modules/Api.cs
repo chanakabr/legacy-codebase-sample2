@@ -1831,5 +1831,10 @@ namespace Core.Api
         {
             return Core.Api.api.GetCustomDrmDeviceLicenseData(groupId, drmAdapterId, userId, udid, ip);
         }
+
+        internal static List<int> GetMediaConcurrencyRulesByDomainLimitionModule(int groupId, int dlmId)
+        {
+            return Core.Api.api.GetMediaConcurrencyRulesByDeviceLimitionModule(groupId, dlmId);
+        }
     }
 }
