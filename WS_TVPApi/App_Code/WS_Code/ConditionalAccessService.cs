@@ -1283,7 +1283,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Delete Recordings By")]
         [PrivateMethod]
         public NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string bySeriesId, string bySeasonNumber, string byChannelId,
-            List<TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.NPVRRecordingStatus> byStatus)
+            List<string> byStatus)
         {
             NPVRResponse res = null;
 
@@ -1295,8 +1295,13 @@ namespace TVPApiServices
             {
                 try
                 {
+                    List<TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.NPVRRecordingStatus> status = new List<NPVRRecordingStatus>();
+                    status = byStatus.ConvertAll(delegate (string x) {
+                        return (NPVRRecordingStatus)Enum.Parse(typeof(NPVRRecordingStatus), x);
+                    });
+
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).DeleteRecordingsBy(initObj.SiteGuid, initObj.DomainID, initObj.UDID, bySeriesId,
-                      bySeasonNumber, byChannelId, byStatus);
+                      bySeasonNumber, byChannelId, status);
                 }
                 catch (Exception ex)
                 {
