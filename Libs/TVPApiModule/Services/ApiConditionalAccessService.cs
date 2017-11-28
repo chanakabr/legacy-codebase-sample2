@@ -1505,7 +1505,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public NPVRResponse RecordingWatcheStatus(string siteGuid, long domainId, string udid, string recordingId, int alreadyWatched)
+        public NPVRResponse RecordingWatchStatus(string siteGuid, long domainId, string udid, string recordingId, int alreadyWatched)
         {
             NPVRResponse res = null;
 
@@ -1529,7 +1529,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("RecordingWatcheStatus: Error calling webservice protocol : GetNPVRResponse with RecordNPVRAlreadyWatchedCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, recordingId: {4}, alreadyWatched: {5}",
+                logger.ErrorFormat("RecordingWatchStatus: Error calling webservice protocol : GetNPVRResponse with RecordNPVRAlreadyWatchedCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, recordingId: {4}, alreadyWatched: {5}",
                     ex.Message, siteGuid, domainId, udid, recordingId, alreadyWatched);
             }
             return res;

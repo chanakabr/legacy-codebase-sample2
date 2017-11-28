@@ -1372,19 +1372,19 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Recording Watche Status")]
         [PrivateMethod]
-        public NPVRResponse RecordingWatcheStatus(InitializationObject initObj, int recordingId, int alreadyWatched)
+        public NPVRResponse RecordingWatchStatus(InitializationObject initObj, int recordingId, int alreadyWatched)
         {
             NPVRResponse res = null;
 
             string clientIp = SiteHelper.GetClientIP();
 
-            int groupId = ConnectionHelper.GetGroupID("tvpapi", "RecordingWatcheStatus", initObj.ApiUser, initObj.ApiPass, clientIp);
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "RecordingWatchStatus", initObj.ApiUser, initObj.ApiPass, clientIp);
 
             if (groupId > 0)
             {
                 try
                 {
-                    res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordingWatcheStatus(initObj.SiteGuid, initObj.DomainID, initObj.UDID, 
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordingWatchStatus(initObj.SiteGuid, initObj.DomainID, initObj.UDID, 
                         recordingId.ToString(), alreadyWatched);
                 }
                 catch (Exception ex)
