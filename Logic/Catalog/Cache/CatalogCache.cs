@@ -466,51 +466,13 @@ namespace Core.Catalog.Cache
             return watchPermissionsTypes;
         }
 
-        internal Dictionary<int, string> GetGroupGeoBlockRules(int groupId)
+        internal Dictionary<int, string> GetGroupGeoBlockRulesFromLayeredCache(int groupId)
         {
             Dictionary<int, string> result = null;
-            try
-            {
-                Dictionary<string, int> groupGeoBlockRules = GetGroupGeoBlockRulesFromLayeredCache(groupId);
-                if (groupGeoBlockRules != null)
-                {
-                    result = groupGeoBlockRules.ToDictionary(x => x.Value, x => x.Key);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetGroupGeoBlockRules for groupId: {0}", groupId), ex);
-            }
-
-            return result;
-        }
-
-        internal Dictionary<int, string> GetGroupDeviceRules(int groupId)
-        {
-            Dictionary<int, string> result = null;
-            try
-            {
-                Dictionary<string, int> groupDeviceRules = GetGroupDeviceRulesFromLayeredCache(groupId);
-                if (groupDeviceRules != null)
-                {
-                    result = groupDeviceRules.ToDictionary(x => x.Value, x => x.Key);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetGroupDeviceRules for groupId: {0}", groupId), ex);
-            }
-
-            return result;
-        }
-
-        internal Dictionary<string, int> GetGroupGeoBlockRulesFromLayeredCache(int groupId)
-        {
-            Dictionary<string, int> result = null;
             try
             {
                 string key = LayeredCacheKeys.GetGroupGeoBlockRulesKey(groupId);
-                if (!LayeredCache.Instance.Get<Dictionary<string, int>>(key, ref result, Utils.GetGroupGeoblockRules, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                if (!LayeredCache.Instance.Get<Dictionary<int, string>>(key, ref result, Utils.GetGroupGeoblockRules, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                                                             LayeredCacheConfigNames.GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupGeoBlockRulesInvalidationKey(groupId) }))
                 {
                     log.ErrorFormat("Failed getting GetGroupGeoBlockRules from LayeredCache, groupId: {0}, key: {1}", groupId, key);
@@ -524,13 +486,13 @@ namespace Core.Catalog.Cache
             return result;
         }
 
-        internal Dictionary<string, int> GetGroupDeviceRulesFromLayeredCache(int groupId)
+        internal Dictionary<int, string> GetGroupDeviceRulesFromLayeredCache(int groupId)
         {
-            Dictionary<string, int> result = null;
+            Dictionary<int, string> result = null;
             try
             {
                 string key = LayeredCacheKeys.GetGroupDeviceRulesKey(groupId);
-                if (!LayeredCache.Instance.Get<Dictionary<string, int>>(key, ref result, Utils.GetGroupDeviceRules, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                if (!LayeredCache.Instance.Get<Dictionary<int, string>>(key, ref result, Utils.GetGroupDeviceRules, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                                                             LayeredCacheConfigNames.GET_GROUP_DEVICE_RULES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupDeviceRulesInvalidationKey(groupId) }))
                 {
                     log.ErrorFormat("Failed getting GroupDeviceRules from LayeredCache, groupId: {0}, key: {1}", groupId, key);

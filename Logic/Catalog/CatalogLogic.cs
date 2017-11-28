@@ -338,7 +338,7 @@ namespace Core.Catalog
             {
                 if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
                 {
-                    return CatalogManagement.CatalogManager.GetAsset(groupId, nMedia, filter);
+                    return CatalogManagement.CatalogManager.GetMediaObj(groupId, nMedia);
                 }
 
                 MediaObj oMediaObj = new MediaObj();
@@ -1114,9 +1114,14 @@ namespace Core.Catalog
             return langContainers;
         }
 
+        internal static bool ValidateGeoBlockRuleExists(int groupId, int geoBlockRuleId)
+        {
+            return false;
+        }        
+
         internal static string GetGeoBlockRuleName(int groupId, int geoblockRuleId)
         {
-            Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRules(groupId);
+            Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRulesFromLayeredCache(groupId);
             if (geoblockRules == null || geoblockRules.Count == 0)
             {
                 log.ErrorFormat("group geoblockRules were not found. groupId: {0}", groupId);
@@ -1132,9 +1137,14 @@ namespace Core.Catalog
             }
         }
 
+        internal static bool ValidateDeviceRuleExists(int groupId, int deviceRuleId)
+        {
+            return false;
+        }        
+
         internal static string GetDeviceRuleName(int groupId, int deviceRuleId)
         {
-            Dictionary<int, string> deviceRules = CatalogCache.Instance().GetGroupDeviceRules(groupId);
+            Dictionary<int, string> deviceRules = CatalogCache.Instance().GetGroupDeviceRulesFromLayeredCache(groupId);
             if (deviceRules == null || deviceRules.Count == 0)
             {
                 log.ErrorFormat("group deviceRules were not found. groupId: {0}", groupId);
@@ -1147,42 +1157,6 @@ namespace Core.Catalog
             {
                 log.ErrorFormat("group deviceRule {0} was not found. groupId: {1}", deviceRuleId, groupId);
                 return string.Empty;
-            }
-        }
-
-        internal static int GetGeoBlockRuleId(int groupId, string geoblockRuleName)
-        {
-            Dictionary<string, int> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRulesFromLayeredCache(groupId);
-            if (geoblockRules == null || geoblockRules.Count == 0)
-            {
-                log.ErrorFormat("group geoblockRules were not found. groupId: {0}", groupId);
-                return 0;
-            }
-
-            if (geoblockRules.ContainsKey(geoblockRuleName))
-                return geoblockRules[geoblockRuleName];
-            else
-            {
-                log.ErrorFormat("group geoblockRule {0} was not found. groupId: {1}", geoblockRuleName, groupId);
-                return 0;
-            }
-        }
-
-        internal static int GetDeviceRuleId(int groupId, string deviceRuleName)
-        {
-            Dictionary<string, int> deviceRules = CatalogCache.Instance().GetGroupDeviceRulesFromLayeredCache(groupId);
-            if (deviceRules == null || deviceRules.Count == 0)
-            {
-                log.ErrorFormat("group deviceRules were not found. groupId: {0}", groupId);
-                return 0;
-            }
-
-            if (deviceRules.ContainsKey(deviceRuleName))
-                return deviceRules[deviceRuleName];
-            else
-            {
-                log.ErrorFormat("group deviceRule {0} was not found. groupId: {1}", deviceRuleName, groupId);
-                return 0;
             }
         }
 

@@ -22,7 +22,7 @@ namespace Core.Catalog.CatalogManagement
         public bool? MultipleValue { get; set; }
         public bool SearchRelated { get; set; }
         public string HelpText { get; set; }
-        public long ParentId { get; set; }
+        public long? ParentId { get; set; }
         public long CreateDate { get; set; }
         public long UpdateDate { get; set; }
 

@@ -103,7 +103,7 @@ namespace Core.Catalog.Response
             EnableRecordingPlaybackNonEntitledChannel = false;
         }
 
-        public MediaObj(MediaAsset mediaAsset)
+        public MediaObj(int groupId, MediaAsset mediaAsset)
             : base()
         {
             AssetId = mediaAsset.Id.ToString();
@@ -125,7 +125,9 @@ namespace Core.Catalog.Response
             IsActive = mediaAsset.IsActive.Value;
             m_dUpdateDate = mediaAsset.UpdateDate.Value;
             m_lMetas = new List<Metas>(mediaAsset.Metas);
-            m_lTags = new List<Tags>(mediaAsset.Tags);            
+            m_lTags = new List<Tags>(mediaAsset.Tags);
+            GeoblockRule = mediaAsset.GeoBlockRuleId.HasValue ? Core.Catalog.CatalogLogic.GetGeoBlockRuleName(groupId, mediaAsset.GeoBlockRuleId.Value) : null;
+            DeviceRule = mediaAsset.DeviceRuleId.HasValue ? Core.Catalog.CatalogLogic.GetDeviceRuleName(groupId, mediaAsset.DeviceRuleId.Value) : null;
         }
     }
 

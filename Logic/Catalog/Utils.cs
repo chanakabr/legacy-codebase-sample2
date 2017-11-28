@@ -1361,10 +1361,10 @@ namespace Core.Catalog
             }
         }
 
-        internal static Tuple<Dictionary<string, int>, bool> GetGroupDeviceRules(Dictionary<string, object> funcParams)
+        internal static Tuple<Dictionary<int, string>, bool> GetGroupDeviceRules(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            Dictionary<string, int> result = null;
+            Dictionary<int, string> result = null;
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
@@ -1375,14 +1375,14 @@ namespace Core.Catalog
                         DataTable dt = CatalogDAL.GetGroupDeviceRules(groupId.Value);
                         if (dt != null && dt.Rows != null)
                         {
-                            result = new Dictionary<string, int>();
+                            result = new Dictionary<int, string>();
                             foreach (DataRow dr in dt.Rows)
                             {
                                 int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
                                 string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                                if (id > 0 && !string.IsNullOrEmpty(name) && !result.ContainsKey(name))
+                                if (id > 0 && !string.IsNullOrEmpty(name) && !result.ContainsKey(id))
                                 {
-                                    result.Add(name, id);
+                                    result.Add(id, name);
                                 }
                             }
 
@@ -1398,13 +1398,13 @@ namespace Core.Catalog
                 log.Error(string.Format("GetGroupDeviceRules failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<Dictionary<string, int>, bool>(result, res);
+            return new Tuple<Dictionary<int, string>, bool>(result, res);
         }
 
-        internal static Tuple<Dictionary<string, int>, bool> GetGroupGeoblockRules(Dictionary<string, object> funcParams)
+        internal static Tuple<Dictionary<int, string>, bool> GetGroupGeoblockRules(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            Dictionary<string, int> result = null;
+            Dictionary<int, string> result = null;
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
@@ -1415,14 +1415,14 @@ namespace Core.Catalog
                         DataTable dt = CatalogDAL.GetGroupGeoblockRules(groupId.Value);
                         if (dt != null && dt.Rows != null)
                         {
-                            result = new Dictionary<string, int>();
+                            result = new Dictionary<int, string>();
                             foreach (DataRow dr in dt.Rows)
                             {
                                 int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
                                 string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                                if (id > 0 && !string.IsNullOrEmpty(name) && !result.ContainsKey(name))
+                                if (id > 0 && !string.IsNullOrEmpty(name) && !result.ContainsKey(id))
                                 {
-                                    result.Add(name, id);
+                                    result.Add(id, name);
                                 }
                             }
                                                                                 
@@ -1438,7 +1438,7 @@ namespace Core.Catalog
                 log.Error(string.Format("GetGroupGeoblockRules failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<Dictionary<string, int>, bool>(result, res);
+            return new Tuple<Dictionary<int, string>, bool>(result, res);
         }
 
     }

@@ -552,13 +552,11 @@ namespace Core.Catalog.CatalogManagement
             string entryId = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "ENTRY_ID");
             string coGuid = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "CO_GUID");
             bool isActive = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "IS_ACTIVE", 0) == 1;
-            int deviceRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "DEVICE_RULE_ID", 0);
-            int geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "GEO_BLOCK_RULE_ID", 0);
+            int? deviceRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "DEVICE_RULE_ID", -1);
+            int? geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "GEO_BLOCK_RULE_ID", -1);
             string userTypes = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "user_types");
-            string deviceRule = CatalogLogic.GetDeviceRuleName(groupId, deviceRuleId);
-            string geoBlockRule = CatalogLogic.GetGeoBlockRuleName(groupId, geoBlockRuleId);
             result = new MediaAsset(id, eAssetTypes.MEDIA, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, updateDate, startDate, endDate, metas, tags, pictures, coGuid,
-                                    isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRule, geoBlockRule, files, userTypes);
+                                    isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes);
 
             return result;
         }            
@@ -860,8 +858,8 @@ namespace Core.Catalog.CatalogManagement
                     CatalogStartDate = mediaAsset.CatalogStartDate.HasValue ? mediaAsset.CatalogStartDate.Value.ToString("yyyyMMddHHmmss") : now,
                     m_sUpdateDate = mediaAsset.UpdateDate.HasValue ? mediaAsset.UpdateDate.Value.ToString("yyyyMMddHHmmss") : now,
                     m_sUserTypes = mediaAsset.UserTypes,
-                    m_nDeviceRuleId = CatalogLogic.GetDeviceRuleId(groupId, mediaAsset.DeviceRule),
-                    geoBlockRule = CatalogLogic.GetGeoBlockRuleId(groupId, mediaAsset.GeoBlockRule),
+                    m_nDeviceRuleId = mediaAsset.DeviceRuleId.HasValue ? (int)mediaAsset.DeviceRuleId.Value : 0,
+                    geoBlockRule = mediaAsset.GeoBlockRuleId.HasValue ? (int)mediaAsset.GeoBlockRuleId.Value : 0,
                     CoGuid = mediaAsset.CoGuid,
                     EntryId = mediaAsset.EntryId,
                     m_dMeatsValues = metas,
@@ -901,8 +899,7 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static Status ValidateAsset(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc, ref XmlDocument tagsXmlDoc,
-                                            ref int deviceRuleId, ref int geoBlockRuleId)
+        private static Status ValidateAsset(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc, ref XmlDocument tagsXmlDoc)
         {
             // TODO - Lior - change error codes and add new ones
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -913,26 +910,18 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
 
-            // validate device rule
-            if (!string.IsNullOrEmpty(asset.DeviceRule))
+            // validate device rule id
+            if (asset.DeviceRuleId.HasValue && (asset.DeviceRuleId.Value <= 0 || !CatalogLogic.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value)))
             {
-                deviceRuleId = CatalogLogic.GetGeoBlockRuleId(groupId, asset.DeviceRule);
-                if (deviceRuleId <= 0)
-                {                
-                    result = new Status((int)eResponseStatus.DeviceRuleDoesNotExistForGroup, eResponseStatus.DeviceRuleDoesNotExistForGroup.ToString());
-                    return result;
-                }                
+                result = new Status((int)eResponseStatus.DeviceRuleDoesNotExistForGroup, eResponseStatus.DeviceRuleDoesNotExistForGroup.ToString());
+                return result;            
             }
 
-            // validate geoblock rule
-            if (!string.IsNullOrEmpty(asset.GeoBlockRule))
+            // validate geoblock rule id
+            if (asset.GeoBlockRuleId.HasValue && (asset.GeoBlockRuleId.Value <= 0 || !CatalogLogic.ValidateGeoBlockRuleExists(groupId, asset.GeoBlockRuleId.Value)))
             {
-                geoBlockRuleId = CatalogLogic.GetDeviceRuleId(groupId, asset.GeoBlockRule);
-                if (geoBlockRuleId <= 0)
-                {
-                    result = new Status((int)eResponseStatus.GeoBlockRuleDoesNotExistForGroup, eResponseStatus.GeoBlockRuleDoesNotExistForGroup.ToString());
-                    return result;
-                }
+                result = new Status((int)eResponseStatus.GeoBlockRuleDoesNotExistForGroup, eResponseStatus.GeoBlockRuleDoesNotExistForGroup.ToString());
+                return result;
             }
 
             return result;
@@ -1297,6 +1286,107 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return responseStatus;
+        }
+
+        private static Tuple<Asset, bool> GetAsset(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Asset asset = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("id") && funcParams.ContainsKey("assetType"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    long? id = funcParams["id"] as long?;
+                    eAssetTypes assetType;
+                    if (groupId.HasValue && groupId.Value > 0 && id.HasValue && id.Value > 0 && Enum.TryParse<eAssetTypes>(funcParams["assetType"].ToString(), out assetType))
+                    {
+                        CatalogGroupCache catalogGroupCache;
+                        if (!TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
+                        {
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAsset", groupId);                            
+                        }
+
+                        switch (assetType)
+                        {                                                            
+                            case eAssetTypes.EPG:
+                                break;
+                            case eAssetTypes.NPVR:
+                                break;
+                            case eAssetTypes.MEDIA:
+                                DataSet ds = CatalogDAL.GetAsset(groupId.Value, id.Value, catalogGroupCache.DefaultLanguage.ID);
+                                asset = CreateMediaAsset(groupId.Value, id.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                                break;
+                            case eAssetTypes.UNKNOWN:
+                            default:
+                                break;
+                        }
+                                               
+                        res = asset != null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAsset failed params : {0}", funcParams != null ? string.Join(";",
+                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
+            }
+
+            return new Tuple<Asset, bool>(asset, res);
+        }
+
+        private static Asset GetAssetFromCache(int groupId, long id, eAssetTypes assetType)
+        {
+            Asset result = null;            
+            try
+            {
+                string key = LayeredCacheKeys.GetAssetKey(assetType.ToString(), id);
+                if (!LayeredCache.Instance.Get<Asset>(key, ref result, GetAsset, new Dictionary<string, object>() { { "groupId", groupId }, { "id", id }, { "assetType", assetType.ToString() } }, groupId,
+                    LayeredCacheConfigNames.GET_ASSET_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id) }))
+                {
+                    log.ErrorFormat("Failed getting Asset from LayeredCache, groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());                    
+                }                
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssetFromCache with groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        private static List<Asset> GetAssetsFromCache(int groupId, List<KeyValuePair<eAssetTypes, long>> assets)
+        {
+            List<Asset> result = null;
+            try
+            {
+                if (assets != null && assets.Count > 0)
+                {
+                    result = new List<Asset>();
+                    foreach (KeyValuePair<eAssetTypes, long> assetDetails in assets)
+                    {
+                        if (assetDetails.Key != eAssetTypes.UNKNOWN && assetDetails.Value > 0)
+                        {
+                            Asset asset = GetAssetFromCache(groupId, assetDetails.Value, assetDetails.Key);
+                            if (asset != null)
+                            {
+                                result.Add(asset);
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Failed getting one asset during GetAssetsFromCache,groupId: {0}, id: {1}, assetType: {2}", groupId, assetDetails.Value, assetDetails.Key.ToString());
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssetsFromCache with groupId: {0}, assets: {1}", groupId,
+                                        assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.Key, x.Value)).ToList()) : string.Empty), ex);
+            }
+
+            return result;
         }
 
         #endregion
@@ -1789,7 +1879,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static MediaObj GetAsset(int groupId, long id, Filter filter)
+        public static MediaObj GetMediaObj(int groupId, long id)
         {
             MediaObj result = null;
             try
@@ -1807,13 +1897,63 @@ namespace Core.Catalog.CatalogManagement
                     MediaAsset mediaAsset = CreateMediaAsset(groupId, id, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                     if (mediaAsset != null)
                     {
-                        result = new MediaObj(mediaAsset);
+                        result = new MediaObj(groupId, mediaAsset);
                     }
                 }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed GetAsset for groupId: {0} and id: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+
+        public static AssetResponse GetAsset(int groupId, long id, eAssetTypes assetType)
+        {
+            AssetResponse result = new AssetResponse();
+            try
+            {
+                if (id > 0 && assetType != eAssetTypes.UNKNOWN)
+                {
+                    result.Asset = GetAssetFromCache(groupId, id, assetType);
+                    if (result.Asset == null)
+                    {
+                        log.ErrorFormat("Failed getting asset from GetAssetFromCache, for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());
+                    }
+
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAsset for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        public static AssetListResponse GetAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets)
+        {
+            AssetListResponse result = new AssetListResponse();
+            try
+            {
+                if (assets != null && assets.Count > 0)
+                {
+                    result.Assets = GetAssetsFromCache(groupId, assets);
+                    if (result.Assets == null || result.Assets.Count != assets.Count)
+                    {
+                        log.ErrorFormat("Failed getting assets from GetAssetsFromCache, for groupId: {0}, assets: {1}", groupId,
+                                        assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.Key, x.Value)).ToList()) : string.Empty);
+                    }
+
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssets for groupId: {0}, assets: {1}", groupId,
+                                        assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.Key, x.Value)).ToList()) : string.Empty), ex);
             }
 
             return result;
@@ -1952,9 +2092,7 @@ namespace Core.Catalog.CatalogManagement
                 // validate asset
                 XmlDocument metasXmlDoc = null;
                 XmlDocument tagsXmlDoc = null;
-                int deviceRuleId = 0,  geoBlockRuleId = 0;
-                Status validateAssetTopicsResult = ValidateAsset(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref metasXmlDoc, ref tagsXmlDoc,
-                                                                    ref deviceRuleId, ref geoBlockRuleId);
+                Status validateAssetTopicsResult = ValidateAsset(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref metasXmlDoc, ref tagsXmlDoc);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
                     result.Status = validateAssetTopicsResult;
@@ -1970,8 +2108,8 @@ namespace Core.Catalog.CatalogManagement
                 DateTime startDate = assetToAdd.StartDate.HasValue ? assetToAdd.StartDate.Value : DateTime.UtcNow;
                 DateTime catalogStartDate = assetToAdd.CatalogStartDate.HasValue ? assetToAdd.CatalogStartDate.Value : startDate;
                 // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
-                DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid, assetToAdd.EntryId, deviceRuleId,
-                                                            geoBlockRuleId, assetToAdd.IsActive, startDate, assetToAdd.EndDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId);
+                DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid, assetToAdd.EntryId, assetToAdd.DeviceRuleId,
+                                                            assetToAdd.GeoBlockRuleId, assetToAdd.IsActive, startDate, assetToAdd.EndDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId);
                 result = CreateAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null && result.Asset.Id > 0)
                 {                    
@@ -1988,7 +2126,52 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }        
+        }
+
+        public static Status DeleteAsset(int groupId, long id, eAssetTypes assetType, long userId)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                // check if asset exists???
+
+                switch (assetType)
+                {
+                    case eAssetTypes.EPG:
+                        break;
+                    case eAssetTypes.NPVR:
+                        break;
+                    case eAssetTypes.MEDIA:
+                        if (CatalogDAL.DeleteMediaAsset(groupId, id, userId))
+                        {
+                            result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                            
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Failed to delete media asset with id: {0}, groupId: {1}", id, groupId);
+                        }
+                        break;
+                    default:
+                    case eAssetTypes.UNKNOWN:
+                        break;
+                }
+
+                // invalidate asset
+                if (result.Code == (int)eResponseStatus.OK)
+                {
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id)))
+                    {
+                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2}", id, assetType.ToString(), LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteTopic for groupId: {0} and assetStructId: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
 
         public static bool DoesGroupUsesTemplates(int groupId)
         {
