@@ -167,6 +167,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">List of assets identifier</param>
         /// <returns></returns>
         [Route("cleanOldStandard"), HttpPost]
+        [OldStandardAction("clean")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool CleanOldStandard(KalturaAssetsFilter filter = null)

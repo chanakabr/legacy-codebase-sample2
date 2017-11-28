@@ -1,11 +1,11 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using Core.Users;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Web;
 using System.Web.Services;
-using Core.Users;
 
 namespace WS_Domains
 {
@@ -901,7 +901,8 @@ namespace WS_Domains
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUsername, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.ValidateLimitationModule(nGroupID, sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, nRuleID, nMediaConcurrencyLimit, nMediaID);
+                return Core.Domains.Module.ValidateLimitationModule(nGroupID, sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation,
+                    nRuleID > 0 ? new List<int>() {nRuleID} : null, nMediaID);
             }
             return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);
         }
@@ -1122,7 +1123,7 @@ namespace WS_Domains
         }
 
         [WebMethod]
-        public DeviceResponse GetDevice(string sWSUserName, string sWSPassword, string udid, int domainId)
+        public DeviceResponse GetDevice(string sWSUserName, string sWSPassword, string udid, int domainId, string userId, string ip)
         {
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1131,7 +1132,7 @@ namespace WS_Domains
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.GetDevice(nGroupID, udid, domainId);
+                return Core.Domains.Module.GetDevice(nGroupID, udid, domainId, userId, ip);
             }
             else
             {

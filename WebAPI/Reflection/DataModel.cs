@@ -167,6 +167,14 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaUserRole":
+                    switch (propertyName)
+                    {
+                        case "Permissions":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
             }
             
             return false;
@@ -1038,6 +1046,12 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaCollection":
+                    ret = new Dictionary<string, string>() { 
+                        {"discountModule", "discount_module"},
+                    };
+                    break;
+                    
                 case "KalturaCollectionEntitlement":
                     ret = new Dictionary<string, string>() { 
                         {"currentDate", "current_date"},
@@ -1058,6 +1072,13 @@ namespace WebAPI.Reflection
                         {"paymentMethod", "payment_method"},
                         {"purchaseDate", "purchase_date"},
                         {"purchaseId", "purchase_id"},
+                    };
+                    break;
+                    
+                case "KalturaCollectionPrice":
+                    ret = new Dictionary<string, string>() { 
+                        {"productId", "product_id"},
+                        {"productType", "product_type"},
                     };
                     break;
                     
@@ -1806,6 +1827,7 @@ namespace WebAPI.Reflection
                     
                 case "AssetHistoryController":
                     ret = new Dictionary<string, string>() { 
+                        {"cleanOldStandard", "clean"},
                         {"listOldStandard", "list"},
                     };
                     break;
@@ -2909,6 +2931,54 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCollection":
+                    switch(property.Name)
+                    {
+                        case "Channels":
+                            return "channels";
+                        case "CouponGroups":
+                            return "couponsGroups";
+                        case "Description":
+                            return "description";
+                        case "DiscountModule":
+                            return "discountModule";
+                        case "EndDate":
+                            return "endDate";
+                        case "ExternalId":
+                            return "externalId";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "PriceDetailsId":
+                            return "priceDetailsId";
+                        case "ProductCodes":
+                            return "productCodes";
+                        case "StartDate":
+                            return "startDate";
+                        case "UsageModule":
+                            return "usageModule";
+                    }
+                    break;
+                    
+                case "KalturaCollectionFilter":
+                    switch(property.Name)
+                    {
+                        case "CollectionIdIn":
+                            return "collectionIdIn";
+                        case "MediaFileIdEqual":
+                            return "mediaFileIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaCollectionListResponse":
+                    switch(property.Name)
+                    {
+                        case "Collections":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaCompensation":
                     switch(property.Name)
                     {
@@ -3164,6 +3234,14 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaCustomDrmPlaybackPluginData":
+                    switch(property.Name)
+                    {
+                        case "Data":
+                            return "data";
                     }
                     break;
                     
@@ -3840,6 +3918,8 @@ namespace WebAPI.Reflection
                             return "regionId";
                         case "Restriction":
                             return "restriction";
+                        case "RoleId":
+                            return "roleId";
                         case "State":
                             return "state";
                         case "Users":
@@ -3860,6 +3940,8 @@ namespace WebAPI.Reflection
                             return "brandId";
                         case "DeviceFamilyId":
                             return "deviceFamilyId";
+                        case "Drm":
+                            return "drm";
                         case "HouseholdId":
                             return "householdId";
                         case "Name":
@@ -4625,6 +4707,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaOTTUserDynamicData":
+                    switch(property.Name)
+                    {
+                        case "Key":
+                            return "key";
+                        case "UserId":
+                            return "userId";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
                 case "KalturaOTTUserFilter":
                     switch(property.Name)
                     {
@@ -4814,6 +4908,8 @@ namespace WebAPI.Reflection
                     {
                         case "Id":
                             return "id";
+                        case "IsExcluded":
+                            return "isExcluded";
                         case "Name":
                             return "name";
                     }
@@ -5238,6 +5334,8 @@ namespace WebAPI.Reflection
                 case "KalturaProductPriceFilter":
                     switch(property.Name)
                     {
+                        case "CollectionIdIn":
+                            return "collectionIdIn";
                         case "CouponCodeEqual":
                             return "couponCodeEqual";
                         case "FileIdIn":
@@ -6106,6 +6204,8 @@ namespace WebAPI.Reflection
                             return "isRenewable";
                         case "IsRenewableForPurchase":
                             return "isRenewableForPurchase";
+                        case "IsSuspended":
+                            return "isSuspended";
                         case "NextRenewalDate":
                             return "nextRenewalDate";
                         case "PaymentGatewayId":
@@ -6490,10 +6590,14 @@ namespace WebAPI.Reflection
                 case "KalturaUserRole":
                     switch(property.Name)
                     {
+                        case "ExcludedPermissionNames":
+                            return "excludedPermissionNames";
                         case "Id":
                             return "id";
                         case "Name":
                             return "name";
+                        case "PermissionNames":
+                            return "permissionNames";
                         case "Permissions":
                             return "permissions";
                     }
@@ -6502,6 +6606,8 @@ namespace WebAPI.Reflection
                 case "KalturaUserRoleFilter":
                     switch(property.Name)
                     {
+                        case "CurrentUserRoleIdsContains":
+                            return "currentUserRoleIdsContains";
                         case "IdIn":
                             return "idIn";
                         case "Ids":

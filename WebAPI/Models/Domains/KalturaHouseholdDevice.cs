@@ -7,6 +7,7 @@ using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
@@ -97,6 +98,15 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "deviceFamilyId", IsNullable = true)]        
         [SchemeProperty(ReadOnly = true)]
         public long? DeviceFamilyId { get; set; }
+
+        /// <summary>
+        /// Device DRM data
+        /// </summary>
+        [DataMember(Name = "drm")]
+        [JsonProperty("drm")]
+        [XmlElement(ElementName = "drm", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaCustomDrmPlaybackPluginData Drm { get; set; }
 
         internal int getBrandId()
         {

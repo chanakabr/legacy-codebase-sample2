@@ -246,6 +246,5 @@ namespace WebAPI.Models.ConditionalAccess
             get;
             set;
         }
-
     }
 }

@@ -481,7 +481,8 @@ namespace WebAPI.Controllers
         /// parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
         /// epg_channel_id – the channel identifier of the EPG program.
         /// entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-        /// Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+        /// Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+        /// For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
         /// Search values are limited to 20 characters each.
         /// (maximum length of entire filter is 2048 characters)]]></param>
         /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
@@ -739,7 +740,8 @@ namespace WebAPI.Controllers
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="filter_query"><![CDATA[Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
         /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
-        /// Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+        /// Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+        /// For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
         /// Search values are limited to 20 characters each.
         /// (maximum length of entire filter is 2048 characters)]]></param>
         /// <remarks>Possible status codes: 
@@ -866,57 +868,47 @@ namespace WebAPI.Controllers
             KalturaPlaybackContext response = null;
            
             KS ks = KS.GetFromRequest();
-            string userId = ks.UserId;
 
             contextDataParams.Validate(assetType);
 
             try
             {
-                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, userId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams);
+                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams);
 
                 if (response.Sources != null && response.Sources.Count > 0)
                 {
-                    KalturaDrmPlaybackPluginData drmData;
-                    List<KalturaDrmSchemeName> schemes;
-                    Group group = GroupsManager.GetGroup(ks.GroupId);
+                    DrmUtils.BuildSourcesDrmData(assetId, assetType, contextDataParams, ks, ref response);
 
-                    string xForwardedProtoHeader = HttpContext.Current.Request.Headers["X-Forwarded-Proto"];
-                    string xKProxyProto = HttpContext.Current.Request.Headers["X-KProxy-Proto"];
-
-                    string baseUrl = string.Format("{0}://{1}{2}", (!string.IsNullOrEmpty(xForwardedProtoHeader) && xForwardedProtoHeader == "https") ||
-                        (!string.IsNullOrEmpty(xKProxyProto) && xKProxyProto == "https") ?
-                        "https" : HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Host, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
-
-                    string caSystemUrl = string.Format("{0}/api_v3/service/assetFile/action/getContext?ks={1}&contextType={2}", baseUrl, ks.ToString(),
-                        assetType == KalturaAssetType.recording ? WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType.recording : 
-                        WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType.none);
-
-                    foreach (var source in response.Sources)
+                    //if sources left after building DRM data, build the manifest URL
+                    if (response.Sources.Count > 0)
                     {
-                        StringBuilder url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
-                            baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
+                        string baseUrl = WebAPI.Utils.Utils.GetCurrentBaseUrl();
 
-                        if (!string.IsNullOrEmpty(userId) && userId != "0")
+                        foreach (var source in response.Sources)
                         {
-                            url.AppendFormat("/ks/{0}", ks.ToString());
+                            StringBuilder url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
+                                baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
+
+                            if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
+                            {
+                                url.AppendFormat("/ks/{0}", ks.ToString());
+                            }
+
+                            source.Url = url.AppendFormat("/a{0}", source.FileExtention).ToString();
                         }
 
-                        source.Url = url.AppendFormat("/a{0}", source.FileExtention).ToString();
-
-                        if (source.DrmId == (int)DrmType.UDRM)
+                        if (response.Messages == null)
                         {
-                            schemes = DrmUtils.GetDrmSchemeName(source.Format);
-                            if (schemes != null && schemes.Count > 0)
-                            {
-                                source.Drm = new List<KalturaDrmPlaybackPluginData>();
+                            response.Messages = new List<KalturaAccessControlMessage>();
+                        }
 
-                                foreach (var scheme in schemes)
-                                {
-                                    
-                                    drmData = DrmUtils.GetDrmPlaybackPluginData(group, scheme, source, string.Format("{0}&id={1}", caSystemUrl, source.Id));
-                                    source.Drm.Add(drmData);
-                                }
-                            }
+                        if (response.Messages.Count == 0)
+                        {
+                            response.Messages.Add(new KalturaAccessControlMessage()
+                            {
+                                Code = WebAPI.Managers.Models.StatusCode.OK.ToString(),
+                                Message = WebAPI.Managers.Models.StatusCode.OK.ToString(),
+                            });
                         }
                     }
                 }
@@ -937,7 +929,7 @@ namespace WebAPI.Controllers
         [Route("count"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaAssetCount Count(KalturaSearchAssetFilter filter = null)//List<KalturaAssetGroupBy> groupBy, 
+        public KalturaAssetCount Count(KalturaSearchAssetFilter filter = null)
         {
             KalturaAssetCount response = null;
 

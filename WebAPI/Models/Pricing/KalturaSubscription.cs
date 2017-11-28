@@ -296,7 +296,7 @@ namespace WebAPI.Models.Pricing
         [XmlArrayItem("item")]
         public List<KalturaCouponsGroup> CouponGroups { get; set; }
 
-         /// <summary>
+        /// <summary>
         /// List of Subscription product codes
         /// </summary>
         [DataMember(Name = "productCodes")]

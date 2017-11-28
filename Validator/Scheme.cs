@@ -56,6 +56,10 @@ namespace Validator.Managers.Scheme
                 if (!type.Name.Equals(this.type.Name))
                     _dependsOn.Add(type.Name);
 
+                SchemeBaseAttribute schemeBaseAttribute = type.GetCustomAttribute<SchemeBaseAttribute>();
+                if (schemeBaseAttribute != null)
+                    AddDependencies(schemeBaseAttribute.BaseType);
+
                 if (type.BaseType != null)
                     AddDependencies(type.BaseType);
 
@@ -63,6 +67,12 @@ namespace Validator.Managers.Scheme
                 {
                     AddDependencies(property.PropertyType);
                 }
+            }
+            else if (type.IsInterface)
+            {
+                SchemeBaseAttribute schemeBaseAttribute = type.GetCustomAttribute<SchemeBaseAttribute>();
+                if (schemeBaseAttribute != null)
+                    AddDependencies(schemeBaseAttribute.BaseType);
             }
             else if (type.IsGenericType)
             {
@@ -506,10 +516,12 @@ namespace Validator.Managers.Scheme
 
             writer.WriteStartElement("clientTag");
             writer.WriteAttributeString("type", "string");
+            writer.WriteAttributeString("description", "Client tag");
             writer.WriteEndElement(); // clientTag
 
             writer.WriteStartElement("apiVersion");
             writer.WriteAttributeString("type", "string");
+            writer.WriteAttributeString("description", "API Version");
             writer.WriteEndElement(); // apiVersion
 
             writer.WriteEndElement(); // client

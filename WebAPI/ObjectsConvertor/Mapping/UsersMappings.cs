@@ -9,6 +9,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
+using System;
 
 namespace ObjectsConvertor.Mapping
 {
@@ -155,7 +156,8 @@ namespace ObjectsConvertor.Mapping
             Mapper.CreateMap<FavoritObject, KalturaFavorite>()
                 .ForMember(dest => dest.ExtraData, opt => opt.MapFrom(src => src.m_sExtraData))
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_sItemCode))
-                .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode));
+                .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreateDate)));
 
             // UserItemsList to KalturaUserAssetsList
             Mapper.CreateMap<UserItemsList, KalturaUserAssetsList>()
@@ -207,6 +209,12 @@ namespace ObjectsConvertor.Mapping
              ;
 
             #endregion
+
+            // UserDynamicData to KalturaOTTUserDynamicData
+            Mapper.CreateMap<UserDynamicData, KalturaOTTUserDynamicData>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.Key, opt => opt.MapFrom(src => ConvertDynamicDataKey(src)))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => ConvertDynamicDataValue(src)));
         }
 
         private static Core.Users.Country ConvertContry(KalturaCountry country, int? countryId)
@@ -393,6 +401,30 @@ namespace ObjectsConvertor.Mapping
             return result;
         }
 
+        public static string ConvertDynamicDataKey(UserDynamicData userDynamicData)
+        {
+            string result = string.Empty;
+
+            if (userDynamicData != null && userDynamicData.m_sUserData != null && userDynamicData.m_sUserData.Length > 0)
+            {
+                result = userDynamicData.m_sUserData[0].m_sDataType;
+            }
+
+            return result;
+        }
+
+        public static KalturaStringValue ConvertDynamicDataValue(UserDynamicData userDynamicData)
+        {
+            KalturaStringValue result = null;
+
+            if (userDynamicData != null && userDynamicData.m_sUserData != null && userDynamicData.m_sUserData.Length > 0)
+            {
+                result = new KalturaStringValue() { value = userDynamicData.m_sUserData[0].m_sValue };
+            }
+
+            return result;
+        }
+
         public static FavoriteOrderBy ConvertFavoriteOrderBy(KalturaFavoriteOrderBy orderBy)
         {
             FavoriteOrderBy result;
@@ -409,6 +441,12 @@ namespace ObjectsConvertor.Mapping
                     throw new ClientException((int)StatusCode.Error, "Unknown export task order by");
             }
 
+            return result;
+        }
+
+        internal static KalturaOTTUserDynamicData ConvertOTTUserDynamicData(string userId, string key, KalturaStringValue value)
+        {
+            KalturaOTTUserDynamicData result = new KalturaOTTUserDynamicData() { UserId = userId, Key = key, Value = value };
             return result;
         }
     }

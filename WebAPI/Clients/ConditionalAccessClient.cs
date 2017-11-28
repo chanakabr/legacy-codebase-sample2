@@ -331,8 +331,6 @@ namespace WebAPI.Clients
             MediaFileItemPricesContainerResponse response = null;
             List<KalturaPpvPrice> prices = new List<KalturaPpvPrice>();
 
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1812,9 +1810,6 @@ namespace WebAPI.Clients
                 isRecording = true;
             }
 
-            // get group ID
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -2013,18 +2008,19 @@ namespace WebAPI.Clients
             }
             else if (response.Status.Code != (int)eResponseStatus.OK)
             {
-                kalturaPlaybackContext = new KalturaPlaybackContext()
-                {
-                    Messages = new List<KalturaAccessControlMessage>()
+                kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response);
+
+                kalturaPlaybackContext.Messages = new List<KalturaAccessControlMessage>()
                     {
                         new KalturaAccessControlMessage() {
                             Code = ((eResponseStatus)response.Status.Code).ToString(), Message = response.Status.Message
                         }
-                    }
-                };
+                    };
             }
-
-            kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response);
+            else
+            {
+                kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response);
+            }
 
             if (kalturaPlaybackContext.Sources == null || kalturaPlaybackContext.Sources.Count == 0)
             {
@@ -2305,6 +2301,97 @@ namespace WebAPI.Clients
             kalturaAdsContext.Sources = Mapper.Map<List<KalturaAdsSource>>(response.Sources);
 
             return kalturaAdsContext;
+        }
+
+        internal void SuspendPaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.SuspendPaymentGatewayEntitlements(groupId, householdId, paymentGatewayId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)eResponseStatus.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+        }
+
+        internal void ResumePaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.ResumePaymentGatewayEntitlements(groupId, householdId, paymentGatewayId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)eResponseStatus.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+        }
+
+        internal List<KalturaCollectionPrice> GetCollectionPrices(int groupId, string[] collectionIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest, string currency)
+        {
+            CollectionsPricesResponse response = null;
+            List<KalturaCollectionPrice> prices = new List<KalturaCollectionPrice>();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.GetCollectionsPricesWithCoupon(groupId, collectionIds, userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP(), currency);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            prices = PricingMappings.ConvertCollectionPrice(response.CollectionsPrices);
+
+            return prices;
         }
     }
 }

@@ -80,5 +80,13 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "scheduledSubscriptionId", IsNullable = true)]
         public long? ScheduledSubscriptionId { get; set; }
 
+        /// <summary>
+        /// Indicates if the subscription suspended
+        /// </summary>
+        [DataMember(Name = "isSuspended")]
+        [JsonProperty("isSuspended")]
+        [XmlElement(ElementName = "isSuspended")]
+        [SchemeProperty(ReadOnly = true)]
+        public bool IsSuspended { get; set; }
     }
 }

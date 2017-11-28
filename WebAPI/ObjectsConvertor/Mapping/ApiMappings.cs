@@ -15,6 +15,8 @@ using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
+using System.Linq;
+
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -274,7 +276,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<Role, KalturaUserRole>()
            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-             .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => ConvertPermissions(src.Permissions)));
+             .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => ConvertPermissions(src.Permissions)))
+             .ForMember(dest => dest.PermissionNames, opt => opt.MapFrom(src => ConvertPermissionsNames(src.Permissions, false)))
+             .ForMember(dest => dest.ExcludedPermissionNames, opt => opt.MapFrom(src => ConvertPermissionsNames(src.Permissions, true)));
+
+            Mapper.CreateMap<KalturaUserRole, Role>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))            
+            .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => ConvertPermissionsNames(src.PermissionNames, src.ExcludedPermissionNames)));
 
             #endregion
 
@@ -510,6 +519,52 @@ namespace WebAPI.ObjectsConvertor.Mapping
               ;
 
             #endregion            
+        }
+
+        private static List<Permission> ConvertPermissionsNames(string permissionNames, string excludedPermissionNames)
+        {
+            List<Permission> result = new List<Permission>();
+            HashSet<string> duplicatePermission = new HashSet<string>();
+            
+            if (!string.IsNullOrEmpty(permissionNames))
+            {
+                foreach (string permission in permissionNames.Split(','))
+                {
+                    if (!duplicatePermission.Contains(permission.ToLower()))
+                    {
+                        duplicatePermission.Add(permission.ToLower());
+                        result.Add(new Permission() { isExcluded = false, Name = permission });
+                    }
+                }
+            }
+            if (!string.IsNullOrEmpty(excludedPermissionNames))
+            {
+                foreach (string permission in excludedPermissionNames.Split(','))
+                {
+                    if (!duplicatePermission.Contains(permission.ToLower()))
+                    {
+                        duplicatePermission.Add(permission.ToLower());
+                        result.Add(new Permission() { isExcluded = true, Name = permission });
+                    }
+                    else
+                    {
+                        result.Remove(result.Where(x => x.Name.ToLower() == permission.ToLower()).FirstOrDefault());
+                    }
+                }
+            }
+            return result;
+        }
+
+        private static object ConvertPermissionsNames(List<Permission> permissions, bool isExcluded)
+        {
+            string result = null;
+
+            if (permissions != null && permissions.Count > 0)
+            {   
+                result = string.Join(",", permissions.Where(x => x.isExcluded == isExcluded).Select(x => x.Name).ToList());
+            }
+
+            return result;
         }
 
         private static string ConvertAssetGroupByToGroupBy(KalturaAssetGroupBy groupBy)

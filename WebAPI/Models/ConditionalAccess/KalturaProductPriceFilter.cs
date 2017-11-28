@@ -18,8 +18,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "subscriptionIdIn")]
         [JsonProperty("subscriptionIdIn")]
-        [XmlArray(ElementName = "subscriptionIdIn", IsNullable = true)]
-        [XmlArrayItem("item")]
+        [XmlElement(ElementName = "subscriptionIdIn")]
         public string SubscriptionIdIn { get; set; }
 
         /// <summary>
@@ -27,9 +26,16 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "fileIdIn")]
         [JsonProperty("fileIdIn")]
-        [XmlArray(ElementName = "fileIdIn", IsNullable = true)]
-        [XmlArrayItem("item")]
+        [XmlElement(ElementName = "fileIdIn")]
         public string FileIdIn { get; set; }
+
+        /// <summary>
+        /// Comma separated collections identifiers 
+        /// </summary>
+        [DataMember(Name = "collectionIdIn")]
+        [JsonProperty("collectionIdIn")]
+        [XmlElement(ElementName = "collectionIdIn")]
+        public string CollectionIdIn { get; set; }
 
         /// <summary>
         /// A flag that indicates if only the lowest price of an item should return
@@ -102,6 +108,22 @@ namespace WebAPI.Models.ConditionalAccess
             }
 
             return values;
+        }
+
+        internal string[] getCollectionIdIn()
+        {
+            if (string.IsNullOrEmpty(CollectionIdIn))
+                return null;
+
+            return CollectionIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        internal void Validate()
+        {
+            if ((SubscriptionIdIn == null || SubscriptionIdIn.Count() == 0) && (FileIdIn == null || FileIdIn.Count() == 0) && (CollectionIdIn == null || CollectionIdIn.Count() == 0))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaProductPriceFilter.subscriptionIdIn, KalturaProductPriceFilter.fileIdIn, KalturaProductPriceFilter.collectionIdIn");
+            }
         }
     }
 }

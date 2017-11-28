@@ -1,5 +1,4 @@
 ﻿using ApiObjects.Response;
-using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,6 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
-using WebAPI.Models.Users;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -498,7 +496,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
         /// </summary>
-        /// <param name="id">Household identifier</param>
+        /// <param name="id">Household identifier</param>        
         /// <remarks>Possible status codes: 
         ///</remarks>
         [Route("delete"), HttpPost]
@@ -511,11 +509,11 @@ namespace WebAPI.Controllers
             var ks = KS.GetFromRequest();
 
             int groupId = KS.GetFromRequest().GroupId;
-            
+
             try
             {
                 KalturaHousehold household = null;
-                
+
                 if (!id.HasValue || id.Value == 0)
                 {
                     household = HouseholdUtils.GetHouseholdFromRequest();
@@ -607,13 +605,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Suspend a given household service. Sets the household status to “suspended".The household service settings are maintained for later resume
         /// </summary>                
+        /// <param name="roleId">roleId</param>
         /// <remarks>Possible status codes: Household already suspended = 1012
         ///</remarks>
         [Route("suspend"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.DomainAlreadySuspended)]
-        public bool Suspend()
+        public bool Suspend(int? roleId = null)
         {
             var ks = KS.GetFromRequest();
             int groupId = KS.GetFromRequest().GroupId;
@@ -622,8 +621,7 @@ namespace WebAPI.Controllers
             {
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 // call client
-                return ClientsManager.DomainsClient().Suspend(groupId, (int)domainId);
-
+                return ClientsManager.DomainsClient().Suspend(groupId, (int)domainId, roleId);
             }
             catch (ClientException ex)
             {

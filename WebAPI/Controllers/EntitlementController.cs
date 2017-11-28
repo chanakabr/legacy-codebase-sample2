@@ -129,6 +129,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidPurchase)]
         [Throws(eResponseStatus.SubscriptionNotRenewable)]
         [Throws(eResponseStatus.CanNotCancelSubscriptionRenewalWhileDowngradeIsPending)]
+        [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
         public void CancelRenewal(string subscriptionId)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -512,6 +513,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("scheduledSubscriptionId", MinLong = 1)]
         [Throws(eResponseStatus.ScheduledSubscriptionNotFound)]
+        [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
         public bool CancelScheduledSubscription(long scheduledSubscriptionId)
         {
             bool result = false;

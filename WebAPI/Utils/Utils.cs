@@ -195,6 +195,17 @@ namespace WebAPI.Utils
             return DateTime.TryParseExact(dateInString, convertToFormat, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dateTime);
         }
 
+        public static string GetCurrentBaseUrl()
+        {
+            string xForwardedProtoHeader = HttpContext.Current.Request.Headers["X-Forwarded-Proto"];
+            string xKProxyProto = HttpContext.Current.Request.Headers["X-KProxy-Proto"];
+
+            string baseUrl = string.Format("{0}://{1}{2}", (!string.IsNullOrEmpty(xForwardedProtoHeader) && xForwardedProtoHeader == "https") ||
+                (!string.IsNullOrEmpty(xKProxyProto) && xKProxyProto == "https") ?
+                "https" : HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Host, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
+            return baseUrl;
+        }
+
         public static long GetUserIdFromKs()
         {
             var ks = KS.GetFromRequest();

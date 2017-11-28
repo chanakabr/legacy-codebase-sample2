@@ -238,6 +238,7 @@
     <Compile Include="Controllers\ConfigurationsController.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructFilter.cs" />
+    <Compile Include="Controllers\CollectionController.cs" />
     <Compile Include="Controllers\EmailController.cs" />
     <Compile Include="Controllers\PriceDetailsController.cs" />
     <Compile Include="Controllers\PricePlanController.cs" />
@@ -298,12 +299,15 @@
     <Compile Include="Models\General\KalturaIntegerValueListResponse.cs" />
     <Compile Include="Models\General\KalturaRelatedObjectFilter.cs" />
     <Compile Include="Models\Notification\KalturaEmailMessage.cs" />
+    <Compile Include="Models\Pricing\KalturaCollectionPrice.cs" />
+    <Compile Include="Models\Pricing\KalturaCollection.cs" />
     <Compile Include="Models\Pricing\KalturaPricePlanFilter.cs" />
     <Compile Include="Models\Pricing\KalturaPriceDetailsFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySet.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySetFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetType.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencyType .cs" />
+    <Compile Include="Models\Users\KalturaOTTUserDynamicData.cs" />
     <Compile Include="Models\Users\KalturaUserInterestListResponse.cs" />
     <Compile Include="Models\API\KalturaLanguageOrderBy.cs" />
     <Compile Include="Models\API\KalturaLanguageFilter.cs" />

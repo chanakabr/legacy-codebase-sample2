@@ -4283,5 +4283,22 @@ namespace WS_API
 
             return response;
         }
+
+        [WebMethod]
+        public ApiObjects.DrmAdapterResponse SendDrmAdapterConfiguration(string sWSUserName, string sWSPassword, int adapterID)
+        {
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                return Core.Api.Module.SendDrmAdapterConfiguration(groupId, adapterID);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+                ApiObjects.DrmAdapterResponse response = new ApiObjects.DrmAdapterResponse();
+                response.Status = new Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+                return response;
+            }
+        }
     }
 }

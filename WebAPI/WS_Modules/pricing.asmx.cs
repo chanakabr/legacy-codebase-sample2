@@ -1245,7 +1245,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(Subscription))]
         [System.Xml.Serialization.XmlInclude(typeof(Collection))]
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
-        public virtual Collection[] GetCollectionsData(string sWSUserName, string sWSPassword, string[] oCollCodes,
+        public virtual CollectionsResponse GetCollectionsData(string sWSUserName, string sWSPassword, string[] oCollCodes,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
 

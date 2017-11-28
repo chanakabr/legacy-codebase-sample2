@@ -30,32 +30,37 @@ namespace WebAPI.Controllers
             List<KalturaProductPrice> productPrices = new List<KalturaProductPrice>();
             List<KalturaSubscriptionPrice> subscriptionPrices = new List<KalturaSubscriptionPrice>();
             List<KalturaPpvPrice> ppvPrices = new List<KalturaPpvPrice>();
+            List<KalturaCollectionPrice> collectiontPrices = new List<KalturaCollectionPrice>();
+
+            filter.Validate();
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
             string currency = Utils.Utils.GetCurrencyFromRequest();
-            
-            if ((filter.SubscriptionIdIn == null || filter.SubscriptionIdIn.Count() == 0) && (filter.FileIdIn == null || filter.FileIdIn.Count() == 0))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaProductPriceFilter.subscriptionIdIn, KalturaProductPriceFilter.fileIdIn");
-            }
+            string userId = KS.GetFromRequest().UserId;
+
             try
             {
                 if (filter.SubscriptionIdIn != null && filter.SubscriptionIdIn.Count() > 0)
                 {
-                    // call client
-                    subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, filter.getSubscriptionIdIn(), KS.GetFromRequest().UserId, filter.CouponCodeEqual,
+                    subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, filter.getSubscriptionIdIn(), userId, filter.CouponCodeEqual,
                                                                                                             udid, language, filter.getShouldGetOnlyLowest(), currency);
                     productPrices.AddRange(subscriptionPrices);
                 }
 
                 if (filter.FileIdIn != null && filter.FileIdIn.Count() > 0)
                 {
-                    // call client
-                    ppvPrices = ClientsManager.ConditionalAccessClient().GetPpvPrices(groupId, filter.getFileIdIn(), KS.GetFromRequest().UserId, filter.CouponCodeEqual, udid, language,
+                    ppvPrices = ClientsManager.ConditionalAccessClient().GetPpvPrices(groupId, filter.getFileIdIn(), userId, filter.CouponCodeEqual, udid, language,
                                                                                         filter.getShouldGetOnlyLowest(), currency);
                     productPrices.AddRange(ppvPrices);
+                }
+
+                if (filter.CollectionIdIn != null && filter.CollectionIdIn.Count() > 0)
+                {
+                    collectiontPrices = ClientsManager.ConditionalAccessClient().GetCollectionPrices(groupId, filter.getCollectionIdIn(), userId, filter.CouponCodeEqual, udid, language,
+                                                                                        filter.getShouldGetOnlyLowest(), currency);
+                    productPrices.AddRange(collectiontPrices);
                 }
 
                 // order

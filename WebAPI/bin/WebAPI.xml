@@ -203,7 +203,8 @@
             parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
             epg_channel_id – the channel identifier of the EPG program.
             entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-            Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
             Search values are limited to 20 characters each.
             (maximum length of entire filter is 2048 characters)]]></param>
             <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
@@ -277,7 +278,8 @@
             Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
             <param name="filter_query"><![CDATA[Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
             Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
-            Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
             Search values are limited to 20 characters each.
             (maximum length of entire filter is 2048 characters)]]></param>
             <remarks>Possible status codes: 
@@ -701,6 +703,14 @@
             <param name="id">Configuration identifier</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.CollectionController.List(WebAPI.Models.Pricing.KalturaCollectionFilter)">
+            <summary>
+            Returns a list of subscriptions requested by Subscription ID or file ID
+            </summary>
+            <param name="filter">Filter request</param>
+            <remarks>Possible status codes:      
+              </remarks>
         </member>
         <member name="M:WebAPI.Controllers.EmailController.Send(WebAPI.Models.Notification.KalturaEmailMessage)">
             <summary>
@@ -1241,6 +1251,18 @@
             Possible status codes:       
             PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
             </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentGatewayController.Suspend(System.Int32)">
+            <summary>
+            Suspends all the entitlements of the given payment gateway
+            </summary>
+            <param name="paymentGatewayId">Payment gateway ID</param>                
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentGatewayController.Resume(System.Int32)">
+            <summary>
+            Resumes all the entitlements of the given payment gateway
+            </summary>
+            <param name="paymentGatewayId">Payment gateway ID</param>                
         </member>
         <member name="M:WebAPI.Controllers.ProductPriceController.List(WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter)">
             <summary>
@@ -3628,6 +3650,28 @@
             </summary>
             <remarks></remarks>
         </member>
+        <member name="M:WebAPI.Controllers.UserRoleController.Add(WebAPI.Models.API.KalturaUserRole)">
+            <summary>
+            Creates a new role
+            </summary>
+            <param name="role">Role to add</param>
+            <remarks></remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.UserRoleController.Update(System.Int64,WebAPI.Models.API.KalturaUserRole)">
+            <summary>
+            Update role
+            </summary>
+            <param name="id">Role Id</param>
+            <param name="role">Role to Update</param>
+            <remarks></remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.UserRoleController.Delete(System.Int64)">
+            <summary>
+            Delete role
+            </summary>
+            <param name="id">Role id to delete</param>
+            <remarks></remarks>        
+        </member>
         <member name="M:WebAPI.Controllers.ParentalRuleProfileController.List">
             <summary>
             Return all of the parental rules defined for the account 
@@ -3742,7 +3786,7 @@
              <summary>
              Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
              </summary>
-             <param name="id">Household identifier</param>
+             <param name="id">Household identifier</param>        
              <remarks>Possible status codes: 
             </remarks>
         </member>
@@ -3754,10 +3798,11 @@
              <remarks>Possible status codes: 
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdController.Suspend">
+        <member name="M:WebAPI.Controllers.HouseholdController.Suspend(System.Nullable{System.Int32})">
              <summary>
              Suspend a given household service. Sets the household status to “suspended".The household service settings are maintained for later resume
              </summary>                
+             <param name="roleId">roleId</param>
              <remarks>Possible status codes: Household already suspended = 1012
             </remarks>
         </member>
@@ -3965,6 +4010,15 @@
             <param name="filter">Filter request</param>
             <remarks>Possible status codes: 
             UserDoesNotExist = 2000 </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.UpdateDynamicData(System.String,WebAPI.Models.General.KalturaStringValue)">
+            <summary>
+            Update user dynamic data
+            </summary>
+            <param name="key">Type of dynamicData </param>
+            <param name="value">Value of dynamicData </param>
+            <param name="userId">User identifier</param>
             <returns></returns>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetStructListResponse">
@@ -4597,7 +4651,8 @@
             user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
             epg_channel_id – the channel identifier of the EPG program.
             entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with), + (exists), !+ (not exists).
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
             Logical conjunction: and, or. 
             Search values are limited to 20 characters each.
             (maximum length of entire filter is 2048 characters)]]>
@@ -4629,7 +4684,8 @@
             user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
             epg_channel_id – the channel identifier of the EPG program.
             entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with), + (exists), !+ (not exists).
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
             Logical conjunction: and, or. 
             Search values are limited to 20 characters each.
             (maximum length of entire filter is 2048 characters)]]>
@@ -4680,7 +4736,8 @@
             user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
             epg_channel_id – the channel identifier of the EPG program.
             entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with), + (exists), !+ (not exists).
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
             Logical conjunction: and, or. 
             Search values are limited to 20 characters each.
             (maximum length of entire filter is 2048 characters)]]>
@@ -6313,6 +6370,11 @@
             Comma separated roles identifiers
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaUserRoleFilter.CurrentUserRoleIdsContains">
+            <summary>
+            Indicates whether the results should be filtered by userId using the current
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaChannelProfile">
             <summary>
             KSQL Channel
@@ -6393,6 +6455,11 @@
             Permission item name
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaPermissionItem.IsExcluded">
+            <summary>
+            Permission isExcluded
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaUserRoleListResponse">
             <summary>
             User-roles list
@@ -6416,6 +6483,16 @@
         <member name="P:WebAPI.Models.API.KalturaUserRole.Permissions">
             <summary>
             List of permissions associated with the user role
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserRole.PermissionNames">
+            <summary>
+            permissions associated with the user role
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserRole.ExcludedPermissionNames">
+            <summary>
+            permissions associated with the user role in is_exclueded = true
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.CatchUpEnabled">
@@ -6731,6 +6808,11 @@
             Custom data string
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCustomDrmPlaybackPluginData.Data">
+            <summary>
+            Custom DRM license data
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation">
             <summary>
             Cancellation of a user's entitlement
@@ -6889,6 +6971,11 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.ScheduledSubscriptionId">
             <summary>
             Scheduled Subscription Identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsSuspended">
+            <summary>
+            Indicates if the subscription suspended
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlMediaRequest.ContentId">
@@ -7104,6 +7191,11 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.FileIdIn">
             <summary>
             Comma separated media files identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.CollectionIdIn">
+            <summary>
+            Comma separated collections identifiers 
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.isLowest">
@@ -8307,7 +8399,8 @@
             user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
             epg_channel_id – the channel identifier of the EPG program.
             entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with), + (exists), !+ (not exists).
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
             Logical conjunction: and, or. 
             Search values are limited to 20 characters each.
             (maximum length of entire filter is 2048 characters)]]>
@@ -8324,7 +8417,8 @@
             user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
             epg_channel_id – the channel identifier of the EPG program.
             entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with), + (exists), !+ (not exists).
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
+            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
             Logical conjunction: and, or. 
             Search values are limited to 20 characters each.
             (maximum length of entire filter is 2048 characters)]]>
@@ -8723,6 +8817,101 @@
         <member name="P:WebAPI.Models.Notification.KalturaTopicListResponse.Topics">
             <summary>
             Follow data list
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCollectionPrice">
+            <summary>
+            Collection price details
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCollection">
+            <summary>
+            Collection
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Id">
+            <summary>
+            Collection identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Channels">
+            <summary>
+            A list of channels associated with this collection 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.StartDate">
+            <summary>
+            The first date the collection is available for purchasing 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.EndDate">
+            <summary>
+            The last date the collection is available for purchasing
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.DiscountModule">
+            <summary>
+            The internal discount module for the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Name">
+            <summary>
+            Name of the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.Description">
+            <summary>
+            description of the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.UsageModule">
+            <summary>
+            Collection usage module
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.CouponGroups">
+            <summary>
+            List of Coupons group
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.ExternalId">
+            <summary>
+            External ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.ProductCodes">
+            <summary>
+            List of Collection product codes
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollection.PriceDetailsId">
+            <summary>
+            The ID of the price details associated with this collection
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCollectionListResponse">
+            <summary>
+            Collections list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollectionListResponse.Collections">
+            <summary>
+            A list of collections
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCollectionFilter">
+            <summary>
+            Collection Filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollectionFilter.CollectionIdIn">
+            <summary>
+            Comma separated collection IDs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCollectionFilter.MediaFileIdEqual">
+            <summary>
+            Media-file ID to get the subscriptions by
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaPricePlanFilter.IdIn">
@@ -9623,6 +9812,25 @@
         <member name="P:WebAPI.Models.Pricing.KalturaSubscription.IsCancellationBlocked">
             <summary>
             Is cancellation blocked for the subscription
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Users.KalturaOTTUserDynamicData">
+            <summary>
+            User dynamic data
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserDynamicData.UserId">
+            <summary>
+            User identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserDynamicData.Key">
+            <summary>Key
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserDynamicData.Value">
+            <summary>
+            Value
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaUserInterestListResponse">
@@ -10597,6 +10805,11 @@
             Device family id
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Drm">
+            <summary>
+            Device DRM data
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Domains.KalturaDeviceFamilyBase">
             <summary>
             Device family details
@@ -10750,6 +10963,11 @@
         <member name="P:WebAPI.Models.Domains.KalturaHousehold.DeviceFamilies">
             <summary>
             Household device families
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHousehold.RoleId">
+            <summary>
+            suspended roleId 
             </summary>
         </member>
         <member name="T:WebAPI.Models.Domains.KalturaHomeNetworkListResponse">

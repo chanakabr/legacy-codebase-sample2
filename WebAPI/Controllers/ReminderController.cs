@@ -65,6 +65,10 @@ namespace WebAPI.Controllers
                     // call client
                     return ClientsManager.NotificationClient().AddSeriesReminder(groupId, userId, reminder as KalturaSeriesReminder);
                 }
+                else
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "objectType");
+                }
             }
             catch (ClientException ex)
             {

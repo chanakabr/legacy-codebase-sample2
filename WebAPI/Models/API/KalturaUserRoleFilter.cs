@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -38,6 +39,17 @@ namespace WebAPI.Models.API
         [JsonProperty("idIn")]
         [XmlElement(ElementName = "idIn", IsNullable = true)]
         public string IdIn { get; set; }
+
+
+        /// <summary>
+        /// Indicates whether the results should be filtered by userId using the current
+        /// </summary>
+        [DataMember(Name = "currentUserRoleIdsContains")]
+        [JsonProperty(PropertyName = "currentUserRoleIdsContains")]
+        [XmlElement(ElementName = "currentUserRoleIdsContains", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public bool? CurrentUserRoleIdsContains { get; set; }
+
 
         public override KalturaUserRoleOrderBy GetDefaultOrderByValue()
         {

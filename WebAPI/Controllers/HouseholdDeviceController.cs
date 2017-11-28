@@ -183,7 +183,7 @@ namespace WebAPI.Controllers
         {
             KalturaHouseholdDevice device = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            KS ks = KS.GetFromRequest();
             string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (string.IsNullOrEmpty(udid))
@@ -194,7 +194,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                device = ClientsManager.DomainsClient().GetDevice(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                device = ClientsManager.DomainsClient().GetDevice(ks.GroupId, (int)HouseholdUtils.GetHouseholdIDByKS(ks.GroupId), udid, ks.UserId);
             }
             catch (ClientException ex)
             {

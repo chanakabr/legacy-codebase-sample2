@@ -308,6 +308,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.m_ext_discount_id, opt => opt.MapFrom(src => src.DiscountId))
                .ForMember(dest => dest.m_pricing_id, opt => opt.MapFrom(src => src.PriceDetailsId.HasValue ? src.PriceDetailsId : src.PriceId))
                ;
+
+            // Collection
+            Mapper.CreateMap<Collection, KalturaCollection>()
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
+               .ForMember(dest => dest.DiscountModule, opt => opt.MapFrom(src => src.m_oDiscountModule))
+               .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_sCodes))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sDescription)))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sName)))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_CollectionCode))
+               .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_ProductCode))
+               .ForMember(dest => dest.UsageModule, opt => opt.MapFrom(src => src.m_oCollectionUsageModule))
+               .ForMember(dest => dest.PriceDetailsId, opt => opt.MapFrom(src => src.m_oCollectionPriceCode != null ? src.m_oCollectionPriceCode.m_nObjectID : 0))
+               .ForMember(dest => dest.ProductCodes, opt => opt.MapFrom(src => ConvertProductCodes(src.ExternalProductCodes)))
+               .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)))
+               ;
         }
 
         private static KalturaSubscriptionSetType ConvertSetType(SubscriptionSetType subscriptionSetType)
@@ -716,6 +732,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
+        }
+
+        internal static List<KalturaCollectionPrice> ConvertCollectionPrice(CollectionsPricesContainer[] collectionsPrices)
+        {
+            List<KalturaCollectionPrice> prices = null;
+            if (collectionsPrices != null)
+            {
+                prices = new List<KalturaCollectionPrice>();
+
+                foreach (var collectionPrice in collectionsPrices)
+                {
+                    prices.Add(new KalturaCollectionPrice()
+                    {
+                        Price = AutoMapper.Mapper.Map<KalturaPrice>(collectionPrice.m_oPrice),
+                        ProductId = collectionPrice.m_sCollectionCode,
+                        ProductType = KalturaTransactionType.collection,
+                        PurchaseStatus = ConvertPriceReasonToPurchaseStatus(collectionPrice.m_PriceReason),
+                    });
+                }
+            }
+
+            return prices;
         }
     }
 }

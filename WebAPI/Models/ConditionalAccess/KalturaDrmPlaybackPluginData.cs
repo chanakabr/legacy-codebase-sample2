@@ -45,12 +45,24 @@ namespace WebAPI.Models.ConditionalAccess
         public string Certificate { get; set; }
     }
 
+    public class KalturaCustomDrmPlaybackPluginData : KalturaDrmPlaybackPluginData
+    {
+        /// <summary>
+        /// Custom DRM license data
+        /// </summary>
+        [DataMember(Name = "data")]
+        [JsonProperty("data")]
+        [XmlElement(ElementName = "data")]
+        public string Data { get; set; }
+    }
+
     public enum KalturaDrmSchemeName
     {
         PLAYREADY_CENC,
         WIDEVINE_CENC,
         FAIRPLAY,
         WIDEVINE,
-        PLAYREADY
+        PLAYREADY,
+        CUSTOM_DRM
     }
 }

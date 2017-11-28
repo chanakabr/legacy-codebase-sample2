@@ -1,23 +1,18 @@
-﻿using AutoMapper;
+﻿using ApiObjects;
+using AutoMapper;
+using Core.Users;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Web;
-using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Mapping.ObjectsConvertor;
 using WebAPI.Models.Domains;
-using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
-using System.Net;
-using System.ServiceModel;
-using ApiObjects;
-using Core.Users;
 
 namespace WebAPI.Clients
 {
@@ -338,7 +333,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaHouseholdDevice GetDevice(int groupId, int householdId, string udid)
+        internal KalturaHouseholdDevice GetDevice(int groupId, int householdId, string udid, string userId)
         {
             KalturaHouseholdDevice result;
             DeviceResponse response = null;
@@ -347,7 +342,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.GetDevice(groupId, udid, householdId);
+                    response = Core.Domains.Module.GetDevice(groupId, udid, householdId, userId, Utils.Utils.GetClientIP());
                 }
             }
             catch (Exception ex)
@@ -380,8 +375,6 @@ namespace WebAPI.Clients
         {
             KalturaHousehold result;
             DomainResponse response = null;
-
-            
 
             try
             {
@@ -772,17 +765,14 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal bool Suspend(int groupId, int domainId)
+        internal bool Suspend(int groupId, int domainId, int? roleId = null)
         {
             ApiObjects.Response.Status response = null;
-
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.SuspendDomain(groupId, domainId);
+                    response = Core.Domains.Module.SuspendDomain(groupId, domainId, roleId);
                 }
             }
             catch (Exception ex)
@@ -807,9 +797,7 @@ namespace WebAPI.Clients
         internal bool Resume(int groupId, int domainId)
         {
             ApiObjects.Response.Status response = null;
-
             
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

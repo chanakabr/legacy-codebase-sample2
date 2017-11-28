@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Utils;
@@ -25,7 +26,8 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_activationDate)))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDeviceStatus(src.m_state)))
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)))
-                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID));
+                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID))
+                .ForMember(dest => dest.Drm, opt => opt.MapFrom(src => new KalturaCustomDrmPlaybackPluginData() { Data = src.LicenseData, Scheme = KalturaDrmSchemeName.CUSTOM_DRM }));
 
             Mapper.CreateMap<Device, KalturaDevice>()
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.m_deviceUDID))
@@ -80,7 +82,8 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDomainStatus(src.m_DomainStatus)))
                 .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_UsersIDs))
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit))
-                .ForMember(dest => dest.DeviceFamilies, opt => opt.MapFrom(src => src.m_deviceFamilies));
+                .ForMember(dest => dest.DeviceFamilies, opt => opt.MapFrom(src => src.m_deviceFamilies))
+                .ForMember(dest=> dest.RoleId , opt => opt.MapFrom(src => src.roleId));
 
             //string (pin) to KalturaDevicePin
             Mapper.CreateMap<string, KalturaDevicePin>()
