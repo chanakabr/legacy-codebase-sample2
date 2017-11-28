@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -50,8 +51,13 @@ namespace Core.Pricing
             return res;
         }
 
-        public override Collection[] GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName)
+        public override CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName)
         {
+            CollectionsResponse response = new CollectionsResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+            }; 
+
             if (oCollCodes != null && oCollCodes.Length > 0)
             {
                 List<string> uncachedColls = new List<string>();
@@ -76,30 +82,43 @@ namespace Core.Pricing
 
                 if (uncachedColls.Count > 0)
                 {
-                    Collection[] colls = originalBaseCollection.GetCollectionsData(uncachedColls.ToArray(), sCountryCd, sLanguageCode, sDeviceName);
-                    if (colls != null && colls.Length > 0)
+                    CollectionsResponse collectionsResponse = originalBaseCollection.GetCollectionsData(uncachedColls.ToArray(), sCountryCd, sLanguageCode, sDeviceName);
+
+                    if (collectionsResponse == null)
                     {
-                        for (int j = 0; j < colls.Length; j++)
+                        return response;
+                    }
+
+                    if (collectionsResponse.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        return collectionsResponse;
+                    }
+
+                    if (collectionsResponse.Collections != null && collectionsResponse.Collections.Length > 0)
+                    {
+                        for (int j = 0; j < collectionsResponse.Collections.Length; j++)
                         {
-                            if (colls[j] != null && !string.IsNullOrEmpty(colls[j].m_sObjectCode) &&
-                                collsToIndexMapping.ContainsKey(colls[j].m_sObjectCode))
+                            if (collectionsResponse.Collections[j] != null && !string.IsNullOrEmpty(collectionsResponse.Collections[j].m_sObjectCode) &&
+                                collsToIndexMapping.ContainsKey(collectionsResponse.Collections[j].m_sObjectCode))
                             {
-                                string cacheKey = GetCollDataCacheKey(colls[j].m_sObjectCode, false);
-                                if (!PricingCache.TryAddCollection(cacheKey, colls[j]))
+                                string cacheKey = GetCollDataCacheKey(collectionsResponse.Collections[j].m_sObjectCode, false);
+                                if (!PricingCache.TryAddCollection(cacheKey, collectionsResponse.Collections[j]))
                                 {
-                                    PricingCache.LogCachingError("Failed to insert entry into cache. ", cacheKey, colls[j],
+                                    PricingCache.LogCachingError("Failed to insert entry into cache. ", cacheKey, collectionsResponse.Collections[j],
                                         "GetCollectionsData", COLL_CACHE_WRAPPER_LOG_FILE);
                                 }
-                                set.Add(new SortedCollection(colls[j], collsToIndexMapping[colls[j].m_sObjectCode]));
+                                set.Add(new SortedCollection(collectionsResponse.Collections[j], collsToIndexMapping[collectionsResponse.Collections[j].m_sObjectCode]));
                             }
                         } // for
                     }
                 }
 
-                return set.Select((item) => item.GetCollection).ToArray<Collection>();
+                response.Collections = set.Select((item) => item.GetCollection).ToArray<Collection>();
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                return response;
             }
 
-            return null;
+            return response;
         }
 
         private class SortedCollection : IComparable<SortedCollection>
@@ -141,6 +160,11 @@ namespace Core.Pricing
             {
                 return this.Index.CompareTo(other.Index);
             }
+        }
+
+        public override IdsResponse GetCollectionIdsContainingMediaFile(int mediaId, int mediaFileID)
+        {
+            return this.originalBaseCollection.GetCollectionIdsContainingMediaFile(mediaId, mediaFileID);
         }
     }
 }

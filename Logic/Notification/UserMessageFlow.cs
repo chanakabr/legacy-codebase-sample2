@@ -2,11 +2,10 @@
 using APILogic.DmsService;
 using ApiObjects;
 using ApiObjects.Notification;
-using ApiObjects.Response;
+using Core.Notification.Adapters;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
-using Core.Notification.Adapters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -167,6 +166,13 @@ namespace Core.Notification
                             log.Debug("Successfully disabled user push notifications");
                         else
                             log.Error("Error disabling user push notifications");
+                        break;
+                    case eUserMessageAction.DeleteDevice:
+                        result = HandlePushDeleteDevice(groupId, deviceData, udid);
+                        if (result)
+                            log.Debug("Successfully performed Delete Device");
+                        else
+                            log.Error("Error occurred while trying to perform Delete Device");
                         break;
 
                     default:
@@ -1064,6 +1070,53 @@ namespace Core.Notification
                     result &= LoginPushNotification(groupId, userId, false, pushData, userNotificationData, deviceData);
                 }
             }
+
+            return result;
+        }
+
+        private static bool HandlePushDeleteDevice(int groupId, DeviceNotificationData deviceData, string udid)
+        {
+            bool result = true;
+            PushData pushData = null;
+
+            if (deviceData == null)
+            {
+                log.DebugFormat("device notification data is empty. GroupId: {0}, UDID: {1}", groupId, udid);
+                return false;
+            }
+
+            pushData = PushAnnouncementsHelper.GetPushData(groupId, udid, string.Empty);
+            if (pushData == null)
+            {
+                log.ErrorFormat("push data wasn't found. GID: {0}, UDID: {1}", groupId, udid);
+                return false;
+            }
+
+            // Get user data for updating( remove) device from devices list 
+            bool isDocexist = false;
+            var userNotificationData = NotificationDal.GetUserNotificationData(groupId, deviceData.UserId, ref isDocexist);
+            result &= LogoutPushNotification(groupId, deviceData.UserId, false, pushData, userNotificationData, deviceData, false);
+
+            // remove device data
+            if (!NotificationDal.RemoveDeviceNotificationData(groupId, udid, deviceData.cas))
+            {
+                log.ErrorFormat("Error while trying to delete device data. GID: {0}, UDID: {1}", groupId, udid);
+                return false;
+            }
+            else
+                log.DebugFormat("Successfully removed device notification data. GID: {0}, UDID: {1}", groupId, udid);
+
+            // remove device data from user Data
+            userNotificationData.devices.Remove(userNotificationData.devices.Where(x => x.Udid == udid).First());
+
+            // update user data
+            if (!NotificationDal.SetUserNotificationData(groupId, deviceData.UserId, userNotificationData))
+            {
+                log.ErrorFormat("Error while trying to remove device from user notification data. GroupId: {0}, UserId: {1}, UDID: {2}", groupId, deviceData.UserId, udid);
+                return false;
+            }
+            else
+                log.DebugFormat("Successfully removed device from user notification data. GroupId: {0}, UserId: {1}, UDID: {2}", groupId, deviceData.UserId, udid);
 
             return result;
         }

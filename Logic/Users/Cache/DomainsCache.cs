@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using CachingProvider;
 using KLogMonitor;
+using System.Data;
 
 namespace Core.Users.Cache
 {
@@ -48,6 +49,124 @@ namespace Core.Users.Cache
 
             return res;
         }
+
+        public List<int> GetInvalidDomains(int groupId)
+        {
+            CouchBaseCache<Domain> couchbaseCache = this.cache as CouchBaseCache<Domain>;
+
+            if (couchbaseCache == null)
+            {
+                return null;
+            }
+
+            List<int> invalidDomainIds = new List<int>();
+
+            ODBCWrapper.DataSetSelectQuery query = new ODBCWrapper.DataSetSelectQuery();
+
+            query.SetConnectionKey("USERS_CONNECTION_STRING");
+            query += "SELECT ID, IS_ACTIVE, STATUS, UPDATE_DATE FROM domains WHERE status = 1 and is_active = 1 and";
+            query += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
+
+            Dictionary<int, DateTime> allDomains = new Dictionary<int, DateTime>();
+            
+            if (query.Execute("query", true) != null)
+            {
+                int count = query.Table("query").DefaultView.Count;
+
+                if (count > 0)
+                {
+                    var table = query.Table("query").Rows;
+
+                    foreach (DataRow row in table)
+                    {
+                        var domainId = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+                        var updateDate = ODBCWrapper.Utils.ExtractDateTime(row, "UPDATE_DATE");
+                        allDomains.Add(domainId, updateDate);
+                    }
+                }
+            }
+
+            int sizeOfBulk = 1000;
+            Dictionary<string, int> cacheKeys = new Dictionary<string, int>();
+            Domain domain;
+
+            foreach (var domainId in allDomains.Keys)
+            {
+                DateTime updateDate = allDomains[domainId];
+                string cacheKey = string.Format("{0}{1}", sDomainKeyCache, domainId);
+
+                cacheKeys.Add(cacheKey, domainId);
+
+                if (cacheKeys.Count > sizeOfBulk)
+                {
+                    IDictionary<string, Domain> domains = new Dictionary<string, Domain>();
+                    var keysList = cacheKeys.Keys.ToList();
+                    try
+                    {
+                        couchbaseCache.GetValues<Domain>(keysList, ref domains, true, true);
+
+                        if (domains == null)
+                        {
+                            invalidDomainIds.AddRange(cacheKeys.Values);
+                        }
+                        else
+                        {
+                            foreach (var key in cacheKeys)
+                            {
+                                domains.TryGetValue(key.Key, out domain);
+
+                                if ((domain != null) && (domain.m_nStatus != 1 || domain.m_nIsActive != 1))
+                                {
+                                    invalidDomainIds.Add(key.Value);
+                                }
+                            }
+                        }
+
+                        cacheKeys.Clear();
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Get invalid domains - failed getting values from couchbase. Error = {0}", ex);
+                    } 
+                }
+
+                //this.cache.GetValues<Domain>(
+                //bool getSuccess = this.cache.GetJsonAsT<Domain>(cacheKey, out domain);
+            }
+
+            if (cacheKeys.Count > 0)
+            {
+                IDictionary<string, Domain> domains = new Dictionary<string, Domain>();
+                var keysList = cacheKeys.Keys.ToList();
+                try
+                {
+                    couchbaseCache.GetValues<Domain>(keysList, ref domains, true, true);
+
+                    if (domains == null)
+                    {
+                        invalidDomainIds.AddRange(cacheKeys.Values);
+                    }
+                    else
+                    {
+                        foreach (var key in cacheKeys)
+                        {
+                            domains.TryGetValue(key.Key, out domain);
+
+                            if ((domain != null) && (domain.m_nStatus != 1 || domain.m_nIsActive != 1))
+                            {
+                                invalidDomainIds.Add(key.Value);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Get invalid domains - failed getting values from couchbase. Error = {0}", ex);
+                }
+            }
+            return invalidDomainIds;
+        }
+
         #endregion
 
         #region ExternalCache
@@ -146,20 +265,20 @@ namespace Core.Users.Cache
         // try to get domain from cache , if domain don't exsits - build it , thrn insert it to cache only if bInsertToCache == true
         internal Domain GetDomain(int nDomainID, int nGroupID, bool bInsertToCache = true)
         {
-            Domain oDomain = null;
-            Random r = new Random();
+            Domain domain = null;
+            Random random = new Random();
             int limitRetries = RETRY_LIMIT;
+
             try
             {
-                string sKey = string.Format("{0}{1}", sDomainKeyCache, nDomainID);
+                string cacheKey = string.Format("{0}{1}", sDomainKeyCache, nDomainID);
                 // try to get the domain id from cache
-                bool bSuccess = this.cache.GetJsonAsT<Domain>(sKey, out oDomain);
+                bool getSuccess = this.cache.GetJsonAsT<Domain>(cacheKey, out domain);
 
-
-                if (!bSuccess || oDomain == null)
+                if (!getSuccess || domain == null)
                 {
-                    bool bInsert = false;
-                    oDomain = DomainFactory.GetDomain(nGroupID, nDomainID);
+                    bool insertSuccess = false;
+                    domain = DomainFactory.GetDomain(nGroupID, nDomainID);
 
                     // if bInsertToCache = true = need to insert the domain to cache 
                     if (bInsertToCache)
@@ -167,10 +286,10 @@ namespace Core.Users.Cache
                         while (limitRetries > 0)
                         {
                             //try insert to Cache                                              
-                            bInsert = this.cache.SetJson<Domain>(sKey, oDomain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits
-                            if (!bInsert)
+                            insertSuccess = this.cache.SetJson<Domain>(cacheKey, domain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits
+                            if (!insertSuccess)
                             {
-                                Thread.Sleep(r.Next(50));
+                                Thread.Sleep(random.Next(50));
                                 limitRetries--;
                             }
                             else
@@ -182,11 +301,30 @@ namespace Core.Users.Cache
                 }
                 else
                 {
-                    DomainFactory.InitializeDLM(oDomain);
+                    DomainFactory.InitializeDLM(domain);
                 }
 
+                // Mark reading invalidation key for domain and its devices
+                if (domain != null)
+                {
+                    domain.SetReadingInvalidationKeys();
 
-                return oDomain;
+                    if (domain.m_deviceFamilies != null)
+                    {
+                        foreach (var deviceContainer in domain.m_deviceFamilies)
+                        {
+                            if (deviceContainer.DeviceInstances != null)
+                            {
+                                foreach (var device in deviceContainer.DeviceInstances)
+                                {
+                                    device.SetReadingInvalidationKeys();
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return domain;
             }
             catch (Exception ex)
             {

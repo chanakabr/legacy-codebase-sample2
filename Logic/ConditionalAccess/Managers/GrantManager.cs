@@ -341,11 +341,11 @@ namespace Core.ConditionalAccess
                 BillingResponse billingResponse = new BillingResponse();
                 billingResponse.m_oStatus = BillingResponseStatus.UnKnown;
                 long lBillingTransactionID = 0;
+
                 if (saveHistory)
                 {
                     billingResponse = cas.HandleCCChargeUser(userId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, ip, customData,
                        1, 1, string.Empty, string.Empty, string.Empty, true, false);
-
                 }
                 else
                 {
@@ -446,11 +446,11 @@ namespace Core.ConditionalAccess
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, productId {2}, userIp {3}, deviceName {4}, saveHistory {5}",
                 !string.IsNullOrEmpty(userId) ? userId : string.Empty,     // {0}
-                householdId,                                                   // {1}                
-                productId,                                                     // {2}   
-                !string.IsNullOrEmpty(ip) ? ip : string.Empty,         // {3}
-                !string.IsNullOrEmpty(udid) ? udid : string.Empty, // {4}
-                saveHistory);                                                  // {5}
+                householdId,                                               // {1}                
+                productId,                                                 // {2}   
+                !string.IsNullOrEmpty(ip) ? ip : string.Empty,             // {3}
+                !string.IsNullOrEmpty(udid) ? udid : string.Empty,         // {4}
+                saveHistory);                                              // {5}
 
             try
             {
@@ -466,7 +466,7 @@ namespace Core.ConditionalAccess
                 Price priceResponse = null;
                 Collection collection = null;
                 priceResponse = Utils.GetCollectionFinalPrice(groupId, productId.ToString(), userId, string.Empty, ref priceReason,
-                                                              ref collection, country, string.Empty, udid, string.Empty);
+                                                              ref collection, country, string.Empty, udid, string.Empty, ip);
 
                 if (priceReason == PriceReason.UnKnown)
                 {
@@ -475,9 +475,7 @@ namespace Core.ConditionalAccess
                     return status;
                 }
 
-                bool isEntitledToPreviewModule = priceReason == PriceReason.EntitledToPreviewModule;
-
-                if (priceReason != PriceReason.ForPurchase && !isEntitledToPreviewModule)
+                if (priceReason != PriceReason.ForPurchase)
                 {
                     // not for purchase
                     status = Utils.SetResponseStatus(priceReason);
@@ -533,7 +531,7 @@ namespace Core.ConditionalAccess
                 long purchaseID = 0;
                 var result = cas.HandleCollectionBillingSuccess(ref response, userId, householdId, collection, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, ip,
                                                                           country, udid, lBillingTransactionID, customData, productId,
-                                                                          billingGuid, isEntitledToPreviewModule, entitlementDate, ref purchaseID);
+                                                                          billingGuid, false, entitlementDate, ref purchaseID);
                 if (result)
                 {
                     status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

@@ -78,6 +78,7 @@ namespace Core.Billing
         private const string PAYMENT_METHOD_ALREADY_SET_TO_HOUSEHOLD_PAYMENTGATEWAY = "Payment method already set to household paymentgateway";
         private const string PAYMENT_GATEWAY_NOT_SUPPORT_PAYMENT_METHOD = "Payment gateway not support payment method";
         private const string PAYMENT_GATEWAY_NOT_SET_TO_HOUSEHOLD = "Payment gateway not set to household";
+        private const string PAYMENT_GATEWAY_SUSPENDED = "Payment gateway suspended to this householdId";
 
         protected const int FAIL_REASON_EXCEEDED_RETRY_LIMIT_CODE = 26;
 
@@ -908,12 +909,13 @@ namespace Core.Billing
                 paymentGateway = GetOSSAdapterPaymentGateway(groupID, householdID, userIP, out chargeId);
 
                 // in case OSS Adapter not set.
+                bool isSuspended = false;
                 if (paymentGateway == null)
                 {
                     if (paymentGatewayId == 0)
                     {
-                        // get selected household payment gateway
-                        paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdID, ref chargeId);
+                        // get selected household payment gateway                        
+                        paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdID, ref chargeId, ref isSuspended);
                         if (paymentGateway == null)
                         {
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
@@ -937,14 +939,19 @@ namespace Core.Billing
                             return response;
                         }
 
-                        bool isPaymentGWHouseholdExist = false;
-                        chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdID, ref isPaymentGWHouseholdExist);
+                        bool isPaymentGWHouseholdExist = false;                       
+                        chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdID, ref isPaymentGWHouseholdExist, ref isSuspended);
 
                         if (!isPaymentGWHouseholdExist)
                         {
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
                             return response;
                         }
+                    }
+                    if (isSuspended)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
+                        return response;
                     }
                 }
                 else
@@ -1049,7 +1056,7 @@ namespace Core.Billing
         }
 
         public virtual TransactResult ProcessUnifiedRenewal(long householdId, double totalPrice, string currency, int paymentGatewayId, 
-            int paymentMethodId, string userIp,List<RenewSubscriptionDetails> renewUnified, ref PaymentGateway paymentGateway)
+            int paymentMethodId, string userIp, ref List<RenewSubscriptionDetails> renewUnified, ref PaymentGateway paymentGateway)
         {
             TransactResult transactionResponse = new TransactResult();
                          
@@ -1077,10 +1084,11 @@ namespace Core.Billing
                 }
 
                 // payment gateway is NOT Google/Apple/Roku - continue                
+                bool isSuspended = false;
                 if (!IsVerificationPaymentGateway(paymentGateway)) 
                 {
-                    // get charge ID
-                    chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdId, ref isPaymentGatewayHouseholdExist);
+                    // get charge ID                   
+                    chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdId, ref isPaymentGatewayHouseholdExist, ref isSuspended);
 
                     // Handle  Payment Method
                    
@@ -1102,7 +1110,13 @@ namespace Core.Billing
                 log.DebugFormat("paymentGatewayId: {0}, householdId: {1}, isPaymentGWHouseholdExist: {2}, chargeID: {3}",
                     paymentGatewayId, householdId, isPaymentGatewayHouseholdExist, !string.IsNullOrEmpty(chargeId) ? chargeId : string.Empty);
                                 
-               transactionResponse = SendUnifiedRenewalRequestToAdapter(chargeId, totalPrice, currency, householdId, paymentGateway, paymentMethodExternalId, paymentMethodId, userIp, renewUnified);
+               transactionResponse = SendUnifiedRenewalRequestToAdapter(chargeId, totalPrice, currency, householdId, paymentGateway, paymentMethodExternalId, paymentMethodId, userIp, ref renewUnified);
+
+                if (isSuspended && transactionResponse != null && transactionResponse.Status != null && transactionResponse.Status.Code == (int)eResponseStatus.OK && transactionResponse.State == eTransactionState.OK)
+                {   
+                    // change payment gateway suspend to OK 
+                    DAL.BillingDAL.UpdatePaymentGatewayHouseholdStatus(householdId, paymentGatewayId, PaymentGatewayStatus.OK);                    
+                }
 
                 /*
                 If will need - mail will be sent HERE
@@ -1122,7 +1136,7 @@ namespace Core.Billing
         }
 
         private TransactResult SendUnifiedRenewalRequestToAdapter(string chargeId, double totalPrice, string currency, long householdId, PaymentGateway paymentGateway, string paymentMethodExternalId, 
-            int paymentMethodId, string userIP, List<RenewSubscriptionDetails> renewUnified)
+            int paymentMethodId, string userIP, ref List<RenewSubscriptionDetails> renewUnified)
         {
             TransactResult response = new TransactResult();
 
@@ -1193,7 +1207,7 @@ namespace Core.Billing
                                 log.Debug("process renewal passed - create transaction");
 
                                 int paymentGatewayTransactionId = CreateUnifiedTransaction(ref response, adapterResponse, eTransactionType.Subscription,
-                                     paymentGateway.ID, paymentMethodId, householdId, BILLING_TRANSACTION_SUCCESS_STATUS, renewUnified);
+                                     paymentGateway.ID, paymentMethodId, householdId, BILLING_TRANSACTION_SUCCESS_STATUS, ref renewUnified);
                                
                                     if (paymentGatewayTransactionId > 0 && response != null && response.Status.Code != (int)eResponseStatus.OK)
                                     {
@@ -1226,14 +1240,10 @@ namespace Core.Billing
 
                                 break;
 
-                            case (int)eTransactionState.Failed:
-
-                                // process renewal failed
-                                log.Error("process renewal failed");
-                                // to change to one transaction !!!! 
+                            case (int)eTransactionState.Failed:                                
+                                log.Error("process unified renewal failed");                                
                                 foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
                                 {
-
                                     HandleAdapterTransactionFailed(ref response, adapterResponse, int.Parse(renewUnifiedData.ProductId), eTransactionType.Subscription, renewUnifiedData.BillingGuid, 0, paymentGateway.ID, householdId, 
                                         long.Parse(renewUnifiedData.UserId), renewUnifiedData.CustomData, renewUnifiedData.PaymentNumber);
                                 }
@@ -1289,7 +1299,7 @@ namespace Core.Billing
         }
 
         private int CreateUnifiedTransaction(ref TransactResult response, APILogic.PaymentGWAdapter.TransactionResponse adapterResponse, ApiObjects.eTransactionType transactionType, 
-            int paymentGatewayId, int paymenMethodId, long householdId, int billingTransactionStatus, List<RenewSubscriptionDetails> renewUnified)
+            int paymentGatewayId, int paymenMethodId, long householdId, int billingTransactionStatus, ref List<RenewSubscriptionDetails> renewUnified)
         {
             PaymentGatewayTransaction paymentGWTransaction = new PaymentGatewayTransaction();
 
@@ -1307,7 +1317,7 @@ namespace Core.Billing
             {
                 paymentGWTransaction = SaveUnifiedTransaction(ref response, adapterResponse.Transaction.PGTransactionID, adapterResponse.Transaction.PGStatus, 0,
                     adapterResponse.Transaction.PGMessage, adapterResponse.Transaction.StateCode, paymentGatewayId, paymenMethodId, adapterResponse.Transaction.FailReasonCode, adapterResponse.Transaction.PaymentMethod,
-                    adapterResponse.Transaction.PaymentDetails, householdId, renewUnified, billingTransactionStatus,
+                    adapterResponse.Transaction.PaymentDetails, householdId, ref renewUnified, billingTransactionStatus,
                     adapterResponse.Transaction.StartDateSeconds, adapterResponse.Transaction.EndDateSeconds, adapterResponse.Transaction.AutoRenewing);
             }
 
@@ -1315,7 +1325,7 @@ namespace Core.Billing
         }
 
         private PaymentGatewayTransaction SaveUnifiedTransaction(ref TransactResult response, string externalTransactionId, string externalStatus, int contentId, string message, int state, int paymentGatewayId, int paymenMethodId, int failReason, 
-            string paymentMethod, string paymentDetails, long householdId, List<RenewSubscriptionDetails> renewUnified , int billingTransactionStatus = BILLING_TRANSACTION_SUCCESS_STATUS, long startDateSeconds = 0, long endDateSeconds = 0 , 
+            string paymentMethod, string paymentDetails, long householdId, ref List<RenewSubscriptionDetails> renewUnified , int billingTransactionStatus = BILLING_TRANSACTION_SUCCESS_STATUS, long startDateSeconds = 0, long endDateSeconds = 0 , 
             bool autoRenewing = false)
         {
 
@@ -1358,11 +1368,11 @@ namespace Core.Billing
                 XmlDocument xmlDoc = new XmlDocument();
                 
                 BuildBillingTransactionXml(renewUnified, ref xmlDoc);
-                
-                // InsertBillingTransaction
-                List<long> billingTranactionIds = Core.Billing.Utils.InsertBillingTransaction(BILLING_PROVIDER, paymentGatewayId, xmlDoc.InnerXml.ToString(), paymentGWTransaction, billingTransactionStatus, groupID);
 
-                if (billingTranactionIds == null || billingTranactionIds.Count == 0 || billingTranactionIds.Where(x=>x < 1).Count() > 0)
+                // InsertBillingTransaction
+                Dictionary<long, long> billingTranactionIds = Core.Billing.Utils.InsertBillingTransaction(BILLING_PROVIDER, paymentGatewayId, xmlDoc.InnerXml.ToString(), paymentGWTransaction, billingTransactionStatus, groupID);
+
+                if (billingTranactionIds == null || billingTranactionIds.Count == 0 || billingTranactionIds.Where(x=> x.Key < 1).Count() > 0)
                 {
                     // create billing transaction failed
                     response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
@@ -1372,7 +1382,14 @@ namespace Core.Billing
                 {
                     // create billing transaction passed
                     response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
-                    //response.TransactionID = billingTranactionId;
+                    // update renew Subscription Details with the billingTransactionId
+                    foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
+                    {
+                        if (billingTranactionIds.ContainsKey(renewUnifiedData.PurchaseId))
+                        {
+                            renewUnifiedData.BillingTransactionId = billingTranactionIds[renewUnifiedData.PurchaseId];
+                        }
+                    }                        
                 }
             }
             else
@@ -1444,15 +1461,8 @@ namespace Core.Billing
                         ref price, ref currencyCode, ref isRecurring, ref pPVModuleCode, ref numberOfPayments, ref userGUID,
                                     ref relevantSub, ref maxNumberOfUses, ref maxUsageModuleLifeCycle, ref viewLifeCycleSecs, ref purchaseType,
                                     ref countryCd, ref languageCode, ref deviceName, ref previewModuleID, ref collectionCode);
-
-                long lPreviewModuleID = 0;
-                if (!string.IsNullOrEmpty(previewModuleID))
-                {
-                    Int64.TryParse(previewModuleID, out lPreviewModuleID);
-                }
-                double dPriceToWriteToDatabase = lPreviewModuleID > 0 ? 0.0 : price;
-
-                int nPaymentNumberToInsertToDB =  Core.Billing.Utils.CalcPaymentNumberForBillingTransactionsDBTable(rsd.PaymentNumber, lPreviewModuleID);
+                
+                int nPaymentNumberToInsertToDB =  Core.Billing.Utils.CalcPaymentNumberForBillingTransactionsDBTable(rsd.PaymentNumber, 0);
 
                 rowNode = xmlDoc.CreateElement("row");
 
@@ -1465,7 +1475,7 @@ namespace Core.Billing
                 rowNode.AppendChild(lastFourDigitsNode);
                 
                 priceNode = xmlDoc.CreateElement("price");
-                priceNode.InnerText = dPriceToWriteToDatabase.ToString();
+                priceNode.InnerText = rsd.Price.ToString();
                 rowNode.AppendChild(priceNode);
 
                 paymentMethodAdditionNode = xmlDoc.CreateElement("payment_method_addition");
@@ -1477,7 +1487,7 @@ namespace Core.Billing
                 rowNode.AppendChild(priceCodeNode);
 
                 currencyNodeCode = xmlDoc.CreateElement("currency_code");
-                currencyNodeCode.InnerText = currencyCode;
+                currencyNodeCode.InnerText = rsd.Currency;
                 rowNode.AppendChild(currencyNodeCode);
 
                 customDataNode = xmlDoc.CreateElement("custom_data");
@@ -1520,7 +1530,7 @@ namespace Core.Billing
                 rowNode.AppendChild(deviceNameNode);
                     
                 previewModuleIDNode = xmlDoc.CreateElement("preview_module_id");
-                previewModuleIDNode.InnerText = previewModuleID;
+                previewModuleIDNode.InnerText = "0";
                 rowNode.AppendChild(previewModuleIDNode);
 
                 collectionCodeNode = xmlDoc.CreateElement("collection_code");
@@ -1534,9 +1544,6 @@ namespace Core.Billing
 
                 rootNode.AppendChild(rowNode);
             }
-
-           // long billingTranactionId = InsertBillingTransaction(BILLING_PROVIDER, paymentGatewayId, customData, paymentGWTransaction, billingTransactionStatus, paymentNumber);
-
         }
 
         private void GetDetailsFromCustomData(string customData, ref string PreivewEnd, ref double price, ref string currency, ref bool partialPrice)
@@ -1751,7 +1758,16 @@ namespace Core.Billing
                 if (!isVerification && !isOssValid)
                 {
                     // get charge ID
-                    chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdId, ref isPaymentGatewayHouseholdExist);
+                    bool isSuspended = false;
+                    chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdId, ref isPaymentGatewayHouseholdExist, ref isSuspended);
+                    
+                    if (isSuspended) // return due to suspend payment gateway !!! 
+                    {
+                        transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
+
+                       
+                        return transactionResponse;
+                    }
 
                     // Handle  Payment Method
                     //------------------------
@@ -1778,6 +1794,7 @@ namespace Core.Billing
 
                 transactionResponse = SendRenewalRequestToAdapter(chargeId, price, currency, productId, productCode, paymentNumber, numberOfPayments, siteguid,
                     householdId, billingGuid, paymentGateway, customData, externalTransactionId, gracePeriodMinutes, paymentMethodExternalId, paymentMethodId);
+                
 
                 // check if account trigger settings for send purchase mail is true 
                 bool renewMail = true;
@@ -2778,7 +2795,8 @@ namespace Core.Billing
                 if (domainStatus.Code == (int)ResponseStatus.OK)
                 {
                     string chargeId = string.Empty;
-                    PaymentGateway paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdId, ref chargeId);
+                    bool isSuspended = false;
+                    PaymentGateway paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdId, ref chargeId, ref isSuspended);
                     if (paymentGateway != null)
                     {
                         response.PaymentGateway = new PaymentGatewayBase() { ID = paymentGateway.ID, Name = paymentGateway.Name, IsDefault = paymentGateway.IsDefault };
@@ -4244,30 +4262,35 @@ namespace Core.Billing
                 List<long> allPayentMethodsToDelete = new List<long>();
 
                 Dictionary<int, KeyValuePair<PaymentGateway, List<string>>> householdPaymentgatewayPaymentMethodExternalIds = new Dictionary<int, KeyValuePair<PaymentGateway, List<string>>>();
+                Dictionary<int, string> paymentGatewayIdToHouseholdChargeIdMap = new Dictionary<int, string>();
                 ApiObjects.Response.Status sendToAdapterStatus;
 
                 foreach (DataRow row in dt.Rows)
                 {
                     paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(row, "paymentGatewayId");
-                    householdPaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(row, "paymentMethodId");
-                    householdChargeId = ODBCWrapper.Utils.GetSafeStr(row, "householdChargeId");
+                    householdPaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(row, "paymentMethodId");                    
                     PaymentMethodExternalId = ODBCWrapper.Utils.GetSafeStr(row, "paymentMethodExternalId");
 
                     if (!householdPaymentgatewayPaymentMethodExternalIds.ContainsKey(paymentGatewayId))
                     {
+                        householdChargeId = ODBCWrapper.Utils.GetSafeStr(row, "householdChargeId");
+                        paymentGatewayIdToHouseholdChargeIdMap.Add(paymentGatewayId, householdChargeId);
                         // get the next payment gateway
                         paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
                         householdPaymentgatewayPaymentMethodExternalIds.Add(paymentGatewayId, new KeyValuePair<PaymentGateway, List<string>>(paymentGateway, new List<string>()));
                     }
 
-                    householdPaymentgatewayPaymentMethodExternalIds[paymentGatewayId].Value.Add(PaymentMethodExternalId);
-                    allPayentMethodsToDelete.Add(householdPaymentMethodId);
+                    if (householdPaymentMethodId > 0 && !string.IsNullOrEmpty(PaymentMethodExternalId))
+                    {
+                        householdPaymentgatewayPaymentMethodExternalIds[paymentGatewayId].Value.Add(PaymentMethodExternalId);
+                        allPayentMethodsToDelete.Add(householdPaymentMethodId);
+                    }                    
                 }
 
                 foreach (var pg in householdPaymentgatewayPaymentMethodExternalIds.Values)
                 {
                     // send remove account for the previous payment gateway
-                    sendToAdapterStatus = SendRemoveAccountToAdapter(householdChargeId, householdId, pg.Key, pg.Value);
+                    sendToAdapterStatus = SendRemoveAccountToAdapter(paymentGatewayIdToHouseholdChargeIdMap[pg.Key.ID], householdId, pg.Key, pg.Value);
                 }
                 if (allPayentMethodsToDelete.Count > 0)
                 {
@@ -4372,7 +4395,8 @@ namespace Core.Billing
                 }
 
                 bool isPaymentGWHouseholdExist = false;
-                string chargeId = DAL.BillingDAL.GetPaymentGWChargeID(newPaymentGatewayId, householdId, ref isPaymentGWHouseholdExist);
+                bool isSuspended = false;
+                string chargeId = DAL.BillingDAL.GetPaymentGWChargeID(newPaymentGatewayId, householdId, ref isPaymentGWHouseholdExist, ref isSuspended);
 
                 if (!isPaymentGWHouseholdExist)
                 {

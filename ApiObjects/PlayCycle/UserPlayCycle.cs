@@ -22,12 +22,16 @@ namespace ApiObjects.PlayCycle
         [JsonProperty("DomainID")]
         public int DomainID { get; set; }
 
-        public PlayCycleSession(int mediaConcurrencyRuleID, string playCycleKey, long createDateMs, int domainID)
+        [JsonProperty("MediaConcurrencyRuleIds")]
+        public List<int> MediaConcurrencyRuleIds { get; set; }
+
+        public PlayCycleSession(int mediaConcurrencyRuleID, string playCycleKey, long createDateMs, int domainID, List<int> mediaConcurrencyRuleIds)
         {
             MediaConcurrencyRuleID = mediaConcurrencyRuleID;
             PlayCycleKey = playCycleKey;
             CreateDateMs = createDateMs;
             DomainID = domainID;
+            MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
         }
     }
 }

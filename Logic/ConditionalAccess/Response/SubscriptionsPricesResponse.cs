@@ -11,4 +11,11 @@ namespace Core.ConditionalAccess.Response
 
         public ApiObjects.Response.Status Status { get; set; }
     }
+
+    public class CollectionsPricesResponse
+    {
+        public CollectionsPricesContainer[] CollectionsPrices { get; set; }
+
+        public ApiObjects.Response.Status Status { get; set; }
+    }
 }

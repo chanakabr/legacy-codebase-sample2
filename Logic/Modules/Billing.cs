@@ -163,7 +163,7 @@ namespace Core.Billing
             Utils.GetBaseCreditCardImpl(ref oCreditCard, nGroupID);
             if (oCreditCard != null)
             {
-                log.Error("group_id found " + TVinciShared.PageUtils.GetCallerIP());
+                log.Debug("group_id found " + TVinciShared.PageUtils.GetCallerIP());
                 return oCreditCard.UpdatePurchaseIDInBillingTable(purchaseID, billingRefTransactionID);
             }
             else
@@ -1213,7 +1213,7 @@ namespace Core.Billing
         }
 
         public static TransactResult ProcessUnifiedRenewal(int groupId, long householdId, double totalPrice, string currency, int paymentgatewayId, 
-            int paymentMethodId, string userIp, List<RenewSubscriptionDetails> renewUnified, ref PaymentGateway paymentGateway)
+            int paymentMethodId, string userIp, ref List<RenewSubscriptionDetails> renewUnified, ref PaymentGateway paymentGateway)
         {   
             // add siteguid to logs/monitor
             // HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
@@ -1224,7 +1224,7 @@ namespace Core.Billing
                 BasePaymentGateway t = new BasePaymentGateway(groupId);
                 if (t != null)
                 {
-                    return t.ProcessUnifiedRenewal(householdId, totalPrice, currency, paymentgatewayId, paymentMethodId, userIp, renewUnified,
+                    return t.ProcessUnifiedRenewal(householdId, totalPrice, currency, paymentgatewayId, paymentMethodId, userIp, ref renewUnified,
                         ref  paymentGateway);
                 }
                 else

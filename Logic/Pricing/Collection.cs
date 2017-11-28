@@ -26,6 +26,9 @@ namespace Core.Pricing
         public string m_ProductCode = string.Empty;
         public string m_CollectionCode;
 
+        public List<SubscriptionCouponGroup> CouponsGroups;
+        public List<KeyValuePair<VerificationPaymentGateway, string>> ExternalProductCodes;
+
         #endregion
 
         #region Ctr
@@ -53,6 +56,7 @@ namespace Core.Pricing
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("pricing_connection");
                 selectQuery += "select FICTIVIC_MEDIA_META_NAME, FICTIVIC_GROUP_ID from groups_parameters with (nolock)";
                 selectQuery += " where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
@@ -146,8 +150,8 @@ namespace Core.Pricing
             string sDiscountModuleCode, string sCouponGroupCode, LanguageContainer[] sDescriptions, Int32 nGroupID,
             string sCollectionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
             Int32[] sFileTypes, LanguageContainer[] sName, string colPriceCode,
-            string sColUsageModule, string sObjectVirtualName,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+            string sColUsageModule, string sObjectVirtualName, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
+            string productCode, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes, List<SubscriptionCouponGroup> couponsGroups)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sCollectionCode, false, sObjectVirtualName,
@@ -166,7 +170,7 @@ namespace Core.Pricing
                 m_oCollectionUsageModule = null;
 
             m_CollectionCode = sCollectionCode;
-            m_ProductCode = "";
+            m_ProductCode = productCode;
             m_sCodes = sCodes;
             m_dStartDate = dStart;
             m_dEndDate = dEnd;
@@ -186,6 +190,9 @@ namespace Core.Pricing
             }
             else
                 m_oCollectionPriceCode = null;
+
+            ExternalProductCodes = externalProductCodes;
+            CouponsGroups = couponsGroups;
         }
 
         public void Initialize(string sPriceCode, string sUsageModuleCode,

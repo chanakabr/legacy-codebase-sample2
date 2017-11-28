@@ -135,6 +135,7 @@
     <Compile Include="Api\api.cs" />
     <Compile Include="Api\ApiCache.cs" />
     <Compile Include="Api\Managers\AssetLifeCycleRuleManager.cs" />
+    <Compile Include="Api\Managers\RolesPermissionsManager.cs" />
     <Compile Include="Api\Modules\SearchHistoryResponse.cs" />
     <Compile Include="Billing\999SMS.cs" />
     <Compile Include="Billing\AdaptersController.cs">
@@ -352,11 +353,14 @@
     <Compile Include="ConditionalAccess\Commands\CancelSeriesNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\DeleteNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\DeleteSeriesNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\DeleteSeriesRecordingByNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\LicensedLinkNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\ProtectNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\RecordNPVRAlreadyWatchedCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RecordNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RecordSeriesByNameNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RecordSeriesByProgramIdNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\RecordSeriesBySeriesIdNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RetrieveQuotaNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\ConditionalAccessCache.cs" />
     <Compile Include="ConditionalAccess\DomainEntitlements.cs" />
@@ -481,6 +485,7 @@
     <Compile Include="Pricing\Campaign.cs" />
     <Compile Include="Pricing\Collection.cs" />
     <Compile Include="Pricing\CollectionCacheWrapper.cs" />
+    <Compile Include="Pricing\CollectionsResponse.cs" />
     <Compile Include="Pricing\PriceDetails.cs" />
     <Compile Include="Pricing\DependencySet.cs" />
     <Compile Include="Pricing\SubscriptionSetsResponse.cs" />
@@ -1239,6 +1244,9 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; bash.exe DLLVersioning.sh $(ProjectDir) )</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

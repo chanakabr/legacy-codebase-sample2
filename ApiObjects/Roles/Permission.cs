@@ -11,6 +11,8 @@ namespace ApiObjects.Roles
         public string Name { get; set; }
         public List<PermissionItem> PermissionItems { get; set; }
         public int GroupId { get; set; }
+
+        public bool isExcluded { get; set; }
     }
 
     public class PermissionsResponse

@@ -1475,11 +1475,11 @@ namespace Core.Billing
             }
         }
 
-        internal static List<long> InsertBillingTransaction(int billingProvider, int paymenMethodId, string xml, PaymentGatewayTransaction paymentGWTransaction, int billingTransactionStatus, int groupId)
+        internal static Dictionary<long, long> InsertBillingTransaction(int billingProvider, int paymenMethodId, string xml, PaymentGatewayTransaction paymentGWTransaction, int billingTransactionStatus, int groupId)
         {
             try
             {
-                List<long> result = ApiDAL.Insert_NewBillingTransactions(billingProvider, paymenMethodId, paymenMethodId, xml, paymentGWTransaction.ID, billingTransactionStatus, groupId);
+                Dictionary<long, long> result = ApiDAL.Insert_NewBillingTransactions(billingProvider, paymenMethodId, paymenMethodId, xml, paymentGWTransaction.ID, billingTransactionStatus, groupId);
 
                 return result;
             }
@@ -1487,7 +1487,7 @@ namespace Core.Billing
             {
                 log.ErrorFormat("fail InsertBillingTransaction ex = {0},  billingProvider={1}, paymentGatewayId={2}, billingTransactionStatus={3}", ex, billingProvider, paymenMethodId, billingTransactionStatus);                         
             }
-            return new List<long>();
+            return new Dictionary<long, long>();
         }
 
         static public long InsertBillingTransaction(string sSITE_GUID, string sLAST_FOUR_DIGITS, double dPRICE,

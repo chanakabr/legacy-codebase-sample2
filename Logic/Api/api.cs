@@ -21,6 +21,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification;
 using Core.Pricing;
+using DAL;
 using EpgBL;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
@@ -65,7 +66,6 @@ namespace Core.Api
         private const string ADAPTER_NOT_EXIST = "Adapter not exist";
         private const string NO_ADAPTER_TO_INSERT = "No adapter to insert";
         private const string NO_ADAPTER_TO_UPDATE = "No adapter to update";
-
         private const string NO_RECOMMENDATION_ENGINE_TO_INSERT = "No recommendation engine to insert";
         private const string NO_RECOMMENDATION_ENGINE_TO_UPDATE = "No recommendation engine to update";
         private const string RECOMMENDATION_ENGINE_NOT_EXIST = "Recommendation engine not exist";
@@ -171,6 +171,142 @@ namespace Core.Api
                 // TODO print to logger
                 return null;
             }
+        }
+
+        internal static RolesResponse AddRole(int groupId, Role role)
+        {
+            RolesResponse response = new RolesResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            try
+            {
+                if (role == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+
+                Dictionary<long, string> permissionNamesDict = DAL.ApiDAL.GetPermissions(groupId, role.Permissions.Select(x => x.Name).ToList());
+                if (role.Permissions.Select(x => x.Name).ToList().Count != permissionNamesDict.Count)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PermissionNameNotExists, eResponseStatus.PermissionNameNotExists.ToString());
+                    return response;
+                }
+                XmlDocument xmlDoc = new XmlDocument();
+                BuildRolePermissionXml(role, permissionNamesDict, ref xmlDoc);
+
+                int roleId = DAL.ApiDAL.InsertRolePermission(groupId, role.Name, xmlDoc.InnerXml.ToString());
+
+                if (roleId > 0)
+                {
+                    role.Id = roleId;
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Roles = new List<Role>() { role };
+
+                    string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Error while adding new role. group id = {0}, ex = {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        internal static RolesResponse UpdateRole(int groupId, Role role)
+        {
+            RolesResponse response = new RolesResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            try
+            {
+                if (role == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+
+                Dictionary<long, string> permissionNamesDict = DAL.ApiDAL.GetPermissions(groupId, role.Permissions.Select(x => x.Name).ToList());
+                if (role.Permissions.Select(x => x.Name).ToList().Count != permissionNamesDict.Count)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PermissionNameNotExists, eResponseStatus.PermissionNameNotExists.ToString());
+                    return response;
+                }
+
+                XmlDocument xmlDoc = new XmlDocument();
+                BuildRolePermissionXml(role, permissionNamesDict, ref xmlDoc);
+
+                if (DAL.ApiDAL.UpdateRole(groupId, role.Id, role.Name, xmlDoc.InnerXml.ToString()))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Roles = new List<Role>() { role };
+
+                    string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Error while update role. group id = {0}, ex = {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        private static void BuildRolePermissionXml(Role role, Dictionary<long, string> permissionNamesDict, ref XmlDocument xmlDoc)
+        {
+            XmlNode rowNode;
+            XmlNode permissionIdNode;
+            XmlNode isExcludedNode;
+            XmlNode rootNode = xmlDoc.CreateElement("root");
+            xmlDoc.AppendChild(rootNode);
+
+            foreach (KeyValuePair<long, string> item in permissionNamesDict)
+            {
+                rowNode = xmlDoc.CreateElement("row");
+
+                permissionIdNode = xmlDoc.CreateElement("id");
+                permissionIdNode.InnerText = item.Key.ToString();
+                rowNode.AppendChild(permissionIdNode);
+
+                isExcludedNode = xmlDoc.CreateElement("is_excluded");
+                isExcludedNode.InnerText = role.Permissions.Where(x => x.Name == item.Value).Select(x => x.isExcluded).FirstOrDefault() ? "1" : "0";
+                rowNode.AppendChild(isExcludedNode);
+
+                rootNode.AppendChild(rowNode);
+            }
+        }
+
+        internal static ApiObjects.Response.Status DeleteRole(int groupId, long id)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                if (DAL.ApiDAL.DeleteRole(groupId, id))
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Error while delete role. group id = {0}, ex = {1}", groupId, ex);
+            }
+
+            return response;
         }
 
         static public bool InitializeGroupNPlayer(ref ApiObjects.InitializationObject initObj)
@@ -1478,6 +1614,42 @@ namespace Core.Api
                 }
             }
             return res;
+        }
+
+        internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
+        {
+            List<int> result = new List<int>();
+
+            try
+            {
+                List<int> ruleIds = new List<int>();
+
+                // get all related rules to media 
+                string key = LayeredCacheKeys.GetMediaConcurrencyRulesDeviceLimitationModuleKey(dlmId);
+
+                bool cacheResult = LayeredCache.Instance.Get<List<int>>(
+                    key, ref result, Get_MCRulesIdsByDeviceLimitationModule,
+                    new Dictionary<string, object>()
+                        {
+                        { "groupId", groupId },
+                        { "dlmId", dlmId }
+                        },
+                    groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_BY_LIMITATION_MODULE_CACHE_CONFIG_NAME,
+                    new List<string>() { LayeredCacheKeys.GetMediaConcurrencyRulesDeviceLimitationModuleInvalidationKey(groupId, dlmId) });
+
+                if (!cacheResult)
+                {
+                    log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId={0}, dlmId={1}", groupId, dlmId));
+                    return null;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetMediaConcurrencyRulesByDomainLimitionModule - Failed  due ex = " + ex.Message, ex);
+                return null;
+            }
         }
 
         static private Dictionary<string, List<EPGDictionary>> GetAllEPGMetaProgram(int nGroupID, DataTable ProgramID)
@@ -4133,27 +4305,24 @@ namespace Core.Api
                 {
                     if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("mcr"))
                     {
-                        int? groupId, mediaId;
-                        List<MediaConcurrencyRule> mcr = new List<MediaConcurrencyRule>();
-                        UnifiedSearchResult[] medias;
-                        string filter = string.Empty;
-
-                        groupId = funcParams["groupId"] as int?;
-                        mediaId = funcParams["mediaId"] as int?;
-                        mcr = funcParams["mcr"] as List<MediaConcurrencyRule>;
+                        int? groupId = funcParams["groupId"] as int?;
+                        int? mediaId = funcParams["mediaId"] as int?;
+                        List<MediaConcurrencyRule> mcr = funcParams["mcr"] as List<MediaConcurrencyRule>;
 
                         if (groupId.HasValue && mediaId.HasValue && mcr != null && mcr.Count > 0)
                         {
+
                             // find all asset ids that match the tag + tag value ==> if so save the rule id
                             //build serach for each tag and tag values
-
-                            List<string> tempFilter = new List<string>();
-
-
                             mcr = mcr.GroupBy(x => x.RuleID).Select(x => x.First()).ToList();
+
                             Parallel.ForEach(mcr, (rule) =>
                             {
-                                tempFilter = rule.AllTagValues.Select(x => string.Format("{0}='{1}'", rule.TagType, x)).ToList();
+                                UnifiedSearchResult[] medias;
+                                string filter = string.Empty;
+
+                                var tempFilter = rule.AllTagValues.Select(x => string.Format("{0}='{1}'", rule.TagType, x)).ToList();
+
                                 if (tempFilter != null && tempFilter.Count > 0)
                                 {
                                     if (tempFilter.Count > 1)
@@ -4164,8 +4333,11 @@ namespace Core.Api
                                     {
                                         filter = string.Format("(and media_id = '{0}' {1})", mediaId.Value, tempFilter.First());
                                     }
+
                                     medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
-                                    if (medias != null && medias.Count() > 0)// there is a match 
+
+                                    // If there is a match, add rule to list
+                                    if (medias != null && medias.Count() > 0)
                                     {
                                         ruleIds.Add(rule.RuleID);
                                     }
@@ -4185,36 +4357,65 @@ namespace Core.Api
             return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), res);
         }
 
+
+        internal static Tuple<List<int>, bool> Get_MCRulesIdsByDeviceLimitationModule(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<int> ruleIds = new List<int>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("dlmId"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        int? dlmId = funcParams["dlmId"] as int?;
+
+                        if (groupId.HasValue && dlmId.HasValue)
+                        {
+                            ruleIds = ApiDAL.GetMCRulesByDLM(groupId.Value, dlmId.Value);
+
+                            result = true;
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_MCRulesIdsByMediaId faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), result);
+        }
+
         /***************************************************************************************************************************
          * 
          This methode get mediaID and business Module id and return list of MediaConcurrencyRule rules that relevant to this media
          * 
          ***************************************************************************************************************************/
-        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, string sIP, int groupId, int bmID, eBusinessModule type)
+        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, string sIP, int groupId, int bmID = -1, eBusinessModule? type = null)
         {
             List<MediaConcurrencyRule> res = new List<MediaConcurrencyRule>();
             //MediaConcurrencyRule rule = null;
             try
             {
-                // check if media concurrency rule exists for group
-                string key = LayeredCacheKeys.GetGroupMediaConcurrencyRulesKey(groupId);
-                List<MediaConcurrencyRule> mcr = null;
-                List<int> ruleIds = null;
-                // try to get from cache  
-
-                bool cacheResult = LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(key, ref mcr, APILogic.Utils.Get_MCRulesByGroup, new Dictionary<string, object>() { { "groupId", groupId } },
-                                                                                        groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME);
-                if (!cacheResult)
-                {
-                    log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId = {0}", groupId));
-                    return null;
-                }
+                var groupMediaConcurrencyRules = GetGroupMediaConcurrencyRules(groupId);
+                List<int> ruleIds = new List<int>();
 
                 // get all related rules to media 
-                key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
-                cacheResult = LayeredCache.Instance.Get<List<int>>(key, ref ruleIds, Get_MCRulesIdsByMediaId, new Dictionary<string, object>() { { "groupId", groupId }, { "mediaId", mediaId }, { "mcr", mcr } },
-                                                                    groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
-                                                                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
+                string key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
+                bool cacheResult = LayeredCache.Instance.Get<List<int>>(
+                    key, ref ruleIds, Get_MCRulesIdsByMediaId,
+                    new Dictionary<string, object>()
+                        {
+                        { "groupId", groupId },
+                        { "mediaId", mediaId },
+                        { "mcr", groupMediaConcurrencyRules }
+                        },
+                    groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
+                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
+
                 if (!cacheResult)
                 {
                     log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
@@ -4222,7 +4423,9 @@ namespace Core.Api
                 }
                 else if (ruleIds != null && ruleIds.Count > 0)
                 {
-                    res = mcr.Where(x => ruleIds.Contains(x.RuleID) && x.bmId == bmID && x.Type == type).ToList();
+                    res = groupMediaConcurrencyRules.Where(x => ruleIds.Contains(x.RuleID) &&
+                    (bmID == -1 || x.bmId == bmID) &&
+                    (type == null || x.Type == type)).ToList();
                 }
                 return res;
             }
@@ -4231,6 +4434,28 @@ namespace Core.Api
                 log.Error("GetMediaConcurrencyRules - Failed  due ex = " + ex.Message, ex);
                 return null;
             }
+        }
+
+        public static List<MediaConcurrencyRule> GetGroupMediaConcurrencyRules(int groupId)
+        {
+            List<MediaConcurrencyRule> result = null;
+
+            // check if media concurrency rule exists for group
+            string key = LayeredCacheKeys.GetGroupMediaConcurrencyRulesKey(groupId);
+
+            // try to get from cache  
+
+            bool cacheResult = LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(
+                key, ref result, APILogic.Utils.Get_MCRulesByGroup, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME);
+
+            if (!cacheResult)
+            {
+                log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId = {0}", groupId));
+                result = null;
+            }
+
+            return result;
         }
 
         private static Dictionary<string, List<string>> GetMediaTags(int nMediaID, int nGroupID)
@@ -4387,7 +4612,7 @@ namespace Core.Api
 
             return response;
         }
-
+     
         #region Parental Rules
 
         public static ParentalRulesResponse GetParentalRules(int groupId)
@@ -7917,6 +8142,33 @@ namespace Core.Api
             return response;
         }
 
+        public static RolesResponse GetUserRoles(int groupId, string userId)
+        {
+            RolesResponse response = new RolesResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            try
+            {
+                LongIdsResponse rolesIds = Core.Users.Module.GetUserRoleIds(groupId, userId);
+                if (rolesIds != null && rolesIds.Ids != null && rolesIds.Ids.Count > 0)
+                {
+                    response.Roles = DAL.ApiDAL.GetRoles(groupId, rolesIds.Ids);
+                    if (response.Roles != null)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting roles. group id = {0}, userId :{1}", groupId, userId), ex);
+            }
+
+            return response;
+        }
+
         public static ApiObjects.Roles.PermissionsResponse GetPermissions(int groupId, List<long> permissionIds)
         {
             PermissionsResponse response = new PermissionsResponse()
@@ -9872,7 +10124,7 @@ namespace Core.Api
         internal static Status CleanUserAssetHistory(int groupId, string userId, List<KeyValuePair<int, eAssetTypes>> assets)
         {
             Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-      
+
             try
             {
                 List<string> assetHistoryKeys = new List<string>();
@@ -9902,6 +10154,158 @@ namespace Core.Api
                 log.Error("CleanUserHistory - Error = " + ex.Message, ex);
             }
 
+            return response;
+        }
+
+        internal static DrmAdapterResponse SendDrmConfigurationToAdapter(int groupId, int adapterID)
+        {
+            DrmAdapterResponse response = new DrmAdapterResponse();
+
+            try
+            {
+                if (adapterID <= 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterIdentifierRequired, ADAPTER_ID_REQUIRED);
+                    return response;
+                }
+
+                // get adapter from DB 
+                //check alias uniqueness 
+                DrmAdapter adapter = DAL.ApiDAL.GetDrmAdapter(adapterID);
+
+                if (adapter == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+                if (string.IsNullOrEmpty(adapter.Name))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.ExternalIdentifier))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AliasRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.AdapterUrl))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    return response;
+                }
+
+                bool isSetSucceeded = SendConfigurationToDrmAdapter(groupId, adapter);
+                if (!isSetSucceeded)
+                {
+                    log.DebugFormat("SetCDNAdapter - SendDrmConfigurationToAdapter failed : AdapterID = {0}", adapter.ID);
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}, adapterId={1}", groupId, adapterID), ex);
+            }
+            return response;
+        }
+
+        private static bool SendConfigurationToDrmAdapter(int groupId, DrmAdapter adapter)
+        {
+            try
+            {
+                DrmAdapterController drmAdapter = DrmAdapterController.GetInstance();
+                return drmAdapter.SetConfiguration(adapter, groupId);
+            }
+            catch
+            {
+                log.ErrorFormat("SendConfigurationToDrmAdapter failed : groupID = {0}, AdapterID = {1}", groupId, adapter.ID);
+                return false;
+            }
+        }
+
+        internal static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int contentId, string ip, string udid)
+        {
+            StringResponse response = new StringResponse();
+
+            try
+            {
+                DrmAdapter adapter = DrmAdapterCache.Instance.GetDrmAdapter(groupId, drmAdapterId);
+
+                if (adapter == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                response.Value = DrmAdapterController.GetInstance().GetAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            }
+            catch (KalturaException ex)
+            {
+                object statusCode = ex.Data["StatusCode"];
+                int code = (int)eResponseStatus.Error;
+                if (statusCode != null)
+                {
+                    code = (int)statusCode;
+                }
+                response.Status = new ApiObjects.Response.Status(code, ex.Message);
+                log.Error(string.Format("Failed in GetCustomDrmLicenseData groupId={0}, drmAdapterId={1}, userId={2}, assetId={3}, eAssetTypes={4}, contentId={5}, ip={6}, udid={7}",
+                    groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid), ex);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed in GetCustomDrmLicenseData groupId={0}, drmAdapterId={1}, userId={2}, assetId={3}, eAssetTypes={4}, contentId={5}, ip={6}, udid={7}",
+                    groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid), ex);
+            }
+            return response;
+        }
+
+        internal static StringResponse GetCustomDrmDeviceLicenseData(int groupId, int drmAdapterId, string userId, string udid, string ip)
+        {
+            StringResponse response = new StringResponse();
+
+            try
+            {
+                DrmAdapter adapter = DrmAdapterCache.Instance.GetDrmAdapter(groupId, drmAdapterId);
+
+                if (adapter == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                response.Value = DrmAdapterController.GetInstance().GetDeviceLicenseData(groupId, drmAdapterId, userId, udid, ip);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            }
+            catch (KalturaException ex)
+            {
+                object statusCode = ex.Data["StatusCode"];
+                int code = (int)eResponseStatus.Error;
+                if (statusCode != null)
+                {
+                    code = (int)statusCode;
+                }
+                response.Status = new ApiObjects.Response.Status(code, ex.Message);
+                log.Error(string.Format("Failed in GetCustomDrmLicenseData groupId={0}, drmAdapterId={1}, userId={2}, udid={3}, ip={4}",
+                    groupId, drmAdapterId, userId, udid, ip), ex);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed in GetCustomDrmLicenseData groupId={0}, drmAdapterId={1}, userId={2}, udid={3}, ip={4}",
+                    groupId, drmAdapterId, userId, udid, ip), ex);
+            }
             return response;
         }
     }

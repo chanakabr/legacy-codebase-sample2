@@ -66,6 +66,11 @@ namespace Core.Api
             }
         }
 
+        public static RolesResponse GetUserRoles(int groupId, string userId)
+        {            
+            return Core.Api.api.GetUserRoles(groupId, userId);
+        }
+
         public static MediaInfoStructObject TVAPI_GetMediaStructure(int groupId, InitializationObject oInitObj)
         {
             try
@@ -163,6 +168,16 @@ namespace Core.Api
                 log.Error("WS Exception: " + ex.Message + " || " + ex.StackTrace, ex);
                 throw ex;
             }
+        }
+
+        public static RolesResponse UpdateRole(int groupId, Role role)
+        {
+            return Core.Api.api.UpdateRole(groupId, role);
+        }
+
+        public static ApiObjects.Response.Status DeleteRole(int groupId, long id)
+        {
+            return Core.Api.api.DeleteRole(groupId, id);
         }
 
         public static ChannelObject TVAPI_SearchRelated(int groupId, InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, PageDefinition thePageDef, Int32 nMediaID)
@@ -797,7 +812,7 @@ namespace Core.Api
         {
             return Core.Api.api.GetGroupLanguages(groupId);
         }
-
+        
         #region Parental Rules
 
         /// <summary>
@@ -1795,6 +1810,31 @@ namespace Core.Api
         public static Status CleanUserAssetHistory(int groupId, string userId, List<KeyValuePair<int, eAssetTypes>> assets)
         {
             return Core.Api.api.CleanUserAssetHistory(groupId, userId, assets);
+        }
+
+        public static RolesResponse AddRole(int groupId, Role role)
+        {
+            return Core.Api.api.AddRole(groupId, role);
+        }
+
+        public static DrmAdapterResponse SendDrmAdapterConfiguration(int groupId, int adapterID)
+        {
+            return Core.Api.api.SendDrmConfigurationToAdapter(groupId, adapterID);
+        }
+
+        public static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int contentId, string ip, string udid)
+        {
+            return Core.Api.api.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid);
+        }
+
+        public static StringResponse GetCustomDrmDeviceLicenseData(int groupId, int drmAdapterId, string userId, string udid, string ip)
+        {
+            return Core.Api.api.GetCustomDrmDeviceLicenseData(groupId, drmAdapterId, userId, udid, ip);
+        }
+
+        internal static List<int> GetMediaConcurrencyRulesByDomainLimitionModule(int groupId, int dlmId)
+        {
+            return Core.Api.api.GetMediaConcurrencyRulesByDeviceLimitionModule(groupId, dlmId);
         }
     }
 }

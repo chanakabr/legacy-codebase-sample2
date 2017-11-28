@@ -189,6 +189,8 @@ namespace ApiObjects
         public string epgChannelID;
         public string seriesID;
         public string seriesName;
-
+        public string seasonNumber;
+        public string seasonId;
+        public string type;
     }
 }

@@ -98,7 +98,7 @@ namespace Core.Pricing
 
         public override CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID, Int32 nMFID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode)
         {
-            return Coupon.SetCouponUsed(sCouponCode, m_nGroupID, sSiteGUID,nCollectionCode, nMFID, nSubCode, nPrePaidCode);
+            return Coupon.SetCouponUsed(sCouponCode, m_nGroupID, sSiteGUID, nCollectionCode, nMFID, nSubCode, nPrePaidCode);
         }
 
         public override List<Coupon> GenerateCoupons(int numberOfCoupons, long couponGroupId)

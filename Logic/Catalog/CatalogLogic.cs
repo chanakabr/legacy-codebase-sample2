@@ -2394,11 +2394,12 @@ namespace Core.Catalog
             }
         }
 
-        public static void UpdateFollowMe(int nGroupID, string sAssetID, string sSiteGUID, int nPlayTime, string sUDID, int duration,
+        public static void UpdateFollowMe(int groupId, string assetID, string siteGUID, int nPlayTime, string sUDID, int duration,
             string assetAction, int mediaTypeId,
-            int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
+            int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false,
+            bool isLinearChannel = false, long recordingId = 0, List<int> mediaConcurrencyRuleIds = null)
         {
-            if (CatalogLogic.IsAnonymousUser(sSiteGUID))
+            if (CatalogLogic.IsAnonymousUser(siteGUID))
             {
                 return;
             }
@@ -2408,12 +2409,12 @@ namespace Core.Catalog
                 DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
                 int opID = 0;
                 bool isMaster = false;
-                nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster, ref eSuspendStat);
+                nDomainID = DomainDal.GetDomainIDBySiteGuid(groupId, int.Parse(siteGUID), ref opID, ref isMaster, ref eSuspendStat);
             }
 
             // take finished percent threshold
             int finishedPercentThreshold = 0;
-            object dbThresholdVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", nGroupID, 86400);
+            object dbThresholdVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", groupId, 86400);
             if (dbThresholdVal == null ||
                 dbThresholdVal == DBNull.Value ||
                 !int.TryParse(dbThresholdVal.ToString(), out finishedPercentThreshold))
@@ -2426,14 +2427,14 @@ namespace Core.Catalog
                 switch (ePlayType)
                 {
                     case ePlayType.MEDIA:
-                        CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, int.Parse(sAssetID), nGroupID,
-                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, isLinearChannel, finishedPercentThreshold);
+                        CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(siteGUID), sUDID, int.Parse(assetID), groupId,
+                            nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, mediaConcurrencyRuleIds, isLinearChannel, finishedPercentThreshold);
                         break;
                     case ePlayType.NPVR:
-                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sAssetID, nGroupID, nPlayTime, duration, assetAction, recordingId, isFirstPlay);
+                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(siteGUID), sUDID, assetID, groupId, nPlayTime, duration, assetAction, recordingId, isFirstPlay);
                         break;
                     case ePlayType.EPG:
-                        CatalogDAL.UpdateOrInsert_UsersEpgMark(nDomainID, int.Parse(sSiteGUID), sUDID, int.Parse(sAssetID), nGroupID, nPlayTime, duration, assetAction, isFirstPlay);
+                        CatalogDAL.UpdateOrInsert_UsersEpgMark(nDomainID, int.Parse(siteGUID), sUDID, int.Parse(assetID), groupId, nPlayTime, duration, assetAction, isFirstPlay);
                         break;
 
                     default:
@@ -4264,22 +4265,34 @@ namespace Core.Catalog
             }
 
             // Get MCRuleID from PlayCycleSession on CB
-            int mediaConcurrencyRuleID = 0;
+            List<int> mediaConcurrencyRuleIds = null;
 
             if (playType == ePlayType.MEDIA)
             {
                 if (playCycleSession != null)
                 {
-                    mediaConcurrencyRuleID = playCycleSession.MediaConcurrencyRuleID;
+
+                    if (playCycleSession.MediaConcurrencyRuleIds != null && playCycleSession.MediaConcurrencyRuleIds.Count > 0)
+                    {
+                        mediaConcurrencyRuleIds = playCycleSession.MediaConcurrencyRuleIds;
+                    }
+                    else if (playCycleSession.MediaConcurrencyRuleID > 0)
+                    {
+                        mediaConcurrencyRuleIds = new List<int>() { playCycleSession.MediaConcurrencyRuleID };
+                    }
                 }
                 else // get from DB incase getting from CB failed
                 {
-                    mediaConcurrencyRuleID = CatalogDAL.GetRuleIDPlayCycleKey(siteGuid, mediaID, mediaFileID, udid, platform);
+                    int mediaConcurrencyRuleID = CatalogDAL.GetRuleIDPlayCycleKey(siteGuid, mediaID, mediaFileID, udid, platform);
+                    if (mediaConcurrencyRuleID > 0)
+                    {
+                        mediaConcurrencyRuleIds = new List<int>() { mediaConcurrencyRuleID };
+                    }
                 }
             }
 
-            ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule(
-                groupID, udid, 0, siteGuidLong, 0, ValidationType.Concurrency, mediaConcurrencyRuleID, 0, mediaID);
+            ValidationResponseObject domainsResp = Core.Domains.Module.ValidateLimitationModule(groupID, udid, 0, siteGuidLong, domainID,
+                ValidationType.Concurrency, mediaConcurrencyRuleIds, mediaID);
 
             if (domainsResp != null)
             {
@@ -4299,7 +4312,8 @@ namespace Core.Catalog
                         }
                     default:
                         {
-                            throw new Exception(GetIsConcurrentLogMsg(String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
+                            throw new Exception(GetIsConcurrentLogMsg(
+                                String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
                         }
                 }
             }
@@ -5203,7 +5217,8 @@ namespace Core.Catalog
         /*This method return all last position (desc order by create date) by domain and \ or user_id 
          * if userType is household and user is default - return all last positions of all users in domain by assetID (BY MEDIA ID)         
          else return last position of user_id (incase userType is not household or last position of user_id and default_user (incase userType is household) */
-        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, List<int> defaultUsers, Dictionary<string, User> usersDictionary)
+        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, 
+            List<int> users, List<int> defaultUsers, Dictionary<string, User> usersDictionary)
         {
             AssetBookmarks response = null;
 
@@ -5268,7 +5283,11 @@ namespace Core.Catalog
                 {
                     EntityID = domainID.ToString(),
                     PageIndex = request.m_nPageIndex,
-                    PageSize = request.m_nPageSize
+                    PageSize = request.m_nPageSize,
+                    SeriesIDs =  new List<string>() { request.seriesID },
+                    SeasonNumber = request.seasonNumber,
+                    OrderBy = (NPVROrderBy)((int)request.m_oOrderObj.m_eOrderBy),
+                    Direction = (NPVROrderDir)((int)request.m_oOrderObj.m_eOrderDir)
                 });
                 if (response != null)
                 {
@@ -5352,8 +5371,8 @@ namespace Core.Catalog
                 if (request.m_lSeriesIDs != null && request.m_lSeriesIDs.Count > 0)
                 {
                     args.SeriesIDs.AddRange(request.m_lSeriesIDs.Distinct());
-                    args.SearchBy.Add(SearchByField.bySeasonId);
-                }
+                    args.SearchBy.Add(SearchByField.bySeriesId);
+                }           
 
                 NPVRRetrieveAssetsResponse npvrResp = npvr.RetrieveAssets(args);
                 if (npvrResp != null)
@@ -5370,8 +5389,6 @@ namespace Core.Catalog
             {
                 throw new Exception("Either user is not valid or user has no domain.");
             }
-
-
 
             return res;
         }
@@ -7122,8 +7139,9 @@ namespace Core.Catalog
             // If the search is contains or not contains, trim the search value to the size of the maximum NGram.
             // Otherwise the search will not work completely 
             if (maxNGram > 0 &&
-                (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains
-                || leaf.operand == ComparisonOperator.WordStartsWith))
+                (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains ||
+                leaf.operand == ComparisonOperator.WordStartsWith || 
+                leaf.operand == ComparisonOperator.PhraseStartsWith))
             {
                 leaf.value = leaf.value.ToString().Truncate(maxNGram);
             }
@@ -7335,7 +7353,8 @@ namespace Core.Catalog
                         if (!string.IsNullOrEmpty(searchValue.m_sKey))
                         {
                             eCutType innerCutType = eCutType.And;
-                            switch (channel.m_eCutWith)
+
+                            switch (searchValue.m_eInnerCutWith)
                             {
                                 case CutWith.WCF_ONLY_DEFAULT_VALUE:
                                     break;
@@ -7938,7 +7957,7 @@ namespace Core.Catalog
                     }
                 }
 
-                // get views
+                // get view results
                 CouchbaseManager.ViewManager viewManager = new CouchbaseManager.ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                 {
                     startKey = new object[] { long.Parse(siteGuid), minFilterdate },
@@ -7953,6 +7972,7 @@ namespace Core.Catalog
                 {
                     GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
                     Group group = groupManager.GetGroup(groupId);
+
                     if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
                     {
                         string watchRules = string.Join(" ", group.m_sPermittedWatchRules);
@@ -7980,17 +8000,20 @@ namespace Core.Catalog
                             searchDefinitions.shouldSearchMedia = true;
                         }
 
+                        // From the unfiltered list get only the recordings;
+                        
                         List<string> listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
                             .Select(x =>
                                 {
+                                    // For each recording,
                                     // map the recording to its domain recording id
                                     searchDefinitions.recordingIdToSearchableRecordingMapping[x.RecordingId.ToString()] = new ApiObjects.TimeShiftedTv.SearchableRecording() 
-                                    { 
-                                        DomainRecordingId = x.AssetId,
-                                        EpgId = x.EpgId,
-                                        RecordingId = x.RecordingId,
-                                        RecordingType = null
-                                    };
+                                        { 
+                                            DomainRecordingId = x.AssetId,
+                                            EpgId = x.EpgId,
+                                            RecordingId = x.RecordingId,
+                                            RecordingType = null
+                                        };
                                     return x.RecordingId.ToString();
                                 }).ToList();
 

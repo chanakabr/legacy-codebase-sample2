@@ -62,6 +62,83 @@ namespace Core.ConditionalAccess
 
         }
 
+        // new implementation to support new business functionality
+        public override RecordResponse RecordSeriesBySeriesId(string siteGuid, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId, List<string> lookupCriteria)
+        {
+            RecordResponse res = new RecordResponse();
+            try
+            {
+                int domainID = 0;
+                DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
+                {
+                    // validate user is not suspended
+                    if (suspendStatus != DomainSuspentionStatus.Suspended)
+                    {
+                        // validate that the service is allowed
+                        if (IsServiceAllowed(domainID, eService.NPVR))
+                        {
+                            INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                            if (npvr != null)
+                            {
+                                NPVRRecordResponse response = null;
+
+                                NPVRRecordObj recordObj = new NPVRRecordObj(channelId.ToString(), domainID.ToString(), seriesId, seasonSeed, seasonNumber, lookupCriteria);
+
+                                response = npvr.RecordSeries(recordObj);
+
+                                if (response != null)
+                                {
+                                    switch (response.status)
+                                    {
+                                        case RecordStatus.OK:
+                                            res.status = NPVRStatus.OK.ToString();
+                                            res.recordingID = response.recordingID;
+                                            break;
+                                        case RecordStatus.ResourceAlreadyExists:
+                                            res.status = NPVRStatus.AssetAlreadyScheduled.ToString();
+                                            res.recordingID = string.Empty;
+                                            break;
+                                        case RecordStatus.Error:
+                                            res.status = NPVRStatus.Error.ToString();
+                                            res.recordingID = string.Empty;
+                                            break;
+                                        case RecordStatus.QuotaExceeded:
+                                            res.status = NPVRStatus.QuotaExceeded.ToString();
+                                            res.recordingID = string.Empty;
+                                            break;
+                                        default:
+                                            log.DebugFormat("RecordNPVR - siteGuid:{0}, seriesId:{1}, seasonNumber:{2}, seasonSeed:{3}, episodeSeed:{4}, channelId:{5}, lookupCriteria:{6}, RecordStatus: {7}",
+                                                siteGuid, seriesId, seasonNumber, seasonSeed, episodeSeed, channelId, lookupCriteria != null && lookupCriteria.Count > 0 ? string.Join(",", lookupCriteria) : string.Empty,
+                                                response.status.ToString());
+                                            res.status = NPVRStatus.Unknown.ToString();
+                                            res.recordingID = string.Empty;
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    log.DebugFormat("RecordNPVR - Response returned from NPVR layer is null siteGuid:{0}, seriesId:{1}, seasonNumber:{2}, seasonSeed:{3}, episodeSeed:{4}, channelId:{5}, lookupCriteria:{6}",
+                                        siteGuid, seriesId, seasonNumber, seasonSeed, episodeSeed, channelId, lookupCriteria != null && lookupCriteria.Count > 0 ? string.Join(",", lookupCriteria) : string.Empty);
+                                    res.status = NPVRStatus.Error.ToString();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception - at RecordSeriesBySeriesId siteGuid:{0}, seriesId:{1}, seasonNumber:{2}, seasonSeed:{3}, episodeSeed:{4}, channelId:{5}, lookupCriteria:{6}, ex:{7}",
+                    siteGuid, seriesId, seasonNumber, seasonSeed, episodeSeed, channelId, lookupCriteria != null && lookupCriteria.Count > 0 ? string.Join(",", lookupCriteria) :  string.Empty , ex);
+                res.status = NPVRStatus.Error.ToString();
+            }
+
+            return res;
+
+        }
+
         private string GetEpgProgramIDRelatedToSeries(string seriesName)
         {
             string res = string.Empty;
@@ -125,7 +202,7 @@ namespace Core.ConditionalAccess
                                         {
                                             NPVRRecordResponse response = null;
                                             if (isSeries)
-                                                response = npvr.RecordSeries(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString() });
+                                                response = npvr.RecordSeries(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString()});
                                             else
                                                 response = npvr.RecordAsset(new NPVRParamsObj() { AssetID = assetIDToALU, StartDate = programStartDate, EpgChannelID = epgChannelID, EntityID = domainID.ToString() });
                                             if (response != null)
@@ -344,6 +421,72 @@ namespace Core.ConditionalAccess
 
         }
 
+        //Delete Series Nokia new implementation
+        public override NPVRResponse DeleteNPVR(string siteGuid, string seriesId, string seasonNumber, string channelId, List<NPVRRecordingStatus> status)
+        {
+            NPVRResponse res = new NPVRResponse();
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+
+            string logString = string.Format("siteGuid:{0}, seriesId:{1}, seasonNumber:{2}, channelId:{3}, status:{4}", siteGuid, seriesId, seasonNumber, channelId, status);
+            try
+            {
+                int domainID = 0;
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
+                {
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                    if (npvr != null)
+                    {
+                        NPVRCancelDeleteResponse response = null;
+                        response = npvr.DeleteSeries(new NPVRDeleteObj() { EntityID = domainID.ToString(),  Status = status , SeriesID = seriesId ,
+                            ChannelId = channelId.ToString(), SeasonNumber = seasonNumber});
+                        if (response != null)
+                        {
+                            switch (response.status)
+                            {
+                                case CancelDeleteStatus.OK:
+                                    res.status = NPVRStatus.OK.ToString();
+                                    break;
+                                case CancelDeleteStatus.AssetDoesNotExist:
+                                    res.status = NPVRStatus.InvalidAssetID.ToString();
+                                    break;
+                                case CancelDeleteStatus.Error:
+                                    res.status = NPVRStatus.Error.ToString();
+                                    break;
+                                default:
+                                    log.DebugFormat("DeleteNPVR - Unrecognized CancelDeleteStatus enum: responseStatus:{0}, {1}", response.status.ToString(), logString );
+                                    res.status = NPVRStatus.Unknown.ToString();
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            // log here response is null
+                            log.DebugFormat("DeleteNPVR - NPVR layer response is null. {0}, ", logString);
+                            res.status = NPVRStatus.Error.ToString();
+                        }
+                    }
+                    else
+                    {
+                        // log here npvr layer instance is null
+                        log.DebugFormat("DeleteNPVR INPVRProvider instance is null. {0}", logString);
+                    }
+                }
+                else
+                {
+                    // either user or domain is invalid
+                    log.DebugFormat("DeleteNPVR Invalid user. SG: {0}", logString);
+                    res.status = NPVRStatus.InvalidUser.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail DeleteNPVR {0} , ex:{1}", logString, ex);
+                res.status = NPVRStatus.Error.ToString();
+            }
+
+            return res;
+        }
+        
         // here assetID will be the recording ID in ALU
         public override NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries)
         {
@@ -362,6 +505,7 @@ namespace Core.ConditionalAccess
                             NPVRCancelDeleteResponse response = null;
                             if (isSeries)
                             {
+                                // get epg details                                
                                 response = npvr.DeleteSeries(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
                             }
                             else
@@ -548,9 +692,74 @@ namespace Core.ConditionalAccess
 
             return res;
         }
+        
+        public override NPVRResponse SetAssetAlreadyWatchedStatus(string siteGuid, string assetID, int alreadyWatched)
+        {
+            NPVRResponse res = new NPVRResponse();
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+            try
+            {
+                int domainID = 0;
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
+                {
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
 
+                    if (npvr != null)
+                    {
+                        NPVRRecordResponse response = npvr.SetAssetAlreadyWatchedValue(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID, Value = alreadyWatched });
+                        if (response != null)
+                        {
+                            switch (response.status)
+                            {
+                                case RecordStatus.OK:
+                                    res.status = NPVRStatus.OK.ToString();
+                                    break;
+                                case RecordStatus.ResourceAlreadyExists:
+                                    res.status = NPVRStatus.AssetAlreadyScheduled.ToString();
+                                    break;
+                                case RecordStatus.Error:
+                                    res.status = NPVRStatus.Error.ToString();
+                                    break;
+                                case RecordStatus.QuotaExceeded:
+                                    res.status = NPVRStatus.QuotaExceeded.ToString();
+                                    break;
+                                default:
+                                    log.ErrorFormat("Error - SetAssetAlreadyWatchedValue. Unrecognized ProtectStatus enum: status:{0}, siteGuid:{1}, assetID:{2}", 
+                                        response.status.ToString(), siteGuid, assetID);
+                                    res.status = NPVRStatus.Unknown.ToString();
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            // log here response is null.
+                            log.ErrorFormat("Error - SetAssetAlreadyWatchedValue. NPVR layer response is null. DomainId:{0}, siteGuid:{1} ", domainID, siteGuid);
+                            res.status = NPVRStatus.Error.ToString();
+                        }                        
+                    }
+                    else
+                    {
+                        // INPVRProvider instance is null
+                        log.ErrorFormat("Error - SetAssetAlreadyWatchedValue. Failed to instantiate INPVRProvider instance.", siteGuid, assetID);
+                        res.status = NPVRStatus.Error.ToString();
+                    }
+                }
+                else
+                {
+                    // either user does not exist or domain is not valid
+                    log.ErrorFormat("Error - SetNPVRProtectionStatus. Either user or domain is not valid. DomainId:{0},siteGuid:{1},assetID:{2} ", 
+                        domainID, siteGuid, assetID);
+                    res.status = NPVRStatus.InvalidUser.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception - at SetNPVRProtectionStatus.siteGuid:{0}, assetID:{1}, ex:{2}", siteGuid, assetID, ex);
+                res.status = NPVRStatus.Error.ToString();
+            }
 
-
+            return res;
+        }
         private string GetEpgProgramCoGuid(string assetID, ref string epgChannelID, ref DateTime startDate)
         {
             int progID = 0;
@@ -575,12 +784,10 @@ namespace Core.ConditionalAccess
                 {
                     res = prog.m_oProgram.EPG_IDENTIFIER;
                     epgChannelID = prog.m_oProgram.EPG_CHANNEL_ID;
-
                     if (!DateTime.TryParseExact(prog.m_oProgram.START_DATE, "dd/MM/yyyy HH:mm:ss", new CultureInfo("he-IL"), DateTimeStyles.None, out startDate))
                     {
                         // failed to parse date.
                         startDate = UNIX_ZERO_TIME;
-
                     }
                 }
             }
@@ -725,5 +932,8 @@ namespace Core.ConditionalAccess
 
             return result;
         }
+
+
+       
     }
 }

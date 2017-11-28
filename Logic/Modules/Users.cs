@@ -74,7 +74,7 @@ namespace Core.Users
             return null;
         }
 
-        
+    
         public static UserResponseObject KalturaSignIn(int nGroupID, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<ApiObjects.KeyValuePair> keyValueList)
         {
             try
@@ -1378,6 +1378,13 @@ namespace Core.Users
 
                 if (response.resp.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
+                    if (response.user.m_user != null &&
+                               !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(nGroupID, response.user.m_user.m_sSiteGUID, RolePermissions.LOGIN))
+                    {
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                        return response;
+                    }
+
                     // get Kaltura user implementation
                     KalturaBaseUsers kUser = null;
 
@@ -1468,10 +1475,17 @@ namespace Core.Users
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
-            {
+            {   
                 response.user = KalturaSignIn(nGroupID, userName, password, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList);
                 if (response.user != null)
                 {
+                    if (response.user.m_user != null && 
+                        !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(nGroupID, response.user.m_user.m_sSiteGUID, RolePermissions.LOGIN))
+                    {
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                        return response;
+                    }
+
                     // convert response status
                     response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus, true, response.user.ExternalCode, response.user.ExternalMessage);
                     int userID;

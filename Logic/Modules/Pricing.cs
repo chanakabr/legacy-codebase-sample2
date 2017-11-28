@@ -712,7 +712,7 @@ namespace Core.Pricing
             return response;
         }
         
-        public static Collection[] GetCollectionsData(int nGroupID, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public static CollectionsResponse GetCollectionsData(int nGroupID, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             BaseCollection t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1543,6 +1543,20 @@ namespace Core.Pricing
             }
 
             return response;
+        }
+
+        public static IdsResponse GetCollectionIdsContainingMediaFile(int groupId, int mediaId, int mediaFileID)
+        {
+            BaseCollection t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                return (new CollectionCacheWrapper(t)).GetCollectionIdsContainingMediaFile(mediaId, mediaFileID);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

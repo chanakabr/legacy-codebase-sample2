@@ -546,13 +546,17 @@ namespace Core.ConditionalAccess
                 int fileMainStreamingCoID = 0; // CDN Streaming id
                 int mediaId = 0;
                 string fileType = string.Empty;
-                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode,
+                LicensedLinkResponse licensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode,
                     eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType);
 
                 //GetLicensedLink return empty link no need to continue
-                if (oLicensedLinkResponse == null || oLicensedLinkResponse.Status == null || oLicensedLinkResponse.Status.Code != (int)eResponseStatus.OK)
+                if (licensedLinkResponse == null || licensedLinkResponse.Status == null)
                 {
                     throw new Exception("GetLicensedLinks returned empty response.");
+                }
+                else if (licensedLinkResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return licensedLinkResponse;
                 }
 
                 //TODO - comment and replace
@@ -920,7 +924,15 @@ namespace Core.ConditionalAccess
                 // update response object
                 if (response != null)
                 {
-                    response.EndDateSeconds = (long)collectionEndDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    if (response.EndDateSeconds > 0)
+                    {
+                        collectionEndDate = TVinciShared.DateUtils.UnixTimeStampToDateTime(response.EndDateSeconds);
+                    }
+                    else
+                    {
+                        response.EndDateSeconds = (long)collectionEndDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    }
+
                     response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
                 }
 

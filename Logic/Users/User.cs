@@ -1,14 +1,14 @@
-﻿using System;
+﻿using ApiObjects;
+using CachingProvider.LayeredCache;
+using DAL;
+using KLogMonitor;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using ApiObjects;
-using DAL;
-using KLogMonitor;
-using Newtonsoft.Json;
-using CachingProvider.LayeredCache;
 
 namespace Core.Users
 {
@@ -422,7 +422,7 @@ namespace Core.Users
 
         public bool Initialize(Int32 nUserID, Int32 nGroupID, bool shouldSaveInCache = true)
         {
-            bool res = false;
+            bool result = false;
 
             try
             {
@@ -442,18 +442,20 @@ namespace Core.Users
                     m_nSSOOperatorID = user.m_nSSOOperatorID;
                     m_isDomainMaster = user.m_isDomainMaster;
                     m_eSuspendState = user.m_eSuspendState;
-                    res = true;
+                    result = true;
                 }
                 else
                 {
-                    res = m_oBasicData.Initialize(nUserID, nGroupID);
+                    result = m_oBasicData.Initialize(nUserID, nGroupID);
 
-                    if (!res)
+                    this.SetReadingInvalidationKeys();
+
+                    if (!result)
                     {
-                        return res;
+                        return result;
                     }
 
-                    res = m_oDynamicData.Initialize(nUserID, nGroupID);
+                    result = m_oDynamicData.Initialize(nUserID, nGroupID);
 
                     m_sSiteGUID = nUserID.ToString();
 
@@ -467,7 +469,7 @@ namespace Core.Users
                     m_eUserState = GetCurrentUserState(nUserID, nGroupID, false);
 
                     // Add user to cache only if initialization succeeded
-                    if (shouldSaveInCache && res)
+                    if (shouldSaveInCache && result)
                     {
                         usersCache.InsertUser(this, nGroupID);
                     }
@@ -483,10 +485,10 @@ namespace Core.Users
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
                 log.Error("Exception - " + sb.ToString(), ex);
-                res = false;
+                result = false;
             }
 
-            return res;
+            return result;
         }
 
         public bool Initialize(Int32 nUserID, Int32 nGroupID, int domainID, bool isDomainMaster)
@@ -593,9 +595,9 @@ namespace Core.Users
                 else
                     // Existing user - Remove & Update from cache
                     if (int.TryParse(m_sSiteGUID, out this.userId))
-                    {
-                        this.Update();
-                    }
+                {
+                    this.Update();
+                }
             }
             catch
             {
@@ -655,10 +657,20 @@ namespace Core.Users
                 return success;
             }
 
-            if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null && (!m_oDynamicData.Save(this.userId)))
+
+            if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
             {
-                this.userId = -1;
-                return success;
+                m_oDynamicData.UserId = this.userId;
+                if (!m_oDynamicData.Save())
+                {
+                    this.userId = -1;
+                    return success;
+                }
+            }
+
+            if (this.userId > 0)
+            {
+                this.InvalidateUser();
             }
 
             return success;
@@ -674,6 +686,8 @@ namespace Core.Users
             {
                 UsersCache usersCache = UsersCache.Instance();
                 usersCache.RemoveUser(this.userId, this.GroupId);
+
+                this.InvalidateUser();
             }
 
             // activation
@@ -699,7 +713,9 @@ namespace Core.Users
 
                 if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
                 {
-                    saved = m_oDynamicData.Save(this.userId);
+                    m_oDynamicData.GroupId = this.GroupId;
+                    m_oDynamicData.UserId = this.userId;
+                    saved = m_oDynamicData.Save();
 
                     if (!saved)
                     {
@@ -729,6 +745,11 @@ namespace Core.Users
                 }
             }
 
+            if (this.userId > 0)
+            {
+                this.InvalidateUser();
+            }
+
             return success;
         }
 
@@ -742,8 +763,9 @@ namespace Core.Users
             bool saved = false;
             if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
             {
-                int nID = int.Parse(m_sSiteGUID);
-                saved = m_oDynamicData.Save(nID, nGroupID);
+                m_oDynamicData.UserId = int.Parse(m_sSiteGUID);
+                m_oDynamicData.GroupId = nGroupID;                
+                saved = m_oDynamicData.Save();
             }
 
             try
@@ -1230,6 +1252,40 @@ namespace Core.Users
         [System.Xml.Serialization.XmlIgnore]
         [JsonIgnore()]
         public string activationToken;
+
+        #region Invalidation
+
+        public void InvalidateUser()
+        {
+            User.InvalidateUser(this.m_sSiteGUID);
+        }
+
+        public static void InvalidateUser(string siteGuid)
+        {
+
+            List<string> invalidationKeys = new List<string>()
+                {
+                    LayeredCacheKeys.GetUserInvalidationKey(siteGuid)
+                };
+
+            LayeredCache.Instance.InvalidateKeys(invalidationKeys);
+        }
+        public virtual void SetReadingInvalidationKeys()
+        {
+            User.SetReadingInvalidationKeys(this.m_sSiteGUID);
+        }
+
+        public static void SetReadingInvalidationKeys(string siteGuid)
+        {
+            List<string> invalidationKeys = new List<string>()
+                {
+                    LayeredCacheKeys.GetUserInvalidationKey(siteGuid)
+                };
+
+            LayeredCache.Instance.SetReadingInvalidationKeys(invalidationKeys);
+        }
+
+        #endregion
 
     }
 }

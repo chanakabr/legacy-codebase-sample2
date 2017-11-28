@@ -73,10 +73,10 @@ namespace Core.ConditionalAccess
             
             if (casImpl != null)
             {
-                bool shouldUpdateTaskStatus = true;
+                List<long> purchasesIds = new List<long>();
                 try
                 {
-                    response = casImpl.RenewUnifiedTransaction(householdId, endDate, ref shouldUpdateTaskStatus, processId);
+                    response = casImpl.RenewUnifiedTransaction(householdId, endDate, processId, ref purchasesIds);
                 }
                 catch (Exception ex)
                 {
@@ -84,7 +84,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // Update subscription renewing status to "not active"
-                if (shouldUpdateTaskStatus && !casImpl.UpdateSubscriptionUnifiedRenewingStatus(processId, groupID))
+                if (purchasesIds != null && purchasesIds.Count > 0 && !casImpl.UpdateSubscriptionUnifiedRenewingStatus(groupID, purchasesIds))
                 {
                     log.ErrorFormat("Error while trying to update subscription renewing status to 0. processId: {0}, groupID: {1}",
                                         processId, groupID);
@@ -673,22 +673,25 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public static CollectionsPricesContainer[] GetCollectionsPrices(int groupID, string[] sCollections, string sUserGUID,
-            string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public static CollectionsPricesResponse GetCollectionsPrices(int groupID, string[] sCollections, string sUserGUID,
+            string sCountryCd2, string sLanguageCode3, string sDeviceName, string clientIp)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+
+            CollectionsPricesResponse response = new CollectionsPricesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
 
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetCollectionsPrices(sCollections, sUserGUID, string.Empty, sCountryCd2, sLanguageCode3, sDeviceName);
+                response = t.GetCollectionsPrices(sCollections, sUserGUID, string.Empty, sCountryCd2, sLanguageCode3, sDeviceName, clientIp);
             }
-            else
-            {
-                return null;
-            }
+
+            return response;
         }
 
         public static SubscriptionsPricesContainer[] GetSubscriptionsPricesByIP(int groupID, string[] sSubscriptions, string sUserGUID,
@@ -763,22 +766,33 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static CollectionsPricesContainer[] GetCollectionsPricesWithCoupon(int groupID, string[] sCollections, string sUserGUID, string sCouponCode,
-            string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
+        public static CollectionsPricesResponse GetCollectionsPricesWithCoupon(int groupID, string[] sCollections, string sUserGUID, string sCouponCode,
+            string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP, string currencyCode = null)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+
+            CollectionsPricesResponse response = new CollectionsPricesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
 
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetCollectionsPrices(sCollections, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK;
+                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupID, sUserGUID, RolePermissions.PLAYBACK_PPV);
+ 
+                if (!permittedPpv)
+                {
+                    blockEntitlement = BlockEntitlementType.BLOCK_PPV;
+                }
+
+                response = t.GetCollectionsPrices(sCollections, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP, currencyCode, blockEntitlement);
             }
-            else
-            {
-                return null;
-            }
+
+            return response;
         }
 
         public static SubscriptionsPricesContainer[] GetSubscriptionsPricesWithCouponByIP(int groupID, string[] sSubscriptions, string sUserGUID, string sCouponCode,
@@ -821,11 +835,16 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public static CollectionsPricesContainer[] GetCollectionsPricesST(int groupID, string sCollectionsList, string sUserGUID,
+        public static CollectionsPricesResponse GetCollectionsPricesST(int groupID, string sCollectionsList, string sUserGUID,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+
+            CollectionsPricesResponse response = new CollectionsPricesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
 
             string[] sSep = { ";" };
             string[] sCollections = sCollectionsList.Split(sSep, StringSplitOptions.RemoveEmptyEntries);
@@ -834,12 +853,10 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetCollectionsPrices(sCollections, sUserGUID, string.Empty, sCountryCd2, sLanguageCode3, sDeviceName);
+                response = t.GetCollectionsPrices(sCollections, sUserGUID, string.Empty, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
             }
-            else
-            {
-                return null;
-            }
+
+            return response;
         }
 
         public static SubscriptionsPricesContainer[] GetSubscriptionsPricesSTByIP(int groupID, string sSubscriptionsList, string sUserGUID,
@@ -906,11 +923,16 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public static CollectionsPricesContainer[] GetCollectionsPricesSTWithCoupon(int groupID, string sCollectionsList, string sUserGUID, string sCouponCode,
-            string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public static CollectionsPricesResponse GetCollectionsPricesSTWithCoupon(int groupID, string sCollectionsList, string sUserGUID, string sCouponCode,
+            string sCountryCd2, string sLanguageCode3, string sDeviceName, string clientIp = null, string currencyCode = null)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
+
+            CollectionsPricesResponse response = new CollectionsPricesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
 
             string[] sSep = { ";" };
             string[] sCollections = sCollectionsList.Split(sSep, StringSplitOptions.RemoveEmptyEntries);
@@ -919,12 +941,10 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetCollectionsPrices(sCollections, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                response = t.GetCollectionsPrices(sCollections, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, clientIp, currencyCode);
             }
-            else
-            {
-                return null;
-            }
+
+            return response;
         }
 
         public static SubscriptionsPricesContainer[] GetSubscriptionsPricesSTWithCouponByIP(int groupID, string sSubscriptionsList, string sUserGUID, string sCouponCode,
@@ -2996,7 +3016,26 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                response.ItemsPrices = t.GetItemsPrices(mediaFiles, userId, couponCode != null ? couponCode : string.Empty, onlyLowest, languageCode, udid, ip, currencyCode);
+                // get permitted by userId
+
+                BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK;
+                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupID, userId, RolePermissions.PLAYBACK_PPV);
+                bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupID, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
+
+                if (!permittedPpv && !permittedSubscription)
+                {
+                    blockEntitlement = BlockEntitlementType.BLOCK_ALL;
+                }
+                else if (!permittedPpv)
+                {
+                    blockEntitlement = BlockEntitlementType.BLOCK_PPV;
+                }
+                else if (!permittedSubscription)
+                {
+                    blockEntitlement = BlockEntitlementType.BLOCK_SUBSCRIPTION;
+                }
+               
+                response.ItemsPrices = t.GetItemsPrices(mediaFiles, userId, couponCode != null ? couponCode : string.Empty, onlyLowest, languageCode, udid, ip, currencyCode, blockEntitlement);
                 if (response.ItemsPrices != null)
                     response.Status = new Status((int)eResponseStatus.OK, "OK");
                 else
@@ -3150,6 +3189,34 @@ namespace Core.ConditionalAccess
                 response = t.GetAdsContext(userId, udid, ip, assetId, assetType, fileIds, streamerType, mediaProtocol, context);
             }
            
+            return response;
+        }
+
+        public static Status SuspendPaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.SuspendPaymentGatewayEntitlements(householdId, paymentGatewayId);
+            }
+
+            return response;
+        }
+
+        public static Status ResumePaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.ResumePaymentGatewayEntitlements(householdId, paymentGatewayId);
+            }
+
             return response;
         }
     }

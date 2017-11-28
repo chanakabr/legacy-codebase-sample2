@@ -4,9 +4,6 @@ using Core.Users;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace Core.Domains
@@ -63,7 +60,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DomainResponseStatus RemoveDomain(int nGroupID, int nDomainID)
         {
             Core.Users.BaseDomain t = null;
@@ -634,7 +631,7 @@ namespace Core.Domains
 
         
         public static ValidationResponseObject ValidateLimitationModule(int nGroupID, string sUDID, int nDeviceBrandID,
-            long lSiteGuid, long lDomainID, ValidationType eValidation, int nRuleID = 0, int nMediaConcurrencyLimit = 0, int nMediaID = 0)
+            long lSiteGuid, long lDomainID, ValidationType eValidation, List<int> ruleIds, int nMediaID = 0)
         {
             // add siteguid to logs/monitor
             if (HttpContext.Current != null && HttpContext.Current.Items != null)
@@ -648,7 +645,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.ValidateLimitationModule(sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, nRuleID, nMediaConcurrencyLimit, nMediaID);
+                return t.ValidateLimitationModule(sUDID, nDeviceBrandID, lSiteGuid, lDomainID, eValidation, ruleIds, nMediaID);
             }
             return new ValidationResponseObject(DomainResponseStatus.UnKnown, lDomainID);
         }
@@ -737,12 +734,12 @@ namespace Core.Domains
         }
 
         
-        public static ApiObjects.Response.Status SuspendDomain(int nGroupID, int nDomainID)
+        public static ApiObjects.Response.Status SuspendDomain(int nGroupID, int nDomainID, int? roleId = null)
         {
             Core.Users.BaseDomain d = null;
             Utils.GetBaseImpl(ref d, nGroupID);
             if (d != null)
-                return d.SuspendDomain(nDomainID);
+                return d.SuspendDomain(nDomainID, roleId);
             else
             {
                 return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error }; // suspend failed
@@ -844,7 +841,7 @@ namespace Core.Domains
         }
 
         
-        public static DeviceResponse GetDevice(int nGroupID, string udid, int domainId)
+        public static DeviceResponse GetDevice(int nGroupID, string udid, int domainId, string userId, string ip)
         {
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -853,13 +850,13 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.GetDevice(udid, domainId);
+                return t.GetDevice(udid, domainId, userId, ip);
             }
 
             return response;
         }
 
-        
+
         public static ApiObjects.Response.Status RemoveDomainById(int nGroupID, int nDomainID)
         {
 

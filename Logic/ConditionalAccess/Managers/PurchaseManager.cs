@@ -783,10 +783,21 @@ namespace Core.ConditionalAccess
 
             try
             {
-                // validate user
+
+                // check purchase permissions 
+                RolePermissions rolePermission = transactionType == eTransactionType.PPV || transactionType == eTransactionType.Collection ? RolePermissions.PURCHASE_PPV : RolePermissions.PURCHASE_SUBSCRIPTION;
+                if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, rolePermission))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                    log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
+                    return response;
+                }                
+                
+                // validate user           
                 ResponseStatus userValidStatus = ResponseStatus.OK;
                 Core.Users.User user;
-                userValidStatus = Utils.ValidateUser(groupId, siteguid, ref household, out user);
+                userValidStatus = Utils.ValidateUser(groupId, siteguid, ref household, out user, true);
+
                 if (userValidStatus != ResponseStatus.OK || user == null || user.m_oBasicData == null)
                 {
                     // user validation failed
@@ -889,12 +900,9 @@ namespace Core.ConditionalAccess
                 Price priceResponse = null;
                 Collection collection = null;
                 priceResponse = Utils.GetCollectionFinalPrice(groupId, productId.ToString(), siteguid, coupon, ref priceReason,
-                                                              ref collection, country, string.Empty, deviceName, string.Empty);
+                                                              ref collection, country, string.Empty, deviceName, string.Empty, userIp, currency);
 
-                bool isEntitledToPreviewModule = priceReason == PriceReason.EntitledToPreviewModule;
-
-                if (priceReason == PriceReason.ForPurchase ||
-                    isEntitledToPreviewModule)
+                if (priceReason == PriceReason.ForPurchase)
                 {
                     // item is for purchase
                     if (priceResponse != null &&
@@ -928,7 +936,7 @@ namespace Core.ConditionalAccess
                                 bool handleBillingPassed =
                                     cas.HandleCollectionBillingSuccess(ref response, siteguid, householdId, collection, price, currency, coupon, userIp,
                                         country, deviceName, long.Parse(response.TransactionID), customData, productId,
-                                        billingGuid, isEntitledToPreviewModule, entitlementDate, ref purchaseID);
+                                        billingGuid, false, entitlementDate, ref purchaseID);
 
                                 if (handleBillingPassed)
                                 {
@@ -1024,6 +1032,7 @@ namespace Core.ConditionalAccess
             try
             {
                 string country = string.Empty;
+
                 if (!string.IsNullOrEmpty(userIp))
                 {
                     // get country by user IP
@@ -1041,10 +1050,32 @@ namespace Core.ConditionalAccess
                 priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode,
                     ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, ref unifiedBillingCycle, currency, isSubscriptionSetModifySubscription);
 
+                // if unified billing cycle is in the "history" ignore it in purchase ! 
+                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                {
+                    unifiedBillingCycle = null;
+                }
+
                 if (subscription == null)
                 {
                     response.Status.Message = "ProductId doesn't exist";
                     return response;
+                }
+                // check permission for subscription with premuim services - by roles 
+                if (subscription.m_lServices != null && subscription.m_lServices.Count() > 0)
+                {
+                    if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, RolePermissions.PURCHASE_SERVICE))
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                        log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
+                        return response;
+                    }
+                }
+                
+                // if unified billing cycle is in the "history" ignore it in purchase ! 
+                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                {
+                    unifiedBillingCycle = null;
                 }
 
                 if (subscription.m_UserTypes != null && subscription.m_UserTypes.Length > 0 && !subscription.m_UserTypes.Contains(user.m_oBasicData.m_UserType))
@@ -1118,6 +1149,7 @@ namespace Core.ConditionalAccess
                         // create new GUID for billing transaction
                         string billingGuid = Guid.NewGuid().ToString();
 
+
                         // purchase
                         if (couponFullDiscount || isGiftCard)
                         {
@@ -1151,13 +1183,13 @@ namespace Core.ConditionalAccess
                                     endDate = CalculateGiftCardEndDate(cas, coupon, subscription, entitlementDate);
                                 }
 
-                                if (partialPrice)
+                                if (unifiedBillingCycle != null && !entitleToPreview)   
                                 {
                                     // calculate end date by unified billing cycle
                                     endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
                                 }
 
-                                //try get from db process_purchases_id - if not exsits - create one 
+                                //try get from db process_purchases_id - if not exsits - create one - only if pare of billing cycle
                                 long processId = 0;
                                 bool isNew = false;
                                 if (paymentGatewayResponse != null)
@@ -1167,7 +1199,20 @@ namespace Core.ConditionalAccess
                                         endDate = Utils.CalcSubscriptionEndDate(subscription, entitleToPreview, entitlementDate);
                                     }
 
-                                    processId = Utils.GetUnifiedProcessId(groupId, paymentGatewayResponse.ID, endDate.Value, householdId, out isNew);
+                                    //create process id only for subscription that equal the cycle and are NOT preview module 
+                                    long ? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
+                                    if (subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
+                                         subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
+                                         && groupUnifiedBillingCycle.HasValue
+                                         && (int)groupUnifiedBillingCycle.Value == subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle
+                                        )
+                                    // group define with billing cycle
+                                    {
+                                        if (!entitleToPreview || unifiedBillingCycle == null)
+                                        {
+                                            processId = Utils.GetUnifiedProcessId(groupId, paymentGatewayResponse.ID, endDate.Value, householdId, out isNew);
+                                        }
+                                    }
                                 }
                                 // grant entitlement
                                 bool handleBillingPassed = 
@@ -1214,9 +1259,11 @@ namespace Core.ConditionalAccess
                                                     nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
                                                     paymentGwId = paymentGatewayResponse.ID;
 
-                                                    if (!entitleToPreview)
+                                                    if (unifiedBillingCycle == null && subscription != null &&
+                                                     subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
+                                                     subscription.m_MultiSubscriptionUsageModule.Count() == 1)
                                                     {
-                                                        Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, ref unifiedBillingCycle, endDate.Value);
+                                                        Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, ref unifiedBillingCycle, subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, endDate.Value);
                                                     }
                                                 }
 
@@ -1239,17 +1286,17 @@ namespace Core.ConditionalAccess
                                             else    message exists yet – do nothing
                                         create new queue with new messages for each Payment Gateway 
                                         */
-
-                                        if (unifiedBillingCycle == null) // || unifiedBillingCycle.paymentGatewayIds == null || !unifiedBillingCycle.paymentGatewayIds.ContainsKey(paymentGwId))
+                                        if (isNew) // need to insert new unified billing message to queue
+                                        {
+                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
+                                        }
+                                       
+                                        else if (unifiedBillingCycle == null || (entitleToPreview && !isNew))
                                         {
                                             // insert regular message 
                                             RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate);
                                         }
-
-                                        else if (isNew) // need to insert new unified billing message to queue
-                                        {
-                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
-                                        }
+                                       
                                         //else do nothing, message already exists
 
                                         #endregion
@@ -1489,7 +1536,7 @@ namespace Core.ConditionalAccess
                 bool isGiftCard = false;
                 Price priceObject = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppvModule, siteguid, couponCode,
                         groupId, ref priceReason, ref relevantSub, ref relevantCol, ref relevantPP, string.Empty, string.Empty, deviceName,
-                        false, userIp, currency);
+                        false, userIp, currency, BlockEntitlementType.NO_BLOCK);
 
                 if (coupon != null &&
                     coupon.m_CouponStatus == CouponsStatus.Valid &&

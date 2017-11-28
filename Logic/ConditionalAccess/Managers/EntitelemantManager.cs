@@ -166,7 +166,27 @@ namespace Core.ConditionalAccess
                         }
 
                         int[] arrMediaFileIDs = { mediaFileId };
-                        MediaFileItemPricesContainer[] arrPrices = cas.GetItemsPrices(arrMediaFileIDs, userId, string.Empty, true, languageCode, deviceName);
+                        
+                        // check permissions      
+                        BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK;
+                        bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_PPV);
+                        bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
+
+                        if (!permittedPpv && !permittedSubscription)
+                        {
+                            blockEntitlement = BlockEntitlementType.BLOCK_ALL;
+                        }
+                        else if (!permittedPpv)
+                        {
+                            blockEntitlement = BlockEntitlementType.BLOCK_PPV;
+                        }
+                        else if (!permittedSubscription)
+                        {
+                            blockEntitlement = BlockEntitlementType.BLOCK_SUBSCRIPTION;
+                        }
+                        
+                        MediaFileItemPricesContainer[] arrPrices = cas.GetItemsPrices(arrMediaFileIDs, userId, string.Empty, true, languageCode, deviceName, string.Empty, null, blockEntitlement);
+
                         if (arrPrices != null && arrPrices.Length > 0)
                         {
                             MediaFileItemPricesContainer objPrice = arrPrices[0];
@@ -368,8 +388,10 @@ namespace Core.ConditionalAccess
                     response.entitelments.Add(subscriptionEntitlement);
 
                     //unified billing cycle updates
+
                     long unifiedProcessId = ODBCWrapper.Utils.GetLongSafeVal(dr, "unified_process_id");
-                    Utils.HandleUnifiedBillingCycle(groupId, domainID, entitlement.paymentGatewayId, entitlement.endDate, entitlement.purchaseID, unifiedProcessId);
+                    DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+                    Utils.HandleUnifiedBillingCycle(groupId, domainID, entitlement.paymentGatewayId, endDate, entitlement.purchaseID, unifiedProcessId);
                 }
                 response.status = changeStatus;
 
@@ -534,10 +556,7 @@ namespace Core.ConditionalAccess
                     entitlement = CreateCollectionEntitelment(cas, dr, isExpired);
                     if (entitlement != null)
                     {
-                        if (entitlement != null)
-                        {
-                            entitlementsResponse.entitelments.Add(entitlement);
-                        }
+                        entitlementsResponse.entitelments.Add(entitlement);
                     }
                 }
                 entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -633,6 +652,8 @@ namespace Core.ConditionalAccess
             {
                 entitlement.ScheduledSubscriptionId = purchaseIdToScheduledSubscriptionId[entitlement.purchaseID];
             }
+
+            entitlement.IsSuspended = ODBCWrapper.Utils.GetIntSafeVal(dataRow["subscription_status"]) == (int)SubscriptionPurchaseStatus.Suspended;
 
             return entitlement;
         }
@@ -739,11 +760,11 @@ namespace Core.ConditionalAccess
             entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "COLLECTION_CODE");
 
             entitlement.endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE");
-            int maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_NUM_OF_USES");
-            int currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "NUM_OF_USES");
+            entitlement.maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_NUM_OF_USES");
+            entitlement.currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "NUM_OF_USES");
             entitlement.lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "LAST_VIEW_DATE");
 
-            if (isExpired && maxUses != 0 && currentUses >= maxUses)
+            if (isExpired && entitlement.maxUses != 0 && entitlement.currentUses >= entitlement.maxUses)
             {
                 entitlement.endDate = entitlement.lastViewDate;
             }
@@ -763,7 +784,7 @@ namespace Core.ConditionalAccess
               entitlement.lastViewDate < entitlement.purchaseDate)// user didn't waiver yet and didn't use the PPV yet
             {
                 bool cancellationWindow = false;
-                cas.IsCancellationWindow(ref oUsageModule, entitlement.entitlementId, entitlement.purchaseDate, ref cancellationWindow, eTransactionType.Subscription);
+                cas.IsCancellationWindow(ref oUsageModule, entitlement.entitlementId, entitlement.purchaseDate, ref cancellationWindow, eTransactionType.Collection);
                 entitlement.cancelWindow = cancellationWindow;
             }
             return entitlement;

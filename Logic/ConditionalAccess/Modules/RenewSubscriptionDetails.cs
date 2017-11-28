@@ -21,7 +21,7 @@ namespace APILogic.ConditionalAccess.Modules
 
         public string BillingGuid { get; set; }
 
-         public string ExternalTransactionId {get;set;}
+        public string ExternalTransactionId {get;set;}
 
         public DateTime? EndDate { get; set; }
 
@@ -56,5 +56,9 @@ namespace APILogic.ConditionalAccess.Modules
                 return eTransactionType.Subscription;
             }
         }
+
+        public long BillingTransactionId { get; set; }
+
+        public SubscriptionPurchaseStatus SubscriptionStatus { get; set; }
     }
 }

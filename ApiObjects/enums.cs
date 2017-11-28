@@ -382,7 +382,8 @@ namespace ApiObjects
         Prefix,
         Phonetic,
         Exists,
-        NotExists
+        NotExists,
+        PhraseStartsWith
     }
 
     [Serializable]
@@ -515,6 +516,7 @@ namespace ApiObjects
     {
         Normal = 1,
         Group = 2
+
     }
 
     public enum eDbActionType
@@ -547,7 +549,8 @@ namespace ApiObjects
         DeleteUser = 4,
         ChangeUsers = 5,
         EnableUserNotifications = 6,
-        DisableUserNotifications = 7
+        DisableUserNotifications = 7,
+        DeleteDevice = 8
     }
 
     public enum eAnnouncementStatus
@@ -810,7 +813,7 @@ namespace ApiObjects
         InternalError = 999,
         LoginServerDown = 22,
         UserSuspended = 23,
-        UserCreatedWithNoRole = 24,        
+        UserCreatedWithNoRole = 24,
         ExternalIdAlreadyExists = 25,
         ExternalError = 26
     }
@@ -823,7 +826,8 @@ namespace ApiObjects
         Fail = 3,
         HouseholdCancel = 4,
         Switched = 5,
-        Switched_To = 6
+        Switched_To = 6,
+        Suspended = 7,
     }
 
     public enum PlayContextType
@@ -918,4 +922,47 @@ namespace ApiObjects
         Downgrade = 1
     }
 
+    public enum PaymentGatewayStatus
+    {
+        OK = 0,
+        Suspend = 1,
+    }
+
+    public enum RolePermissions
+    {
+        PLAYBACK_SUBSCRIPTION = 0,
+        PLAYBACK_PPV = 1,
+        PURCHASE_SUBSCRIPTION = 2,
+        PURCHASE_PPV = 3,
+        RENEW_SUBSCRIPTION = 4,
+        PURCHASE_SERVICE = 5,
+        LOGIN = 6
+    }
+
+    public enum BlockEntitlementType
+    {
+        NONE = 0, // to support previous versions 
+        BLOCK_ALL = 1,
+        NO_BLOCK = 2,
+        BLOCK_PPV = 3,
+        BLOCK_SUBSCRIPTION = 4
+    }
+
+    public enum ConcurrencyRestrictionPolicy
+    {
+        Single = 0,
+        Group = 1
+    }
+
+    public enum DowngradePolicy
+    {
+        LIFO = 0,
+        FIFO = 1
+    }
+
+    public enum DeleteMediaPolicy
+    {
+        Disable = 0,
+        Delete = 1
+    }
 }

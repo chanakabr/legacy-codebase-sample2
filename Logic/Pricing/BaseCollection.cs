@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections;
 using ApiObjects;
 using System.Data;
+using ApiObjects.Response;
 
 namespace Core.Pricing
 {
@@ -35,6 +36,9 @@ namespace Core.Pricing
 
         public abstract Collection GetCollectionData(string sCollectionCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bGetAlsoUnActive);
 
-        public abstract Collection[] GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName);
+        public abstract CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName);
+
+        public abstract IdsResponse GetCollectionIdsContainingMediaFile(int mediaId, int mediaFileId);
+        
     }
 }
