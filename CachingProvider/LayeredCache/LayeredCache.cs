@@ -6,6 +6,7 @@ using System.Text;
 using KLogMonitor;
 using System.Reflection;
 using Newtonsoft.Json;
+using System.Web;
 namespace CachingProvider.LayeredCache
 {
     public class LayeredCache
@@ -135,6 +136,11 @@ namespace CachingProvider.LayeredCache
             bool res = false;
             try
             {
+                if (HttpContext.Current != null)
+                {
+                    HttpContext.Current.Response.Headers.Set("no-cache", "true");
+                }
+
                 long valueToUpdate = Utils.UnixTimeStampNow();
                 if (updatedAt.HasValue)
                 {
@@ -150,6 +156,80 @@ namespace CachingProvider.LayeredCache
             }
 
             return res;
+        }
+
+        public bool InvalidateKeys(List<string> keys, DateTime? updatedAt = null)
+        {
+            if (keys == null || keys.Count == 0)
+            {
+                return false;
+            }
+
+            bool result = true;
+
+            try
+            {
+                if (HttpContext.Current != null)
+                {
+                    HttpContext.Current.Response.Headers.Set("no-cache", "true");
+                }
+
+                long valueToUpdate = Utils.UnixTimeStampNow();
+
+                if (updatedAt.HasValue)
+                {
+                    valueToUpdate = Utils.DateTimeToUnixTimestamp(updatedAt.Value);
+                }
+
+                foreach (var key in keys)
+                {
+                    result &= TrySetInValidationKey(key, valueToUpdate);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed SetInvalidationKey, keys: {0}, updatedAt: {1}",
+                    string.Join(";", keys), updatedAt.HasValue ? updatedAt.Value.ToString() : "null"), ex);
+            }
+
+            return result;
+        }
+
+        public void SetReadingInvalidationKeys(List<string> invalidationKeys)
+        {
+            try
+            {
+                if (invalidationKeys != null)
+                {
+
+                    if (HttpContext.Current != null)
+                    {
+                        var invalidationKeysHeader = HttpContext.Current.Response.Headers["invalidationKeys"];
+
+                        if (invalidationKeysHeader == null)
+                        {
+                            string invalidationKeysString = string.Join(";", invalidationKeys);
+
+                            HttpContext.Current.Response.Headers.Add("invalidationKeys", invalidationKeysString);
+                        }
+                        else
+                        {
+                            // Split and create hashset of all current invalidation keys - to avoid duplications
+                            HashSet<string> invalidationKeysHashSet = new HashSet<string>(invalidationKeysHeader.Split(';'));
+
+                            invalidationKeysHashSet.UnionWith(invalidationKeys);
+
+                            string invalidationKeysString = string.Join(";", invalidationKeysHashSet);
+
+                            HttpContext.Current.Response.Headers.Set("invalidationKeys", invalidationKeysString);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed setting reading invalidation keys, ex = {0}", ex);
+            }
         }
 
         public bool SetLayeredCacheGroupConfig(int groupId, int? version = null, bool? shouldDisableLayeredCache = null,

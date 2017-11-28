@@ -78,7 +78,67 @@ namespace CachingHelpers
                 log.Error(string.Format("GetCdnSettings failed params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
             return new Tuple<CDNPartnerSettings, bool>(result, res);
-        }    
+        }
 
+
+        internal static Tuple<DrmAdapter, bool> GetDrmAdapter(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            DrmAdapter result = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count >= 1)
+                {
+                    bool shouldGetOnlyActive = true;
+                    if (funcParams.ContainsKey("shouldGetOnlyActive"))
+                    {
+                        shouldGetOnlyActive = (bool)funcParams["shouldGetOnlyActive"];
+                    }
+                    if (funcParams.ContainsKey("adapterId"))
+                    {
+                        int? adapterId;
+                        adapterId = funcParams["adapterId"] as int?;
+                        result = DAL.ApiDAL.GetDrmAdapter(adapterId.Value, shouldGetOnlyActive);
+                        res = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetDrmAdapter failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<DrmAdapter, bool>(result, res);
+        }
+
+        internal static Tuple<int, bool> GetGroupAdapterId(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            int result = 0;
+            try
+            {
+                if (funcParams != null && funcParams.Count >= 1)
+                {
+                    if (funcParams.ContainsKey("groupId"))
+                    {
+                        int? groupId;
+                        groupId = funcParams["groupId"] as int?;
+                        if (groupId.HasValue)
+                        {
+                            result = DAL.UsersDal.GetGroupAdapterId(groupId.Value);
+                            res = true;
+                        }
+                        else
+                        {
+                            res = false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupAdapterId failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<int, bool>(result, res);
+        }
     }
 }

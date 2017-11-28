@@ -47,6 +47,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("mediaConcurrencyRules_mediaId_{0}", mediaId);
         }
 
+        public static string GetMediaConcurrencyRulesDeviceLimitationModuleKey(int dlmId)
+        {
+            return string.Format("mediaConcurrencyRules_dlmId_{0}", dlmId);
+        }
+
         public static string GetKeyForIp(string ip)
         {
             return string.Format("ip_{0}", ip);
@@ -72,6 +77,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("domainEntitlements_groupId_{0}_domainId_{1}", groupId, domainId);
         }
 
+        public static string GetPermissionsRolesIdsKey(int groupId)
+        {
+            return string.Format("getPermissionRoleIds_groupId_{0}", groupId);
+        }
+
         public static string GetFileCdnDataKey(int fileId)
         {
             return string.Format("fileCdnData_fileId_{0}", fileId);
@@ -85,6 +95,16 @@ namespace CachingProvider.LayeredCache
         public static string GetCDNAdapterKey(int groupId, int defaultAdapterId)
         {
             return string.Format("cdnDefaultAdapter_groupId_{0}_adapterId_{1}", groupId, defaultAdapterId);
+        }
+
+        public static string GetDrmAdapterKey(int groupId, int defaultAdapterId)
+        {
+            return string.Format("drmAdapter_groupId_{0}_adapterId_{1}", groupId, defaultAdapterId);
+        }
+
+        public static string GetGroupDrmAdapterIdKey(int groupId)
+        {
+            return string.Format("drmGroupAdapter_groupId_{0}", groupId);
         }
 
         public static string GetMediaFilesKey(long mediaId, string assetType)
@@ -135,6 +155,11 @@ namespace CachingProvider.LayeredCache
         public static string GetDiscountModuleCodeByCountryAndCurrencyKey(int groupId, int discountCodeId, string countryCode, string currencyCode)
         {
             return string.Format("discountModuleByCountryAndCurrency_g_{0}_dm_{1}_co_{2}_cu_{3}", groupId, discountCodeId, countryCode, currencyCode);
+        }
+
+        public static string GetRoleIdKey(int roleId)
+        {
+            return string.Format("roleId_{0}", roleId);
         }
 
         public static string GetGroupDefaultCurrencyKey(int groupId)
@@ -219,7 +244,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetSubscriptionSetKey(int groupId, long setId)
         {
-            return string.Format("subscriptionSet_groupId_{0}_setId_{1}", groupId, setId );
+            return string.Format("subscriptionSet_groupId_{0}_setId_{1}", groupId, setId);
         }
 
         public static Dictionary<string, string> GetSubscriptionSetsKeysMap(int groupId, List<long> setIds)
@@ -336,6 +361,16 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeySeriesReminder_groupId_{0}_id_{1}", groupId, seriesReminderId);
         }
 
+        public static string GetGroupDrmAdapterIdInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyGroupDrmAdapter_groupId_{0}", groupId);
+        }
+
+        public static string GetDrmAdapterInvalidationKey(int groupId, int adapterId)
+        {
+            return string.Format("invalidationKeyDrmAdapter_groupId_{0}_adapterId_{1}", groupId, adapterId);
+        }
+
         public static Dictionary<string, List<string>> GetSeriesRemindersInvalidationKeysMap(int groupId, List<long> seriesReminderIds)
         {
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
@@ -380,7 +415,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyAnnounecements_groupId_{0}", groupId);
         }
-       
+
         public static string GetSubscriptionSetInvalidationKey(int groupId, long setId)
         {
             return string.Format("invalidationKeySubscriptionSet_groupId_{0}_setId_{1}", groupId, setId);
@@ -440,6 +475,44 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyAsset_type_{0}_id_{1}", assetType, id);
         }
+
+        public static string GetMediaConcurrencyRulesDeviceLimitationModuleInvalidationKey(int groupId, int dlmId)
+        {
+            return string.Format("invalidationKey_mediaConcurrencyRules_by_domainLimitationModule_{0}", dlmId);
+        }
+
+        #region Domains
+
+        public static string GetHouseholdInvalidationKey(long householdId)
+        {
+            return string.Format("invalidationKey_domain_{0}", householdId);
+        }
+        public static string GetHouseholdUserInalidationKey(long householId, string siteGuid)
+        {
+            return string.Format("invalidationKey_domain_{0}_user_{1}", householId, siteGuid);
+        }
+
+
+        public static string GetRoleIdInvalidationKey(int roleId)
+        {
+            return string.Format("invalidationKey_roleId_{0}", roleId);
+        }
+
+        public static string GetPermissionsRolesIdsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_permissionRoleIds_groupId_{0}", groupId);
+        }
+
+        #endregion
+
+        #region Users
+
+        public static string GetUserInvalidationKey(string siteGuid)
+        {
+            return string.Format("invalidationKey_user_{0}", siteGuid);
+        }
+
+        #endregion
 
         #endregion
 

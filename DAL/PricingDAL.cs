@@ -1563,5 +1563,45 @@ namespace DAL
             sp.AddParameter("@priceCodeId", priceCodeId);
             return sp.ExecuteReturnValue<int>() > 0;
         }
+
+        public static DataTable GetCollectionsChannels(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCollectionsChannels");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupId);
+            return sp.Execute();
+        }
+
+        public static DataTable Get_ExternalProductCodes(int groupId, List<long> productIds, ApiObjects.eTransactionType productType)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalProductCodes");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter<long>("@productIds", productIds, "ID");
+            sp.AddParameter("@productType", (int)productType);
+            return sp.Execute();
+        }
+
+        public static bool Update_ExternalProductCodes(int groupId, long productId, ApiObjects.eTransactionType productType, string xml)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_ExternalProductCodes");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@productId", productId);
+            sp.AddParameter("@productType", (int)productType);
+            sp.AddParameter("@xmlDoc", xml);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataTable Get_ProductsCouponGroup(int groupId, List<long> productIds, ApiObjects.eTransactionType productType)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ProductsCouponGroup");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter<long>("@productIds", productIds, "ID");
+            sp.AddParameter("@productType", (int)productType);
+            return sp.Execute();
+        }
     }
 }

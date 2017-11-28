@@ -22,7 +22,8 @@ namespace CachingProvider.LayeredCache
         public const string COUNTRY_BY_COUNTRY_NAME_LAYERED_CACHE_CONFIG_NAME = "GetCountryByCountryName";
         public const string CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME = "CheckGeoBlockMedia";
         public const string MEDIA_USER_TYPE_LAYERED_CACHE_CONFIG_NAME = "CheckMediaUserType";
-        public const string MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME = "GetMediaConcurrencyRules";        
+        public const string MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME = "GetMediaConcurrencyRules";
+        public const string MEDIA_CONCURRENCY_RULES_BY_LIMITATION_MODULE_CACHE_CONFIG_NAME = "GetMediaConcurrencyRulesByDomainLimitionModule";
         public const string GROUP_CDN_SETTINGS_LAYERED_CACHE_CONFIG_NAME = "GroupCDNSettings";
         public const string CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "CdnAdapter";
         public const string GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "GroupParentalRules";
@@ -46,10 +47,15 @@ namespace CachingProvider.LayeredCache
         public const string GET_SUBSCRIPTION_SETS_CACHE_CONFIG_NAME = "GetSubscriptionSets";
         public const string GET_GROUP_PRICE_CODES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPriceCodes";
         public const string GET_GROUP_UNIFIED_BILLING_CYCLE = "GetGroupUnifiedBillingCycle";
+        public const string GET_ROLE_BY_ROLE_ID = "GetRoleByRoleId";
+        public const string GET_ROLES_BY_GROUP_ID = "GetRolesByGroupId";
+        public const string DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "DrmAdapter";
+        public const string GROUP_DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "GroupDrmAdapter";
         public const string GET_CATALOG_GROUP_CACHE_CONFIG_NAME = "GetCatalogGroupCache";
         public const string GET_GROUP_DEVICE_RULES_CACHE_CONFIG_NAME = "GetGroupDeviceRules";
         public const string GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME = "GetGroupGeoBlockRules";
         public const string GET_ASSET_CACHE_CONFIG_NAME = "GetAsset";
+
         #endregion
 
         #region Constant Invalidation Keys

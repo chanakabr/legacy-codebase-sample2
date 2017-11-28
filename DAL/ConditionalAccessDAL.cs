@@ -849,7 +849,7 @@ namespace DAL
             return Get_GroupFailCount(lGroupID, string.Empty);
         }
 
-        public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses, string sConnKey, string siteGuid = null)
+        public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses, string sConnKey, string siteGuid = null, int? subscriptionStatus = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPRenewalData");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
@@ -859,6 +859,10 @@ namespace DAL
             sp.AddParameter("@NumOfUses", lNumOfUses);
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", siteGuid);
+            if (subscriptionStatus.HasValue)
+            {
+                sp.AddParameter("@subscriptionStatus", subscriptionStatus.Value);
+            }
 
             sp.ExecuteNonQuery();
         }
@@ -1451,6 +1455,7 @@ namespace DAL
             }
         }
 
+
         public static string Get_LicensedLinkSecretCode(long groupID)
         {
             StoredProcedure sp = new StoredProcedure("Get_LicensedLinkSecretCode");
@@ -1770,7 +1775,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static long Insert_NewCollectionUse(long groupID, string collCode, long mediaFileID, string siteGuid, bool isCreditDownloaded,
+        public static bool Insert_NewCollectionUse(long groupID, string collCode, long mediaFileID, string siteGuid, bool isCreditDownloaded,
             string countryCode, string langCode, string deviceName)
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewCollectionUse");
@@ -1796,15 +1801,15 @@ namespace DAL
             sp.AddParameter("@IsActive", 1);
             sp.AddParameter("@Status", 1);
 
-            return sp.ExecuteReturnValue<long>();
+            return sp.ExecuteReturnValue<long>() > 0;
         }
 
-        public static bool Update_ColPurchaseNumOfUses(string colCode, string siteGuid, long groupID)
+        public static bool Update_ColPurchaseNumOfUses(string colCode, long domainId, long groupID)
         {
             StoredProcedure sp = new StoredProcedure("Update_ColPurchaseNumOfUses");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@ColCode", colCode);
-            sp.AddParameter("@SiteGuid", siteGuid);
+            sp.AddParameter("@DomainId", domainId);
             sp.AddParameter("@GroupID", groupID);
 
             return sp.ExecuteReturnValue<bool>();
@@ -3263,15 +3268,79 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateSubscriptionUnifiedRenewingStatus(int groupId, long unifiedProcessId, int isActive)
+        public static bool UpdateSubscriptionUnifiedRenewingStatus(int groupId, List<long> purchasesIds)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseUnifiedRenewalActiveStatus");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupId);
-            sp.AddParameter("@ProcessId", unifiedProcessId);
-            sp.AddParameter("@IsActive", isActive);
+            sp.AddIDListParameter<long>("@purchasesIds", purchasesIds, "ID");
 
             return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataTable GetUnifiedProcessIdByHouseholdPaymentGateway(int groupId, long paymentGatewayId, long householdId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUnifiedProcessIdByHouseholdPaymentGateway");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@paymentGatewayId", paymentGatewayId);
+            sp.AddParameter("@householdId", householdId);
+
+            return sp.Execute();
+        }
+
+        public static bool SetSubscriptionPurchaseStatusByUnifiedProccessId(int groupId, long unifiedProccessId, SubscriptionPurchaseStatus subscriptionPurchseStatus, int paymentGatewayId, long householdId, PaymentGatewayStatus isSuspend)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetSubscriptionPurchaseStatusByUnifiedProccessId");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@unifiedProccessId", unifiedProccessId);
+            sp.AddParameter("@subscriptionPurchseStatus", (int)subscriptionPurchseStatus);
+            sp.AddParameter("@paymentGatewayId", paymentGatewayId);
+            sp.AddParameter("@householdId", householdId);
+            sp.AddParameter("@isSuspend", (int)isSuspend);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool UpdateMPPRenewalSubscriptionStatus(List<int> purchaseIds, int status, int groupId = 0, long householdId = 0, long processId = 0)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPRenewalSubscriptionStatus");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                sp.AddParameter("@SubscriptionStatus", status);
+                sp.AddIDListParameter<int>("@PurchaseID", purchaseIds, "Id");
+                if (groupId > 0)
+                {
+                    sp.AddParameter("@GroupId", groupId);
+                }
+                if (householdId > 0)
+                {
+                    sp.AddParameter("@HouseholdId", householdId);
+                }
+                if (processId > 0)
+                {
+                    sp.AddParameter("@ProcessId", processId);
+                }
+                return sp.ExecuteReturnValue<bool>();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        public static DataTable GetSubscriptionPurchase(int groupId, long householdId)
+        {   
+            ODBCWrapper.StoredProcedure sp = new StoredProcedure("Get_SubscriptionPurchase");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@HouseholdId", householdId);
+
+            return sp.Execute();
+
         }
     }
 }

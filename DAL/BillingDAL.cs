@@ -1,4 +1,5 @@
-﻿using ApiObjects.Billing;
+﻿using ApiObjects;
+using ApiObjects.Billing;
 using KLogMonitor;
 using Newtonsoft.Json;
 using ODBCWrapper;
@@ -1345,7 +1346,7 @@ namespace DAL
             return res;
         }
 
-        public static PaymentGateway GetSelectedHouseholdPaymentGateway(int groupID, long householdId, ref string chargeId)
+        public static PaymentGateway GetSelectedHouseholdPaymentGateway(int groupID, long householdId, ref string chargeId, ref bool isSuspended)
         {
             PaymentGateway paymentGateway = null;
             try
@@ -1381,6 +1382,7 @@ namespace DAL
                     int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
                     paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
                     chargeId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_Id");
+                    isSuspended = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_suspended") == 0 ? false : true;
                 }
 
             }
@@ -1436,6 +1438,27 @@ namespace DAL
                 HandleException(ex);
             }
             return res;
+        }
+
+        public static bool UpdatePaymentGatewayHouseholdStatus(long householdId, int paymentGatewayId, PaymentGatewayStatus status)
+        {
+            bool res = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PaymentGatewayHousehold");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@paymentGatewayId", paymentGatewayId);
+                sp.AddParameter("@householdId", householdId);
+                sp.AddParameter("@isSuspend", (int)status);
+                res = sp.ExecuteReturnValue<bool>();
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return res;
+
         }
 
         public static bool DeletePaymentGW(int groupID, int paymentGwID, List<PaymentGatewaySettings> settings)
@@ -1651,7 +1674,7 @@ namespace DAL
             return paymentGWID;
         }
 
-        public static string GetPaymentGWChargeID(int paymentGWID, long householdID, ref bool isPaymentGWHouseholdExist)
+        public static string GetPaymentGWChargeID(int paymentGWID, long householdID, ref bool isPaymentGWHouseholdExist, ref bool isSuspended)
         {
             string chargeID = string.Empty;
             isPaymentGWHouseholdExist = false;
@@ -1667,6 +1690,9 @@ namespace DAL
                 {
                     chargeID = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_id");
                     isPaymentGWHouseholdExist = true;
+
+                    isSuspended = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_suspended") == 0 ? false : true;
+
                 }
             }
             catch (Exception ex)
@@ -1679,8 +1705,9 @@ namespace DAL
         public static string GetPaymentGWChargeID(int paymentGWID, long householdID)
         {
             bool isPaymentGWHouseholdExist = false;
+            bool isSuspended = false;
 
-            return GetPaymentGWChargeID(paymentGWID, householdID, ref isPaymentGWHouseholdExist);
+            return GetPaymentGWChargeID(paymentGWID, householdID, ref isPaymentGWHouseholdExist, ref isSuspended);
 
         }
 
@@ -1761,12 +1788,16 @@ namespace DAL
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
+                    // get PaymentGatewayStatus
+                    int pgStatus = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_suspended");
+
                     res = new HouseholdPaymentGateway()
                     {
                         PaymentGatewayId = paymentGatewayId,
                         Selected = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "selected"),
                         ChargeId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_id"),
-                        HouseholdId = householdId
+                        HouseholdId = householdId,
+                        Status = (PaymentGatewayStatus)pgStatus
                     };
                 }
             }
