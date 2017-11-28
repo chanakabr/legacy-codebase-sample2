@@ -25,6 +25,40 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaAsset":
+                    switch (propertyName)
+                    {
+                        case "EnableCatchUp":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableCdvr":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableStartOver":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableTrickPlay":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
+                case "KalturaMediaAsset":
+                    switch (propertyName)
+                    {
+                        case "CatchUpBuffer":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableCatchUp":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableCdvr":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableRecordingPlaybackNonEntitledChannel":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableStartOver":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableTrickPlay":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "TrickPlayBuffer":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
                 case "KalturaMeta":
                     switch (propertyName)
                     {
@@ -70,6 +104,34 @@ namespace WebAPI.Reflection
                     {
                         case "PriceId":
                             return DeprecatedAttribute.IsDeprecated("4.5.0.0");
+                    };
+                    break;
+                    
+                case "KalturaProgramAsset":
+                    switch (propertyName)
+                    {
+                        case "EnableCatchUp":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableCdvr":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableStartOver":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableTrickPlay":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
+                case "KalturaRecordingAsset":
+                    switch (propertyName)
+                    {
+                        case "EnableCatchUp":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableCdvr":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableStartOver":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableTrickPlay":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                     };
                     break;
                     
@@ -4210,6 +4272,8 @@ namespace WebAPI.Reflection
                             return "catchUpBuffer";
                         case "DeviceRule":
                             return "deviceRule";
+                        case "DeviceRuleId":
+                            return "deviceRuleId";
                         case "EnableRecordingPlaybackNonEntitledChannel":
                             return "enableRecordingPlaybackNonEntitledChannel";
                         case "EntryId":
@@ -4218,6 +4282,8 @@ namespace WebAPI.Reflection
                             return "externalIds";
                         case "GeoBlockRule":
                             return "geoBlockRule";
+                        case "GeoBlockRuleId":
+                            return "geoBlockRuleId";
                         case "TrickPlayBuffer":
                             return "trickPlayBuffer";
                         case "TypeDescription":

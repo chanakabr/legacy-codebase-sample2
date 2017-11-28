@@ -50,6 +50,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
+        [SchemeProperty(InsertOnly = true)]
         public int? Type { get; set; }
 
         /// <summary>
@@ -152,6 +153,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableCdvr")]
         [JsonProperty(PropertyName = "enableCdvr")]
         [XmlElement(ElementName = "enableCdvr")]
+        [Deprecated("4.6.0.0")]
         public bool? EnableCdvr { get; set; }
 
         /// <summary>
@@ -160,6 +162,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableCatchUp")]
         [JsonProperty(PropertyName = "enableCatchUp")]
         [XmlElement(ElementName = "enableCatchUp")]
+        [Deprecated("4.6.0.0")]
         public bool? EnableCatchUp { get; set; }
 
         /// <summary>
@@ -168,6 +171,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableStartOver")]
         [JsonProperty(PropertyName = "enableStartOver")]
         [XmlElement(ElementName = "enableStartOver")]
+        [Deprecated("4.6.0.0")]
         public bool? EnableStartOver { get; set; }
 
         /// <summary>
@@ -176,6 +180,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableTrickPlay")]
         [JsonProperty(PropertyName = "enableTrickPlay")]
         [XmlElement(ElementName = "enableTrickPlay")]
+        [Deprecated("4.6.0.0")]
         public bool? EnableTrickPlay { get; set; }
 
         /// <summary>
@@ -183,8 +188,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "externalId")]
         [JsonProperty(PropertyName = "externalId")]
-        [XmlElement(ElementName = "externalId")]
-        [JsonIgnore]
+        [XmlElement(ElementName = "externalId")]        
         public string ExternalId { get; set; }
 
         internal int getType()
@@ -260,6 +264,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "catchUpBuffer")]
         [JsonProperty(PropertyName = "catchUpBuffer")]
         [XmlElement(ElementName = "catchUpBuffer")]
+        [Deprecated("4.6.0.0")]
         public long? CatchUpBuffer { get; set; }
 
         /// <summary>
@@ -268,6 +273,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "trickPlayBuffer")]
         [JsonProperty(PropertyName = "trickPlayBuffer")]
         [XmlElement(ElementName = "trickPlayBuffer")]
+        [Deprecated("4.6.0.0")]
         public long? TrickPlayBuffer { get; set; }
 
         /// <summary>
@@ -277,6 +283,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannel")]
         [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
         [SchemeProperty(ReadOnly = true)]
+        [Deprecated("4.6.0.0")]
         public bool? EnableRecordingPlaybackNonEntitledChannel { get; set; }
 
         /// <summary>
@@ -285,6 +292,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "typeDescription")]
         [JsonProperty(PropertyName = "typeDescription")]
         [XmlElement(ElementName = "typeDescription")]
+        [SchemeProperty(ReadOnly = true)]
         [JsonIgnore]        
         public string TypeDescription { get; set; }
 
@@ -297,13 +305,30 @@ namespace WebAPI.Models.Catalog
         public string EntryId { get; set; }
 
         /// <summary>
+        /// Device rule identifier
+        /// </summary>
+        [DataMember(Name = "deviceRuleId")]
+        [JsonProperty(PropertyName = "deviceRuleId")]
+        [XmlElement(ElementName = "deviceRuleId", IsNullable = true)]
+        public int? DeviceRuleId { get; set; }
+
+        /// <summary>
         /// Device rule
         /// </summary>
         [DataMember(Name = "deviceRule")]
         [JsonProperty(PropertyName = "deviceRule")]
         [XmlElement(ElementName = "deviceRule")]
+        [SchemeProperty(ReadOnly = true)]
         [JsonIgnore]        
         public string DeviceRule { get; set; }
+
+        /// <summary>
+        /// Geo block rule identifier
+        /// </summary>
+        [DataMember(Name = "geoBlockRuleId")]
+        [JsonProperty(PropertyName = "geoBlockRuleId")]
+        [XmlElement(ElementName = "geoBlockRuleId", IsNullable = true)]        
+        public int? GeoBlockRuleId { get; set; }
 
         /// <summary>
         /// Geo block rule
@@ -311,6 +336,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "geoBlockRule")]
         [JsonProperty(PropertyName = "geoBlockRule")]
         [XmlElement(ElementName = "geoBlockRule")]
+        [SchemeProperty(ReadOnly = true)]
         [JsonIgnore]        
         public string GeoBlockRule { get; set; }
 
@@ -320,6 +346,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "watchPermissionRule")]
         [JsonProperty(PropertyName = "watchPermissionRule")]
         [XmlElement(ElementName = "watchPermissionRule")]
+        [SchemeProperty(ReadOnly = true)]
         [JsonIgnore]
         public string WatchPermissionRule { get; set; }
     }

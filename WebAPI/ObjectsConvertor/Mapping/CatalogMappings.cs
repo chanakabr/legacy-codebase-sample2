@@ -384,7 +384,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsPredefined))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetCommaSeparatedFeatures()))
-              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
+              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId.HasValue ? src.ParentId.Value.ToString() : null))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
               .ForMember(dest => dest.Type, opt => opt.Ignore())
@@ -403,7 +403,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))              
-              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.ParentId) ? long.Parse(src.ParentId) : 0))
+              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.ParentId) ? long.Parse(src.ParentId) : null))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));              
 
@@ -419,11 +419,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DescriptionsWithLanguages, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetNoneDefaultLanugageContainer().ToArray() : null))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.StartDate)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.EndDate)))
-                .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => src.Type.HasValue ? new Core.Catalog.MediaType(src.TypeDescription, src.Type.Value) : new Core.Catalog.MediaType(src.TypeDescription, 0)))
+                .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => new Core.Catalog.MediaType(string.Empty, src.Type.Value)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => src.Metas != null ? GetMetaList(src.Metas) : new List<Metas>()))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags != null ? GetTagsList(src.Tags) : new List<Tags>()))
-                .ForMember(dest => dest.DeviceRule, opt => opt.MapFrom(src => src.DeviceRule))
-                .ForMember(dest => dest.GeoBlockRule, opt => opt.MapFrom(src => src.GeoBlockRule))                
+                .ForMember(dest => dest.DeviceRuleId, opt => opt.MapFrom(src => src.DeviceRuleId))
+                .ForMember(dest => dest.GeoBlockRuleId, opt => opt.MapFrom(src => src.GeoBlockRuleId))                
                 .ForMember(dest => dest.CoGuid, opt => opt.MapFrom(src => src.ExternalId))
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
 
@@ -446,7 +446,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Pictures))
                 .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.Files))
                 .ForMember(dest => dest.TypeDescription, opt => opt.MapFrom(src => src.MediaType.m_sTypeName))
-                .ForMember(dest => dest.DeviceRule, opt => opt.MapFrom(src => src.DeviceRule))                
+                .ForMember(dest => dest.DeviceRule, opt => opt.MapFrom(src => src.DeviceRuleId))                
                 .ForMember(dest => dest.WatchPermissionRule, opt => opt.Ignore())
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
@@ -472,8 +472,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.TrickPlayBuffer, opt => opt.MapFrom(src => src.TrickPlayBuffer))
                 .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannel, opt => opt.MapFrom(src => src.EnableRecordingPlaybackNonEntitledChannel))
                 .ForMember(dest => dest.TypeDescription, opt => opt.MapFrom(src => src.MediaType.m_sTypeName))
-                .ForMember(dest => dest.DeviceRule, opt => opt.MapFrom(src => src.DeviceRule))
-                .ForMember(dest => dest.GeoBlockRule, opt => opt.MapFrom(src => src.GeoBlockRule))
+                .ForMember(dest => dest.DeviceRule, opt => opt.MapFrom(src => src.DeviceRuleId))
+                .ForMember(dest => dest.GeoBlockRule, opt => opt.MapFrom(src => src.GeoBlockRuleId))
                 .ForMember(dest => dest.WatchPermissionRule, opt => opt.Ignore())
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));

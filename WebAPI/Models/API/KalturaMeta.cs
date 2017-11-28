@@ -70,6 +70,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "dataType")]
         [JsonProperty("dataType")]
         [XmlElement(ElementName = "dataType", IsNullable = true)]
+        [SchemeProperty(InsertOnly = true)]
         public KalturaMetaDataType? DataType { get; set; }
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isProtected")]
         [JsonProperty("isProtected")]
         [XmlElement(ElementName = "isProtected", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, InsertOnly = true)]
         public bool? IsProtected { get; set; }
 
         /// <summary>

@@ -162,14 +162,14 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetStruct UpdateAssetStruct(int groupId, long id, KalturaAssetStruct assetStrcut, long userId)
-        {            
+        {
             KalturaAssetStruct result = null;
             AssetStructResponse response = null;
 
             try
             {
-                bool shouldUpdateMetaIds = assetStrcut.MetaIds != null;                
-                AssetStruct assetStructToUpdate = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);                
+                bool shouldUpdateMetaIds = assetStrcut.MetaIds != null;
+                AssetStruct assetStructToUpdate = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetStruct(groupId, id, assetStructToUpdate, shouldUpdateMetaIds, userId);
@@ -197,10 +197,10 @@ namespace WebAPI.Clients
 
         public bool DeleteAssetStruct(int groupId, long id, long userId)
         {
-            Status response = null;            
+            Status response = null;
 
             try
-            {                
+            {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetStruct(groupId, id, userId);
@@ -307,7 +307,7 @@ namespace WebAPI.Clients
                         break;
                     default:
                         break;
-                }                
+                }
             }
 
             return result;
@@ -440,6 +440,51 @@ namespace WebAPI.Clients
 
             result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
             return result;
+        }
+
+        public bool DeleteAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, long userId)
+        {
+            Status response = null;
+
+            try
+            {                
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    eAssetTypes assetType = eAssetTypes.UNKNOWN;
+                    switch (assetReferenceType)
+                    {
+                        case KalturaAssetReferenceType.media:
+                            assetType = eAssetTypes.MEDIA;
+                            break;
+                        case KalturaAssetReferenceType.epg_internal:
+                            break;
+                        case KalturaAssetReferenceType.epg_external:
+                            break;
+                        default:
+                            throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                            break;                            
+                    }
+
+                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteAsset(groupId, id, assetType, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
         }
 
         #endregion        

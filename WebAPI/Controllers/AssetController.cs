@@ -1058,13 +1058,9 @@ namespace WebAPI.Controllers
 
             asset.Description.Validate();
 
-            if (asset.Type.HasValue && !string.IsNullOrEmpty(asset.TypeDescription))
+            if (!asset.Type.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "type", "typeDescription");
-            }
-            if (!asset.Type.HasValue && string.IsNullOrEmpty(asset.TypeDescription))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "type, typeDescription");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
             }
 
             if (string.IsNullOrEmpty(asset.ExternalId))
@@ -1082,6 +1078,36 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+
+
+        /// <summary>
+        /// Delete an existing asset
+        /// </summary>
+        /// <param name="id">Asset Identifier</param>
+        /// <param name="assetReferenceType">Type of asset</param>
+        /// <returns></returns>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetDoseNotExists)]        
+        [SchemeArgument("id", MinLong = 1)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public bool Delete(long id, KalturaAssetReferenceType assetReferenceType)
+        {
+            bool result = false;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+            try
+            {
+                result = ClientsManager.CatalogClient().DeleteAsset(groupId, id, assetReferenceType, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
         }
     }
 }
