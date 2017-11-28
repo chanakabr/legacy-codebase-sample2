@@ -403,7 +403,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))              
-              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.ParentId) ? long.Parse(src.ParentId) : null))
+              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => ConvertToNullableLong(src.ParentId)))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));              
 
@@ -652,13 +652,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static DateTime? ConvertToNullableDatetime(long? date)
         {
-            DateTime? respone = null;
+            DateTime? response = null;
             if (date.HasValue)
             {
-                respone = SerializationUtils.ConvertFromUnixTimestamp(date.Value);
+                response = SerializationUtils.ConvertFromUnixTimestamp(date.Value);
             }
 
-            return respone;
+            return response;
+        }
+
+        private static long? ConvertToNullableLong(string val)
+        {
+            long? response = null;
+            if (!string.IsNullOrEmpty(val))
+            {
+                long parseResult;
+                if (long.TryParse(val, out parseResult))
+                {
+                    response = parseResult;
+                }
+            }
+
+            return response;
         }
 
         #endregion
