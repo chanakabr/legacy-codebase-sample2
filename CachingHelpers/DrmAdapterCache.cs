@@ -66,14 +66,14 @@ namespace CachingHelpers
         public int GetGroupDrmAdapterId(int groupId)
         {
             int adapterId = 0;
-            // get group cdn settings
+            
             string key = LayeredCacheKeys.GetGroupDrmAdapterIdKey(groupId);
             bool cacheResult = LayeredCache.Instance.Get<int>(key, ref adapterId, Utils.GetGroupAdapterId, new Dictionary<string, object>() { { "groupId", groupId } },
                 groupId, LayeredCacheConfigNames.GROUP_DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupDrmAdapterIdInvalidationKey(groupId) });
 
             if (cacheResult)
             {
-                log.ErrorFormat("Failed GetCdnAdapterSettings, groupId: {0}", groupId);
+                log.ErrorFormat("Failed GetGroupDrmAdapterId, groupId: {0}", groupId);
             }
 
             return adapterId;
