@@ -752,7 +752,11 @@ namespace NPVR
                         urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_NUMBER, args.SeasonNumber.ToString()));
                     }
 
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_EPISODE_SEED, args.EpisodeSeed.ToString()));
+                    if (args.EpisodeSeed > 0)
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_EPISODE_SEED, args.EpisodeSeed.ToString()));
+                    }
+
                     urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
 
                     if (args.LookupCriteria != null && args.LookupCriteria.Count > 0)
@@ -918,10 +922,23 @@ namespace NPVR
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "3.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SERIES_ID_PARAM, args.SeriesID));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SEASON_NUMBER_PARAM, args.SeasonNumber));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_BY_CHANNEL_ID_PARAM, args.ChannelId));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_BY_STATUS_PARAM, string.Join(",", args.Status.Select(x => x.ToString().ToLower()))));
+
+                    if (!string.IsNullOrEmpty(args.SeriesID))
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SERIES_ID_PARAM, args.SeriesID));
+                    }
+                    if (!string.IsNullOrEmpty(args.SeasonNumber))
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SEASON_NUMBER_PARAM, args.SeasonNumber));
+                    }
+                    if (!string.IsNullOrEmpty(args.ChannelId))
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_CHANNEL_ID_PARAM, ConvertEpgChannelIdToExternalID(args.ChannelId)));
+                    }
+                    if (args.Status != null && args.Status.Count > 0)
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_STATUS_PARAM, string.Join(",", args.Status.Select(x => x.ToString().ToLower()))));
+                    }
 
                     string url = BuildRestCommand(ALU_DELETE_BY_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
 
