@@ -262,6 +262,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("GroupGeoBlockRules_groupId_{0}", groupId);
         }
 
+        public static string GetAssetKey(string assetType, long id)
+        {
+            return string.Format("Asset_type_{0}_id_{1}", assetType, id);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -429,6 +434,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupGeoBlockRulesInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyGroupGeoBlockRules_groupId_{0}", groupId);
+        }
+
+        public static string GetAssetInvalidationKey(string assetType, long id)
+        {
+            return string.Format("invalidationKeyAsset_type_{0}_id_{1}", assetType, id);
         }
 
         #endregion

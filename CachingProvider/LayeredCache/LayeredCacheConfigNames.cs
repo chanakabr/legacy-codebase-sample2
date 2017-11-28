@@ -49,6 +49,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_CATALOG_GROUP_CACHE_CONFIG_NAME = "GetCatalogGroupCache";
         public const string GET_GROUP_DEVICE_RULES_CACHE_CONFIG_NAME = "GetGroupDeviceRules";
         public const string GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME = "GetGroupGeoBlockRules";
+        public const string GET_ASSET_CACHE_CONFIG_NAME = "GetAsset";
         #endregion
 
         #region Constant Invalidation Keys
