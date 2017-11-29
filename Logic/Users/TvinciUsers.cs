@@ -1158,6 +1158,11 @@ namespace Core.Users
                         return resp;
                     }
                 }
+                // if coGuid null - do not change the existing value - use the previous value for update 
+                else if (oBasicData.m_CoGuid == null)
+                {
+                    oBasicData.m_CoGuid = u.m_oBasicData.m_CoGuid;
+                }
                 if (m_newsLetterImpl != null)
                 {
                     if (sDynamicData != null && u.m_oDynamicData != null)
