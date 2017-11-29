@@ -18,6 +18,7 @@ namespace Core.Catalog.CatalogManagement
         public int? GeoBlockRuleId { get; set; }
         public List<FileMedia> Files { get; set; }
         public string UserTypes { get; set; }
+        public bool? IsActive { get; set; }
 
         public MediaAsset()
             :base()
@@ -30,12 +31,13 @@ namespace Core.Catalog.CatalogManagement
             this.GeoBlockRuleId = null;
             this.Files = new List<FileMedia>();
             this.UserTypes = string.Empty;
+            this.IsActive = null;
         }
 
         public MediaAsset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages, DateTime? createDate,
                         DateTime? updateDate, DateTime? startDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Picture> pictures, string coGuid, bool isActive, DateTime? catalogStartDate,
                         DateTime? finalEndDate, MediaType mediaType, string entryId, int? deviceRuleId, int? geoBlockRuleId, List<FileMedia> files, string userTypes)
-            : base(id, assetType, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, updateDate, startDate, endDate, metas, tags, pictures, coGuid, isActive)
+            : base(id, assetType, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, updateDate, startDate, endDate, metas, tags, pictures, coGuid)
         {
             this.CatalogStartDate = catalogStartDate;
             this.FinalEndDate = finalEndDate;
@@ -45,6 +47,7 @@ namespace Core.Catalog.CatalogManagement
             this.GeoBlockRuleId = geoBlockRuleId;
             this.Files = files != null ? new List<FileMedia>(files) : new List<FileMedia>();
             this.UserTypes = userTypes;
+            this.IsActive = IsActive;
         }
 
     }
