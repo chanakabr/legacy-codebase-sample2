@@ -176,7 +176,7 @@ namespace WebAPI.Utils
                 else if (source.DrmId > 0)
                 {
                     string code, message;
-                    string customDrmDate = ClientsManager.ApiClient().GetCustomDrmAssetLicenseData(ks.GroupId, source.DrmId, ks.UserId, assetId, assetType, source.Id.Value, KSUtils.ExtractKSPayload().UDID,
+                    string customDrmDate = ClientsManager.ApiClient().GetCustomDrmAssetLicenseData(ks.GroupId, source.DrmId, ks.UserId, assetId, assetType, source.Id.Value, source.ExternalId, KSUtils.ExtractKSPayload().UDID,
                         out code, out message);
 
                     // no errors
