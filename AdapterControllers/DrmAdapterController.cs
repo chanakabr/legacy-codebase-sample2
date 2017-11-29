@@ -119,7 +119,7 @@ namespace AdapterControllers
             return result;
         }
 
-        public string GetDeviceLicenseData(int groupId, int adapterId, string userId, string udid, string ip)
+        public string GetDeviceLicenseData(int groupId, int adapterId, string userId, string udid, string deviceFamily, int deviceBrandId, string ip)
         {
             string licenseData = null;
 
@@ -141,15 +141,15 @@ namespace AdapterControllers
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
-            string signature = string.Concat(adapterId, userId, udid, ip, unixTimestamp);
+            string signature = string.Concat(adapterId, groupId, userId, udid, deviceFamily, deviceBrandId, ip, unixTimestamp);
 
             try
             {
-                string inputParameters = string.Format("adapterId = {0}, userId = {1}, udid = {2}, ip = {3}",
-                adapterId, userId, udid, ip);
+                string inputParameters = string.Format("adapterId = {0}, groupId = {1}, userId = {2}, udid = {3}, deviceFamily = {4}, deviceBrandId = {5}, ip = {6}",
+                adapterId, groupId, userId, deviceFamily, deviceBrandId, udid, ip);
                 log.DebugFormat("Sending request to DRM adapter, GetDeviceLicenseData. {0}", inputParameters);
 
-                drmAdapter.DrmAdapterResponse adapterResponse = CallGetDeviceLicenseData(adapterId, userId, udid, ip, adapter, adapterClient, unixTimestamp, signature);
+                drmAdapter.DrmAdapterResponse adapterResponse = CallGetDeviceLicenseData(adapterId, groupId, userId, udid, deviceFamily, deviceBrandId, ip, adapter, adapterClient, unixTimestamp, signature);
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
                     adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -168,7 +168,7 @@ namespace AdapterControllers
                     configurationSynchronizer.DoAction(key, parameters);
 
                     // call adapter again after setting the configuration
-                    adapterResponse = CallGetDeviceLicenseData(adapterId, userId, udid, ip, adapter, adapterClient, unixTimestamp, signature);
+                    adapterResponse = CallGetDeviceLicenseData(adapterId, groupId, userId, udid, deviceFamily, deviceBrandId, ip, adapter, adapterClient, unixTimestamp, signature);
 
                 }
 
@@ -184,7 +184,7 @@ namespace AdapterControllers
             return licenseData;
         }
 
-        public string GetAssetLicenseData(int groupId, int adapterId, string userId, string assetId, eAssetTypes assetType, long contentId, string ip, string udid)
+        public string GetAssetLicenseData(int groupId, int adapterId, string userId, string assetId, eAssetTypes assetType, long fileId, string externalFileId, string ip, string udid)
         {
             string licenseData = null;
 
@@ -206,15 +206,15 @@ namespace AdapterControllers
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
-            string signature = string.Concat(adapterId, userId, assetId, assetType, contentId, ip, udid, unixTimestamp);
+            string signature = string.Concat(adapterId, groupId, userId, assetId, assetType, fileId, externalFileId, ip, udid, unixTimestamp);
 
             try
             {
-                string inputParameters = string.Format("adapterId = {0}, userId = {1}, assetId = {2}, assetType = {3}, contentId = {4}, ip = {5}, udid = {6}",
-                adapterId, userId, assetId, assetType, contentId, contentId, ip, udid);
+                string inputParameters = string.Format("adapterId = {0}, groupId = {1}, userId = {2}, assetId = {3}, assetType = {4}, fileId = {5}, externalFileId = {6}, ip = {7}, udid = {8}",
+                adapterId, groupId, userId, assetId, assetType, fileId, externalFileId, ip, udid);
                 log.DebugFormat("Sending request to DRM adapter. {0}", inputParameters);
 
-                drmAdapter.DrmAdapterResponse adapterResponse = CallGetAssetLicenseData(adapterId, userId, assetId, assetType, contentId, ip, udid, adapter, adapterClient, unixTimestamp, signature);
+                drmAdapter.DrmAdapterResponse adapterResponse = CallGetAssetLicenseData(adapterId, groupId, userId, assetId, assetType, fileId, externalFileId, ip, udid, adapter, adapterClient, unixTimestamp, signature);
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
                     adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -233,7 +233,7 @@ namespace AdapterControllers
                     configurationSynchronizer.DoAction(key, parameters);
 
                     // call adapter again after setting the configuration
-                    adapterResponse = CallGetAssetLicenseData(adapterId, userId, assetId, assetType, contentId, ip, udid, adapter, adapterClient, unixTimestamp, signature);
+                    adapterResponse = CallGetAssetLicenseData(adapterId, groupId, userId, assetId, assetType, fileId, externalFileId, ip, udid, adapter, adapterClient, unixTimestamp, signature);
 
                 }
 
@@ -293,14 +293,14 @@ namespace AdapterControllers
             return adapterResponse.Data;
         }
 
-        private static drmAdapter.DrmAdapterResponse CallGetAssetLicenseData(int adapterId, string userId, string assetId, eAssetTypes assetType, long contentId, string ip, string udid, DrmAdapter adapter, drmAdapter.ServiceClient adapterClient, long unixTimestamp, string signature)
+        private static drmAdapter.DrmAdapterResponse CallGetAssetLicenseData(int adapterId, int partnerId, string userId, string assetId, eAssetTypes assetType, long fileId, string externalFileId, string ip, string udid, DrmAdapter adapter, drmAdapter.ServiceClient adapterClient, long unixTimestamp, string signature)
         {
             drmAdapter.DrmAdapterResponse adapterResponse;
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetAssetLicenseData(adapterId, userId, assetId, (drmAdapter.AssetType)assetType, contentId, ip, udid, unixTimestamp,
+                adapterResponse = adapterClient.GetAssetLicenseData(adapterId, partnerId, userId, assetId, (drmAdapter.AssetType)assetType, fileId, externalFileId, ip, udid, unixTimestamp,
                     System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
             }
 
@@ -317,14 +317,14 @@ namespace AdapterControllers
             return adapterResponse;
         }
 
-        private static drmAdapter.DrmAdapterResponse CallGetDeviceLicenseData(int adapterId, string userId, string udid, string ip, DrmAdapter adapter, drmAdapter.ServiceClient adapterClient, long unixTimestamp, string signature)
+        private static drmAdapter.DrmAdapterResponse CallGetDeviceLicenseData(int adapterId, int partnerId, string userId, string udid, string deviceFamily, int deviceBrandId, string ip, DrmAdapter adapter, drmAdapter.ServiceClient adapterClient, long unixTimestamp, string signature)
         {
             drmAdapter.DrmAdapterResponse adapterResponse;
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetDeviceLicenseData(adapterId, userId, udid, ip, unixTimestamp,
+                adapterResponse = adapterClient.GetDeviceLicenseData(adapterId, partnerId, userId, udid, deviceFamily, deviceBrandId, ip, unixTimestamp,
                     System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
             }
 
