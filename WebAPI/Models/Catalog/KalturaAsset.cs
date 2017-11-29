@@ -10,22 +10,6 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
-    /// Asset wrapper
-    /// </summary>
-    [Serializable]
-    public class KalturaAssetListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// Assets
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaAsset> Objects { get; set; }
-    }
-
-    /// <summary>
     /// Asset info
     /// </summary>
     [Serializable]
@@ -118,7 +102,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "startDate")]
         [JsonProperty(PropertyName = "startDate")]
-        [XmlElement(ElementName = "startDate")]
+        [XmlElement(ElementName = "startDate", IsNullable = true)]
         public long? StartDate { get; set; }
 
         /// <summary>
@@ -126,7 +110,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "endDate")]
         [JsonProperty(PropertyName = "endDate")]
-        [XmlElement(ElementName = "endDate")]
+        [XmlElement(ElementName = "endDate", IsNullable = true)]
         public long? EndDate { get; set; }
 
         /// <summary>
@@ -134,7 +118,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "createDate")]
         [JsonProperty("createDate")]
-        [XmlElement(ElementName = "createDate")]
+        [XmlElement(ElementName = "createDate", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long CreateDate { get; set; }
 
@@ -143,7 +127,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "updateDate")]
         [JsonProperty("updateDate")]
-        [XmlElement(ElementName = "updateDate")]
+        [XmlElement(ElementName = "updateDate", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
@@ -195,187 +179,6 @@ namespace WebAPI.Models.Catalog
         {
             return Type.HasValue ? (int)Type : 0;
         }
-    }
-
-    /// <summary>
-    /// Program-asset info
-    /// </summary>
-    [Serializable]
-    public class KalturaProgramAsset : KalturaAsset
-    {
-        /// <summary>
-        /// EPG channel identifier
-        /// </summary>
-        [DataMember(Name = "epgChannelId")]
-        [JsonProperty(PropertyName = "epgChannelId")]
-        [XmlElement(ElementName = "epgChannelId")]
-        public long? EpgChannelId { get; set; }
-
-        /// <summary>
-        /// EPG identifier
-        /// </summary>
-        [DataMember(Name = "epgId")]
-        [JsonProperty(PropertyName = "epgId")]
-        [XmlElement(ElementName = "epgId")]
-        public string EpgId { get; set; }
-
-        /// <summary>
-        /// Ralated media identifier
-        /// </summary>
-        [DataMember(Name = "relatedMediaId")]
-        [JsonProperty(PropertyName = "relatedMediaId")]
-        [XmlElement(ElementName = "relatedMediaId")]
-        public long? RelatedMediaId { get; set; }
-
-        /// <summary>
-        /// Unique identifier for the program
-        /// </summary>
-        [DataMember(Name = "crid")]
-        [JsonProperty(PropertyName = "crid")]
-        [XmlElement(ElementName = "crid")]
-        public string Crid { get; set; }
-
-        /// <summary>
-        /// Id of linear media asset
-        /// </summary>
-        [DataMember(Name = "linearAssetId")]
-        [JsonProperty(PropertyName = "linearAssetId")]
-        [XmlElement(ElementName = "linearAssetId")]
-        public long? LinearAssetId { get; set; }
-    }
-
-    /// <summary>
-    /// Media-asset info
-    /// </summary>
-    [Serializable]
-    public class KalturaMediaAsset : KalturaAsset
-    {
-        /// <summary>
-        /// External identifiers
-        /// </summary>
-        [DataMember(Name = "externalIds")]
-        [JsonProperty(PropertyName = "externalIds")]
-        [XmlElement(ElementName = "externalIds")]
-        public string ExternalIds { get; set; }
-
-        /// <summary>
-        /// Catch-up buffer
-        /// </summary>
-        [DataMember(Name = "catchUpBuffer")]
-        [JsonProperty(PropertyName = "catchUpBuffer")]
-        [XmlElement(ElementName = "catchUpBuffer")]
-        [Deprecated("4.6.0.0")]
-        public long? CatchUpBuffer { get; set; }
-
-        /// <summary>
-        /// Trick-play buffer
-        /// </summary>
-        [DataMember(Name = "trickPlayBuffer")]
-        [JsonProperty(PropertyName = "trickPlayBuffer")]
-        [XmlElement(ElementName = "trickPlayBuffer")]
-        [Deprecated("4.6.0.0")]
-        public long? TrickPlayBuffer { get; set; }
-
-        /// <summary>
-        /// Enable Recording playback for non entitled channel
-        /// </summary>
-        [DataMember(Name = "enableRecordingPlaybackNonEntitledChannel")]
-        [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannel")]
-        [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
-        [SchemeProperty(ReadOnly = true)]
-        [Deprecated("4.6.0.0")]
-        public bool? EnableRecordingPlaybackNonEntitledChannel { get; set; }
-
-        /// <summary>
-        /// Asset type description 
-        /// </summary>                
-        [DataMember(Name = "typeDescription")]
-        [JsonProperty(PropertyName = "typeDescription")]
-        [XmlElement(ElementName = "typeDescription")]
-        [SchemeProperty(ReadOnly = true)]
-        [JsonIgnore]        
-        public string TypeDescription { get; set; }
-
-        /// <summary>
-        /// Entry Identifier
-        /// </summary>
-        [DataMember(Name = "entryId")]
-        [JsonProperty(PropertyName = "entryId")]
-        [XmlElement(ElementName = "entryId")]    
-        public string EntryId { get; set; }
-
-        /// <summary>
-        /// Device rule identifier
-        /// </summary>
-        [DataMember(Name = "deviceRuleId")]
-        [JsonProperty(PropertyName = "deviceRuleId")]
-        [XmlElement(ElementName = "deviceRuleId", IsNullable = true)]
-        public int? DeviceRuleId { get; set; }
-
-        /// <summary>
-        /// Device rule
-        /// </summary>
-        [DataMember(Name = "deviceRule")]
-        [JsonProperty(PropertyName = "deviceRule")]
-        [XmlElement(ElementName = "deviceRule")]
-        [SchemeProperty(ReadOnly = true)]
-        [JsonIgnore]        
-        public string DeviceRule { get; set; }
-
-        /// <summary>
-        /// Geo block rule identifier
-        /// </summary>
-        [DataMember(Name = "geoBlockRuleId")]
-        [JsonProperty(PropertyName = "geoBlockRuleId")]
-        [XmlElement(ElementName = "geoBlockRuleId", IsNullable = true)]        
-        public int? GeoBlockRuleId { get; set; }
-
-        /// <summary>
-        /// Geo block rule
-        /// </summary>
-        [DataMember(Name = "geoBlockRule")]
-        [JsonProperty(PropertyName = "geoBlockRule")]
-        [XmlElement(ElementName = "geoBlockRule")]
-        [SchemeProperty(ReadOnly = true)]
-        [JsonIgnore]        
-        public string GeoBlockRule { get; set; }
-
-        /// <summary>
-        /// Watch permission rule
-        /// </summary>
-        [DataMember(Name = "watchPermissionRule")]
-        [JsonProperty(PropertyName = "watchPermissionRule")]
-        [XmlElement(ElementName = "watchPermissionRule")]
-        [SchemeProperty(ReadOnly = true)]
-        [JsonIgnore]
-        public string WatchPermissionRule { get; set; }
-    }
-
-    /// <summary>
-    /// Recording-asset info
-    /// </summary>
-    [Serializable]
-    public class KalturaRecordingAsset : KalturaProgramAsset
-    {
-        /// <summary>
-        /// Recording identifier
-        /// </summary>
-        [DataMember(Name = "recordingId")]
-        [JsonProperty(PropertyName = "recordingId")]
-        [XmlElement(ElementName = "recordingId")]
-        public string RecordingId
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Recording Type: single/season/series
-        /// </summary>
-        [DataMember(Name = "recordingType")]
-        [JsonProperty(PropertyName = "recordingType")]
-        [XmlElement(ElementName = "recordingType", IsNullable = true)]
-        public WebAPI.Models.ConditionalAccess.KalturaRecordingType? RecordingType { get; set; }
     }
     
 }

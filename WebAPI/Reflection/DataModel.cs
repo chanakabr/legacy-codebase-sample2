@@ -39,6 +39,26 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaLinearMediaAsset":
+                    switch (propertyName)
+                    {
+                        case "CatchUpBuffer":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableCatchUp":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableCdvr":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableRecordingPlaybackNonEntitledChannel":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableStartOver":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "EnableTrickPlay":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "TrickPlayBuffer":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
                 case "KalturaMediaAsset":
                     switch (propertyName)
                     {
@@ -360,6 +380,14 @@ namespace WebAPI.Reflection
                         case "AllowMultiInstance":
                         case "Name":
                         case "Selected":
+                            return true;
+                    };
+                    break;
+                    
+                case "KalturaLinearMediaAsset":
+                    switch (propertyName)
+                    {
+                        case "Statistics":
                             return true;
                     };
                     break;
@@ -4311,6 +4339,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaLinearMediaAsset":
+                    switch(property.Name)
+                    {
+                        case "EpgChannelId":
+                            return "epgChannelId";
+                    }
+                    break;
+                    
                 case "KalturaListFollowDataTvSeriesResponse":
                     switch(property.Name)
                     {
@@ -4366,6 +4402,8 @@ namespace WebAPI.Reflection
                             return "geoBlockRule";
                         case "GeoBlockRuleId":
                             return "geoBlockRuleId";
+                        case "Status":
+                            return "status";
                         case "TrickPlayBuffer":
                             return "trickPlayBuffer";
                         case "TypeDescription":

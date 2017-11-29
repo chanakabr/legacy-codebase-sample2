@@ -236,6 +236,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructFilter.cs" />
     <Compile Include="Controllers\CollectionController.cs" />
@@ -290,7 +291,12 @@
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStruct.cs" />
     <Compile Include="Models\Catalog\KalturaBaseSearchAssetFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaEpgChannel.cs" />
+    <Compile Include="Models\Catalog\KalturaLinearMediaAsset.cs" />
+    <Compile Include="Models\Catalog\KalturaMediaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaMetaDataType.cs" />
+    <Compile Include="Models\Catalog\KalturaProgramAsset.cs" />
+    <Compile Include="Models\Catalog\KalturaRecordingAsset.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAdContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingPriceType.cs" />
     <Compile Include="Models\General\KalturaAggregationCountFilter.cs" />

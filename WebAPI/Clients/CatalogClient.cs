@@ -689,7 +689,15 @@ namespace WebAPI.Clients
                 // get base objects list
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
-                // get assets from catalog/cache
+                /*if (group== new type of group)
+                {
+                if (assetType==media)
+                {
+                }            
+                }
+                // get assets from catalog/cache                
+                else
+                */
                 result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, managementData);
                 result.TotalCount = searchResponse.m_nTotalItems;
             }

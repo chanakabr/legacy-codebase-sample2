@@ -4021,6 +4021,16 @@
             <param name="userId">User identifier</param>
             <returns></returns>
         </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetListResponse">
+            <summary>
+            Asset wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetListResponse.Objects">
+            <summary>
+            Assets
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetStructListResponse">
             <summary>
             Asset Structs list
@@ -4090,6 +4100,186 @@
         <member name="P:WebAPI.Models.Catalog.KalturaBaseSearchAssetFilter.GroupBy">
             <summary>
             groupBy
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.Id">
+            <summary>
+            Unique identifier for the epg channel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.Name">
+            <summary>
+            epg channel name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.Description">
+            <summary>
+            epg channel description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.CreateDate">
+            <summary>
+            Specifies when was the epg channel was created. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.UpdateDate">
+            <summary>
+            Specifies when was the epg channel last updated. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.EnableCdvr">
+            <summary>
+            Enable cDVR
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.EnableCatchUp">
+            <summary>
+            Enable catch-up
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.EnableStartOver">
+            <summary>
+            Enable start over
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.CatchUpBuffer">
+            <summary>
+            Catch-up buffer
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.TrickPlayBuffer">
+            <summary>
+            Trick-play buffer
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.EnableRecordingPlaybackNonEntitledChannel">
+            <summary>
+            Enable Recording playback for non entitled channel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.EnableTrickPlay">
+            <summary>
+            Enable trick-play
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaLinearMediaAsset">
+            <summary>
+            Linear media asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EpgChannelId">
+            <summary>
+            Id of epg channel
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaMediaAsset">
+            <summary>
+            Media-asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.ExternalIds">
+            <summary>
+            External identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.CatchUpBuffer">
+            <summary>
+            Catch-up buffer
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TrickPlayBuffer">
+            <summary>
+            Trick-play buffer
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EnableRecordingPlaybackNonEntitledChannel">
+            <summary>
+            Enable Recording playback for non entitled channel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TypeDescription">
+            <summary>
+            Asset type description 
+            </summary>                
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EntryId">
+            <summary>
+            Entry Identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.DeviceRuleId">
+            <summary>
+            Device rule identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.DeviceRule">
+            <summary>
+            Device rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.GeoBlockRuleId">
+            <summary>
+            Geo block rule identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.GeoBlockRule">
+            <summary>
+            Geo block rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.WatchPermissionRule">
+            <summary>
+            Watch permission rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.Status">
+            <summary>
+             The media asset status
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaProgramAsset">
+            <summary>
+            Program-asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.EpgChannelId">
+            <summary>
+            EPG channel identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.EpgId">
+            <summary>
+            EPG identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.RelatedMediaId">
+            <summary>
+            Ralated media identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.Crid">
+            <summary>
+            Unique identifier for the program
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.LinearAssetId">
+            <summary>
+            Id of linear media asset
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaRecordingAsset">
+            <summary>
+            Recording-asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRecordingAsset.RecordingId">
+            <summary>
+            Recording identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRecordingAsset.RecordingType">
+            <summary>
+            Recording Type: single/season/series
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetCountListResponse">
@@ -4392,16 +4582,6 @@
             dynamicOrderBy - order by Meta
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaAssetListResponse">
-            <summary>
-            Asset wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetListResponse.Objects">
-            <summary>
-            Assets
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAsset">
             <summary>
             Asset info
@@ -4496,111 +4676,6 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAsset.ExternalId">
             <summary>
             External identifier for the media file
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaProgramAsset">
-            <summary>
-            Program-asset info
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.EpgChannelId">
-            <summary>
-            EPG channel identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.EpgId">
-            <summary>
-            EPG identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.RelatedMediaId">
-            <summary>
-            Ralated media identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.Crid">
-            <summary>
-            Unique identifier for the program
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.LinearAssetId">
-            <summary>
-            Id of linear media asset
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaMediaAsset">
-            <summary>
-            Media-asset info
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.ExternalIds">
-            <summary>
-            External identifiers
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.CatchUpBuffer">
-            <summary>
-            Catch-up buffer
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TrickPlayBuffer">
-            <summary>
-            Trick-play buffer
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EnableRecordingPlaybackNonEntitledChannel">
-            <summary>
-            Enable Recording playback for non entitled channel
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TypeDescription">
-            <summary>
-            Asset type description 
-            </summary>                
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EntryId">
-            <summary>
-            Entry Identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.DeviceRuleId">
-            <summary>
-            Device rule identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.DeviceRule">
-            <summary>
-            Device rule
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.GeoBlockRuleId">
-            <summary>
-            Geo block rule identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.GeoBlockRule">
-            <summary>
-            Geo block rule
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.WatchPermissionRule">
-            <summary>
-            Watch permission rule
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaRecordingAsset">
-            <summary>
-            Recording-asset info
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaRecordingAsset.RecordingId">
-            <summary>
-            Recording identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaRecordingAsset.RecordingType">
-            <summary>
-            Recording Type: single/season/series
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBundleFilter.IdEqual">
