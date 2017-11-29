@@ -10161,7 +10161,7 @@ namespace Core.Api
             }
         }
 
-        internal static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int contentId, string ip, string udid)
+        internal static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId, string externalFileId, string ip, string udid)
         {
             StringResponse response = new StringResponse();
 
@@ -10175,7 +10175,7 @@ namespace Core.Api
                     return response;
                 }
 
-                response.Value = DrmAdapterController.GetInstance().GetAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid);
+                response.Value = DrmAdapterController.GetInstance().GetAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             }
@@ -10188,20 +10188,20 @@ namespace Core.Api
                     code = (int)statusCode;
                 }
                 response.Status = new ApiObjects.Response.Status(code, ex.Message);
-                log.Error(string.Format("Failed in GetCustomDrmLicenseData groupId={0}, drmAdapterId={1}, userId={2}, assetId={3}, eAssetTypes={4}, contentId={5}, ip={6}, udid={7}",
-                    groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid), ex);
+                log.Error(string.Format("Failed in GetCustomDrmLicenseData groupId={0}, drmAdapterId={1}, userId={2}, assetId={3}, eAssetTypes={4}, fileId={5}, externalFileId={6}, ip={7}, udid={8}",
+                    groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid), ex);
                 return response;
             }
             catch (Exception ex)
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed in GetCustomDrmLicenseData groupId={0}, drmAdapterId={1}, userId={2}, assetId={3}, eAssetTypes={4}, contentId={5}, ip={6}, udid={7}",
-                    groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid), ex);
+                log.Error(string.Format("Failed in GetCustomDrmLicenseData groupId={0}, drmAdapterId={1}, userId={2}, assetId={3}, eAssetTypes={4}, fileId={5}, externalFileId={6}, ip={7}, udid={8}",
+                    groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid), ex);
             }
             return response;
         }
 
-        internal static StringResponse GetCustomDrmDeviceLicenseData(int groupId, int drmAdapterId, string userId, string udid, string ip)
+        internal static StringResponse GetCustomDrmDeviceLicenseData(int groupId, int drmAdapterId, string userId, string udid, string deviceFamily, int deviceBrandId, string ip)
         {
             StringResponse response = new StringResponse();
 
@@ -10215,7 +10215,7 @@ namespace Core.Api
                     return response;
                 }
 
-                response.Value = DrmAdapterController.GetInstance().GetDeviceLicenseData(groupId, drmAdapterId, userId, udid, ip);
+                response.Value = DrmAdapterController.GetInstance().GetDeviceLicenseData(groupId, drmAdapterId, userId, udid, deviceFamily, deviceBrandId, ip);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             }
@@ -10228,8 +10228,8 @@ namespace Core.Api
                     code = (int)statusCode;
                 }
                 response.Status = new ApiObjects.Response.Status(code, ex.Message);
-                log.Error(string.Format("Failed in GetCustomDrmLicenseData groupId={0}, drmAdapterId={1}, userId={2}, udid={3}, ip={4}",
-                    groupId, drmAdapterId, userId, udid, ip), ex);
+                log.Error(string.Format("Failed in GetCustomDrmLicenseData groupId={0}, drmAdapterId={1}, userId={2}, udid={3}, deviceFamily={4}, deviceBrandId={5} ip={6}",
+                    groupId, drmAdapterId, userId, udid, deviceFamily, deviceBrandId, ip), ex);
                 return response;
             }
             catch (Exception ex)

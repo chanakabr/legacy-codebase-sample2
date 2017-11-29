@@ -1773,7 +1773,7 @@ namespace Core.Users
                             int drmAdapterId = CachingHelpers.DrmAdapterCache.Instance.GetGroupDrmAdapterId(m_nGroupID);
                             if (drmAdapterId > 0)
                             {
-                                var adapterResponse = Api.api.GetCustomDrmDeviceLicenseData(m_nGroupID, drmAdapterId, userId, udid, ip);
+                                var adapterResponse = Api.api.GetCustomDrmDeviceLicenseData(m_nGroupID, drmAdapterId, userId, udid, device.m_deviceFamily, device.m_deviceBrandID, ip);
                                 if (adapterResponse.Status.Code != (int)eResponseStatus.OK)
                                 {
                                     response.Status = adapterResponse.Status;
