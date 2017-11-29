@@ -1616,6 +1616,42 @@ namespace Core.Api
             return res;
         }
 
+        internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
+        {
+            List<int> result = new List<int>();
+
+            try
+            {
+                List<int> ruleIds = new List<int>();
+
+                // get all related rules to media 
+                string key = LayeredCacheKeys.GetMediaConcurrencyRulesDeviceLimitationModuleKey(dlmId);
+
+                bool cacheResult = LayeredCache.Instance.Get<List<int>>(
+                    key, ref result, Get_MCRulesIdsByDeviceLimitationModule,
+                    new Dictionary<string, object>()
+                        {
+                        { "groupId", groupId },
+                        { "dlmId", dlmId }
+                        },
+                    groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_BY_LIMITATION_MODULE_CACHE_CONFIG_NAME,
+                    new List<string>() { LayeredCacheKeys.GetMediaConcurrencyRulesDeviceLimitationModuleInvalidationKey(groupId, dlmId) });
+
+                if (!cacheResult)
+                {
+                    log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId={0}, dlmId={1}", groupId, dlmId));
+                    return null;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetMediaConcurrencyRulesByDomainLimitionModule - Failed  due ex = " + ex.Message, ex);
+                return null;
+            }
+        }
+
         static private Dictionary<string, List<EPGDictionary>> GetAllEPGMetaProgram(int nGroupID, DataTable ProgramID)
         {
             Dictionary<string, List<EPGDictionary>> EPG_ResponseMeta = new Dictionary<string, List<EPGDictionary>>();
@@ -4319,6 +4355,38 @@ namespace Core.Api
                 log.Error(string.Format("Get_MCRulesIdsByMediaId faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
             return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), res);
+        }
+
+
+        internal static Tuple<List<int>, bool> Get_MCRulesIdsByDeviceLimitationModule(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<int> ruleIds = new List<int>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("dlmId"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        int? dlmId = funcParams["dlmId"] as int?;
+
+                        if (groupId.HasValue && dlmId.HasValue)
+                        {
+                            ruleIds = ApiDAL.GetMCRulesByDLM(groupId.Value, dlmId.Value);
+
+                            result = true;
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_MCRulesIdsByMediaId faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), result);
         }
 
         /***************************************************************************************************************************

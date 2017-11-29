@@ -343,6 +343,7 @@
     <Compile Include="ConditionalAccess\Commands\DeleteSeriesRecordingByNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\LicensedLinkNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\ProtectNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\RecordNPVRAlreadyWatchedCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RecordNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RecordSeriesByNameNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RecordSeriesByProgramIdNPVRCommand.cs" />
