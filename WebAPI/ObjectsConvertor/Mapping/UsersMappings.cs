@@ -122,7 +122,7 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_sCity, opt => opt.MapFrom(src => src.City))
                 .ForMember(dest => dest.m_Country, opt => opt.MapFrom(src => ConvertContry(src.Country, src.CountryId)))
                 .ForMember(dest => dest.m_sEmail, opt => opt.MapFrom(src => src.Email))
-                .ForMember(dest => dest.m_CoGuid, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.m_CoGuid, opt => opt.MapFrom(src => src.ExternalId != null ? src.ExternalId : null))
                 .ForMember(dest => dest.m_sFacebookID, opt => opt.MapFrom(src => src.FacebookId))
                 .ForMember(dest => dest.m_sFacebookImage, opt => opt.MapFrom(src => src.FacebookImage))
                 .ForMember(dest => dest.m_sFacebookToken, opt => opt.MapFrom(src => src.FacebookToken))
@@ -210,11 +210,11 @@ namespace ObjectsConvertor.Mapping
 
             #endregion
 
-            //add mapping
             // UserDynamicData to KalturaOTTUserDynamicData
             Mapper.CreateMap<UserDynamicData, KalturaOTTUserDynamicData>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src)));
+                .ForMember(dest => dest.Key, opt => opt.MapFrom(src => ConvertDynamicDataKey(src)))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => ConvertDynamicDataValue(src)));
         }
 
         private static Core.Users.Country ConvertContry(KalturaCountry country, int? countryId)
@@ -401,6 +401,30 @@ namespace ObjectsConvertor.Mapping
             return result;
         }
 
+        public static string ConvertDynamicDataKey(UserDynamicData userDynamicData)
+        {
+            string result = string.Empty;
+
+            if (userDynamicData != null && userDynamicData.m_sUserData != null && userDynamicData.m_sUserData.Length > 0)
+            {
+                result = userDynamicData.m_sUserData[0].m_sDataType;
+            }
+
+            return result;
+        }
+
+        public static KalturaStringValue ConvertDynamicDataValue(UserDynamicData userDynamicData)
+        {
+            KalturaStringValue result = null;
+
+            if (userDynamicData != null && userDynamicData.m_sUserData != null && userDynamicData.m_sUserData.Length > 0)
+            {
+                result = new KalturaStringValue() { value = userDynamicData.m_sUserData[0].m_sValue };
+            }
+
+            return result;
+        }
+
         public static FavoriteOrderBy ConvertFavoriteOrderBy(KalturaFavoriteOrderBy orderBy)
         {
             FavoriteOrderBy result;
@@ -422,8 +446,7 @@ namespace ObjectsConvertor.Mapping
 
         internal static KalturaOTTUserDynamicData ConvertOTTUserDynamicData(string userId, string key, KalturaStringValue value)
         {
-            KalturaOTTUserDynamicData result = new KalturaOTTUserDynamicData() { UserId = userId, DynamicData = new SerializableDictionary<string, KalturaStringValue>() };
-            result.DynamicData.Add(key, value = value);
+            KalturaOTTUserDynamicData result = new KalturaOTTUserDynamicData() { UserId = userId, Key = key, Value = value };
             return result;
         }
     }

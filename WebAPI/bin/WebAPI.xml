@@ -1399,9 +1399,13 @@
             User identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaOTTUserDynamicData.DynamicData">
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserDynamicData.Key">
+            <summary>Key
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserDynamicData.Value">
             <summary>
-            Dynamic data
+            Value
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaUserInterestListResponse">

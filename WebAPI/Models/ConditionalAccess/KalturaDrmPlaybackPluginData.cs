@@ -11,6 +11,8 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
+    [XmlInclude(typeof(KalturaFairPlayPlaybackPluginData))]
+    [XmlInclude(typeof(KalturaCustomDrmPlaybackPluginData))]
     public class KalturaDrmPlaybackPluginData : KalturaPluginData
     {
         /// <summary>
