@@ -2703,6 +2703,86 @@ namespace Core.Catalog
 
             return result;
         }
+
+        public List<TagValue> SearchTags(int groupId, LanguageObj language, int topicId, string searchValue)
+        {
+            List<TagValue> result = new List<TagValue>();
+
+            #region Build filtered query
+
+            BoolQuery query = new BoolQuery();
+
+            // Create the bool query of the topic Id and the value (autocomplete)
+            ESTerm topicTerm = new ESTerm(true)
+            {
+                Key = "topic_id",
+                Value = topicId.ToString()
+            };
+
+            ESTerm valueTerm = new ESTerm(false)
+            {
+                Key = "value.autocomplete",
+                Value = searchValue
+            };
+
+            query.AddChild(topicTerm, CutWith.AND);
+            query.AddChild(valueTerm, CutWith.AND);
+
+            FilteredQuery filteredQuery = new FilteredQuery()
+            {
+                PageIndex = 0,
+                PageSize = 0,
+                Query = query
+            };
+
+            filteredQuery.ESSort.Add(new ESOrderObj()
+            {
+                m_sOrderValue = "value",
+                m_eOrderDir = OrderDir.DESC
+            });
+
+            #endregion
+
+            #region Perform search
+
+            string searchQueryString = filteredQuery.ToString();
+
+            string type = "tag";
+
+            if (!language.IsDefault)
+            {
+                type = string.Format("tag_{0}", language.Code);
+            }
+
+            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
+
+            string searchResultString = m_oESApi.Search(index, type, ref searchQueryString);
+
+            #endregion
+
+            #region Parse result
+
+            var jsonObj = JObject.Parse(searchResultString);
+
+            if (jsonObj != null)
+            {
+                JToken tempToken;
+                int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+
+                if (totalItems > 0)
+                {
+                    foreach (var item in jsonObj.SelectToken("hits.hits"))
+                    {
+                        var tagValue = item.ToObject<TagValue>();
+
+                        result.Add(tagValue);
+                    }
+                }
+            }
+
+            #endregion
+            return result;
+        }
     }
 
     class AssetDocCompare : IEqualityComparer<ElasticSearchApi.ESAssetDocument>
