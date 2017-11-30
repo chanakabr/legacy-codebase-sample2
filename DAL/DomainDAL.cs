@@ -1972,8 +1972,7 @@ namespace DAL
             sp.AddParameter("@top", nDeviceToDelete);
             sp.AddParameter("@isActive", isActive);
             sp.AddParameter("@dominID", domainID);
-            sp.AddIDListParameter<int>("@devicesID", lDevicesID, "Id");
-            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            sp.AddIDListParameter<int>("@devicesID", lDevicesID, "Id");            
             if (status != null)
                 sp.AddParameter("@status", status);
             sp.AddParameter("@downgradePolicy", (int)downgradePolicy);
