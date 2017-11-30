@@ -1061,7 +1061,7 @@ namespace DAL
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             pgw.IsDefault = isDefault == 1;
                             pgw.SupportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support") == 1;
-
+                            pgw.ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(dr, "external_verification") == 0 ? false : true;
 
                             if (dtConfig != null)
                             {
@@ -1260,6 +1260,8 @@ namespace DAL
                             paymentGateway.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support");
                             paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
+                            paymentGateway.ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(dr, "external_verification") == 0 ? false : true;
+
 
                             if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                             {
@@ -1383,6 +1385,8 @@ namespace DAL
                     paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
                     chargeId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_Id");
                     isSuspended = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_suspended") == 0 ? false : true;
+                    paymentGateway.ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "external_verification") == 0 ? false : true;
+
                 }
 
             }
