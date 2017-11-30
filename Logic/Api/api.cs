@@ -10308,5 +10308,35 @@ namespace Core.Api
             }
             return response;
         }
+
+        internal static List<TagValue> SearchTags(int groupId, int topicId, int languageId, string searchValue)
+        {
+            List<TagValue> result = new List<TagValue>();
+
+            Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache;
+            Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
+
+            if (catalogGroupCache == null)
+            {
+                log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+            }
+            else
+            {
+                LanguageObj language = null;
+                catalogGroupCache.LanguageMapById.TryGetValue(languageId, out language);
+
+                if (language == null)
+                {
+                    log.ErrorFormat("Invalid language id {0}", languageId);
+                }
+                else
+                {
+                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+
+                    result = wrapper.SearchTags(groupId, language, topicId, searchValue);
+                }
+            }
+            return result;
+        }
     }
 }

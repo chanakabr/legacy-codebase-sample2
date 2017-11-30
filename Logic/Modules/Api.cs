@@ -4,6 +4,7 @@ using ApiObjects.BulkExport;
 using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
+using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
 using Core.Api.Modules;
 using Core.Catalog.Response;
@@ -1649,7 +1650,7 @@ namespace Core.Api
             return Core.Api.api.GetCountryList(countryIds, groupId);
         }
 
-        public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual, List<MetaFeatureType> metaFeatureTypeList)
+        public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, ApiObjects.MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual, List<MetaFeatureType> metaFeatureTypeList)
         {
             return Core.Api.api.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual, metaFeatureTypeList);
         }
@@ -1835,6 +1836,11 @@ namespace Core.Api
         internal static List<int> GetMediaConcurrencyRulesByDomainLimitionModule(int groupId, int dlmId)
         {
             return Core.Api.api.GetMediaConcurrencyRulesByDeviceLimitionModule(groupId, dlmId);
+        }
+
+        public static List<TagValue> SearchTags(int groupId, int topicId, int languageId, string searchValue)
+        {
+            return Core.Api.api.SearchTags(groupId, topicId, languageId, searchValue);
         }
     }
 }
