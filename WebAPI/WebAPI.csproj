@@ -236,6 +236,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Models\API\KalturaTagValuesListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructFilter.cs" />

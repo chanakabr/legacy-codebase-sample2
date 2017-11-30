@@ -4,6 +4,7 @@ using ApiObjects.CDNAdapter;
 using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
+using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
 using AutoMapper;
 using Core.Pricing;
@@ -3422,7 +3423,7 @@ namespace WebAPI.Clients
             try
             {
                 eAssetTypes wsAssetType = ApiMappings.ConvertAssetType(assetType);
-                MetaType wsMetaType = ApiMappings.ConvertMetaType(metaType);
+                ApiObjects.MetaType wsMetaType = ApiMappings.ConvertMetaType(metaType);
                 MetaFieldName wsFieldNameEqual = ApiMappings.ConvertMetaFieldName(fieldNameEqual);
                 MetaFieldName wsFieldNameNotEqual = ApiMappings.ConvertMetaFieldName(fieldNameNotEqual);
 
@@ -3838,6 +3839,32 @@ namespace WebAPI.Clients
             }
 
             return drmAdapterResponse.Value;
+        }
+
+        internal KalturaTagValuesListResponse SearchTags(int groupId, int topicId, int languageId, string searchValue)
+        {
+            KalturaTagValuesListResponse result = new Models.API.KalturaTagValuesListResponse();
+
+            List<TagValue> tagValues = new List<TagValue>();
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    tagValues = Core.Api.Module.SearchTags(groupId, topicId, languageId, searchValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling API service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (tagValues == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            return result;
         }
     }
 }
