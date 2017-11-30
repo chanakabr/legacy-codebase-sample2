@@ -1467,37 +1467,34 @@ namespace Core.Users
             }
         }
 
-        
+
         public static UserResponse LogIn(int nGroupID, string userName, string password, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins,
             List<ApiObjects.KeyValuePair> keyValueList)
         {
             UserResponse response = new UserResponse();
-            BaseUsers t = null;
-            Utils.GetBaseImpl(ref t, nGroupID);
-            if (t != null)
-            {   
-                response.user = KalturaSignIn(nGroupID, userName, password, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList);
-                if (response.user != null)
+            response.user = KalturaSignIn(nGroupID, userName, password, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList);
+
+            if (response.user != null)
+            {
+                if (response.user.m_user != null &&
+                    !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(nGroupID, response.user.m_user.m_sSiteGUID, RolePermissions.LOGIN))
                 {
-                    if (response.user.m_user != null && 
-                        !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(nGroupID, response.user.m_user.m_sSiteGUID, RolePermissions.LOGIN))
-                    {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
-                        return response;
-                    }
-
-                    // convert response status
-                    response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus, true, response.user.ExternalCode, response.user.ExternalMessage);
-                    int userID;
-
-                    if (response.resp.Code == (int)ApiObjects.Response.eResponseStatus.OK && int.TryParse(response.user.m_user.m_sSiteGUID, out userID) && userID > 0)
-                    {
-                        Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.Login, userID, deviceID);
-                    }
-                    else
-                        log.ErrorFormat("LogIn: error while signing in out: user: {0}, group: {1}, error: {2}", userName, nGroupID, response.resp.Code);
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                    return response;
                 }
+
+                // convert response status
+                response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus, true, response.user.ExternalCode, response.user.ExternalMessage);
+                int userID;
+
+                if (response.resp.Code == (int)ApiObjects.Response.eResponseStatus.OK && int.TryParse(response.user.m_user.m_sSiteGUID, out userID) && userID > 0)
+                {
+                    Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.Login, userID, deviceID);
+                }
+                else
+                    log.ErrorFormat("LogIn: error while signing in out: user: {0}, group: {1}, error: {2}", userName, nGroupID, response.resp.Code);
             }
+
             return response;
 
         }
