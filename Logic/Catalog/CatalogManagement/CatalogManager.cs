@@ -2236,13 +2236,13 @@ namespace Core.Catalog.CatalogManagement
         }
 
         /// <summary>
-        /// [topic, [language, [tag id, tag value]]]
+        /// 
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        public static Dictionary<Topic, Dictionary<int, Dictionary<int, string>>> GetAllTagValues(int groupId)
+        public static List<ApiObjects.SearchObjects.TagValue> GetAllTagValues(int groupId)
         {
-            var result = new Dictionary<Topic, Dictionary<int, Dictionary<int, string>>>();
+            var result = new List<ApiObjects.SearchObjects.TagValue>();
 
             CatalogGroupCache catalogGroupCache;
             if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -2267,22 +2267,21 @@ namespace Core.Catalog.CatalogManagement
                     int tagId = ODBCWrapper.Utils.ExtractInteger(row, "tag_id");
                     int topicId = ODBCWrapper.Utils.ExtractInteger(row, "topic_id");
                     string tagValue = ODBCWrapper.Utils.ExtractString(row, "tag_value");
-
+                    DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(row, "create_date");
+                    DateTime updateDate = ODBCWrapper.Utils.ExtractDateTime(row, "update_date");
+                    
                     if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
                     {
                         Topic topic = catalogGroupCache.TopicsMapById[topicId];
 
-                        if (!result.ContainsKey(topic))
-                        {
-                            result[topic] = new Dictionary<int, Dictionary<int, string>>();
-                        }
-
-                        if (!result[topic].ContainsKey(defaultLanguage))
-                        {
-                            result[topic][defaultLanguage] = new Dictionary<int, string>();
-                        }
-
-                        result[topic][defaultLanguage][tagId] = tagValue;
+                        result.Add(new ApiObjects.SearchObjects.TagValue() {
+                            createDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate),
+                            languageId = defaultLanguage,
+                            tagId = tagId,
+                            topicId = topicId,
+                            updateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate),
+                            value = tagValue
+                        });
                     }
                 }
             }
@@ -2297,23 +2296,22 @@ namespace Core.Catalog.CatalogManagement
                     int topicId = ODBCWrapper.Utils.ExtractInteger(row, "topic_id");
                     int languageId = ODBCWrapper.Utils.ExtractInteger(row, "language_id");
                     string tagValue = ODBCWrapper.Utils.ExtractString(row, "tag_value");
+                    DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(row, "create_date");
+                    DateTime updateDate = ODBCWrapper.Utils.ExtractDateTime(row, "update_date");
 
                     if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
                     {
                         Topic topic = catalogGroupCache.TopicsMapById[topicId];
 
-                        if (!result.ContainsKey(topic))
+                        result.Add(new ApiObjects.SearchObjects.TagValue()
                         {
-                            result[topic] = new Dictionary<int, Dictionary<int, string>>();
-                        }
-
-                        if (!result[topic].ContainsKey(languageId))
-                        {
-                            result[topic][languageId] = new Dictionary<int, string>();
-                        }
-
-                        // override the default value with the translation
-                        result[topic][languageId][tagId] = tagValue;
+                            createDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate),
+                            languageId = languageId,
+                            tagId = tagId,
+                            topicId = topicId,
+                            updateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate),
+                            value = tagValue
+                        });
                     }
                 }
             }

@@ -101,7 +101,9 @@ namespace ApiObjects
         [EnumMember]
         EpgChannel = 3,
         [EnumMember]
-        Recording = 4
+        Recording = 4,
+        [EnumMember]
+        Tag = 5
     }
 
     [Serializable]
