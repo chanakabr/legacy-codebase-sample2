@@ -1355,6 +1355,33 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static List<Asset> GetMediaAssetsFromCache(int groupId, List<long> ids)
+        {
+            List<Asset> result = new List<Asset>();
+            try
+            {
+                if (ids != null && ids.Count > 0)
+                {
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetMediaAssetsFromCache with groupId: {0}, assets: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
+            }
+
+            return result;
+        }
+
+        private static List<Asset> GetEpgAssetsFromCache(int groupId, List<long> ids)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static List<Asset> GetNpvrAssetsFromCache(int groupId, List<long> ids)
+        {
+            throw new NotImplementedException();
+        }
+
         private static List<Asset> GetAssetsFromCache(int groupId, List<KeyValuePair<eAssetTypes, long>> assets)
         {
             List<Asset> result = null;
@@ -1363,20 +1390,22 @@ namespace Core.Catalog.CatalogManagement
                 if (assets != null && assets.Count > 0)
                 {
                     result = new List<Asset>();
-                    foreach (KeyValuePair<eAssetTypes, long> assetDetails in assets)
+                    List<long> mediaIds = assets.Where(x => x.Key == eAssetTypes.MEDIA).Select(x => x.Value).ToList();
+                    List<long> epgIds = assets.Where(x => x.Key == eAssetTypes.EPG).Select(x => x.Value).ToList();
+                    List<long> npvrIds = assets.Where(x => x.Key == eAssetTypes.NPVR).Select(x => x.Value).ToList();
+                    if (mediaIds != null && mediaIds.Count > 0)
                     {
-                        if (assetDetails.Key != eAssetTypes.UNKNOWN && assetDetails.Value > 0)
-                        {
-                            Asset asset = GetAssetFromCache(groupId, assetDetails.Value, assetDetails.Key);
-                            if (asset != null)
-                            {
-                                result.Add(asset);
-                            }
-                            else
-                            {
-                                log.ErrorFormat("Failed getting one asset during GetAssetsFromCache,groupId: {0}, id: {1}, assetType: {2}", groupId, assetDetails.Value, assetDetails.Key.ToString());
-                            }
-                        }
+                        result.AddRange(GetMediaAssetsFromCache(groupId, mediaIds));
+                    }
+
+                    if (epgIds != null && epgIds.Count > 0)
+                    {
+                        result.AddRange(GetEpgAssetsFromCache(groupId, epgIds));
+                    }
+
+                    if (npvrIds != null && npvrIds.Count > 0)
+                    {
+                        result.AddRange(GetNpvrAssetsFromCache(groupId, npvrIds));
                     }
                 }
             }
@@ -2149,7 +2178,12 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.MEDIA:
                         if (CatalogDAL.DeleteMediaAsset(groupId, id, userId))
                         {
-                            result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                            
+                            result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                            // Delete Index
+                            if (!CatalogLogic.UpdateIndex(new List<long>() { id }, groupId, eAction.Delete))
+                            {
+                                log.ErrorFormat("Failed to Delete Index for assetId: {0}, groupId: {1}", id, groupId);
+                            }
                         }
                         else
                         {
@@ -2160,10 +2194,10 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.UNKNOWN:
                         break;
                 }
-
-                // invalidate asset
+                
                 if (result.Code == (int)eResponseStatus.OK)
                 {
+                    // invalidate asset
                     if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id)))
                     {
                         log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2}", id, assetType.ToString(), LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id));

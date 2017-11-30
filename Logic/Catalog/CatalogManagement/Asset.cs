@@ -25,8 +25,7 @@ namespace Core.Catalog.CatalogManagement
         public List<Tags> Tags { get; set; }
         public Dictionary<string, int> TagNameToIdMap { get; set; }
         public List<Picture> Pictures { get; set; }
-        public string CoGuid{ get; set; }
-        public bool? IsActive{ get; set; }
+        public string CoGuid{ get; set; }        
 
         public Asset()
         {
@@ -44,12 +43,11 @@ namespace Core.Catalog.CatalogManagement
             this.Tags = new List<Tags>();
             this.TagNameToIdMap = new Dictionary<string, int>();
             this.Pictures = new List<Picture>();
-            this.CoGuid = string.Empty;
-            this.IsActive = null;
+            this.CoGuid = string.Empty;            
         }
 
         public Asset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages, DateTime? createDate, 
-                    DateTime? startDate, DateTime? updateDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Picture> pictures, string coGuid, bool isActive, Dictionary<string, int> tagNameToIdMap = null)
+                    DateTime? startDate, DateTime? updateDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Picture> pictures, string coGuid, Dictionary<string, int> tagNameToIdMap = null)
         {
             this.Id = id;
             this.AssetType = assetType;
@@ -64,8 +62,7 @@ namespace Core.Catalog.CatalogManagement
             this.Metas = metas != null ? new List<Metas>(metas) : new List<Metas>();
             this.Tags = tags != null ? new List<Tags>(tags) : new List<Tags>();
             this.Pictures = pictures != null ? new List<Picture>(pictures) : new List<Picture>();
-            this.CoGuid = coGuid;
-            this.IsActive = isActive;
+            this.CoGuid = coGuid;            
             this.TagNameToIdMap = tagNameToIdMap != null ? new Dictionary<string, int>(tagNameToIdMap, StringComparer.OrdinalIgnoreCase) : new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         }
 
