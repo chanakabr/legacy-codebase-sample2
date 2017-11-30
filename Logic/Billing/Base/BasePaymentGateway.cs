@@ -1006,6 +1006,86 @@ namespace Core.Billing
             return response;
         }
 
+        public virtual PaymentGatewayItemResponse GetPaymentGateway(int groupId, long householdId, int paymentGatewayId, int paymentMethodId, string userIP)
+        {
+            PaymentGatewayItemResponse response = new PaymentGatewayItemResponse();
+            try
+            {
+                PaymentGateway paymentGateway = null;
+                string chargeId = string.Empty;
+
+                // Get Oss Adapter default payment gateway
+                paymentGateway = GetOSSAdapterPaymentGateway(groupID, householdId, userIP, out chargeId);
+
+                bool isSuspended = false;
+                if (paymentGateway == null)
+                {
+                    if (paymentGatewayId == 0)
+                    {
+                        // get selected household payment gateway                        
+                        paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdId, ref chargeId, ref isSuspended);
+                        if (paymentGateway == null)
+                        {
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
+                            return response;
+                        }
+                        else
+                        {
+                            paymentGatewayId = paymentGateway.ID;
+                            log.DebugFormat("Transact using Selected HH PG Id: {0}", paymentGatewayId);
+                        }
+                    }
+                    else
+                    {
+                        //get paymentGateway according to input parameter
+                        paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
+
+                        //in case paymentGateway not valid
+                        if (paymentGateway == null)
+                        {
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                            return response;
+                        }
+
+                        bool isPaymentGWHouseholdExist = false;
+                        chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdId, ref isPaymentGWHouseholdExist, ref isSuspended);
+
+                        if (!isPaymentGWHouseholdExist)
+                        {
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
+                            return response;
+                        }
+                    }
+                    if (isSuspended)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
+                        return response;
+                    }
+                }
+                else
+                {
+                    paymentGatewayId = paymentGateway.ID;
+                    log.DebugFormat("Transact using oss adapter payment gateway Id: {0}", paymentGatewayId);
+                }
+
+                if (string.IsNullOrEmpty(chargeId))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayChargeIdRequired, ERROR_CHARGE_ID_MISSING);
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail to get paymentGateway due to ex:{0}, groupId:{1}, household:{2}, paymentGatewayId:{3}, paymentMethodId:{4}",
+                    ex, groupId, householdId, paymentGatewayId, paymentMethodId);
+                response.PaymentGateway = null;
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            return response;
+        }
+        
+
         public void SendMail(string siteGuid, double price, string currency, string customData, int productID, eTransactionType productType, int contentID, TransactResult response, int paymentGatewayId,
             bool successMail = true, bool failMail = true)
         {
@@ -4581,7 +4661,11 @@ namespace Core.Billing
                 currentPaymentGatewayId = paymentDetails.PaymentGatewayId;
                 currentPaymentMethodId = paymentDetails.PaymentMethodId;
                 PaymentGateway currentPaymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, currentPaymentGatewayId);
-
+                if (currentPaymentGateway.ExternalVerification)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayExternalVerification, "PaymentGateway is an External Verification");
+                    return response;
+                }
                 // check if IsVerificationPaymentGateway
                 if (IsVerificationPaymentGateway(currentPaymentGateway))
                 {
