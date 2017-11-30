@@ -44,6 +44,7 @@ namespace ElasticSearchHandler
             return result;
         }
 
+
         public static long UnixTimeStampNow()
         {
             TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
@@ -78,6 +79,16 @@ namespace ElasticSearchHandler
         public static string GetNewUtilsIndexString()
         {
             return string.Format("utils_{0}", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));        
+        }
+
+        internal static string GetMetadataGroupAliasStr(int groupId)
+        {
+            return string.Format("{0}_metadata", groupId);
+        }
+
+        internal static string GetNewMetadataIndexName(int groupId)
+        {
+            return string.Format("{0}_metadata_{1}", groupId, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
         }
 
         public static string GetTanslationType(string sType, LanguageObj oLanguage)
@@ -126,6 +137,7 @@ namespace ElasticSearchHandler
                 return new List<EpgCB>();
             }
         }
+
         public static string GetPermittedWatchRules(int nGroupId)
         {
             DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, null);

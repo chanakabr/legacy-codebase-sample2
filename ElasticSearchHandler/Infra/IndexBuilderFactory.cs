@@ -7,14 +7,14 @@ namespace ElasticSearchHandler.IndexBuilders
 {
     public static class IndexBuilderFactory
     {
-        public static AbstractIndexBuilder CreateIndexBuilder(int nGroupID, ApiObjects.eObjectType eType)
+        public static AbstractIndexBuilder CreateIndexBuilder(int groupID, ApiObjects.eObjectType objectType)
         {
             AbstractIndexBuilder result = null;
 
             string urlV1 = ElasticSearchTaskUtils.GetTcmConfigValue("ES_URL_V1");
             string urlV2 = ElasticSearchTaskUtils.GetTcmConfigValue("ES_URL_V2");
 
-            switch (eType)
+            switch (objectType)
             {
                 case ApiObjects.eObjectType.Channel:
                 {
@@ -22,16 +22,16 @@ namespace ElasticSearchHandler.IndexBuilders
                     {
                         if (!string.IsNullOrEmpty(urlV1))
                         {
-                            result = new DualChannelIndexBuilder(nGroupID, urlV1, urlV2);
+                            result = new DualChannelIndexBuilder(groupID, urlV1, urlV2);
                         }
                         else
                         {
-                            result = new ChannelIndexBuilderV2(nGroupID);
+                            result = new ChannelIndexBuilderV2(groupID);
                         }
                     }
                     else
                     {
-                        result = new ChannelIndexBuilderV1(nGroupID);
+                        result = new ChannelIndexBuilderV1(groupID);
                     }
 
                     break;
@@ -42,16 +42,16 @@ namespace ElasticSearchHandler.IndexBuilders
                     {
                         if (!string.IsNullOrEmpty(urlV1))
                         {
-                            result = new DualMediaIndexBuilder(nGroupID, urlV1, urlV2);
+                            result = new DualMediaIndexBuilder(groupID, urlV1, urlV2);
                         }
                         else
                         {
-                            result = new MediaIndexBuilderV2(nGroupID);
+                            result = new MediaIndexBuilderV2(groupID);
                         }
                     }
                     else
                     {
-                        result = new MediaIndexBuilderV1(nGroupID);
+                        result = new MediaIndexBuilderV1(groupID);
                     }
 
                     break;
@@ -62,16 +62,16 @@ namespace ElasticSearchHandler.IndexBuilders
                     {
                         if (!string.IsNullOrEmpty(urlV1))
                         {
-                            result = new DualEPGIndexBuilder(nGroupID, urlV1, urlV2);
+                            result = new DualEPGIndexBuilder(groupID, urlV1, urlV2);
                         }
                         else
                         {
-                            result = new EpgIndexBuilderV2(nGroupID);
+                            result = new EpgIndexBuilderV2(groupID);
                         }
                     }
                     else
                     {
-                        result = new EpgIndexBuilderV1(nGroupID);
+                        result = new EpgIndexBuilderV1(groupID);
                     }
 
                     break;
@@ -82,16 +82,25 @@ namespace ElasticSearchHandler.IndexBuilders
                     {
                         if (!string.IsNullOrEmpty(urlV1))
                         {
-                            result = new DualRecordingIndexBuilder(nGroupID, urlV1, urlV2);
+                            result = new DualRecordingIndexBuilder(groupID, urlV1, urlV2);
                         }
                         else
                         {
-                            result = new RecordingIndexBuilderV2(nGroupID);
+                            result = new RecordingIndexBuilderV2(groupID);
                         }
                     }
                     else
                     {
-                        result = new RecordingIndexBuilderV1(nGroupID);
+                        result = new RecordingIndexBuilderV1(groupID);
+                    }
+
+                    break;
+                }
+                case ApiObjects.eObjectType.Tag:
+                {
+                    if (!string.IsNullOrEmpty(urlV2))
+                    {
+                        result = new TagsIndexBuilder(groupID);
                     }
 
                     break;
