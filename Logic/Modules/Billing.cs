@@ -682,14 +682,15 @@ namespace Core.Billing
             return response;
         }
 
-        public static PaymentGatewayItemResponse GetPaymentGateway(int groupId, long household, int paymentGatewayId, int paymentMethodId, string userIP)
+        public static PaymentGatewayItemResponse GetPaymentGateway(int groupId, long household, int paymentGatewayId, string userIP)
         {
             PaymentGatewayItemResponse response = new PaymentGatewayItemResponse();
 
             BasePaymentGateway t = new BasePaymentGateway(groupId);
             if (t != null)
             {
-                response = t.GetPaymentGateway(groupId, household, paymentGatewayId, paymentMethodId, userIP);
+                string chargeId = string.Empty;
+                response = t.GetPaymentGateway(groupId, household, paymentGatewayId, userIP, out chargeId);
             }
             else
             {

@@ -831,7 +831,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // get payment gateway
-                PaymentGatewayItemResponse paymentGatewayResponse = Core.Billing.Module.GetPaymentGateway(groupId, household, paymentGwId, paymentMethodId, userIp);
+                PaymentGatewayItemResponse paymentGatewayResponse = Core.Billing.Module.GetPaymentGateway(groupId, household, paymentGwId, userIp);
                 //if (paymentGatewayResponse.Status.Code != (int)eResponseStatus.OK)
                 //{
                 //    response.Status.Message = paymentGatewayResponse.Status.Message;
