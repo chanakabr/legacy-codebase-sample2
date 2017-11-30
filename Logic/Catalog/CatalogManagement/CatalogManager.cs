@@ -1959,6 +1959,11 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        /// <summary>
+        /// Returns dictionary of [assetId, [language, media]]
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
         public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupAssets(int groupId)
         {
             // <assetId, <languageId, media>>
@@ -2196,7 +2201,93 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        #endregion
+        /// <summary>
+        /// [topic, [language, [tag id, tag value]]]
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        public static Dictionary<Topic, Dictionary<int, Dictionary<int, string>>> GetAllTagValues(int groupId)
+        {
+            var result = new Dictionary<Topic, Dictionary<int, Dictionary<int, string>>>();
 
+            CatalogGroupCache catalogGroupCache;
+            if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetGroupAssets", groupId);
+                return null;
+            }
+
+            int defaultLanguage = catalogGroupCache.DefaultLanguage.ID;
+
+            var tags = catalogGroupCache.TopicsMapBySystemName.Where(
+                x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Value).ToList();
+
+            DataSet dataSet = CatalogDAL.GetGroupTagValues(groupId);
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && 
+                dataSet.Tables[0] != null && dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0)
+            {
+                // First table - default language, set default for other languages as well
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    int tagId = ODBCWrapper.Utils.ExtractInteger(row, "tag_id");
+                    int topicId = ODBCWrapper.Utils.ExtractInteger(row, "topic_id");
+                    string tagValue = ODBCWrapper.Utils.ExtractString(row, "tag_value");
+
+                    if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
+                    {
+                        Topic topic = catalogGroupCache.TopicsMapById[topicId];
+
+                        if (!result.ContainsKey(topic))
+                        {
+                            result[topic] = new Dictionary<int, Dictionary<int, string>>();
+                        }
+
+                        if (!result[topic].ContainsKey(defaultLanguage))
+                        {
+                            result[topic][defaultLanguage] = new Dictionary<int, string>();
+                        }
+
+                        result[topic][defaultLanguage][tagId] = tagValue;
+                    }
+                }
+            }
+
+            // Second table - translations
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 1 &&
+                dataSet.Tables[1] != null && dataSet.Tables[1].Rows != null && dataSet.Tables[1].Rows.Count > 0)
+            {
+                foreach (DataRow row in dataSet.Tables[1].Rows)
+                {
+                    int tagId = ODBCWrapper.Utils.ExtractInteger(row, "tag_id");
+                    int topicId = ODBCWrapper.Utils.ExtractInteger(row, "topic_id");
+                    int languageId = ODBCWrapper.Utils.ExtractInteger(row, "language_id");
+                    string tagValue = ODBCWrapper.Utils.ExtractString(row, "tag_value");
+
+                    if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
+                    {
+                        Topic topic = catalogGroupCache.TopicsMapById[topicId];
+
+                        if (!result.ContainsKey(topic))
+                        {
+                            result[topic] = new Dictionary<int, Dictionary<int, string>>();
+                        }
+
+                        if (!result[topic].ContainsKey(languageId))
+                        {
+                            result[topic][languageId] = new Dictionary<int, string>();
+                        }
+
+                        // override the default value with the translation
+                        result[topic][languageId][tagId] = tagValue;
+                    }
+                }
+            }
+
+            return result;
+        }
     }
+
+    #endregion
+
 }
