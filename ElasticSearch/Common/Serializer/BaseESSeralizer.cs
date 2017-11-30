@@ -1023,7 +1023,6 @@ namespace ElasticSearch.Common
 
             return builder.ToString();
         }
-
         protected static string AddSuffix(string text, string suffix)
         {
             string result = text;
@@ -1035,5 +1034,18 @@ namespace ElasticSearch.Common
 
             return result;
         }
+
+        public virtual string CreateMetadataMapping(string normalIndexAnalyzer, string normalSearchAnalyzer,
+            string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
+            string suffix = null)
+        {
+            return string.Empty;
+        }
+
+        public virtual string SerializeMetadataObject(long topicId, int tagId, string tagValue)
+        {
+            return string.Empty;
+        }
+
     }
 }

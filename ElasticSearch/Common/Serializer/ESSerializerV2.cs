@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.SearchObjects;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1144,6 +1145,99 @@ namespace ElasticSearch.Common
             mappingObj.AddProperty(tags);
 
             return mappingObj.ToString();
+        }
+
+        public override string CreateMetadataMapping(string normalIndexAnalyzer, string normalSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null)
+        {
+            string result = string.Empty;
+
+            ESMappingObj mappingObj = new ESMappingObj(AddSuffix("tag", suffix));
+
+            FieldsMappingPropertyV2 valueProperty = new FieldsMappingPropertyV2()
+            {
+                name = AddSuffix("value", suffix),
+                type = eESFieldType.STRING,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
+                null_value = ""
+            };
+            valueProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = AddSuffix("value", suffix),
+                type = eESFieldType.STRING,
+                null_value = string.Empty,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            valueProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "analyzed",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = normalSearchAnalyzer,
+                analyzer = normalIndexAnalyzer
+            });
+            valueProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            valueProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "autocomplete",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = autocompleteSearchAnalyzer,
+                analyzer = autocompleteIndexAnalyzer
+            });
+
+            mappingObj.AddProperty(valueProperty);
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "tag_id",
+                type = eESFieldType.LONG,
+                index = eMappingIndex.not_analyzed,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "topic_id",
+                type = eESFieldType.LONG,
+                index = eMappingIndex.not_analyzed,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "topic_name",
+                type = eESFieldType.STRING,
+                index = eMappingIndex.not_analyzed
+            });
+
+            result = mappingObj.ToString();
+
+            return result;
+        }
+
+        public override string SerializeMetadataObject(long topicId, int tagId, string tagValue)
+        {
+            string result = string.Empty;
+            JObject json = new JObject();
+
+            json["topic_id"] = JToken.FromObject(topicId);
+            json["tag_id"] = JToken.FromObject(tagId);
+            json["tag_value"] = JToken.FromObject(tagValue);
+
+            result = json.ToString(Newtonsoft.Json.Formatting.None);
+
+            return result;
         }
     }
 }

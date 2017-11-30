@@ -4885,6 +4885,15 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+        public static DataSet GetGroupTagValues(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupTagValues");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+
+            return sp.ExecuteDataSet();
+        }
+
         #endregion
 
     }
