@@ -1507,6 +1507,7 @@ namespace DAL
                 sp.AddParameter("@isActive", paymentGateway.IsActive);
                 sp.AddParameter("@renewal_interval", paymentGateway.RenewalIntervalMinutes);
                 sp.AddParameter("@renewal_start", paymentGateway.RenewalStartMinutes);
+                sp.AddParameter("@external_verification", paymentGateway.ExternalVerification);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;
@@ -1538,6 +1539,7 @@ namespace DAL
                 sp.AddParameter("@isActive", pgw.IsActive);
                 sp.AddParameter("@renewal_interval", pgw.RenewalIntervalMinutes);
                 sp.AddParameter("@renewal_start", pgw.RenewalStartMinutes);
+                sp.AddParameter("@external_verification", pgw.ExternalVerification);
 
                 DataTable dt = CreateDataTable(pgw.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
@@ -1546,6 +1548,7 @@ namespace DAL
                     // default on sp is 0
                     sp.AddParameter("@KeyValueListHasItems", 1);
                 }
+
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -1959,6 +1962,7 @@ namespace DAL
                 result.IsDefault = DefaultPaymentGateway == result.ID ? true : false;
                 int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
                 result.SupportPaymentMethod = supportPaymentMethod == 1 ? true : false;
+                result.ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "external_verification") == 0 ? false : true;
 
                 if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                 {
