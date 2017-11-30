@@ -64,10 +64,10 @@ public partial class adm_payment_gateway : System.Web.UI.Page
 
         theTable += "select pg.id, pg.name, pg.group_id, pg.is_active, pg.status, pg.adapter_url as 'adapter url'";
         theTable += ",case gp.[DEFAULT_PAYMENT_GATEWAY] when pg.id then 'YES' else 'NO' end as 'is default'";
-        theTable += ",pg.external_identifier as 'external id'";        
-        theTable += "from payment_gateway pg ";
-        theTable += "left join groups_parameters gp on pg.group_id = gp.group_id ";      
-        theTable += "where ";
+        theTable += ",pg.external_identifier as 'external id'  ";    
+        theTable += " from payment_gateway pg ";
+        theTable += " left join groups_parameters gp on pg.group_id = gp.group_id ";      
+        theTable += " where ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("pg.group_id", "=", groupID);
         theTable += " and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("pg.status", "=", 1);
@@ -79,6 +79,7 @@ public partial class adm_payment_gateway : System.Web.UI.Page
         theTable.AddHiddenField("group_id");
         theTable.AddActivationField("is_active");
         theTable.AddActivationField("payment_gateway");
+        
 
         DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_payment_gateway_config.aspx", "params", "");
         linkColumnKeParams.AddQueryStringValue("paymentGW_id", "field=id");

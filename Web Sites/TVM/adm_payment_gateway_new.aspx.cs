@@ -163,6 +163,10 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
         theRecord.AddRecord(dr_shared_secret);
 
+        DataRecordCheckBoxField dr_external_verification = new DataRecordCheckBoxField(true);
+        dr_external_verification.Initialize("External Verification", "adm_table_header_nbg", "FormInput", "external_verification", false);
+        theRecord.AddRecord(dr_external_verification);
+        
         //DataRecordCheckBoxField dr_supportPaymentMethod = new DataRecordCheckBoxField(true);
         //dr_supportPaymentMethod.Initialize("Support Payment Method", "adm_table_header_nbg", "FormInput", "is_payment_method_support", false);
         //theRecord.AddRecord(dr_supportPaymentMethod);
