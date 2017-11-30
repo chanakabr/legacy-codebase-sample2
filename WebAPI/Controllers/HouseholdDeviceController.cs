@@ -179,6 +179,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotExists)]
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
+        [Throws(eResponseStatus.AdapterNotExists)]
+        [Throws(eResponseStatus.AdapterAppFailure)]
         public KalturaHouseholdDevice Get()
         {
             KalturaHouseholdDevice device = null;
