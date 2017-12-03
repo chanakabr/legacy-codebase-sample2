@@ -117,13 +117,13 @@ namespace Core.Catalog.Response
             m_dCreationDate = mediaAsset.CreateDate.Value;
             m_dFinalDate = mediaAsset.FinalEndDate.HasValue ? mediaAsset.FinalEndDate.Value : DateTime.MaxValue;
             // TODO: Lior - Ask Ira about value of publish date
-            m_dPublishDate = mediaAsset.CreateDate.Value;
-            m_dStartDate = mediaAsset.StartDate.Value;
+            m_dPublishDate = mediaAsset.CreateDate.HasValue ? mediaAsset.CreateDate.Value : DateTime.MinValue;
+            m_dStartDate = mediaAsset.StartDate.HasValue ? mediaAsset.StartDate.Value : DateTime.MinValue;
             m_dEndDate = mediaAsset.EndDate.HasValue ? mediaAsset.EndDate.Value : DateTime.MaxValue;
-            m_dCatalogStartDate = mediaAsset.CatalogStartDate.Value;
+            m_dCatalogStartDate = mediaAsset.CatalogStartDate.HasValue ? mediaAsset.CatalogStartDate.Value : DateTime.MinValue;
             AssetType = eAssetTypes.MEDIA;
-            IsActive = mediaAsset.IsActive.Value;
-            m_dUpdateDate = mediaAsset.UpdateDate.Value;
+            IsActive = mediaAsset.IsActive.HasValue ? mediaAsset.IsActive.Value : false;
+            m_dUpdateDate = mediaAsset.UpdateDate.HasValue ? mediaAsset.UpdateDate.Value : DateTime.MinValue;
             m_lMetas = new List<Metas>(mediaAsset.Metas);
             m_lTags = new List<Tags>(mediaAsset.Tags);
             GeoblockRule = mediaAsset.GeoBlockRuleId.HasValue ? Core.Catalog.CatalogLogic.GetGeoBlockRuleName(groupId, mediaAsset.GeoBlockRuleId.Value) : null;

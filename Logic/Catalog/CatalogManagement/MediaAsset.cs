@@ -47,7 +47,7 @@ namespace Core.Catalog.CatalogManagement
             this.GeoBlockRuleId = geoBlockRuleId;
             this.Files = files != null ? new List<FileMedia>(files) : new List<FileMedia>();
             this.UserTypes = userTypes;
-            this.IsActive = IsActive;
+            this.IsActive = isActive;
         }
 
     }
