@@ -1217,7 +1217,8 @@ namespace Core.ConditionalAccess
 
                                     //create process id only for subscription that equal the cycle and are NOT preview module 
                                     long ? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-                                    if (subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
+                                    if ( !paymentGatewayResponse.ExternalVerification && 
+                                        subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
                                          subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
                                          && groupUnifiedBillingCycle.HasValue
                                          && (int)groupUnifiedBillingCycle.Value == subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle
@@ -1587,7 +1588,7 @@ namespace Core.ConditionalAccess
 
                     // item is for purchase
                     if ( (priceObject.m_dPrice == price && priceObject.m_oCurrency.m_sCurrencyCD3 == currency)
-                        || (paymentGateway!= null && paymentGateway.ExternalVerification) )
+                        || (paymentGateway != null && paymentGateway.ExternalVerification) )
                     {
                         string country = string.Empty;
                         if (!string.IsNullOrEmpty(userIp))
