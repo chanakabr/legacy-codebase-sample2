@@ -661,6 +661,7 @@ namespace Core.Users
             if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
             {
                 m_oDynamicData.UserId = this.userId;
+                m_oDynamicData.GroupId = this.GroupId;
                 if (!m_oDynamicData.Save())
                 {
                     this.userId = -1;
