@@ -2738,7 +2738,7 @@ namespace Core.Catalog
             filteredQuery.ESSort.Add(new ESOrderObj()
             {
                 m_sOrderValue = "value",
-                m_eOrderDir = OrderDir.DESC
+                m_eOrderDir = OrderDir.ASC
             });
 
             #endregion
@@ -2781,6 +2781,7 @@ namespace Core.Catalog
             }
 
             #endregion
+
             return result;
         }
     }
