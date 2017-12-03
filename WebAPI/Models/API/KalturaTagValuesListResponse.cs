@@ -18,6 +18,6 @@ namespace WebAPI.Models.API
         [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaParentalRule> TagVAlues { get; set; }
+        public List<KalturaParentalRule> TagValues { get; set; }
     }
 }
