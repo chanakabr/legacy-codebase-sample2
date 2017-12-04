@@ -4647,6 +4647,8 @@ namespace WebAPI.Reflection
                             return "adapterUrl";
                         case "ExternalIdentifier":
                             return "externalIdentifier";
+                        case "ExternalVerification":
+                            return "externalVerification";
                         case "IsActive":
                             return "isActive";
                         case "PendingInterval":
