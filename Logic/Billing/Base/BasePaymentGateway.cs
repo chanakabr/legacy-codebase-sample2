@@ -913,6 +913,7 @@ namespace Core.Billing
                     return response;
                 }
 
+                paymentGateway = paymentResponse.PaymentGateway;
                 // Handle  Payment Method
                 //------------------------
                 ApiObjects.Response.Status pghpmStatus = null;
@@ -956,11 +957,10 @@ namespace Core.Billing
         public virtual PaymentGatewayItemResponse GetPaymentGateway(int groupId, long householdId, int paymentGatewayId, string userIP, out string  chargeId)
         {
             PaymentGatewayItemResponse response = new PaymentGatewayItemResponse();
+            PaymentGateway paymentGateway = null;
             chargeId = string.Empty;
             try
             {
-                PaymentGateway paymentGateway = null;               
-
                 // Get Oss Adapter default payment gateway
                 paymentGateway = GetOSSAdapterPaymentGateway(groupID, householdId, userIP, out chargeId);
 
@@ -1029,6 +1029,7 @@ namespace Core.Billing
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            response.PaymentGateway = paymentGateway;
             return response;
         }
         
