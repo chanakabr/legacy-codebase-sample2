@@ -11150,6 +11150,11 @@
             Renew Start Minutes
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayProfile.ExternalVerification">
+            <summary>
+            Payment gateway external verification
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Billing.KalturaPaymentGatewayProfileListResponse">
             <summary>
             PaymentGatewayProfile list
