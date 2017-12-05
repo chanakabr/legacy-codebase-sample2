@@ -2496,12 +2496,12 @@ namespace DAL
 
         public static void GetRenewMailTriggerAccountSettings(int groupID, ref bool renewMail, ref bool failRenewMail)
         {
-            DataRow row = GetMailTriggerAccountSettings(groupID);
+            DataRow row = GetMailAndReminderTriggerAccountSettings(groupID);
             renewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_RENEW_MAIL") == 1 ? true : false;
-            failRenewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_RENEW_MAIL") == 1 ? true : false;   
+            failRenewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_RENEW_MAIL") == 1 ? true : false;
         }
 
-        private static DataRow GetMailTriggerAccountSettings(int groupID)
+        private static DataRow GetMailAndReminderTriggerAccountSettings(int groupID)
         {
             DataRow row = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MailTriggerAccountSettings");
@@ -2516,9 +2516,30 @@ namespace DAL
             return row;
         }
 
+        public static int GetRenewalReminderSettings(int groupId)
+        {
+            int result = 0;
+
+            try
+            {
+                DataRow row = GetMailAndReminderTriggerAccountSettings(groupId);
+
+                if (row != null)
+                {
+                    result = ODBCWrapper.Utils.ExtractInteger(row, "RENEWAL_REMINDER_DAYS_BEFORE");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when trying to GetRenewalReminderMailSettings in group id = {0}, ex = {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
         public static void GetPurchaseMailTriggerAccountSettings(int groupID, ref bool purchaseMail, ref bool failPurchaseMail)
         {            
-            DataRow row = GetMailTriggerAccountSettings(groupID);
+            DataRow row = GetMailAndReminderTriggerAccountSettings(groupID);
             purchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FIRST_PURCHASE_MAIL") == 1 ? true : false;
             failPurchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_PURCHASE_MAIL") == 1 ? true : false;           
         }
