@@ -25,7 +25,9 @@ namespace ApiObjects.Billing
         public bool SkipSettings { get; set; }
         public List<PaymentGatewaySettings> Settings { get; set; }
         public List<PaymentMethod> PaymentMethods { get; set; }
-        
+
+        public bool ExternalVerification { get; set; }
+
         public PaymentGateway()
         {
         }
@@ -50,6 +52,7 @@ namespace ApiObjects.Billing
             this.RenewalIntervalMinutes = paymentGateway.RenewalIntervalMinutes;
             this.RenewalStartMinutes = paymentGateway.RenewalStartMinutes;
             this.SupportPaymentMethod = paymentGateway.SupportPaymentMethod;
+            this.ExternalVerification = paymentGateway.ExternalVerification;
         }
     }
 }
