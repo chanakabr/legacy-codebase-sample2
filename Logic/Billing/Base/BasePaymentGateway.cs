@@ -914,6 +914,8 @@ namespace Core.Billing
                 }
 
                 paymentGateway = paymentResponse.PaymentGateway;
+                paymentGatewayId = paymentGateway.ID;
+
                 // Handle  Payment Method
                 //------------------------
                 ApiObjects.Response.Status pghpmStatus = null;
