@@ -2498,7 +2498,7 @@ namespace DAL
         {
             DataRow row = GetMailAndReminderTriggerAccountSettings(groupID);
             renewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_RENEW_MAIL") == 1 ? true : false;
-            failRenewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_RENEW_MAIL") == 1 ? true : false;   
+            failRenewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_RENEW_MAIL") == 1 ? true : false;
         }
 
         private static DataRow GetMailAndReminderTriggerAccountSettings(int groupID)
