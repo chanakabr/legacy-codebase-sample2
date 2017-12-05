@@ -9821,7 +9821,6 @@ namespace Core.ConditionalAccess
                     // Check if within cancellation window
                     bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid);
 
-
                     // Check if the user purchased the asset at all
                     if (userPurchasesTable == null || userPurchasesTable.Rows == null || userPurchasesTable.Rows.Count == 0)
                     {
@@ -16346,6 +16345,11 @@ namespace Core.ConditionalAccess
             }
 
             return response;
+        }
+
+        internal bool RenewalReminder(string siteGuid, long purchaseId, long endDate)
+        {
+            return RenewManager.RenewalReminder(this, this.m_nGroupID, siteGuid, purchaseId, endDate);
         }
     }
 }

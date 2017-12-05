@@ -432,7 +432,7 @@ namespace Core.ConditionalAccess
                                     }
                                     else
                                     {
-                                        PurchaseManager.SendReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, userId, domainId, purchaseID, billingGuid);
+                                        PurchaseManager.SendGiftCardReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, userId, domainId, purchaseID, billingGuid);
                                     }
 
                                     // enqueue renew transaction
@@ -1239,7 +1239,7 @@ namespace Core.ConditionalAccess
                                         {
                                             endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
                                         }
-                                        
+
                                         DateTime nextRenewalDate = endDate.Value;
 
                                         if (!isGiftCard)
@@ -1275,7 +1275,7 @@ namespace Core.ConditionalAccess
                                         }
                                         else
                                         {
-                                            PurchaseManager.SendReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, siteguid, householdId, purchaseID, billingGuid);
+                                            PurchaseManager.SendGiftCardReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, siteguid, householdId, purchaseID, billingGuid);
                                         }
 
                                         // enqueue renew transaction
@@ -1288,18 +1288,23 @@ namespace Core.ConditionalAccess
                                         */
                                         if (isNew) // need to insert new unified billing message to queue
                                         {
-                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
+                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, 
+                                                ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
                                         }
-                                       
                                         else if (unifiedBillingCycle == null || (entitleToPreview && !isNew))
                                         {
                                             // insert regular message 
                                             RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate);
                                         }
-                                       
+
                                         //else do nothing, message already exists
 
                                         #endregion
+
+                                        if (endDate != null && endDate.HasValue)
+                                        {
+                                            PurchaseManager.SendRenewalReminder(cas, groupId, endDate.Value, endDateUnix, siteguid, householdId, purchaseID, billingGuid);
+                                        }
                                     }
 
                                     // build notification message
@@ -1361,6 +1366,42 @@ namespace Core.ConditionalAccess
             return response;
         }
 
+        private static void SendRenewalReminder(BaseConditionalAccess cas, int groupId, DateTime endDate, long endDateUnix, 
+            string siteguid, long householdId, long purchaseId, string billingGuid)
+        {
+            int renewalReminderSettings = BillingDAL.GetRenewalReminderSettings(groupId);
+
+            if (renewalReminderSettings > 0)
+            {
+                var domain = Utils.GetDomainInfo((int)householdId, groupId);
+
+                if (domain != null && domain.m_nStatus == 1 && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
+                {
+                    string masterSiteGuid = domain.m_masterGUIDs.First().ToString();
+
+                    RenewTransactionsQueue queue = new RenewTransactionsQueue();
+
+                    DateTime eta = endDate.AddDays(-1 * renewalReminderSettings);
+
+                    if (eta > DateTime.UtcNow)
+                    {
+                        RenewTransactionData data = new RenewTransactionData(groupId, masterSiteGuid, purchaseId, billingGuid,
+                            endDateUnix, eta, eSubscriptionRenewRequestType.RenewalReminder);
+                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+
+                        if (!enqueueSuccessful)
+                        {
+                            log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
+                        }
+                        else
+                        {
+                            log.DebugFormat("New task created - normal renewal reminder. next reminder date: {0}, data: {1}", eta, data);
+                        }
+                    }
+                }
+            }
+        }
+
         private static bool RenewTransactionMessageInQueue(int groupId, string siteguid, string billingGuid, long purchaseID, long endDateUnix, DateTime nextRenewalDate)
         {
             RenewTransactionsQueue queue = new RenewTransactionsQueue();
@@ -1404,7 +1445,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        private static void SendReminderEmails(BaseConditionalAccess cas, int groupId, long endDate, DateTime renewDate,
+        private static void SendGiftCardReminderEmails(BaseConditionalAccess cas, int groupId, long endDate, DateTime renewDate,
             string siteGuid, long householdId, long purchaseId, string billingGuid)
         {
             List<int> remindersDays = PricingDAL.GetGiftCardReminders(groupId);
@@ -1426,7 +1467,7 @@ namespace Core.ConditionalAccess
                         if (eta > DateTime.UtcNow)
                         {
                             RenewTransactionData data = new RenewTransactionData(groupId, masterSiteGuid, purchaseId, billingGuid,
-                                endDate, eta, eSubscriptionRenewRequestType.Reminder);
+                                endDate, eta, eSubscriptionRenewRequestType.GiftCardReminder);
                             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
 
                             if (!enqueueSuccessful)
