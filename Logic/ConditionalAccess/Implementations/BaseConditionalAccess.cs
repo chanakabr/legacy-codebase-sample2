@@ -16347,5 +16347,10 @@ namespace Core.ConditionalAccess
 
             return response;
         }
+        internal bool RenewalReminder(string siteGuid, long purchaseId, long endDate)
+        {
+            return RenewManager.RenewalReminder(this, this.m_nGroupID, siteGuid, purchaseId, endDate);
+        }
+
     }
 }
