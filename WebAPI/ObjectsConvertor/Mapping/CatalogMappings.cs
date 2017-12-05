@@ -411,12 +411,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<KalturaAsset, Asset>()
                 .Include<KalturaMediaAsset, MediaAsset>();
 
-            //KalturaMediaAsset to Media
+            //KalturaMediaAsset to MediaAsset
             Mapper.CreateMap<KalturaMediaAsset, MediaAsset>()                 
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
                 .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetDefaultLanugageValue() : string.Empty))
                 .ForMember(dest => dest.DescriptionsWithLanguages, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetNoneDefaultLanugageContainer().ToArray() : null))
+                .ForMember(dest => dest.CreateDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdateDate, opt => opt.Ignore())
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.StartDate)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.EndDate)))
                 .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => new Core.Catalog.MediaType(string.Empty, src.Type.Value)))

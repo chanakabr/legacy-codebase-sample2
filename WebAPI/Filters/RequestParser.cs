@@ -1155,7 +1155,7 @@ namespace WebAPI.Filters
                 if (itemType.IsSubclassOf(typeof(KalturaOTTObject)))
                 {
                     var itemObject = buildObject(itemType, item.ToObject<Dictionary<string, object>>());
-                    res.Add(key, (dynamic)Convert.ChangeType(itemObject, itemType));
+                    res.Add(key, (dynamic)itemObject);
                 }
                 else
                 {
