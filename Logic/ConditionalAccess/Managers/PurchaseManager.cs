@@ -1256,7 +1256,7 @@ namespace Core.ConditionalAccess
                                         {
                                             endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
                                         }
-
+                                        
                                         DateTime nextRenewalDate = endDate.Value;
 
                                         if (!isGiftCard)
@@ -1308,6 +1308,7 @@ namespace Core.ConditionalAccess
                                             Utils.RenewTransactionMessageInQueue(groupId, householdId, 
                                                 ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
                                         }
+                                       
                                         else if (unifiedBillingCycle == null || (entitleToPreview && !isNew))
                                         {
                                             // insert regular message 
@@ -1383,7 +1384,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private static void SendRenewalReminder(BaseConditionalAccess cas, int groupId, DateTime endDate, long endDateUnix, 
+        private static void SendRenewalReminder(BaseConditionalAccess cas, int groupId, DateTime endDate, long endDateUnix,
             string siteguid, long householdId, long purchaseId, string billingGuid)
         {
             int renewalReminderSettings = BillingDAL.GetRenewalReminderSettings(groupId);

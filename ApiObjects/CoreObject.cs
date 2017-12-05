@@ -202,6 +202,27 @@ namespace ApiObjects
 
             return result;
         }
+        public bool Notify()
+        {
+            bool result = true;
+
+            var afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
+                this.GroupId,
+                this,
+                eKalturaEventActions.None,
+                eKalturaEventTime.After));
+
+            foreach (var eventResult in afterEventResults)
+            {
+                if (eventResult == EventManager.eEventConsumptionResult.Failure)
+                {
+                    result = false;
+                    break;
+                }
+            }
+
+            return result;
+        }
 
         public bool Notify()
         {
