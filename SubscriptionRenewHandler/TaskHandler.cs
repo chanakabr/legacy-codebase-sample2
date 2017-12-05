@@ -41,28 +41,33 @@ namespace SubscriptionRenewHandler
                 switch (requestType)
                 {
                     case eSubscriptionRenewRequestType.Renew:
-                    {
-                        success = Core.ConditionalAccess.Module.Renew(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
-                        break;
-                    }
+                        {
+                            success = Core.ConditionalAccess.Module.Renew(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
+                            break;
+                        }
                     case eSubscriptionRenewRequestType.RenewUnifiedTransaction:
                         {
                             success = Core.ConditionalAccess.Module.RenewUnifiedTransaction(request.GroupID, request.HouseholdId, request.ProcessId, request.EndDate);
                             break;
                         }
-
                     case eSubscriptionRenewRequestType.Reminder:
-                    {
-                        success = Core.ConditionalAccess.Module.GiftCardReminder(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
-                        break;
-                    }
+                    case eSubscriptionRenewRequestType.GiftCardReminder:
+                        {
+                            success = Core.ConditionalAccess.Module.GiftCardReminder(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
+                            break;
+                        }
                     case eSubscriptionRenewRequestType.Downgrade:
-                    {
-                        success = Core.ConditionalAccess.Module.HandleDowngrade(request.GroupID, request.SiteGuid, request.PurchaseId);
-                        break;
-                    }
+                        {
+                            success = Core.ConditionalAccess.Module.HandleDowngrade(request.GroupID, request.SiteGuid, request.PurchaseId);
+                            break;
+                        }
+                    case eSubscriptionRenewRequestType.RenewalReminder:
+                        {
+                            success = Core.ConditionalAccess.Module.UnifiedRenewalReminder(request.GroupID, request.SiteGuid, request.ProcessId, request.EndDate);
+                            break;
+                        }
                     default:
-                    break;
+                        break;
                 }
 
                 if (!success)
