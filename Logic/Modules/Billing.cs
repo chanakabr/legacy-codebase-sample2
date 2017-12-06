@@ -682,7 +682,24 @@ namespace Core.Billing
             return response;
         }
 
-        
+        public static PaymentGatewayItemResponse GetPaymentGateway(int groupId, long household, int paymentGatewayId, string userIP)
+        {
+            PaymentGatewayItemResponse response = new PaymentGatewayItemResponse();
+
+            BasePaymentGateway t = new BasePaymentGateway(groupId);
+            if (t != null)
+            {
+                string chargeId = string.Empty;
+                response = t.GetPaymentGateway(groupId, household, paymentGatewayId, userIP, out chargeId);
+            }
+            else
+            {
+                response = new PaymentGatewayItemResponse();
+                response.Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
         public static ApiObjects.Response.Status SetPaymentGatewayConfiguration(int nGroupID, int paymentGWId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();

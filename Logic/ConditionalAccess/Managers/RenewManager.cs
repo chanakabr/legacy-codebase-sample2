@@ -667,7 +667,6 @@ namespace Core.ConditionalAccess
                 }
             }
 
-
             if (unifiedBillingCycle == null)
             {
                 // enqueue renew transaction
@@ -2050,6 +2049,11 @@ namespace Core.ConditionalAccess
             }
 
             return response; 
+        }
+
+        internal static bool RenewalReminder(BaseConditionalAccess baseConditionalAccess, int m_nGroupID, string siteGuid, long purchaseId, long endDate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

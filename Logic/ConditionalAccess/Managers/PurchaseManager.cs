@@ -432,7 +432,7 @@ namespace Core.ConditionalAccess
                                     }
                                     else
                                     {
-                                        PurchaseManager.SendReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, userId, domainId, purchaseID, billingGuid);
+                                        PurchaseManager.SendGiftCardReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, userId, domainId, purchaseID, billingGuid);
                                     }
 
                                     // enqueue renew transaction
@@ -830,19 +830,29 @@ namespace Core.ConditionalAccess
                     }
                 }
 
+                // get payment gateway
+                PaymentGatewayItemResponse paymentGatewayResponse = Core.Billing.Module.GetPaymentGateway(groupId, household, paymentGwId, userIp);
+                //if (paymentGatewayResponse.Status.Code != (int)eResponseStatus.OK)
+                //{
+                //    response.Status.Message = paymentGatewayResponse.Status.Message;
+                //    response.Status.Code = paymentGatewayResponse.Status.Code;
+                //    log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+                //    return response;
+                //}
+
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
                         response = PurchasePPV(cas, groupId, siteguid, household, price, currency, contentId,
-                            productId, couponData, userIp, deviceName, paymentGwId, paymentMethodId, adapterData);
+                            productId, couponData, userIp, deviceName, paymentGwId, paymentMethodId, adapterData, paymentGatewayResponse.PaymentGateway);
                         break;
                     case eTransactionType.Subscription:
                         response = PurchaseSubscription(cas, groupId, siteguid, household, price, currency,
-                            productId, couponData, userIp, deviceName, paymentGwId, paymentMethodId, adapterData, shouldIgnoreSubscriptionSetValidation, user);
+                            productId, couponData, userIp, deviceName, paymentGwId, paymentMethodId, adapterData, shouldIgnoreSubscriptionSetValidation, user, paymentGatewayResponse.PaymentGateway);
                         break;
                     case eTransactionType.Collection:
                         response = PurchaseCollection(cas, groupId, siteguid, household, price, currency,
-                            productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId, adapterData);
+                            productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId, adapterData, paymentGatewayResponse.PaymentGateway);
                         break;
                     default:
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
@@ -867,9 +877,10 @@ namespace Core.ConditionalAccess
             return response;
         }
 
+       
         private static TransactionResponse PurchaseCollection(BaseConditionalAccess cas, int groupId, string siteguid,
             long householdId, double price, string currency, int productId, string coupon,
-            string userIp, string deviceName, int paymentGwId, int paymentMethodId, string adapterData)
+            string userIp, string deviceName, int paymentGwId, int paymentMethodId, string adapterData, PaymentGateway paymentGateway)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -905,9 +916,8 @@ namespace Core.ConditionalAccess
                 if (priceReason == PriceReason.ForPurchase)
                 {
                     // item is for purchase
-                    if (priceResponse != null &&
-                        priceResponse.m_dPrice == price &&
-                        priceResponse.m_oCurrency.m_sCurrencyCD3 == currency)
+                    if ( (priceResponse != null && priceResponse.m_dPrice == price && priceResponse.m_oCurrency.m_sCurrencyCD3 == currency) ||
+                        (paymentGateway != null && paymentGateway.ExternalVerification) )
                     {
                         // price validated, create the Custom Data
                         string customData = cas.GetCustomDataForCollection(collection, productId.ToString(), siteguid, price, currency, coupon,
@@ -1004,7 +1014,7 @@ namespace Core.ConditionalAccess
 
         private static TransactionResponse PurchaseSubscription(BaseConditionalAccess cas, int groupId, string siteguid,
             long householdId, double price, string currency, int productId, CouponData coupon, string userIp, string deviceName,
-            int paymentGwId, int paymentMethodId, string adapterData, bool isSubscriptionSetModifySubscription, Core.Users.User user)
+            int paymentGwId, int paymentMethodId, string adapterData, bool isSubscriptionSetModifySubscription, Core.Users.User user, PaymentGateway paymentGateway)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -1077,6 +1087,11 @@ namespace Core.ConditionalAccess
                 {
                     unifiedBillingCycle = null;
                 }
+                // if the payment gateway is external ignore unified billing !!
+                if (paymentGateway != null && paymentGateway.ExternalVerification)
+                {
+                    unifiedBillingCycle = null;
+                }
 
                 if (subscription.m_UserTypes != null && subscription.m_UserTypes.Length > 0 && !subscription.m_UserTypes.Contains(user.m_oBasicData.m_UserType))
                 {
@@ -1110,9 +1125,11 @@ namespace Core.ConditionalAccess
                 }
 
                
-                if (coupon != null && coupon.m_CouponStatus == CouponsStatus.Valid && coupon.m_oCouponGroup != null && coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
+                if (coupon != null && coupon.m_CouponStatus == CouponsStatus.Valid && coupon.m_oCouponGroup != null && 
+                    coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
                     ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode) ||
-                     (subscription.CouponsGroups != null && subscription.CouponsGroups.Count() > 0 && subscription.CouponsGroups.Where(x => x.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode).Count() > 0 )))
+                     (subscription.CouponsGroups != null && subscription.CouponsGroups.Count() > 0 && 
+                     subscription.CouponsGroups.Where(x => x.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode).Count() > 0 )))
                 {
                     isGiftCard = true;
                     priceResponse = new Price()
@@ -1135,9 +1152,8 @@ namespace Core.ConditionalAccess
                 {
                     // item is for purchase
                     if (isSubscriptionSetModifySubscription || 
-                        (priceResponse != null &&
-                        priceResponse.m_dPrice == price &&
-                        priceResponse.m_oCurrency.m_sCurrencyCD3 == currency))
+                        (priceResponse != null && priceResponse.m_dPrice == price && priceResponse.m_oCurrency.m_sCurrencyCD3 == currency) || 
+                        (paymentGateway != null && paymentGateway.ExternalVerification))
                     {
                         // price is validated, create custom data
                         bool partialPrice = unifiedBillingCycle != null && unifiedBillingCycle.endDate > 0 && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow);
@@ -1201,7 +1217,8 @@ namespace Core.ConditionalAccess
 
                                     //create process id only for subscription that equal the cycle and are NOT preview module 
                                     long ? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-                                    if (subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
+                                    if ( !paymentGatewayResponse.ExternalVerification && 
+                                        subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
                                          subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
                                          && groupUnifiedBillingCycle.HasValue
                                          && (int)groupUnifiedBillingCycle.Value == subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle
@@ -1275,7 +1292,7 @@ namespace Core.ConditionalAccess
                                         }
                                         else
                                         {
-                                            PurchaseManager.SendReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, siteguid, householdId, purchaseID, billingGuid);
+                                            PurchaseManager.SendGiftCardReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, siteguid, householdId, purchaseID, billingGuid);
                                         }
 
                                         // enqueue renew transaction
@@ -1288,7 +1305,8 @@ namespace Core.ConditionalAccess
                                         */
                                         if (isNew) // need to insert new unified billing message to queue
                                         {
-                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
+                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, 
+                                                ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
                                         }
                                        
                                         else if (unifiedBillingCycle == null || (entitleToPreview && !isNew))
@@ -1296,10 +1314,15 @@ namespace Core.ConditionalAccess
                                             // insert regular message 
                                             RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate);
                                         }
-                                       
+
                                         //else do nothing, message already exists
 
                                         #endregion
+
+                                        if (endDate != null && endDate.HasValue)
+                                        {
+                                            PurchaseManager.SendRenewalReminder(cas, groupId, endDate.Value, endDateUnix, siteguid, householdId, purchaseID, billingGuid);
+                                        }
                                     }
 
                                     // build notification message
@@ -1361,6 +1384,42 @@ namespace Core.ConditionalAccess
             return response;
         }
 
+        private static void SendRenewalReminder(BaseConditionalAccess cas, int groupId, DateTime endDate, long endDateUnix,
+            string siteguid, long householdId, long purchaseId, string billingGuid)
+        {
+            int renewalReminderSettings = BillingDAL.GetRenewalReminderSettings(groupId);
+
+            if (renewalReminderSettings > 0)
+            {
+                var domain = Utils.GetDomainInfo((int)householdId, groupId);
+
+                if (domain != null && domain.m_nStatus == 1 && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
+                {
+                    string masterSiteGuid = domain.m_masterGUIDs.First().ToString();
+
+                    RenewTransactionsQueue queue = new RenewTransactionsQueue();
+
+                    DateTime eta = endDate.AddDays(-1 * renewalReminderSettings);
+
+                    if (eta > DateTime.UtcNow)
+                    {
+                        RenewTransactionData data = new RenewTransactionData(groupId, masterSiteGuid, purchaseId, billingGuid,
+                            endDateUnix, eta, eSubscriptionRenewRequestType.RenewalReminder);
+                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+
+                        if (!enqueueSuccessful)
+                        {
+                            log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
+                        }
+                        else
+                        {
+                            log.DebugFormat("New task created - normal renewal reminder. next reminder date: {0}, data: {1}", eta, data);
+                        }
+                    }
+                }
+            }
+        }
+
         private static bool RenewTransactionMessageInQueue(int groupId, string siteguid, string billingGuid, long purchaseID, long endDateUnix, DateTime nextRenewalDate)
         {
             RenewTransactionsQueue queue = new RenewTransactionsQueue();
@@ -1404,7 +1463,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        private static void SendReminderEmails(BaseConditionalAccess cas, int groupId, long endDate, DateTime renewDate,
+        private static void SendGiftCardReminderEmails(BaseConditionalAccess cas, int groupId, long endDate, DateTime renewDate,
             string siteGuid, long householdId, long purchaseId, string billingGuid)
         {
             List<int> remindersDays = PricingDAL.GetGiftCardReminders(groupId);
@@ -1426,7 +1485,7 @@ namespace Core.ConditionalAccess
                         if (eta > DateTime.UtcNow)
                         {
                             RenewTransactionData data = new RenewTransactionData(groupId, masterSiteGuid, purchaseId, billingGuid,
-                                endDate, eta, eSubscriptionRenewRequestType.Reminder);
+                                endDate, eta, eSubscriptionRenewRequestType.GiftCardReminder);
                             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
 
                             if (!enqueueSuccessful)
@@ -1473,7 +1532,7 @@ namespace Core.ConditionalAccess
 
         private static TransactionResponse PurchasePPV(BaseConditionalAccess cas, int groupId, string siteguid, long householdId, double price,
             string currency, int contentId, int productId, CouponData coupon, string userIp, string deviceName, int paymentGwId,
-            int paymentMethodId, string adapterData)
+            int paymentMethodId, string adapterData, PaymentGateway paymentGateway)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -1570,7 +1629,8 @@ namespace Core.ConditionalAccess
                     }
 
                     // item is for purchase
-                    if (priceObject.m_dPrice == price && priceObject.m_oCurrency.m_sCurrencyCD3 == currency)
+                    if ( (priceObject.m_dPrice == price && priceObject.m_oCurrency.m_sCurrencyCD3 == currency)
+                        || (paymentGateway != null && paymentGateway.ExternalVerification) )
                     {
                         string country = string.Empty;
                         if (!string.IsNullOrEmpty(userIp))
