@@ -6348,8 +6348,8 @@ namespace WebAPI.Reflection
                             return "tagEqual";
                         case "TagStartsWith":
                             return "tagStartsWith";
-                        case "TopicIdEqual":
-                            return "topicIdEqual";
+                        case "TypeEqual":
+                            return "typeEqual";
                     }
                     break;
                     

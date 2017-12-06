@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 // call client                
-                response = ClientsManager.ApiClient().SearchTags(groupId, language, filter.TagEqual, filter.TopicIdEqual, filter.TagStartsWith, pager.getPageIndex(), pager.getPageSize());
+                response = ClientsManager.ApiClient().SearchTags(groupId, language, filter.TagEqual, filter.TypeEqual, filter.TagStartsWith, pager.getPageIndex(), pager.getPageSize());
             }
             catch (ClientException ex)
             {

@@ -4039,9 +4039,9 @@
             Tag to filter by
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaTagFilter.TopicIdEqual">
+        <member name="P:WebAPI.Models.API.KalturaTagFilter.TypeEqual">
             <summary>
-            Topic identifier
+            Type identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaTagListResponse.Tags">

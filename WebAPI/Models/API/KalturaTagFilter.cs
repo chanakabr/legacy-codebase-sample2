@@ -31,12 +31,12 @@ namespace WebAPI.Models.API
 
 
         /// <summary>
-        /// Topic identifier
+        /// Type identifier
         /// </summary>
-        [DataMember(Name = "topicIdEqual")]
-        [JsonProperty("topicIdEqual")]
-        [XmlElement(ElementName = "topicIdEqual")]
-        public int TopicIdEqual { get; set; }
+        [DataMember(Name = "typeEqual")]
+        [JsonProperty("typeEqual")]
+        [XmlElement(ElementName = "typeEqual")]
+        public int TypeEqual { get; set; }
 
         public override KalturaTagOrderBy GetDefaultOrderByValue()
         {
