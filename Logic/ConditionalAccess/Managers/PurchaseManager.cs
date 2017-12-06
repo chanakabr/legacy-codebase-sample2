@@ -449,6 +449,7 @@ namespace Core.ConditionalAccess
                                     }
                                     else
                                     {
+                                        PurchaseManager.SendRenewalReminder(data, domainId);
                                         log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
                                             nextRenewalDate, data);
                                     }
@@ -630,8 +631,10 @@ namespace Core.ConditionalAccess
                 {
                     // enqueue scheduled purchase transaction
                     GenericCeleryQueue queue = new GenericCeleryQueue();
-                    RenewTransactionData data = new RenewTransactionData(groupId, downgradeDetails.UserId, subscriptionSetModifyDetailsId, string.Empty, 0, nextAttempt, eSubscriptionRenewRequestType.Downgrade);
+                    RenewTransactionData data = new RenewTransactionData(groupId, downgradeDetails.UserId, subscriptionSetModifyDetailsId, string.Empty, 0, 
+                        nextAttempt, eSubscriptionRenewRequestType.Downgrade);
                     bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+
                     if (!enqueueSuccessful)
                     {
                         log.ErrorFormat("Failed enqueue of subscription set downgrade scheduled purchase retry, {0}", data);
@@ -1312,7 +1315,7 @@ namespace Core.ConditionalAccess
                                         else if (unifiedBillingCycle == null || (entitleToPreview && !isNew))
                                         {
                                             // insert regular message 
-                                            RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate);
+                                            RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate, householdId);
                                         }
 
                                         //else do nothing, message already exists
@@ -1384,7 +1387,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private static void SendRenewalReminder(BaseConditionalAccess cas, int groupId, DateTime endDate, long endDateUnix,
+        public static void SendRenewalReminder(BaseConditionalAccess cas, int groupId, DateTime endDate, long endDateUnix,
             string siteguid, long householdId, long purchaseId, string billingGuid)
         {
             int renewalReminderSettings = BillingDAL.GetRenewalReminderSettings(groupId);
@@ -1420,7 +1423,85 @@ namespace Core.ConditionalAccess
             }
         }
 
-        private static bool RenewTransactionMessageInQueue(int groupId, string siteguid, string billingGuid, long purchaseID, long endDateUnix, DateTime nextRenewalDate)
+        public static void SendRenewalReminder(RenewTransactionData data, long householdId)
+        {
+            int renewalReminderSettings = BillingDAL.GetRenewalReminderSettings(data.GroupId);
+
+            if (renewalReminderSettings > 0)
+            {
+                Users.Domain domain = null;
+
+                if (householdId == 0)
+                {
+                    var domainResponse = Core.Domains.Module.GetDomainByUser(data.GroupId, data.siteGuid);
+
+                    if (domainResponse != null && domainResponse.Status != null && domainResponse.Status.Code == (int)eResponseStatus.OK)
+                    {
+                        domain = domainResponse.Domain;
+                    }
+                }
+                else
+                {
+                    domain = Utils.GetDomainInfo((int)householdId, data.GroupId);
+                }
+
+                if (domain != null && domain.m_nStatus == 1 && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
+                {
+                    string masterSiteGuid = domain.m_masterGUIDs.First().ToString();
+
+                    RenewTransactionsQueue queue = new RenewTransactionsQueue();
+
+                    DateTime eta = DateUtils.UnixTimeStampToDateTime(data.endDate).AddDays(-1 * renewalReminderSettings);
+
+                    if (eta > DateTime.UtcNow)
+                    {
+                        RenewTransactionData newData = new RenewTransactionData(data.GroupId, masterSiteGuid, data.purchaseId, data.billingGuid,
+                            data.endDate, eta, eSubscriptionRenewRequestType.RenewalReminder);
+                        bool enqueueSuccessful = queue.Enqueue(newData, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, data.GroupId));
+
+                        if (!enqueueSuccessful)
+                        {
+                            log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
+                        }
+                        else
+                        {
+                            log.DebugFormat("New task created - normal renewal reminder. next reminder date: {0}, data: {1}", eta, data);
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void SendRenewalReminder(RenewUnifiedData data)
+        {
+            int renewalReminderSettings = BillingDAL.GetRenewalReminderSettings(data.GroupId);
+
+            if (renewalReminderSettings > 0)
+            {
+                RenewTransactionsQueue queue = new RenewTransactionsQueue();
+
+                DateTime eta = DateUtils.UnixTimeStampToDateTime(data.endDate).AddDays(-1 * renewalReminderSettings);
+
+                if (eta > DateTime.UtcNow)
+                {
+                    RenewUnifiedData newData = new RenewUnifiedData(data.GroupId, data.householdId, data.processId,
+                        data.endDate, eta, eSubscriptionRenewRequestType.RenewalReminder);
+                    bool enqueueSuccessful = queue.Enqueue(newData, string.Format(Utils.ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION, data.GroupId));
+
+                    if (!enqueueSuccessful)
+                    {
+                        log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
+                    }
+                    else
+                    {
+                        log.DebugFormat("New task created - normal renewal reminder. next reminder date: {0}, data: {1}", eta, data);
+                    }
+                }
+            }
+        }
+
+        private static bool RenewTransactionMessageInQueue(int groupId, string siteguid, string billingGuid, 
+            long purchaseID, long endDateUnix, DateTime nextRenewalDate, long householdId = 0)
         {
             RenewTransactionsQueue queue = new RenewTransactionsQueue();
             RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
@@ -1432,11 +1513,13 @@ namespace Core.ConditionalAccess
             }
             else
             {
+                PurchaseManager.SendRenewalReminder(data, householdId);
                 log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
                     nextRenewalDate, data);
             }
-                return enqueueSuccessful;
-            }
+
+            return enqueueSuccessful;
+        }
 
         ///If needed create/ update doc in cb for unifiedBilling_household_{ household_id }_renewBillingCycle
         ///create: unified billing cycle for household (CB)

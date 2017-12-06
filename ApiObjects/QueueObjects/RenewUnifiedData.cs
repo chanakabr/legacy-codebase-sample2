@@ -10,10 +10,10 @@ namespace ApiObjects
     {
         public const string TASK = "distributed_tasks.process_unified_renew_subscription";
                 
-        private long householdId;
-        private long processId;
-        private long endDate;
-        private eSubscriptionRenewRequestType type;
+        public long householdId;
+        public long processId;
+        public long endDate;
+        public eSubscriptionRenewRequestType type;
 
         public RenewUnifiedData(int groupId, long householdId, long processId, long endDate, DateTime nextRenewDate,
             eSubscriptionRenewRequestType type = eSubscriptionRenewRequestType.RenewUnifiedTransaction) :

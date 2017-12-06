@@ -68,7 +68,7 @@ namespace Core.ConditionalAccess
         private static readonly string BASIC_LINK_CONFIG_DATA = "!--config_data--";
         private static readonly int RECOVERY_GRACE_PERIOD = 864000;
 
-        protected const string ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION = "PROCESS_UNIFIED_RENEW_SUBSCRIPTION\\{0}";
+        public const string ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION = "PROCESS_UNIFIED_RENEW_SUBSCRIPTION\\{0}";
         static public void GetBaseConditionalAccessImpl(ref BaseConditionalAccess t, Int32 nGroupID)
         {
             GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
@@ -8397,7 +8397,6 @@ namespace Core.ConditionalAccess
             }
         }
 
-
         internal static bool RenewTransactionMessageInQueue(int groupId, long householdId, long endDateUnix, DateTime nextRenewalDate, long processId)
         {
             // add new message to new routing key queue
@@ -8410,9 +8409,11 @@ namespace Core.ConditionalAccess
             }
             else
             {
+                PurchaseManager.SendRenewalReminder(data);
                 log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
                     nextRenewalDate, data);
             }
+
             return enqueueSuccessful;
         }
 

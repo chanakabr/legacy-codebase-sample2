@@ -11,11 +11,11 @@ namespace ApiObjects
     {
         public const string TASK = "distributed_tasks.process_renew_subscription";
 
-        private long purchaseId;
-        private string billingGuid;
-        private string siteGuid;
-        private long endDate;
-        private eSubscriptionRenewRequestType type;
+        public long purchaseId;
+        public string billingGuid;
+        public string siteGuid;
+        public long endDate;
+        public eSubscriptionRenewRequestType type;
 
         public RenewTransactionData(int groupId, string siteGuid, long purchaseId, string billingGuid, long endDate, DateTime nextRenewDate, 
             eSubscriptionRenewRequestType type = eSubscriptionRenewRequestType.Renew) :
