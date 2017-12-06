@@ -3841,42 +3841,17 @@ namespace WebAPI.Clients
             return drmAdapterResponse.Value;
         }
 
-        internal KalturaTagListResponse SearchTags(int groupId, int topicId, int languageId, string searchValue)
-        {
-            KalturaTagListResponse result = new Models.API.KalturaTagListResponse();
-
-            List<TagValue> tagValues = new List<TagValue>();
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    tagValues = Core.Api.Module.SearchTags(groupId, topicId, languageId, searchValue);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling API service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (tagValues == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            return result;
-        }
-
         internal KalturaTagListResponse SearchTags(int groupId, string language, string tag, int topicId, string tagStartsWith, int pageIndex, int pageSize)
         {
             KalturaTagListResponse result = new Models.API.KalturaTagListResponse();
+            TagResponse response = null;
 
-            List<TagValue> tagValues = new List<TagValue>();
+            List<TagValue> tagValues = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //
+                    response = Core.Api.Module.SearchTags(groupId,  tag, topicId, tagStartsWith, language,pageIndex,pageSize);
                 }
             }
             catch (Exception ex)
@@ -3885,9 +3860,23 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (tagValues == null)
+            if (response == null)
             {
+                // general exception
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.TagValues != null && response.TagValues.Count > 0)
+            {
+                result.TotalCount = response.TotalItems;
+                // convert TagValues            
+                result.Tags = Mapper.Map<List<KalturaTag>>(response.TagValues);
             }
 
             return result;
