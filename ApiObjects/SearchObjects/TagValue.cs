@@ -16,7 +16,7 @@ namespace ApiObjects.SearchObjects
         public int topicId;
         [JsonProperty("language_id")]
         public int languageId;
-        [JsonProperty("tag_value")]
+        [JsonProperty("value")]
         public string value;
         [JsonProperty(PropertyName = "create_date")]
         public long createDate;

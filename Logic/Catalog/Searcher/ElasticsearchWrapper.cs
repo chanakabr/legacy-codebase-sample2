@@ -2755,6 +2755,8 @@ namespace Core.Catalog
                 m_eOrderDir = OrderDir.ASC
             });
 
+            filteredQuery.ReturnFields.Clear();
+
             #endregion
 
             #region Perform search
