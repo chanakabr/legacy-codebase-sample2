@@ -1,5 +1,6 @@
 ﻿using APILogic.ConditionalAccess.Managers;
 using APILogic.ConditionalAccess.Modules;
+using APILogic.ConditionalAccess.Response;
 using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
@@ -1557,8 +1558,9 @@ namespace Core.ConditionalAccess
             return saved;
         }
 
-        private static void GetProcessDetails(long processId, ref int paymentgatewayId, ref ProcessUnifiedState processPurchasesState, ref DateTime? processEndDate)
+        private static bool GetProcessDetails(long processId, ref int paymentgatewayId, ref ProcessUnifiedState processPurchasesState, ref DateTime? processEndDate)
         {
+            bool result = false;
             DataRow dr = ConditionalAccessDAL.GetUnifiedProcessById(processId);
             if (dr != null)
             {
@@ -1566,7 +1568,10 @@ namespace Core.ConditionalAccess
                 int state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");
                 processPurchasesState = (ProcessUnifiedState)state;
                 processEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+                result = true;
             }
+
+            return result;
         }
 
         private static bool HandleRenewUnifiedSubscriptionSuccess(BaseConditionalAccess cas, int groupId, long householdId, string customData, ref UnifiedBillingCycle unifiedBillingCycle,
@@ -1716,6 +1721,342 @@ namespace Core.ConditionalAccess
             }
 
             return true;
+        }
+        
+        public static EntitlementRenewalResponse GetEntitlementNextRenewal(BaseConditionalAccess cas, int groupId, long householdId, long purchaseId)
+        {
+            EntitlementRenewalResponse response = new EntitlementRenewalResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            // get subscription purchase 
+            DataRow subscriptionRenealDataRow = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseNextRenewal(groupId, purchaseId);
+
+            // validate subscription received
+            if (subscriptionRenealDataRow == null)
+            {
+                // subscription purchase wasn't found
+                log.ErrorFormat("GetEntitlementNextRenewal: faile subscription purchase. PurchaseId: {0}, householdId: {1}", purchaseId, householdId);
+                return response;
+            }
+
+            // get product ID
+            long productId = ODBCWrapper.Utils.ExtractInteger(subscriptionRenealDataRow, "SUBSCRIPTION_CODE"); // AKA subscription ID/CODE
+            string couponCode = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "COUPON_CODE");
+            string billingGuid = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "billing_Guid");
+
+            // Check if this is a renew via INAPP PURCHASE
+            PaymentDetails pd = null;
+            ApiObjects.Response.Status statusVerifications = Billing.Module.GetPaymentGatewayVerificationStatus(groupId, billingGuid, ref pd);
+            bool ignoreUnifiedBillingCycle = statusVerifications.Code != (int)eResponseStatus.OK || pd == null || pd.PaymentGatewayId == 0;
+
+            // get end date
+            DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionRenealDataRow, "END_DATE");
+           
+            string previousPurchaseCurrencyCode = string.Empty;
+            string previousPurchaseCountryCode = string.Empty;
+            string previousPurchaseCountryName = string.Empty;
+
+
+            string customData = null;
+            #region Dummy
+            try
+            {
+                customData = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "CUSTOMDATA"); // AKA subscription ID/CODE
+
+                if (!string.IsNullOrEmpty(customData))
+                {
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(customData);
+                    XmlNode theRequest = doc.FirstChild;
+                    // previousPurchaseCurrencyCode, previousPurchaseCountryCode and previousPurchaseCountryName will be used later for getting the correct priceCodeData 
+                    previousPurchaseCurrencyCode = XmlUtils.GetSafeValue(BaseConditionalAccess.CURRENCY, ref theRequest);
+                    previousPurchaseCountryName = XmlUtils.GetSafeValue(BaseConditionalAccess.COUNTRY_CODE, ref theRequest);
+                    previousPurchaseCountryCode = Utils.GetCountryCodeByCountryName(groupId, previousPurchaseCountryName);
+                    bool isDummy = XmlUtils.IsNodeExists(ref theRequest, BaseConditionalAccess.DUMMY);
+
+                    // OK + price 0
+                    response = new EntitlementRenewalResponse()
+                    {
+                        EntitlementRenewal = new EntitlementRenewal()
+                        {
+                            Price = new Price()
+                            {
+                                m_dPrice = 0
+                            },
+                            SubscriptionId = productId,
+                            PurchaseId = purchaseId,
+                            Date = endDate
+                        },
+                        Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+                    };
+
+                    return response;
+                } 
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetEntitlementNextRenewal: Error while getting data from custom data xml, PurchaseId: {0}, householdId: {1}", purchaseId, householdId), ex);
+                return response;
+            }
+
+            #endregion
+            
+            #region Get Subscription data
+
+            Subscription subscription = null;
+            try
+            {
+                subscription = Core.Pricing.Module.GetSubscriptionData(groupId, productId.ToString(), string.Empty, string.Empty, string.Empty, false);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetEntitlementNextRenewal: Error while trying to fetch subscription data. PurchaseId: {0}, householdId: {1}", purchaseId, householdId), ex);
+                return response;
+            }
+
+
+            // validate subscription
+            if (subscription == null)
+            {
+                // subscription wasn't found
+                log.ErrorFormat("GetEntitlementNextRenewal: subscription wasn't found. productId {0}, PurchaseId: {1}, householdId: {2}", productId, purchaseId, householdId);
+                return response;
+            }
+
+            #endregion
+
+            if (subscription.Type == SubscriptionType.AddOn && subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
+            {
+                ApiObjects.Response.Status status = Utils.CanPurchaseAddOn(groupId, householdId, subscription);
+                if (status.Code != (int)eResponseStatus.OK)
+                {
+                    log.ErrorFormat("GetEntitlementNextRenewal: subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", subscription.m_SubscriptionCode, status.Code, status.Message);
+                    response.Status = status;
+                    return response;
+                }
+            }
+
+            int paymentNumber = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRenealDataRow, "PAYMENT_NUMBER");
+            int numOfPayments = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRenealDataRow, "number_of_payments");
+            int totalNumOfPayments = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRenealDataRow, "total_number_of_payments");
+
+            // check if purchased with preview module
+            bool isPurchasedWithPreviewModule;
+            isPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModuleByBillingGuid(groupId, billingGuid, (int)purchaseId);
+
+            paymentNumber = Utils.CalcPaymentNumber(numOfPayments, paymentNumber, isPurchasedWithPreviewModule);
+            if (numOfPayments > 0 && paymentNumber > numOfPayments)
+            {
+                // Subscription ended
+                log.ErrorFormat("GetEntitlementNextRenewal: Subscription ended. numOfPayments={0}, paymentNumber={1}, numOfPayments={2}", numOfPayments, paymentNumber, numOfPayments);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                return response;
+            }
+
+            // calculate payment number
+            paymentNumber++;
+
+            // get compensation data
+            Compensation compensation = ConditionalAccessDAL.GetSubscriptionCompensationByPurchaseId(purchaseId);
+
+            // get MPP
+            int recPeriods = 0;
+            bool isMPPRecurringInfinitely = false;
+            int maxVLCOfSelectedUsageModule = 0;
+            double price = 0;
+            string currency = "n/a";
+            UnifiedBillingCycle unifiedBillingCycle = null;
+            string siteguid = "";
+            string userIp = "";
+
+            if (!cas.GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
+                    ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
+                    ref couponCode, subscription, ref unifiedBillingCycle, compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode,
+                    endDate, groupId, householdId, ignoreUnifiedBillingCycle, false))
+            {
+                log.Error("Error while trying to get Price plan to renew");
+                return response;
+            }
+
+            var currencyObj = Core.Pricing.Module.GetCurrencyValues(groupId, currency);
+
+            response.EntitlementRenewal = new EntitlementRenewal()
+            {
+                Date = endDate,
+                SubscriptionId = productId,
+                PurchaseId = purchaseId,
+                Price = new Price()
+                {
+                    m_dPrice = price,
+                    m_oCurrency = currencyObj,
+                }
+            };
+
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            return response;
+        }
+
+        public static UnifiedPaymentRenewalResponse GetUnifiedPaymentNextRenewal(BaseConditionalAccess cas, int groupId, long householdId, long unifiedPaymentId)
+        {
+            UnifiedPaymentRenewalResponse response = new UnifiedPaymentRenewalResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            string customData = string.Empty;
+
+            long? groupBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
+            if (!groupBillingCycle.HasValue)
+            {
+                log.DebugFormat("GetUnifiedPaymentRenewal: failed to get groupBillingCycle from cache for groupId={0}", groupId);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Unified payment is not set for partner");
+                return response;
+            }
+
+            int paymentgatewayId = 0;
+            ProcessUnifiedState processState = ProcessUnifiedState.Renew;
+            DateTime? processEndDate = null;
+            bool result = GetProcessDetails(unifiedPaymentId, ref paymentgatewayId, ref processState, ref processEndDate);
+
+            UnifiedBillingCycle unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupBillingCycle.Value);
+            if (unifiedBillingCycle == null)
+            {
+                log.DebugFormat("GetUnifiedPaymentRenewal: unifiedBillingCycle not found in CB for householdId ={0}", householdId);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Unified payment is not set for household");
+                return response;
+            }
+
+            // get subscription purchase 
+            DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_UnifiedSubscriptionPurchaseForRenewal(groupId, householdId, unifiedPaymentId, false);
+
+            // validate subscription received
+            if (subscriptionPurchaseDt == null)
+            {
+                // subscription purchase wasn't found
+                log.ErrorFormat("GetUnifiedPaymentRenewal: failed to get unifiedBillingCycle from CB for householdId ={0}, unifiedPaymentId={1}", householdId, unifiedPaymentId);
+                return response;
+            }
+
+            List<RenewSubscriptionDetails> renewSubscriptioDetails = Utils.BuildSubscriptionPurchaseDetails(subscriptionPurchaseDt, groupId, cas);
+            if (renewSubscriptioDetails == null || renewSubscriptioDetails.Count() == 0)// all resDetails were addon with none relevant base
+            {
+                log.DebugFormat("GetUnifiedPaymentRenewal: No subscriptions found for householdId={0}, unifiedPaymentId={1}", householdId, unifiedPaymentId);
+                return response;
+            }
+
+            List<long> purchasesIds = renewSubscriptioDetails.Select(s => s.PurchaseId).ToList();
+
+            List<Subscription> subscriptions = null;
+            try
+            {
+                subscriptions = Utils.GetSubscriptionsDataWithCaching(renewSubscriptioDetails.Select(x => x.ProductId).ToList(), groupId).ToList();
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while trying to fetch subscription data. data: householdId={0}, unifiedPaymentId={1}", householdId, unifiedPaymentId), ex);
+                return response;
+            }
+
+            // validate subscription
+            if (subscriptions == null || subscriptions.Count() == 0)
+            {
+                // subscription wasn't found
+                log.Error(string.Format("GetUnifiedPaymentRenewal: Failed to get subscriptions data from cache. productIds {0}", string.Join(",", renewSubscriptioDetails.Select(x => x.ProductId).ToList())));
+                return response;
+            }
+
+            #region check addon subscriptions
+            List<string> removeSubscriptionCodes = new List<string>(); 
+            List<Subscription> baseSubscriptions = subscriptions.Where(x => x.Type == SubscriptionType.Base).ToList();
+            foreach (Subscription subscription in (subscriptions.Where(x => x.Type == SubscriptionType.AddOn).ToList()))
+            {
+                if (subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
+                {
+                    ApiObjects.Response.Status status = Utils.CanPurchaseAddOn(groupId, householdId, subscription);
+                    if (status.Code != (int)eResponseStatus.OK)
+                    {
+                        // check mabye this add on have base subscription in this unified billing cycle 
+                        bool canPurchaseAddOn = false;
+                        // get all setsIds for this addon 
+                        List<long> addOnSetIds = subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
+                        // check if one of the subscription are base in this unified cycle 
+                        foreach (Subscription baseSubscription in baseSubscriptions)
+                        {
+                            List<long> baseSetIds = baseSubscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
+                            if (baseSetIds.Where(x => addOnSetIds.Contains(x)).Count() > 0)
+                            {
+                                canPurchaseAddOn = true;
+                            }
+                        }
+                        if (!canPurchaseAddOn)
+                        {
+                            // change is recurring to false and call event handle- this renew subscription failed!                        
+
+                            RenewSubscriptionDetails rsDetail = renewSubscriptioDetails.Where(x => x.ProductId == subscription.m_SubscriptionCode).FirstOrDefault();
+                            if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, rsDetail, 0, "AddOn with no BaseSubscription valid"))
+                            {
+                                // save all SubscriptionCode to remove from subscription list 
+                                removeSubscriptionCodes.Add(subscription.m_SubscriptionCode);
+                                // remove this renewDetails (its an AddOn)
+                                renewSubscriptioDetails.Remove(rsDetail);
+                            }
+
+                            log.ErrorFormat("failed renew subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", subscription.m_SubscriptionCode, status.Code, status.Message);
+                        }
+                    }
+                }
+            }
+
+            if (renewSubscriptioDetails == null || renewSubscriptioDetails.Count() == 0)// all resDetails were addon with none relevant base
+            {
+                log.DebugFormat("RenewUnifiedTransaction fail due to no addon subscriptions for householdid = {0} and paymentgatewayid = { 1 }", householdId, paymentgatewayId);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                return response;
+            }
+
+            if (removeSubscriptionCodes.Count() > 0) // remove all not relevant subscriptions
+            {
+                subscriptions.RemoveAll(x => removeSubscriptionCodes.Contains(x.m_SubscriptionCode));
+            }
+            #endregion
+
+            Utils.GetMultiSubscriptionUsageModule(renewSubscriptioDetails, string.Empty, subscriptions, cas, ref unifiedBillingCycle, (int)householdId, groupId, false);
+
+            if (renewSubscriptioDetails == null || renewSubscriptioDetails.Count == 0)
+            {
+                log.ErrorFormat("GetUnifiedPaymentRenewal: Failed to get renewal data for householdId={0}, unifiedPaymentId={1}", householdId, unifiedPaymentId);
+                return response;
+            }
+            // build response 
+            var currencyObj = Core.Pricing.Module.GetCurrencyValues(groupId, renewSubscriptioDetails[0].Currency);
+
+            response.UnifiedPaymentRenewal = new UnifiedPaymentRenewal()
+            {
+                Date = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate),
+                UnifiedPaymentId = unifiedPaymentId,
+                Entitlements = new List<EntitlementRenewalBase>(),
+                Price = new Price()
+                {
+                    m_oCurrency = currencyObj
+                }
+            };
+
+            EntitlementRenewalBase entitlementRenewal = null;
+            foreach (var subDetails in renewSubscriptioDetails)
+            {
+                entitlementRenewal = new EntitlementRenewalBase()
+                {
+                    PriceAmount = subDetails.Price,
+                    PurchaseId = subDetails.PurchaseId,
+                    SubscriptionId = long.Parse(subDetails.ProductId)
+                };
+                response.UnifiedPaymentRenewal.Entitlements.Add(entitlementRenewal);
+                response.UnifiedPaymentRenewal.Price.m_dPrice += subDetails.Price;
+            }
+
+            return response; 
         }
 
         internal static bool RenewalReminder(BaseConditionalAccess baseConditionalAccess, int groupId, string siteGuid, long purchaseId, long nextEndDate)

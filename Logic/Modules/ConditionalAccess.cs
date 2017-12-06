@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using APILogic.ConditionalAccess.Response;
 
 namespace Core.ConditionalAccess
 {
@@ -2151,8 +2152,7 @@ namespace Core.ConditionalAccess
             }
             return response;
         }
-
-
+        
         public static AssetItemPriceResponse GetAssetPrices(int groupID,
             string siteGuid,
             string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP,
@@ -2170,7 +2170,6 @@ namespace Core.ConditionalAccess
 
             return response;
         }
-
 
         public static Status ReconcileEntitlements(int groupID, string userId)
         {
@@ -3220,6 +3219,20 @@ namespace Core.ConditionalAccess
             return response;
         }
 
+        public static EntitlementRenewalResponse GetEntitlementNextRenewal(int groupId, long householdId, int purchaseId)
+        {
+            EntitlementRenewalResponse response = new EntitlementRenewalResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.GetEntitlementNextRenewal(householdId, purchaseId);
+            }
+
+            return response;
+        }
+
         public static bool RenewalReminder(int groupId, string siteGuid, long purchaseId, long endDate)
         {
             bool response = false;
@@ -3271,5 +3284,20 @@ namespace Core.ConditionalAccess
 
             return response;
         }
+
+        public static UnifiedPaymentRenewalResponse GetUnifiedPaymentNextRenewal(int groupId, long householdId, int unifiedPaymentId)
+        {
+            UnifiedPaymentRenewalResponse response = new UnifiedPaymentRenewalResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.GetUnifiedPaymentNextRenewal(householdId, unifiedPaymentId);
+            }
+
+            return response;
+        }
+        
     }
 }

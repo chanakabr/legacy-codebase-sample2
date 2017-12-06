@@ -1472,7 +1472,7 @@ namespace Core.ConditionalAccess
         }
 
         internal static void GetMultiSubscriptionUsageModule(List<RenewSubscriptionDetails> rsDetails, string userIp, List<Subscription> subscriptions, BaseConditionalAccess cas, ref UnifiedBillingCycle unifiedBillingCycle,
-            int householdId, int groupId)
+            int householdId, int groupId, bool isRenew = true)
         {
             try
             {
@@ -1500,7 +1500,7 @@ namespace Core.ConditionalAccess
                     if (!cas.GetMultiSubscriptionUsageModule(rsDetail.UserId, userIp, (int)rsDetail.PurchaseId, rsDetail.PaymentNumber, rsDetail.TotalNumOfPayments, rsDetail.NumOfPayments, rsDetail.IsPurchasedWithPreviewModule,
                             ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
                             ref couponCode, subscription, ref unifiedBillingCycle, rsDetail.Compensation, previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode, rsDetail.EndDate, groupId,
-                            householdId))
+                            householdId, true, isRenew))
                     {
                         // "Error while trying to get Price plan
                         log.ErrorFormat("Error while trying to get Price plan to renew productId : {0}, purchaseId : {1}, householdId : {2}", rsDetail.ProductId, rsDetail.PurchaseId, householdId);
