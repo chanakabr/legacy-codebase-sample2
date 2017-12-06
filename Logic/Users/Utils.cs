@@ -140,27 +140,36 @@ namespace Core.Users
             {
                 string moduleName = TvinciCache.ModulesImplementation.GetModuleName(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, USERS_CONNECTION, operatorId);
 
-                if (String.IsNullOrEmpty(moduleName))
+                if (String.IsNullOrEmpty(moduleName) || IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
                     user = new KalturaUsers(nGroupID);
                 else
                 {
-                    // load user assembly
-                    string usersAssemblyLocation = Utils.GetTcmConfigValue("USERS_ASSEMBLY_LOCATION");
-                    Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation :
-                        usersAssemblyLocation + "\\", moduleName));
+                    string usersAssemblyLocation = GetTcmConfigValue("USERS_ASSEMBLY_LOCATION");
 
-                    // get user class 
-                    Type userType = userAssembly.GetType(string.Format("{0}.{1}", moduleName, className));
-
-                    if (operatorId == -1)
+                    try
                     {
-                        // regular user - constructor receives a single parameter
-                        user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID);
+                        // load user assembly
+                        Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation :
+                            usersAssemblyLocation + "\\", moduleName));
+
+                        // get user class 
+                        Type userType = userAssembly.GetType(string.Format("{0}.{1}", moduleName, className));
+
+                        if (operatorId == -1)
+                        {
+                            // regular user - constructor receives a single parameter
+                            user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID);
+                        }
+                        else
+                        {
+                            // SSO user - constructor receives 2 parameters
+                            user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID, operatorId);
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        // SSO user - constructor receives 2 parameters
-                        user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID, operatorId);
+                        log.Error(string.Format("Error GetBaseImpl: groupId:{0}, moduleName:{1}, usersAssemblyLocation:{2}",
+                            nGroupID, moduleName, usersAssemblyLocation), ex);
                     }
                 }
             }
