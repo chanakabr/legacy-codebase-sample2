@@ -32,7 +32,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RenewIntervalMinutes, opt => opt.MapFrom(src => src.RenewalIntervalMinutes))
                 .ForMember(dest => dest.RenewStartMinutes, opt => opt.MapFrom(src => src.RenewalStartMinutes))
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.Settings)))
-                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
+                 .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.ExternalVerification));
 
             //KalturaPaymentGatewayProfile to PaymentGateway
             Mapper.CreateMap<WebAPI.Models.Billing.KalturaPaymentGatewayProfile, PaymentGateway>()
@@ -50,7 +51,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
                .ForMember(dest => dest.SkipSettings, opt => opt.MapFrom(src => src.Settings == null))
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.Settings)))
-               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
+               .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.ExternalVerification));
 
             Mapper.CreateMap<PaymentGatewayBase, WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
@@ -87,7 +89,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.PaymentGateway.SharedSecret))
                 .ForMember(dest => dest.StatusUrl, opt => opt.MapFrom(src => src.PaymentGateway.StatusUrl))
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.PaymentGateway.Settings)))
-                .ForMember(dest => dest.TransactUrl, opt => opt.MapFrom(src => src.PaymentGateway.TransactUrl));
+                .ForMember(dest => dest.TransactUrl, opt => opt.MapFrom(src => src.PaymentGateway.TransactUrl))
+                .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.PaymentGateway.ExternalVerification)); 
 
             Mapper.CreateMap<PaymentGatewaySelectedBy, WebAPI.Models.Billing.KalturaHouseholdPaymentGateway>()
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
