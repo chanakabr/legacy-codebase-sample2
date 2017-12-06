@@ -50,10 +50,10 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Error while trying to get languages. group id: {0}, exception: {1}", groupId, ex);
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
-        }       
+        }
 
         internal List<KalturaUserRole> GetUserRoles(int groupId, string userId)
-        {            
+        {
             List<KalturaUserRole> roles = new List<KalturaUserRole>();
             RolesResponse response = null;
 
@@ -92,7 +92,7 @@ namespace WebAPI.Clients
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
-            
+
 
             try
             {
@@ -127,7 +127,7 @@ namespace WebAPI.Clients
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
-            
+
 
             try
             {
@@ -162,7 +162,7 @@ namespace WebAPI.Clients
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
-            
+
 
             try
             {
@@ -226,7 +226,7 @@ namespace WebAPI.Clients
             {
                 userRole = AutoMapper.Mapper.Map<KalturaUserRole>(response.Roles[0]);
             }
-            
+
             return userRole;
         }
 
@@ -264,7 +264,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            
+
 
             Status response = null;
 
@@ -302,7 +302,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            
+
 
             Status response = null;
 
@@ -340,7 +340,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            
+
 
             PinResponse webServiceResponse = null;
 
@@ -381,7 +381,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            
+
 
             PinResponse webServiceResponse = null;
 
@@ -423,7 +423,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            
+
 
             PinResponse webServiceResponse = null;
 
@@ -464,7 +464,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            
+
 
             PinResponse webServiceResponse = null;
 
@@ -504,7 +504,7 @@ namespace WebAPI.Clients
 
         internal KalturaPin SetUserParentalPIN(int groupId, string userId, string pin, int? ruleId)
         {
-            
+
 
             PinResponse webServiceResponse = null;
 
@@ -542,7 +542,7 @@ namespace WebAPI.Clients
 
         internal KalturaPin SetDomainParentalPIN(int groupId, int domainId, string pin, int? ruleId)
         {
-            
+
 
             PinResponse webServiceResponse = null;
 
@@ -580,7 +580,7 @@ namespace WebAPI.Clients
 
         internal KalturaPurchaseSettings SetUserPurchaseSettings(int groupId, string userId, int settings)
         {
-            
+
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -614,7 +614,7 @@ namespace WebAPI.Clients
 
         internal KalturaPurchaseSettings SetDomainPurchaseSettings(int groupId, int domainId, int settings)
         {
-            
+
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -650,7 +650,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            
+
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -691,7 +691,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            
+
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -733,7 +733,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            
+
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -774,7 +774,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            
+
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -816,7 +816,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            
+
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -857,7 +857,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            
+
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -899,7 +899,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            
+
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -940,7 +940,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            
+
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -980,7 +980,7 @@ namespace WebAPI.Clients
 
         internal KalturaPurchaseSettings SetUserPurchasePIN(int groupId, string userId, string pin)
         {
-            
+
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -1014,7 +1014,7 @@ namespace WebAPI.Clients
 
         internal KalturaPurchaseSettings SetDomainPurchasePIN(int groupId, int domainId, string pin)
         {
-            
+
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -1051,7 +1051,7 @@ namespace WebAPI.Clients
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
-            
+
 
             try
             {
@@ -1086,7 +1086,7 @@ namespace WebAPI.Clients
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
-            
+
 
             try
             {
@@ -1120,7 +1120,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            
+
 
             Status response = null;
 
@@ -1158,7 +1158,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            
+
 
             Status response = null;
 
@@ -1196,7 +1196,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            
+
 
             Status response = null;
 
@@ -1234,7 +1234,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            
+
 
             Status response = null;
 
@@ -1275,7 +1275,7 @@ namespace WebAPI.Clients
             GenericRuleResponse response = null;
             List<Models.API.KalturaGenericRule> rules = new List<Models.API.KalturaGenericRule>();
 
-            
+
 
             //convert order by
             GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
@@ -1313,7 +1313,7 @@ namespace WebAPI.Clients
             GenericRuleResponse response = null;
             List<KalturaUserAssetRule> rules = new List<KalturaUserAssetRule>();
 
-            
+
 
             //convert order by
             GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
@@ -1352,7 +1352,7 @@ namespace WebAPI.Clients
             GenericRuleResponse response = null;
             List<Models.API.KalturaGenericRule> rules = new List<Models.API.KalturaGenericRule>();
 
-            
+
 
             //convert order by
             GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
@@ -1390,7 +1390,7 @@ namespace WebAPI.Clients
             GenericRuleResponse response = null;
             List<KalturaUserAssetRule> rules = new List<KalturaUserAssetRule>();
 
-            
+
 
             //convert order by
             GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
@@ -1464,7 +1464,7 @@ namespace WebAPI.Clients
             List<KalturaOSSAdapterProfile> KalturaOSSAdapterBaseProfileList = null;
             OSSAdapterResponseList response = null;
 
-            
+
 
             try
             {
@@ -1499,7 +1499,7 @@ namespace WebAPI.Clients
             KalturaOSSAdapterProfile ossAdapter = null;
             OSSAdapterResponse response = null;
 
-            
+
 
             try
             {
@@ -1532,7 +1532,7 @@ namespace WebAPI.Clients
         internal bool DeleteOSSAdapter(int groupId, int ossAdapterId)
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1564,7 +1564,7 @@ namespace WebAPI.Clients
             OSSAdapterResponse response = null;
             KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
 
-            
+
 
             try
             {
@@ -1600,7 +1600,7 @@ namespace WebAPI.Clients
             OSSAdapterResponse response = null;
             KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
 
-            
+
 
             try
             {
@@ -1634,7 +1634,7 @@ namespace WebAPI.Clients
         {
             List<Models.API.KalturaOSSAdapterProfile> KalturaOSSAdapterProfileList = null;
             OSSAdapterSettingsResponse response = null;
-            
+
 
             try
             {
@@ -1668,7 +1668,7 @@ namespace WebAPI.Clients
         internal bool DeleteOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1699,7 +1699,7 @@ namespace WebAPI.Clients
         internal bool InsertOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             Status response = null;
-            
+
 
             try
             {
@@ -1731,7 +1731,7 @@ namespace WebAPI.Clients
         internal bool SetOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1764,7 +1764,7 @@ namespace WebAPI.Clients
             OSSAdapterResponse response = null;
             KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
 
-            
+
 
             try
             {
@@ -1803,7 +1803,7 @@ namespace WebAPI.Clients
             List<Models.API.KalturaRecommendationProfile> kalturaRecommendationEngineProfile = null;
             RecommendationEnginesResponseList response = null;
 
-            
+
 
             try
             {
@@ -1836,7 +1836,7 @@ namespace WebAPI.Clients
         internal bool DeleteRecommendationEngine(int groupId, int recommendatioEngineId)
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1868,7 +1868,7 @@ namespace WebAPI.Clients
             RecommendationEngineResponse response = null;
             KalturaRecommendationProfile kalturaRecommendationEngineProfile = null;
 
-            
+
 
             try
             {
@@ -1904,7 +1904,7 @@ namespace WebAPI.Clients
             RecommendationEngineResponse response = null;
             KalturaRecommendationProfile kalturaRecommendationEngineProfile = null;
 
-            
+
 
             try
             {
@@ -1939,7 +1939,7 @@ namespace WebAPI.Clients
         {
             List<Models.API.KalturaRecommendationProfile> KalturaRecommendationEngineList = null;
             RecommendationEngineSettinsResponse response = null;
-            
+
 
             try
             {
@@ -1973,7 +1973,7 @@ namespace WebAPI.Clients
         internal bool DeleteRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -2004,7 +2004,7 @@ namespace WebAPI.Clients
         internal bool InsertRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             Status response = null;
-            
+
 
             try
             {
@@ -2036,7 +2036,7 @@ namespace WebAPI.Clients
         internal bool SetRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -2069,7 +2069,7 @@ namespace WebAPI.Clients
             RecommendationEngineResponse response = null;
             KalturaRecommendationProfile kalturaRecommendationEngineProfile = null;
 
-            
+
 
             try
             {
@@ -2107,7 +2107,7 @@ namespace WebAPI.Clients
             ExternalChannelResponse response = null;
             KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
 
-            
+
 
             try
             {
@@ -2144,7 +2144,7 @@ namespace WebAPI.Clients
             KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
 
 
-            
+
 
             try
             {
@@ -2177,7 +2177,7 @@ namespace WebAPI.Clients
         internal bool DeleteExternalChannel(int groupId, int externalChannelId)
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -2209,7 +2209,7 @@ namespace WebAPI.Clients
             List<Models.API.KalturaExternalChannelProfile> kalturaExternalChannelList = null;
             ExternalChannelResponseList response = null;
 
-            
+
 
             try
             {
@@ -2245,7 +2245,7 @@ namespace WebAPI.Clients
         {
             KalturaExportTask task = null;
 
-            
+
 
             BulkExportTaskResponse response = null;
 
@@ -2285,7 +2285,7 @@ namespace WebAPI.Clients
         internal KalturaExportTask UpdateBulkExportTask(int groupId, long id, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency,
             string notificationUrl, List<int> vodTypes, bool? isActive)
         {
-            
+
 
             BulkExportTaskResponse response = null;
 
@@ -2326,7 +2326,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            
+
 
             Status response = null;
 
@@ -2366,7 +2366,7 @@ namespace WebAPI.Clients
             BulkExportTasksResponse response = null;
 
 
-            
+
             BulkExportTaskOrderBy wsOrderBy = ApiMappings.ConvertExportTaskOrderBy(orderBy);
 
 
@@ -2450,7 +2450,7 @@ namespace WebAPI.Clients
             List<KalturaPermission> permissions = new List<KalturaPermission>();
             PermissionsResponse response = null;
 
-            
+
 
             try
             {
@@ -2489,7 +2489,7 @@ namespace WebAPI.Clients
             {
                 Role roleRequest = AutoMapper.Mapper.Map<Role>(role);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {  
+                {
                     response = Core.Api.Module.AddRole(groupId, roleRequest);
                 }
             }
@@ -2521,7 +2521,7 @@ namespace WebAPI.Clients
             KalturaPermission addedPermission = new KalturaPermission();
             PermissionResponse response = null;
 
-            
+
 
             ePermissionType type;
             string usersGroup = null;
@@ -2574,7 +2574,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            
+
 
             Status response = null;
 
@@ -2612,7 +2612,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            
+
 
             Status response = null;
 
@@ -2650,7 +2650,7 @@ namespace WebAPI.Clients
         internal KalturaChannel InsertKSQLChannel(int groupId, KalturaChannel channel)
         {
             KSQLChannelResponse response = null;
-            KalturaChannel profile = null;            
+            KalturaChannel profile = null;
 
             try
             {
@@ -2685,7 +2685,7 @@ namespace WebAPI.Clients
             KSQLChannelResponse response = null;
             KalturaChannel profile = null;
 
-            
+
 
             try
             {
@@ -2721,7 +2721,7 @@ namespace WebAPI.Clients
             KSQLChannelResponse response = null;
             KalturaChannelProfile profile = null;
 
-            
+
 
             try
             {
@@ -2757,7 +2757,7 @@ namespace WebAPI.Clients
             KSQLChannelResponse response = null;
             KalturaChannelProfile profile = null;
 
-            
+
 
             try
             {
@@ -2790,7 +2790,7 @@ namespace WebAPI.Clients
         internal bool DeleteKSQLChannel(int groupId, int channelId)
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -2822,7 +2822,7 @@ namespace WebAPI.Clients
             KalturaChannelProfile profile = null;
             KSQLChannelResponse response = null;
 
-            
+
 
             try
             {
@@ -2901,7 +2901,7 @@ namespace WebAPI.Clients
         {
             List<KalturaRegistrySettings> registrySettings = new List<KalturaRegistrySettings>();
 
-            
+
 
             RegistryResponse response = null;
             try
@@ -2936,7 +2936,7 @@ namespace WebAPI.Clients
 
         internal KalturaTimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupId)
         {
-            
+
             TimeShiftedTvPartnerSettingsResponse response = null;
             KalturaTimeShiftedTvPartnerSettings settings = null;
 
@@ -2973,7 +2973,7 @@ namespace WebAPI.Clients
         {
             bool isSuccess = false;
             Status response = null;
-            
+
             try
             {
 
@@ -3011,7 +3011,7 @@ namespace WebAPI.Clients
         {
             KalturaCDNAdapterProfileListResponse result = new KalturaCDNAdapterProfileListResponse() { TotalCount = 0 };
 
-            
+
 
             CDNAdapterListResponse response = null;
             try
@@ -3048,7 +3048,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteCDNAdapter(int groupId, int adapterId)
         {
-            
+
 
             Status response = null;
             try
@@ -3081,7 +3081,7 @@ namespace WebAPI.Clients
         {
             KalturaCDNAdapterProfile adapter = new KalturaCDNAdapterProfile();
 
-            
+
 
             CDNAdapterResponse response = null;
 
@@ -3119,7 +3119,7 @@ namespace WebAPI.Clients
         {
             KalturaCDNAdapterProfile adapterResponse = new KalturaCDNAdapterProfile();
 
-            
+
 
             CDNAdapterResponse response = null;
 
@@ -3157,7 +3157,7 @@ namespace WebAPI.Clients
         {
             KalturaCDNAdapterProfile adapter = new KalturaCDNAdapterProfile();
 
-            
+
 
             CDNAdapterResponse response = null;
             try
@@ -3192,7 +3192,7 @@ namespace WebAPI.Clients
         {
             KalturaCDNPartnerSettings settings = new KalturaCDNPartnerSettings();
 
-            
+
 
             CDNPartnerSettingsResponse response = null;
             try
@@ -3227,7 +3227,7 @@ namespace WebAPI.Clients
         {
             KalturaCDNPartnerSettings responseSettings = new KalturaCDNPartnerSettings();
 
-            
+
 
             CDNPartnerSettingsResponse response = null;
             try
@@ -3294,10 +3294,10 @@ namespace WebAPI.Clients
         }
 
         internal KalturaDeviceFamilyListResponse GetDeviceFamilyList(int groupId)
-        {          
-            
+        {
+
             KalturaDeviceFamilyListResponse result = new KalturaDeviceFamilyListResponse() { TotalCount = 0 };
-            DeviceFamilyResponse response = null;            
+            DeviceFamilyResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -3329,7 +3329,7 @@ namespace WebAPI.Clients
 
         internal KalturaDeviceBrandListResponse GetDeviceBrandList(int groupId)
         {
-            
+
             KalturaDeviceBrandListResponse result = new KalturaDeviceBrandListResponse() { TotalCount = 0 };
             DeviceBrandResponse response = null;
             try
@@ -3362,7 +3362,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaCountryListResponse GetCountryList(int groupId, List<int> countryIds, KalturaCountryOrderBy? orderBy)
-        {            
+        {
             KalturaCountryListResponse result = new KalturaCountryListResponse() { TotalCount = 0, Objects = new List<KalturaCountry>() };
             CountryLocaleResponse response = null;
             try
@@ -3390,12 +3390,12 @@ namespace WebAPI.Clients
 
             if (response.CountryLocales != null && response.CountryLocales.Count > 0)
             {
-                result.Objects = AutoMapper.Mapper.Map<List<KalturaCountry>>(response.CountryLocales);                
+                result.Objects = AutoMapper.Mapper.Map<List<KalturaCountry>>(response.CountryLocales);
             }
 
             if (response.Countries != null && response.Countries.Count > 0)
             {
-                result.Objects.AddRange(AutoMapper.Mapper.Map<List<KalturaCountry>>(response.Countries));                
+                result.Objects.AddRange(AutoMapper.Mapper.Map<List<KalturaCountry>>(response.Countries));
             }
 
             if (orderBy.HasValue)
@@ -3417,7 +3417,7 @@ namespace WebAPI.Clients
 
         internal KalturaMetaListResponse GetGroupMeta(int groupId, KalturaAssetType? assetType, KalturaMetaType? metaType, KalturaMetaFieldName? fieldNameEqual, KalturaMetaFieldName? fieldNameNotEqual, List<KalturaMetaFeatureType> metaFeatureTypeList)
         {
-            
+
             KalturaMetaListResponse result = new KalturaMetaListResponse();
             MetaResponse response = null;
             try
@@ -3543,7 +3543,7 @@ namespace WebAPI.Clients
             {
                 result.Objects = AutoMapper.Mapper.Map<List<KalturaLanguage>>(response.Languages);
                 result.TotalCount = result.Objects.Count;
-            }            
+            }
 
             if (result.TotalCount > 0 && orderBy.HasValue)
             {
@@ -3564,7 +3564,7 @@ namespace WebAPI.Clients
                     default:
                         break;
                 }
-            }            
+            }
 
             return result;
         }
@@ -3600,7 +3600,7 @@ namespace WebAPI.Clients
             {
                 result.Objects = AutoMapper.Mapper.Map<List<KalturaCurrency>>(response.Currencies);
                 result.TotalCount = result.Objects.Count;
-            }            
+            }
 
             if (result.TotalCount > 0 && orderBy.HasValue)
             {
@@ -3781,7 +3781,7 @@ namespace WebAPI.Clients
                 {
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
-                        response = Core.Api.Module.CleanUserAssetHistory(groupId, userId, 
+                        response = Core.Api.Module.CleanUserAssetHistory(groupId, userId,
                             historyResponse.Objects.Select(a => new KeyValuePair<int, eAssetTypes>((int)a.AssetId, ApiMappings.ConvertAssetType(a.AssetType))).ToList());
                     }
                 }
@@ -3851,7 +3851,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.SearchTags(groupId,  tag, topicId, tagStartsWith, language,pageIndex,pageSize);
+                    int languageId = Utils.Utils.GetLanguageId(groupId, language);
+                    response = Core.Api.Module.SearchTags(groupId, tag, topicId, tagStartsWith, languageId, pageIndex, pageSize);
                 }
             }
             catch (Exception ex)
