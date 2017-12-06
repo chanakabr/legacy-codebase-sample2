@@ -518,7 +518,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.filter.ToString()))
               ;
 
-            #endregion            
+            #endregion
+
+            #region Tag
+
+            Mapper.CreateMap<TagValue, KalturaTag>()
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.topicId.ToString()))
+              .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.value))
+              ;
+
+            #endregion       
         }
 
         private static List<Permission> ConvertPermissionsNames(string permissionNames, string excludedPermissionNames)
