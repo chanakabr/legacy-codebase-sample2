@@ -677,6 +677,12 @@
             </remarks>        
             <param name="emailMessage">email details</param>     
         </member>
+        <member name="M:WebAPI.Controllers.UnifiedPaymentController.GetNextRenewal(System.Int32)">
+            <summary>
+            Returns the data about the next renewal 
+            </summary>                
+            <param name="unifiedPaymentId">Purchase Id</param>
+        </member>
         <member name="M:WebAPI.Controllers.PriceDetailsController.List(WebAPI.Models.Pricing.KalturaPriceDetailsFilter)">
             <summary>
             Returns the list of available prices, can be filtered by price IDs
@@ -2923,6 +2929,12 @@
             </summary>
             <param name="scheduledSubscriptionId">Scheduled Subscription Identifier</param>
             <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.EntitlementController.GetNextRenewal(System.Int32)">
+            <summary>
+            Returns the data about the next renewal 
+            </summary>                
+            <param name="id">Purchase Id</param>
         </member>
         <member name="M:WebAPI.Controllers.FavoriteController.Add(WebAPI.Models.Users.KalturaFavorite)">
             <summary>
@@ -6618,6 +6630,61 @@
             The parameters to pass to the ads server 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.Price">
+            <summary>
+            Price that is going to be paid on the renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.Date">
+            <summary>
+            Next renewal date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.PurchaseId">
+            <summary>
+            Puchase ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.SubscriptionId">
+            <summary>
+            Subscription ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Price">
+            <summary>
+            Price that is going to be paid on the renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Date">
+            <summary>
+            Next renewal date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.UnifiedPaymentId">
+            <summary>
+            Unified payment ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Entitlements">
+            <summary>
+            List of entitlements in this unified payment renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.Price">
+            <summary>
+            Price that is going to be paid on the renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.PurchaseId">
+            <summary>
+            Puchase ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.SubscriptionId">
+            <summary>
+            Subscription ID
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaAccessControlMessage.Message">
             <summary>
             Message
@@ -6851,6 +6918,11 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.ScheduledSubscriptionId">
             <summary>
             Scheduled Subscription Identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.UnifiedPaymentId">
+            <summary>
+            Unified payment identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsSuspended">
@@ -7094,6 +7166,11 @@
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.EntitlementTypeEqual">
+             <summary>
+            The type of the entitlements to return
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.ProductTypeEqual">
              <summary>
             The type of the entitlements to return
              </summary>
@@ -7555,6 +7632,11 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.EntitlementId">
              <summary>
             Entitlement identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.ProductId">
+             <summary>
+            Product identifier
              </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.CurrentUses">

@@ -33,7 +33,7 @@ namespace WebAPI.Clients
     public class ConditionalAccessClient : BaseClient
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        
         public ConditionalAccessClient()
         {
 
@@ -631,7 +631,7 @@ namespace WebAPI.Clients
 
             return entitlements;
         }
-
+        
         internal bool GrantEntitlements(int groupId, string user_id, long household_id, int content_id, int product_id, KalturaTransactionType product_type, bool history, string deviceName)
         {
             Status response = null;
@@ -2393,5 +2393,67 @@ namespace WebAPI.Clients
 
             return prices;
         }
+
+        internal KalturaEntitlementRenewal GetEntitlementNextRenewal(int groupId, long householdId, int purchaseId)
+        {
+            APILogic.ConditionalAccess.Response.EntitlementRenewalResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.GetEntitlementNextRenewal(groupId, householdId, purchaseId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            return Mapper.Map<KalturaEntitlementRenewal>(response);
+        }
+
+        internal KalturaUnifiedPaymentRenewal GetUnifiedPaymentNextRenewal(int groupId, long householdId, int unifiedPaymentId)
+        {
+            APILogic.ConditionalAccess.Response.UnifiedPaymentRenewalResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.GetUnifiedPaymentNextRenewal(groupId, householdId, unifiedPaymentId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            return Mapper.Map<KalturaUnifiedPaymentRenewal>(response);
+        }
+
+
     }
 }

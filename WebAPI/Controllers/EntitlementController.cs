@@ -216,6 +216,8 @@ namespace WebAPI.Controllers
                 pager = new KalturaFilterPager();
             }
 
+            filter.Validate();
+
             try
             {
                 // call client
@@ -223,13 +225,15 @@ namespace WebAPI.Controllers
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementTypeEqual,
+                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, 
+                                filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value ,
                                 filter.getIsExpiredEqual(), pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
                         }
                         break;
                     case KalturaEntityReferenceBy.household:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementTypeEqual,
+                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), 
+                                filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value,
                                 filter.getIsExpiredEqual(), pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
                         }
                         break;
@@ -533,5 +537,28 @@ namespace WebAPI.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Returns the data about the next renewal 
+        /// </summary>                
+        /// <param name="id">Purchase Id</param>
+        [Route("getNextRenewal"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public KalturaEntitlementRenewal GetNextRenewal(int id)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+               
+                return ClientsManager.ConditionalAccessClient().GetEntitlementNextRenewal(groupId, domainID, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return null;
+        }
     }
 }

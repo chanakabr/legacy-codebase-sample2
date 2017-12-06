@@ -78,7 +78,16 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "scheduledSubscriptionId")]
         [JsonProperty("scheduledSubscriptionId")]
         [XmlElement(ElementName = "scheduledSubscriptionId", IsNullable = true)]
+        [Deprecated("4.7.0.0")]
         public long? ScheduledSubscriptionId { get; set; }
+
+        /// <summary>
+        /// Unified payment identifier
+        /// </summary>
+        [DataMember(Name = "unifiedPaymentId")]
+        [JsonProperty("unifiedPaymentId")]
+        [XmlElement(ElementName = "unifiedPaymentId", IsNullable = true)]
+        public long? UnifiedPaymentId { get; set; }
 
         /// <summary>
         /// Indicates if the subscription suspended
