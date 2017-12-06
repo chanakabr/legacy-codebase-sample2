@@ -2078,26 +2078,13 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            #region Get subscription purchase
+            var renewalResponse = GetEntitlementNextRenewal(baseConditionalAccess, groupId, householdId, purchaseId);
 
-            // get subscription purchase data
-            List<string> subscriptionPurchaseColumns = new List<string>() { };
-
-            DataRow subscriptionPurchaseRow =
-                DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseForReminder(groupId, purchaseId);
-
-            // validate subscription received
-            if (subscriptionPurchaseRow == null)
+            if (renewalResponse == null || renewalResponse.Status == null || renewalResponse.Status.Code != (int)eResponseStatus.OK || renewalResponse.EntitlementRenewal == null)
             {
-                // subscription purchase wasn't found
-                log.ErrorFormat("problem getting the subscription purchase. Purchase ID: {0}, data: {1}", purchaseId, logString);
-                return false;
+                log.ErrorFormat("Error when getting entitlement renewal data for purchaseId {0}", purchaseId);
+                return true;
             }
-
-            #endregion
-
-            // get product ID
-            long productId = ODBCWrapper.Utils.ExtractInteger(subscriptionPurchaseRow, "SUBSCRIPTION_CODE"); // AKA subscription ID/CODE
 
             Domain domain;
             User user;
@@ -2113,7 +2100,7 @@ namespace Core.ConditionalAccess
             }
 
             // get end date
-            DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
+            DateTime endDate = renewalResponse.EntitlementRenewal.Date;
 
             // validate renewal did not already happen
             if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
@@ -2125,6 +2112,15 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
+            double price = 0;
+
+            if (renewalResponse.EntitlementRenewal.Price != null)
+            {
+                price = renewalResponse.EntitlementRenewal.Price.m_dPrice;
+            }
+
+            string productId = renewalResponse.EntitlementRenewal.SubscriptionId.ToString();
+
             SubscriptionPurchase subscriptionPurhcase = new SubscriptionPurchase(groupId)
             {
                 Id = purchaseId,
@@ -2132,6 +2128,8 @@ namespace Core.ConditionalAccess
                 siteGuid = siteGuid,
                 houseHoldId = householdId,
                 endDate = endDate,
+                price = price,
+                productId = productId
             };
 
             success = subscriptionPurhcase.Notify();
@@ -2174,8 +2172,7 @@ namespace Core.ConditionalAccess
             #region Get subscription purchase
 
             // get subscription purchase 
-            DataTable subscriptionPurchaseDt = null;
-            //DAL.ConditionalAccessDAL.Get_UnifiedSubscriptionPurchaseForRenewal(groupId, householdId, processId, false);
+            DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_UnifiedSubscriptionPurchaseForRenewal(groupId, householdId, processId, false);
 
             // validate subscription received
             if (subscriptionPurchaseDt == null)
