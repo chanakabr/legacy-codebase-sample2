@@ -66,6 +66,7 @@ namespace Core.Pricing
                 selectQuery.SetConnectionKey("PRICING_CONNECTION");
                 selectQuery += "select * from lu_currency with (nolock) where";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("code3", "=", sCode3);
+                selectQuery.SetCachedSec(604800);
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;

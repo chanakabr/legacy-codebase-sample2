@@ -42,6 +42,7 @@ using CachingProvider.LayeredCache;
 using Core.ConditionalAccess.Modules;
 using ApiObjects.SubscriptionSet;
 using APILogic.ConditionalAccess.Managers;
+using APILogic.ConditionalAccess.Response;
 
 namespace Core.ConditionalAccess
 {
@@ -2518,7 +2519,7 @@ namespace Core.ConditionalAccess
             }
             return ret;
         }
-
+        
         /*
             * returns true if user exists. false otherwise. throws exception if cannot deliver all data required for renewal
             * 
@@ -2572,7 +2573,7 @@ namespace Core.ConditionalAccess
                 int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
                 ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, ref UnifiedBillingCycle unifiedBillingCycle,
                 Compensation compensation = null, string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null,
-                DateTime? endDate = null, int groupId = 0, long householdId = 0, bool ignoreUnifiedBillingCycle = true)
+                DateTime? endDate = null, int groupId = 0, long householdId = 0, bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
         {
             bool isSuccess = false;
 
@@ -2626,6 +2627,7 @@ namespace Core.ConditionalAccess
                     priceValue = priceAfterDiscount.m_dPrice;
                     oCurrency = priceAfterDiscount.m_oCurrency;
                     sCurrency = priceAfterDiscount.m_oCurrency.m_sCurrencyCD3;
+                    
                 }
                 else
                 {
@@ -2635,7 +2637,10 @@ namespace Core.ConditionalAccess
                 }
 
                 bool isCouponGiftCard = false;
-                HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode, ref isCouponGiftCard);
+                if (isRenew)
+                {
+                    HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode, ref isCouponGiftCard);
+                }
 
                 if (compensation != null)
                 {
@@ -2674,10 +2679,12 @@ namespace Core.ConditionalAccess
                 isMPPRecurringInfinitely = subscription.m_bIsInfiniteRecurring;
                 maxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
 
-                customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode,
+                if (isRenew)
+                {
+                    customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode,
                     siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryName : string.Empty,
                     string.Empty, string.Empty, compensation, isPartialPrice);
-
+                }
                 isSuccess = true;
             }
             catch (Exception ex)
@@ -16347,5 +16354,16 @@ namespace Core.ConditionalAccess
 
             return response;
         }
+
+        internal EntitlementRenewalResponse GetEntitlementNextRenewal(long householdId, int purchaseId)
+        {
+            return RenewManager.GetEntitlementNextRenewal(this, this.m_nGroupID, householdId, purchaseId);
+        }
+
+        internal UnifiedPaymentRenewalResponse GetUnifiedPaymentNextRenewal(long householdId, int unifiedPaymentId)
+        {
+            return RenewManager.GetUnifiedPaymentNextRenewal(this, this.m_nGroupID, householdId, unifiedPaymentId);
+        }
+
     }
 }
