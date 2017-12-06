@@ -29,7 +29,6 @@ using QueueWrapper;
 using QueueWrapper.Queues.QueueObjects;
 using ScheduledTasks;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -10309,7 +10308,7 @@ namespace Core.Api
             return response;
         }
 
-        internal static List<TagValue> SearchTags(int groupId, int topicId, int languageId, string searchValue)
+        /*internal static List<TagValue> SearchTags(int groupId, int topicId, int languageId, string searchValue)
         {
             List<TagValue> result = new List<TagValue>();
 
@@ -10338,5 +10337,12 @@ namespace Core.Api
             }
             return result;
         }
+        */
+
+        internal static TagResponse SearchTags(int groupId, string tag, int topicId, string searchValue, string languageId, int pageIndex, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
+       
     }
 }

@@ -1838,9 +1838,9 @@ namespace Core.Api
             return Core.Api.api.GetMediaConcurrencyRulesByDeviceLimitionModule(groupId, dlmId);
         }
 
-        public static List<TagValue> SearchTags(int groupId, int topicId, int languageId, string searchValue)
+        public static TagResponse SearchTags(int groupId, string tag, int topicId, string searchValue, string languageId, int pageIndex, int pageSize)
         {
-            return Core.Api.api.SearchTags(groupId, topicId, languageId, searchValue);
+            return api.SearchTags(groupId, tag, topicId, searchValue, languageId, pageIndex, pageSize);
         }
     }
 }
