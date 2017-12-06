@@ -3259,6 +3259,32 @@ namespace Core.ConditionalAccess
             return response;
         }
 
+        public static bool UnifiedRenewalReminder(int groupId, string siteGuid, long processId, long endDate)
+        {
+            bool response = false;
+
+            // add siteguid to logs/monitor
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+
+            // get partner implementation and group ID
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+
+            if (t != null)
+            {
+                try
+                {
+                    response = t.UnifiedRenewalReminder(siteGuid, processId, endDate);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error while trying to remind about subscription renewal", ex);
+                }
+            }
+
+            return response;
+        }
+
         public static UnifiedPaymentRenewalResponse GetUnifiedPaymentNextRenewal(int groupId, long householdId, int unifiedPaymentId)
         {
             UnifiedPaymentRenewalResponse response = new UnifiedPaymentRenewalResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
@@ -3272,10 +3298,6 @@ namespace Core.ConditionalAccess
 
             return response;
         }
-
-        public static bool UnifiedRenewalReminder(int groupID, string siteGuid, long processId, long endDate)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

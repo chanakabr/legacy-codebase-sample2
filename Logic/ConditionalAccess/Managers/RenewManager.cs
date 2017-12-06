@@ -555,7 +555,10 @@ namespace Core.ConditionalAccess
                     return false;
                 }
                 else
+                {
+                    PurchaseManager.SendRenewalReminder(data, householdId);
                     log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                }
 
             }
             catch (Exception ex)
@@ -686,6 +689,7 @@ namespace Core.ConditionalAccess
                 }
                 else
                 {
+                    PurchaseManager.SendRenewalReminder(data, householdId);
                     log.DebugFormat("New task created (upon renew success response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
                 }
             }
@@ -937,7 +941,10 @@ namespace Core.ConditionalAccess
                 return true;
             }
             else
+            {
+                PurchaseManager.SendRenewalReminder(data, householdId);
                 log.DebugFormat("New task created (upon renew success response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+            }
 
             // PS message 
             if (billingTransitionId > 0)
@@ -1704,6 +1711,7 @@ namespace Core.ConditionalAccess
                 }
                 else
                 {
+                    PurchaseManager.SendRenewalReminder(data, householdId);
                     log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
                 }
             }
@@ -1714,7 +1722,7 @@ namespace Core.ConditionalAccess
 
             return true;
         }
-
+        
         public static EntitlementRenewalResponse GetEntitlementNextRenewal(BaseConditionalAccess cas, int groupId, long householdId, long purchaseId)
         {
             EntitlementRenewalResponse response = new EntitlementRenewalResponse()
@@ -2052,9 +2060,185 @@ namespace Core.ConditionalAccess
             return response; 
         }
 
-        internal static bool RenewalReminder(BaseConditionalAccess baseConditionalAccess, int m_nGroupID, string siteGuid, long purchaseId, long endDate)
+        internal static bool RenewalReminder(BaseConditionalAccess baseConditionalAccess, int groupId, string siteGuid, long purchaseId, long nextEndDate)
         {
-            throw new NotImplementedException();
+            bool success = false;
+
+            // log request
+            string logString = string.Format("RenewalReminder request: userId {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}", siteGuid, purchaseId, nextEndDate);
+
+            log.DebugFormat("Starting RenewalReminder process. data: {0}", logString);
+
+            long householdId = 0;
+
+            // validate purchaseId
+            if (purchaseId <= 0)
+            {
+                // Illegal purchase ID  
+                log.ErrorFormat("Illegal purchaseId. data: {0}", logString);
+                return true;
+            }
+
+            var renewalResponse = GetEntitlementNextRenewal(baseConditionalAccess, groupId, householdId, purchaseId);
+
+            if (renewalResponse == null || renewalResponse.Status == null || renewalResponse.Status.Code != (int)eResponseStatus.OK || renewalResponse.EntitlementRenewal == null)
+            {
+                log.ErrorFormat("Error when getting entitlement renewal data for purchaseId {0}", purchaseId);
+                return true;
+            }
+
+            Domain domain;
+            User user;
+            var userValidStatus = Utils.ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain, out user);
+
+            // validate household
+            if ((userValidStatus == null || userValidStatus.Code != (int)eResponseStatus.OK) &&
+                householdId <= 0)
+            {
+                // illegal household ID
+                log.ErrorFormat("Error: Illegal household, data: {0}", logString);
+                return true;
+            }
+
+            // get end date
+            DateTime endDate = renewalResponse.EntitlementRenewal.Date;
+
+            // validate renewal did not already happen
+            if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
+            {
+                // subscription purchase wasn't found
+                log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling RenewalReminder task." +
+                    "Purchase ID: {0}, sub end_date: {1}, data: {2}",
+                    purchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), logString);
+                return true;
+            }
+
+            double price = 0;
+
+            if (renewalResponse.EntitlementRenewal.Price != null)
+            {
+                price = renewalResponse.EntitlementRenewal.Price.m_dPrice;
+            }
+
+            string productId = renewalResponse.EntitlementRenewal.SubscriptionId.ToString();
+
+            SubscriptionPurchase subscriptionPurhcase = new SubscriptionPurchase(groupId)
+            {
+                Id = purchaseId,
+                purchaseId = purchaseId,
+                siteGuid = siteGuid,
+                houseHoldId = householdId,
+                endDate = endDate,
+                price = price,
+                productId = productId
+            };
+
+            success = subscriptionPurhcase.Notify();
+
+            return success;
+        }
+
+        internal static bool UnifiedRenewalReminder(BaseConditionalAccess baseConditionalAccess, int groupId, string siteGuid, long processId, long nextEndDate)
+        {
+            bool success = false;
+
+            // log request
+            string logString = string.Format("RenewalReminder request: userId {0}, processId {1}, billingGuid {2}, endDateLong {3}", siteGuid, processId, nextEndDate);
+
+            log.DebugFormat("Starting UnifiedRenewalReminder process. data: {0}", logString);
+
+            long householdId = 0;
+
+            // validate purchaseId
+            if (processId <= 0)
+            {
+                // Illegal purchase ID  
+                log.ErrorFormat("Illegal processId. data: {0}", logString);
+                return true;
+            }
+
+            Domain domain;
+            User user;
+            var userValidStatus = Utils.ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain, out user);
+
+            // validate household
+            if ((userValidStatus == null || userValidStatus.Code != (int)eResponseStatus.OK) &&
+                householdId <= 0)
+            {
+                // illegal household ID
+                log.ErrorFormat("Error: Illegal household, data: {0}", logString);
+                return true;
+            }
+
+            #region Get subscription purchase
+
+            // get subscription purchase 
+            DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_UnifiedSubscriptionPurchaseForRenewal(groupId, householdId, processId, false);
+
+            // validate subscription received
+            if (subscriptionPurchaseDt == null)
+            {
+                // subscription purchase wasn't found
+                log.ErrorFormat("problem getting the subscription purchase. householdId : {0}, data: {1}", householdId, logString);
+                return false; // retry
+            }
+
+            List<RenewSubscriptionDetails> renewSubscriptioDetails = Utils.BuildSubscriptionPurchaseDetails(subscriptionPurchaseDt, groupId, baseConditionalAccess);
+
+            // all resDetails were addon with none relevant base
+            if (renewSubscriptioDetails == null || renewSubscriptioDetails.Count() == 0)
+            {
+                log.DebugFormat("UnifiedRenewalReminder fail due to no addon subscriptions for householdid = {0}", householdId);
+                return true;
+            }
+
+            #endregion
+
+            foreach (var renewSubscription in renewSubscriptioDetails)
+            {
+                if (renewSubscription.EndDate != null && renewSubscription.EndDate.HasValue)
+                {
+                    // get end date
+                    DateTime endDate = renewSubscription.EndDate.Value;
+
+                    // validate renewal did not already happen
+                    if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
+                    {
+                        // subscription purchase wasn't found
+                        log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - " +
+                            "skipping current purchase in UnifiedRenewalReminder task." +
+                            "Purchase ID: {0}, sub end_date: {1}, data: {2}",
+                            renewSubscription.PurchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), logString);
+                        continue;
+                    }
+
+                    SubscriptionPurchase subscriptionPurhcase = new SubscriptionPurchase(groupId)
+                    {
+                        Id = renewSubscription.PurchaseId,
+                        purchaseId = renewSubscription.PurchaseId,
+                        siteGuid = siteGuid,
+                        houseHoldId = householdId,
+                        endDate = endDate,
+                        billingGuid = renewSubscription.BillingGuid,
+                        billingTransactionId = renewSubscription.BillingTransactionId,
+                        country = renewSubscription.CountryName,
+                        couponCode = renewSubscription.CouponCode,
+                        currency = renewSubscription.Currency,
+                        customData = renewSubscription.CustomData,
+                        isEntitledToPreviewModule = renewSubscription.IsPurchasedWithPreviewModule,
+                        price = renewSubscription.Price,
+                        processPurchasesId = processId,
+                        productId = renewSubscription.ProductId,
+                        status = renewSubscription.SubscriptionStatus
+                    };
+
+                    subscriptionPurhcase.Notify();
+                }
+            }
+
+            success = true;
+
+            return success;
         }
     }
 }

@@ -394,7 +394,6 @@ namespace Core.ConditionalAccess
 
                     if (subscription.m_bIsRecurring)
                     {
-
                         DateTime nextRenewalDate = endDate.Value.AddMinutes(0); // default                                           
 
                         // enqueue renew transaction
@@ -402,12 +401,17 @@ namespace Core.ConditionalAccess
                         RenewTransactionData data = new RenewTransactionData(groupId, userId, purchaseID, billingGuid,
                             TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate), nextRenewalDate);
                         bool enqueueSuccessful = queue.Enqueue(data, string.Format(BaseConditionalAccess.ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+
                         if (!enqueueSuccessful)
                         {
                             log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
                         }
                         else
+                        {
+                            PurchaseManager.SendRenewalReminder(data, householdId);
+
                             log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                        }
                     }
                 }
 
