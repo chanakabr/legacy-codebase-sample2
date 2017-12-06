@@ -1061,7 +1061,7 @@ namespace DAL
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             pgw.IsDefault = isDefault == 1;
                             pgw.SupportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support") == 1;
-
+                            pgw.ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(dr, "external_verification") == 0 ? false : true;
 
                             if (dtConfig != null)
                             {
@@ -1260,6 +1260,8 @@ namespace DAL
                             paymentGateway.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support");
                             paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
+                            paymentGateway.ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(dr, "external_verification") == 0 ? false : true;
+
 
                             if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                             {
@@ -1383,6 +1385,8 @@ namespace DAL
                     paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
                     chargeId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_Id");
                     isSuspended = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_suspended") == 0 ? false : true;
+                    paymentGateway.ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "external_verification") == 0 ? false : true;
+
                 }
 
             }
@@ -1503,6 +1507,7 @@ namespace DAL
                 sp.AddParameter("@isActive", paymentGateway.IsActive);
                 sp.AddParameter("@renewal_interval", paymentGateway.RenewalIntervalMinutes);
                 sp.AddParameter("@renewal_start", paymentGateway.RenewalStartMinutes);
+                sp.AddParameter("@external_verification", paymentGateway.ExternalVerification);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;
@@ -1534,6 +1539,7 @@ namespace DAL
                 sp.AddParameter("@isActive", pgw.IsActive);
                 sp.AddParameter("@renewal_interval", pgw.RenewalIntervalMinutes);
                 sp.AddParameter("@renewal_start", pgw.RenewalStartMinutes);
+                sp.AddParameter("@external_verification", pgw.ExternalVerification);
 
                 DataTable dt = CreateDataTable(pgw.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
@@ -1542,6 +1548,7 @@ namespace DAL
                     // default on sp is 0
                     sp.AddParameter("@KeyValueListHasItems", 1);
                 }
+
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -1955,6 +1962,7 @@ namespace DAL
                 result.IsDefault = DefaultPaymentGateway == result.ID ? true : false;
                 int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
                 result.SupportPaymentMethod = supportPaymentMethod == 1 ? true : false;
+                result.ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "external_verification") == 0 ? false : true;
 
                 if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                 {
@@ -2488,12 +2496,12 @@ namespace DAL
 
         public static void GetRenewMailTriggerAccountSettings(int groupID, ref bool renewMail, ref bool failRenewMail)
         {
-            DataRow row = GetMailTriggerAccountSettings(groupID);
+            DataRow row = GetMailAndReminderTriggerAccountSettings(groupID);
             renewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_RENEW_MAIL") == 1 ? true : false;
-            failRenewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_RENEW_MAIL") == 1 ? true : false;   
+            failRenewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_RENEW_MAIL") == 1 ? true : false;
         }
 
-        private static DataRow GetMailTriggerAccountSettings(int groupID)
+        private static DataRow GetMailAndReminderTriggerAccountSettings(int groupID)
         {
             DataRow row = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MailTriggerAccountSettings");
@@ -2508,9 +2516,30 @@ namespace DAL
             return row;
         }
 
+        public static int GetRenewalReminderSettings(int groupId)
+        {
+            int result = 0;
+
+            try
+            {
+                DataRow row = GetMailAndReminderTriggerAccountSettings(groupId);
+
+                if (row != null)
+                {
+                    result = ODBCWrapper.Utils.ExtractInteger(row, "RENEWAL_REMINDER_DAYS_BEFORE");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when trying to GetRenewalReminderMailSettings in group id = {0}, ex = {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
         public static void GetPurchaseMailTriggerAccountSettings(int groupID, ref bool purchaseMail, ref bool failPurchaseMail)
         {            
-            DataRow row = GetMailTriggerAccountSettings(groupID);
+            DataRow row = GetMailAndReminderTriggerAccountSettings(groupID);
             purchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FIRST_PURCHASE_MAIL") == 1 ? true : false;
             failPurchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_PURCHASE_MAIL") == 1 ? true : false;           
         }
