@@ -86,10 +86,8 @@ public partial class adm_business_types : System.Web.UI.Page
         string sOldOrderBy = "";
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
-        bool bAdd = false;
-        if (PageUtils.IsTvinciUser() == true)
-            bAdd = true;
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, bAdd, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+        
+        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         FillTheTableEditor(ref theTable, sOrderBy);
 
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
