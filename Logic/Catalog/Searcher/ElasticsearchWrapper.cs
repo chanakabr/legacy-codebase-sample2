@@ -2704,9 +2704,10 @@ namespace Core.Catalog
             return result;
         }
 
-        public List<TagValue> SearchTags(int groupId, LanguageObj language, int topicId, string searchValue)
+        public List<TagValue> SearchTags(TagSearchDefinitions definitions, out int totalItems)
         {
             List<TagValue> result = new List<TagValue>();
+            totalItems = 0;
 
             #region Build filtered query
 
@@ -2716,22 +2717,35 @@ namespace Core.Catalog
             ESTerm topicTerm = new ESTerm(true)
             {
                 Key = "topic_id",
-                Value = topicId.ToString()
+                Value = definitions.TopicId.ToString()
             };
 
-            ESTerm valueTerm = new ESTerm(false)
+            ESTerm valueTerm = null;
+
+            if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue))
             {
-                Key = "value.autocomplete",
-                Value = searchValue
-            };
+                valueTerm = new ESTerm(false)
+                {
+                    Key = "value.autocomplete",
+                    Value = definitions.AutocompleteSearchValue
+                };
+            }
+            else
+            {
+                valueTerm = new ESTerm(false)
+                {
+                    Key = "value",
+                    Value = definitions.ExactSearchValue
+                };
+            }
 
             query.AddChild(topicTerm, CutWith.AND);
             query.AddChild(valueTerm, CutWith.AND);
 
             FilteredQuery filteredQuery = new FilteredQuery()
             {
-                PageIndex = 0,
-                PageSize = 0,
+                PageIndex = definitions.PageIndex,
+                PageSize = definitions.PageSize,
                 Query = query
             };
 
@@ -2749,12 +2763,12 @@ namespace Core.Catalog
 
             string type = "tag";
 
-            if (!language.IsDefault)
+            if (!definitions.Language.IsDefault)
             {
-                type = string.Format("tag_{0}", language.Code);
+                type = string.Format("tag_{0}", definitions.Language.Code);
             }
 
-            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
+            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(definitions.GroupId);
 
             string searchResultString = m_oESApi.Search(index, type, ref searchQueryString);
 
@@ -2767,7 +2781,7 @@ namespace Core.Catalog
             if (jsonObj != null)
             {
                 JToken tempToken;
-                int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+                totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
 
                 if (totalItems > 0)
                 {
