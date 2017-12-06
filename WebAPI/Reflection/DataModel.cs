@@ -25,6 +25,30 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaCollectionEntitlement":
+                    switch (propertyName)
+                    {
+                        case "EntitlementId":
+                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                    };
+                    break;
+                    
+                case "KalturaEntitlement":
+                    switch (propertyName)
+                    {
+                        case "EntitlementId":
+                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                    };
+                    break;
+                    
+                case "KalturaEntitlementFilter":
+                    switch (propertyName)
+                    {
+                        case "EntitlementTypeEqual":
+                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                    };
+                    break;
+                    
                 case "KalturaPlaybackSource":
                     switch (propertyName)
                     {
@@ -32,6 +56,14 @@ namespace WebAPI.Reflection
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "AdsPolicy":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
+                case "KalturaPpvEntitlement":
+                    switch (propertyName)
+                    {
+                        case "EntitlementId":
+                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
                     };
                     break;
                     
@@ -72,6 +104,16 @@ namespace WebAPI.Reflection
                             return DeprecatedAttribute.IsDeprecated("4.5.0.0");
                         case "ProductCode":
                             return DeprecatedAttribute.IsDeprecated("4.3.0.0");
+                    };
+                    break;
+                    
+                case "KalturaSubscriptionEntitlement":
+                    switch (propertyName)
+                    {
+                        case "EntitlementId":
+                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                        case "ScheduledSubscriptionId":
+                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
                     };
                     break;
                     
@@ -3387,6 +3429,8 @@ namespace WebAPI.Reflection
                             return "nextRenewalDate";
                         case "PaymentMethod":
                             return "paymentMethod";
+                        case "ProductId":
+                            return "productId";
                         case "PurchaseDate":
                             return "purchaseDate";
                         case "PurchaseId":
@@ -3423,6 +3467,8 @@ namespace WebAPI.Reflection
                             return "entityReferenceEqual";
                         case "IsExpiredEqual":
                             return "isExpiredEqual";
+                        case "ProductTypeEqual":
+                            return "productTypeEqual";
                     }
                     break;
                     
@@ -3431,6 +3477,32 @@ namespace WebAPI.Reflection
                     {
                         case "Entitlements":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaEntitlementRenewal":
+                    switch(property.Name)
+                    {
+                        case "Date":
+                            return "date";
+                        case "Price":
+                            return "price";
+                        case "PurchaseId":
+                            return "purchaseId";
+                        case "SubscriptionId":
+                            return "subscriptionId";
+                    }
+                    break;
+                    
+                case "KalturaEntitlementRenewalBase":
+                    switch(property.Name)
+                    {
+                        case "Price":
+                            return "price";
+                        case "PurchaseId":
+                            return "purchaseId";
+                        case "SubscriptionId":
+                            return "subscriptionId";
                     }
                     break;
                     
@@ -6047,6 +6119,8 @@ namespace WebAPI.Reflection
                             return "paymentMethodId";
                         case "ScheduledSubscriptionId":
                             return "scheduledSubscriptionId";
+                        case "UnifiedPaymentId":
+                            return "unifiedPaymentId";
                     }
                     break;
                     
@@ -6271,6 +6345,20 @@ namespace WebAPI.Reflection
                             return "language";
                         case "Value":
                             return "value";
+                    }
+                    break;
+                    
+                case "KalturaUnifiedPaymentRenewal":
+                    switch(property.Name)
+                    {
+                        case "Date":
+                            return "date";
+                        case "Entitlements":
+                            return "entitlements";
+                        case "Price":
+                            return "price";
+                        case "UnifiedPaymentId":
+                            return "unifiedPaymentId";
                     }
                     break;
                     
