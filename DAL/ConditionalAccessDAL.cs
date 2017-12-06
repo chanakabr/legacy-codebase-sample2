@@ -3251,15 +3251,16 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static DataTable Get_UnifiedSubscriptionPurchaseForRenewal(int groupId, long householdId,long processId)
+        public static DataTable Get_UnifiedSubscriptionPurchaseForRenewal(int groupId, long householdId, long processId, bool shouldLock = true)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseUnifiedRenewal");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupId);
             sp.AddParameter("@HouseholdId", householdId);
-            sp.AddParameter("@ProcessId", processId); 
+            sp.AddParameter("@ProcessId", processId);
+            sp.AddParameter("@shouldLockRows", shouldLock ? 1 : 0);
 
-             DataSet ds = sp.ExecuteDataSet();
+            DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
             {
                 return ds.Tables[0];
@@ -3341,6 +3342,26 @@ namespace DAL
 
             return sp.Execute();
 
+        }
+
+        public static DataRow Get_SubscriptionPurchaseNextRenewal(int groupId, long subscriptionPurchaseId)
+        {
+            ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseNextRenewal");
+            spLastBillingTransactions.SetConnectionKey("CA_CONNECTION_STRING");
+            spLastBillingTransactions.AddParameter("@groupID", groupId);
+            spLastBillingTransactions.AddParameter("@purchaseId", subscriptionPurchaseId);
+
+            DataSet ds = spLastBillingTransactions.ExecuteDataSet();
+            if (ds != null &&
+                ds.Tables != null &&
+                ds.Tables.Count > 0 &&
+                ds.Tables[0].Rows != null &&
+                ds.Tables[0].Rows.Count > 0)
+            {
+                return ds.Tables[0].Rows[0];
+            }
+
+            return null;
         }
     }
 }
