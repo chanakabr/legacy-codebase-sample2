@@ -236,8 +236,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
-    <Compile Include="Models\API\KalturaTagValuesListResponse.cs" />
-    <Compile Include="Models\API\KalturaTagValue.cs" />
+    <Compile Include="Controllers\TagController.cs" />
+    <Compile Include="Models\API\KalturaTagFilter.cs" />
+    <Compile Include="Models\API\KalturaTagListResponse.cs" />
+    <Compile Include="Models\API\KalturaTag.cs" />
     <Compile Include="Models\Catalog\KalturaAssetListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructFilter.cs" />

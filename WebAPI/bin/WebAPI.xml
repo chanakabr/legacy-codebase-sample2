@@ -704,6 +704,14 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.TagController.List(WebAPI.Models.API.KalturaTagFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Returns all regions for the partner
+            </summary>
+            <param name="filter">Filter</param>
+            <param name="pager">Page size and index</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.CollectionController.List(WebAPI.Models.Pricing.KalturaCollectionFilter)">
             <summary>
             Returns a list of subscriptions requested by Subscription ID or file ID
@@ -4021,9 +4029,34 @@
             <param name="userId">User identifier</param>
             <returns></returns>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaTagValuesListResponse.TagValues">
+        <member name="P:WebAPI.Models.API.KalturaTagFilter.TagEqual">
+            <summary>
+            Tag to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTagFilter.TagStartsWith">
+            <summary>
+            Tag to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTagFilter.TopicIdEqual">
+            <summary>
+            Topic identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTagListResponse.Tags">
             <summary>
             A list of generic rules
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTag.Type">
+            <summary>
+            Tag Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTag.Tag">
+            <summary>
+            Tag 
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaCurrencyListResponse.Objects">

@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaTagValuesListResponse : KalturaListResponse
+    public class KalturaTagListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of generic rules
@@ -18,6 +18,6 @@ namespace WebAPI.Models.API
         [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaParentalRule> TagValues { get; set; }
+        public List<KalturaTag> Tags { get; set; }
     }
 }

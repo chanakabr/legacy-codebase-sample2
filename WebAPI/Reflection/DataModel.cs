@@ -6331,6 +6331,36 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaTag":
+                    switch(property.Name)
+                    {
+                        case "Tag":
+                            return "tag";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
+                case "KalturaTagFilter":
+                    switch(property.Name)
+                    {
+                        case "TagEqual":
+                            return "tagEqual";
+                        case "TagStartsWith":
+                            return "tagStartsWith";
+                        case "TopicIdEqual":
+                            return "topicIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaTagListResponse":
+                    switch(property.Name)
+                    {
+                        case "Tags":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaTimeShiftedTvPartnerSettings":
                     switch(property.Name)
                     {

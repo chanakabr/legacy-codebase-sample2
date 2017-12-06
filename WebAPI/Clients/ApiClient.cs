@@ -50,7 +50,7 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Error while trying to get languages. group id: {0}, exception: {1}", groupId, ex);
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
-        }
+        }       
 
         internal List<KalturaUserRole> GetUserRoles(int groupId, string userId)
         {            
@@ -3841,9 +3841,9 @@ namespace WebAPI.Clients
             return drmAdapterResponse.Value;
         }
 
-        internal KalturaTagValuesListResponse SearchTags(int groupId, int topicId, int languageId, string searchValue)
+        internal KalturaTagListResponse SearchTags(int groupId, int topicId, int languageId, string searchValue)
         {
-            KalturaTagValuesListResponse result = new Models.API.KalturaTagValuesListResponse();
+            KalturaTagListResponse result = new Models.API.KalturaTagListResponse();
 
             List<TagValue> tagValues = new List<TagValue>();
             try
@@ -3851,6 +3851,32 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     tagValues = Core.Api.Module.SearchTags(groupId, topicId, languageId, searchValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling API service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (tagValues == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            return result;
+        }
+
+        internal KalturaTagListResponse SearchTags(int groupId, string language, string tag, int topicId, string tagStartsWith, int pageIndex, int pageSize)
+        {
+            KalturaTagListResponse result = new Models.API.KalturaTagListResponse();
+
+            List<TagValue> tagValues = new List<TagValue>();
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    //
                 }
             }
             catch (Exception ex)
