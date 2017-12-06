@@ -2048,6 +2048,7 @@ namespace Core.ConditionalAccess
                 response.UnifiedPaymentRenewal.Price.m_dPrice += subDetails.Price;
             }
 
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             return response; 
         }
 
