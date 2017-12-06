@@ -217,6 +217,10 @@ public partial class adm_billing_settings : System.Web.UI.Page
             dr_billing_cycle_period.SetNoSelectStr("---");
             theRecord.AddRecord(dr_billing_cycle_period);
 
+            DataRecordShortIntField dr_renewal_reminder = new DataRecordShortIntField(true, 0, 0, 0);
+            dr_renewal_reminder.Initialize("Renewal Reminder - days", "adm_table_header_nbg", "FormInput", "RENEWAL_REMINDER_DAYS_BEFORE", false);
+            theRecord.AddRecord(dr_renewal_reminder);
+            
             sTable = theRecord.GetTableHTML("adm_billing_settings.aspx?submited=1");
         }
         return sTable;
