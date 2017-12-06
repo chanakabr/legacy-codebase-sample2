@@ -18,18 +18,18 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the data about the next renewal 
         /// </summary>                
-        /// <param name="unifiedPaymentId">Purchase Id</param>
+        /// <param name="id">Unified payment ID</param>
         [Route("getNextRenewal"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
-        public KalturaUnifiedPaymentRenewal GetNextRenewal(int unifiedPaymentId)
+        public KalturaUnifiedPaymentRenewal GetNextRenewal(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
             {
-                return ClientsManager.ConditionalAccessClient().GetUnifiedPaymentNextRenewal(groupId, householdId, unifiedPaymentId);
+                return ClientsManager.ConditionalAccessClient().GetUnifiedPaymentNextRenewal(groupId, householdId, id);
             }
             catch (ClientException ex)
             {

@@ -681,7 +681,7 @@
             <summary>
             Returns the data about the next renewal 
             </summary>                
-            <param name="unifiedPaymentId">Purchase Id</param>
+            <param name="id">Unified payment ID</param>
         </member>
         <member name="M:WebAPI.Controllers.PriceDetailsController.List(WebAPI.Models.Pricing.KalturaPriceDetailsFilter)">
             <summary>

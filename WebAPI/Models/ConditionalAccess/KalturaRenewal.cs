@@ -77,8 +77,8 @@ namespace WebAPI.Models.ConditionalAccess
         /// List of entitlements in this unified payment renewal
         /// </summary>
         [DataMember(Name = "entitlements")]
-        [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [JsonProperty(PropertyName = "entitlements")]
+        [XmlArray(ElementName = "entitlements", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaEntitlementRenewalBase> Entitlements { get; set; }
     }

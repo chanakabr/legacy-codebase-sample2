@@ -2421,7 +2421,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            return Mapper.Map<KalturaEntitlementRenewal>(response);
+            return Mapper.Map<KalturaEntitlementRenewal>(response.EntitlementRenewal);
         }
 
         internal KalturaUnifiedPaymentRenewal GetUnifiedPaymentNextRenewal(int groupId, long householdId, int unifiedPaymentId)
@@ -2451,7 +2451,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            return Mapper.Map<KalturaUnifiedPaymentRenewal>(response);
+            return Mapper.Map<KalturaUnifiedPaymentRenewal>(response.UnifiedPaymentRenewal);
         }
 
 

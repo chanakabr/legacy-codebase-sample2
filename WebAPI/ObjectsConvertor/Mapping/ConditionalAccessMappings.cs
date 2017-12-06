@@ -498,7 +498,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<APILogic.ConditionalAccess.Modules.EntitlementRenewalBase, KalturaEntitlementRenewalBase>()
              .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId))
              .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId))
-             .ForMember(dest => dest.Price, opt => opt.MapFrom(src => new KalturaPrice { Amount = src.PriceAmount }));
+             .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.PriceAmount));
 
             Mapper.CreateMap<APILogic.ConditionalAccess.Modules.UnifiedPaymentRenewal, KalturaUnifiedPaymentRenewal>()
              .ForMember(dest => dest.UnifiedPaymentId, opt => opt.MapFrom(src => src.UnifiedPaymentId))
