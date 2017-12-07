@@ -364,6 +364,7 @@
     <Compile Include="ConditionalAccess\Managers\UnifiedBillingCycleManager.cs" />
     <Compile Include="ConditionalAccess\Modules\PpvPurchase.cs" />
     <Compile Include="ConditionalAccess\Modules\Purchase.cs" />
+    <Compile Include="ConditionalAccess\Modules\Renewal.cs" />
     <Compile Include="ConditionalAccess\Modules\RenewSubscriptionDetails.cs" />
     <Compile Include="ConditionalAccess\Modules\SubscriptionPurchase.cs" />
     <Compile Include="ConditionalAccess\PermittedCollectionContainer.cs" />
@@ -388,6 +389,8 @@
     <Compile Include="ConditionalAccess\Response\QuotaResponse.cs" />
     <Compile Include="ConditionalAccess\Response\RecordResponse.cs" />
     <Compile Include="ConditionalAccess\Response\SubscriptionsPricesResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\EntitlementRenewalResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\UnifiedPaymentRenewalResponse.cs" />
     <Compile Include="ConditionalAccess\Response\UserBillingTransactionResponse.cs" />
     <Compile Include="ConditionalAccess\SocialInviteCampaignImpl.cs" />
     <Compile Include="ConditionalAccess\UserPrePaidContainer.cs" />

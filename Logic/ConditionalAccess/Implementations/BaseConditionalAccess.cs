@@ -42,6 +42,7 @@ using CachingProvider.LayeredCache;
 using Core.ConditionalAccess.Modules;
 using ApiObjects.SubscriptionSet;
 using APILogic.ConditionalAccess.Managers;
+using APILogic.ConditionalAccess.Response;
 
 namespace Core.ConditionalAccess
 {
@@ -2572,7 +2573,7 @@ namespace Core.ConditionalAccess
                 int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
                 ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, ref UnifiedBillingCycle unifiedBillingCycle,
                 Compensation compensation = null, string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null,
-                DateTime? endDate = null, int groupId = 0, long householdId = 0, bool ignoreUnifiedBillingCycle = true)
+                DateTime? endDate = null, int groupId = 0, long householdId = 0, bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
         {
             bool isSuccess = false;
 
@@ -2626,6 +2627,7 @@ namespace Core.ConditionalAccess
                     priceValue = priceAfterDiscount.m_dPrice;
                     oCurrency = priceAfterDiscount.m_oCurrency;
                     sCurrency = priceAfterDiscount.m_oCurrency.m_sCurrencyCD3;
+
                 }
                 else
                 {
@@ -2635,7 +2637,10 @@ namespace Core.ConditionalAccess
                 }
 
                 bool isCouponGiftCard = false;
-                HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode, ref isCouponGiftCard);
+                if (isRenew)
+                {
+                    HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode, ref isCouponGiftCard);
+                }
 
                 if (compensation != null)
                 {
@@ -2674,10 +2679,12 @@ namespace Core.ConditionalAccess
                 isMPPRecurringInfinitely = subscription.m_bIsInfiniteRecurring;
                 maxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
 
-                customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode,
+                if (isRenew)
+                {
+                    customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode,
                     siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryName : string.Empty,
                     string.Empty, string.Empty, compensation, isPartialPrice);
-
+                }
                 isSuccess = true;
             }
             catch (Exception ex)
@@ -10809,7 +10816,7 @@ namespace Core.ConditionalAccess
                     {
                         domainResponse = Core.Domains.Module.GetDomainInfo(this.m_nGroupID, domainID);
                     }
-                    
+
                     if (domainResponse != null && domainResponse.Domain != null)
                     {
                         int dlmId = domainResponse.Domain.m_nLimit;
@@ -11439,15 +11446,15 @@ namespace Core.ConditionalAccess
 
                                 // entitlement passed - build notification message
                                 var dicData = new Dictionary<string, object>()
-									{
-										{"MediaFileID", contentId},
-										{"BillingTransactionID", response.TransactionID},
-										{"PPVModuleCode", productId},
-										{"SiteGUID", siteguid},
-										{"CouponCode", string.Empty},
-										{"CustomData", customData},
-										{"PurchaseID", purchaseId}
-									};
+                                    {
+                                        {"MediaFileID", contentId},
+                                        {"BillingTransactionID", response.TransactionID},
+                                        {"PPVModuleCode", productId},
+                                        {"SiteGUID", siteguid},
+                                        {"CouponCode", string.Empty},
+                                        {"CustomData", customData},
+                                        {"PurchaseID", purchaseId}
+                                    };
 
                                 // notify purchase
                                 if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData))
@@ -11603,15 +11610,21 @@ namespace Core.ConditionalAccess
 
                                             // enqueue renew transaction
                                             RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)subscriptionEndDate),
-                                                nextRenewalDate);
+                                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid, 
+                                                TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)subscriptionEndDate), nextRenewalDate);
+
                                             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
                                             if (!enqueueSuccessful)
                                             {
                                                 log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
                                             }
                                             else
+                                            {
+                                                PurchaseManager.SendRenewalReminder(data, householdId);
+
                                                 log.DebugFormat("New task created (upon process subscription receipt response). Next renewal date: {0} data: {1}", nextRenewalDate, data);
+                                            }
+
                                         }
                                         catch (Exception ex)
                                         {
@@ -11621,14 +11634,14 @@ namespace Core.ConditionalAccess
 
                                     // build notification message
                                     var dicData = new Dictionary<string, object>()
-									{
-										{"SubscriptionCode", productId},
-										{"BillingTransactionID", response.TransactionID},
-										{"SiteGUID", siteguid},
-										{"PurchaseID", purchaseID},
-										{"CouponCode", string.Empty},
-										{"CustomData", customData}
-									};
+                                    {
+                                        {"SubscriptionCode", productId},
+                                        {"BillingTransactionID", response.TransactionID},
+                                        {"SiteGUID", siteguid},
+                                        {"PurchaseID", purchaseID},
+                                        {"CouponCode", string.Empty},
+                                        {"CustomData", customData}
+                                    };
 
                                     // notify purchase
                                     if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData))
@@ -12565,7 +12578,10 @@ namespace Core.ConditionalAccess
                                             log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
                                         }
                                         else
+                                        {
+                                            PurchaseManager.SendRenewalReminder(data, householdId);
                                             log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
@@ -12575,14 +12591,14 @@ namespace Core.ConditionalAccess
 
                                 // build notification message
                                 var dicData = new Dictionary<string, object>()
-									{
-										{"SubscriptionCode", productId},
-										{"BillingTransactionID", transactionResponse.TransactionID},
-										{"SiteGUID", userId},
-										{"PurchaseID", purchaseID},
-										{"CouponCode", coupon},
-										{"CustomData", customData}
-									};
+                                    {
+                                        {"SubscriptionCode", productId},
+                                        {"BillingTransactionID", transactionResponse.TransactionID},
+                                        {"SiteGUID", userId},
+                                        {"PurchaseID", purchaseID},
+                                        {"CouponCode", coupon},
+                                        {"CustomData", customData}
+                                    };
                                 // notify purchase
                                 if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData))
                                 {
@@ -12738,15 +12754,15 @@ namespace Core.ConditionalAccess
 
                                 // entitlement passed - build notification message
                                 var dicData = new Dictionary<string, object>()
-									{
-										{"MediaFileID", contentId},
-										{"BillingTransactionID", transactionResponse.TransactionID},
-										{"PPVModuleCode", productId},
-										{"SiteGUID", userId},
-										{"CouponCode", coupon},
-										{"CustomData", customData},
-										{"PurchaseID", purchaseId}
-									};
+                                    {
+                                        {"MediaFileID", contentId},
+                                        {"BillingTransactionID", transactionResponse.TransactionID},
+                                        {"PPVModuleCode", productId},
+                                        {"SiteGUID", userId},
+                                        {"CouponCode", coupon},
+                                        {"CustomData", customData},
+                                        {"PurchaseID", purchaseId}
+                                    };
 
                                 // notify purchase
                                 if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData))
@@ -12971,10 +12987,10 @@ namespace Core.ConditionalAccess
                 }
 
                 string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                string[] keys = new string[1] 
-					{ 
-						string.Format("{0}_cdvr_adapter_{1}", version, adapterId)
-					};
+                string[] keys = new string[1]
+                    {
+                        string.Format("{0}_cdvr_adapter_{1}", version, adapterId)
+                    };
 
                 QueueUtils.UpdateCache(m_nGroupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
 
@@ -13041,10 +13057,10 @@ namespace Core.ConditionalAccess
 
                     // remove adapter from cache
                     string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                    string[] keys = new string[1] 
-					{ 
-						string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
-					};
+                    string[] keys = new string[1]
+                    {
+                        string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
+                    };
 
                     QueueUtils.UpdateCache(m_nGroupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
                 }
@@ -13098,10 +13114,10 @@ namespace Core.ConditionalAccess
 
                     // remove adapter from cache
                     string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                    string[] keys = new string[1] 
-					{ 
-						string.Format("{0}_cdvr_adapter_{1}", version,adapterId)
-					};
+                    string[] keys = new string[1]
+                    {
+                        string.Format("{0}_cdvr_adapter_{1}", version,adapterId)
+                    };
 
                     QueueUtils.UpdateCache(m_nGroupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
                 }
@@ -13705,14 +13721,14 @@ namespace Core.ConditionalAccess
                 {
                     //Create recording statuses list (without deleted)
                     log.DebugFormat("RecordingStatuses is null or empty, creating status list, DomainID: {0}, UserID: {1}", domainID, userID);
-                    recordingStatuses = new List<TstvRecordingStatus>() 
-						{ 
-							TstvRecordingStatus.Recorded, 
-							TstvRecordingStatus.Recording,
-							TstvRecordingStatus.Scheduled, 
-							TstvRecordingStatus.Failed, 
-							TstvRecordingStatus.Canceled                            
-						};
+                    recordingStatuses = new List<TstvRecordingStatus>()
+                        {
+                            TstvRecordingStatus.Recorded,
+                            TstvRecordingStatus.Recording,
+                            TstvRecordingStatus.Scheduled,
+                            TstvRecordingStatus.Failed,
+                            TstvRecordingStatus.Canceled
+                        };
                 }
 
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
@@ -13903,10 +13919,10 @@ namespace Core.ConditionalAccess
 
                     // remove adapter from cache
                     string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                    string[] keys = new string[1] 
-					{ 
-						string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
-					};
+                    string[] keys = new string[1]
+                    {
+                        string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
+                    };
 
                     QueueUtils.UpdateCache(m_nGroupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
                 }
@@ -14630,7 +14646,8 @@ namespace Core.ConditionalAccess
                     {
                         QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
                         ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainId, string.Empty, string.Empty, 0,
-                                                                                                                     eSeriesRecordingTask.CompleteRecordings) { ETA = DateTime.UtcNow.AddMinutes(1) };
+                                                                                                                     eSeriesRecordingTask.CompleteRecordings)
+                        { ETA = DateTime.UtcNow.AddMinutes(1) };
                         queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
                         return response;
                     }
@@ -15269,13 +15286,13 @@ namespace Core.ConditionalAccess
                         if (recording == null || recording.Id == 0)
                         {
                             recording = new Recording()
-                                {
-                                    Id = 0,
-                                    ChannelId = (long)epgMatch[0].ChannelID,
-                                    EpgId = epgId,
-                                    RecordingStatus = seriesStatus.Value,
-                                    Type = seriesRecording.SeasonNumber > 0 ? RecordingType.Season : RecordingType.Series
-                                };
+                            {
+                                Id = 0,
+                                ChannelId = (long)epgMatch[0].ChannelID,
+                                EpgId = epgId,
+                                RecordingStatus = seriesStatus.Value,
+                                Type = seriesRecording.SeasonNumber > 0 ? RecordingType.Season : RecordingType.Series
+                            };
                         }
                         else
                         {
@@ -15312,9 +15329,9 @@ namespace Core.ConditionalAccess
         public SeriesResponse GetFollowSeries(string userId, long domainId, ApiObjects.TimeShiftedTv.SeriesRecordingOrderObj orderBy)
         {
             SeriesResponse response = new SeriesResponse()
-                {
-                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-                };
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
             try
             {
                 Domain domain;
@@ -15498,7 +15515,8 @@ namespace Core.ConditionalAccess
                 {
                     QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
                     ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainID, string.Empty, string.Empty, 0,
-                                                                                                                    eSeriesRecordingTask.CompleteRecordings) { ETA = DateTime.UtcNow.AddMinutes(1) };
+                                                                                                                    eSeriesRecordingTask.CompleteRecordings)
+                    { ETA = DateTime.UtcNow.AddMinutes(1) };
                     queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
                 }
                 // if first user, SeriesRecordingTask should be filled on FollowSeasonOrSeries
@@ -15666,9 +15684,9 @@ namespace Core.ConditionalAccess
         public Recording GetRecordingStatus(int groupID, long recordingId)
         {
             Recording recording = new Recording()
-                {
-                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-                };
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
             try
             {
                 recording = Core.Recordings.RecordingsManager.Instance.GetRecordingStatus(groupID, recordingId);
@@ -15695,10 +15713,10 @@ namespace Core.ConditionalAccess
                         {
                             RecordingResponse response;
                             var userDomainlist = dt.AsEnumerable().Select(r => new
-                                                        {
-                                                            UserId = r.Field<long>("user_id"),
-                                                            DomainId = r.Field<long>("domain_id")
-                                                        }).ToList();
+                            {
+                                UserId = r.Field<long>("user_id"),
+                                DomainId = r.Field<long>("domain_id")
+                            }).ToList();
 
                             Dictionary<long, bool> validEpgsForRecording = new Dictionary<long, bool>();
                             validEpgsForRecording.Add(recording.EpgId, false);
@@ -16099,6 +16117,8 @@ namespace Core.ConditionalAccess
                         if (enqueueSuccessful)
                         {
                             totalRenewTransactionsAdded++;
+                            PurchaseManager.SendRenewalReminder(data, 0);
+
                             log.DebugFormat("New task created for renew recovery. next renewal date: {0}, data: {1}", nextRenewalDate, data);
                         }
                         else
@@ -16346,10 +16366,25 @@ namespace Core.ConditionalAccess
 
             return response;
         }
+        
+        internal EntitlementRenewalResponse GetEntitlementNextRenewal(long householdId, int purchaseId)
+        {
+            return RenewManager.GetEntitlementNextRenewal(this, this.m_nGroupID, householdId, purchaseId);
+        }
 
+        internal UnifiedPaymentRenewalResponse GetUnifiedPaymentNextRenewal(long householdId, int unifiedPaymentId)
+        {
+            return RenewManager.GetUnifiedPaymentNextRenewal(this, this.m_nGroupID, householdId, unifiedPaymentId);
+        }
+        
         internal bool RenewalReminder(string siteGuid, long purchaseId, long endDate)
         {
             return RenewManager.RenewalReminder(this, this.m_nGroupID, siteGuid, purchaseId, endDate);
+        }
+
+        internal bool UnifiedRenewalReminder(string siteGuid, long processId, long endDate)
+        {
+            return RenewManager.UnifiedRenewalReminder(this, this.m_nGroupID, siteGuid, processId, endDate);
         }
     }
 }
