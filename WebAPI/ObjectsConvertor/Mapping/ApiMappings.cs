@@ -527,6 +527,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.value))
               ;
 
+            Mapper.CreateMap<KalturaTag, TagValue>()
+             .ForMember(dest => dest.topicId.ToString(), opt => opt.MapFrom(src => src.Type))
+             .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.Tag))
+             ;
+
             #endregion       
         }
 

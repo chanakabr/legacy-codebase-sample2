@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaTagListResponse List (KalturaTagFilter filter = null, KalturaFilterPager pager =null)
+        public KalturaTagListResponse List(KalturaTagFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaTagListResponse response = null;
             string language = Utils.Utils.GetLanguageFromRequest();
@@ -44,6 +44,33 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.ApiClient().SearchTags(groupId, language, filter.TagEqual, filter.TypeEqual, filter.TagStartsWith, pager.getPageIndex(), pager.getPageSize());
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+        
+        /// <summary>
+        /// Add Tag
+        /// </summary>
+        /// <param name="tag">Tag Object</param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        public KalturaTag Add(KalturaTag tag)
+        {
+            KalturaTag response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+
+                // call client
+                response = ClientsManager.ApiClient().AddTag(groupId, tag);
             }
             catch (ClientException ex)
             {

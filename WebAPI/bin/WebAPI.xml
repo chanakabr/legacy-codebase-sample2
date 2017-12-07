@@ -712,6 +712,14 @@
             <param name="pager">Page size and index</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.TagController.Add(WebAPI.Models.API.KalturaTag)">
+            <summary>
+            Add Tag
+            </summary>
+            <param name="tag">Tag Object</param>
+            <returns></returns>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.CollectionController.List(WebAPI.Models.Pricing.KalturaCollectionFilter)">
             <summary>
             Returns a list of subscriptions requested by Subscription ID or file ID

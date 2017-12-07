@@ -83,7 +83,7 @@ namespace WebAPI.Clients
             roles = AutoMapper.Mapper.Map<List<KalturaUserRole>>(response.Roles);
 
             return roles;
-        }
+        }       
 
         #region Parental Rules
 
@@ -3881,6 +3881,43 @@ namespace WebAPI.Clients
             }
 
             return result;
+        }
+
+        internal KalturaTag AddTag(int groupId, KalturaTag tag)
+        {
+            KalturaTag responseTag = new KalturaTag();
+            TagResponse response = null;
+
+            try
+            {
+                TagValue requestTag = AutoMapper.Mapper.Map<TagValue>(tag);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.AddTag(groupId, requestTag);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.TagValues != null && response.TagValues.Count > 0)
+            {
+                responseTag = AutoMapper.Mapper.Map<KalturaTag>(response.TagValues[0]);
+            }
+
+            return responseTag;
         }
     }
 }
