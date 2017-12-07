@@ -10376,6 +10376,8 @@ namespace Core.Api
             ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
             result.TagValues = wrapper.SearchTags(definitions, out totalItemsCount);
             result.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            result.TotalItems = totalItemsCount;
+
             return result;
         }
 

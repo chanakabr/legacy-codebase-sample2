@@ -2789,7 +2789,7 @@ namespace Core.Catalog
                 {
                     foreach (var item in jsonObj.SelectToken("hits.hits"))
                     {
-                        var tagValue = item.ToObject<TagValue>();
+                        var tagValue = item["_source"].ToObject<TagValue>();
 
                         result.Add(tagValue);
                     }
