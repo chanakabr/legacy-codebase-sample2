@@ -1842,5 +1842,10 @@ namespace Core.Api
         {
             return api.SearchTags(groupId, tag, topicId, searchValue, languageId, pageIndex, pageSize);
         }
+
+        public static TagResponse AddTag(int groupId, TagValue tag)
+        {
+            return api.AddTag(groupId, tag);
+        }
     }
 }

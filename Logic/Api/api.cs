@@ -1613,7 +1613,7 @@ namespace Core.Api
                 }
             }
             return res;
-        }
+        }       
 
         internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
         {
@@ -10380,6 +10380,9 @@ namespace Core.Api
 
             return result;
         }
-
+        internal static TagResponse AddTag(int groupId, TagValue tag)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
