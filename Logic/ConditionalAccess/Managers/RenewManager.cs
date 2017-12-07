@@ -1775,24 +1775,26 @@ namespace Core.ConditionalAccess
                     previousPurchaseCountryName = XmlUtils.GetSafeValue(BaseConditionalAccess.COUNTRY_CODE, ref theRequest);
                     previousPurchaseCountryCode = Utils.GetCountryCodeByCountryName(groupId, previousPurchaseCountryName);
                     bool isDummy = XmlUtils.IsNodeExists(ref theRequest, BaseConditionalAccess.DUMMY);
-
-                    // OK + price 0
-                    response = new EntitlementRenewalResponse()
+                    if (isDummy)
                     {
-                        EntitlementRenewal = new EntitlementRenewal()
+                        // OK + price 0
+                        response = new EntitlementRenewalResponse()
                         {
-                            Price = new Price()
+                            EntitlementRenewal = new EntitlementRenewal()
                             {
-                                m_dPrice = 0
+                                Price = new Price()
+                                {
+                                    m_dPrice = 0
+                                },
+                                SubscriptionId = productId,
+                                PurchaseId = purchaseId,
+                                Date = endDate
                             },
-                            SubscriptionId = productId,
-                            PurchaseId = purchaseId,
-                            Date = endDate
-                        },
-                        Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
-                    };
+                            Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+                        };
 
-                    return response;
+                        return response;
+                    }
                 } 
             }
             catch (Exception ex)
