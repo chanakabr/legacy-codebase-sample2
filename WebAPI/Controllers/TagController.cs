@@ -1,11 +1,15 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
@@ -17,7 +21,7 @@ namespace WebAPI.Controllers
     public class TagController : ApiController
     {
         /// <summary>
-        /// Returns all regions for the partner
+        /// Get the list of tags for the partner
         /// </summary>
         /// <param name="filter">Filter</param>
         /// <param name="pager">Page size and index</param>
@@ -51,9 +55,9 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-        
+
         /// <summary>
-        /// Add Tag
+        /// Add a new tag
         /// </summary>
         /// <param name="tag">Tag Object</param>
         /// <returns></returns>
@@ -78,5 +82,66 @@ namespace WebAPI.Controllers
             }
             return response;
         }
+
+        /// <summary>
+        /// Update an existing tag
+        /// </summary>
+        /// <param name="id">Tag Identifier</param>
+        /// <param name="tag">Tag Object</param>
+        /// <returns></returns>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        public KalturaTag Update(long id, KalturaTag tag)
+        {
+            KalturaTag response = null;
+            int groupId = KS.GetFromRequest().GroupId;            
+
+            if (tag.Tag != null && tag.Tag.Trim() == string.Empty)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
+            }
+
+            if (tag.Type != null && tag.Type.Trim() == string.Empty)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
+            }
+
+            try
+            {
+                response = ClientsManager.ApiClient().UpdateTag(groupId, id, tag);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Delete an existing tag
+        /// </summary>
+        /// <param name="id">Tag Identifier</param>
+        /// <returns></returns>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        [SchemeArgument("id", MinLong = 1)]
+        public bool Delete(long id)
+        {
+            bool result = false;
+            int groupId = KS.GetFromRequest().GroupId;            
+
+            try
+            {
+                result = ClientsManager.ApiClient().DeleteTag(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
     }
 }

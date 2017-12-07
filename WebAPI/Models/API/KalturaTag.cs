@@ -13,6 +13,15 @@ namespace WebAPI.Models.API
     public class KalturaTag : KalturaOTTObject
     {
         /// <summary>
+        /// Tag id 
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
+        public string Id { get; set; }
+
+        /// <summary>
         /// Tag Type
         /// </summary>
         [DataMember(Name = "type")]

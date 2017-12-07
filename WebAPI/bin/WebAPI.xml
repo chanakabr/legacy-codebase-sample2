@@ -706,7 +706,7 @@
         </member>
         <member name="M:WebAPI.Controllers.TagController.List(WebAPI.Models.API.KalturaTagFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
-            Returns all regions for the partner
+            Get the list of tags for the partner
             </summary>
             <param name="filter">Filter</param>
             <param name="pager">Page size and index</param>
@@ -714,11 +714,26 @@
         </member>
         <member name="M:WebAPI.Controllers.TagController.Add(WebAPI.Models.API.KalturaTag)">
             <summary>
-            Add Tag
+            Add a new tag
             </summary>
             <param name="tag">Tag Object</param>
             <returns></returns>
             <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.TagController.Update(System.Int64,WebAPI.Models.API.KalturaTag)">
+            <summary>
+            Update an existing tag
+            </summary>
+            <param name="id">Tag Identifier</param>
+            <param name="tag">Tag Object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.TagController.Delete(System.Int64)">
+            <summary>
+            Delete an existing tag
+            </summary>
+            <param name="id">Tag Identifier</param>
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.CollectionController.List(WebAPI.Models.Pricing.KalturaCollectionFilter)">
             <summary>
@@ -4055,6 +4070,11 @@
         <member name="P:WebAPI.Models.API.KalturaTagListResponse.Tags">
             <summary>
             A list of generic rules
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTag.Id">
+            <summary>
+            Tag id 
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaTag.Type">

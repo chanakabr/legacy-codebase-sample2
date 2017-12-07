@@ -6334,6 +6334,8 @@ namespace WebAPI.Reflection
                 case "KalturaTag":
                     switch(property.Name)
                     {
+                        case "Id":
+                            return "id";
                         case "Tag":
                             return "tag";
                         case "Type":
