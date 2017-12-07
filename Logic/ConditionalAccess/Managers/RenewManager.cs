@@ -1883,6 +1883,11 @@ namespace Core.ConditionalAccess
             }
 
             var currencyObj = Core.Pricing.Module.GetCurrencyValues(groupId, currency);
+            ApiObjects.Country country = null;
+            if (!string.IsNullOrEmpty(previousPurchaseCountryName))
+            {
+                country = Utils.GetCountryByCountryName(groupId, previousPurchaseCountryName);
+            }
 
             response.EntitlementRenewal = new EntitlementRenewal()
             {
@@ -1893,6 +1898,7 @@ namespace Core.ConditionalAccess
                 {
                     m_dPrice = price,
                     m_oCurrency = currencyObj,
+                    countryId = country != null ? country.Id : 0
                 }
             };
 
@@ -2033,6 +2039,11 @@ namespace Core.ConditionalAccess
             }
             // build response 
             var currencyObj = Core.Pricing.Module.GetCurrencyValues(groupId, renewSubscriptioDetails[0].Currency);
+            ApiObjects.Country country = null;
+            if (!string.IsNullOrEmpty(renewSubscriptioDetails[0].CountryName))
+            {
+                country = Utils.GetCountryByCountryName(groupId, renewSubscriptioDetails[0].CountryName);
+            }
 
             response.UnifiedPaymentRenewal = new UnifiedPaymentRenewal()
             {
@@ -2041,7 +2052,8 @@ namespace Core.ConditionalAccess
                 Entitlements = new List<EntitlementRenewalBase>(),
                 Price = new Price()
                 {
-                    m_oCurrency = currencyObj
+                    m_oCurrency = currencyObj,
+                    countryId = country != null ? country.Id : 0
                 }
             };
 
