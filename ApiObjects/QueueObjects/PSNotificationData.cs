@@ -62,7 +62,10 @@ namespace ApiObjects.MediaIndexingObjects
                 // Run on all data and convert it to Json
                 foreach (var kvpData in this.m_dicData)
                 {
-                    this.Data.Add(kvpData.Key, JToken.FromObject(kvpData.Value));
+                    if (kvpData.Value != null)
+                    {
+                        this.Data.Add(kvpData.Key, JToken.FromObject(kvpData.Value));
+                    }
                 }
             }
 

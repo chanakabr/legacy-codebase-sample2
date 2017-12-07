@@ -10248,8 +10248,9 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error(string.Empty, ex);
+                log.Error("Error on EnqueueEventRecord. ex ={0}", ex);
             }
+
             return result;
         }
 
