@@ -92,7 +92,7 @@ namespace WebAPI.Models.Users
             this.ks = ks.ToString();
             this.expiry = (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration);
             this.partnerId = ks.GroupId;
-            this.privileges = ks.Privileges != null && ks.Privileges.Count > 0 ? string.Join(",", ks.Privileges.Select(p => string.Join(":", p.key, p.value))) : string.Empty;
+            this.privileges = KS.JoinPrivileges(ks.Privileges, ",", ":");
             this.sessionType = ks.SessionType;
             this.userId = ks.UserId;
             this.udid = payload.UDID;

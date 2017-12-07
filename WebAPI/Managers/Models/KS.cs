@@ -27,7 +27,7 @@ namespace WebAPI.Managers.Models
         private string userId;
         private KalturaSessionType sessionType;
         private DateTime expiration;
-        private List<KalturaKeyValue> privileges;
+        private Dictionary<string, string> privileges;
         private string data;
 
         public enum KSVersion
@@ -74,7 +74,7 @@ namespace WebAPI.Managers.Models
             get { return sessionType; }
         }
 
-        public List<KalturaKeyValue> Privileges
+        public Dictionary<string, string> Privileges
         {
             get { return privileges; }
         }
@@ -93,7 +93,7 @@ namespace WebAPI.Managers.Models
         {
         }
 
-        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, List<KalturaKeyValue> privilegesList, KSVersion ksType)
+        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, Dictionary<string, string> privilegesList, KSVersion ksType)
         {
             int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
@@ -105,9 +105,7 @@ namespace WebAPI.Managers.Models
                 encodedData = HttpUtility.UrlEncode(encodedData);
             }
 
-            string ks = string.Format(KS_FORMAT, 
-                privilegesList != null && privilegesList.Count > 0 ? string.Join("&_", privilegesList.Select(p => string.Join("=", p.key, p.value))) : string.Empty, 
-                (int)userType, relativeExpiration, userID, encodedData);
+            string ks = string.Format(KS_FORMAT, JoinPrivileges(privilegesList), (int)userType, relativeExpiration, userID, encodedData);
             byte[] ksBytes = Encoding.ASCII.GetBytes(ks);
             byte[] randomBytes = Utils.EncryptionUtils.CreateRandomByteArray(BLOCK_SIZE);
             byte[] randWithFields = new byte[ksBytes.Length + randomBytes.Length];
@@ -140,6 +138,14 @@ namespace WebAPI.Managers.Models
             this.privileges = privilegesList;
             this.sessionType = userType;
             this.userId = userID;
+        }
+
+        public static string JoinPrivileges(Dictionary<string, string> privileges, string valuesSeperator = "&_", string inValueSeperator = "=")
+        {
+            if (privileges == null || privileges.Count == 0)
+                return string.Empty;
+
+            return string.Join(valuesSeperator, privileges.Select(p => string.Join(inValueSeperator, p.Key, (p.Value == null ? string.Empty : p.Value))));
         }
 
         public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret, string ksVal, KSVersion ksType)
@@ -176,14 +182,14 @@ namespace WebAPI.Managers.Models
                 throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
             }
 
-            ks.privileges = new List<KalturaKeyValue>();
+            ks.privileges = new Dictionary<string, string>();
 
             for (int i = 0; i < fields.Length; i++)
             {
                 string[] pair = fields[i].Split('=');
                 if (pair.Length != 2)
                 {
-                    ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = null });
+                    ks.privileges.Add(pair[0], null);
                 }
                 else
                 {
@@ -209,7 +215,7 @@ namespace WebAPI.Managers.Models
                             }
                             break;
                         default:
-                            ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = pair[1] });
+                            ks.privileges.Add(pair[0], pair[1]);
                             break;
                     }
                 }

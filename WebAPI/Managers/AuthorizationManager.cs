@@ -12,6 +12,8 @@ using WebAPI.Models.Users;
 using WebAPI.Utils;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
+using APILogic.Api.Managers;
+using ApiObjects;
 
 namespace WebAPI.Managers
 {
@@ -27,6 +29,7 @@ namespace WebAPI.Managers
         private const string REVOKED_KS_KEY_FORMAT_TCM_KEY = "revoked_ks_key_format";
         private const string USERS_SESSIONS_KEY_FORMAT = "sessions_{0}";
         private const string REVOKED_KS_KEY_FORMAT = "r_ks_{0}";
+        private const string REVOKED_SESSION_KEY_FORMAT = "r_session_{0}";
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 
@@ -323,10 +326,10 @@ namespace WebAPI.Managers
             string secret = sessionType == KalturaSessionType.ADMIN ? group.AdminSecret : group.UserSecret;
 
             // 9. privileges - we do not support it so copy from app token
-            var privilagesList = new List<KalturaKeyValue>();
+            var privilagesList = new Dictionary<string, string>();
 
-            privilagesList.Add(new KalturaKeyValue() { key = APP_TOKEN_PRIVILEGE_APP_TOKEN, value = appToken.Token });
-            privilagesList.Add(new KalturaKeyValue() { key = APP_TOKEN_PRIVILEGE_SESSION_ID, value = appToken.Token });
+            privilagesList.Add(APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token);
+            privilagesList.Add(APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
 
             if (!string.IsNullOrEmpty(appToken.SessionPrivileges))
             {
@@ -340,11 +343,11 @@ namespace WebAPI.Managers
                         {
                             if (splitedPrivilege.Length == 2)
                             {
-                                privilagesList.Add(new KalturaKeyValue() { key = splitedPrivilege[0], value = splitedPrivilege[1] });
+                                privilagesList.Add(splitedPrivilege[0], splitedPrivilege[1]);
                             }
                             else
                             {
-                                privilagesList.Add(new KalturaKeyValue() { key = splitedPrivilege[0], value = null });
+                                privilagesList.Add(splitedPrivilege[0], null);
                             }
                         }
                     }
@@ -467,12 +470,28 @@ namespace WebAPI.Managers
                 throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "Application-token", id);
             }
 
+            string userId = KS.GetFromRequest().UserId;
+            if (appToken.SessionUserId.CompareTo(userId) != 0 && !RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.DELETE_ALL_APP_TOKENS))
+            {
+                // Because the user is not allowed to get or delete app-tokens that owned and created by other users, we throw object not found on purpose.
+                throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "Application-token", id);
+            }
+
             response = cbManager.Remove(appTokenCbKey);
             if (!response)
             {
                 log.ErrorFormat("DeleteAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
                 throw new InternalServerErrorException();
             }
+
+            string revokedSessionKeyFormat = GetRevokedSessionKeyFormat(group);
+            string revokedSessionCbKey = string.Format(revokedSessionKeyFormat, appToken.Token);
+            long revokedSessionTime = Utils.Utils.DateTimeToUnixTimestamp(DateTime.Now, false);
+            long revokedSessionExpiryInSeconds = group.RefreshExpirationForPinLoginSeconds;
+            if (appToken.getSessionDuration() > 0 && appToken.getSessionDuration() < revokedSessionExpiryInSeconds)
+                revokedSessionExpiryInSeconds = appToken.getSessionDuration();
+
+            cbManager.Add(revokedSessionCbKey, revokedSessionTime, (uint)revokedSessionExpiryInSeconds, true);
 
             return response;
         }
@@ -529,6 +548,22 @@ namespace WebAPI.Managers
             return revokedKsKeyFormat;
         }
 
+        private static string GetRevokedSessionKeyFormat(Group group)
+        {
+            string revokedSessionKeyFormat = group.RevokedSessionKeyFormat;
+            if (string.IsNullOrEmpty(revokedSessionKeyFormat))
+            {
+                revokedSessionKeyFormat = TCMClient.Settings.Instance.GetValue<string>(REVOKED_KS_KEY_FORMAT_TCM_KEY);
+
+                if (string.IsNullOrEmpty(revokedSessionKeyFormat))
+                {
+                    revokedSessionKeyFormat = REVOKED_SESSION_KEY_FORMAT;
+                }
+            }
+
+            return revokedSessionKeyFormat;
+        }
+
         private static int GetRevokedKsMaxTtlSeconds(Group group)
         {
             return group.RevokedKsMaxTtlSeconds == 0 ? TCMClient.Settings.Instance.GetValue<int>(REVOKED_KS_MAX_TTL_SECONDS_TCM_KEY) : group.RevokedKsMaxTtlSeconds;
@@ -556,7 +591,6 @@ namespace WebAPI.Managers
 
             Group group = GroupsManager.GetGroup(ks.GroupId);
             string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
-            string userSessionsKeyFormat = GetUserSessionsKeyFormat(group);
 
             string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
 
@@ -566,6 +600,7 @@ namespace WebAPI.Managers
                 return false;
             }
 
+            string userSessionsKeyFormat = GetUserSessionsKeyFormat(group);
             string userSessionsCbKey = string.Format(userSessionsKeyFormat, ks.UserId);
             UserSessions usersSessions = cbManager.Get<UserSessions>(userSessionsCbKey, true);
 
@@ -581,6 +616,19 @@ namespace WebAPI.Managers
                 if (!string.IsNullOrEmpty(ksData.UDID) && usersSessions.UserWithUdidRevocations.ContainsKey(ksData.UDID))
                 {
                     return ksData.CreateDate >= usersSessions.UserWithUdidRevocations[ksData.UDID];
+                }
+            }
+
+            if (ks.Privileges.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
+            {
+                string sessionId = ks.Privileges[APP_TOKEN_PRIVILEGE_SESSION_ID];
+                string revokedSessionKeyFormat = GetRevokedSessionKeyFormat(group);
+                string revokedSessionCbKey = string.Format(revokedSessionKeyFormat, sessionId);
+
+                long revokedSessionTime = cbManager.Get<long>(revokedSessionCbKey, true);
+                if (revokedSessionTime > 0)
+                {
+                    return false;
                 }
             }
 
