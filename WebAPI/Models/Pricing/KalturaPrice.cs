@@ -43,7 +43,7 @@ namespace WebAPI.Models.Pricing
         public string CurrencySign { get; set; }
 
         /// <summary>
-        ///Currency
+        ///Country ID
         /// </summary>
         [DataMember(Name = "countryId")]
         [JsonProperty("countryId")]
