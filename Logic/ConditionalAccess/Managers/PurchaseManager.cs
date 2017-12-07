@@ -1017,7 +1017,8 @@ namespace Core.ConditionalAccess
 
         private static TransactionResponse PurchaseSubscription(BaseConditionalAccess cas, int groupId, string siteguid,
             long householdId, double price, string currency, int productId, CouponData coupon, string userIp, string deviceName,
-            int paymentGwId, int paymentMethodId, string adapterData, bool isSubscriptionSetModifySubscription, Core.Users.User user, PaymentGateway paymentGateway)
+            int paymentGwId, int paymentMethodId, string adapterData, bool isSubscriptionSetModifySubscription,
+            Core.Users.User user, PaymentGateway paymentGateway)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -1093,6 +1094,7 @@ namespace Core.ConditionalAccess
                 // if the payment gateway is external ignore unified billing !!
                 if (paymentGateway != null && paymentGateway.ExternalVerification)
                 {
+                    log.DebugFormat("paymentGateway.ExternalVerification {0}", paymentGateway.ID);
                     unifiedBillingCycle = null;
                 }
 
@@ -1190,7 +1192,10 @@ namespace Core.ConditionalAccess
                                 // purchase passed
                                 long purchaseID = 0;
 
-                                PaymentGateway paymentGatewayResponse = Core.Billing.Module.GetPaymentGatewayByBillingGuid(groupId, householdId, billingGuid);
+                                if (paymentGateway == null)
+                                {
+                                    paymentGateway = Core.Billing.Module.GetPaymentGatewayByBillingGuid(groupId, householdId, billingGuid);
+                                }
 
                                 // update entitlement date
                                 DateTime entitlementDate = DateTime.UtcNow;
@@ -1211,7 +1216,7 @@ namespace Core.ConditionalAccess
                                 //try get from db process_purchases_id - if not exsits - create one - only if pare of billing cycle
                                 long processId = 0;
                                 bool isNew = false;
-                                if (paymentGatewayResponse != null)
+                                if (paymentGateway != null)
                                 {
                                     if (!endDate.HasValue)
                                     {
@@ -1220,7 +1225,7 @@ namespace Core.ConditionalAccess
 
                                     //create process id only for subscription that equal the cycle and are NOT preview module 
                                     long ? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-                                    if ( !paymentGatewayResponse.ExternalVerification && 
+                                    if (!paymentGateway.ExternalVerification && 
                                         subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
                                          subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
                                          && groupUnifiedBillingCycle.HasValue
@@ -1230,10 +1235,11 @@ namespace Core.ConditionalAccess
                                     {
                                         if (!entitleToPreview || unifiedBillingCycle == null)
                                         {
-                                            processId = Utils.GetUnifiedProcessId(groupId, paymentGatewayResponse.ID, endDate.Value, householdId, out isNew);
+                                            processId = Utils.GetUnifiedProcessId(groupId, paymentGateway.ID, endDate.Value, householdId, out isNew);
                                         }
                                     }
                                 }
+
                                 // grant entitlement
                                 bool handleBillingPassed = 
                                     cas.HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, price, currency, couponCode, 
@@ -1269,17 +1275,17 @@ namespace Core.ConditionalAccess
                                             {
                                                 nextRenewalDate = endDate.Value.AddMinutes(-5);
 
-                                                if (paymentGatewayResponse == null)
+                                                if (paymentGateway == null)
                                                 {
                                                     // error getting PG
                                                     log.Error("Error getting the PG - GetPaymentGatewayByBillingGuid");
                                                 }
                                                 else
                                                 {
-                                                    nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
-                                                    paymentGwId = paymentGatewayResponse.ID;
+                                                    nextRenewalDate = endDate.Value.AddMinutes(paymentGateway.RenewalStartMinutes);
+                                                    paymentGwId = paymentGateway.ID;
 
-                                                    if (unifiedBillingCycle == null && subscription != null &&
+                                                    if (!paymentGateway.ExternalVerification && unifiedBillingCycle == null && subscription != null &&
                                                      subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
                                                      subscription.m_MultiSubscriptionUsageModule.Count() == 1)
                                                     {
@@ -1321,11 +1327,6 @@ namespace Core.ConditionalAccess
                                         //else do nothing, message already exists
 
                                         #endregion
-
-                                        if (endDate != null && endDate.HasValue)
-                                        {
-                                            PurchaseManager.SendRenewalReminder(cas, groupId, endDate.Value, endDateUnix, siteguid, householdId, purchaseID, billingGuid);
-                                        }
                                     }
 
                                     // build notification message
@@ -1503,6 +1504,8 @@ namespace Core.ConditionalAccess
         private static bool RenewTransactionMessageInQueue(int groupId, string siteguid, string billingGuid, 
             long purchaseID, long endDateUnix, DateTime nextRenewalDate, long householdId = 0)
         {
+            log.DebugFormat("RenewTransactionMessageInQueue (RenewTransactionData) purchaseId:{0}", purchaseID);
+
             RenewTransactionsQueue queue = new RenewTransactionsQueue();
             RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));

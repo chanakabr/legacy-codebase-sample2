@@ -8399,6 +8399,8 @@ namespace Core.ConditionalAccess
 
         internal static bool RenewTransactionMessageInQueue(int groupId, long householdId, long endDateUnix, DateTime nextRenewalDate, long processId)
         {
+            log.DebugFormat("RenewTransactionMessageInQueue (RenewUnifiedData) processId:{0}", processId);
+
             // add new message to new routing key queue
             RenewTransactionsQueue queue = new RenewTransactionsQueue();
             RenewUnifiedData data = new RenewUnifiedData(groupId, householdId, processId, endDateUnix, nextRenewalDate);
