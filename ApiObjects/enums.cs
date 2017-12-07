@@ -937,7 +937,8 @@ namespace ApiObjects
         PURCHASE_PPV = 3,
         RENEW_SUBSCRIPTION = 4,
         PURCHASE_SERVICE = 5,
-        LOGIN = 6
+        LOGIN = 6,
+        DELETE_ALL_APP_TOKENS = 7
     }
 
     public enum BlockEntitlementType

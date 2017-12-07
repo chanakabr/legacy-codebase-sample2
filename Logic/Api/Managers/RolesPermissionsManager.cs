@@ -105,7 +105,7 @@ namespace APILogic.Api.Managers
         //    return false;
         //}
 
-        internal static bool IsPermittedPermission(int groupId, string userId, ApiObjects.RolePermissions rolePermission)
+        public static bool IsPermittedPermission(int groupId, string userId, ApiObjects.RolePermissions rolePermission)
         {
             try
             {
