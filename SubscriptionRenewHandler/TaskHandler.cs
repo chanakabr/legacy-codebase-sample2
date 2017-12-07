@@ -63,7 +63,14 @@ namespace SubscriptionRenewHandler
                         }
                     case eSubscriptionRenewRequestType.RenewalReminder:
                         {
-                            success = Core.ConditionalAccess.Module.UnifiedRenewalReminder(request.GroupID, request.SiteGuid, request.ProcessId, request.EndDate);
+                            if (request.ProcessId > 0)
+                            {
+                                success = Core.ConditionalAccess.Module.UnifiedRenewalReminder(request.GroupID, request.SiteGuid, request.ProcessId, request.EndDate);
+                            }
+                            else if (request.PurchaseId > 0)
+                            {
+                                success = Core.ConditionalAccess.Module.RenewalReminder(request.GroupID, request.SiteGuid, request.PurchaseId, request.EndDate);
+                            }
                             break;
                         }
                     default:
