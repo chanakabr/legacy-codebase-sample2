@@ -6338,7 +6338,7 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Tag":
                             return "tag";
-                        case "Type":
+                        case "TagTypeId":
                             return "type";
                     }
                     break;

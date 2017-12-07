@@ -101,11 +101,6 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
             }
 
-            if (tag.Type != null && tag.Type.Trim() == string.Empty)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
-            }
-
             try
             {
                 response = ClientsManager.ApiClient().UpdateTag(groupId, id, tag);

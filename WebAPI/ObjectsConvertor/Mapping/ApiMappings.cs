@@ -523,12 +523,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region Tag
 
             Mapper.CreateMap<TagValue, KalturaTag>()
-              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.topicId.ToString()))
+              .ForMember(dest => dest.TagTypeId, opt => opt.MapFrom(src => src.topicId))
               .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.value))
               ;
 
             Mapper.CreateMap<KalturaTag, TagValue>()
-             .ForMember(dest => dest.topicId.ToString(), opt => opt.MapFrom(src => src.Type))
+             .ForMember(dest => dest.topicId, opt => opt.MapFrom(src => src.TagTypeId.HasValue ? src.TagTypeId.Value : 0))
              .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.Tag))
              ;
 

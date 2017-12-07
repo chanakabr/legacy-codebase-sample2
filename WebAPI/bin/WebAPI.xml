@@ -4077,7 +4077,7 @@
             Tag id 
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaTag.Type">
+        <member name="P:WebAPI.Models.API.KalturaTag.TagTypeId">
             <summary>
             Tag Type
             </summary>
