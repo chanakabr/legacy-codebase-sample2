@@ -2637,10 +2637,7 @@ namespace Core.ConditionalAccess
                 }
 
                 bool isCouponGiftCard = false;
-                if (isRenew)
-                {
-                    HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode, ref isCouponGiftCard);
-                }
+                HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode, ref isCouponGiftCard);
 
                 if (compensation != null)
                 {

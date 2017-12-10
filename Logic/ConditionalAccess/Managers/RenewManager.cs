@@ -1737,7 +1737,7 @@ namespace Core.ConditionalAccess
             if (subscriptionRenealDataRow == null)
             {
                 // subscription purchase wasn't found
-                log.ErrorFormat("GetEntitlementNextRenewal: faile subscription purchase. PurchaseId: {0}, householdId: {1}", purchaseId, householdId);
+                log.ErrorFormat("GetEntitlementNextRenewal: failed subscription purchase. PurchaseId: {0}, householdId: {1}", purchaseId, householdId);
                 return response;
             }
 
