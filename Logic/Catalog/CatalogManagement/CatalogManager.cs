@@ -2326,7 +2326,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Status Update(ApiObjects.SearchObjects.TagValue tag)
+        public static Status UpdateTag(ApiObjects.SearchObjects.TagValue tag)
         {
             Status result = new Status((int)eResponseStatus.Error);
 
