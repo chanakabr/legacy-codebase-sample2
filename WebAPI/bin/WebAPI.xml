@@ -2815,7 +2815,7 @@
             Immediately cancel a subscription, PPV or collection. Cancel is possible only if within cancellation window and content not already consumed
             </summary>                
             <param name="assetId">The mediaFileID to cancel</param>        
-            <param name="transactionType">The transaction type for the cancelation</param>
+            <param name="productType">The product type for the cancelation</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         </member>
@@ -2824,7 +2824,7 @@
             Immediately cancel a subscription, PPV or collection. Cancel applies regardless of cancellation window and content consumption status
             </summary>                
             <param name="assetId">The mediaFileID to cancel</param>        
-            <param name="transactionType">The transaction type for the cancelation</param>
+            <param name="productType">The product type for the cancelation</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000</remarks>
         </member>
