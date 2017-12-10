@@ -53,7 +53,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ScheduledSubscriptionId, opt => opt.MapFrom(src => src.ScheduledSubscriptionId))
                .ForMember(dest => dest.IsSuspended, opt => opt.MapFrom(src => src.IsSuspended))
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.entitlementId))
-               .ForMember(dest => dest.UnifiedPaymentId, opt => opt.MapFrom(src => src.ScheduledSubscriptionId))
+               .ForMember(dest => dest.UnifiedPaymentId, opt => opt.MapFrom(src => src.UnifiedPaymentId))
                ;
 
             Mapper.CreateMap<SubscriptionPurchase, KalturaSubscriptionEntitlement>()

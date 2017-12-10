@@ -78,7 +78,6 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "scheduledSubscriptionId")]
         [JsonProperty("scheduledSubscriptionId")]
         [XmlElement(ElementName = "scheduledSubscriptionId", IsNullable = true)]
-        [Deprecated("4.7.0.0")]
         public long? ScheduledSubscriptionId { get; set; }
 
         /// <summary>
