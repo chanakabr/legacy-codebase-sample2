@@ -74,7 +74,7 @@ namespace WebAPI.Controllers
                 string userId = KS.GetFromRequest().UserId;
 
                 // call client
-                response = ClientsManager.ApiClient().AddTag(groupId, tag);
+                response = ClientsManager.CatalogClient().AddTag(groupId, tag);
             }
             catch (ClientException ex)
             {
@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().UpdateTag(groupId, id, tag);
+                response = ClientsManager.CatalogClient().UpdateTag(groupId, id, tag);
             }
             catch (ClientException ex)
             {
@@ -128,7 +128,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                result = ClientsManager.ApiClient().DeleteTag(groupId, id);
+                result = ClientsManager.CatalogClient().DeleteTag(groupId, id);
             }
             catch (ClientException ex)
             {
