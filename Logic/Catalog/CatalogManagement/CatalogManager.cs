@@ -27,6 +27,7 @@ namespace Core.Catalog.CatalogManagement
         private const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
         private const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStratDateTime";
         private const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
+        private const string IS_NEW_TAG = "is_new";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly HashSet<string> basicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -524,9 +525,43 @@ namespace Core.Catalog.CatalogManagement
             {
                 metasTable = ds.Tables[1];
             }
+
             if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
             {
                 tagsTable = ds.Tables[2];
+                if (tagsTable != null && tagsTable.Rows != null && tagsTable.Rows.Count > 0 && tagsTable.Columns.Contains(IS_NEW_TAG))
+                {
+                    EnumerableRowCollection<DataRow> newTags = (from row in tagsTable.AsEnumerable()
+                                                                where (Int64)row["IS_NEW"] == 1
+                                                                select row);
+                    if (newTags != null && newTags.Count() > 0)
+                    {
+                        foreach (DataRow dr in newTags)
+                        {
+                            int topicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "topic_id");
+                            int tagId = ODBCWrapper.Utils.GetIntSafeVal(dr, "tag_id");
+                            int languageId = ODBCWrapper.Utils.GetIntSafeVal(dr, "language_id");
+                            string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
+                            DateTime tagCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "create_date");
+                            DateTime tagUpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "update_date");
+                            ApiObjects.SearchObjects.TagValue tag = new ApiObjects.SearchObjects.TagValue()
+                            {
+                                createDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(tagCreateDate),
+                                languageId = languageId,
+                                tagId = tagId,
+                                topicId = topicId,
+                                updateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(tagUpdateDate),
+                                value = translation
+                            };
+                            ApiObjects.SearchObjects.TagResponse addTagResponse = AddTag(groupId, tag);
+                            if (addTagResponse == null || addTagResponse.Status == null || addTagResponse.Status.Code  != (int)eResponseStatus.OK)
+                            {
+                                log.WarnFormat("CreateMediaAssetFromDataSet - failed to addTag, tag : {0}, addTagResult: {1}", tag.ToString(),
+                                                addTagResponse != null && addTagResponse.Status != null ? addTagResponse.Status.Message : "null");
+                            }
+                        }
+                    }
+                }
             }
 
             if (!TryGetMetasAndTags(groupId, id, defaultLanguage.ID, groupLanguages, metasTable, tagsTable, ref metas, ref tags, ref tagNameToIdMap))

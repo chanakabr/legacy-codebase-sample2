@@ -22,5 +22,16 @@ namespace ApiObjects.SearchObjects
         public long createDate;
         [JsonProperty(PropertyName = "update_date")]
         public long updateDate;
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(string.Format("tagId: {0}, ", tagId));
+            sb.AppendFormat("topicId: {0},", topicId);
+            sb.AppendFormat("languageId: {0}, ", languageId);
+            sb.AppendFormat("value: {0}, ", value);
+            sb.AppendFormat("createDate: {0}, ", createDate);
+            sb.AppendFormat("updateDate: {0}", updateDate);
+            return sb.ToString();
+        }
     }
 }
