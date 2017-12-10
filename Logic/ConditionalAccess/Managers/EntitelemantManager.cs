@@ -654,6 +654,7 @@ namespace Core.ConditionalAccess
             }
 
             entitlement.IsSuspended = ODBCWrapper.Utils.GetIntSafeVal(dataRow["subscription_status"]) == (int)SubscriptionPurchaseStatus.Suspended;
+            entitlement.UnifiedPaymentId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "unified_process_id");
 
             return entitlement;
         }

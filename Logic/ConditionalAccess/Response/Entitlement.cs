@@ -58,6 +58,8 @@ namespace Core.ConditionalAccess.Response
         public Int32 mediaFileID; // ppv only
         public int mediaID { get; set; } // ppv only
 
+        public long UnifiedPaymentId { get; set; } // subscription only
+
         public Entitlement(PermittedSubscriptionContainer item)
         {
             this.type = eTransactionType.Subscription;
