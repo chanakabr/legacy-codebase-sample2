@@ -1,17 +1,13 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
-using Core.Catalog.Cache;
 using Core.Catalog.Response;
-using GroupsCacheManager;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using Tvinci.Core.DAL;
 
@@ -2319,28 +2315,20 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Status AddTag(ApiObjects.SearchObjects.TagValue tag)
+        public static ApiObjects.SearchObjects.TagResponse AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag)
         {
-            Status result = new Status((int)eResponseStatus.Error);
-
-            return result;
+            throw new NotImplementedException();
         }
 
-        public static Status UpdateTag(ApiObjects.SearchObjects.TagValue tag)
+        public static ApiObjects.SearchObjects.TagResponse UpdateTag(int groupId, ApiObjects.SearchObjects.TagValue tag)
         {
-            Status result = new Status((int)eResponseStatus.Error);
-
-            return result;
+            throw new NotImplementedException();
         }
 
-        public static Status DeleteTag(int tagId)
+        public static Status DeleteTag(int groupId, long tagId)
         {
-            Status result = new Status((int)eResponseStatus.Error);
-
-            return result;
+            throw new NotImplementedException();
         }
     }
-
     #endregion
-
 }

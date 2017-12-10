@@ -10380,20 +10380,5 @@ namespace Core.Api
 
             return result;
         }
-
-        internal static TagResponse AddTag(int groupId, TagValue tag)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal static TagResponse UpdateTag(int groupId, long id, object tag)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal static Status DeleteTag(int groupId, long id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
