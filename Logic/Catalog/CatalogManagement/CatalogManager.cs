@@ -2318,6 +2318,27 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
+
+        public static Status AddTag(ApiObjects.SearchObjects.TagValue tag)
+        {
+            Status result = new Status((int)eResponseStatus.Error);
+
+            return result;
+        }
+
+        public static Status Update(ApiObjects.SearchObjects.TagValue tag)
+        {
+            Status result = new Status((int)eResponseStatus.Error);
+
+            return result;
+        }
+
+        public static Status DeleteTag(int tagId)
+        {
+            Status result = new Status((int)eResponseStatus.Error);
+
+            return result;
+        }
     }
 
     #endregion

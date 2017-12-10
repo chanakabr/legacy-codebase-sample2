@@ -9,7 +9,6 @@ namespace Core.Catalog.CatalogManagement
 {
     public class MediaAsset : Asset
     {
-        
         public DateTime? CatalogStartDate { get; set; }
         public DateTime? FinalEndDate { get; set; }
         public MediaType MediaType { get; set; }
