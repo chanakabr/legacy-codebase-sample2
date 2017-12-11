@@ -96,9 +96,16 @@ namespace WebAPI.Controllers
             KalturaTag response = null;
             int groupId = KS.GetFromRequest().GroupId;            
 
-            if (tag.Tag != null && tag.Tag.Trim() == string.Empty)
+            if (tag.Tag != null)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
+                if ((tag.Tag.Values == null || tag.Tag.Values.Count == 0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
+                }
+                else
+                {
+                    tag.Tag.Validate();
+                }
             }
 
             try

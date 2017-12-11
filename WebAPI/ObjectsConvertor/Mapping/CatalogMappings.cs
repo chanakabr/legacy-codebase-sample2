@@ -491,8 +491,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region Tag
 
             Mapper.CreateMap<TagValue, KalturaTag>()
-              .ForMember(dest => dest.TagTypeId, opt => opt.MapFrom(src => src.topicId))
-              .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.value))
+              .ForMember(dest => dest.TagTypeId, opt => opt.MapFrom(src => src.topicId))              
+              .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => new KalturaMultilingualString(src.value)))
               ;
 
             Mapper.CreateMap<KalturaTag, TagValue>()

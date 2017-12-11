@@ -36,6 +36,6 @@ namespace WebAPI.Models.API
         [DataMember(Name = "tag")]
         [JsonProperty("tag")]
         [XmlElement(ElementName = "tag")]
-        public string Tag { get; set; }
+        public KalturaMultilingualString Tag { get; set; }
     }
 }
