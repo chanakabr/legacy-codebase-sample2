@@ -2931,7 +2931,7 @@ namespace WebAPI.Clients
             return responseTag;
         }
 
-        internal bool DeleteTag(int groupId, long id)
+        internal bool DeleteTag(int groupId, long id, long userId)
         {
             Status response = null;
 
@@ -2939,7 +2939,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteTag(groupId, id);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteTag(groupId, id, userId);
                 }
             }
             catch (Exception ex)

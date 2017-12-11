@@ -131,11 +131,12 @@ namespace WebAPI.Controllers
         public bool Delete(long id)
         {
             bool result = false;
-            int groupId = KS.GetFromRequest().GroupId;            
+            int groupId = KS.GetFromRequest().GroupId;        
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             try
             {
-                result = ClientsManager.CatalogClient().DeleteTag(groupId, id);
+                result = ClientsManager.CatalogClient().DeleteTag(groupId, id, userId);
             }
             catch (ClientException ex)
             {
