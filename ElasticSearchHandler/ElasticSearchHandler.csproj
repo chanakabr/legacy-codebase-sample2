@@ -101,6 +101,7 @@
     <Compile Include="Updaters\New\EpgUpdaterV2.cs" />
     <Compile Include="Updaters\New\MediaUpdaterV2.cs" />
     <Compile Include="Updaters\New\RecordingUpdaterV2.cs" />
+    <Compile Include="Updaters\New\TagUpdater.cs" />
     <Compile Include="Updaters\Old\ChannelUpdaterV1.cs" />
     <Compile Include="Updaters\Old\EpgChannelUpdaterV1.cs" />
     <Compile Include="Updaters\Old\EpgUpdaterV1.cs" />
