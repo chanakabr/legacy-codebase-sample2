@@ -2817,7 +2817,6 @@ namespace Core.Catalog
             }
 
             string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
-            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
 
             // dictionary contains all language ids and its  code (string)
             var languages = group.LanguageMapByCode.Values;
@@ -2831,16 +2830,16 @@ namespace Core.Catalog
             ESQuery query = new ESQuery(term);
             string queryString = query.ToString();
 
-            foreach (var lang in languages)
+            foreach (var language in languages)
             {
                 string type = "tag";
 
-                if (!lang.IsDefault)
+                if (!language.IsDefault)
                 {
-                    type = string.Format("tag_{0}", lang.Code);
+                    type = string.Format("tag_{0}", language.Code);
                 }
 
-                bool deleteResult = esApi.DeleteDocsByQuery(index, type, ref queryString);
+                bool deleteResult = m_oESApi.DeleteDocsByQuery(index, type, ref queryString);
 
                 if (!deleteResult)
                 {
@@ -2852,9 +2851,47 @@ namespace Core.Catalog
             return status;
         }
 
-        public ApiObjects.Response.Status UpdateTag(int groupId, TagValue tag)
+        public ApiObjects.Response.Status UpdateTag(int groupId, CatalogGroupCache group, TagValue tag)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            if (group == null)
+            {
+                log.ErrorFormat("No catalog group cache {0}", groupId);
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Couldn't get group";
+                return status;
+            }
+
+            var language = group.LanguageMapById[tag.languageId];
+
+            string suffix = null;
+
+            if (!language.IsDefault)
+            {
+                suffix = language.Code;
+            }
+
+            string type = "tag";
+
+            if (!language.IsDefault)
+            {
+                type = string.Format("tag_{0}", language.Code);
+            }
+            
+            // Serialize tag and create a bulk request for it
+            string serializedTag = JObject.FromObject(tag).ToString(Newtonsoft.Json.Formatting.None);
+            
+            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
+
+            string id = string.Format("{0}_{1}", tag.tagId, tag.languageId);
+            bool insertResult = m_oESApi.InsertRecord(index, type, id, serializedTag);
+
+            if (!insertResult)
+            {
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Failed performing insert query";
+            }
 
             return status;
         }
