@@ -698,13 +698,6 @@ namespace ElasticSearch.Common
                 index = eMappingIndex.not_analyzed,
                 type = eESFieldType.STRING
             });
-            mappingObj.AddProperty(new BasicMappingPropertyV2()
-            {
-                name = "wp_type_id",
-                type = eESFieldType.INTEGER,
-                index = eMappingIndex.not_analyzed,
-                null_value = "0"
-            });
 
             ElasticSearch.Common.FieldsMappingPropertyV2 nameProperty = new FieldsMappingPropertyV2()
             {
