@@ -2368,7 +2368,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (CatalogDAL.DeleteTag(groupId, tagId, userId))
                 {
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                    
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
@@ -2377,6 +2377,11 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        public static ApiObjects.SearchObjects.TagValue GetTag(int groupId, int tagId)
+        {
+            throw new NotImplementedException();
         }
 
         public static ApiObjects.SearchObjects.TagResponse SearchTags(int groupId, string tag, int topicId, string searchValue, int languageId, int pageIndex, int pageSize)
