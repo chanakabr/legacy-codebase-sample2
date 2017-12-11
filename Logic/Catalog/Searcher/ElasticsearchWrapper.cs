@@ -2806,7 +2806,7 @@ namespace Core.Catalog
 
         public ApiObjects.Response.Status DeleteTag(int groupId, CatalogGroupCache group, long tagId)
         {
-            ApiObjects.Response.Status status = null;
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
             if (group == null)
             {
@@ -2848,6 +2848,13 @@ namespace Core.Catalog
                     status.Message = "Failed performing delete query";
                 }
             }
+
+            return status;
+        }
+
+        public ApiObjects.Response.Status UpdateTag(int groupId, TagValue tag)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
             return status;
         }
