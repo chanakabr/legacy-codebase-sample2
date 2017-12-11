@@ -2379,7 +2379,13 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static ApiObjects.SearchObjects.TagValue GetTag(int groupId, int tagId)
+        /// <summary>
+        /// Returns all tag values for all languages by a given tag ID
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="tagId"></param>
+        /// <returns></returns>
+        public static ApiObjects.SearchObjects.TagResponse GetTagById(int groupId, int tagId)
         {
             throw new NotImplementedException();
         }
