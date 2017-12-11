@@ -2361,9 +2361,64 @@ namespace Core.Catalog.CatalogManagement
             throw new NotImplementedException();
         }
 
-        public static Status DeleteTag(int groupId, long tagId)
+        public static Status DeleteTag(int groupId, long tagId, long userId)
         {
-            throw new NotImplementedException();
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                if (CatalogDAL.DeleteTag(groupId, tagId, userId))
+                {
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteTag for groupId: {0} and tagId: {1}", groupId, tagId), ex);
+            }
+
+            return result;
+        }
+
+        public static ApiObjects.SearchObjects.TagResponse SearchTags(int groupId, string tag, int topicId, string searchValue, int languageId, int pageIndex, int pageSize)
+        {
+            ApiObjects.SearchObjects.TagResponse result = new ApiObjects.SearchObjects.TagResponse();
+
+            CatalogGroupCache catalogGroupCache;
+            TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
+
+            if (catalogGroupCache == null)
+            {
+                log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                return result;
+            }
+
+            LanguageObj language = null;
+            catalogGroupCache.LanguageMapById.TryGetValue(languageId, out language);
+
+            if (language == null)
+            {
+                log.ErrorFormat("Invalid language id {0}", languageId);
+                return result;
+            }
+
+            ApiObjects.SearchObjects.TagSearchDefinitions definitions = new ApiObjects.SearchObjects.TagSearchDefinitions()
+            {
+                GroupId = groupId,
+                Language = language,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                AutocompleteSearchValue = searchValue,
+                ExactSearchValue = tag,
+                TopicId = topicId
+            };
+
+            int totalItemsCount = 0;
+            ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+            result.TagValues = wrapper.SearchTags(definitions, out totalItemsCount);
+            result.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            result.TotalItems = totalItemsCount;
+
+            return result;
         }
 
         public static Status nu(int groupId, long tagId)

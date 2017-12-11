@@ -10338,47 +10338,5 @@ namespace Core.Api
             return result;
         }
         */
-
-        internal static TagResponse SearchTags(int groupId, string tag, int topicId, string searchValue, int languageId, int pageIndex, int pageSize)
-        {
-            TagResponse result = new TagResponse();
-
-            Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache;
-            Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
-
-            if (catalogGroupCache == null)
-            {
-                log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
-                return result;
-            }
-
-            LanguageObj language = null;
-            catalogGroupCache.LanguageMapById.TryGetValue(languageId, out language);
-
-            if (language == null)
-            {
-                log.ErrorFormat("Invalid language id {0}", languageId);
-                return result;
-            }
-
-            TagSearchDefinitions definitions = new TagSearchDefinitions()
-            {
-                GroupId = groupId,
-                Language = language,
-                PageIndex = pageIndex,
-                PageSize = pageSize,
-                AutocompleteSearchValue = searchValue,
-                ExactSearchValue = tag,
-                TopicId = topicId
-            };
-
-            int totalItemsCount = 0;
-            ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-            result.TagValues = wrapper.SearchTags(definitions, out totalItemsCount);
-            result.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            result.TotalItems = totalItemsCount;
-
-            return result;
-        }
     }
 }
