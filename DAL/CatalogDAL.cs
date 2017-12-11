@@ -1600,7 +1600,7 @@ namespace Tvinci.Core.DAL
 
                 dm.devices = dm.devices.Where(x =>
                     x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow &&
-                        // either the list is empty (which means all play types) or x's type is in the list)
+                    // either the list is empty (which means all play types) or x's type is in the list)
                     (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType))).ToList();
 
                 bool res = domainMarksManager.SetWithVersion(docKey, JsonConvert.SerializeObject(dm, Formatting.None), version);
@@ -2160,13 +2160,13 @@ namespace Tvinci.Core.DAL
                         if (siteGuid > 0 && mediaID > 0 && !createdAt.Equals(ODBCWrapper.Utils.FICTIVE_DATE))
                         {
                             UserMediaMark umm = new UserMediaMark()
-                                {
-                                    UserID = siteGuid,
-                                    UDID = udid,
-                                    AssetID = mediaID,
-                                    CreatedAt = createdAt,
-                                    Location = locationSec
-                                };
+                            {
+                                UserID = siteGuid,
+                                UDID = udid,
+                                AssetID = mediaID,
+                                CreatedAt = createdAt,
+                                Location = locationSec
+                            };
                             int currDomainID = 0;
                             if (userIDToDomainIDMapping.ContainsKey(siteGuid))
                             {
@@ -4395,7 +4395,7 @@ namespace Tvinci.Core.DAL
             {
                 log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, Exception: {7}",
                     siteGuid, groupID, UDID, platform,
-                    mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0 ? string.Join(",", mediaConcurrencyRuleIds) : "0", 
+                    mediaConcurrencyRuleIds != null && mediaConcurrencyRuleIds.Count > 0 ? string.Join(",", mediaConcurrencyRuleIds) : "0",
                     playCycleKey, MediaFileID, ex.Message);
             }
 
@@ -4750,7 +4750,7 @@ namespace Tvinci.Core.DAL
             sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
             sp.AddParameter("@SystemName", systemName);
             sp.AddParameter("@IsPredefined", isPredefined.HasValue && isPredefined.Value ? 1 : 0);
-            sp.AddParameter("@ShouldUpdateMetaIds", shouldUpdateMetaIds ? 1 : 0);                     
+            sp.AddParameter("@ShouldUpdateMetaIds", shouldUpdateMetaIds ? 1 : 0);
             sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
             sp.AddParameter("@UpdaterId", userId);
 
@@ -4769,7 +4769,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataSet GetTopicsByGroupId(int groupId)
-        {                        
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicsByGroupId");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
@@ -4778,7 +4778,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet InsertTopic(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, ApiObjects.MetaType topicType, string commaSeparatedFeatures,
                                             bool? isPredefined, long? parent_topic_id, string helpText, long userId)
-        {                        
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
@@ -4798,7 +4798,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet UpdateTopic(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, string commaSeparatedFeatures,
                                             bool? isPredefined, long? parent_topic_id, string helpText, long userId)
-        {            
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
@@ -4806,7 +4806,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Id", id);
             sp.AddParameter("@ShouldUpdateOtherNames", shouldUpdateOtherNames ? 1 : 0);
             sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
-            sp.AddParameter("@SystemName", systemName);  
+            sp.AddParameter("@SystemName", systemName);
             sp.AddParameter("@Features", commaSeparatedFeatures);
             sp.AddParameter("@IsPredefined", isPredefined.HasValue && isPredefined.Value ? 1 : 0);
             sp.AddParameter("@ParentTopicId", parent_topic_id);
@@ -4817,7 +4817,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static bool DeleteTopic(int groupId, long id, long userId)
-        {            
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
@@ -4858,17 +4858,17 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@MetasExist", metas != null && !string.IsNullOrEmpty(metas.InnerXml) ? 1 : 0);
             sp.AddParameter("@MetasXml", metas != null ? metas.InnerXml : string.Empty);
             sp.AddParameter("@TagsExist", tags != null && !string.IsNullOrEmpty(tags.InnerXml) ? 1 : 0);
-            sp.AddParameter("@TagsXml", tags != null ? tags.InnerXml : string.Empty);            
+            sp.AddParameter("@TagsXml", tags != null ? tags.InnerXml : string.Empty);
             sp.AddParameter("@CoGuid", coGuid);
-            sp.AddParameter("@EntryId", entryId);            
+            sp.AddParameter("@EntryId", entryId);
             sp.AddParameter("@DeviceRuleId", deviceRuleId);
             sp.AddParameter("@GeoBlockRuleId", geoBlockRuleId);
             sp.AddParameter("@MediaTypeId", assetStructId);
-            sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);            
+            sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);
             sp.AddParameter("@StartDate", startDate);
             sp.AddParameter("@EndDate", endDate);
             sp.AddParameter("@CatalogStartDate", catalogStartDate);
-            sp.AddParameter("@FinalEndDate", finalEndDate);            
+            sp.AddParameter("@FinalEndDate", finalEndDate);
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();
@@ -4896,5 +4896,18 @@ namespace Tvinci.Core.DAL
 
         #endregion
 
+
+        #region Tag
+        public static bool DeleteTag(int groupId, long tagId, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteTag");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", tagId);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+        #endregion
     }
 }
