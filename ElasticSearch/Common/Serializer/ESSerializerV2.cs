@@ -100,6 +100,12 @@ namespace ElasticSearch.Common
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
+                name = "epg_channel_id",
+                index = eMappingIndex.not_analyzed,
+                type = eESFieldType.INTEGER
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
                 name = "wp_type_id",
                 type = eESFieldType.INTEGER,
                 index = eMappingIndex.not_analyzed,
@@ -658,6 +664,13 @@ namespace ElasticSearch.Common
                 name = "epg_channel_id",
                 index = eMappingIndex.not_analyzed,
                 type = eESFieldType.INTEGER
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "wp_type_id",
+                type = eESFieldType.INTEGER,
+                index = eMappingIndex.not_analyzed,
+                null_value = "0"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
