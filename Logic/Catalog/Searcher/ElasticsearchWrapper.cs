@@ -17,6 +17,7 @@ using KLogMonitor;
 using System.Reflection;
 using KlogMonitorHelper;
 using Catalog.Response;
+using Core.Catalog.CatalogManagement;
 
 namespace Core.Catalog
 {
@@ -2704,6 +2705,8 @@ namespace Core.Catalog
             return result;
         }
 
+        #region Tags
+
         public List<TagValue> SearchTags(TagSearchDefinitions definitions, out int totalItems)
         {
             List<TagValue> result = new List<TagValue>();
@@ -2800,6 +2803,56 @@ namespace Core.Catalog
 
             return result;
         }
+
+        public ApiObjects.Response.Status DeleteTag(int groupId, CatalogGroupCache group, long tagId)
+        {
+            ApiObjects.Response.Status status = null;
+
+            if (group == null)
+            {
+                log.ErrorFormat("No catalog group cache {0}", groupId);
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Couldn't get group";
+                return status;
+            }
+
+            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
+            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+
+            // dictionary contains all language ids and its  code (string)
+            var languages = group.LanguageMapByCode.Values;
+
+            ESTerm term = new ESTerm(true)
+            {
+                Key = "tag_id",
+                Value = tagId.ToString()
+            };
+
+            ESQuery query = new ESQuery(term);
+            string queryString = query.ToString();
+
+            foreach (var lang in languages)
+            {
+                string type = "tag";
+
+                if (!lang.IsDefault)
+                {
+                    type = string.Format("tag_{0}", lang.Code);
+                }
+
+                bool deleteResult = esApi.DeleteDocsByQuery(index, type, ref queryString);
+
+                if (!deleteResult)
+                {
+                    status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                    status.Message = "Failed performing delete query";
+                }
+            }
+
+            return status;
+        }
+
+        #endregion
     }
 
     class AssetDocCompare : IEqualityComparer<ElasticSearchApi.ESAssetDocument>

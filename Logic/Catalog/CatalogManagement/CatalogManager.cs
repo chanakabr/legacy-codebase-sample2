@@ -2420,57 +2420,6 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
-        public static Status nu(int groupId, long tagId)
-        {
-            Status status = null;
-
-            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
-            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            CatalogGroupCache group = null;
-
-            CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out group);
-
-            if (group == null)
-            {
-                log.ErrorFormat("Couldn't get group {0}", groupId);
-                status.Code = (int)eResponseStatus.Error;
-                status.Message = "Couldn't get group";
-                return status;
-            }
-
-            // dictionary contains all language ids and its  code (string)
-            var languages = group.LanguageMapByCode.Values;
-
-            ESTerm term = new ESTerm(true)
-            {
-                Key = "tag_id",
-                Value = tagId.ToString()
-            };
-
-            ESQuery query = new ESQuery(term);
-            string queryString = query.ToString();
-
-            foreach (var lang in languages)
-            {
-                string type = "tag";
-
-                if (!lang.IsDefault)
-                {
-                    type = string.Format("tag_{0}", lang.Code);
-                }
-
-                bool deleteResult = esApi.DeleteDocsByQuery(index, type, ref queryString);
-
-                if (!deleteResult)
-                {
-                    status.Code = (int)eResponseStatus.Error;
-                    status.Message = "Failed performing delete query";
-                }
-            }
-
-            return status;
-        }
     }
     #endregion
 }
