@@ -9,13 +9,13 @@ using AutoMapper;
 using Core.Api.Modules;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
-using System.Linq;
 
 
 namespace WebAPI.ObjectsConvertor.Mapping
@@ -518,21 +518,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.filter.ToString()))
               ;
 
-            #endregion
-
-            #region Tag
-
-            Mapper.CreateMap<TagValue, KalturaTag>()
-              .ForMember(dest => dest.TagTypeId, opt => opt.MapFrom(src => src.topicId))
-              .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.value))
-              ;
-
-            Mapper.CreateMap<KalturaTag, TagValue>()
-             .ForMember(dest => dest.topicId, opt => opt.MapFrom(src => src.TagTypeId.HasValue ? src.TagTypeId.Value : 0))
-             .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.Tag))
-             ;
-
-            #endregion       
+            #endregion            
         }
 
         private static List<Permission> ConvertPermissionsNames(string permissionNames, string excludedPermissionNames)

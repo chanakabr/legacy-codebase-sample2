@@ -19,7 +19,7 @@ namespace WebAPI.Models.API
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
         [SchemeProperty(ReadOnly = true)]
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         /// <summary>
         /// Tag Type

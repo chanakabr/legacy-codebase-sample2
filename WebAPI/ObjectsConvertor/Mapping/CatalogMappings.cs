@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
@@ -486,6 +487,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
 
             #endregion
+
+            #region Tag
+
+            Mapper.CreateMap<TagValue, KalturaTag>()
+              .ForMember(dest => dest.TagTypeId, opt => opt.MapFrom(src => src.topicId))
+              .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.value))
+              ;
+
+            Mapper.CreateMap<KalturaTag, TagValue>()
+             .ForMember(dest => dest.topicId, opt => opt.MapFrom(src => src.TagTypeId.HasValue ? src.TagTypeId.Value : 0))
+             .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.Tag))
+             ;
+
+            #endregion       
         }
 
         #region New Catalog Management

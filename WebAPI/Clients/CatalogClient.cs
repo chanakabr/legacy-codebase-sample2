@@ -126,7 +126,7 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }     
+        }        
 
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
@@ -2810,6 +2810,48 @@ namespace WebAPI.Clients
             if (response.MetaList != null && response.MetaList.Count > 0)
             {
                 result = AutoMapper.Mapper.Map<KalturaMeta>(response.MetaList[0]);
+            }
+
+            return result;
+        }
+
+        internal KalturaTagListResponse SearchTags(int groupId, string language, string tag, int topicId, string tagStartsWith, int pageIndex, int pageSize)
+        {
+            KalturaTagListResponse result = new Models.API.KalturaTagListResponse();
+            TagResponse response = null;
+
+            List<TagValue> tagValues = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    int languageId = Utils.Utils.GetLanguageId(groupId, language);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.SearchTags(groupId, tag, topicId, tagStartsWith, languageId, pageIndex, pageSize);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling API service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.TagValues != null && response.TagValues.Count > 0)
+            {
+                result.TotalCount = response.TotalItems;
+                // convert TagValues            
+                result.Tags = Mapper.Map<List<KalturaTag>>(response.TagValues);
             }
 
             return result;
