@@ -1058,7 +1058,12 @@ namespace WebAPI.Controllers
             if (string.IsNullOrEmpty(asset.ExternalId))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
-            }            
+            }
+
+            if (!asset.Status.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
+            }
 
             try
             {
