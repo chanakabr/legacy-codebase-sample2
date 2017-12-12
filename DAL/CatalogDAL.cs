@@ -4908,6 +4908,20 @@ namespace Tvinci.Core.DAL
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
+
+        public static DataSet InsertTag(int groupId, string tag, List<KeyValuePair<string, string>> tagsInOtherLanguages, long topicId, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertTag");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@value", tag);
+            sp.AddParameter("@tagsInOtherLanguagesExist", tagsInOtherLanguages != null && tagsInOtherLanguages.Count > 0);
+            sp.AddKeyValueListParameter<string, string>("@tagsInOtherLanguages", tagsInOtherLanguages, "key", "value");
+            sp.AddParameter("@topicId", (int)topicId);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteDataSet();
+        }
         #endregion
     }
 }
