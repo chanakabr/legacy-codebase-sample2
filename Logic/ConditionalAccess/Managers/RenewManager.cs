@@ -2115,7 +2115,7 @@ namespace Core.ConditionalAccess
             }
 
             // get end date
-            DateTime endDate = renewalResponse.EntitlementRenewal.Date;
+            DateTime endDate = renewalResponse.EntitlementRenewal.Date.ToUniversalTime();
 
             // validate renewal did not already happen
             if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
