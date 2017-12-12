@@ -73,6 +73,18 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
 
+                if (tag.Tag != null)
+                {
+                    if ((tag.Tag.Values == null || tag.Tag.Values.Count == 0))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
+                    }
+                    else
+                    {
+                        tag.Tag.Validate();
+                    }
+                }
+
                 // call client
                 response = ClientsManager.CatalogClient().AddTag(groupId, tag, userId);
             }
@@ -94,7 +106,8 @@ namespace WebAPI.Controllers
         public KalturaTag Update(long id, KalturaTag tag)
         {
             KalturaTag response = null;
-            int groupId = KS.GetFromRequest().GroupId;            
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             if (tag.Tag != null)
             {
@@ -110,7 +123,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().UpdateTag(groupId, id, tag);
+                response = ClientsManager.CatalogClient().UpdateTag(groupId, id, tag, userId);
             }
             catch (ClientException ex)
             {
@@ -131,7 +144,7 @@ namespace WebAPI.Controllers
         public bool Delete(long id)
         {
             bool result = false;
-            int groupId = KS.GetFromRequest().GroupId;        
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try

@@ -2894,17 +2894,17 @@ namespace WebAPI.Clients
             return responseTag;
         }
         
-        internal KalturaTag UpdateTag(int groupId, long id, KalturaTag tag)
+        internal KalturaTag UpdateTag(int groupId, long id, KalturaTag tag, long userId)
         {
             KalturaTag responseTag = new KalturaTag();
             TagResponse response = null;
 
             try
             {
-                TagValue requestTag = AutoMapper.Mapper.Map<TagValue>(tag);
+                TagValue tagToUpdate = AutoMapper.Mapper.Map<TagValue>(tag);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateTag(groupId, requestTag);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateTag(groupId,id, tagToUpdate, userId);
                 }
             }
             catch (Exception ex)
