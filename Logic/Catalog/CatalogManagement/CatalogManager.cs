@@ -533,7 +533,7 @@ namespace Core.Catalog.CatalogManagement
                 if (tagsTable != null && tagsTable.Rows != null && tagsTable.Rows.Count > 0 && tagsTable.Columns.Contains(IS_NEW_TAG))
                 {
                     EnumerableRowCollection<DataRow> newTags = (from row in tagsTable.AsEnumerable()
-                                                                where (Int64)row["IS_NEW"] == 1
+                                                                where (Int32)row["IS_NEW"] == 1
                                                                 select row);
                     if (newTags != null && newTags.Count() > 0)
                     {
