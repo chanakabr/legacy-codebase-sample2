@@ -503,8 +503,16 @@ namespace WebAPI.Reflection
                         case "Cancel":
                             ret = new Dictionary<string, string>() { 
                                  {"assetId", "asset_id"},
-                                 {"transactionType", "transaction_type"},
+                                 {"productType", "transaction_type"},
                             };
+                            if (currentVersion != null && currentVersion.CompareTo(new Version("4.7.0.0")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)
+                            {
+                                if (ret.ContainsKey("productType"))
+                                {
+                                    ret.Remove("productType");
+                                }
+                                ret.Add("productType", "transactionType");
+                            }
                             break;
                         case "CancelRenewal":
                             ret = new Dictionary<string, string>() { 
@@ -514,8 +522,16 @@ namespace WebAPI.Reflection
                         case "ForceCancel":
                             ret = new Dictionary<string, string>() { 
                                  {"assetId", "asset_id"},
-                                 {"transactionType", "transaction_type"},
+                                 {"productType", "transaction_type"},
                             };
+                            if (currentVersion != null && currentVersion.CompareTo(new Version("4.7.0.0")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)
+                            {
+                                if (ret.ContainsKey("productType"))
+                                {
+                                    ret.Remove("productType");
+                                }
+                                ret.Add("productType", "transactionType");
+                            }
                             break;
                         case "Grant":
                             ret = new Dictionary<string, string>() { 

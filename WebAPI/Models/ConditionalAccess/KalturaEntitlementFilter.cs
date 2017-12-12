@@ -30,7 +30,7 @@ namespace WebAPI.Models.ConditionalAccess
         ///The type of the entitlements to return
         /// </summary>
         [DataMember(Name = "productTypeEqual")]
-        [JsonProperty("entitlementTypeEqual")]
+        [JsonProperty("productTypeEqual")]
         [XmlElement(ElementName = "productTypeEqual")]
         public KalturaTransactionType? ProductTypeEqual { get; set; }
 
