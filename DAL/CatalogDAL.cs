@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using ODBCWrapper;
-using ApiObjects;
-using ApiObjects.MediaMarks;
-using CouchbaseManager;
-using System.Threading;
-using Newtonsoft.Json;
-using DAL;
-using ApiObjects.Epg;
-using ApiObjects.SearchObjects;
-using KLogMonitor;
-using System.Reflection;
-using ApiObjects.PlayCycle;
+﻿using ApiObjects;
 using ApiObjects.Catalog;
+using ApiObjects.Epg;
+using ApiObjects.MediaMarks;
+using ApiObjects.PlayCycle;
+using ApiObjects.SearchObjects;
+using CouchbaseManager;
+using DAL;
+using KLogMonitor;
+using Newtonsoft.Json;
+using ODBCWrapper;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 
 namespace Tvinci.Core.DAL
 {
@@ -4918,6 +4918,31 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@tagsInOtherLanguagesExist", tagsInOtherLanguages != null && tagsInOtherLanguages.Count > 0);
             sp.AddKeyValueListParameter<string, string>("@tagsInOtherLanguages", tagsInOtherLanguages, "key", "value");
             sp.AddParameter("@topicId", (int)topicId);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet GetTag(int groupId, long tagId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTagById");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@tagId", tagId);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet UpdateTag(int groupId, long id, string value, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> tagsInOtherLanguages, int topicId, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTag");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@value", value);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@shouldUpdateOtherTags", shouldUpdateOtherNames ? 1 : 0);
+            sp.AddKeyValueListParameter<string, string>("@tagsInOtherLanguages", tagsInOtherLanguages, "key", "value");
+            sp.AddParameter("@topicId", topicId);
             sp.AddParameter("@updaterId", userId);
 
             return sp.ExecuteDataSet();
