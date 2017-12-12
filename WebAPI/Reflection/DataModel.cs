@@ -112,8 +112,6 @@ namespace WebAPI.Reflection
                     {
                         case "EntitlementId":
                             return DeprecatedAttribute.IsDeprecated("4.7.0.0");
-                        case "ScheduledSubscriptionId":
-                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
                     };
                     break;
                     
