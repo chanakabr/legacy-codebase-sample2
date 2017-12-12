@@ -14,11 +14,13 @@ namespace ApiObjects.Response
     {
         private string message = string.Empty;
         private int code;
+        private List<KeyValuePair> args;
 
-        public Status(int code = 0, string message = "")
+        public Status(int code = 0, string message = "", List<KeyValuePair>  args= null)
         {
             this.Code = code;
             this.Message = message;
+            this.args = args;
         }
 
         public Status()
@@ -52,6 +54,20 @@ namespace ApiObjects.Response
             set
             {
                 message = value;
+            }
+        }
+
+
+        [DataMember]
+        public List<KeyValuePair> Args
+        {
+            get
+            {
+                return args;
+            }
+            set
+            {
+                args = value;
             }
         }
     }

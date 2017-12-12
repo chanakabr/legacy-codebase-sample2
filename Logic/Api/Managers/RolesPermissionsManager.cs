@@ -9,6 +9,7 @@ using CachingProvider.LayeredCache;
 using DAL;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects;
 
 namespace APILogic.Api.Managers
 {
@@ -77,33 +78,6 @@ namespace APILogic.Api.Managers
 
             return roleIds;
         }
-
-        //internal static bool IsPermittedPermission(int groupId, List<int> usersId, ApiObjects.RolePermissions rolePermission)
-        //{
-        //    try
-        //    {
-        //        Dictionary<string, List<long>> rolesPermission = GetPermissionsRolesByGroup(groupId);
-        //        if (rolesPermission != null && rolesPermission.Count() > 0 && rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))
-        //        {
-        //            foreach (int userId in usersId)
-        //            {
-        //                List<long> userRoleIDs = GetRoleIds(groupId, userId.ToString());
-        //                if (userRoleIDs != null && userRoleIDs.Count() > 0)
-        //                {
-        //                    if (rolesPermission[rolePermission.ToString()].Where(x => userRoleIDs.Contains(x)).Count() > 0)
-        //                    {
-        //                        return true;
-        //                    }
-        //                }
-        //            }                    
-        //        }
-        //    }
-        //    catch
-        //    {
-        //    }
-
-        //    return false;
-        //}
 
         internal static bool IsPermittedPermission(int groupId, string userId, ApiObjects.RolePermissions rolePermission)
         {
@@ -237,5 +211,31 @@ namespace APILogic.Api.Managers
 
             return new Tuple<List<Role>, bool>(roles, res);
         }
+
+        public static Status GetSuspentionStatus(int groupId, int householdId)
+        {
+            Status status;
+            Core.Users.Domain domain = null;
+            if (householdId > 0)
+            {
+                var domainResponse = Core.Domains.Module.GetDomainInfo(groupId, householdId);
+                if (domainResponse != null && domainResponse.Status != null && domainResponse.Status.Code == (int)eResponseStatus.OK)
+                {
+                    domain = domainResponse.Domain;
+                }
+            }
+            if (domain != null && domain.roleId > 0)
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, "Not allowed for role id [@roleId@]", new List<KeyValuePair>()
+                        { new KeyValuePair("roleId", domain.roleId.ToString()) });
+            }
+            else
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, "Action not allowed");
+            }
+
+            return status;
+        }
+
     }
 }

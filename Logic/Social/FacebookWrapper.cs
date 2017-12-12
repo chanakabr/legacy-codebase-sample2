@@ -1660,7 +1660,7 @@ namespace Core.Social
                     if (uObj.m_user != null &&
                        !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, uObj.m_user.m_sSiteGUID, RolePermissions.LOGIN))
                     {
-                        fbs.status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                        fbs.status = APILogic.Api.Managers.RolesPermissionsManager.GetSuspentionStatus(m_nGroupID, uObj.m_user.m_domianID);
                         return fbs;
                     }
 

@@ -1381,7 +1381,7 @@ namespace Core.Users
                     if (response.user.m_user != null &&
                                !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(nGroupID, response.user.m_user.m_sSiteGUID, RolePermissions.LOGIN))
                     {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                        response.resp = APILogic.Api.Managers.RolesPermissionsManager.GetSuspentionStatus(nGroupID, response.user.m_user.m_domianID);
                         return response;
                     }
 
@@ -1479,7 +1479,7 @@ namespace Core.Users
                 if (response.user.m_user != null &&
                     !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(nGroupID, response.user.m_user.m_sSiteGUID, RolePermissions.LOGIN))
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString());
+                    response.resp = APILogic.Api.Managers.RolesPermissionsManager.GetSuspentionStatus(nGroupID, response.user.m_user.m_domianID);
                     return response;
                 }
 
