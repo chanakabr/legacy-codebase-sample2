@@ -11,7 +11,7 @@ namespace ApiObjects.SearchObjects
     public class TagValue
     {
         [JsonProperty("tag_id")]
-        public int tagId;
+        public long tagId;
         [JsonProperty("topic_id")]
         public int topicId;
         [JsonProperty("language_id")]
@@ -22,6 +22,13 @@ namespace ApiObjects.SearchObjects
         public long createDate;
         [JsonProperty(PropertyName = "update_date")]
         public long updateDate;
+
+        public List<LanguageContainer> TagsInOtherLanguages { get; set; }
+
+        public TagValue()
+        {
+            this.TagsInOtherLanguages = new List<LanguageContainer>();
+        }
 
         public override string ToString()
         {

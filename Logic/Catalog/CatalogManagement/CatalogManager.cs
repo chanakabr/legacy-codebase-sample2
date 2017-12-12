@@ -77,7 +77,7 @@ namespace Core.Catalog.CatalogManagement
 
                         catalogGroupCache = new CatalogGroupCache(languages, assetStructs, topics);
                         res = true;
-                    }                    
+                    }
                 }
             }
             catch (Exception ex)
@@ -198,7 +198,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         EnumerableRowCollection<DataRow> translations = ds.Tables.Count > 1 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
                         List<DataRow> assetStructTranslations = (from row in translations
-                                                           select row).ToList();
+                                                                 select row).ToList();
                         response.AssetStruct = CreateAssetStruct(id, dt.Rows[0], assetStructTranslations);
                     }
                     else
@@ -240,7 +240,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static List<AssetStruct> CreateAssetStructListFromDataSet(DataSet ds)
         {
-            List <AssetStruct> response = null;
+            List<AssetStruct> response = null;
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 Dictionary<long, AssetStruct> idToAssetStructMap = new Dictionary<long, AssetStruct>();
@@ -254,8 +254,8 @@ namespace Core.Catalog.CatalogManagement
                         if (id > 0 && !idToAssetStructMap.ContainsKey(id))
                         {
                             List<DataRow> assetStructTranslations = (from row in translations
-                                                               where (Int64)row["TEMPLATE_ID"] == id
-                                                               select row).ToList();
+                                                                     where (Int64)row["TEMPLATE_ID"] == id
+                                                                     select row).ToList();
                             AssetStruct assetStruct = CreateAssetStruct(id, dr, assetStructTranslations);
                             if (assetStruct != null)
                             {
@@ -283,7 +283,7 @@ namespace Core.Catalog.CatalogManagement
                             else
                             {
                                 assetStructOrderedMetasMap.Add(assetStructId, new Dictionary<int, long>() { { order, metaId } });
-                            }                            
+                            }
                         }
                     }
 
@@ -296,11 +296,11 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                response = idToAssetStructMap.Values.ToList();                
+                response = idToAssetStructMap.Values.ToList();
             }
 
             return response;
-        }        
+        }
 
         private static Status CreateTopicResponseStatusFromResult(long result)
         {
@@ -327,7 +327,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                 string systemName = ODBCWrapper.Utils.GetSafeStr(dr, "SYSTEM_NAME");
-                int topicType = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOPIC_TYPE_ID", 0);                
+                int topicType = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOPIC_TYPE_ID", 0);
                 if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName) && topicType > 0 && typeof(MetaType).IsEnumDefined(topicType))
                 {
                     string commaSeparatedFeatures = ODBCWrapper.Utils.GetSafeStr(dr, "FEATURES");
@@ -337,7 +337,7 @@ namespace Core.Catalog.CatalogManagement
                         features = new HashSet<string>(commaSeparatedFeatures.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
                     }
 
-                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");                    
+                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
                     string helpText = ODBCWrapper.Utils.GetSafeStr(dr, "HELP_TEXT");
                     long parentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TOPIC_ID", 0);
                     DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
@@ -375,7 +375,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
                     if (id > 0)
-                    {                        
+                    {
                         EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
                         List<DataRow> topicTranslations = (from row in translations
                                                            select row).ToList();
@@ -383,7 +383,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        response.Status = CreateTopicResponseStatusFromResult(id);
+                        response.Status = CreateTagResponseStatusFromResult(id);
                     }
                 }
 
@@ -391,7 +391,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
-            }            
+            }
 
             return response;
         }
@@ -401,7 +401,7 @@ namespace Core.Catalog.CatalogManagement
             List<Topic> response = null;
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
-                DataTable topicsDt = ds.Tables[0];                                
+                DataTable topicsDt = ds.Tables[0];
                 EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
                 if (topicsDt != null && topicsDt.Rows != null)
                 {
@@ -422,10 +422,10 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                 }
-            }            
+            }
 
             return response;
-        }        
+        }
 
         private static AssetResponse CreateAssetResponseFromDataSet(int groupId, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
         {
@@ -433,7 +433,7 @@ namespace Core.Catalog.CatalogManagement
             if (ds == null || ds.Tables == null)
             {
                 log.WarnFormat("CreateAssetResponseFromDataSet - dataset or tables are null");
-                return result;                
+                return result;
             }
 
             // Basic details tables
@@ -464,7 +464,7 @@ namespace Core.Catalog.CatalogManagement
         private static MediaAsset CreateMediaAsset(int groupId, long id, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
         {
             MediaAsset result = null;
-            
+
             if (ds.Tables.Count < 3)
             {
                 log.WarnFormat("CreateMediaAssetFromDataSet didn't receive dataset with 6 or more tables");
@@ -554,12 +554,16 @@ namespace Core.Catalog.CatalogManagement
                                 updateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(tagUpdateDate),
                                 value = translation
                             };
-                            ApiObjects.SearchObjects.TagResponse addTagResponse = AddTag(groupId, tag);
-                            if (addTagResponse == null || addTagResponse.Status == null || addTagResponse.Status.Code  != (int)eResponseStatus.OK)
-                            {
-                                log.WarnFormat("CreateMediaAssetFromDataSet - failed to addTag, tag : {0}, addTagResult: {1}", tag.ToString(),
-                                                addTagResponse != null && addTagResponse.Status != null ? addTagResponse.Status.Message : "null");
-                            }
+                            // TODO: add Async  call to updateTagIndex - 
+
+
+                            // should removed: 
+                            //TagResponse addTagResponse = AddTag(groupId, tag);
+                            //if (addTagResponse == null || addTagResponse.Status == null || addTagResponse.Status.Code  != (int)eResponseStatus.OK)
+                            //{
+                            //    log.WarnFormat("CreateMediaAssetFromDataSet - failed to addTag, tag : {0}, addTagResult: {1}", tag.ToString(),
+                            //                    addTagResponse != null && addTagResponse.Status != null ? addTagResponse.Status.Message : "null");
+                            //}
                         }
                     }
                 }
@@ -591,7 +595,7 @@ namespace Core.Catalog.CatalogManagement
                                     isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes);
 
             return result;
-        }            
+        }
 
         private static bool TryGetMediaTypeFromAssetStructId(int groupId, long assetStructId, out MediaType mediaType)
         {
@@ -670,7 +674,7 @@ namespace Core.Catalog.CatalogManagement
                     && groupTopicsResponse.Topics != null && groupTopicsResponse.Topics.Count > 0)
                 {
                     metas = new List<Metas>();
-                    tags = new List<Tags>();                    
+                    tags = new List<Tags>();
                     foreach (Topic topic in groupTopicsResponse.Topics)
                     {
                         if (topic.Type == MetaType.Tag)
@@ -697,7 +701,7 @@ namespace Core.Catalog.CatalogManagement
 
                                 metas.Add(new Metas(new TagMeta(topic.SystemName, topic.Type.ToString()), defaultValue, topicLanguages));
                             }
-                        }                        
+                        }
                     }
 
                     res = true;
@@ -753,9 +757,9 @@ namespace Core.Catalog.CatalogManagement
                         {
                             EnumerableRowCollection<DataRow> assetMetas = (from row in metas
                                                                            where (Int64)row["ASSET_ID"] == id
-                                                                           select row);                   
+                                                                           select row);
                             if (assetMetas != null && assetMetas.Count() > 0)
-                            {                                
+                            {
                                 assetDataset.Tables.Add(assetMetas.CopyToDataTable());
                             }
                             else
@@ -825,8 +829,8 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static Dictionary<int, ApiObjects.SearchObjects.Media> CreateMediasFromMediaAssetAndLanguages(int groupId, MediaAsset mediaAsset, CatalogGroupCache catalogGroupCache)
-        {            
-            Dictionary<int, ApiObjects.SearchObjects.Media> result = new Dictionary<int, ApiObjects.SearchObjects.Media>();            
+        {
+            Dictionary<int, ApiObjects.SearchObjects.Media> result = new Dictionary<int, ApiObjects.SearchObjects.Media>();
             foreach (LanguageObj language in catalogGroupCache.LanguageMapById.Values)
             {
                 string name = mediaAsset.Name;
@@ -895,14 +899,14 @@ namespace Core.Catalog.CatalogManagement
                     CoGuid = mediaAsset.CoGuid,
                     EntryId = mediaAsset.EntryId,
                     m_dMeatsValues = metas,
-                    m_dTagValues = tags           
+                    m_dTagValues = tags
                 };
 
                 result.Add(language.ID, media);
             }
 
             return result;
-        }        
+        }
 
         private static Type GetMetaType(Topic topic)
         {
@@ -913,17 +917,17 @@ namespace Core.Catalog.CatalogManagement
                 case MetaType.MultilingualString:
                 case MetaType.Tag:
                     res = typeof(string);
-                    break;                
+                    break;
                 case MetaType.Number:
                     res = typeof(double);
                     break;
                 case MetaType.Bool:
                     res = typeof(int);
-                    break;                    
+                    break;
                 case MetaType.DateTime:
                     res = typeof(DateTime);
-                    break;                    
-                case MetaType.All:                    
+                    break;
+                case MetaType.All:
                 default:
                     break;
             }
@@ -946,7 +950,7 @@ namespace Core.Catalog.CatalogManagement
             if (asset.DeviceRuleId.HasValue && (asset.DeviceRuleId.Value <= 0 || !CatalogLogic.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value)))
             {
                 result = new Status((int)eResponseStatus.DeviceRuleDoesNotExistForGroup, eResponseStatus.DeviceRuleDoesNotExistForGroup.ToString());
-                return result;            
+                return result;
             }
 
             // validate geoblock rule id
@@ -1063,7 +1067,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
                             {
-                                AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id,catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value);
+                                AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value);
                             }
                         }
                     }
@@ -1076,7 +1080,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static bool IsMetaValueValid(ref MediaAsset asset, Metas meta, long topicId, int defaultLanguageId, Dictionary<string, LanguageObj> LanguageMapByCode, ref Status resultStatus,
                                                 ref XmlDocument metasXmlDoc, ref XmlNode rootNode)
-        {            
+        {
             // Validate meta values are correct
             MetaType metaType;
             bool isValidMeta = false;
@@ -1107,7 +1111,7 @@ namespace Core.Catalog.CatalogManagement
                 case MetaType.Bool:
                     isValidMeta = true;
                     int intVal;
-                    isValidMetaValue = int.TryParse(meta.m_sValue, out intVal);                    
+                    isValidMetaValue = int.TryParse(meta.m_sValue, out intVal);
                     break;
                 case MetaType.DateTime:
                     isValidMeta = true;
@@ -1148,7 +1152,7 @@ namespace Core.Catalog.CatalogManagement
                         else
                         {
                             log.ErrorFormat("IsMetaValueValid failed to parse {0} meta, value: {1}", STATUS_META_SYSTEM_NAME, meta.m_sValue);
-                        }               
+                        }
                         break;
                     case CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
                         DateTime catalogStartDate;
@@ -1253,7 +1257,7 @@ namespace Core.Catalog.CatalogManagement
             else
             {
                 return false;
-            }            
+            }
         }
 
         private static void ExtractTopicLanguageAndValuesFromMediaAsset(MediaAsset asset, CatalogGroupCache catalogGroupCache, ref XmlDocument xmlDoc, string topicSystemName)
@@ -1312,7 +1316,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 case -111:
                     responseStatus = new Status((int)eResponseStatus.AssetExternalIdMustBeUnique, eResponseStatus.AssetExternalIdMustBeUnique.ToString());
-                    break; 
+                    break;
                 default:
                     break;
             }
@@ -1336,11 +1340,11 @@ namespace Core.Catalog.CatalogManagement
                         CatalogGroupCache catalogGroupCache;
                         if (!TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
                         {
-                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAsset", groupId);                            
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAsset", groupId);
                         }
 
                         switch (assetType)
-                        {                                                            
+                        {
                             case eAssetTypes.EPG:
                                 break;
                             case eAssetTypes.NPVR:
@@ -1353,7 +1357,7 @@ namespace Core.Catalog.CatalogManagement
                             default:
                                 break;
                         }
-                                               
+
                         res = asset != null;
                     }
                 }
@@ -1369,15 +1373,15 @@ namespace Core.Catalog.CatalogManagement
 
         private static Asset GetAssetFromCache(int groupId, long id, eAssetTypes assetType)
         {
-            Asset result = null;            
+            Asset result = null;
             try
             {
                 string key = LayeredCacheKeys.GetAssetKey(assetType.ToString(), id);
                 if (!LayeredCache.Instance.Get<Asset>(key, ref result, GetAsset, new Dictionary<string, object>() { { "groupId", groupId }, { "id", id }, { "assetType", assetType.ToString() } }, groupId,
                     LayeredCacheConfigNames.GET_ASSET_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id) }))
                 {
-                    log.ErrorFormat("Failed getting Asset from LayeredCache, groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());                    
-                }                
+                    log.ErrorFormat("Failed getting Asset from LayeredCache, groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -1524,7 +1528,7 @@ namespace Core.Catalog.CatalogManagement
                     if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetStructsByTopicId", groupId);
-                        return response;                        
+                        return response;
                     }
 
                     response.AssetStructs = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.MetaIds.Contains(topicId)).ToList();
@@ -1542,20 +1546,20 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }        
+        }
 
         public static AssetStructResponse AddAssetStruct(int groupId, AssetStruct assetStructToadd, long userId)
         {
             AssetStructResponse result = new AssetStructResponse();
             try
-            {                
-                CatalogGroupCache catalogGroupCache;                
+            {
+                CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddAssetStruct", groupId);
                     return result;
                 }
-                
+
                 if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(assetStructToadd.SystemName))
                 {
                     result.Status = new Status((int)eResponseStatus.AssetStructSystemNameAlreadyInUse, eResponseStatus.AssetStructSystemNameAlreadyInUse.ToString());
@@ -1568,7 +1572,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     result.Status = validateBasicMetasResult;
                     return result;
-                }               
+                }
 
                 // validate meta ids exist
                 List<long> noneExistingMetaIds = assetStructToadd.MetaIds.Except(catalogGroupCache.TopicsMapById.Keys).ToList();
@@ -1578,7 +1582,7 @@ namespace Core.Catalog.CatalogManagement
                                                                                             eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
                     return result;
                 }
-                
+
                 List<KeyValuePair<long, int>> metaIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (assetStructToadd.MetaIds != null && assetStructToadd.MetaIds.Count > 0)
                 {
@@ -1710,7 +1714,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteAssetStruct", groupId);
                     return result;
                 }
-                                
+
                 if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))
                 {
                     result = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
@@ -1749,7 +1753,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetTopicsByIds", groupId);
                     return response;
                 }
-                
+
                 if (ids != null && ids.Count > 0)
                 {
                     response.Topics = ids.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
@@ -1760,7 +1764,7 @@ namespace Core.Catalog.CatalogManagement
                     response.Topics = catalogGroupCache.TopicsMapById.Values.Where(x => type == MetaType.All || x.Type == type).ToList();
                 }
 
-                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -1822,7 +1826,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddTopic", groupId);
                     return result;
                 }
-                
+
                 if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(topicToAdd.SystemName))
                 {
                     result.Status = new Status((int)eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
@@ -1855,7 +1859,7 @@ namespace Core.Catalog.CatalogManagement
         {
             TopicResponse result = new TopicResponse();
             try
-            {                
+            {
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
@@ -1905,7 +1909,7 @@ namespace Core.Catalog.CatalogManagement
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
-            {                
+            {
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
@@ -2121,7 +2125,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetUnifiedSearchKey for groupId: {0}, originalKey: {1}", groupId, originalKey), ex);               
+                log.Error(string.Format("Failed GetUnifiedSearchKey for groupId: {0}, originalKey: {1}", groupId, originalKey), ex);
             }
 
             return searchKeys;
@@ -2150,7 +2154,7 @@ namespace Core.Catalog.CatalogManagement
                     assetStruct = catalogGroupCache.AssetStructsMapBySystemName[assetToAdd.MediaType.m_sTypeName];
                 }
                 else
-                {                    
+                {
                     result.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
                     return result;
                 }
@@ -2178,13 +2182,13 @@ namespace Core.Catalog.CatalogManagement
                                                             assetToAdd.GeoBlockRuleId, assetToAdd.IsActive, startDate, assetToAdd.EndDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId);
                 result = CreateAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null && result.Asset.Id > 0)
-                {                    
+                {
                     // UpdateIndex
                     if (!CatalogLogic.UpdateIndex(new List<long>() { result.Asset.Id }, groupId, eAction.Update))
                     {
                         log.ErrorFormat("Failed to UpdateIndex for assetId: {0}, groupId: {1}", result.Asset.Id, groupId);
                     }
-                }                                                
+                }
             }
             catch (Exception ex)
             {
@@ -2226,7 +2230,7 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.UNKNOWN:
                         break;
                 }
-                
+
                 if (result.Code == (int)eResponseStatus.OK)
                 {
                     // invalidate asset
@@ -2290,7 +2294,7 @@ namespace Core.Catalog.CatalogManagement
 
             DataSet dataSet = CatalogDAL.GetGroupTagValues(groupId);
 
-            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && 
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 &&
                 dataSet.Tables[0] != null && dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0)
             {
                 // First table - default language, set default for other languages as well
@@ -2301,12 +2305,13 @@ namespace Core.Catalog.CatalogManagement
                     string tagValue = ODBCWrapper.Utils.ExtractString(row, "tag_value");
                     DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(row, "create_date");
                     DateTime updateDate = ODBCWrapper.Utils.ExtractDateTime(row, "update_date");
-                    
+
                     if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
                     {
                         Topic topic = catalogGroupCache.TopicsMapById[topicId];
 
-                        result.Add(new ApiObjects.SearchObjects.TagValue() {
+                        result.Add(new ApiObjects.SearchObjects.TagValue()
+                        {
                             createDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate),
                             languageId = defaultLanguage,
                             tagId = tagId,
@@ -2351,12 +2356,32 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static ApiObjects.SearchObjects.TagResponse AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag)
+        public static TagResponse AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId)
         {
-            throw new NotImplementedException();
+            TagResponse result = new TagResponse();
+            try
+            {
+                List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
+                if (tag.TagsInOtherLanguages != null && tag.TagsInOtherLanguages.Count > 0)
+                {
+                    foreach (LanguageContainer language in tag.TagsInOtherLanguages)
+                    {
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                DataSet ds = CatalogDAL.InsertTag(groupId, tag.value, languageCodeToName, tag.topicId, userId);
+                result = CreateTagResponseFromDataSet(ds);                
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddTopic for groupId: {0} and tag: {1}", groupId, tag.ToString()), ex);
+            }
+
+            return result;
         }
 
-        public static ApiObjects.SearchObjects.TagResponse UpdateTag(int groupId, ApiObjects.SearchObjects.TagValue tag)
+        public static TagResponse UpdateTag(int groupId, ApiObjects.SearchObjects.TagValue tag)
         {
             throw new NotImplementedException();
         }
@@ -2385,14 +2410,14 @@ namespace Core.Catalog.CatalogManagement
         /// <param name="groupId"></param>
         /// <param name="tagId"></param>
         /// <returns></returns>
-        public static ApiObjects.SearchObjects.TagResponse GetTagById(int groupId, int tagId)
+        public static TagResponse GetTagById(int groupId, int tagId)
         {
             throw new NotImplementedException();
         }
 
-        public static ApiObjects.SearchObjects.TagResponse SearchTags(int groupId, string tag, int topicId, string searchValue, int languageId, int pageIndex, int pageSize)
+        public static TagResponse SearchTags(int groupId, string tag, int topicId, string searchValue, int languageId, int pageIndex, int pageSize)
         {
-            ApiObjects.SearchObjects.TagResponse result = new ApiObjects.SearchObjects.TagResponse();
+            TagResponse result = new TagResponse();
 
             CatalogGroupCache catalogGroupCache;
             TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
@@ -2430,6 +2455,93 @@ namespace Core.Catalog.CatalogManagement
             result.TotalItems = totalItemsCount;
 
             return result;
+        }
+
+        private static TagResponse CreateTagResponseFromDataSet(DataSet ds)
+        {
+            TagResponse response = new TagResponse();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                {
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "id", 0);
+                    if (id > 0)
+                    {
+                        EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
+                        List<DataRow> tagTranslations = (from row in translations
+                                                           select row).ToList();
+                        response.TagValues.Add(CreateTag(id, dt.Rows[0], tagTranslations));
+                    }
+                    else
+                    {
+                        response.Status = CreateTagResponseStatusFromResult(id);
+                    }
+                }
+
+                if (response.TagValues != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+
+            return response;
+        }
+
+        private static ApiObjects.SearchObjects.TagValue CreateTag(long id, DataRow dr, List<DataRow> tagTranslations)
+        {
+            ApiObjects.SearchObjects.TagValue result = null;
+            if (id > 0)
+            {
+                string name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                int topicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "topic_id", 0);
+                DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
+                DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+                List<LanguageContainer> tagsInOtherLanguages = new List<LanguageContainer>();
+                if (tagTranslations != null && tagTranslations.Count > 0)
+                {
+                    foreach (DataRow translationDr in tagTranslations)
+                    {
+                        string languageCode = ODBCWrapper.Utils.GetSafeStr(translationDr, "CODE3");
+                        string translation = ODBCWrapper.Utils.GetSafeStr(translationDr, "TRANSLATION");
+                        if (!string.IsNullOrEmpty(languageCode) && !string.IsNullOrEmpty(translation))
+                        {
+                            tagsInOtherLanguages.Add(new LanguageContainer(languageCode, translation));
+                        }
+                    }
+                }
+
+                result = new ApiObjects.SearchObjects.TagValue()
+                {
+                    value = name,
+                    tagId = id,
+                    topicId = topicId,
+                    TagsInOtherLanguages = tagsInOtherLanguages,
+                    createDate = createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
+                    updateDate = updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0
+                };
+            }
+
+            return result;
+        }
+
+        private static Status CreateTagResponseStatusFromResult(long result)
+        {
+            Status responseStatus = null;
+            switch (result)
+            {
+                case -222:
+                    responseStatus = new Status((int)eResponseStatus.TagAlreadyInUse, eResponseStatus.TagAlreadyInUse.ToString());
+                    break;
+                case -333:
+                    responseStatus = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    break;
+                default:
+                    responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    break;
+            }
+
+            return responseStatus;
         }
     }
     #endregion
