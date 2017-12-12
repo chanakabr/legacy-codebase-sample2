@@ -84,7 +84,7 @@ namespace ElasticsearchTasksCommon
             }
         }
 
-        public static Dictionary<int, Dictionary<int, Media>> GetGroupMedias(int groupId, int mediaID)
+        public static Dictionary<int, Dictionary<int, Media>> GetGroupMedias(int groupId, int mediaId)
         {
             //dictionary contains medias such that first key is media_id, which returns a dictionary with a key language_id and value Media object.
             //E.g. mediaTranslations[123][2] --> will return media 123 of the hebrew language
@@ -113,10 +113,15 @@ namespace ElasticsearchTasksCommon
                     return mediaTranslations;
                 }
 
+                if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    return Core.Catalog.CatalogManagement.CatalogManager.GetMediaForElasticSearchIndex(groupId, mediaId);
+                }
+
                 ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
                 storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
                 storedProcedure.AddParameter("@GroupID", groupId);
-                storedProcedure.AddParameter("@MediaID", mediaID);
+                storedProcedure.AddParameter("@MediaID", mediaId);
 
                 DataSet dataSet = storedProcedure.ExecuteDataSet();
                 //Task<DataSet> dataSetTask = Task<DataSet>.Factory.StartNew(() => storedProcedure.ExecuteDataSet());
@@ -126,7 +131,7 @@ namespace ElasticsearchTasksCommon
                 Core.Catalog.Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet);
 
                 // get media update dates
-                DataTable updateDates = CatalogDAL.Get_MediaUpdateDate(new List<int>() { mediaID });
+                DataTable updateDates = CatalogDAL.Get_MediaUpdateDate(new List<int>() { mediaId });
 
                 OverrideMediaUpdateDates(ref mediaTranslations, updateDates);
             }
