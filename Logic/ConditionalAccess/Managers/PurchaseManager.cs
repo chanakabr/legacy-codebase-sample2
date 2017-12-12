@@ -1473,7 +1473,7 @@ namespace Core.ConditionalAccess
                             }
                             else
                             {
-                                log.DebugFormat("New task created - normal renewal reminder. next reminder date: {0}, data: {1}", eta, data);
+                                log.DebugFormat("New task created - normal renewal reminder. next reminder date: {0}, data: {1}", eta, newData);
                             }
                         }
                     }
@@ -1514,7 +1514,7 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            log.DebugFormat("New task created - normal renewal reminder. next reminder date: {0}, data: {1}", eta, data);
+                            log.DebugFormat("New task created - normal renewal reminder. next reminder date: {0}, data: {1}", eta, newData);
                         }
                     }
                 }
