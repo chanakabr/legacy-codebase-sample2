@@ -377,11 +377,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
 
             // Topic to KalturaMeta
-            Mapper.CreateMap<Topic, Models.API.KalturaMeta>()              
+            Mapper.CreateMap<Topic, Models.API.KalturaMeta>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-              .ForMember(dest => dest.DataType, opt => opt.MapFrom(src => ConvertToKalturaMetaDataType(src.Type)))              
+              .ForMember(dest => dest.DataType, opt => opt.MapFrom(src => ConvertToKalturaMetaDataType(src.Type)))
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsPredefined))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
@@ -404,17 +404,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
               .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
-              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))              
+              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))
               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => ConvertToNullableLong(src.ParentId)))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));              
+              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
 
             // KalturaAsset to Asset
             Mapper.CreateMap<KalturaAsset, Asset>()
                 .Include<KalturaMediaAsset, MediaAsset>();
 
             //KalturaMediaAsset to MediaAsset
-            Mapper.CreateMap<KalturaMediaAsset, MediaAsset>()                 
+            Mapper.CreateMap<KalturaMediaAsset, MediaAsset>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
                 .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetDefaultLanugageValue() : string.Empty))
@@ -491,13 +491,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region Tag
 
             Mapper.CreateMap<TagValue, KalturaTag>()
-              .ForMember(dest => dest.TagTypeId, opt => opt.MapFrom(src => src.topicId))              
-              .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => new KalturaMultilingualString(src.value)))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.tagId))
+              .ForMember(dest => dest.TagTypeId, opt => opt.MapFrom(src => src.topicId))
+              .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => new KalturaMultilingualString(src.TagsInOtherLanguages, src.value)))
               ;
 
             Mapper.CreateMap<KalturaTag, TagValue>()
              .ForMember(dest => dest.topicId, opt => opt.MapFrom(src => src.TagTypeId.HasValue ? src.TagTypeId.Value : 0))
-             .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.Tag))
+             .ForMember(dest => dest.tagId, opt => opt.MapFrom(src => src.Id))
+             .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.Tag.GetDefaultLanugageValue()))
+             .ForMember(dest => dest.TagsInOtherLanguages, opt => opt.MapFrom(src => src.Tag.GetNoneDefaultLanugageContainer()))
              ;
 
             #endregion       
@@ -534,7 +537,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             KalturaMetaDataType response;
             switch (metaType)
-            {                                    
+            {
                 case ApiObjects.MetaType.String:
                 case ApiObjects.MetaType.Tag:
                     response = KalturaMetaDataType.STRING;
@@ -654,7 +657,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static List<Tags> GetTagsList(SerializableDictionary<string, KalturaMultilingualStringValueArray> tagsDictionary)
         {
-            List<Tags> tags = new List<Tags>();            
+            List<Tags> tags = new List<Tags>();
 
             if (tagsDictionary == null || tagsDictionary.Count == 0)
             {
@@ -701,28 +704,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
         #endregion
 
         private static KalturaAssetGroupBy ConvertToGroupBy(SearchAggregationGroupBy searchAggregationGroupBy)
-        {            
-             KalturaAssetGroupBy kalturaAssetGroupBy = null;
+        {
+            KalturaAssetGroupBy kalturaAssetGroupBy = null;
 
-             if (searchAggregationGroupBy != null && searchAggregationGroupBy.groupBy != null && searchAggregationGroupBy.groupBy.Count() > 0)
-             {
+            if (searchAggregationGroupBy != null && searchAggregationGroupBy.groupBy != null && searchAggregationGroupBy.groupBy.Count() > 0)
+            {
 
-                 if (Enum.IsDefined(typeof(KalturaGroupByField), searchAggregationGroupBy.groupBy.FirstOrDefault()))
-                 {
-                     kalturaAssetGroupBy = new KalturaAssetFieldGroupBy();
+                if (Enum.IsDefined(typeof(KalturaGroupByField), searchAggregationGroupBy.groupBy.FirstOrDefault()))
+                {
+                    kalturaAssetGroupBy = new KalturaAssetFieldGroupBy();
 
-                     KalturaGroupByField groupByField = (KalturaGroupByField)Enum.Parse(typeof(KalturaGroupByField), searchAggregationGroupBy.groupBy.FirstOrDefault());
+                    KalturaGroupByField groupByField = (KalturaGroupByField)Enum.Parse(typeof(KalturaGroupByField), searchAggregationGroupBy.groupBy.FirstOrDefault());
 
-                     ((KalturaAssetFieldGroupBy)kalturaAssetGroupBy).Value = groupByField;
-                 }
-                 else
-                 {
-                     kalturaAssetGroupBy = new KalturaAssetMetaOrTagGroupBy();
-                     ((KalturaAssetMetaOrTagGroupBy)kalturaAssetGroupBy).Value = searchAggregationGroupBy.groupBy.FirstOrDefault();
-                 }              
-             }
+                    ((KalturaAssetFieldGroupBy)kalturaAssetGroupBy).Value = groupByField;
+                }
+                else
+                {
+                    kalturaAssetGroupBy = new KalturaAssetMetaOrTagGroupBy();
+                    ((KalturaAssetMetaOrTagGroupBy)kalturaAssetGroupBy).Value = searchAggregationGroupBy.groupBy.FirstOrDefault();
+                }
+            }
 
-             return kalturaAssetGroupBy;
+            return kalturaAssetGroupBy;
         }
 
         //eAssetTypes to KalturaAssetType
@@ -900,13 +903,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 }
                 else
                 {
-                    LanguageContainer[] containers = new LanguageContainer[1] 
-                        { 
-                            new LanguageContainer() 
+                    LanguageContainer[] containers = new LanguageContainer[1]
+                        {
+                            new LanguageContainer()
                             {
                                 LanguageCode = WebAPI.Utils.Utils.GetDefaultLanguage(),
                                 Value = tag.Value
-                            } 
+                            }
                         };
 
                     valueToAdd = new KalturaMultilingualStringValue()
@@ -950,13 +953,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 }
                 else
                 {
-                    LanguageContainer[] containers = new LanguageContainer[1] 
-                    { 
-                        new LanguageContainer() 
+                    LanguageContainer[] containers = new LanguageContainer[1]
+                    {
+                        new LanguageContainer()
                         {
                             LanguageCode = WebAPI.Utils.Utils.GetDefaultLanguage(),
                             Value = meta.Value
-                        } 
+                        }
                     };
 
                     metas.Add(meta.Key, new KalturaMultilingualStringValue()

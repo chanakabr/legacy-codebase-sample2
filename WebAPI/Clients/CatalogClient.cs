@@ -2857,7 +2857,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaTag AddTag(int groupId, KalturaTag tag)
+        internal KalturaTag AddTag(int groupId, KalturaTag tag, long userId)
         {
             KalturaTag responseTag = new KalturaTag();
             TagResponse response = null;
@@ -2867,7 +2867,7 @@ namespace WebAPI.Clients
                 TagValue requestTag = AutoMapper.Mapper.Map<TagValue>(tag);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddTag(groupId, requestTag);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddTag(groupId, requestTag, userId);
                 }
             }
             catch (Exception ex)

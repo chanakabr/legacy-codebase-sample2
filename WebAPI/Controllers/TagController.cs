@@ -71,10 +71,10 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                long userId = Utils.Utils.GetUserIdFromKs();
 
                 // call client
-                response = ClientsManager.CatalogClient().AddTag(groupId, tag);
+                response = ClientsManager.CatalogClient().AddTag(groupId, tag, userId);
             }
             catch (ClientException ex)
             {
