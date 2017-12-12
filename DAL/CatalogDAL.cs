@@ -4712,6 +4712,15 @@ namespace Tvinci.Core.DAL
 
         #region New Catalog Management
 
+        public static bool DoesGroupUsesTemplates(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DoesGroupUsesTemplates");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+
+            return sp.ExecuteReturnValue<int>() == 1;
+        }
+
         public static DataSet GetAssetStructsByGroupId(int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetStructsByGroupId");
@@ -4894,10 +4903,6 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        #endregion
-
-
-        #region Tag
         public static bool DeleteTag(int groupId, long tagId, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteTag");
@@ -4947,6 +4952,8 @@ namespace Tvinci.Core.DAL
 
             return sp.ExecuteDataSet();
         }
+
         #endregion
+
     }
 }

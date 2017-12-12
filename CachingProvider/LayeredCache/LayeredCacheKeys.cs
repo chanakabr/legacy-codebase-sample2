@@ -272,6 +272,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("unifiedBillingCycle_groupId_{0}", groupId);
         }
 
+        public static string GetDoesGroupUsesTemplatesCacheKey(int groupId)
+        {
+            return string.Format("DoesGroupUsesTemplates_groupId_{0}", groupId);
+        }
+
         public static string GetCatalogGroupCacheKey(int groupId)
         {
             return string.Format("CatalogGroupCache_groupId_{0}", groupId);
@@ -454,6 +459,11 @@ namespace CachingProvider.LayeredCache
         public static string GetHouseholdUnifiedBillingCycleInvalidationKey(int domainID, long renewLifeCycle)
         {
             return string.Format("invalidationKeyUnifiedBillingCycle_domainId_{0}_renewLifeCycle", domainID, renewLifeCycle);
+        }
+
+        public static string GetDoesGroupUsesTemplatesCacheInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyDoesGroupUsesTemplates_groupId_{0}", groupId);
         }
 
         public static string GetCatalogGroupCacheInvalidationKey(int groupId)
