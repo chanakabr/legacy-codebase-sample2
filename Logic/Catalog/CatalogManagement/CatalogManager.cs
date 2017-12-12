@@ -2029,6 +2029,43 @@ namespace Core.Catalog.CatalogManagement
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
+        public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetMediaForElasticSearchIndex(int groupId, long mediaId)
+        {
+            // <assetId, <languageId, media>>
+            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> result = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
+            try
+            {
+                AssetResponse GetAssetResponse = GetAsset(groupId, mediaId, eAssetTypes.MEDIA);
+                if (GetAssetResponse != null && GetAssetResponse.Status != null && GetAssetResponse.Status.Code == (int)eResponseStatus.OK)
+                {
+                    CatalogGroupCache catalogGroupCache;
+                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetMediaForElasticSearchIndex", groupId);
+                        return result;
+                    }
+
+                    MediaAsset mediaAsset = GetAssetResponse.Asset as MediaAsset;
+                    if (mediaAsset != null)
+                    {
+                        Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, catalogGroupCache);
+                        result.Add((int)mediaAsset.Id, assets);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetMediaForElasticSearchIndex for groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns dictionary of [assetId, [language, media]]
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
         public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupAssets(int groupId)
         {
             // <assetId, <languageId, media>>
