@@ -2371,19 +2371,49 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.InsertTag(groupId, tag.value, languageCodeToName, tag.topicId, userId);
-                result = CreateTagResponseFromDataSet(ds);                
+                result = CreateTagResponseFromDataSet(ds);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddTopic for groupId: {0} and tag: {1}", groupId, tag.ToString()), ex);
+                log.Error(string.Format("Failed AddTag for groupId: {0} and tag: {1}", groupId, tag.ToString()), ex);
             }
 
             return result;
         }
 
-        public static TagResponse UpdateTag(int groupId, ApiObjects.SearchObjects.TagValue tag)
+        public static TagResponse UpdateTag(int groupId, long id, ApiObjects.SearchObjects.TagValue tagToUpdate, long userId)
         {
-            throw new NotImplementedException();
+            TagResponse result = new TagResponse();
+            try
+            {
+                
+                result = GetTagById(groupId, id);
+                if(result.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return result;
+                }                
+
+                List<KeyValuePair<string, string>> languageCodeToName = null;
+                bool shouldUpdateOtherNames = false;
+                if (tagToUpdate.TagsInOtherLanguages != null)
+                {
+                    shouldUpdateOtherNames = true;
+                    languageCodeToName = new List<KeyValuePair<string, string>>();
+                    foreach (LanguageContainer language in tagToUpdate.TagsInOtherLanguages)
+                    {
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                DataSet ds = CatalogDAL.UpdateTag(groupId, id, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
+                result = CreateTagResponseFromDataSet(ds);                
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateTag for groupId: {0}, id: {1} and tagToUpdate: {2}", groupId, id, tagToUpdate.ToString()), ex);
+            }
+
+            return result;
         }
 
         public static Status DeleteTag(int groupId, long tagId, long userId)
@@ -2410,9 +2440,20 @@ namespace Core.Catalog.CatalogManagement
         /// <param name="groupId"></param>
         /// <param name="tagId"></param>
         /// <returns></returns>
-        public static TagResponse GetTagById(int groupId, int tagId)
+        public static TagResponse GetTagById(int groupId, long tagId)
         {
-            throw new NotImplementedException();
+            TagResponse result = new TagResponse();
+            try
+            {
+                DataSet ds = CatalogDAL.GetTag(groupId, tagId);
+                result = CreateTagResponseFromDataSet(ds);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetTagById for groupId: {0} and tagId: {1}", groupId, tagId), ex);
+            }
+
+            return result;
         }
 
         public static TagResponse SearchTags(int groupId, string tag, int topicId, string searchValue, int languageId, int pageIndex, int pageSize)
@@ -2470,7 +2511,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
                         List<DataRow> tagTranslations = (from row in translations
-                                                           select row).ToList();
+                                                         select row).ToList();
                         response.TagValues.Add(CreateTag(id, dt.Rows[0], tagTranslations));
                     }
                     else
