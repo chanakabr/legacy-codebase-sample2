@@ -68,7 +68,7 @@ namespace WebAPI.Clients
                 }
                 else
                 {
-                    throw new ClientException((int)response.resp.Code, response.resp.Message);
+                    throw new ClientException((int)response.resp.Code, response.resp.Message, response.resp.Args);
                 }
             }
 
@@ -361,7 +361,7 @@ namespace WebAPI.Clients
 
             if (response.resp.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.resp.Code, response.resp.Message);
+                throw new ClientException((int)response.resp.Code, response.resp.Message, response.resp.Args);
             }
 
             user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);

@@ -233,7 +233,7 @@ namespace WebAPI.Managers
                 }
             }
             catch (ClientException ex)
-            {               
+            {
             }
 
             if (user == null)
@@ -297,7 +297,7 @@ namespace WebAPI.Managers
                 log.ErrorFormat("StartSessionWithAppToken: AppToken expired, id = {0}", id);
                 throw new ForbiddenException(ForbiddenException.APP_TOKEN_EXPIRED);
             }
-            
+
 
             // if expiry was supplied - take the minimum
             if (expiry != null && expiry.Value > 0)
@@ -308,7 +308,7 @@ namespace WebAPI.Managers
             // set udid in payload
             WebAPI.Managers.Models.KS.KSData ksData = new WebAPI.Managers.Models.KS.KSData()
             {
-                UDID = udid, 
+                UDID = udid,
                 CreateDate = (int)SerializationUtils.GetCurrentUtcTimeInUnixTimestamp()
             };
             string payload = KSUtils.PrepareKSPayload(ksData);

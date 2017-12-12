@@ -396,7 +396,7 @@ namespace WebAPI.Clients
             if (wsResponse.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+                throw new ClientException((int)wsResponse.Status.Code, wsResponse.Status.Message, wsResponse.Status.Args);
             }
 
             // convert response
