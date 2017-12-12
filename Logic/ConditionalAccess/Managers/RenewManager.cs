@@ -1738,7 +1738,7 @@ namespace Core.ConditionalAccess
             if (subscriptionRenealDataRow == null)
             {
                 // subscription purchase wasn't found
-                log.ErrorFormat("GetEntitlementNextRenewal: faile subscription purchase. PurchaseId: {0}, householdId: {1}", purchaseId, householdId);
+                log.ErrorFormat("GetEntitlementNextRenewal: failed subscription purchase. PurchaseId: {0}, householdId: {1}", purchaseId, householdId);
                 return response;
             }
 
@@ -2080,7 +2080,7 @@ namespace Core.ConditionalAccess
             bool success = false;
 
             // log request
-            string logString = string.Format("RenewalReminder request: userId {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}", siteGuid, purchaseId, nextEndDate);
+            string logString = string.Format("RenewalReminder request: userId {0}, purchaseId {1}, nextEndDate {2}", siteGuid, purchaseId, nextEndDate);
 
             log.DebugFormat("Starting RenewalReminder process. data: {0}", logString);
 
@@ -2158,7 +2158,7 @@ namespace Core.ConditionalAccess
             bool success = false;
 
             // log request
-            string logString = string.Format("RenewalReminder request: userId {0}, processId {1}, billingGuid {2}, endDateLong {3}", siteGuid, processId, nextEndDate);
+            string logString = string.Format("RenewalReminder request: userId {0}, processId {1}, endDateLong {2}", siteGuid, processId, nextEndDate);
 
             log.DebugFormat("Starting UnifiedRenewalReminder process. data: {0}", logString);
 
