@@ -41,6 +41,31 @@ namespace Core.Catalog.CatalogManagement
 
         #region Private Methods
 
+        private static Tuple<bool, bool> DoesGroupUsesTemplates(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            bool doesGroupUsesTemplates = false;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        doesGroupUsesTemplates = CatalogDAL.DoesGroupUsesTemplates(groupId.Value);
+                        res = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("DoesGroupUsesTemplates failed params : {0}", funcParams != null ? string.Join(";",
+                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
+            }
+
+            return new Tuple<bool, bool>(doesGroupUsesTemplates, res);
+        }
+
         private static Tuple<CatalogGroupCache, bool> GetCatalogGroupCache(Dictionary<string, object> funcParams)
         {
             bool res = false;
@@ -2287,25 +2312,22 @@ namespace Core.Catalog.CatalogManagement
 
         public static bool DoesGroupUsesTemplates(int groupId)
         {
-            // TODO - Lior - change this to look somewhere and cache (after getting value from DB) and not try to get entire CatalogGroupCache object
-            bool res = false;
+            bool result = false;
             try
             {
-                CatalogGroupCache catalogGroupCache;
-                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                string key = LayeredCacheKeys.GetDoesGroupUsesTemplatesCacheKey(groupId);
+                if (!LayeredCache.Instance.Get<bool>(key, ref result, DoesGroupUsesTemplates, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                    LayeredCacheConfigNames.DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetDoesGroupUsesTemplatesCacheInvalidationKey(groupId) }))
                 {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteTopic", groupId);
-                    return res;
-                }
-
-                res = true;
+                    log.ErrorFormat("Failed getting DoesGroupUsesTemplates from LayeredCache, groupId: {0}", groupId);
+                }              
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed DoesGroupUsesTemplates for groupId: {0}", groupId), ex);
+                log.Error(string.Format("Failed DoesGroupUsesTemplates with groupId: {0}", groupId), ex);
             }
 
-            return res;
+            return result;
         }
 
         /// <summary>
