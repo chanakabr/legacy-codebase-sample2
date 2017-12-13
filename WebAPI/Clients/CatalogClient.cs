@@ -126,7 +126,7 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }        
+        }
 
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
@@ -2961,5 +2961,113 @@ namespace WebAPI.Clients
             return true;
         }
 
+        internal KalturaImageTypeListResponse GetImageTypes(int groupId, long userId, string idIn, string ratioIdIn, int pageIndex, int pageSize)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaImageType AddImageType(int groupId, long userId, KalturaImageType imageType)
+        {
+            KalturaImageType responseImageType = new KalturaImageType();
+            ImageTypeResponse response = null;
+
+            try
+            {
+                ImageType requestImageType = AutoMapper.Mapper.Map<ImageType>(imageType);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddImageType(groupId, requestImageType, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.ImageType != null)
+            {
+                responseImageType = AutoMapper.Mapper.Map<KalturaImageType>(response.ImageType);
+            }
+
+            return responseImageType;
+        }
+
+        internal KalturaImageType UpdateImageType(int groupId, long userId, long id, KalturaImageType imageType)
+        {
+            KalturaImageType responseImageType = new KalturaImageType();
+            ImageTypeResponse response = null;
+
+            try
+            {
+                ImageType requestImageType = AutoMapper.Mapper.Map<ImageType>(imageType);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    //response = Core.Catalog.CatalogManagement.CatalogManager.UpdateImageType(groupId, requestImageType, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.ImageType != null)
+            {
+                responseImageType = AutoMapper.Mapper.Map<KalturaImageType>(response.ImageType);
+            }
+
+            return responseImageType;
+        }
+        
+        internal bool DeleteImageType(int groupId, long userId, long id)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteImageType(groupId, id, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }

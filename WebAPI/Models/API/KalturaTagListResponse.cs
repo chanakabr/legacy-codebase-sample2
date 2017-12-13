@@ -12,7 +12,7 @@ namespace WebAPI.Models.API
     public class KalturaTagListResponse : KalturaListResponse
     {
         /// <summary>
-        /// A list of generic rules
+        /// A list of partner tags
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]

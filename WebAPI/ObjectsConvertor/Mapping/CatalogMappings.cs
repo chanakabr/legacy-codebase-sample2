@@ -504,6 +504,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
              ;
 
             #endregion       
+
+            #region ImageType
+
+            Mapper.CreateMap<ImageType, KalturaImageType>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.DefaultImageId, opt => opt.MapFrom(src => src.DefaultImageId))
+              .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.RatioId, opt => opt.MapFrom(src => src.RatioId))
+              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+              ;
+
+            Mapper.CreateMap<KalturaImageType, ImageType>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.DefaultImageId, opt => opt.MapFrom(src => src.DefaultImageId))
+              .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.RatioId, opt => opt.MapFrom(src => src.RatioId))
+              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+             ;
+
+            #endregion       
         }
 
         #region New Catalog Management
