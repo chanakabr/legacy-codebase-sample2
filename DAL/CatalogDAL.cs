@@ -4953,6 +4953,22 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
+        public static DataSet InsertImageType(int groupId, string name, string systemName, long rationId, string helpText, long userId, long? defaultImageId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertImageType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@name", name);
+            sp.AddParameter("@systemName", systemName);
+            sp.AddParameter("@rationId", rationId);
+            sp.AddParameter("@helpText", helpText);
+            sp.AddParameter("@updaterId", userId);
+            if (defaultImageId.HasValue)
+                sp.AddParameter("@defaultImageId", defaultImageId.Value);
+
+            return sp.ExecuteDataSet();
+        }
+
         #endregion
 
     }
