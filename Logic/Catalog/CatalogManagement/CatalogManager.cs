@@ -1590,6 +1590,144 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static TagResponse CreateTagResponseFromDataSet(DataSet ds)
+        {
+            TagResponse response = new TagResponse();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                {
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "id", 0);
+                    if (id > 0)
+                    {
+                        EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
+                        List<DataRow> tagTranslations = (from row in translations
+                                                         select row).ToList();
+                        response.TagValues.Add(CreateTag(id, dt.Rows[0], tagTranslations));
+                    }
+                    else
+                    {
+                        response.Status = CreateTagResponseStatusFromResult(id);
+                    }
+                }
+
+                if (response.TagValues != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+
+            return response;
+        }
+
+        private static ApiObjects.SearchObjects.TagValue CreateTag(long id, DataRow dr, List<DataRow> tagTranslations)
+        {
+            ApiObjects.SearchObjects.TagValue result = null;
+            if (id > 0)
+            {
+                string name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                int topicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "topic_id", 0);
+                DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
+                DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+                List<LanguageContainer> tagsInOtherLanguages = new List<LanguageContainer>();
+                if (tagTranslations != null && tagTranslations.Count > 0)
+                {
+                    foreach (DataRow translationDr in tagTranslations)
+                    {
+                        string languageCode = ODBCWrapper.Utils.GetSafeStr(translationDr, "CODE3");
+                        string translation = ODBCWrapper.Utils.GetSafeStr(translationDr, "TRANSLATION");
+                        if (!string.IsNullOrEmpty(languageCode) && !string.IsNullOrEmpty(translation))
+                        {
+                            tagsInOtherLanguages.Add(new LanguageContainer(languageCode, translation));
+                        }
+                    }
+                }
+
+                result = new ApiObjects.SearchObjects.TagValue()
+                {
+                    value = name,
+                    tagId = id,
+                    topicId = topicId,
+                    TagsInOtherLanguages = tagsInOtherLanguages,
+                    createDate = createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
+                    updateDate = updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0
+                };
+            }
+
+            return result;
+        }
+
+        private static Status CreateTagResponseStatusFromResult(long result)
+        {
+            Status responseStatus = null;
+            switch (result)
+            {
+                case -222:
+                    responseStatus = new Status((int)eResponseStatus.TagAlreadyInUse, eResponseStatus.TagAlreadyInUse.ToString());
+                    break;
+                case -333:
+                    responseStatus = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    break;
+                default:
+                    responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    break;
+            }
+
+            return responseStatus;
+        }
+
+        private static ImageTypeResponse CreateImageTypeResponseFromDataSet(DataSet ds)
+        {
+            ImageTypeResponse response = new ImageTypeResponse();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                long id = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID");
+                if (id > 0)
+                {
+                    response.ImageType = new ImageType()
+                    {
+                        Id = id,
+                        Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "NAME"),
+                        SystemName = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "SYSTEM_NAME"),
+                        RatioId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "RATIO_ID"),
+                        HelpText = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "HELP_TEXT"),
+                        DefaultImageId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "DEFAULT_IMAGE_ID")
+                    };
+                }
+                else
+                {
+                    response.Status = CreateImageTypeResponseStatusFromResult(id);
+                }
+
+                if (response.ImageType != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+
+            return response;
+        }
+
+        private static Status CreateImageTypeResponseStatusFromResult(long result)
+        {
+            Status responseStatus = null;
+            switch (result)
+            {
+                case -222:
+                    responseStatus = new Status((int)eResponseStatus.ImageTypeAlreadyInUse, eResponseStatus.ImageTypeAlreadyInUse.ToString());
+                    break;
+                case -333:
+                    responseStatus = new Status((int)eResponseStatus.ImageTypeDoesNotExist, eResponseStatus.ImageTypeDoesNotExist.ToString());
+                    break;
+                default:
+                    responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    break;
+            }
+
+            return responseStatus;
+        }
+
         #endregion
 
         #region Public Methods
@@ -2465,7 +2603,7 @@ namespace Core.Catalog.CatalogManagement
                     LayeredCacheConfigNames.DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetDoesGroupUsesTemplatesCacheInvalidationKey(groupId) }))
                 {
                     log.ErrorFormat("Failed getting DoesGroupUsesTemplates from LayeredCache, groupId: {0}", groupId);
-                }              
+                }
             }
             catch (Exception ex)
             {
@@ -2747,94 +2885,43 @@ namespace Core.Catalog.CatalogManagement
             result.TotalItems = totalItemsCount;
 
             return result;
-        }
+        }        
 
-        private static TagResponse CreateTagResponseFromDataSet(DataSet ds)
+        public static ImageTypeResponse AddImageType(int groupId, ImageType imageTypeToAdd, long userId)
         {
-            TagResponse response = new TagResponse();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            ImageTypeResponse result = new ImageTypeResponse();
+            try
             {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
-                {
-                    long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "id", 0);
-                    if (id > 0)
-                    {
-                        EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
-                        List<DataRow> tagTranslations = (from row in translations
-                                                         select row).ToList();
-                        response.TagValues.Add(CreateTag(id, dt.Rows[0], tagTranslations));
-                    }
-                    else
-                    {
-                        response.Status = CreateTagResponseStatusFromResult(id);
-                    }
-                }
-
-                if (response.TagValues != null)
-                {
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
+                DataSet ds = CatalogDAL.InsertImageType(groupId, imageTypeToAdd.Name, imageTypeToAdd.SystemName, imageTypeToAdd.RatioId, imageTypeToAdd.HelpText,
+                                                      userId, imageTypeToAdd.DefaultImageId);
+                result = CreateImageTypeResponseFromDataSet(ds);
             }
-
-            return response;
-        }
-
-        private static ApiObjects.SearchObjects.TagValue CreateTag(long id, DataRow dr, List<DataRow> tagTranslations)
-        {
-            ApiObjects.SearchObjects.TagValue result = null;
-            if (id > 0)
+            catch (Exception ex)
             {
-                string name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-                int topicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "topic_id", 0);
-                DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
-                DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
-                List<LanguageContainer> tagsInOtherLanguages = new List<LanguageContainer>();
-                if (tagTranslations != null && tagTranslations.Count > 0)
-                {
-                    foreach (DataRow translationDr in tagTranslations)
-                    {
-                        string languageCode = ODBCWrapper.Utils.GetSafeStr(translationDr, "CODE3");
-                        string translation = ODBCWrapper.Utils.GetSafeStr(translationDr, "TRANSLATION");
-                        if (!string.IsNullOrEmpty(languageCode) && !string.IsNullOrEmpty(translation))
-                        {
-                            tagsInOtherLanguages.Add(new LanguageContainer(languageCode, translation));
-                        }
-                    }
-                }
-
-                result = new ApiObjects.SearchObjects.TagValue()
-                {
-                    value = name,
-                    tagId = id,
-                    topicId = topicId,
-                    TagsInOtherLanguages = tagsInOtherLanguages,
-                    createDate = createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
-                    updateDate = updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0
-                };
+                log.Error(string.Format("Failed AddTopic for groupId: {0} and topic: {1}", groupId, imageTypeToAdd.ToString()), ex);
             }
 
             return result;
         }
 
-        private static Status CreateTagResponseStatusFromResult(long result)
+        public static Status DeleteImageType(int groupId, long id, long userId)
         {
-            Status responseStatus = null;
-            switch (result)
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
             {
-                case -222:
-                    responseStatus = new Status((int)eResponseStatus.TagAlreadyInUse, eResponseStatus.TagAlreadyInUse.ToString());
-                    break;
-                case -333:
-                    responseStatus = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
-                    break;
-                default:
-                    responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    break;
+                if (CatalogDAL.DeleteImageType(groupId, id, userId))
+                {
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteImageType for groupId: {0} and ImageTypeId: {1}", groupId, id), ex);
             }
 
-            return responseStatus;
+            return result;
         }
+
+        #endregion
     }
-    #endregion
 }
