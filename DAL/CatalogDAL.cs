@@ -4883,6 +4883,12 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
+        public static DataSet UpdateMediaAsset(int groupId, long defaultLanguageId, System.Xml.XmlDocument metas, System.Xml.XmlDocument tags, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId,
+                                                bool? isActive, DateTime startDate, DateTime? endDate, DateTime catalogStartDate, DateTime? finalEndDate, long userId)
+        {
+            throw new NotImplementedException();
+        }
+
         public static bool DeleteMediaAsset(int groupId, long id, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteMediaAsset");
@@ -4892,7 +4898,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteReturnValue<int>() > 0;
-        }
+        }        
 
         public static DataSet GetGroupTagValues(int groupId)
         {
