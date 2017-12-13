@@ -2431,6 +2431,23 @@ namespace Core.Catalog.CatalogManagement
 
                 DataSet ds = CatalogDAL.InsertTag(groupId, tag.value, languageCodeToName, tag.topicId, userId);
                 result = CreateTagResponseFromDataSet(ds);
+
+                if (result.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return result;
+                }
+
+                CatalogGroupCache catalogGroupCache;
+                TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
+
+                if (catalogGroupCache == null)
+                {
+                    log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                    return result;
+                }
+
+                ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                result.Status = wrapper.UpdateTag(groupId, catalogGroupCache, result.TagValues[0]);
             }
             catch (Exception ex)
             {
@@ -2445,12 +2462,12 @@ namespace Core.Catalog.CatalogManagement
             TagResponse result = new TagResponse();
             try
             {
-                
+
                 result = GetTagById(groupId, id);
-                if(result.Status.Code != (int)eResponseStatus.OK)
+                if (result.Status.Code != (int)eResponseStatus.OK)
                 {
                     return result;
-                }                
+                }
 
                 List<KeyValuePair<string, string>> languageCodeToName = null;
                 bool shouldUpdateOtherNames = false;
@@ -2465,7 +2482,25 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.UpdateTag(groupId, id, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
-                result = CreateTagResponseFromDataSet(ds);                
+                result = CreateTagResponseFromDataSet(ds);
+
+                if (result.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return result;
+                }
+
+                CatalogGroupCache catalogGroupCache;
+                TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
+
+                if (catalogGroupCache == null)
+                {
+                    log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                    return result;
+                }
+
+                ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                result.Status = wrapper.UpdateTag(groupId, catalogGroupCache, result.TagValues[0]);
+
             }
             catch (Exception ex)
             {
@@ -2483,6 +2518,18 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeleteTag(groupId, tagId, userId))
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    CatalogGroupCache catalogGroupCache;
+                    TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
+
+                    if (catalogGroupCache == null)
+                    {
+                        log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                        return result;
+                    }
+
+                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                    result = wrapper.DeleteTag(groupId, catalogGroupCache, tagId);
                 }
             }
             catch (Exception ex)
