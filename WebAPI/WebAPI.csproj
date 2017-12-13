@@ -236,7 +236,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
+    <Compile Include="Models\API\KalturaImageTypeFilter.cs" />
     <Compile Include="Models\API\KalturaTagFilter.cs" />
     <Compile Include="Models\API\KalturaTagListResponse.cs" />
     <Compile Include="Models\API\KalturaTag.cs" />
@@ -298,6 +300,7 @@
     <Compile Include="Models\Catalog\KalturaEpgChannel.cs" />
     <Compile Include="Models\Catalog\KalturaLinearMediaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaMediaAsset.cs" />
+    <Compile Include="Models\Catalog\KalturaImageType.cs" />
     <Compile Include="Models\Catalog\KalturaMetaDataType.cs" />
     <Compile Include="Models\Catalog\KalturaProgramAsset.cs" />
     <Compile Include="Models\Catalog\KalturaRecordingAsset.cs" />

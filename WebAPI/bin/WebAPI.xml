@@ -704,6 +704,37 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.ImageTypeController.List(WebAPI.Models.API.KalturaImageTypeFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Get the list of image types for the partner
+            </summary>
+            <param name="filter">Filter</param>
+            <param name="pager">Page size and index</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageTypeController.Add(WebAPI.Models.Catalog.KalturaImageType)">
+            <summary>
+            Add a new image type
+            </summary>
+            <param name="imageType">Image type object</param>
+            <returns></returns>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageTypeController.Update(System.Int64,WebAPI.Models.Catalog.KalturaImageType)">
+            <summary>
+            Update an existing image type
+            </summary>
+            <param name="id">Image type ID</param>
+            <param name="imageType">Image type object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageTypeController.Delete(System.Int64)">
+            <summary>
+            Delete an existing image type
+            </summary>
+            <param name="id">Image type ID</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.TagController.List(WebAPI.Models.API.KalturaTagFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Get the list of tags for the partner
@@ -4052,6 +4083,16 @@
             <param name="userId">User identifier</param>
             <returns></returns>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaImageTypeFilter.IdIn">
+            <summary>
+            IDs to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaImageTypeFilter.RatioIdIn">
+            <summary>
+            Ration IDs to filter by
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaTagFilter.TagEqual">
             <summary>
             Tag to filter by
@@ -4069,7 +4110,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaTagListResponse.Tags">
             <summary>
-            A list of generic rules
+            A list of partner tags
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaTag.Id">
@@ -5500,6 +5541,46 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.Status">
             <summary>
              The media asset status
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaImageType">
+            <summary>
+            Image type 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageType.Id">
+            <summary>
+            Image type ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageType.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageType.SystemName">
+            <summary>
+            System name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageType.RatioId">
+            <summary>
+            Ration ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageType.HelpText">
+            <summary>
+            Help text
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageType.DefaultImageId">
+            <summary>
+            Default image ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageTypeListResponse.ImageTypes">
+            <summary>
+            A list of partner image types
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaProgramAsset">

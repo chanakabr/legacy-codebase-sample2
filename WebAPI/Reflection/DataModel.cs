@@ -1332,6 +1332,12 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaImageType":
+                    ret = new Dictionary<string, string>() { 
+                        {"id", "id"},
+                    };
+                    break;
+                    
                 case "KalturaItemPrice":
                     ret = new Dictionary<string, string>() { 
                         {"fileId", "file_id"},
@@ -4154,6 +4160,42 @@ namespace WebAPI.Reflection
                             return "by";
                         case "Identifier":
                             return "identifier";
+                    }
+                    break;
+                    
+                case "KalturaImageType":
+                    switch(property.Name)
+                    {
+                        case "DefaultImageId":
+                            return "defaultImageId";
+                        case "HelpText":
+                            return "helpText";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "RatioId":
+                            return "ratioId";
+                        case "SystemName":
+                            return "systemName";
+                    }
+                    break;
+                    
+                case "KalturaImageTypeFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                        case "RatioIdIn":
+                            return "ratioIdIn";
+                    }
+                    break;
+                    
+                case "KalturaImageTypeListResponse":
+                    switch(property.Name)
+                    {
+                        case "ImageTypes":
+                            return "objects";
                     }
                     break;
                     
