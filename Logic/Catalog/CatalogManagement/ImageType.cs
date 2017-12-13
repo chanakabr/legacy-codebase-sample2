@@ -7,6 +7,6 @@
         public string SystemName { get; set; }
         public long RatioId{ get; set; }
         public string HelpText { get; set; }
-        public long DefaultImageId { get; set; }
+        public long? DefaultImageId { get; set; }
     }
 }

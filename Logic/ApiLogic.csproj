@@ -194,8 +194,11 @@
     <Compile Include="Catalog\CatalogManagement\AssetListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\AssetResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\CatalogGroupCache.cs" />
+    <Compile Include="Catalog\CatalogManagement\ImageType.cs" />
+    <Compile Include="Catalog\CatalogManagement\ImageTypeListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\LinearMediaAsset.cs" />
     <Compile Include="Catalog\CatalogManagement\MediaAsset.cs" />
+    <Compile Include="Catalog\CatalogManagement\ImageTypeResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\TagResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\TopicListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\TopicResponse.cs" />

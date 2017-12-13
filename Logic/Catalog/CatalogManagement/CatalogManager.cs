@@ -2320,7 +2320,7 @@ namespace Core.Catalog.CatalogManagement
                     LayeredCacheConfigNames.DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetDoesGroupUsesTemplatesCacheInvalidationKey(groupId) }))
                 {
                     log.ErrorFormat("Failed getting DoesGroupUsesTemplates from LayeredCache, groupId: {0}", groupId);
-                }              
+                }
             }
             catch (Exception ex)
             {
@@ -2690,6 +2690,75 @@ namespace Core.Catalog.CatalogManagement
 
             return responseStatus;
         }
+
+        public static ImageTypeResponse AddImageType(int groupId, ImageType imageTypeToAdd, long userId)
+        {
+            ImageTypeResponse result = new ImageTypeResponse();
+            try
+            {
+                DataSet ds = CatalogDAL.InsertImageType(groupId, imageTypeToAdd.Name, imageTypeToAdd.SystemName, imageTypeToAdd.RatioId, imageTypeToAdd.HelpText,
+                                                      userId, imageTypeToAdd.DefaultImageId);
+                result = CreateImageTypeResponseFromDataSet(ds);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddTopic for groupId: {0} and topic: {1}", groupId, imageTypeToAdd.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        private static ImageTypeResponse CreateImageTypeResponseFromDataSet(DataSet ds)
+        {
+            ImageTypeResponse response = new ImageTypeResponse();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                long id = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID");
+                if (id > 0)
+                {
+                    response.ImageType = new ImageType()
+                    {
+                        Id = id,
+                        Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "NAME"),
+                        SystemName = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "SYSTEM_NAME"),
+                        RatioId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "RATIO_ID"),
+                        HelpText = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "HELP_TEXT"),
+                        DefaultImageId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "DEFAULT_IMAGE_ID")
+                    };
+                }
+                else
+                {
+                    response.Status = CreateImageTypeResponseStatusFromResult(id);
+                }
+
+                if (response.ImageType != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+
+            return response;
+        }
+
+        private static Status CreateImageTypeResponseStatusFromResult(long result)
+        {
+            Status responseStatus = null;
+            switch (result)
+            {
+                case -222:
+                    responseStatus = new Status((int)eResponseStatus.ImageTypeAlreadyInUse, eResponseStatus.ImageTypeAlreadyInUse.ToString());
+                    break;
+                case -333:
+                    responseStatus = new Status((int)eResponseStatus.ImageTypeDoesNotExist, eResponseStatus.ImageTypeDoesNotExist.ToString());
+                    break;
+                default:
+                    responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    break;
+            }
+
+            return responseStatus;
+        }
+
+        #endregion
     }
-    #endregion
 }

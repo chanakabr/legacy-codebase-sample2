@@ -218,6 +218,8 @@ namespace ApiObjects.Response
         GeoBlockRuleDoesNotExistForGroup = 4042,
         TagAlreadyInUse = 4043,
         TagDoesNotExist = 4044,
+        ImageTypeAlreadyInUse = 4045,
+        ImageTypeDoesNotExist = 4046,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,
