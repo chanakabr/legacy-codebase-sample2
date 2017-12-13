@@ -2708,6 +2708,24 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public static Status DeleteImageType(int groupId, long id, long userId)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                if (CatalogDAL.DeleteImageType(groupId, id, userId))
+                {
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteImageType for groupId: {0} and ImageTypeId: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+
         private static ImageTypeResponse CreateImageTypeResponseFromDataSet(DataSet ds)
         {
             ImageTypeResponse response = new ImageTypeResponse();
@@ -2758,6 +2776,7 @@ namespace Core.Catalog.CatalogManagement
 
             return responseStatus;
         }
+
 
         #endregion
     }
