@@ -3072,7 +3072,7 @@ namespace Tvinci.Core.DAL
             }
 
             return res;
-        }
+        }        
 
         public static DataTable Get_FileAndMediaBasicDetails(int[] mediaFiles)
         {
@@ -4967,6 +4967,17 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@defaultImageId", defaultImageId.Value);
 
             return sp.ExecuteDataSet();
+        }
+
+        public static bool DeleteImageType(int groupId, long id, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteImageType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         #endregion
