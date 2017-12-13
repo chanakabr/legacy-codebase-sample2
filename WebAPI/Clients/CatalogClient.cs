@@ -135,10 +135,10 @@ namespace WebAPI.Clients
 
             try
             {
-                AssetStruct assetStructToadd = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);
+                AssetStruct assetStructToAdd = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToadd, userId);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToAdd, userId);
                 }
             }
             catch (Exception ex)
@@ -409,17 +409,28 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public KalturaMediaAsset AddAsset(int groupId, KalturaMediaAsset asset, long userId)
+        public KalturaAsset AddAsset(int groupId, KalturaAsset asset, long userId)
         {
-            KalturaMediaAsset result = null;
+            KalturaAsset result = null;
             AssetResponse response = null;
 
             try
             {
-                MediaAsset assetToadd = AutoMapper.Mapper.Map<MediaAsset>(asset);
+                eAssetTypes assetType = eAssetTypes.UNKNOWN;
+                Asset assetToAdd = null;                
+                switch (asset.objectType)
+                {
+                    case "KalturaMediaAsset":
+                        assetToAdd = AutoMapper.Mapper.Map<MediaAsset>(asset);
+                        assetType = eAssetTypes.MEDIA;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                        break;
+                }                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAsset(groupId, assetToadd, userId);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAsset(groupId, assetType, assetToAdd, userId);
                 }
             }
             catch (Exception ex)
@@ -438,7 +449,16 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
+            switch (asset.objectType)
+            {
+                case "KalturaMediaAsset":
+                    result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                    break;
+            }
+
             return result;
         }
 
@@ -485,6 +505,60 @@ namespace WebAPI.Clients
             }
 
             return true;
+        }
+
+        public KalturaAsset UpdateAsset(int groupId, long id, KalturaAsset asset, long userId)
+        {
+            KalturaAsset result = null;
+            AssetResponse response = null;
+
+            try
+            {
+                eAssetTypes assetType = eAssetTypes.UNKNOWN;
+                Asset assetToUpdate = null;
+                switch (asset.objectType)
+                {
+                    case "KalturaMediaAsset":
+                        assetToUpdate = AutoMapper.Mapper.Map<MediaAsset>(asset as KalturaMediaAsset);
+                        assetType = eAssetTypes.MEDIA;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                        break;
+                }
+                
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAsset(groupId, id, assetType, assetToUpdate, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            switch (asset.objectType)
+            {
+                case "KalturaMediaAsset":
+                    result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                    break;
+            }
+            
+            return result;
         }
 
         #endregion        

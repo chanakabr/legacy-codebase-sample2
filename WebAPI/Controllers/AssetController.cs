@@ -1031,9 +1031,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidValueSentForMeta)]
         [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
-        public KalturaMediaAsset Add(KalturaMediaAsset asset)
+        public KalturaAsset Add(KalturaAsset asset)
         {
-            KalturaMediaAsset response = null;
+            KalturaAsset response = null;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
             if (asset.Name == null || asset.Name.Values == null || asset.Name.Values.Count == 0)
@@ -1060,7 +1060,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
             }
 
-            if (!asset.Status.HasValue)
+            if (asset is KalturaMediaAsset && !(asset as KalturaMediaAsset).Status.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
             }
@@ -1077,7 +1077,6 @@ namespace WebAPI.Controllers
             return response;
         }
 
-
         /// <summary>
         /// Delete an existing asset
         /// </summary>
@@ -1086,7 +1085,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.AssetDoseNotExists)]        
+        [Throws(eResponseStatus.AssetDoesNotExist)]        
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public bool Delete(long id, KalturaAssetReferenceType assetReferenceType)
@@ -1106,5 +1105,68 @@ namespace WebAPI.Controllers
 
             return result;
         }
+
+        /// <summary>
+        /// update an existing asset
+        /// </summary>
+        /// <param name="id">Asset Identifier</param>
+        /// <param name="assetReferenceType">Type of asset</param>
+        /// <param name="asset">Asset object</param>
+        /// <returns></returns>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.AssetExternalIdMustBeUnique)]
+        [Throws(eResponseStatus.InvalidMetaType)]
+        [Throws(eResponseStatus.InvalidValueSentForMeta)]
+        [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
+        [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
+        [SchemeArgument("id", MinLong = 1)]        
+        public KalturaAsset Update(long id, KalturaAsset asset)
+        {
+            KalturaAsset response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+            if (asset.Name != null)
+            {
+                if ((asset.Name.Values == null || asset.Name.Values.Count == 0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+                }
+                else
+                {
+                    asset.Name.Validate();
+                }
+            }
+
+            if (asset.Description != null)
+            {
+                if ((asset.Description.Values == null || asset.Description.Values.Count == 0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
+                }
+                else
+                {
+                    asset.Description.Validate();
+                }
+            }
+
+            if (asset.ExternalId != null && asset.ExternalId == string.Empty)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().UpdateAsset(groupId, id, asset, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
     }
 }
