@@ -27,15 +27,15 @@ namespace ElasticSearch.Common
             recordBuilder.AppendFormat("\"media_id\": {0}, \"group_id\": {1}, \"media_type_id\": {2}, \"wp_type_id\": {3}, \"is_active\": {4}, " +
                 "\"device_rule_id\": {5}, \"like_counter\": {6}, \"views\": {7}, \"rating\": {8}, \"votes\": {9}, \"start_date\": \"{10}\", " +
                 "\"end_date\": \"{11}\", \"final_date\": \"{12}\", \"create_date\": \"{13}\", \"update_date\": \"{14}\", \"{19}\": \"{15}\", " +
-                "\"{20}\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, \"co_guid\": {19}, \"entry_id\": {20}, \"catalog_start_date\": {21}, ",
+                "\"{20}\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, \"co_guid\": {19}, \"catalog_start_date\": {20}, ",
                 media.m_nMediaID, media.m_nGroupID, media.m_nMediaTypeID, media.m_nWPTypeID, media.m_nIsActive,
                 media.m_nDeviceRuleId, media.m_nLikeCounter, media.m_nViews, media.m_dRating, media.m_nVotes, media.m_sStartDate,
                 media.m_sEndDate, media.m_sFinalEndDate, media.m_sCreateDate, media.m_sUpdateDate, Common.Utils.ReplaceDocumentReservedCharacters(media.m_sName, shouldLowerCase),
                 Common.Utils.ReplaceDocumentReservedCharacters(media.m_sDescription, shouldLowerCase), DateTime.UtcNow.ToString("yyyyMMddHHmmss"), media.geoBlockRule,
-                media.CoGuid, media.EntryId, media.CatalogStartDate,
-                // {22}
+                media.CoGuid, media.CatalogStartDate,
+                // {21}
                 AddSuffix("name", suffix),
-                // {23}
+                // {22}
                 AddSuffix("description", suffix)
                 );
 
@@ -213,6 +213,20 @@ namespace ElasticSearch.Common
 
                 recordBuilder.Append("\"");
             }
+            #endregion
+
+            #region EntryId
+
+            // Add this field only if it has a value
+            if (!string.IsNullOrEmpty(media.EntryId))
+            {
+                recordBuilder.Append(", \"entry_id\": \"");
+
+                recordBuilder.Append(media.EntryId);
+
+                recordBuilder.Append("\"");
+            }
+
             #endregion
 
             recordBuilder.Append(" }");
