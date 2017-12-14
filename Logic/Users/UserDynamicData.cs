@@ -175,6 +175,10 @@ namespace Core.Users
                     log.ErrorFormat("Error inserting dynamicData: {0}. userId: {1}, groupId: {2}", JsonConvert.SerializeObject(dynamicDataToInsert), UserId, this.GroupId);
                 }
             }
+            else
+            {
+                insertResult = true;
+            }
 
             if (dynamicDataToRemoved != null && dynamicDataToRemoved.Count > 0)
             {
@@ -184,6 +188,10 @@ namespace Core.Users
                     log.ErrorFormat("Error deleting dynamicData: {0}. userId: {1}, groupId: {2}", string.Join(",", dynamicDataToRemoved), UserId, this.GroupId);
                 }
             }
+            else
+            {
+                updateResult = true;
+            }
 
             if (dynamicDataToUpdate != null && dynamicDataToUpdate.Count > 0)
             {
@@ -192,6 +200,10 @@ namespace Core.Users
                 {
                     log.ErrorFormat("Error updating dynamicData: {0}. userId: {1}, groupId: {2}", string.Join(",", dynamicDataToUpdate), UserId, this.GroupId);
                 }
+            }
+            else
+            {
+                deleteResult = true;
             }
 
             return insertResult & deleteResult & updateResult;
