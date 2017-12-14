@@ -32,7 +32,7 @@ namespace ElasticSearch.Common
                 media.m_nDeviceRuleId, media.m_nLikeCounter, media.m_nViews, media.m_dRating, media.m_nVotes, media.m_sStartDate,
                 media.m_sEndDate, media.m_sFinalEndDate, media.m_sCreateDate, media.m_sUpdateDate, Common.Utils.ReplaceDocumentReservedCharacters(media.m_sName, shouldLowerCase),
                 Common.Utils.ReplaceDocumentReservedCharacters(media.m_sDescription, shouldLowerCase), DateTime.UtcNow.ToString("yyyyMMddHHmmss"), media.geoBlockRule,
-                media.CatalogStartDate, media.CoGuid, media.EntryId, media.CatalogStartDate,
+                media.CoGuid, media.EntryId, media.CatalogStartDate,
                 // {22}
                 AddSuffix("name", suffix),
                 // {23}
