@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.API
+namespace WebAPI.Models.Catalog
 {
     public class KalturaImageTypeFilter : KalturaFilter<KalturaImageTypeOrderBy>
     {

@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.API
+namespace WebAPI.Models.Catalog
 {
     public class KalturaTag : KalturaOTTObject
     {

@@ -2891,7 +2891,7 @@ namespace WebAPI.Clients
 
         internal KalturaTagListResponse SearchTags(int groupId, string language, string tag, int topicId, string tagStartsWith, int pageIndex, int pageSize)
         {
-            KalturaTagListResponse result = new Models.API.KalturaTagListResponse();
+            KalturaTagListResponse result = new KalturaTagListResponse();
             TagResponse response = null;
 
             List<TagValue> tagValues = null;

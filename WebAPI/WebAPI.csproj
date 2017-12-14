@@ -238,10 +238,10 @@
     <Compile Include="Controllers\ConfigurationsController.cs" />
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
-    <Compile Include="Models\API\KalturaImageTypeFilter.cs" />
-    <Compile Include="Models\API\KalturaTagFilter.cs" />
-    <Compile Include="Models\API\KalturaTagListResponse.cs" />
-    <Compile Include="Models\API\KalturaTag.cs" />
+    <Compile Include="Models\Catalog\KalturaImageTypeFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaTagFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaTagListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaTag.cs" />
     <Compile Include="Models\Catalog\KalturaAssetListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetStructFilter.cs" />
