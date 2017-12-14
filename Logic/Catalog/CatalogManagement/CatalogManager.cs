@@ -2,8 +2,8 @@
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Catalog.Response;
-using ElasticSearch.Searcher;
 using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -2922,6 +2922,24 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public static ImageTypeResponse UpdateImageType(int groupId, long id, ImageType imageTypeToUpdate, long userId)
+        {
+            ImageTypeResponse result = new ImageTypeResponse();
+            try
+            {
+              //todo: add imageType tp cache and check if exist before update
+
+                DataSet ds = CatalogDAL.UpdateImageType(groupId, id, imageTypeToUpdate.Name, imageTypeToUpdate.SystemName, imageTypeToUpdate.RatioId,
+                    imageTypeToUpdate.HelpText, userId, imageTypeToUpdate.DefaultImageId);
+                result = CreateImageTypeResponseFromDataSet(ds);                
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateImageType for groupId: {0}, id: {1} and ImageType: {2}", groupId, id, JsonConvert.SerializeObject(imageTypeToUpdate)), ex);
+            }
+
+            return result;
+        }
         #endregion
     }
 }
