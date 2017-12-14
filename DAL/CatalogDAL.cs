@@ -4986,7 +4986,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet UpdateImageType(int id, int groupId, string name, string systemName, long rationId, string helpText, long userId, long? defaultImageId)
+        public static DataSet UpdateImageType(int groupId, long id, string name, string systemName, long rationId, string helpText, long userId, long? defaultImageId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateImageType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
