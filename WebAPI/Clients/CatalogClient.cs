@@ -126,7 +126,7 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }
+        }        
 
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
@@ -2889,7 +2889,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaTagListResponse SearchTags(int groupId, string language, string tag, int topicId, string tagStartsWith, int pageIndex, int pageSize)
+        internal KalturaTagListResponse SearchTags(int groupId, string language, bool isExcatValue, string value, int topicId, int pageIndex, int pageSize)
         {
             KalturaTagListResponse result = new KalturaTagListResponse();
             TagResponse response = null;
@@ -2900,7 +2900,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     int languageId = Utils.Utils.GetLanguageId(groupId, language);
-                    response = Core.Catalog.CatalogManagement.CatalogManager.SearchTags(groupId, tag, topicId, tagStartsWith, languageId, pageIndex, pageSize);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.SearchTags(groupId, isExcatValue, value, topicId, languageId, pageIndex, pageSize);
                 }
             }
             catch (Exception ex)

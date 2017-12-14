@@ -5,12 +5,13 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
-{    public class KalturaTagFilter : KalturaFilter<KalturaTagOrderBy>
+{
+    public class KalturaTagFilter : KalturaFilter<KalturaTagOrderBy>
     {
         /// <summary>
         /// Tag to filter by
@@ -37,10 +38,20 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "typeEqual")]
         public int TypeEqual { get; set; }
 
+        internal void Validate()
+        {
+            if (!string.IsNullOrEmpty(TagEqual) && !string.IsNullOrEmpty(TagStartsWith))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaTagFilter.tagEqual", "KalturaTagFilter.tagStartsWith");
+            }
+        }
+
         public override KalturaTagOrderBy GetDefaultOrderByValue()
         {
             return KalturaTagOrderBy.NONE;
         }
+
+
     }
 
     public enum KalturaTagOrderBy
