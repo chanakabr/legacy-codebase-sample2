@@ -2591,7 +2591,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
+        }       
 
         public static bool DoesGroupUsesTemplates(int groupId)
         {
@@ -2939,6 +2939,11 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        public static ImageTypeListResponse GetImageTypes(int groupId, string idIn, string ratioIdIn, int pageIndex, int pageSize)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }
