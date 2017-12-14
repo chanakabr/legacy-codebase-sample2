@@ -2464,7 +2464,7 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.NPVR:
                         break;
                     case eAssetTypes.MEDIA:
-                        MediaAsset mediaAssetToAdd = assetToAdd as MediaAsset;                        
+                        MediaAsset mediaAssetToAdd = assetToAdd as MediaAsset;
                         if (mediaAssetToAdd != null)
                         {
                             result = AddMediaAsset(groupId, ref catalogGroupCache, mediaAssetToAdd, userId);
@@ -2500,7 +2500,7 @@ namespace Core.Catalog.CatalogManagement
                 if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
-                }                
+                }
 
                 switch (assetType)
                 {
@@ -2532,7 +2532,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
             catch (Exception ex)
-            {                
+            {
                 log.Error(string.Format("Failed UpdateAsset for groupId: {0} , id: {1} , assetType: {2}", groupId, id, assetType.ToString()), ex);
             }
 
@@ -2592,7 +2592,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }       
+        }
 
         public static bool DoesGroupUsesTemplates(int groupId)
         {
@@ -2846,7 +2846,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static TagResponse SearchTags(int groupId, string tag, int topicId, string searchValue, int languageId, int pageIndex, int pageSize)
+        public static TagResponse SearchTags(int groupId, bool isExcatValue, string searchValue, int topicId, int languageId, int pageIndex, int pageSize)
         {
             TagResponse result = new TagResponse();
 
@@ -2874,19 +2874,19 @@ namespace Core.Catalog.CatalogManagement
                 Language = language,
                 PageIndex = pageIndex,
                 PageSize = pageSize,
-                AutocompleteSearchValue = searchValue,
-                ExactSearchValue = tag,
+                AutocompleteSearchValue = isExcatValue ? string.Empty : searchValue,
+                ExactSearchValue = isExcatValue ? searchValue : string.Empty,
                 TopicId = topicId
             };
 
             int totalItemsCount = 0;
             ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
             result.TagValues = wrapper.SearchTags(definitions, out totalItemsCount);
-            result.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             result.TotalItems = totalItemsCount;
 
             return result;
-        }        
+        }
 
         public static ImageTypeResponse AddImageType(int groupId, ImageType imageTypeToAdd, long userId)
         {
@@ -2912,7 +2912,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (CatalogDAL.DeleteImageType(groupId, id, userId))
                 {
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                    
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
@@ -2928,11 +2928,11 @@ namespace Core.Catalog.CatalogManagement
             ImageTypeResponse result = new ImageTypeResponse();
             try
             {
-              //todo: add imageType tp cache and check if exist before update
+                //todo: add imageType tp cache and check if exist before update
 
                 DataSet ds = CatalogDAL.UpdateImageType(groupId, id, imageTypeToUpdate.Name, imageTypeToUpdate.SystemName, imageTypeToUpdate.RatioId,
                     imageTypeToUpdate.HelpText, userId, imageTypeToUpdate.DefaultImageId);
-                result = CreateImageTypeResponseFromDataSet(ds);                
+                result = CreateImageTypeResponseFromDataSet(ds);
             }
             catch (Exception ex)
             {
