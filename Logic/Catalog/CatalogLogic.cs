@@ -96,6 +96,8 @@ namespace Core.Catalog
 			            "description",
 			            "epg_channel_id",
                         "crid",
+                        "co_guid",
+                        "entry_id",
                         "...."
 		            };
 
@@ -6854,6 +6856,23 @@ namespace Core.Catalog
                 {
                     // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
                     if (searchKeyLowered == "start_date")
+                    {
+                        definitions.defaultStartDate = false;
+                        GetLeafDate(ref leaf, request.m_dServerTime);
+
+                        if (!definitions.shouldDateSearchesApplyToAllTypes)
+                        {
+                            leaf.assetTypes = new List<eObjectType>()
+                            {
+                                eObjectType.EPG,
+                                eObjectType.Recording
+                            };
+                        }
+
+                        leaf.shouldLowercase = false;
+                    }
+                    // TODO - Lior , ask Ira if to allow this for all types or only EPG\Recording
+                    if (searchKeyLowered == "catalog_start_date")
                     {
                         definitions.defaultStartDate = false;
                         GetLeafDate(ref leaf, request.m_dServerTime);
