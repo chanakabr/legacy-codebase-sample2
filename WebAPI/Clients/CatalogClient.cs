@@ -3035,9 +3035,46 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaImageTypeListResponse GetImageTypes(int groupId, long userId, string idIn, string ratioIdIn, int pageIndex, int pageSize)
+        internal KalturaImageTypeListResponse GetImageTypes(int groupId, string id, string ratioId, int pageIndex, int pageSize)
         {
-            throw new NotImplementedException();
+
+            KalturaImageTypeListResponse result = new KalturaImageTypeListResponse();
+            ImageTypeListResponse response = null;
+
+            List<ImageType> imageTypes = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.GetImageTypes(groupId, id, ratioId, pageIndex, pageSize);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling API service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.ImageTypes != null && response.ImageTypes.Count > 0)
+            {
+                result.TotalCount = response.TotalItems;
+                // convert ImageTypes            
+                result.ImageTypes = Mapper.Map<List<KalturaImageType>>(response.ImageTypes);
+            }
+
+            return result;
         }
 
         internal KalturaImageType AddImageType(int groupId, long userId, KalturaImageType imageType)

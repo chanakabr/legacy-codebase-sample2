@@ -33,7 +33,6 @@ namespace WebAPI.Controllers
         {
             KalturaImageTypeListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
-            long userId = Utils.Utils.GetUserIdFromKs();
 
             if (pager == null)
             {
@@ -47,7 +46,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetImageTypes(groupId, userId, filter.IdIn, filter.RatioIdIn, pager.getPageIndex(), pager.getPageSize());
+                response = ClientsManager.CatalogClient().GetImageTypes(groupId, filter.IdIn, filter.RatioIdIn, pager.getPageIndex(), pager.getPageSize());
             }
             catch (ClientException ex)
             {
