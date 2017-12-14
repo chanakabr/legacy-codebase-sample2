@@ -1086,17 +1086,18 @@ namespace Core.Catalog.CatalogManagement
                         AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, tagValue);
                     }
 
+                    // TODO: remove since its not needed anymore, we are using tagcontroller for translations
                     // insert other language values into tagsXml
-                    foreach (LanguageContainer[] languageArray in tag.Values)
-                    {
-                        foreach (LanguageContainer language in languageArray)
-                        {
-                            if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
-                            {
-                                AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value);
-                            }
-                        }
-                    }
+                    //foreach (LanguageContainer[] languageArray in tag.Values)
+                    //{
+                    //    foreach (LanguageContainer language in languageArray)
+                    //    {
+                    //        if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
+                    //        {
+                    //            AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value);
+                    //        }
+                    //    }
+                    //}
                 }
             }
 
