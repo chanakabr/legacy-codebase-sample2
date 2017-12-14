@@ -2,8 +2,10 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -179,6 +181,24 @@ namespace WebAPI.Models.Catalog
         {
             return Type.HasValue ? (int)Type : 0;
         }
+
+        internal void ValidateTags()
+        {
+            if (Tags != null && Tags.Count > 0)
+            {
+                foreach (KeyValuePair<string, KalturaMultilingualStringValueArray> tagValues in Tags)
+                {
+                    // TODO - Lior not needed anymore since we don't support adding\updating tag translation per asset
+                    if (tagValues.Value.Objects != null && tagValues.Value.Objects.Count > 0 &&
+                        tagValues.Value.Objects.Select(x => x.value.GetNoneDefaultLanugageContainer()).Count() > 0)
+                    {
+                        throw new BadRequestException(ApiException.TAG_TRANSLATION_NOT_ALLOWED);
+                    }
+
+                }
+            }            
+        }
+
     }
     
 }

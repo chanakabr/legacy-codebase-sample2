@@ -1060,10 +1060,12 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
             }
 
+            asset.ValidateTags();
+
             if (asset is KalturaMediaAsset && !(asset as KalturaMediaAsset).Status.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
-            }
+            }            
 
             try
             {
@@ -1155,6 +1157,8 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
             }
+
+            asset.ValidateTags();
 
             try
             {
