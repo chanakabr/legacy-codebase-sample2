@@ -3020,7 +3020,12 @@ namespace Core.Catalog.CatalogManagement
             ImageTypeResponse result = new ImageTypeResponse();
             try
             {
-                //todo: add imageType tp cache and check if exist before update
+                ImageTypeListResponse imageTypeListResponse = GetImageTypes(groupId, true, new List<long>(new long[] { id }));
+                if (imageTypeListResponse != null && imageTypeListResponse.ImageTypes != null && imageTypeListResponse.ImageTypes.Count == 0)
+                {
+                    result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
+                    return result;
+                }
 
                 DataSet ds = CatalogDAL.UpdateImageType(groupId, id, imageTypeToUpdate.Name, imageTypeToUpdate.SystemName, imageTypeToUpdate.RatioId,
                     imageTypeToUpdate.HelpText, userId, imageTypeToUpdate.DefaultImageId);
