@@ -5012,6 +5012,14 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
+        public static DataTable GetRatios()
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPicRatios");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            return sp.Execute();
+        }
+
         #endregion
     }
 }

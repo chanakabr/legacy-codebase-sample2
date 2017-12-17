@@ -13,6 +13,8 @@ namespace CachingProvider.LayeredCache
 
         public const string GET_CURRENCIES_KEY = "currencies";
 
+        public const string GET_RATIOS_KEY = "Ratios";
+
         #endregion
 
         #region Dynamic Keys - SHOULD START WITH "someMeaningfulName_..." prefix
@@ -297,6 +299,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("Asset_type_{0}_id_{1}", assetType, id);
         }
 
+        public static string GetGroupImageTypesKey(int groupId)
+        {
+            return string.Format("GroupImageTypes_groupId_{0}", groupId);
+        }
+        
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
