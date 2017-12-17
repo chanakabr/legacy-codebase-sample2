@@ -3035,7 +3035,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaImageTypeListResponse GetImageTypes(int groupId, bool isSearchByIds, List<long> ids, int pageIndex, int pageSize)
+        internal KalturaImageTypeListResponse GetImageTypes(int groupId, bool isSearchByIds, List<long> ids)
         {
 
             KalturaImageTypeListResponse result = new KalturaImageTypeListResponse();
@@ -3046,7 +3046,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.GetImageTypes(groupId, isSearchByIds, ids, pageIndex, pageSize);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.GetImageTypes(groupId, isSearchByIds, ids);
                 }
             }
             catch (Exception ex)

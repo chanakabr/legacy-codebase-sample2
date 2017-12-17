@@ -29,15 +29,10 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaImageTypeListResponse List(KalturaImageTypeFilter filter = null, KalturaFilterPager pager = null)
+        public KalturaImageTypeListResponse List(KalturaImageTypeFilter filter = null)
         {
             KalturaImageTypeListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
-
-            if (pager == null)
-            {
-                pager = new KalturaFilterPager();
-            }
 
             if (filter == null)
             {
@@ -52,12 +47,12 @@ namespace WebAPI.Controllers
                 if (!string.IsNullOrEmpty(filter.IdIn))
                 {
                     //search using Ids
-                    response = ClientsManager.CatalogClient().GetImageTypes(groupId, true, filter.GetIdIn(), pager.getPageIndex(), pager.getPageSize());
+                    response = ClientsManager.CatalogClient().GetImageTypes(groupId, true, filter.GetIdIn());
                 }
                 else
                 {
                     //search using rationIds
-                    response = ClientsManager.CatalogClient().GetImageTypes(groupId, false, filter.GetRatioIdIn(), pager.getPageIndex(), pager.getPageSize());
+                    response = ClientsManager.CatalogClient().GetImageTypes(groupId, false, filter.GetRatioIdIn());
                 }
             }
             catch (ClientException ex)

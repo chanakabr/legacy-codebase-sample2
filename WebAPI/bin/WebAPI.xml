@@ -713,7 +713,7 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
-        <member name="M:WebAPI.Controllers.ImageTypeController.List(WebAPI.Models.Catalog.KalturaImageTypeFilter,WebAPI.Models.General.KalturaFilterPager)">
+        <member name="M:WebAPI.Controllers.ImageTypeController.List(WebAPI.Models.Catalog.KalturaImageTypeFilter)">
             <summary>
             Get the list of image types for the partner
             </summary>
