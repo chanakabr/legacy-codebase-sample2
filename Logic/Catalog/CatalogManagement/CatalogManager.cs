@@ -3019,19 +3019,29 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static ImageTypeListResponse GetImageTypes(int groupId, string idIn, string ratioIdIn, int pageIndex, int pageSize)
+        public static ImageTypeListResponse GetImageTypes(int groupId, bool isSearchByIds, List<long> ids, int pageIndex, int pageSize)
         {
-            ImageTypeListResponse response = new ImageTypeListResponse();
+            ImageTypeListResponse response = new ImageTypeListResponse() { Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
 
             List<ImageType> imageTypes = GetGroupImageTypes(groupId);
+            response.TotalItems = imageTypes.Count;
 
-            //if(imageTypes != null) { }
+            if (imageTypes != null)
+            {
+                if(isSearchByIds)
+                {
+                    // return image TYpes according to Ids
+                    response.ImageTypes = imageTypes.Where(x => ids.Contains(x.Id)).ToList();                   
+                }
+                else
+                {
+                    // return image TYpes according to ratio Ids
+                    response.ImageTypes = imageTypes.Where(x => ids.Contains(x.RatioId)).ToList();
+                }
 
-
-
-
-
-
+                response.Status.Code = (int)eResponseStatus.OK;
+                response.Status.Message = eResponseStatus.OK.ToString();
+            }           
 
             return response;
         }
