@@ -2972,7 +2972,18 @@ namespace Core.Catalog.CatalogManagement
             {
                 DataSet ds = CatalogDAL.InsertImageType(groupId, imageTypeToAdd.Name, imageTypeToAdd.SystemName, imageTypeToAdd.RatioId, imageTypeToAdd.HelpText,
                                                       userId, imageTypeToAdd.DefaultImageId);
-                result = CreateImageTypeResponseFromDataSet(ds);
+                if (ds != null)
+                {
+                    result = CreateImageTypeResponseFromDataSet(ds);
+
+                    string invalidationKey = LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on AddImageType key = {0}", invalidationKey);
+                    }
+
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -2989,6 +3000,12 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (CatalogDAL.DeleteImageType(groupId, id, userId))
                 {
+                    string invalidationKey = LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on DeleteImageType key = {0}", invalidationKey);
+                    }
+
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
@@ -3009,7 +3026,18 @@ namespace Core.Catalog.CatalogManagement
 
                 DataSet ds = CatalogDAL.UpdateImageType(groupId, id, imageTypeToUpdate.Name, imageTypeToUpdate.SystemName, imageTypeToUpdate.RatioId,
                     imageTypeToUpdate.HelpText, userId, imageTypeToUpdate.DefaultImageId);
-                result = CreateImageTypeResponseFromDataSet(ds);
+                if (ds != null)
+                {
+                    result = CreateImageTypeResponseFromDataSet(ds);
+
+                    string invalidationKey = LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on UpdateImageType key = {0}", invalidationKey);
+                    }
+
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
             catch (Exception ex)
             {
