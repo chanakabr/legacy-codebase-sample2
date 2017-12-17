@@ -3124,7 +3124,7 @@ namespace WebAPI.Clients
                 ImageType requestImageType = AutoMapper.Mapper.Map<ImageType>(imageType);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //response = Core.Catalog.CatalogManagement.CatalogManager.UpdateImageType(groupId, requestImageType, userId);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateImageType(groupId, id, requestImageType, userId);
                 }
             }
             catch (Exception ex)
