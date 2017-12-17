@@ -3054,25 +3054,26 @@ namespace Core.Catalog.CatalogManagement
 
             if (imageTypes != null)
             {
-                if (ids == null || ids.Count ==0)
+                response.Status.Code = (int)eResponseStatus.OK;
+                response.Status.Message = eResponseStatus.OK.ToString();
+
+                if (ids == null || ids.Count == 0)
                 {
                     response.ImageTypes = imageTypes;
+                    return response;
                 }
 
-                if(isSearchByIds)
+                if (isSearchByIds)
                 {
                     // return image TYpes according to Ids
-                    response.ImageTypes = imageTypes.Where(x => ids.Contains(x.Id)).ToList();                   
+                    response.ImageTypes = imageTypes.Where(x => ids.Contains(x.Id)).ToList();
                 }
                 else
                 {
                     // return image TYpes according to ratio Ids
                     response.ImageTypes = imageTypes.Where(x => ids.Contains(x.RatioId)).ToList();
                 }
-
-                response.Status.Code = (int)eResponseStatus.OK;
-                response.Status.Message = eResponseStatus.OK.ToString();
-            }           
+            }
 
             return response;
         }
