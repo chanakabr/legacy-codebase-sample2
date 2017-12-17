@@ -1729,6 +1729,83 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
+        private static List<ImageType> GetGroupImageTypes(int groupId)
+        {
+            List<ImageType> result = null;
+
+            // check if image types exists for group
+            string key = LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId);
+
+            // try to get from cache  
+
+            bool cacheResult = LayeredCache.Instance.Get<List<ImageType>>(
+                key, ref result, GetImageType, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GET_IMAGE_TYPE_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId) });
+
+            if (!cacheResult)
+            {
+                log.Error(string.Format("GetImageTypes - Failed get data from cache groupId = {0}", groupId));
+                result = null;
+            }
+
+            return result;
+        }
+
+        private static Tuple<List<ImageType>, bool> GetImageType(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<ImageType> imageTypes = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        DataSet ds = CatalogDAL.GetImageTypes(groupId.Value);
+                        imageTypes = CreateImageTypes(ds);
+
+                        res = imageTypes != null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetImageType failed params : {0}", funcParams != null ? string.Join(";",
+                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
+            }
+
+            return new Tuple<List<ImageType>, bool>(imageTypes, res);
+        }
+
+        private static List<ImageType> CreateImageTypes(DataSet ds)
+        {
+            List<ImageType> response = null;
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable imageTypes = ds.Tables[0];
+                if (imageTypes != null && imageTypes.Rows != null)
+                {
+                    response = new List<ImageType>();
+                    foreach (DataRow dr in imageTypes.Rows)
+                    {
+                        ImageType imageType = new ImageType()
+                        {
+                            Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
+                            SystemName = ODBCWrapper.Utils.GetSafeStr(dr, "SYSTEM_NAME"),
+                            RatioId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RATIO_ID"),
+                            HelpText = ODBCWrapper.Utils.GetSafeStr(dr, "HELP_TEXT"),
+                            DefaultImageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DEFAULT_IMAGE_ID")
+                        };
+
+                        response.Add(imageType);
+                    }
+                }
+            }
+
+            return response;
+        }
         #endregion
 
         #region Public Methods
@@ -2944,7 +3021,19 @@ namespace Core.Catalog.CatalogManagement
 
         public static ImageTypeListResponse GetImageTypes(int groupId, string idIn, string ratioIdIn, int pageIndex, int pageSize)
         {
-            throw new NotImplementedException();
+            ImageTypeListResponse response = new ImageTypeListResponse();
+
+            List<ImageType> imageTypes = GetGroupImageTypes(groupId);
+
+            //if(imageTypes != null) { }
+
+
+
+
+
+
+
+            return response;
         }
         #endregion
     }
