@@ -491,6 +491,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_mediaConcurrencyRules_by_domainLimitationModule_{0}", dlmId);
         }
 
+        public static string GetGroupImageTypesInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_GroupImageTypes_groupId_{0}", groupId);
+        }
+
         #region Domains
 
         public static string GetHouseholdInvalidationKey(long householdId)

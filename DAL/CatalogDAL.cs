@@ -2074,7 +2074,7 @@ namespace Tvinci.Core.DAL
             }
 
             return mediaToViewsCountMapping;
-        }
+        }      
 
         public static bool Get_MediaMarkHitInitialData(int mediaID, int mediaFileID, long ipVal, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID,
@@ -5000,6 +5000,15 @@ namespace Tvinci.Core.DAL
             if (defaultImageId.HasValue)
                 sp.AddParameter("@defaultImageId", defaultImageId.Value);
 
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet GetImageTypes(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetImageTypes");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");            
+            sp.AddParameter("@groupId", groupId);
+            
             return sp.ExecuteDataSet();
         }
 
