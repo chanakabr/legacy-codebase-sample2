@@ -163,50 +163,25 @@ namespace Core.Users
         //generate a temporary table and insert to it all the data that need to be updated\inserted
         private bool UpdateAllDynamicData()
         {
-            bool insertResult = false;
-            bool updateResult = false;
-            bool deleteResult = false;
-
-            if (dynamicDataToInsert != null && dynamicDataToInsert.Count > 0)
+            if (dynamicDataToInsert != null && dynamicDataToInsert.Count > 0 && !this.Insert())
             {
-                insertResult = this.Insert();
-                if (!insertResult)
-                {
-                    log.ErrorFormat("Error inserting dynamicData: {0}. userId: {1}, groupId: {2}", JsonConvert.SerializeObject(dynamicDataToInsert), UserId, this.GroupId);
-                }
-            }
-            else
-            {
-                insertResult = true;
+                log.ErrorFormat("Error inserting dynamicData: {0}. userId: {1}, groupId: {2}", JsonConvert.SerializeObject(dynamicDataToInsert), UserId, this.GroupId);
+                return false;
             }
 
-            if (dynamicDataToRemoved != null && dynamicDataToRemoved.Count > 0)
+            if (dynamicDataToRemoved != null && dynamicDataToRemoved.Count > 0 && !this.Delete())
             {
-                deleteResult = this.Delete();
-                if (!deleteResult)
-                {
-                    log.ErrorFormat("Error deleting dynamicData: {0}. userId: {1}, groupId: {2}", string.Join(",", dynamicDataToRemoved), UserId, this.GroupId);
-                }
-            }
-            else
-            {
-                updateResult = true;
+                log.ErrorFormat("Error deleting dynamicData: {0}. userId: {1}, groupId: {2}", string.Join(",", dynamicDataToRemoved), UserId, this.GroupId);
+                return false;
             }
 
-            if (dynamicDataToUpdate != null && dynamicDataToUpdate.Count > 0)
+            if (dynamicDataToUpdate != null && dynamicDataToUpdate.Count > 0 && !this.Update())
             {
-                updateResult = this.Update();
-                if (!updateResult)
-                {
-                    log.ErrorFormat("Error updating dynamicData: {0}. userId: {1}, groupId: {2}", string.Join(",", dynamicDataToUpdate), UserId, this.GroupId);
-                }
-            }
-            else
-            {
-                deleteResult = true;
+                log.ErrorFormat("Error updating dynamicData: {0}. userId: {1}, groupId: {2}", string.Join(",", dynamicDataToUpdate), UserId, this.GroupId);
+                return false;
             }
 
-            return insertResult & deleteResult & updateResult;
+            return true;
         }
 
         public bool Initialize(string sXML)
