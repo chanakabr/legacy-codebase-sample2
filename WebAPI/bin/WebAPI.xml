@@ -713,12 +713,17 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.RatioController.List">
+            <summary>
+            Get the list of available ratios
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.ImageTypeController.List(WebAPI.Models.Catalog.KalturaImageTypeFilter)">
             <summary>
             Get the list of image types for the partner
             </summary>
             <param name="filter">Filter</param>
-            <param name="pager">Page size and index</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.ImageTypeController.Add(WebAPI.Models.Catalog.KalturaImageType)">
@@ -4091,6 +4096,21 @@
             <param name="value">Value of dynamicData </param>
             <param name="userId">User identifier</param>
             <returns></returns>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRatio.Id">
+            <summary>
+            ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRatio.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRatioListResponse.Ratios">
+            <summary>
+            A list of ratios
+            </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaImageTypeFilter.IdIn">
             <summary>

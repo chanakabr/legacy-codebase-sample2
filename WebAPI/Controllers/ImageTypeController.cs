@@ -25,7 +25,6 @@ namespace WebAPI.Controllers
         /// Get the list of image types for the partner
         /// </summary>
         /// <param name="filter">Filter</param>
-        /// <param name="pager">Page size and index</param>
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]

@@ -2463,6 +2463,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetImage":
+                    switch(property.Name)
+                    {
+                        case "AssetId":
+                            return "assetId";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
                 case "KalturaAssetInfo":
                     switch(property.Name)
                     {
@@ -5532,6 +5544,24 @@ namespace WebAPI.Reflection
                             return "externalToken";
                         case "Token":
                             return "token";
+                    }
+                    break;
+                    
+                case "KalturaRatio":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
+                case "KalturaRatioListResponse":
+                    switch(property.Name)
+                    {
+                        case "Ratios":
+                            return "objects";
                     }
                     break;
                     

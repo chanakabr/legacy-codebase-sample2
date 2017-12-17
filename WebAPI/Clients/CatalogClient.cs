@@ -34,6 +34,7 @@ namespace WebAPI.Clients
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
+
         public string Signature { get; set; }
         public string SignString { get; set; }
         public string SignatureKey
@@ -3179,6 +3180,47 @@ namespace WebAPI.Clients
             }
 
             return true;
+        }
+
+        internal KalturaRatioListResponse GetRatios(int groupId)
+        {
+            KalturaRatioListResponse result = new KalturaRatioListResponse();
+            RatioListResponse response = null;
+
+            List<ImageType> imageTypes = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.GetRatios(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling API service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Ratios != null && response.Ratios.Count > 0)
+            {
+                result.TotalCount = response.TotalItems;
+                // convert ImageTypes            
+                result.Ratios = Mapper.Map<List<KalturaRatio>>(response.Ratios);
+            }
+
+            return result;
         }
     }
 }

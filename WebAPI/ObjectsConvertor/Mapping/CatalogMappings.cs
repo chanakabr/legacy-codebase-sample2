@@ -526,6 +526,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
              ;
 
             #endregion       
+
+            #region Ratio
+
+            Mapper.CreateMap<Core.Catalog.CatalogManagement.Ratio, KalturaRatio>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              ;
+
+            #endregion       
         }
 
         #region New Catalog Management
