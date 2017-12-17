@@ -82,6 +82,14 @@ namespace WebAPI.Models.Catalog
 
             return list;
         }
+
+        internal void Validate()
+        {
+            if (!string.IsNullOrEmpty(IdIn) && !string.IsNullOrEmpty(RatioIdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaImageTypeFilter.idIn", "KalturaImageTypeFilter.ratioIdIn");
+            }
+        }
     }
 
     public enum KalturaImageTypeOrderBy

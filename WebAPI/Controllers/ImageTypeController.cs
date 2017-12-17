@@ -46,7 +46,19 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetImageTypes(groupId, filter.IdIn, filter.RatioIdIn, pager.getPageIndex(), pager.getPageSize());
+                filter.Validate();
+
+                // call client      
+                if (!string.IsNullOrEmpty(filter.IdIn))
+                {
+                    //search using Ids
+                    response = ClientsManager.CatalogClient().GetImageTypes(groupId, true, filter.GetIdIn(), pager.getPageIndex(), pager.getPageSize());
+                }
+                else
+                {
+                    //search using rationIds
+                    response = ClientsManager.CatalogClient().GetImageTypes(groupId, false, filter.GetRatioIdIn(), pager.getPageIndex(), pager.getPageSize());
+                }
             }
             catch (ClientException ex)
             {
