@@ -3045,7 +3045,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static ImageTypeListResponse GetImageTypes(int groupId, bool isSearchByIds, List<long> ids, int pageIndex, int pageSize)
+        public static ImageTypeListResponse GetImageTypes(int groupId, bool isSearchByIds, List<long> ids)
         {
             ImageTypeListResponse response = new ImageTypeListResponse() { Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
 
