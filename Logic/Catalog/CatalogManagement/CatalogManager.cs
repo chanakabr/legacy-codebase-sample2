@@ -2981,8 +2981,6 @@ namespace Core.Catalog.CatalogManagement
                     {
                         log.ErrorFormat("Failed to set invalidation key on AddImageType key = {0}", invalidationKey);
                     }
-
-                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
@@ -3056,6 +3054,11 @@ namespace Core.Catalog.CatalogManagement
 
             if (imageTypes != null)
             {
+                if (ids == null || ids.Count ==0)
+                {
+                    response.ImageTypes = imageTypes;
+                }
+
                 if(isSearchByIds)
                 {
                     // return image TYpes according to Ids
