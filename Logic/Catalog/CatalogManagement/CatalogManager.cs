@@ -1734,7 +1734,7 @@ namespace Core.Catalog.CatalogManagement
             List<ImageType> result = null;
 
             // check if image types exists for group
-            string key = LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId);
+            string key = LayeredCacheKeys.GetGroupImageTypesKey(groupId);
 
             // try to get from cache  
 
@@ -1801,6 +1801,67 @@ namespace Core.Catalog.CatalogManagement
 
                         response.Add(imageType);
                     }
+                }
+            }
+
+            return response;
+        }
+
+        private static List<Ratio> GetImageRatios(int groupId)
+        {
+            List<Ratio> result = null;
+
+            // check if image types exists for group
+            string key = LayeredCacheKeys.GET_RATIOS_KEY;
+
+            // try to get from cache  
+
+            bool cacheResult = LayeredCache.Instance.Get<List<Ratio>>(
+                key, ref result, GetRatios, null, groupId, LayeredCacheConfigNames.GET_RATIOS_CACHE_CONFIG_NAME, null);
+
+            if (!cacheResult)
+            {
+                log.Error(string.Format("GetGroupRatios - Failed get data from cache groupId = {0}", groupId));
+                result = null;
+            }
+
+            return result;
+        }
+
+        private static Tuple<List<Ratio>, bool> GetRatios(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<Ratio> ratios = null;
+            try
+            {
+                DataTable dt = CatalogDAL.GetRatios();
+                ratios = CreateRatios(dt);
+
+                res = ratios != null;
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetRatios failed", ex);
+            }
+
+            return new Tuple<List<Ratio>, bool>(ratios, res);
+        }
+
+        private static List<Ratio> CreateRatios(DataTable dt)
+        {
+            List<Ratio> response = null;
+            if (dt != null && dt.Rows != null)
+            {
+                response = new List<Ratio>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    Ratio ratio = new Ratio()
+                    {
+                        Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id"),
+                        Name = ODBCWrapper.Utils.GetSafeStr(dr, "ratio"),
+                    };
+
+                    response.Add(ratio);
                 }
             }
 
@@ -2690,7 +2751,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -3055,7 +3116,6 @@ namespace Core.Catalog.CatalogManagement
             ImageTypeListResponse response = new ImageTypeListResponse() { Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
 
             List<ImageType> imageTypes = GetGroupImageTypes(groupId);
-            response.TotalItems = imageTypes.Count;
 
             if (imageTypes != null)
             {
@@ -3078,6 +3138,23 @@ namespace Core.Catalog.CatalogManagement
                     // return image TYpes according to ratio Ids
                     response.ImageTypes = imageTypes.Where(x => ids.Contains(x.RatioId)).ToList();
                 }
+
+                response.TotalItems = imageTypes.Count;
+            }
+
+            return response;
+        }
+
+        public static RatioListResponse GetRatios(int groupId)
+        {
+            RatioListResponse response = new RatioListResponse();
+
+            response.Ratios = GetImageRatios(groupId);
+
+            if (response.Ratios != null)
+            {
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.TotalItems = response.Ratios.Count;
             }
 
             return response;
