@@ -189,16 +189,19 @@ namespace WebAPI.Models.Catalog
                 foreach (KeyValuePair<string, KalturaMultilingualStringValueArray> tagValues in Tags)
                 {
                     // TODO - Lior not needed anymore since we don't support adding\updating tag translation per asset
-                    if (tagValues.Value.Objects != null && tagValues.Value.Objects.Count > 0 &&
-                        tagValues.Value.Objects.Select(x => x.value.GetNoneDefaultLanugageContainer()).Count() > 0)
+                    if (tagValues.Value.Objects != null && tagValues.Value.Objects.Count > 0)
                     {
-                        throw new BadRequestException(ApiException.TAG_TRANSLATION_NOT_ALLOWED);
+                        foreach (var item in tagValues.Value.Objects)
+                        {
+                            if (item.value.GetNoneDefaultLanugageContainer() != null && item.value.GetNoneDefaultLanugageContainer().Count > 0)
+                            {
+                                throw new BadRequestException(ApiException.TAG_TRANSLATION_NOT_ALLOWED);
+                            }
+                        }
                     }
 
                 }
             }            
         }
-
     }
-    
 }
