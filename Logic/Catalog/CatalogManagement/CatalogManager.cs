@@ -409,6 +409,7 @@ namespace Core.Catalog.CatalogManagement
                     else
                     {
                         response.Status = CreateTagResponseStatusFromResult(id);
+                        return response;
                     }
                 }
 
@@ -1624,6 +1625,7 @@ namespace Core.Catalog.CatalogManagement
                     else
                     {
                         response.Status = CreateTagResponseStatusFromResult(id);
+                        return response;
                     }
                 }
 
