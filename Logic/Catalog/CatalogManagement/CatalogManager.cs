@@ -3089,10 +3089,24 @@ namespace Core.Catalog.CatalogManagement
             ImageTypeResponse result = new ImageTypeResponse();
             try
             {
-                ImageTypeListResponse imageTypeListResponse = GetImageTypes(groupId, true, new List<long>(new long[] { id }));
-                if (imageTypeListResponse != null && imageTypeListResponse.ImageTypes != null && imageTypeListResponse.ImageTypes.Count == 0)
+                ImageTypeListResponse imageTypeListResponse = GetImageTypes(groupId, true, null);
+                if (imageTypeListResponse == null || (imageTypeListResponse != null && imageTypeListResponse.ImageTypes == null) || (imageTypeListResponse.ImageTypes.Count == 0))
                 {
                     result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
+                    return result;
+                }
+
+                var cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.Id == imageTypeToUpdate.Id).FirstOrDefault();
+                if (cachedImageType == null)
+                {
+                    result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
+                    return result;
+                }
+
+                cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.SystemName == imageTypeToUpdate.SystemName && x.Id != imageTypeToUpdate.Id).FirstOrDefault();
+                if (cachedImageType == null)
+                {
+                    result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeAlreadyInUse, Message = eResponseStatus.ImageTypeAlreadyInUse.ToString() };
                     return result;
                 }
 
