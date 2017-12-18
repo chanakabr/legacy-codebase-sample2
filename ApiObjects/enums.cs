@@ -967,4 +967,22 @@ namespace ApiObjects
         Disable = 0,
         Delete = 1
     }
+
+    public enum ImageStatus
+    {
+        Pending = 0,
+        Ready = 1,
+        Importing = 3,
+        Failed = 4
+    }
+
+    public enum ImageObjectType
+    {
+        MediaAsset = 0,
+        ProgramAsset = 1,
+        Channel = 2,
+        Category = 3,
+        Partner = 4,
+        ImageType = 5
+    }
 }

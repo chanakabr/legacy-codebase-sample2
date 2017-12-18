@@ -3179,6 +3179,21 @@ namespace Core.Catalog.CatalogManagement
 
             return response;
         }
+
+        public static Status DeleteImage(int groupId, long id, long userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static ImageResponse UpdateImage(int groupId, long id, Image requestImage, long userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static ImageResponse AddImage(int groupId, Image requestImage, long userId)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

@@ -194,6 +194,9 @@
     <Compile Include="Catalog\CatalogManagement\AssetListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\AssetResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\CatalogGroupCache.cs" />
+    <Compile Include="Catalog\CatalogManagement\Image.cs" />
+    <Compile Include="Catalog\CatalogManagement\ImageListResponse.cs" />
+    <Compile Include="Catalog\CatalogManagement\ImageResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\Ratio.cs" />
     <Compile Include="Catalog\CatalogManagement\ImageType.cs" />
     <Compile Include="Catalog\CatalogManagement\RatioListResponse.cs" />
