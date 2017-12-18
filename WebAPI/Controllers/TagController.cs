@@ -95,6 +95,10 @@ namespace WebAPI.Controllers
                         tag.Tag.Validate();
                     }
                 }
+                else
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "multilingualTag");
+                }
 
                 // call client
                 response = ClientsManager.CatalogClient().AddTag(groupId, tag, userId);
@@ -130,6 +134,10 @@ namespace WebAPI.Controllers
                 {
                     tag.Tag.Validate();
                 }
+            }
+            else
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "multilingualTag");
             }
 
             try
