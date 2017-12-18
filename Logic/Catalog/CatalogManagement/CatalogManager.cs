@@ -1351,6 +1351,40 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
+        private static Asset GetAssetWithNoCache(int groupId, long id, eAssetTypes assetType)
+        {
+            Asset result = null;
+            try
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetWithNoCache", groupId);
+                }
+
+                switch (assetType)
+                {
+                    case eAssetTypes.EPG:
+                        break;
+                    case eAssetTypes.NPVR:
+                        break;
+                    case eAssetTypes.MEDIA:
+                        DataSet ds = CatalogDAL.GetAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
+                        result = CreateMediaAsset(groupId, id, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                        break;
+                    case eAssetTypes.UNKNOWN:
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssetWithNoCache for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString()), ex);
+            }
+
+            return result;
+        }
+
         private static Tuple<Asset, bool> GetAsset(Dictionary<string, object> funcParams)
         {
             bool res = false;
@@ -1364,27 +1398,7 @@ namespace Core.Catalog.CatalogManagement
                     eAssetTypes assetType;
                     if (groupId.HasValue && groupId.Value > 0 && id.HasValue && id.Value > 0 && Enum.TryParse<eAssetTypes>(funcParams["assetType"].ToString(), out assetType))
                     {
-                        CatalogGroupCache catalogGroupCache;
-                        if (!TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
-                        {
-                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAsset", groupId);
-                        }
-
-                        switch (assetType)
-                        {
-                            case eAssetTypes.EPG:
-                                break;
-                            case eAssetTypes.NPVR:
-                                break;
-                            case eAssetTypes.MEDIA:
-                                DataSet ds = CatalogDAL.GetAsset(groupId.Value, id.Value, catalogGroupCache.DefaultLanguage.ID);
-                                asset = CreateMediaAsset(groupId.Value, id.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
-                                break;
-                            case eAssetTypes.UNKNOWN:
-                            default:
-                                break;
-                        }
-
+                        asset = GetAssetWithNoCache(groupId.Value, id.Value, assetType);
                         res = asset != null;
                     }
                 }
@@ -2387,14 +2401,21 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetResponse GetAsset(int groupId, long id, eAssetTypes assetType)
+        public static AssetResponse GetAsset(int groupId, long id, eAssetTypes assetType, bool shouldGoToCache = true)
         {
             AssetResponse result = new AssetResponse();
             try
             {
                 if (id > 0 && assetType != eAssetTypes.UNKNOWN)
                 {
-                    result.Asset = GetAssetFromCache(groupId, id, assetType);
+                    if (shouldGoToCache)
+                    {
+                        result.Asset = GetAssetFromCache(groupId, id, assetType);
+                    }
+                    else
+                    {
+                        result.Asset = GetAssetWithNoCache(groupId, id, assetType);
+                    }
                     if (result.Asset == null)
                     {
                         log.ErrorFormat("Failed getting asset from GetAssetFromCache, for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());
@@ -2450,7 +2471,7 @@ namespace Core.Catalog.CatalogManagement
             Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> result = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
             try
             {
-                AssetResponse GetAssetResponse = GetAsset(groupId, mediaId, eAssetTypes.MEDIA);
+                AssetResponse GetAssetResponse = GetAsset(groupId, mediaId, eAssetTypes.MEDIA, false);
                 if (GetAssetResponse != null && GetAssetResponse.Status != null && GetAssetResponse.Status.Code == (int)eResponseStatus.OK)
                 {
                     CatalogGroupCache catalogGroupCache;
