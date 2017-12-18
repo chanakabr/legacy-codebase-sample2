@@ -236,9 +236,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Controllers\ImageController.cs" />
     <Compile Include="Controllers\RatioController.cs" />
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
+    <Compile Include="Models\Catalog\KalturaImageStatus.cs" />
+    <Compile Include="Models\Catalog\KalturaImageObjectType.cs" />
+    <Compile Include="Models\Catalog\KalturaImage.cs" />
+    <Compile Include="Models\Catalog\KalturaImageFilter.cs" />
     <Compile Include="Models\Catalog\KalturaRatio.cs" />
     <Compile Include="Models\Catalog\KalturaImageTypeFilter.cs" />
     <Compile Include="Models\Catalog\KalturaTagFilter.cs" />

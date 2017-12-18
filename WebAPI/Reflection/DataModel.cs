@@ -4163,6 +4163,48 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaImage":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "ImageObjectId":
+                            return "imageObjectId";
+                        case "ImageObjectType":
+                            return "imageObjectType";
+                        case "ImageTypeId":
+                            return "imageTypeId";
+                        case "Status":
+                            return "status";
+                        case "SystemName":
+                            return "systemName";
+                        case "Url":
+                            return "url";
+                        case "Version":
+                            return "version";
+                    }
+                    break;
+                    
+                case "KalturaImageFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                        case "ImageObjectIdEqual":
+                            return "imageObjectIdEqual";
+                        case "ImageObjectTypeEqual":
+                            return "imageObjectTypeEqual";
+                    }
+                    break;
+                    
+                case "KalturaImageListResponse":
+                    switch(property.Name)
+                    {
+                        case "Images":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaImageType":
                     switch(property.Name)
                     {

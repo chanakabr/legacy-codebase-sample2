@@ -534,9 +534,36 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               ;
 
-            #endregion       
+            #endregion
+
+            #region Image
+
+            Mapper.CreateMap<Core.Catalog.CatalogManagement.Image, KalturaImage>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.ImageObjectId, opt => opt.MapFrom(src => src.ImageObjectId))
+              .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId))
+              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+              .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+              .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
+              .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertImageStatus(src.Status)))
+              .ForMember(dest => dest.ImageObjectType, opt => opt.MapFrom(src => ConvertImageObjectType(src.ImageObjectType)))
+              ;
+
+            Mapper.CreateMap<KalturaImage, Core.Catalog.CatalogManagement.Image>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.ImageObjectId, opt => opt.MapFrom(src => src.ImageObjectId))
+              .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId))
+              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+              .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+              .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
+              .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertImageStatus(src.Status)))
+              .ForMember(dest => dest.ImageObjectType, opt => opt.MapFrom(src => ConvertImageObjectType(src.ImageObjectType)))
+              ;
+
+            #endregion    
         }
 
+       
         #region New Catalog Management
 
         private static List<long> ConvertAssetStructMetaIdsList(string metaIds)
@@ -731,6 +758,106 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return response;
+        }
+
+        private static KalturaImageObjectType ConvertImageObjectType(ImageObjectType imageObjectType)
+        {
+            switch (imageObjectType)
+            {
+                case ImageObjectType.MediaAsset:
+                    return KalturaImageObjectType.MEDIA_ASSET;
+                    break;
+                case ImageObjectType.ProgramAsset:
+                    return KalturaImageObjectType.PROGRAM_ASSET;
+                    break;
+                case ImageObjectType.Channel:
+                    return KalturaImageObjectType.CHANNEL;
+                    break;
+                case ImageObjectType.Category:
+                    return KalturaImageObjectType.CATEGORY;
+                    break;
+                case ImageObjectType.Partner:
+                    return KalturaImageObjectType.PARTNER;
+                    break;
+                case ImageObjectType.ImageType:
+                    return KalturaImageObjectType.IMAGE_TYPE;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown image object type");
+                    break;
+            }
+        }
+
+        private static ImageObjectType ConvertImageObjectType(KalturaImageObjectType imageObjectType)
+        {
+            switch (imageObjectType)
+            {
+                case KalturaImageObjectType.MEDIA_ASSET:
+                    return ImageObjectType.MediaAsset;
+                    break;
+                case KalturaImageObjectType.PROGRAM_ASSET:
+                    return ImageObjectType.ProgramAsset;
+                    break;
+                case KalturaImageObjectType.CHANNEL:
+                    return ImageObjectType.Channel;
+                    break;
+                case KalturaImageObjectType.CATEGORY:
+                    return ImageObjectType.Category;
+                    break;
+                case KalturaImageObjectType.PARTNER:
+                    return ImageObjectType.Partner;
+                    break;
+                case KalturaImageObjectType.IMAGE_TYPE:
+                    return ImageObjectType.ImageType;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown image object type");
+                    break;
+            }
+        }
+
+        private static KalturaImageStatus ConvertImageStatus(ImageStatus status)
+        {
+            switch (status)
+            {
+                case ImageStatus.Pending:
+                    return KalturaImageStatus.PENDING;
+                    break;
+                case ImageStatus.Ready:
+                    return KalturaImageStatus.READY;
+                    break;
+                case ImageStatus.Importing:
+                    return KalturaImageStatus.IMPORTING;
+                    break;
+                case ImageStatus.Failed:
+                    return KalturaImageStatus.FAILED;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown image status");
+                    break;
+            }
+        }
+
+        private static ImageStatus ConvertImageStatus(KalturaImageStatus status)
+        {
+            switch (status)
+            {
+                case KalturaImageStatus.PENDING:
+                    return ImageStatus.Pending;
+                    break;
+                case KalturaImageStatus.READY:
+                    return ImageStatus.Ready;
+                    break;
+                case KalturaImageStatus.IMPORTING:
+                    return ImageStatus.Importing;
+                    break;
+                case KalturaImageStatus.FAILED:
+                    return ImageStatus.Failed;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown image status");
+                    break;
+            }
         }
 
         #endregion

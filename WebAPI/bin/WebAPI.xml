@@ -713,6 +713,36 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.ImageController.List(WebAPI.Models.Catalog.KalturaImageFilter)">
+            <summary>
+            Get the list of images by different filtering 
+            </summary>
+            <param name="filter">Filter</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageController.Add(WebAPI.Models.Catalog.KalturaImage)">
+            <summary>
+            Add a new image 
+            </summary>
+            <param name="image">Image</param>
+            <returns></returns>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageController.Update(System.Int64,WebAPI.Models.Catalog.KalturaImage)">
+            <summary>
+            Update an existing image
+            </summary>
+            <param name="id">Image ID</param>
+            <param name="image">Image to update</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageController.Delete(System.Int64)">
+            <summary>
+            Delete an existing image 
+            </summary>
+            <param name="id">Image ID</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.RatioController.List">
             <summary>
             Get the list of available ratios
@@ -4097,6 +4127,66 @@
             <param name="userId">User identifier</param>
             <returns></returns>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.Id">
+            <summary>
+            Image ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.Version">
+            <summary>
+            Image version 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.ImageTypeId">
+            <summary>
+            Image type ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.ImageObjectId">
+            <summary>
+            ID of the object the image is related to
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.ImageObjectType">
+            <summary>
+            Type of the object the image is related to
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.Status">
+            <summary>
+            Image content status 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.Url">
+            <summary>
+            Image URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.SystemName">
+            <summary>
+            Image system name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageListResponse.Images">
+            <summary>
+            A list of images
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageFilter.IdIn">
+            <summary>
+            IDs to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageFilter.ImageObjectIdEqual">
+            <summary>
+            ID of the object the is related to, to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaImageFilter.ImageObjectTypeEqual">
+            <summary>
+            Type of the object the image is related to, to filter by
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaRatio.Id">
             <summary>
             ID
@@ -4119,7 +4209,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaImageTypeFilter.RatioIdIn">
             <summary>
-            Ration IDs to filter by
+            Ratio IDs to filter by
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaTagFilter.TagEqual">

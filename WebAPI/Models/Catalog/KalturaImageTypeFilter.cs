@@ -24,7 +24,7 @@ namespace WebAPI.Models.Catalog
         public string IdIn { get; set; }
 
         /// <summary>
-        /// Ration IDs to filter by
+        /// Ratio IDs to filter by
         /// </summary>
         [DataMember(Name = "ratioIdIn")]
         [JsonProperty("ratioIdIn")]
