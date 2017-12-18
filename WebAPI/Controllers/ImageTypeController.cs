@@ -96,6 +96,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.ImageTypeAlreadyInUse)]
         [Throws(eResponseStatus.ImageTypeDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
         public KalturaImageType Update(long id, KalturaImageType imageType)

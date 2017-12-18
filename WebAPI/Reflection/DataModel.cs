@@ -2463,18 +2463,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaAssetImage":
-                    switch(property.Name)
-                    {
-                        case "AssetId":
-                            return "assetId";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
-                    }
-                    break;
-                    
                 case "KalturaAssetInfo":
                     switch(property.Name)
                     {
