@@ -2751,7 +2751,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -3046,7 +3046,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddTopic for groupId: {0} and topic: {1}", groupId, imageTypeToAdd.ToString()), ex);
+                log.Error(string.Format("Failed AddImageType for groupId: {0} and imageType: {1}", groupId, JsonConvert.SerializeObject(imageTypeToAdd)), ex);
             }
 
             return result;
@@ -3057,6 +3057,14 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
+                //check if exist before delete
+                ImageTypeListResponse imageTypeListResponse = GetImageTypes(groupId, true, new List<long>(new long[] { id }));
+                if (imageTypeListResponse != null && imageTypeListResponse.ImageTypes != null && imageTypeListResponse.ImageTypes.Count == 0)
+                {
+                    result = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
+                    return result;
+                }
+
                 if (CatalogDAL.DeleteImageType(groupId, id, userId))
                 {
                     string invalidationKey = LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId);
@@ -3099,8 +3107,6 @@ namespace Core.Catalog.CatalogManagement
                     {
                         log.ErrorFormat("Failed to set invalidation key on UpdateImageType key = {0}", invalidationKey);
                     }
-
-                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
