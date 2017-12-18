@@ -2128,27 +2128,29 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            double price = 0;
+            success = renewalResponse.EntitlementRenewal.Notify();
 
-            if (renewalResponse.EntitlementRenewal.Price != null)
-            {
-                price = renewalResponse.EntitlementRenewal.Price.m_dPrice;
-            }
+            //Price price = null;
 
-            string productId = renewalResponse.EntitlementRenewal.SubscriptionId.ToString();
+            //if (renewalResponse.EntitlementRenewal.Price != null)
+            //{
+            //    price = renewalResponse.EntitlementRenewal.Price;
+            //}
 
-            SubscriptionPurchase subscriptionPurhcase = new SubscriptionPurchase(groupId)
-            {
-                Id = purchaseId,
-                purchaseId = purchaseId,
-                siteGuid = siteGuid,
-                houseHoldId = householdId,
-                endDate = endDate,
-                price = price,
-                productId = productId
-            };
+            //string productId = renewalResponse.EntitlementRenewal.SubscriptionId.ToString();
+            //long subsriptionId = renewalResponse.EntitlementRenewal.SubscriptionId;
 
-            success = subscriptionPurhcase.Notify();
+            //EntitlementRenewal entitlementRenewal = new EntitlementRenewal()
+            //{
+            //    Id = purchaseId,
+            //    GroupId = groupId,
+            //    Date = endDate,
+            //    Price = price,
+            //    PurchaseId = purchaseId,
+            //    SubscriptionId = subsriptionId
+            //};
+
+            //success = entitlementRenewal.Notify();
 
             return success;
         }
@@ -2185,73 +2187,58 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            #region Get subscription purchase
+            var unifiedPaymentResponse = GetUnifiedPaymentNextRenewal(baseConditionalAccess, groupId, householdId, processId);
 
-            // get subscription purchase 
-            DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_UnifiedSubscriptionPurchaseForRenewal(groupId, householdId, processId, false);
-
-            // validate subscription received
-            if (subscriptionPurchaseDt == null)
+            if (unifiedPaymentResponse == null || unifiedPaymentResponse.Status == null || unifiedPaymentResponse.Status.Code != (int)eResponseStatus.OK || 
+                unifiedPaymentResponse.UnifiedPaymentRenewal == null)
             {
-                // subscription purchase wasn't found
-                log.ErrorFormat("problem getting the subscription purchase. householdId : {0}, data: {1}", householdId, logString);
-                return false; // retry
-            }
-
-            List<RenewSubscriptionDetails> renewSubscriptioDetails = Utils.BuildSubscriptionPurchaseDetails(subscriptionPurchaseDt, groupId, baseConditionalAccess);
-
-            // all resDetails were addon with none relevant base
-            if (renewSubscriptioDetails == null || renewSubscriptioDetails.Count() == 0)
-            {
-                log.DebugFormat("UnifiedRenewalReminder fail due to no addon subscriptions for householdid = {0}", householdId);
+                log.ErrorFormat("Error when getting entitlement renewal data for processId {0}", processId);
                 return true;
             }
 
-            #endregion
+            //foreach (var renewSubscription in renewSubscriptioDetails)
+            //{
+            //    if (renewSubscription.EndDate != null && renewSubscription.EndDate.HasValue)
+            //    {
+            //        // get end date
+            //        DateTime endDate = renewSubscription.EndDate.Value;
 
-            foreach (var renewSubscription in renewSubscriptioDetails)
-            {
-                if (renewSubscription.EndDate != null && renewSubscription.EndDate.HasValue)
-                {
-                    // get end date
-                    DateTime endDate = renewSubscription.EndDate.Value;
+            //        // validate renewal did not already happen
+            //        if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
+            //        {
+            //            // subscription purchase wasn't found
+            //            log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - " +
+            //                "skipping current purchase in UnifiedRenewalReminder task." +
+            //                "Purchase ID: {0}, sub end_date: {1}, data: {2}",
+            //                renewSubscription.PurchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), logString);
+            //            continue;
+            //        }
 
-                    // validate renewal did not already happen
-                    if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
-                    {
-                        // subscription purchase wasn't found
-                        log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - " +
-                            "skipping current purchase in UnifiedRenewalReminder task." +
-                            "Purchase ID: {0}, sub end_date: {1}, data: {2}",
-                            renewSubscription.PurchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), logString);
-                        continue;
-                    }
+            //        SubscriptionPurchase subscriptionPurhcase = new SubscriptionPurchase(groupId)
+            //        {
+            //            Id = renewSubscription.PurchaseId,
+            //            purchaseId = renewSubscription.PurchaseId,
+            //            siteGuid = siteGuid,
+            //            houseHoldId = householdId,
+            //            endDate = endDate,
+            //            billingGuid = renewSubscription.BillingGuid,
+            //            billingTransactionId = renewSubscription.BillingTransactionId,
+            //            country = renewSubscription.CountryName,
+            //            couponCode = renewSubscription.CouponCode,
+            //            currency = renewSubscription.Currency,
+            //            customData = renewSubscription.CustomData,
+            //            isEntitledToPreviewModule = renewSubscription.IsPurchasedWithPreviewModule,
+            //            price = renewSubscription.Price,
+            //            processPurchasesId = processId,
+            //            productId = renewSubscription.ProductId,
+            //            status = renewSubscription.SubscriptionStatus
+            //        };
 
-                    SubscriptionPurchase subscriptionPurhcase = new SubscriptionPurchase(groupId)
-                    {
-                        Id = renewSubscription.PurchaseId,
-                        purchaseId = renewSubscription.PurchaseId,
-                        siteGuid = siteGuid,
-                        houseHoldId = householdId,
-                        endDate = endDate,
-                        billingGuid = renewSubscription.BillingGuid,
-                        billingTransactionId = renewSubscription.BillingTransactionId,
-                        country = renewSubscription.CountryName,
-                        couponCode = renewSubscription.CouponCode,
-                        currency = renewSubscription.Currency,
-                        customData = renewSubscription.CustomData,
-                        isEntitledToPreviewModule = renewSubscription.IsPurchasedWithPreviewModule,
-                        price = renewSubscription.Price,
-                        processPurchasesId = processId,
-                        productId = renewSubscription.ProductId,
-                        status = renewSubscription.SubscriptionStatus
-                    };
+            //        subscriptionPurhcase.Notify();
+            //    }
+            //}
 
-                    subscriptionPurhcase.Notify();
-                }
-            }
-
-            success = true;
+            success = unifiedPaymentResponse.UnifiedPaymentRenewal.Notify();
 
             return success;
         }
