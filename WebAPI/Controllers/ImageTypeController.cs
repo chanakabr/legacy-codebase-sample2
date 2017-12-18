@@ -69,6 +69,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.ImageTypeAlreadyInUse)]
         public KalturaImageType Add(KalturaImageType imageType)
         {
             KalturaImageType response = null;
@@ -95,6 +96,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.ImageTypeDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
         public KalturaImageType Update(long id, KalturaImageType imageType)
         {
@@ -121,6 +123,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.ImageTypeDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
         public bool Delete(long id)
         {
