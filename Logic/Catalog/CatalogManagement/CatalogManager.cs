@@ -26,7 +26,7 @@ namespace Core.Catalog.CatalogManagement
         private const string STATUS_META_SYSTEM_NAME = "Status";
         private const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
         private const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
-        private const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStratDateTime";
+        private const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
         private const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
         private const string IS_NEW_TAG_COLUMN_NAME = "is_new";
 
