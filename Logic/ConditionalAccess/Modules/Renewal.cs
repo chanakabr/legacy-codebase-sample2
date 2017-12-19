@@ -88,6 +88,11 @@ namespace APILogic.ConditionalAccess.Modules
 
         public double PriceAmount { get; set; }
 
+        public EntitlementRenewalBase()
+        {
+
+        }
+
         protected override bool DoInsert()
         {
             throw new NotImplementedException();

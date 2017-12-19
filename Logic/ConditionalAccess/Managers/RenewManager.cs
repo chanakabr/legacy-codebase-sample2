@@ -2070,7 +2070,9 @@ namespace Core.ConditionalAccess
                 {
                     PriceAmount = subDetails.Price,
                     PurchaseId = subDetails.PurchaseId,
-                    SubscriptionId = long.Parse(subDetails.ProductId)
+                    SubscriptionId = long.Parse(subDetails.ProductId),
+                    GroupId = groupId,
+                    Id = subDetails.PurchaseId
                 };
                 response.UnifiedPaymentRenewal.Entitlements.Add(entitlementRenewal);
                 response.UnifiedPaymentRenewal.Price.m_dPrice += subDetails.Price;
@@ -2134,29 +2136,7 @@ namespace Core.ConditionalAccess
             }
 
             success = renewalResponse.EntitlementRenewal.Notify();
-
-            //Price price = null;
-
-            //if (renewalResponse.EntitlementRenewal.Price != null)
-            //{
-            //    price = renewalResponse.EntitlementRenewal.Price;
-            //}
-
-            //string productId = renewalResponse.EntitlementRenewal.SubscriptionId.ToString();
-            //long subsriptionId = renewalResponse.EntitlementRenewal.SubscriptionId;
-
-            //EntitlementRenewal entitlementRenewal = new EntitlementRenewal()
-            //{
-            //    Id = purchaseId,
-            //    GroupId = groupId,
-            //    Date = endDate,
-            //    Price = price,
-            //    PurchaseId = purchaseId,
-            //    SubscriptionId = subsriptionId
-            //};
-
-            //success = entitlementRenewal.Notify();
-
+            
             return success;
         }
 
@@ -2200,49 +2180,7 @@ namespace Core.ConditionalAccess
                 log.ErrorFormat("Error when getting entitlement renewal data for processId {0}", processId);
                 return true;
             }
-
-            //foreach (var renewSubscription in renewSubscriptioDetails)
-            //{
-            //    if (renewSubscription.EndDate != null && renewSubscription.EndDate.HasValue)
-            //    {
-            //        // get end date
-            //        DateTime endDate = renewSubscription.EndDate.Value;
-
-            //        // validate renewal did not already happen
-            //        if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
-            //        {
-            //            // subscription purchase wasn't found
-            //            log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - " +
-            //                "skipping current purchase in UnifiedRenewalReminder task." +
-            //                "Purchase ID: {0}, sub end_date: {1}, data: {2}",
-            //                renewSubscription.PurchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), logString);
-            //            continue;
-            //        }
-
-            //        SubscriptionPurchase subscriptionPurhcase = new SubscriptionPurchase(groupId)
-            //        {
-            //            Id = renewSubscription.PurchaseId,
-            //            purchaseId = renewSubscription.PurchaseId,
-            //            siteGuid = siteGuid,
-            //            houseHoldId = householdId,
-            //            endDate = endDate,
-            //            billingGuid = renewSubscription.BillingGuid,
-            //            billingTransactionId = renewSubscription.BillingTransactionId,
-            //            country = renewSubscription.CountryName,
-            //            couponCode = renewSubscription.CouponCode,
-            //            currency = renewSubscription.Currency,
-            //            customData = renewSubscription.CustomData,
-            //            isEntitledToPreviewModule = renewSubscription.IsPurchasedWithPreviewModule,
-            //            price = renewSubscription.Price,
-            //            processPurchasesId = processId,
-            //            productId = renewSubscription.ProductId,
-            //            status = renewSubscription.SubscriptionStatus
-            //        };
-
-            //        subscriptionPurhcase.Notify();
-            //    }
-            //}
-
+            
             success = unifiedPaymentResponse.UnifiedPaymentRenewal.Notify();
 
             return success;
