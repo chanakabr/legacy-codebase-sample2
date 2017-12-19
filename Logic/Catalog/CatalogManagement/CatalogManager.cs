@@ -607,7 +607,7 @@ namespace Core.Catalog.CatalogManagement
             List<LanguageContainer> descriptionsWithLanguages = null;
             if (!ExtractMediaAssetNamesAndDescriptionsFromMetas(metas, ref name, ref description, ref namesWithLanguages, ref descriptionsWithLanguages))
             {
-                log.WarnFormat("Title is not valid for media with Id: {0}", id);
+                log.WarnFormat("Name is not valid for media with Id: {0}", id);
                 return result;
             }
 
@@ -719,10 +719,10 @@ namespace Core.Catalog.CatalogManagement
                             if (topicIdToMeta.ContainsKey(topic.Id))
                             {
                                 List<LanguageContainer> topicLanguages = null;
-                                string defaultValue = topicIdToMeta[topic.Id].Where(x => x.IsDefault == true).Select(x => x.Value).FirstOrDefault();
+                                string defaultValue = topicIdToMeta[topic.Id].Where(x => x.IsDefault).Select(x => x.Value).FirstOrDefault();
                                 if (topic.Type == MetaType.MultilingualString)
                                 {
-                                    topicLanguages = topicIdToMeta[topic.Id];
+                                    topicLanguages = topicIdToMeta[topic.Id].Where(x => !x.IsDefault).Select(x => x).ToList();
                                 }
 
                                 metas.Add(new Metas(new TagMeta(topic.SystemName, topic.Type.ToString()), defaultValue, topicLanguages));
