@@ -3224,14 +3224,79 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaImageListResponse GetImagesByIds(int groupId, List<long> list)
+        internal KalturaImageListResponse GetImagesByIds(int groupId, List<long> imagesIds)
         {
-            throw new NotImplementedException();
+            KalturaImageListResponse imagesResponse = new KalturaImageListResponse();
+            ImageListResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.GetImagesByIds(groupId, imagesIds);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Images != null)
+            {
+                imagesResponse.Images = AutoMapper.Mapper.Map<List<KalturaImage>>(response.Images);
+                imagesResponse.TotalCount = imagesResponse.Images.Count;
+            }
+
+            return imagesResponse;
         }
         
-        internal KalturaImageListResponse GetImageByObject(int groupId, long? imageObjectIdEqual, KalturaImageObjectType? imageObjectTypeEqual)
+        internal KalturaImageListResponse GetImagesByObject(int groupId, long imageObjectId, KalturaImageObjectType imageObjectType)
         {
-            throw new NotImplementedException();
+            KalturaImageListResponse imagesResponse = new KalturaImageListResponse();
+            ImageListResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.GetImagesByObject(groupId, imageObjectId, 
+                        CatalogMappings.ConvertImageObjectType(imageObjectType));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Images != null)
+            {
+                imagesResponse.Images = AutoMapper.Mapper.Map<List<KalturaImage>>(response.Images);
+                imagesResponse.TotalCount = imagesResponse.Images.Count;
+            }
+
+            return imagesResponse;
         }
 
         internal void DeleteImage(int groupId, long userId, long id)

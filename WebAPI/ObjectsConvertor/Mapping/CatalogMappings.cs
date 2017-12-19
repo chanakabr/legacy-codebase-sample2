@@ -788,7 +788,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static ImageObjectType ConvertImageObjectType(KalturaImageObjectType imageObjectType)
+        public static ImageObjectType ConvertImageObjectType(KalturaImageObjectType imageObjectType)
         {
             switch (imageObjectType)
             {

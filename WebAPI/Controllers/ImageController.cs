@@ -51,7 +51,8 @@ namespace WebAPI.Controllers
                 else
                 {
                     //search using object ID and type
-                    response = ClientsManager.CatalogClient().GetImageByObject(groupId, filter.ImageObjectIdEqual, filter.ImageObjectTypeEqual);
+                    response = ClientsManager.CatalogClient().GetImagesByObject(groupId, filter.ImageObjectIdEqual.Value, 
+                        filter.ImageObjectTypeEqual.Value);
                 }
             }
             catch (ClientException ex)
