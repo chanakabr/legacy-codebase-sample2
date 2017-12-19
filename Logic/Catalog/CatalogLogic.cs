@@ -51,6 +51,25 @@ namespace Core.Catalog
 
         private static readonly string TAGS = "tags";
         private static readonly string METAS = "metas";
+        private static readonly string NAME = "name";
+        private static readonly string DESCRIPION = "description";        
+        private static readonly string EXTERNAL_ID = "external_id";
+        private static readonly string ENTRY_ID = "entry_id";
+        private static readonly string STATUS = "status";
+        private static readonly string IS_ACTIVE = "is_active";
+        private static readonly string SUMMARYMEDIUM = "summarymedium";
+        private static readonly string EXTERNALID = "externalid";
+        private static readonly string ENTRYID = "entryid";
+        private static readonly string CREATIONDATE = "creationdate";
+        private static readonly string CREATE_DATE = "create_date";
+        private static readonly string PLAYBACKSTARTDATETIME = "playbackstartdatetime";
+        private static readonly string START_DATE = "start_date";
+        private static readonly string PLAYBACKENDDATETIME = "playbackenddatetime";
+        private static readonly string FINAL_END_DATE = "final_end_date";
+        private static readonly string CATALOGSTARTDATETIME = "catalogstratdatetime";
+        private static readonly string CATALOG_START_DATE = "catalog_start_date";
+        private static readonly string CATALOGENDDATETIME = "catalogenddatetime";
+        private static readonly string END_DATE = "end_date";
 
         private static readonly string LINEAR_MEDIA_TYPES_KEY = "LinearMediaTypes";
         private static readonly string PERMITTED_WATCH_RULES_KEY = "PermittedWatchRules";
@@ -91,26 +110,42 @@ namespace Core.Catalog
         private static string PARENT_PARNER_DIFFRENT_FROM_META_PARTNER = "Partner parent should be the some as meta partner";
 
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
-		            {
-			            "name",
-			            "description",
-			            "epg_channel_id",
-                        "crid",
-                        "co_guid",
-                        "entry_id",
-                        "...."
-		            };
+        {
+            NAME,
+            DESCRIPION,
+            "epg_channel_id",
+            "crid",
+            EXTERNALID,
+            ENTRYID,
+            SUMMARYMEDIUM,
+            "...."
+        };                    
 
         private static readonly HashSet<string> reservedUnifiedSearchNumericFields = new HashSet<string>()
-		            {
-			            "like_counter",
-			            "views",
-			            "rating",
-			            "votes",
-                        "epg_channel_id",
-                        "media_id",
-                        "epg_id",
-		            };
+		{
+			"like_counter",
+			"views",
+			"rating",
+			"votes",
+            "epg_channel_id",
+            "media_id",
+            "epg_id",
+            STATUS
+        };
+
+        private static readonly HashSet<string> reservedUnifiedDateFields = new HashSet<string>()
+        {
+            CREATIONDATE,
+            CREATE_DATE,
+            PLAYBACKSTARTDATETIME,
+            START_DATE,
+            PLAYBACKENDDATETIME,
+            FINAL_END_DATE,
+            CATALOGSTARTDATETIME,
+            CATALOG_START_DATE,
+            CATALOGENDDATETIME,
+            END_DATE
+        };
 
         private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
         {
@@ -6855,24 +6890,8 @@ namespace Core.Catalog
                 else
                 {
                     // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
-                    if (searchKeyLowered == "start_date")
-                    {
-                        definitions.defaultStartDate = false;
-                        GetLeafDate(ref leaf, request.m_dServerTime);
-
-                        if (!definitions.shouldDateSearchesApplyToAllTypes)
-                        {
-                            leaf.assetTypes = new List<eObjectType>()
-                            {
-                                eObjectType.EPG,
-                                eObjectType.Recording
-                            };
-                        }
-
-                        leaf.shouldLowercase = false;
-                    }
                     // TODO - Lior , ask Ira if to allow this for all types or only EPG\Recording
-                    if (searchKeyLowered == "catalog_start_date")
+                    if (reservedUnifiedDateFields.Contains(searchKeyLowered))
                     {
                         definitions.defaultStartDate = false;
                         GetLeafDate(ref leaf, request.m_dServerTime);
@@ -6887,22 +6906,32 @@ namespace Core.Catalog
                         }
 
                         leaf.shouldLowercase = false;
-                    }
-                    else if (searchKeyLowered == "end_date")
-                    {
-                        definitions.defaultEndDate = false;
-                        GetLeafDate(ref leaf, request.m_dServerTime);
 
-                        if (!definitions.shouldDateSearchesApplyToAllTypes)
+                        if (searchKeyLowered == CREATIONDATE)
                         {
-                            leaf.assetTypes = new List<eObjectType>()
-                            {
-                                eObjectType.EPG,
-                                eObjectType.Recording
-                            };
+                            searchKeys.Clear();
+                            searchKeys.Add(CREATE_DATE);
                         }
-
-                        leaf.shouldLowercase = false;
+                        else if (searchKeyLowered == PLAYBACKSTARTDATETIME)
+                        {
+                            searchKeys.Clear();
+                            searchKeys.Add(START_DATE);
+                        }
+                        else if (searchKeyLowered == PLAYBACKENDDATETIME)
+                        {
+                            searchKeys.Clear();
+                            searchKeys.Add(FINAL_END_DATE);
+                        }
+                        else if (searchKeyLowered == CATALOGSTARTDATETIME)
+                        {
+                            searchKeys.Clear();
+                            searchKeys.Add(CATALOG_START_DATE);
+                        }
+                        else if (searchKeyLowered == CATALOGENDDATETIME)
+                        {
+                            searchKeys.Clear();
+                            searchKeys.Add(END_DATE);
+                        }
                     }
                     else if (searchKeyLowered == "update_date")
                     {
@@ -7084,6 +7113,23 @@ namespace Core.Catalog
                     {
                         leaf.shouldLowercase = false;
 
+                        
+                        if (searchKeyLowered == STATUS)
+                        {
+                            // We will allow KSQL to contain "status" field only for operators.
+                            if (definitions.isOperatorSearch)
+                            {
+                                searchKeys.Clear();
+                                searchKeys.Add(IS_ACTIVE);
+
+                                definitions.shouldAddIsActiveTerm = false;
+                            }
+                            else
+                            {
+                                throw new KalturaException("Unauthorized use of field status", (int)eResponseStatus.BadSearchRequest);
+                            }
+                        }
+
                         if (leaf.operand != ComparisonOperator.In)
                         {
                             leaf.valueType = typeof(long);
@@ -7102,11 +7148,27 @@ namespace Core.Catalog
                     {
                         leaf.shouldLowercase = true;
 
-                        if (searchKeyLowered == "name" || searchKeyLowered == "description")
+                        if (searchKeyLowered == NAME || searchKeyLowered == DESCRIPION)
                         {
                             // add language suffix (if the language is not the default)
                             searchKeys.Clear();
                             searchKeys.Add(string.Format("{0}{1}", searchKeyLowered, suffix));
+                        }
+                        else if (searchKeyLowered == SUMMARYMEDIUM)
+                        {
+                            // add language suffix (if the language is not the default)
+                            searchKeys.Clear();
+                            searchKeys.Add(string.Format("{0}{1}", DESCRIPION, suffix));
+                        }
+                        else if (searchKeyLowered == EXTERNALID)
+                        {
+                            searchKeys.Clear();
+                            searchKeys.Add(EXTERNAL_ID);
+                        }
+                        else if (searchKeyLowered == ENTRYID)
+                        {
+                            searchKeys.Clear();
+                            searchKeys.Add(ENTRY_ID);
                         }
                     }
                     else
@@ -7201,7 +7263,7 @@ namespace Core.Catalog
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
 
-            definitions.shouldAddActive = request.m_oFilter != null ? request.m_oFilter.m_bOnlyActiveMedia : true;
+            definitions.shouldAddIsActiveTerm = request.m_oFilter != null ? request.m_oFilter.m_bOnlyActiveMedia : true;
 
             #endregion
 
@@ -8006,7 +8068,7 @@ namespace Core.Catalog
                             defaultStartDate = true,
                             shouldUseFinalEndDate = true,
                             shouldUseStartDate = true,
-                            shouldAddActive = true
+                            shouldAddIsActiveTerm = true
                         };
 
                         List<string> listOfMedia = unFilteredresult.Where(
