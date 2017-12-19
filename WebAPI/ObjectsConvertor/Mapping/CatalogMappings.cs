@@ -439,8 +439,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //MediaAsset to KalturaMediaAsset
             Mapper.CreateMap<MediaAsset, KalturaMediaAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description)))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionsWithLanguages, src.Description)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.StartDate)))
@@ -690,9 +690,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 else if (metaType == typeof(KalturaMultilingualStringValue))
                 {
                     KalturaMultilingualStringValue metaValue = meta.Value as KalturaMultilingualStringValue;
-                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.MultilingualString.ToString();
-                    metaToAdd.m_sValue = metaValue.value != null ? metaValue.value.GetDefaultLanugageValue() : null;
-                    metaToAdd.Value = metaValue.value != null ? metaValue.value.GetNoneDefaultLanugageContainer().ToArray() : null;
+                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.MultilingualString.ToString();                    
+                    metaToAdd.Value = metaValue.value != null ? metaValue.value.GetLanugageContainer().ToArray() : null;
                 }
                 else if (metaType == typeof(KalturaDoubleValue))
                 {
