@@ -134,6 +134,12 @@ namespace ElasticSearch.Common
                 index = eMappingIndex.not_analyzed,
                 format = DATE_FORMAT
             });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "catalog_start_date",
+                type = eESFieldType.DATE,
+                analyzed = false
+            });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "end_date",
