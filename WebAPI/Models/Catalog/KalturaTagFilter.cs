@@ -29,13 +29,13 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "tagStartsWith")]
         public string TagStartsWith { get; set; }
 
-
         /// <summary>
         /// Type identifier
         /// </summary>
         [DataMember(Name = "typeEqual")]
         [JsonProperty("typeEqual")]
         [XmlElement(ElementName = "typeEqual")]
+        [SchemeProperty(MinInteger = 1)]
         public int TypeEqual { get; set; }
 
         internal void Validate()
