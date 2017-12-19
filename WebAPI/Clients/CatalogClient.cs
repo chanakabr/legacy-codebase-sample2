@@ -679,7 +679,7 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
-            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null)
+            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool isOperatorSearch = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -725,7 +725,8 @@ namespace WebAPI.Clients
                 order = order,
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
-                domainId = domainId                
+                domainId = domainId,
+                IsOperatorSearch = isOperatorSearch         
             };
 
             if (groupBy != null && groupBy.Count > 0)

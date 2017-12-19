@@ -11,6 +11,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -155,8 +156,9 @@ namespace WebAPI.Controllers
         {
             KalturaAssetListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            KS ks = KS.GetFromRequest();            
+            int groupId = ks.GroupId;
+            string userID = ks.UserId;
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
@@ -179,7 +181,7 @@ namespace WebAPI.Controllers
             bool managementData = !string.IsNullOrEmpty(format) && format == "30" ? true : false;
            
             try
-            {              
+            {
                 // external channel 
                 if (filter is KalturaChannelExternalFilter)
                 {
@@ -191,10 +193,17 @@ namespace WebAPI.Controllers
                 //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
                 else if (filter is KalturaSearchAssetFilter)
                 {
+                    bool isOperatorSearch = false;
+                    List<long> userRoles = RolesManager.GetRoleIds(ks);
+                    if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
+                    {
+                        isOperatorSearch = true;
+                    }
+
                     KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                     response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
                         regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy, 
-                        regularAssetFilter.getGroupByValue(), responseProfile);
+                        regularAssetFilter.getGroupByValue(), responseProfile, isOperatorSearch);
                 }
                 //Return list of media assets that are related to a provided asset ID (of type VOD). 
                 //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 
