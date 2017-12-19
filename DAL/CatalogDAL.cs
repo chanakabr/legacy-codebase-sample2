@@ -4986,7 +4986,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet UpdateImageType(int groupId, long id, string name, string systemName, long ratioId, string helpText, long userId, long? defaultImageId)
+        public static DataSet UpdateImageType(int groupId, long id, string name, string systemName, long? ratioId, string helpText, long userId, long? defaultImageId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateImageType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5018,6 +5018,44 @@ namespace Tvinci.Core.DAL
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             return sp.Execute();
+        }
+
+        public static DataTable InsertImage(int groupId, long userId, long imageObjectId, ImageObjectType imageObjectType, long imageTypeId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertImage");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@updaterId", userId);
+            sp.AddParameter("@imageTypeId", imageTypeId);
+            sp.AddParameter("@imageObjectType", (int)imageObjectType);
+
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            return sp.Execute();
+        }
+
+        public static DataTable UpdateImage(int groupId, long userId, long imageObjectId, ImageObjectType imageObjectType, long imageTypeId, ImageStatus status)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateImage");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@updaterId", userId);
+            sp.AddParameter("@imageTypeId", imageTypeId);
+            sp.AddParameter("@imageObjectType", (int)imageObjectType);
+            sp.AddParameter("@status", (int)status);
+
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            return sp.Execute();
+        }
+
+        public static bool DeleteImage(int groupId, long id, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteImage");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         #endregion
