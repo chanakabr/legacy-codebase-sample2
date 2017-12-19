@@ -2733,7 +2733,7 @@ namespace Core.Catalog
                     Value = definitions.AutocompleteSearchValue
                 };
             }
-            else
+            else if (!string.IsNullOrEmpty(definitions.ExactSearchValue))
             {
                 valueTerm = new ESTerm(false)
                 {
@@ -2743,7 +2743,11 @@ namespace Core.Catalog
             }
 
             query.AddChild(topicTerm, CutWith.AND);
-            query.AddChild(valueTerm, CutWith.AND);
+
+            if (valueTerm != null)
+            {
+                query.AddChild(valueTerm, CutWith.AND);
+            }
 
             FilteredQuery filteredQuery = new FilteredQuery()
             {
