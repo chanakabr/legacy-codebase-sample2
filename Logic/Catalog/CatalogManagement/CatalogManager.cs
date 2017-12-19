@@ -31,7 +31,7 @@ namespace Core.Catalog.CatalogManagement
         private const string IS_NEW_TAG_COLUMN_NAME = "is_new";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly HashSet<string> basicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, ENTRY_ID_META_SYSTEM_NAME, STATUS_META_SYSTEM_NAME, PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME,
             PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_START_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_TIME_META_SYSTEM_NAME
@@ -191,7 +191,7 @@ namespace Core.Catalog.CatalogManagement
             List<long> basicMetaIds = new List<long>();
             if (catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.Count > 0)
             {
-                basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => basicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
+                basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
                 if (assetStructToValidate.MetaIds != null)
                 {
                     List<long> noneExistingBasicMetaIds = basicMetaIds.Except(assetStructToValidate.MetaIds).ToList();
@@ -1164,7 +1164,7 @@ namespace Core.Catalog.CatalogManagement
                 return false;
             }
 
-            if (basicMetasSystemNames.Contains(meta.m_oTagMeta.m_sName))
+            if (BasicMetasSystemNames.Contains(meta.m_oTagMeta.m_sName))
             {
                 switch (meta.m_oTagMeta.m_sName)
                 {
@@ -2542,8 +2542,10 @@ namespace Core.Catalog.CatalogManagement
                     return searchKeys;
                 }
 
-                List<string> tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Key).ToList();
-                List<string> metas = catalogGroupCache.TopicsMapBySystemName.Where(x => !x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value).Select(x => x.Key).ToList();
+                List<string> tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value
+                                                                                    && !CatalogManager.BasicMetasSystemNames.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                List<string> metas = catalogGroupCache.TopicsMapBySystemName.Where(x => (!x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value)
+                                                                                    && !CatalogManager.BasicMetasSystemNames.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
                 if (originalKey.StartsWith("tags."))
                 {
                     foreach (string tag in tags)
