@@ -159,9 +159,12 @@ namespace ElasticSearchHandler.IndexBuilders
                             return false;
                         }
 
-                        tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Key).ToList();
-                        foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => !x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value).Select(x => x.Value))
+                        tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value
+                                                                                && !CatalogManager.BasicMetasSystemNames.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                        foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => (!x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value)
+                                                                                                && !CatalogManager.BasicMetasSystemNames.Contains(x.Value.SystemName)).Select(x => x.Value))
                         {
+                            
                             string nullValue;
                             eESFieldType metaType;
                             serializer.GetMetaType(topic.Type, out metaType, out nullValue);
