@@ -7,14 +7,14 @@ namespace Core.Catalog.CatalogManagement
     {
         public Status Status { get; set; }
 
-        public List<Image> Image { get; set; }
+        public List<Image> Images { get; set; }
 
         public int TotalItems { get; set; }
 
         public ImageListResponse()
         {
             Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            Image = new List<Image>();
+            Images = new List<Image>();
         }
     }
 }
