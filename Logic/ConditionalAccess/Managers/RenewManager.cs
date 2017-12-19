@@ -1788,7 +1788,9 @@ namespace Core.ConditionalAccess
                                 },
                                 SubscriptionId = productId,
                                 PurchaseId = purchaseId,
-                                Date = endDate
+                                Date = endDate,
+                                GroupId = groupId,
+                                Id = purchaseId
                             },
                             Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
                         };
@@ -1899,7 +1901,9 @@ namespace Core.ConditionalAccess
                     m_dPrice = price,
                     m_oCurrency = currencyObj,
                     countryId = country != null ? country.Id : 0
-                }
+                },
+                GroupId = groupId,
+                Id = purchaseId
             };
 
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -2054,7 +2058,9 @@ namespace Core.ConditionalAccess
                 {
                     m_oCurrency = currencyObj,
                     countryId = country != null ? country.Id : 0
-                }
+                },
+                GroupId = groupId,
+                Id = unifiedPaymentId
             };
 
             EntitlementRenewalBase entitlementRenewal = null;
