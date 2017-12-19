@@ -136,13 +136,10 @@ namespace Core.Catalog
         private static readonly HashSet<string> reservedUnifiedDateFields = new HashSet<string>()
         {
             CREATIONDATE,
-            CREATE_DATE,
             PLAYBACKSTARTDATETIME,
             START_DATE,
             PLAYBACKENDDATETIME,
-            FINAL_END_DATE,
             CATALOGSTARTDATETIME,
-            CATALOG_START_DATE,
             CATALOGENDDATETIME,
             END_DATE
         };
@@ -6907,10 +6904,12 @@ namespace Core.Catalog
 
                         leaf.shouldLowercase = false;
 
+                        bool mustBeOperator = false;
                         if (searchKeyLowered == CREATIONDATE)
                         {
                             searchKeys.Clear();
                             searchKeys.Add(CREATE_DATE);
+                            mustBeOperator = true;
                         }
                         else if (searchKeyLowered == PLAYBACKSTARTDATETIME)
                         {
@@ -6921,16 +6920,23 @@ namespace Core.Catalog
                         {
                             searchKeys.Clear();
                             searchKeys.Add(FINAL_END_DATE);
+                            mustBeOperator = true;
                         }
                         else if (searchKeyLowered == CATALOGSTARTDATETIME)
                         {
                             searchKeys.Clear();
                             searchKeys.Add(CATALOG_START_DATE);
+                            mustBeOperator = true;
                         }
                         else if (searchKeyLowered == CATALOGENDDATETIME)
                         {
                             searchKeys.Clear();
                             searchKeys.Add(END_DATE);
+                        }
+
+                        if (mustBeOperator && !definitions.isOperatorSearch)
+                        {
+                            throw new KalturaException(string.Format("Unauthorized use of field {0}", searchKeyLowered), (int)eResponseStatus.BadSearchRequest);
                         }
                     }
                     else if (searchKeyLowered == "update_date")
