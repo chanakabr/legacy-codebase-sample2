@@ -18,6 +18,11 @@ namespace APILogic.ConditionalAccess.Modules
 
         public List<EntitlementRenewalBase> Entitlements { get; set; }
 
+        public UnifiedPaymentRenewal()
+        {
+
+        }
+
         protected override bool DoInsert()
         {
             throw new NotImplementedException();
@@ -48,6 +53,11 @@ namespace APILogic.ConditionalAccess.Modules
         public long PurchaseId { get; set; }
 
         public long SubscriptionId { get; set; }
+
+        public EntitlementRenewal()
+        {
+
+        }
 
         public override CoreObject CoreClone()
         {
