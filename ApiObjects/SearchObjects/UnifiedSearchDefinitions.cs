@@ -56,7 +56,7 @@ namespace ApiObjects.SearchObjects
         public bool shouldIgnoreDeviceRuleID = false;
         [JsonProperty()]
         [DataMember]
-        public bool shouldAddActive = true;
+        public bool shouldAddIsActiveTerm = true;
 
         [JsonProperty()]
         [DataMember]
@@ -359,6 +359,10 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public UserInterestsMetasAndTags userPreferences;
+
+        [JsonProperty()]
+        [DataMember]
+        public bool isOperatorSearch { get; set; }
 
         #endregion
 

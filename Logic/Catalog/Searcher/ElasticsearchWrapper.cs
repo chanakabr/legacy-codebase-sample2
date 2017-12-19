@@ -1172,7 +1172,7 @@ namespace Core.Catalog
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 
-            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, unifiedSearchDefinitions.shouldAddActive);
+            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, unifiedSearchDefinitions.shouldAddIsActiveTerm);
 
             if (!string.IsNullOrEmpty(requestBody))
             {
@@ -2390,7 +2390,7 @@ namespace Core.Catalog
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 
-            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddActive);
+            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddIsActiveTerm);
 
             if (!string.IsNullOrEmpty(requestBody))
             {
