@@ -3251,14 +3251,13 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static DataTable Get_UnifiedSubscriptionPurchaseForRenewal(int groupId, long householdId, long processId, bool shouldLock = true)
+        public static DataTable Get_SubscriptionPurchaseUnifiedForRenewal(int groupId, long householdId, long processId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseUnifiedRenewal");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseUnifiedForRenewal");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupId);
             sp.AddParameter("@HouseholdId", householdId);
             sp.AddParameter("@ProcessId", processId);
-            sp.AddParameter("@shouldLockRows", shouldLock ? 1 : 0);
 
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
@@ -3359,6 +3358,23 @@ namespace DAL
                 ds.Tables[0].Rows.Count > 0)
             {
                 return ds.Tables[0].Rows[0];
+            }
+
+            return null;
+        }
+
+        public static DataTable Set_SubscriptionPurchaseUnifiedForRenewal(int groupId, long householdId, long processId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_SubscriptionPurchaseUnifiedForRenewal");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@HouseholdId", householdId);
+            sp.AddParameter("@ProcessId", processId);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                return ds.Tables[0];
             }
 
             return null;
