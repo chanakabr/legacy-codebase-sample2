@@ -26,7 +26,7 @@ namespace Core.Catalog.CatalogManagement
         private const string STATUS_META_SYSTEM_NAME = "Status";
         private const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
         private const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
-        private const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStratDateTime";
+        private const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
         private const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
         private const string IS_NEW_TAG_COLUMN_NAME = "is_new";
 
@@ -607,7 +607,7 @@ namespace Core.Catalog.CatalogManagement
             List<LanguageContainer> descriptionsWithLanguages = null;
             if (!ExtractMediaAssetNamesAndDescriptionsFromMetas(metas, ref name, ref description, ref namesWithLanguages, ref descriptionsWithLanguages))
             {
-                log.WarnFormat("Title is not valid for media with Id: {0}", id);
+                log.WarnFormat("Name is not valid for media with Id: {0}", id);
                 return result;
             }
 
@@ -719,10 +719,10 @@ namespace Core.Catalog.CatalogManagement
                             if (topicIdToMeta.ContainsKey(topic.Id))
                             {
                                 List<LanguageContainer> topicLanguages = null;
-                                string defaultValue = topicIdToMeta[topic.Id].Where(x => x.IsDefault == true).Select(x => x.Value).FirstOrDefault();
+                                string defaultValue = topicIdToMeta[topic.Id].Where(x => x.IsDefault).Select(x => x.Value).FirstOrDefault();
                                 if (topic.Type == MetaType.MultilingualString)
                                 {
-                                    topicLanguages = topicIdToMeta[topic.Id];
+                                    topicLanguages = topicIdToMeta[topic.Id].Where(x => !x.IsDefault).Select(x => x).ToList();
                                 }
 
                                 metas.Add(new Metas(new TagMeta(topic.SystemName, topic.Type.ToString()), defaultValue, topicLanguages));
@@ -1900,6 +1900,40 @@ namespace Core.Catalog.CatalogManagement
 
             return response;
         }
+
+        private static ImageListResponse CreateImageListResponseFromDataTable(DataTable dt)
+        {
+            ImageListResponse response = new ImageListResponse();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                response.Images = new List<Image>();
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    response.Images.Add(CreateImageFromDataRow(row));
+                }
+                response.TotalItems = response.Images.Count;
+
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
+
+        private static Image CreateImageFromDataRow(DataRow row)
+        {
+            return new Image()
+            {
+                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
+                Url = ODBCWrapper.Utils.GetSafeStr(row, "URL"),
+                SystemName = ODBCWrapper.Utils.GetSafeStr(row, "SYSTEM_NAME"),
+                ImageObjectId = ODBCWrapper.Utils.GetLongSafeVal(row, "ASSET_ID"),
+                ImageObjectType = (ImageObjectType)ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_TYPE"),
+                Status = (ImageStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
+                Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
+                ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"),
+            };
+        }
         #endregion
 
         #region Public Methods
@@ -2787,7 +2821,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
+        
         public static bool DoesGroupUsesTemplates(int groupId)
         {
             bool result = false;
@@ -3238,17 +3272,114 @@ namespace Core.Catalog.CatalogManagement
 
         public static Status DeleteImage(int groupId, long id, long userId)
         {
-            throw new NotImplementedException();
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                //check if exist before delete
+                ImageListResponse imagesResponse = GetImagesByIds(groupId, new List<long>(new long[] { id }));
+                if (imagesResponse != null && imagesResponse.Images != null && imagesResponse.Images.Count == 0)
+                {
+                    result = new Status((int)eResponseStatus.ImageDoesNotExist, "Image does not exist");
+                    return result;
+                }
+
+                if (CatalogDAL.DeleteImage(groupId, id, userId))
+                {
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteImage for groupId: {0} and ImageId: {1}", groupId, id), ex);
+            }
+
+            return result;
         }
 
-        public static ImageResponse UpdateImage(int groupId, long id, Image requestImage, long userId)
+        public static ImageListResponse GetImagesByIds(int groupId, List<long> imageIds)
         {
-            throw new NotImplementedException();
+            ImageListResponse response = new ImageListResponse();
+
+            DataTable dt = null; //CatalogDAL.GetImagesByIds(groupId, imageIds);
+            response = CreateImageListResponseFromDataTable(dt);
+
+            return response;
         }
 
-        public static ImageResponse AddImage(int groupId, Image requestImage, long userId)
+        public static ImageListResponse GetImagesByObject(int groupId, long imageObjectId, ImageObjectType imageObjectType)
         {
-            throw new NotImplementedException();
+            ImageListResponse response = new ImageListResponse();
+
+            DataTable dt = null; //CatalogDAL.GetImagesByObject(groupId, imageIds);
+            response = CreateImageListResponseFromDataTable(dt);
+
+            return response;
+        }
+
+        public static ImageResponse UpdateImage(int groupId, long id, Image imageToUpdate, long userId)
+        {
+            ImageResponse result = new ImageResponse();
+            try
+            {
+                //IRA: DO WE NEED TO UPDATE THE VERSION HERE OR IN THE SP?
+                DataTable dt = CatalogDAL.UpdateImage(groupId, userId, imageToUpdate.ImageObjectId, imageToUpdate.ImageObjectType, imageToUpdate.ImageTypeId, 
+                    imageToUpdate.Status);
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    result.Image = CreateImageFromDataRow(dt.Rows[0]);
+
+                    if (result.Image != null)
+                    {
+                        if (imageToUpdate.ImageObjectType == ImageObjectType.ImageType)
+                        {
+                            // update default image ID in image type
+                            ImageTypeResponse imageTypeResult = UpdateImageType(groupId, result.Image.ImageTypeId, 
+                                new ImageType() { DefaultImageId = result.Image.Id } , userId);
+
+                            result.Status = imageTypeResult.Status;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateImage for groupId: {0} and imageType: {1}", groupId, JsonConvert.SerializeObject(imageToUpdate)), ex);
+            }
+
+            return result;
+        }
+
+        public static ImageResponse AddImage(int groupId, Image imageToAdd, long userId)
+        {
+            ImageResponse result = new ImageResponse();
+            try
+            {
+                DataTable dt = CatalogDAL.InsertImage(groupId, userId, imageToAdd.ImageObjectId, imageToAdd.ImageObjectType, imageToAdd.ImageTypeId);
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    result.Image = CreateImageFromDataRow(dt.Rows[0]);
+
+                    if (result.Image != null)
+                    {
+                        if (imageToAdd.ImageObjectType == ImageObjectType.ImageType)
+                        {
+                            // update default image ID in image type
+                            ImageTypeResponse imageTypeResult = UpdateImageType(groupId, result.Image.ImageTypeId,
+                                new ImageType() { DefaultImageId = result.Image.Id }, userId);
+
+                            result.Status = imageTypeResult.Status;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddImage for groupId: {0} and imageType: {1}", groupId, JsonConvert.SerializeObject(imageToAdd)), ex);
+            }
+
+            return result;
         }
 
         #endregion
