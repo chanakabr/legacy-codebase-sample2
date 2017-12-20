@@ -880,7 +880,20 @@ namespace Core.Catalog.CatalogManagement
                 {
                     if (language.IsDefault)
                     {
-                        metas = mediaAsset.Metas.ToDictionary(x => x.m_oTagMeta.m_sName, x => x.m_sValue);
+                        metas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType != MetaType.DateTime.ToString()).ToDictionary(x => x.m_oTagMeta.m_sName, x => x.m_sValue);
+                        // handle date metas
+                        List<Metas> dateMetas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType == MetaType.DateTime.ToString()).ToList();
+                        if (dateMetas != null && dateMetas.Count > 0)
+                        {
+                            foreach (Metas meta in dateMetas)
+                            {
+                                DateTime date;
+                                if (DateTime.TryParse(meta.m_sValue, out date))
+                                {
+                                    metas.Add(meta.m_oTagMeta.m_sName, date.ToString("yyyyMMddHHmmss"));
+                                }
+                            }
+                        }
                     }
                     else
                     {
