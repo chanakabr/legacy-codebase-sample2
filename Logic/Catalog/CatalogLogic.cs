@@ -7136,8 +7136,6 @@ namespace Core.Catalog
                             {
                                 searchKeys.Clear();
                                 searchKeys.Add(IS_ACTIVE);
-
-                                definitions.shouldAddIsActiveTerm = false;
                             }
                             else
                             {

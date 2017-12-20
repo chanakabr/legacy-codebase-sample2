@@ -58,6 +58,10 @@ namespace Core.Catalog
                 Group group = groupManager.GetGroup(parentGroupID);
 
                 definitions.isOperatorSearch = request.IsOperatorSearch;
+                if (definitions.isOperatorSearch)
+                {
+                    definitions.shouldAddIsActiveTerm = false;
+                }
 
                 if (request.filterTree != null)
                 {
