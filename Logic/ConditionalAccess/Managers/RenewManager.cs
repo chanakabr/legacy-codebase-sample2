@@ -1148,7 +1148,7 @@ namespace Core.ConditionalAccess
             #region Get subscriptions purchase and renew details
 
             // get subscription purchase 
-            DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_UnifiedSubscriptionPurchaseForRenewal(groupId, householdId, processId);
+            DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Set_SubscriptionPurchaseUnifiedForRenewal(groupId, householdId, processId);
 
             // validate subscription received
             if (subscriptionPurchaseDt == null)
@@ -1941,7 +1941,7 @@ namespace Core.ConditionalAccess
             }
 
             // get subscription purchase 
-            DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_UnifiedSubscriptionPurchaseForRenewal(groupId, householdId, unifiedPaymentId, false);
+            DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseUnifiedForRenewal(groupId, householdId, unifiedPaymentId);
 
             // validate subscription received
             if (subscriptionPurchaseDt == null)
