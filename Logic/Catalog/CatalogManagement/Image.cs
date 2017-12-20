@@ -17,7 +17,7 @@ namespace Core.Catalog.CatalogManagement
 
         public long ImageObjectId { get; set; }
 
-        public ImageObjectType ImageObjectType { get; set; }
+        public eAssetImageType ImageObjectType { get; set; }
 
         public ImageStatus Status { get; set; }
 

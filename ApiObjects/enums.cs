@@ -310,7 +310,8 @@ namespace ApiObjects
         Channel = 1,
         Category = 2,
         DefaultPic = 3,
-        LogoPic = 4
+        LogoPic = 4,
+        ImageType = 5
     }
 
     [Serializable]
@@ -974,15 +975,5 @@ namespace ApiObjects
         Ready = 1,
         Importing = 3,
         Failed = 4
-    }
-
-    public enum ImageObjectType
-    {
-        MediaAsset = 0,
-        ProgramAsset = 1,
-        Channel = 2,
-        Category = 3,
-        Partner = 4,
-        ImageType = 5
     }
 }

@@ -1941,7 +1941,7 @@ namespace Core.Catalog.CatalogManagement
                 Url = ODBCWrapper.Utils.GetSafeStr(row, "URL"),
                 SystemName = ODBCWrapper.Utils.GetSafeStr(row, "SYSTEM_NAME"),
                 ImageObjectId = ODBCWrapper.Utils.GetLongSafeVal(row, "ASSET_ID"),
-                ImageObjectType = (ImageObjectType)ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_TYPE"),
+                ImageObjectType = (eAssetImageType)ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_TYPE"),
                 Status = (ImageStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
                 Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
                 ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"),
@@ -2854,7 +2854,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -3313,54 +3313,20 @@ namespace Core.Catalog.CatalogManagement
         {
             ImageListResponse response = new ImageListResponse();
 
-            DataTable dt = null; //CatalogDAL.GetImagesByIds(groupId, imageIds);
+            DataTable dt = CatalogDAL.GetImagesByIds(groupId, imageIds);
             response = CreateImageListResponseFromDataTable(dt);
 
             return response;
         }
 
-        public static ImageListResponse GetImagesByObject(int groupId, long imageObjectId, ImageObjectType imageObjectType)
+        public static ImageListResponse GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType)
         {
             ImageListResponse response = new ImageListResponse();
 
-            DataTable dt = null; //CatalogDAL.GetImagesByObject(groupId, imageIds);
+            DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectId, imageObjectType);
             response = CreateImageListResponseFromDataTable(dt);
 
             return response;
-        }
-
-        public static ImageResponse UpdateImage(int groupId, long id, Image imageToUpdate, long userId)
-        {
-            ImageResponse result = new ImageResponse();
-            try
-            {
-                //IRA: DO WE NEED TO UPDATE THE VERSION HERE OR IN THE SP?
-                DataTable dt = CatalogDAL.UpdateImage(groupId, userId, imageToUpdate.ImageObjectId, imageToUpdate.ImageObjectType, imageToUpdate.ImageTypeId, 
-                    imageToUpdate.Status);
-
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    result.Image = CreateImageFromDataRow(dt.Rows[0]);
-
-                    if (result.Image != null)
-                    {
-                        if (imageToUpdate.ImageObjectType == ImageObjectType.ImageType)
-                        {
-                            // update default image ID in image type
-                            ImageTypeResponse imageTypeResult = UpdateImageType(groupId, result.Image.ImageTypeId, 
-                                new ImageType() { DefaultImageId = result.Image.Id } , userId);
-
-                            result.Status = imageTypeResult.Status;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed UpdateImage for groupId: {0} and imageType: {1}", groupId, JsonConvert.SerializeObject(imageToUpdate)), ex);
-            }
-
-            return result;
         }
 
         public static ImageResponse AddImage(int groupId, Image imageToAdd, long userId)
@@ -3376,7 +3342,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (result.Image != null)
                     {
-                        if (imageToAdd.ImageObjectType == ImageObjectType.ImageType)
+                        if (imageToAdd.ImageObjectType == eAssetImageType.ImageType)
                         {
                             // update default image ID in image type
                             ImageTypeResponse imageTypeResult = UpdateImageType(groupId, result.Image.ImageTypeId,
@@ -3395,6 +3361,101 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public static Status SetContent(int groupId, long userId, long id, string url)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                //check if exist before setting content
+                ImageListResponse imagesResponse = GetImagesByIds(groupId, new List<long>(new long[] { id }));
+                if (imagesResponse != null && imagesResponse.Images != null && imagesResponse.Images.Count == 0)
+                {
+                    result = new Status((int)eResponseStatus.ImageDoesNotExist, "Image does not exist");
+                    return result;
+                }
+
+                //int version = 0;
+                //string baseUrl = string.Empty;
+                //int picId = 0;
+                //int picRatioId = 0;
+
+                ////check if pic Url exist
+                //string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");
+                //if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
+                //{
+                //    if (!ImageUtils.IsUrlExists(pic))
+                //    {
+                //        log.ErrorFormat("DownloadPicToImageServer pic url not valid: {0} ", pic);
+                //        return picId;
+                //    }
+                //}
+
+                //// in case ratio Id = 0 get default group's ratio
+                //if (ratioId <= 0)
+                //{
+                //    ratioId = ImageUtils.GetGroupDefaultRatio(groupId);
+                //}
+
+                ////get pic data           
+                //if (assetId > 0 && GetPicData(ratioId, assetId, assetImageType, out picId, out version, out baseUrl, out picRatioId))
+                //{
+                //    // Get Base Url
+                //    baseUrl = Path.GetFileNameWithoutExtension(baseUrl);
+
+                //    // incase row exist --> update  version number
+                //    if (picRatioId == ratioId)
+                //    {
+                //        version++;
+                //    }
+                //    else
+                //    {
+                //        picId = CatalogDAL.InsertPic(groupId, assetName, pic, baseUrl, ratioId, assetId, assetImageType);
+                //    }
+                //}
+                //else // pic does not exist -- > create new pic
+                //{
+                //    baseUrl = TVinciShared.ImageUtils.GetDateImageName();
+                //    picId = CatalogDAL.InsertPic(groupId, assetName, pic, baseUrl, ratioId, assetId, assetImageType);
+                //}
+
+                //if (picId != 0)
+                //{
+                //    if (isAsync)
+                //    {
+                //        SendImageDataToImageUploadQueue(pic, groupId, version, picId, baseUrl + "_" + ratioId, eMediaType.VOD);
+                //    }
+                //    else
+                //    {
+                //        int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
+                //        ImageServerUploadRequest imageServerReq = new ImageServerUploadRequest() { GroupId = parentGroupId, Id = baseUrl + "_" + ratioId, SourcePath = pic, Version = version };
+
+                //        // post image
+                //        string result = Utils.HttpPost(ImageUtils.GetImageServerUrl(groupId, eHttpRequestType.Post), JsonConvert.SerializeObject(imageServerReq), "application/json");
+
+                //        // check result
+                //        if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
+                //        {
+                //            ImageUtils.UpdateImageState(groupId, picId, version, eMediaType.VOD, eTableStatus.Failed, updaterId);
+                //            picId = 0;
+                //        }
+                //        else if (result.ToLower() == "true")
+                //        {
+                //            ImageUtils.UpdateImageState(groupId, picId, version, eMediaType.VOD, eTableStatus.OK, updaterId);
+                //            log.DebugFormat("post image success. picId {0} ", picId);
+                //        }
+                //    }
+                //}
+
+                //return picId;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed SetContent for groupId: {0} and ImageId: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+    
         #endregion
     }
 }
