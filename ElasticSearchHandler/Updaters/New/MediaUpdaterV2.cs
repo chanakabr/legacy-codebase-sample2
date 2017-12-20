@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using GroupsCacheManager;
 using KLogMonitor;
 using System.Reflection;
+using APILogic.Api.Managers;
 
 namespace ElasticSearchHandler.Updaters
 {
@@ -21,7 +22,6 @@ namespace ElasticSearchHandler.Updaters
         #region Data Members
 
         private int groupID;
-        private ElasticSearch.Common.ESSerializerV2 esSerializer;
         private ElasticSearch.Common.ElasticSearchApi esApi;
 
         #endregion
@@ -60,7 +60,6 @@ namespace ElasticSearchHandler.Updaters
         public MediaUpdaterV2(int groupID)
         {
             this.groupID = groupID;
-            esSerializer = new ElasticSearch.Common.ESSerializerV2();
             esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
 
@@ -114,117 +113,22 @@ namespace ElasticSearchHandler.Updaters
         private bool UpdateMedias(List<int> mediaIds)
         {
             bool result = true;
-            GroupManager groupManager = new GroupManager();
-            Group group = groupManager.GetGroup(this.groupID);
-
-            if (group == null)
-            {
-                log.ErrorFormat("Couldn't get group {0}", this.groupID);
-                return false;
-            }
-
-            bool tempResult;
 
             foreach (int mediaId in mediaIds)
             {
-                try
-                {
-                    //Create Media Object
-                    Dictionary<int, Dictionary<int, Media>> mediaDictionary = ElasticsearchTasksCommon.Utils.GetGroupMedias(groupID, mediaId);
-
-                    if (mediaDictionary != null)
-                    {
-                        // Just to be sure
-                        if (mediaDictionary.ContainsKey(mediaId))
-                        {
-                            foreach (int languageId in mediaDictionary[mediaId].Keys)
-                            {
-                                var language = group.GetLanguage(languageId);
-                                string suffix = null;
-
-                                if (!language.IsDefault)
-                                {
-                                    suffix = language.Code;
-                                }
-
-                                Media media = mediaDictionary[mediaId][languageId];
-
-                                if (media != null)
-                                {
-                                    string serializedMedia;
-
-                                    serializedMedia = esSerializer.SerializeMediaObject(media, suffix);
-
-                                    string type = ElasticsearchTasksCommon.Utils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
-
-                                    if (!string.IsNullOrEmpty(serializedMedia))
-                                    {
-                                        tempResult = esApi.InsertRecord(groupID.ToString(), type, media.m_nMediaID.ToString(), serializedMedia);
-                                        result &= tempResult;
-
-                                        if (!tempResult)
-                                        {
-                                            log.Error("Error - " + string.Format(
-                                                "Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
-                                                groupID, type, media.m_nMediaID, serializedMedia));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Error - " + string.Format("Update medias threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
-                    throw ex;
-                }
+                result &= Core.Catalog.CatalogManagement.AssetIndexingManager.UpsertMedia(groupID, mediaId);
             }
-
+            
             return result;
         }
 
         private bool Delete(List<int> mediaIDs)
         {
             bool result = true;
-            string index = groupID.ToString();
-
-            ESDeleteResult deleteResult = null;
 
             foreach (int id in mediaIDs)
             {
-                try
-                {
-                    if (id <= 0)
-                    {
-                        log.WarnFormat("Received delete media request of invalid media id {0}", id);
-                    }
-                    else
-                    {
-                        deleteResult = esApi.DeleteDoc(index, MEDIA, id.ToString());
-
-                        if (deleteResult != null)
-                        {
-                            if (!deleteResult.Found)
-                            {
-                                log.WarnFormat("ES Delete request: delete media with ID {0} not found", id);
-
-                                continue;
-                            }
-
-                            if (!deleteResult.Ok)
-                            {
-                                log.Error("Error - " + String.Concat("Could not delete media from ES. Media id=", id));
-                            }
-
-                            result &= deleteResult.Ok;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Could not delete media from ES. Media id={0}, ex={1}", id, ex);
-                }
+                result &= Core.Catalog.CatalogManagement.AssetIndexingManager.DeleteMedia(groupID, id);
             }
 
             return result;

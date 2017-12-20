@@ -119,141 +119,11 @@ namespace ElasticSearchHandler.Updaters
 
         protected bool UpdateEpg(List<int> epgIds)
         {
-            bool result = false;
+            bool result = true;
 
-            try
+            foreach (int id in epgIds)
             {
-                // get all languages per group
-                Group group = GroupsCache.Instance().GetGroup(this.groupId);
-
-                if (group == null)
-                {
-                    log.ErrorFormat("Couldn't get group {0}", this.groupId);
-                    return false;
-                }
-
-                // dictionary contains all language ids and its  code (string)
-                List<LanguageObj> languages = group.GetLangauges();
-                List<string> languageCodes = new List<string>();
-
-                if (languages != null)
-                {
-                    languageCodes = languages.Select(p => p.Code.ToLower()).ToList<string>();
-                }
-                else
-                {
-                    // return false; // perhaps?
-                    log.Debug("Warning - " + string.Format("Group {0} has no languages defined.", groupId));
-                }
-
-                List<EpgCB> epgObjects = new List<EpgCB>();
-
-                if (epgIds.Count == 1)
-                {
-                    epgObjects = ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, epgIds[0], languageCodes);
-                }
-                else
-                {
-                    Task<List<EpgCB>>[] programsTasks = new Task<List<EpgCB>>[epgIds.Count];
-                    ContextData cd = new ContextData();
-
-                    //open task factory and run GetEpgProgram on different threads
-                    //wait to finish
-                    //bulk insert
-                    for (int i = 0; i < epgIds.Count; i++)
-                    {
-                        programsTasks[i] = Task.Run<List<EpgCB>>(() =>
-                        {
-                            cd.Load();
-                            return ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, epgIds[i], languageCodes);
-                        });
-                    }
-
-                    Task.WaitAll(programsTasks);
-
-                    epgObjects = programsTasks.SelectMany(t => t.Result).Where(t => t != null).ToList();
-                }
-
-                // GetLinear Channel Values 
-                ElasticSearchTaskUtils.GetLinearChannelValues(epgObjects, this.groupId);
-
-                if (epgObjects != null)
-                {
-                    if (epgObjects.Count == 0)
-                    {
-                        log.WarnFormat("Attention - when updating EPG, epg list is empty for IDs = {0}",
-                            string.Join(",", epgIds));
-                        result = true;
-                    }
-                    else
-                    {
-                        // Temporarily - assume success
-                        bool temporaryResult = true;
-
-                        // Create dictionary by languages
-                        foreach (LanguageObj language in languages)
-                        {
-                            // Filter programs to current language
-                            List<EpgCB> currentLanguageEpgs = epgObjects.Where(epg =>
-                                epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
-
-                            if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
-                            {
-                                List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
-                                string alias = GetAlias();
-
-                                // Create bulk request object for each program
-                                foreach (EpgCB epg in currentLanguageEpgs)
-                                {
-                                    string suffix = null;
-
-                                    if (!language.IsDefault)
-                                    {
-                                        suffix = language.Code;
-                                    }
-
-                                    string serializedEpg = SerializeEPG(epg, suffix);
-                                    bulkRequests.Add(new ESBulkRequestObj<ulong>()
-                                    {
-                                        docID = GetDocumentId(epg),
-                                        index = alias,
-                                        type = ElasticSearchTaskUtils.GetTanslationType(GetDocumentType(), language),
-                                        Operation = eOperation.index,
-                                        document = serializedEpg,
-                                        routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
-                                    });
-                                }
-
-                                // send request to ES API
-                                var invalidResults = esApi.CreateBulkRequest(bulkRequests);
-
-                                if (invalidResults != null && invalidResults.Count > 0)
-                                {
-                                    foreach (var invalidResult in invalidResults)
-                                    {
-                                        log.Error("Error - " + string.Format(
-                                            "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
-                                            groupId, EPG, invalidResult.Key, invalidResult.Value));
-                                    }
-
-                                    result = false;
-                                    temporaryResult = false;
-                                }
-                                else
-                                {
-                                    temporaryResult &= true;
-                                }
-                            }
-                        }
-
-                        result = temporaryResult;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error - " + string.Format("Update EPGs threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
-                throw ex;
+                result &= Core.Catalog.CatalogManagement.AssetIndexingManager.UpsertEpg(groupId, id);
             }
 
             return result;
@@ -281,41 +151,14 @@ namespace ElasticSearchHandler.Updaters
 
         protected bool DeleteEpg(List<int> epgIDs)
         {
-            bool result = false;
+            bool result = true;
 
             if (epgIDs != null & epgIDs.Count > 0)
             {
-                // get all languages per group
-                Group group = GroupsCache.Instance().GetGroup(this.groupId);
-
-                if (group == null)
+                foreach (int id in epgIDs)
                 {
-                    log.ErrorFormat("Couldn't get group {0}", this.groupId);
-                    return false;
+                    result &= Core.Catalog.CatalogManagement.AssetIndexingManager.DeleteEpg(groupId, id);
                 }
-
-                // dictionary contains all language ids and its  code (string)
-                List<LanguageObj> languages = group.GetLangauges();
-
-                string alias = GetAlias();
-
-                ESTerms terms = new ESTerms(true)
-                {
-                    Key = "epg_id"
-                };
-
-                terms.Value.AddRange(epgIDs.Select(id => id.ToString()));
-
-                ESQuery query = new ESQuery(terms);
-                string queryString = query.ToString();
-
-                foreach (var lang in languages)
-                {
-                    string type = ElasticSearchTaskUtils.GetTanslationType(GetDocumentType(), lang);
-                    esApi.DeleteDocsByQuery(alias, type, ref queryString);
-                }
-                
-                result = true;
             }
 
             return result;

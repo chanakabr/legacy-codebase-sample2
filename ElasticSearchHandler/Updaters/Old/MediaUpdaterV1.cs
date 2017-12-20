@@ -130,7 +130,7 @@ namespace ElasticSearchHandler.Updaters
                 try
                 {
                     //Create Media Object
-                    Dictionary<int, Dictionary<int, Media>> mediaDictionary = ElasticsearchTasksCommon.Utils.GetGroupMedias(groupID, mediaId);
+                    Dictionary<int, Dictionary<int, Media>> mediaDictionary = Core.Catalog.CatalogManagement.AssetIndexingManager.GetGroupMedias(groupID, mediaId);
 
                     if (mediaDictionary != null)
                     {
