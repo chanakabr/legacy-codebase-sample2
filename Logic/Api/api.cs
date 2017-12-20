@@ -10242,7 +10242,7 @@ namespace Core.Api
                     return response;
                 }
 
-                //response.Value = DrmAdapterController.GetInstance().GetAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid);
+                response.Value = DrmAdapterController.GetInstance().GetAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, contentId, ip, udid);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             }
@@ -10282,7 +10282,7 @@ namespace Core.Api
                     return response;
                 }
 
-                //response.Value = DrmAdapterController.GetInstance().GetDeviceLicenseData(groupId, drmAdapterId, userId, udid, ip);
+                response.Value = DrmAdapterController.GetInstance().GetDeviceLicenseData(groupId, drmAdapterId, userId, udid, ip);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             }
