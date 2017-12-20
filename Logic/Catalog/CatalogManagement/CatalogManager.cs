@@ -1181,20 +1181,6 @@ namespace Core.Catalog.CatalogManagement
             {
                 switch (meta.m_oTagMeta.m_sName)
                 {
-                    case ENTRY_ID_META_SYSTEM_NAME:
-                        asset.EntryId = meta.m_sValue;
-                        break;
-                    case STATUS_META_SYSTEM_NAME:
-                        bool isActive;
-                        if (bool.TryParse(meta.m_sValue, out isActive))
-                        {
-                            asset.IsActive = isActive;
-                        }
-                        else
-                        {
-                            log.ErrorFormat("IsMetaValueValid failed to parse {0} meta, value: {1}", STATUS_META_SYSTEM_NAME, meta.m_sValue);
-                        }
-                        break;
                     case CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
                         DateTime catalogStartDate;
                         if (DateTime.TryParse(meta.m_sValue, out catalogStartDate))
