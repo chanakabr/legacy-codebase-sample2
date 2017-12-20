@@ -728,19 +728,19 @@
             <returns></returns>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.ImageController.Update(System.Int64,WebAPI.Models.Catalog.KalturaImage)">
-            <summary>
-            Update an existing image
-            </summary>
-            <param name="id">Image ID</param>
-            <param name="image">Image to update</param>
-            <returns></returns>
-        </member>
         <member name="M:WebAPI.Controllers.ImageController.Delete(System.Int64)">
             <summary>
             Delete an existing image 
             </summary>
             <param name="id">Image ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ImageController.SetContent(System.Int64,WebAPI.Models.Catalog.KalturaContentResource)">
+            <summary>
+            Sets the content of an existing image 
+            </summary>
+            <param name="id">Image ID</param>
+            <param name="content">Content of the image to set</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.RatioController.List">
@@ -4126,6 +4126,11 @@
             <param name="value">Value of dynamicData </param>
             <param name="userId">User identifier</param>
             <returns></returns>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaUrlResource.Url">
+            <summary>
+            URL of the content
+            </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaImage.Id">
             <summary>

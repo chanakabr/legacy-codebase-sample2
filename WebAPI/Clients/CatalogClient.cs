@@ -128,7 +128,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-
+        
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
             KalturaAssetStruct result = null;
@@ -3327,43 +3327,6 @@ namespace WebAPI.Clients
             }
         }
 
-        internal KalturaImage UpdateImage(int groupId, long userId, long id, KalturaImage image)
-        {
-            KalturaImage responseImage = new KalturaImage();
-            ImageResponse response = null;
-
-            try
-            {
-                Image requestImage = AutoMapper.Mapper.Map<Image>(image);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateImage(groupId, id, requestImage, userId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null || response.Status == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            if (response.Image != null)
-            {
-                responseImage = AutoMapper.Mapper.Map<KalturaImage>(response.Image);
-            }
-
-            return responseImage;
-        }
-
         internal KalturaImage AddImage(int groupId, long userId, KalturaImage image)
         {
             KalturaImage responseImage = new KalturaImage();
@@ -3399,6 +3362,34 @@ namespace WebAPI.Clients
             }
 
             return responseImage;
+        }
+
+        internal void SetContent(int groupId, long userId, long id, string url)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.SetContent(groupId, userId, id, url);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
         }
     }
 }

@@ -6613,6 +6613,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaUrlResource":
+                    switch(property.Name)
+                    {
+                        case "Url":
+                            return "url";
+                    }
+                    break;
+                    
                 case "KalturaUsageModule":
                     switch(property.Name)
                     {

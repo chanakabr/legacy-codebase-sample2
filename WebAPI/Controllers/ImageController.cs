@@ -87,34 +87,7 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
-        /// <summary>
-        /// Update an existing image
-        /// </summary>
-        /// <param name="id">Image ID</param>
-        /// <param name="image">Image to update</param>
-        /// <returns></returns>
-        [Route("update"), HttpPost]
-        [ApiAuthorize]
-        [SchemeArgument("id", MinLong = 1)]
-        public KalturaImage Update(long id, KalturaImage image)
-        {
-            KalturaImage response = null;
-            int groupId = KS.GetFromRequest().GroupId;
-            long userId = Utils.Utils.GetUserIdFromKs();
-
-            try
-            {
-                response = ClientsManager.CatalogClient().UpdateImage(groupId, userId, id, image);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
-
+        
         /// <summary>
         /// Delete an existing image 
         /// </summary>
@@ -137,7 +110,40 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
-        }
+        }     
 
+        /// <summary>
+        /// Sets the content of an existing image 
+        /// </summary>
+        /// <param name="id">Image ID</param>
+        /// <param name="content">Content of the image to set</param>
+        /// <returns></returns>
+        [Route("setContent"), HttpPost]
+        [ApiAuthorize]
+        [SchemeArgument("id", MinLong = 1)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public void SetContent(long id, KalturaContentResource content)
+        {
+            bool result = false;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+            try
+            {
+                if (content is KalturaUrlResource)
+                {
+                    KalturaUrlResource urlContent = (KalturaUrlResource)content;
+                    ClientsManager.CatalogClient().SetContent(groupId, userId, id, urlContent.Url);
+                }
+                else
+                {
+                    throw new BadRequestException();
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }     
     }
 }

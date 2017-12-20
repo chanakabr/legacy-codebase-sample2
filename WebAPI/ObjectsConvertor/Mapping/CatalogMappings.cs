@@ -759,55 +759,49 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return response;
         }
 
-        private static KalturaImageObjectType ConvertImageObjectType(ImageObjectType imageObjectType)
+        private static KalturaImageObjectType ConvertImageObjectType(eAssetImageType imageObjectType)
         {
             switch (imageObjectType)
             {
-                case ImageObjectType.MediaAsset:
+                case eAssetImageType.Media:
                     return KalturaImageObjectType.MEDIA_ASSET;
                     break;
-                case ImageObjectType.ProgramAsset:
-                    return KalturaImageObjectType.PROGRAM_ASSET;
-                    break;
-                case ImageObjectType.Channel:
+                case eAssetImageType.Channel:
                     return KalturaImageObjectType.CHANNEL;
                     break;
-                case ImageObjectType.Category:
+                case eAssetImageType.Category:
                     return KalturaImageObjectType.CATEGORY;
                     break;
-                case ImageObjectType.Partner:
-                    return KalturaImageObjectType.PARTNER;
-                    break;
-                case ImageObjectType.ImageType:
+                case eAssetImageType.ImageType:
                     return KalturaImageObjectType.IMAGE_TYPE;
                     break;
+                case eAssetImageType.DefaultPic:
+                case eAssetImageType.LogoPic:
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown image object type");
                     break;
             }
         }
 
-        public static ImageObjectType ConvertImageObjectType(KalturaImageObjectType imageObjectType)
+        public static eAssetImageType ConvertImageObjectType(KalturaImageObjectType imageObjectType)
         {
             switch (imageObjectType)
             {
                 case KalturaImageObjectType.MEDIA_ASSET:
-                    return ImageObjectType.MediaAsset;
-                    break;
-                case KalturaImageObjectType.PROGRAM_ASSET:
-                    return ImageObjectType.ProgramAsset;
+                    return eAssetImageType.Media;
                     break;
                 case KalturaImageObjectType.CHANNEL:
-                    return ImageObjectType.Channel;
+                    return eAssetImageType.Channel;
                     break;
                 case KalturaImageObjectType.CATEGORY:
-                    return ImageObjectType.Category;
-                    break;
-                case KalturaImageObjectType.PARTNER:
-                    return ImageObjectType.Partner;
+                    return eAssetImageType.Category;
                     break;
                 case KalturaImageObjectType.IMAGE_TYPE:
-                    return ImageObjectType.ImageType;
+                    return eAssetImageType.ImageType;
+                    break;
+                case KalturaImageObjectType.PARTNER:
+                case KalturaImageObjectType.PROGRAM_ASSET:
+                    throw new ClientException((int)StatusCode.Error, "Not implemented yet");
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown image object type");
