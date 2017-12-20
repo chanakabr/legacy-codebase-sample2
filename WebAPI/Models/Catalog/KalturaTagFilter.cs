@@ -40,6 +40,11 @@ namespace WebAPI.Models.Catalog
 
         internal void Validate()
         {
+            if (this.TypeEqual <= 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTagFilter.typeEqual");
+            }
+
             if (!string.IsNullOrEmpty(TagEqual) && !string.IsNullOrEmpty(TagStartsWith))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaTagFilter.tagEqual", "KalturaTagFilter.tagStartsWith");
