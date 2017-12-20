@@ -191,6 +191,7 @@
     <Compile Include="Catalog\Cache\ParentalRulesTagsCache.cs" />
     <Compile Include="Catalog\CatalogLogic.cs" />
     <Compile Include="Catalog\CatalogManagement\Asset.cs" />
+    <Compile Include="Catalog\CatalogManagement\AssetIndexingManager.cs" />
     <Compile Include="Catalog\CatalogManagement\AssetListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\AssetResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\CatalogGroupCache.cs" />

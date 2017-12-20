@@ -1536,15 +1536,25 @@ namespace Core.Catalog.CatalogManagement
                 DateTime startDate = assetToAdd.StartDate.HasValue ? assetToAdd.StartDate.Value : DateTime.UtcNow;
                 DateTime catalogStartDate = assetToAdd.CatalogStartDate.HasValue ? assetToAdd.CatalogStartDate.Value : startDate;
                 // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
-                DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid, assetToAdd.EntryId, assetToAdd.DeviceRuleId,
-                                                            assetToAdd.GeoBlockRuleId, assetToAdd.IsActive, startDate, assetToAdd.EndDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId);
+                DataSet ds = CatalogDAL.InsertMediaAsset(
+                    groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid,
+                    assetToAdd.EntryId, assetToAdd.DeviceRuleId, assetToAdd.GeoBlockRuleId, assetToAdd.IsActive,
+                    startDate, assetToAdd.EndDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId);
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null && result.Asset.Id > 0)
                 {
                     // UpdateIndex
                     if (!CatalogLogic.UpdateIndex(new List<long>() { result.Asset.Id }, groupId, eAction.Update))
                     {
                         log.ErrorFormat("Failed to UpdateIndex for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
+                    }
+
+                    bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)result.Asset.Id);
+
+                    if (!indexingResult)
+                    {
+                        log.ErrorFormat("Failed to add media to index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
                     }
                 }
             }
@@ -1595,6 +1605,13 @@ namespace Core.Catalog.CatalogManagement
                     if (!CatalogLogic.UpdateIndex(new List<long>() { result.Asset.Id }, groupId, eAction.Update))
                     {
                         log.ErrorFormat("Failed to Update Media Index for assetId after : {0}, groupId: {1} after UpdateMediaAsset", result.Asset.Id, groupId);
+                    }
+
+                    bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)result.Asset.Id);
+
+                    if (!indexingResult)
+                    {
+                        log.ErrorFormat("Failed to add media to index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
                     }
                 }
             }
@@ -2623,6 +2640,13 @@ namespace Core.Catalog.CatalogManagement
                 switch (assetType)
                 {
                     case eAssetTypes.EPG:
+
+                    bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)result.Asset.Id);
+
+                    if (!indexingResult)
+                    {
+                        log.ErrorFormat("Failed to add media to index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
+                    }
                         break;
                     case eAssetTypes.NPVR:
                         break;
@@ -2728,6 +2752,13 @@ namespace Core.Catalog.CatalogManagement
                             if (!CatalogLogic.UpdateIndex(new List<long>() { id }, groupId, eAction.Delete))
                             {
                                 log.ErrorFormat("Failed to Delete Index for assetId: {0}, groupId: {1}", id, groupId);
+                            }
+
+                            bool indexingResult = AssetIndexingManager.DeleteMedia(groupId, (int)id);
+
+                            if (!indexingResult)
+                            {
+                                log.ErrorFormat("Failed to delete media to from for assetId: {0}, groupId: {1} after DeleteAsset", id, groupId);
                             }
                         }
                         else
@@ -3219,6 +3250,7 @@ namespace Core.Catalog.CatalogManagement
         {
             throw new NotImplementedException();
         }
+
         #endregion
     }
 }
