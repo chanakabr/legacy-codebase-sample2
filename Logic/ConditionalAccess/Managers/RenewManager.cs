@@ -2139,7 +2139,7 @@ namespace Core.ConditionalAccess
             return success;
         }
 
-        internal static bool UnifiedRenewalReminder(BaseConditionalAccess baseConditionalAccess, int groupId, string siteGuid, long processId, long nextEndDate)
+        internal static bool UnifiedRenewalReminder(BaseConditionalAccess baseConditionalAccess, int groupId, string siteGuid, long householdId, long processId, long nextEndDate)
         {
             bool success = false;
 
@@ -2147,8 +2147,6 @@ namespace Core.ConditionalAccess
             string logString = string.Format("RenewalReminder request: userId {0}, processId {1}, endDateLong {2}", siteGuid, processId, nextEndDate);
 
             log.DebugFormat("Starting UnifiedRenewalReminder process. data: {0}", logString);
-
-            long householdId = 0;
 
             // validate purchaseId
             if (processId <= 0)
@@ -2158,13 +2156,22 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            Domain domain;
-            User user;
-            var userValidStatus = Utils.ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain, out user);
+            if (!string.IsNullOrEmpty(siteGuid))
+            {
+                Domain domain;
+                User user;
+                var userValidStatus = Utils.ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain, out user);
 
-            // validate household
-            if ((userValidStatus == null || userValidStatus.Code != (int)eResponseStatus.OK) &&
-                householdId <= 0)
+                // validate household
+                if ((userValidStatus == null || userValidStatus.Code != (int)eResponseStatus.OK) &&
+                    householdId <= 0)
+                {
+                    // illegal household ID
+                    log.ErrorFormat("Error: Illegal household, data: {0}", logString);
+                    return true;
+                }
+            }
+            else if (householdId <= 0)
             {
                 // illegal household ID
                 log.ErrorFormat("Error: Illegal household, data: {0}", logString);
