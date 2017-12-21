@@ -1119,7 +1119,7 @@ namespace Core.ConditionalAccess
             int paymentgatewayId = 0;
             ProcessUnifiedState processState = ProcessUnifiedState.Renew;
             DateTime? processEndDate = null;
-            GetProcessDetails(processId, ref paymentgatewayId, ref processState, ref processEndDate);
+            UpdateProcessDetailsForRenewal(processId, ref paymentgatewayId, ref processState, ref processEndDate);
             if (paymentgatewayId != 0 && processEndDate.HasValue)
             {
                 // validate that this is the right message                              
@@ -2185,6 +2185,22 @@ namespace Core.ConditionalAccess
             success = unifiedPaymentResponse.UnifiedPaymentRenewal.Notify();
 
             return success;
+        }
+
+        private static bool UpdateProcessDetailsForRenewal(long processId, ref int paymentgatewayId, ref ProcessUnifiedState processPurchasesState, ref DateTime? processEndDate)
+        {
+            bool result = false;
+            DataRow dr = ConditionalAccessDAL.UpdateProcessDetailsForRenewal(processId);
+            if (dr != null)
+            {
+                paymentgatewayId = ODBCWrapper.Utils.GetIntSafeVal(dr, "PAYMENT_GATEWAY_ID");
+                int state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");
+                processPurchasesState = (ProcessUnifiedState)state;
+                processEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+                result = true;
+            }
+
+            return result;
         }
     }
 }

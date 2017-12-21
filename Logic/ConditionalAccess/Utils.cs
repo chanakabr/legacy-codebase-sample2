@@ -660,7 +660,7 @@ namespace Core.ConditionalAccess
                 if (processId == 0) // create new process id + add message to queue
                 {
                     // get details of OLD processState needed to be changed                    
-                    DataRow dr = ConditionalAccessDAL.GetUnifiedProcessById(oldUnifiedProcessId);
+                    DataRow dr = ConditionalAccessDAL.UpdaeProcessDetailsForRenewal(oldUnifiedProcessId);
                     if (dr != null)
                     {
                         state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");
