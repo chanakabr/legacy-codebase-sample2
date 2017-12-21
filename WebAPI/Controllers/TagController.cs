@@ -75,6 +75,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.TopicNotFound)]
         public KalturaTag Add(KalturaTag tag)
         {
             KalturaTag response = null;

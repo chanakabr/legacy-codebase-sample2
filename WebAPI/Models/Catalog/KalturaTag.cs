@@ -26,9 +26,9 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
-        [XmlElement(ElementName = "type", IsNullable = true)]
+        [XmlElement(ElementName = "type", IsNullable = false)]
         [SchemeProperty(MinInteger = 1)]
-        public int? TagTypeId { get; set; }
+        public int TagTypeId { get; set; }
 
         /// <summary>
         /// Tag 

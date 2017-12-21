@@ -497,7 +497,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               ;
 
             Mapper.CreateMap<KalturaTag, TagValue>()
-             .ForMember(dest => dest.topicId, opt => opt.MapFrom(src => src.TagTypeId.HasValue ? src.TagTypeId.Value : 0))
+             .ForMember(dest => dest.topicId, opt => opt.MapFrom(src => src.TagTypeId))
              .ForMember(dest => dest.tagId, opt => opt.MapFrom(src => src.Id))
              .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.Tag.GetDefaultLanugageValue()))
              .ForMember(dest => dest.TagsInOtherLanguages, opt => opt.MapFrom(src => src.Tag.GetNoneDefaultLanugageContainer()))
@@ -563,7 +563,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion    
         }
 
-       
+
         #region New Catalog Management
 
         private static List<long> ConvertAssetStructMetaIdsList(string metaIds)
@@ -690,7 +690,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 else if (metaType == typeof(KalturaMultilingualStringValue))
                 {
                     KalturaMultilingualStringValue metaValue = meta.Value as KalturaMultilingualStringValue;
-                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.MultilingualString.ToString();                    
+                    metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.MultilingualString.ToString();
                     metaToAdd.Value = metaValue.value != null ? metaValue.value.GetLanugageContainer().ToArray() : null;
                 }
                 else if (metaType == typeof(KalturaDoubleValue))
