@@ -385,7 +385,7 @@ namespace Core.ConditionalAccess
                 case eTransactionState.OK:
                     {
                         res = HandleRenewSubscriptionSuccess(cas, groupId, siteguid, purchaseId, billingGuid, logString, productId, ref endDate, householdId, price, currency, paymentNumber,
-                            totalNumOfPayments, subscription, customData, maxVLCOfSelectedUsageModule, transactionResponse, unifiedBillingCycle);
+                            totalNumOfPayments, subscription, customData, maxVLCOfSelectedUsageModule, transactionResponse, unifiedBillingCycle, ignoreUnifiedBillingCycle);
                         if (res)
                         {
                             string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(householdId);
@@ -583,7 +583,7 @@ namespace Core.ConditionalAccess
         protected static bool HandleRenewSubscriptionSuccess(BaseConditionalAccess cas, int groupId,
             string siteguid, long purchaseId, string billingGuid, string logString, long productId, ref DateTime endDate, long householdId,
             double price, string currency, int paymentNumber, int totalNumOfPayments, Subscription subscription, string customData, int maxVLCOfSelectedUsageModule,
-            TransactResult transactionResponse, UnifiedBillingCycle unifiedBillingCycle)
+            TransactResult transactionResponse, UnifiedBillingCycle unifiedBillingCycle, bool ignoreUnifiedBillingCycle)
         {
             // renew subscription success!
             log.DebugFormat("Transaction renew success. data: {0}", logString);
