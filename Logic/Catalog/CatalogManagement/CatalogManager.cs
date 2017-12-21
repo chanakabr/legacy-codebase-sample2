@@ -2674,12 +2674,12 @@ namespace Core.Catalog.CatalogManagement
                 {
                     case eAssetTypes.EPG:
 
-                    bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)result.Asset.Id);
+                        bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)result.Asset.Id);
 
-                    if (!indexingResult)
-                    {
-                        log.ErrorFormat("Failed to add media to index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
-                    }
+                        if (!indexingResult)
+                        {
+                            log.ErrorFormat("Failed to add media to index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
+                        }
                         break;
                     case eAssetTypes.NPVR:
                         break;
@@ -2820,7 +2820,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-        
+
         public static bool DoesGroupUsesTemplates(int groupId)
         {
             bool result = false;
@@ -2840,7 +2840,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2940,20 +2940,32 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.InsertTag(groupId, tag.value, languageCodeToName, tag.topicId, userId);
-                result = CreateTagResponseFromDataSet(ds);
-
-                if (result.Status.Code != (int)eResponseStatus.OK)
-                {
-                    return result;
-                }
-
                 CatalogGroupCache catalogGroupCache;
                 TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
 
                 if (catalogGroupCache == null)
                 {
                     log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                    return result;
+                }
+
+                if (catalogGroupCache.TopicsMapById != null && catalogGroupCache.TopicsMapById.Count > 0)
+                {
+                    var topic = catalogGroupCache.TopicsMapById.ContainsKey(tag.topicId);
+                    if (!topic)
+                    {
+                        result.Status.Code = (int)eResponseStatus.TopicNotFound;
+                        result.Status.Message = eResponseStatus.TopicNotFound.ToString();
+                        log.ErrorFormat("Error at AddTag. TopicId not found. GroupId: {0}, Tag:{1} ", groupId, JsonConvert.SerializeObject(tag));
+                        return result;
+                    }
+                }
+
+                DataSet ds = CatalogDAL.InsertTag(groupId, tag.value, languageCodeToName, tag.topicId, userId);
+                result = CreateTagResponseFromDataSet(ds);
+
+                if (result.Status.Code != (int)eResponseStatus.OK)
+                {
                     return result;
                 }
 
@@ -2992,20 +3004,32 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.UpdateTag(groupId, id, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
-                result = CreateTagResponseFromDataSet(ds);
-
-                if (result.Status.Code != (int)eResponseStatus.OK)
-                {
-                    return result;
-                }
-
                 CatalogGroupCache catalogGroupCache;
                 TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
 
                 if (catalogGroupCache == null)
                 {
                     log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                    return result;
+                }
+
+                if (catalogGroupCache.TopicsMapById != null && catalogGroupCache.TopicsMapById.Count > 0)
+                {
+                    var topic = catalogGroupCache.TopicsMapById.ContainsKey(tagToUpdate.topicId);
+                    if (!topic)
+                    {
+                        result.Status.Code = (int)eResponseStatus.TopicNotFound;
+                        result.Status.Message = eResponseStatus.TopicNotFound.ToString();
+                        log.ErrorFormat("Error at UpdateTag. TopicId not found. GroupId: {0}, Tag:{1} ", groupId, JsonConvert.SerializeObject(tagToUpdate));
+                        return result;
+                    }
+                }
+
+                DataSet ds = CatalogDAL.UpdateTag(groupId, id, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
+                result = CreateTagResponseFromDataSet(ds);
+
+                if (result.Status.Code != (int)eResponseStatus.OK)
+                {
                     return result;
                 }
 
@@ -3441,7 +3465,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-    
+
         #endregion
     }
 }
