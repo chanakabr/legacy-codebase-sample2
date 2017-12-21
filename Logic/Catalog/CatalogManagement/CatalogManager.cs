@@ -565,6 +565,13 @@ namespace Core.Catalog.CatalogManagement
                                                                 select row);
                     if (newTags != null && newTags.Count() > 0)
                     {
+                        CatalogGroupCache catalogGroupCache;
+                        if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        {
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling CreateMediaAsset", groupId);
+                            return result;
+                        }
+
                         foreach (DataRow dr in newTags)
                         {
                             int topicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "topic_id");
@@ -582,16 +589,15 @@ namespace Core.Catalog.CatalogManagement
                                 updateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(tagUpdateDate),
                                 value = translation
                             };
-                            // TODO: add Async  call to updateTagIndex - 
 
-
-                            // should removed: 
-                            //TagResponse addTagResponse = AddTag(groupId, tag);
-                            //if (addTagResponse == null || addTagResponse.Status == null || addTagResponse.Status.Code  != (int)eResponseStatus.OK)
-                            //{
-                            //    log.WarnFormat("CreateMediaAssetFromDataSet - failed to addTag, tag : {0}, addTagResult: {1}", tag.ToString(),
-                            //                    addTagResponse != null && addTagResponse.Status != null ? addTagResponse.Status.Message : "null");
-                            //}
+                            // Update Tag Index
+                            ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                            Status updateTagResponse = wrapper.UpdateTag(groupId, catalogGroupCache, tag);
+                            if (updateTagResponse == null || updateTagResponse.Code != (int)eResponseStatus.OK)
+                            {
+                                log.WarnFormat("CreateMediaAsset - failed to update tag, tag : {0}, addTagResult: {1}", tag.ToString(),
+                                                updateTagResponse != null && updateTagResponse != null ? updateTagResponse.Message : "null");
+                            }
                         }
                     }
                 }
@@ -976,12 +982,14 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static Status ValidateAsset(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc, ref XmlDocument tagsXmlDoc)
+        private static Status ValidateMediaAssetForInsert(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc,
+                                                            ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate)
         {
             // TODO - Lior - change error codes and add new ones
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
-            result = ValidateAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, ref asset, assetStructMetaIds, ref metasXmlDoc, ref tagsXmlDoc);
+            result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, asset.Metas, asset.Tags, assetStructMetaIds, ref metasXmlDoc, ref tagsXmlDoc,
+                                                                    ref assetCatalogStartDate, ref assetFinalEndDate);
             if (result.Code != (int)eResponseStatus.OK)
             {
                 return result;
@@ -1004,18 +1012,61 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static Status ValidateAssetMetasAndTagsNamesAndTypes(int groupId, CatalogGroupCache catalogGroupCache, ref MediaAsset asset, HashSet<long> assetStructMetaIds, ref XmlDocument metasXmlDoc,
-                                                                        ref XmlDocument tagsXmlDoc)
+        private static Status ValidateMediaAssetForUpdate(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, HashSet<string> currentAssetMetasAndTags,
+                                                            ref XmlDocument metasXmlDocToAdd, ref XmlDocument tagsXmlDocToAdd, ref XmlDocument metasXmlDocToUpdate, ref XmlDocument tagsXmlDocToUpdate,
+                                                            ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate)
+        {
+            // TODO - Lior - change error codes and add new ones
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);            
+            List<Metas> metasToAdd = asset.Metas != null && currentAssetMetasAndTags != null ? asset.Metas.Where(x => !currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Metas>();
+            List<Tags> tagsToAdd = asset.Tags != null && currentAssetMetasAndTags != null ? asset.Tags.Where(x => !currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Tags>();
+            result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToAdd, tagsToAdd, assetStructMetaIds, ref metasXmlDocToAdd, ref tagsXmlDocToAdd,
+                                                                    ref assetCatalogStartDate, ref assetFinalEndDate);
+            if (result.Code != (int)eResponseStatus.OK)
+            {
+                return result;
+            }
+
+            List<Metas> metasToUpdate = asset.Metas != null && currentAssetMetasAndTags != null ? asset.Metas.Where(x => currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Metas>();
+            List<Tags> tagsToUpdate = asset.Tags != null && currentAssetMetasAndTags != null ? asset.Tags.Where(x => currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Tags>();
+            result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToUpdate, tagsToUpdate, assetStructMetaIds, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate,
+                                                                    ref assetCatalogStartDate, ref assetFinalEndDate);
+            if (result.Code != (int)eResponseStatus.OK)
+            {
+                return result;
+            }
+
+            // validate device rule id
+            if (asset.DeviceRuleId.HasValue && (asset.DeviceRuleId.Value <= 0 || !CatalogLogic.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value)))
+            {
+                result = new Status((int)eResponseStatus.DeviceRuleDoesNotExistForGroup, eResponseStatus.DeviceRuleDoesNotExistForGroup.ToString());
+                return result;
+            }
+
+            // validate geoblock rule id
+            if (asset.GeoBlockRuleId.HasValue && (asset.GeoBlockRuleId.Value <= 0 || !CatalogLogic.ValidateGeoBlockRuleExists(groupId, asset.GeoBlockRuleId.Value)))
+            {
+                result = new Status((int)eResponseStatus.GeoBlockRuleDoesNotExistForGroup, eResponseStatus.GeoBlockRuleDoesNotExistForGroup.ToString());
+                return result;
+            }
+
+            return result;
+        }
+
+        private static Status ValidateMediaAssetMetasAndTagsNamesAndTypes(int groupId, CatalogGroupCache catalogGroupCache, List<Metas> metas, List<Tags> tags, HashSet<long> assetStructMetaIds,
+                                                                            ref XmlDocument metasXmlDoc, ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate,
+                                                                            ref DateTime? assetFinalEndDate)
         {
             // TODO - Lior - change error codes and add new ones
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<string> tempHashSet = new HashSet<string>();
-            if (asset.Metas != null && asset.Metas.Count > 0)
+            if (metas != null && metas.Count > 0)
             {
                 metasXmlDoc = new XmlDocument();
                 XmlNode rootNode = metasXmlDoc.CreateElement("root");
                 metasXmlDoc.AppendChild(rootNode);
-                foreach (Metas meta in asset.Metas)
+                foreach (Metas meta in metas)
                 {
                     // validate duplicates do not exist
                     if (tempHashSet.Contains(meta.m_oTagMeta.m_sName))
@@ -1049,7 +1100,8 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // Validate meta values are correct and add to to metaXml
-                    if (!IsMetaValueValid(ref asset, meta, topic.Id, catalogGroupCache.DefaultLanguage.ID, catalogGroupCache.LanguageMapByCode, ref result, ref metasXmlDoc, ref rootNode))
+                    if (!IsMetaValueValid(meta, topic.Id, catalogGroupCache.DefaultLanguage.ID, catalogGroupCache.LanguageMapByCode, ref result, ref metasXmlDoc, ref rootNode,
+                                            ref assetCatalogStartDate, ref assetFinalEndDate))
                     {
                         return result;
                     }
@@ -1058,12 +1110,12 @@ namespace Core.Catalog.CatalogManagement
                 tempHashSet.Clear();
             }
 
-            if (asset.Tags != null && asset.Tags.Count > 0)
+            if (tags != null && tags.Count > 0)
             {
                 tagsXmlDoc = new XmlDocument();
                 XmlNode rootNode = tagsXmlDoc.CreateElement("root");
                 tagsXmlDoc.AppendChild(rootNode);
-                foreach (Tags tag in asset.Tags)
+                foreach (Tags tag in tags)
                 {
                     // validate duplicates do not exist
                     if (tempHashSet.Contains(tag.m_oTagMeta.m_sName))
@@ -1101,19 +1153,6 @@ namespace Core.Catalog.CatalogManagement
                     {
                         AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, tagValue);
                     }
-
-                    // TODO: remove since its not needed anymore, we are using tagcontroller for translations
-                    // insert other language values into tagsXml
-                    //foreach (LanguageContainer[] languageArray in tag.Values)
-                    //{
-                    //    foreach (LanguageContainer language in languageArray)
-                    //    {
-                    //        if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
-                    //        {
-                    //            AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value);
-                    //        }
-                    //    }
-                    //}
                 }
             }
 
@@ -1121,8 +1160,8 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static bool IsMetaValueValid(ref MediaAsset asset, Metas meta, long topicId, int defaultLanguageId, Dictionary<string, LanguageObj> LanguageMapByCode, ref Status resultStatus,
-                                                ref XmlDocument metasXmlDoc, ref XmlNode rootNode)
+        private static bool IsMetaValueValid(Metas meta, long topicId, int defaultLanguageId, Dictionary<string, LanguageObj> LanguageMapByCode, ref Status resultStatus,
+                                                ref XmlDocument metasXmlDoc, ref XmlNode rootNode, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate)
         {
             // Validate meta values are correct
             MetaType metaType;
@@ -1187,7 +1226,7 @@ namespace Core.Catalog.CatalogManagement
                         DateTime catalogStartDate;
                         if (DateTime.TryParse(meta.m_sValue, out catalogStartDate))
                         {
-                            asset.CatalogStartDate = catalogStartDate;
+                            assetCatalogStartDate = catalogStartDate;
                         }
                         else
                         {
@@ -1198,7 +1237,7 @@ namespace Core.Catalog.CatalogManagement
                         DateTime finalEndDate;
                         if (DateTime.TryParse(meta.m_sValue, out finalEndDate))
                         {
-                            asset.FinalEndDate = finalEndDate;
+                            assetFinalEndDate = finalEndDate;
                         }
                         else
                         {
@@ -1519,14 +1558,19 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate asset
-                XmlDocument metasXmlDoc = null;
-                XmlDocument tagsXmlDoc = null;
-                Status validateAssetTopicsResult = ValidateAsset(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref metasXmlDoc, ref tagsXmlDoc);
+                XmlDocument metasXmlDoc = null, tagsXmlDoc = null;
+                DateTime? assetCatalogStartDate = null, assetFinalEndDate = null;
+                Status validateAssetTopicsResult = ValidateMediaAssetForInsert(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref metasXmlDoc, ref tagsXmlDoc,
+                                                                                ref assetCatalogStartDate, ref assetFinalEndDate);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
                     result.Status = validateAssetTopicsResult;
                     return result;
                 }
+
+                // Update asset catalogStartDate and finalEndDate
+                assetToAdd.CatalogStartDate = assetCatalogStartDate;
+                assetToAdd.FinalEndDate = assetFinalEndDate;
 
                 // Add Name meta values (for languages that are not default)
                 ExtractTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, NAME_META_SYSTEM_NAME);
@@ -1546,6 +1590,7 @@ namespace Core.Catalog.CatalogManagement
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null && result.Asset.Id > 0)
                 {
                     // UpdateIndex
+                    // TODO - Lior , remove duplicate index update
                     if (!CatalogLogic.UpdateIndex(new List<long>() { result.Asset.Id }, groupId, eAction.Update))
                     {
                         log.ErrorFormat("Failed to UpdateIndex for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
@@ -1567,42 +1612,52 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static AssetResponse UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, int assetStructId, MediaAsset assetToUpdate, long userId)
+        private static AssetResponse UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, long userId)
         {
             AssetResponse result = new AssetResponse();
             try
             {
                 // validate asset
-                XmlDocument metasXmlDoc = null;
-                XmlDocument tagsXmlDoc = null;
+                XmlDocument metasXmlDocToAdd = null, tagsXmlDocToAdd = null, metasXmlDocToUpdate = null, tagsXmlDocToUpdate= null;
                 AssetStruct assetStruct = null;
-                if (assetStructId > 0 && catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
+                DateTime? assetCatalogStartDate = null, assetFinalEndDate = null;
+                if (currentAsset.MediaType.m_nTypeID > 0 && catalogGroupCache.AssetStructsMapById.ContainsKey(currentAsset.MediaType.m_nTypeID))
                 {
-                    assetStruct = catalogGroupCache.AssetStructsMapById[assetStructId];
+                    assetStruct = catalogGroupCache.AssetStructsMapById[currentAsset.MediaType.m_nTypeID];
                 }
-
-                Status validateAssetTopicsResult = ValidateAsset(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, ref metasXmlDoc, ref tagsXmlDoc);
+                
+                HashSet<string> currentAssetMetasAndTags = new HashSet<string>(currentAsset.Metas.Select(x => x.m_oTagMeta.m_sName).ToList(), StringComparer.OrdinalIgnoreCase);
+                currentAssetMetasAndTags.UnionWith(currentAsset.Tags.Select(x => x.m_oTagMeta.m_sName).ToList());
+                Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, currentAssetMetasAndTags, ref metasXmlDocToAdd,
+                                                                                ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate, ref assetFinalEndDate);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
                     result.Status = validateAssetTopicsResult;
                     return result;
                 }
 
-                // Add Name meta values (for languages that are not default)
-                ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDoc, NAME_META_SYSTEM_NAME);
+                // Update asset catalogStartDate and finalEndDate
+                assetToUpdate.CatalogStartDate = assetCatalogStartDate;
+                assetToUpdate.FinalEndDate = assetFinalEndDate;
 
-                // Add Description meta values (for languages that are not default)
-                ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDoc, DESCRIPTION_META_SYSTEM_NAME);
+                // Add Name meta values (for languages that are not default), Name can only be updated
+                ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, NAME_META_SYSTEM_NAME);
+
+                // Add Description meta values (for languages that are not default), Description can be updated or added
+                ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, DESCRIPTION_META_SYSTEM_NAME);                
+                ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, DESCRIPTION_META_SYSTEM_NAME);
 
                 DateTime startDate = assetToUpdate.StartDate.HasValue ? assetToUpdate.StartDate.Value : DateTime.UtcNow;
                 DateTime catalogStartDate = assetToUpdate.CatalogStartDate.HasValue ? assetToUpdate.CatalogStartDate.Value : startDate;
                 // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
-                DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToUpdate.CoGuid, assetToUpdate.EntryId, assetToUpdate.DeviceRuleId,
-                                                            assetToUpdate.GeoBlockRuleId, assetToUpdate.IsActive, startDate, assetToUpdate.EndDate, catalogStartDate, assetToUpdate.FinalEndDate, userId);
+                DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, assetToUpdate.Id, catalogGroupCache.DefaultLanguage.ID, metasXmlDocToAdd, tagsXmlDocToAdd, metasXmlDocToUpdate, tagsXmlDocToUpdate,
+                                                        assetToUpdate.CoGuid, assetToUpdate.EntryId, assetToUpdate.DeviceRuleId, assetToUpdate.GeoBlockRuleId, assetToUpdate.IsActive, startDate,
+                                                        assetToUpdate.EndDate, catalogStartDate, assetToUpdate.FinalEndDate, userId);
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null && result.Asset.Id > 0)
                 {
                     // UpdateIndex
+                    // TODO - Lior , remove duplicate index update
                     if (!CatalogLogic.UpdateIndex(new List<long>() { result.Asset.Id }, groupId, eAction.Update))
                     {
                         log.ErrorFormat("Failed to Update Media Index for assetId after : {0}, groupId: {1} after UpdateMediaAsset", result.Asset.Id, groupId);
@@ -2676,7 +2731,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     case eAssetTypes.EPG:
 
-                        bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)result.Asset.Id);
+                        bool indexingResult = AssetIndexingManager.UpsertEpg(groupId, (int)result.Asset.Id);
 
                         if (!indexingResult)
                         {
@@ -2732,11 +2787,11 @@ namespace Core.Catalog.CatalogManagement
                         break;
                     case eAssetTypes.MEDIA:
                         MediaAsset mediaAssetToUpdate = assetToUpdate as MediaAsset;
+                        MediaAsset currentAsset = assetResponse.Asset as MediaAsset;
                         mediaAssetToUpdate.Id = id;
-                        int assetStructId = (assetResponse.Asset as MediaAsset).MediaType.m_nTypeID;
                         if (mediaAssetToUpdate != null)
                         {
-                            result = UpdateMediaAsset(groupId, ref catalogGroupCache, assetStructId, mediaAssetToUpdate, userId);
+                            result = UpdateMediaAsset(groupId, ref catalogGroupCache, currentAsset, mediaAssetToUpdate, userId);
                         }
                         break;
                     default:
@@ -2784,6 +2839,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                             // Delete Index
+                            // TODO - Lior , remove duplicate index update
                             if (!CatalogLogic.UpdateIndex(new List<long>() { id }, groupId, eAction.Delete))
                             {
                                 log.ErrorFormat("Failed to Delete Index for assetId: {0}, groupId: {1}", id, groupId);
