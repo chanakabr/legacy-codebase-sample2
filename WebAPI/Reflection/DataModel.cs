@@ -2409,6 +2409,36 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetFileType":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Description":
+                            return "description";
+                        case "DrmAdapterProfileId":
+                            return "drmAdapterProfileId";
+                        case "Id":
+                            return "id";
+                        case "IsTrailer":
+                            return "isTrailer";
+                        case "Status":
+                            return "status";
+                        case "StreamerType":
+                            return "streamerType";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaAssetFileTypeListResponse":
+                    switch(property.Name)
+                    {
+                        case "Types":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaAssetFilter":
                     switch(property.Name)
                     {

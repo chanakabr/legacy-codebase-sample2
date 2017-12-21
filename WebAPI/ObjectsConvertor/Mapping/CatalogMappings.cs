@@ -376,6 +376,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
 
+            // AssetStruct to KalturaAssetStruct
+            Mapper.CreateMap<AssetFileType, KalturaAssetFileType>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
+                .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => ConvertStreamerType(src.StreamerType)))
+                .ForMember(dest => dest.DrmAdapterProfileId, opt => opt.MapFrom(src => src.DrmId));
+
+            // KalturaAssetStruct to AssetStruct
+            Mapper.CreateMap<KalturaAssetFileType, AssetFileType>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
+                .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => ConvertStreamerType(src.StreamerType)))
+                .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmAdapterProfileId));
+
             // Topic to KalturaMeta
             Mapper.CreateMap<Topic, Models.API.KalturaMeta>()              
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -528,6 +550,58 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return list;
+        }
+
+        private static KalturaAssetFileStreamerType? ConvertStreamerType(StreamerType? type)
+        {
+            if (!type.HasValue)
+            {
+                return null;
+            }
+
+            switch (type)
+            {
+                case StreamerType.applehttp:
+                    return KalturaAssetFileStreamerType.APPLE_HTTP;
+
+                case StreamerType.mpegdash:
+                    return KalturaAssetFileStreamerType.MPEG_DASH;
+
+                case StreamerType.smothstreaming:
+                    return KalturaAssetFileStreamerType.SMOOTH_STREAMING;
+
+                case StreamerType.url:
+                    return KalturaAssetFileStreamerType.URL;
+
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown streamer type");
+            }
+        }
+
+        private static StreamerType? ConvertStreamerType(KalturaAssetFileStreamerType? type)
+        {
+            if (!type.HasValue)
+            {
+                return null;
+            }
+
+            switch (type)
+            {
+                case KalturaAssetFileStreamerType.APPLE_HTTP:
+                    return StreamerType.applehttp;
+
+                case KalturaAssetFileStreamerType.MPEG_DASH:
+                    return StreamerType.mpegdash;
+
+                case KalturaAssetFileStreamerType.SMOOTH_STREAMING:
+                    return StreamerType.smothstreaming;
+
+                case KalturaAssetFileStreamerType.URL:
+                    return StreamerType.url;
+
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown streamer type");
+            }
         }
 
         private static KalturaMetaDataType? ConvertToKalturaMetaDataType(ApiObjects.MetaType metaType)
