@@ -184,6 +184,30 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static AssetFileTypeResponse CreateAssetFileTypeResponseFromDataSet(DataSet ds)
+        {
+            AssetFileTypeResponse response = new AssetFileTypeResponse();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                {
+                    response.AssetFileType = CreateAssetFileType(dt.Rows[0]);
+                    if (response.AssetFileType != null)
+                    {
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                }
+                /// AssetFileType does not exist
+                else
+                {
+                    response.Status = new Status((int)eResponseStatus.AssetFileTypeDoesNotExist, eResponseStatus.AssetFileTypeDoesNotExist.ToString());
+                }
+            }
+
+            return response;
+        }
+
         private static AssetStructResponse CreateAssetStructResponseFromDataSet(DataSet ds)
         {
             AssetStructResponse response = new AssetStructResponse();
@@ -197,7 +221,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         EnumerableRowCollection<DataRow> translations = ds.Tables.Count > 1 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
                         List<DataRow> assetStructTranslations = (from row in translations
-                                                           select row).ToList();
+                                                                 select row).ToList();
                         response.AssetStruct = CreateAssetStruct(id, dt.Rows[0], assetStructTranslations);
                     }
                     else
@@ -237,9 +261,43 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        private static AssetFileType CreateAssetFileType(DataRow dr)
+        {
+            return new AssetFileType()
+            {
+                Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                Description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"),
+                IsActive = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_ACTIVE"),
+                CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
+                UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
+                IsTrailer = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_TRAILER"),
+                StreamerType = (StreamerType)Enum.Parse(typeof(StreamerType), ODBCWrapper.Utils.GetIntSafeVal(dr, "ID").ToString()),
+                DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID")
+            };
+        }
+
+        private static List<AssetFileType> CreateAssetFileTypeListFromDataSet(DataSet ds)
+        {
+            List<AssetFileType> response = new List<AssetFileType>();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        AssetFileType assetFileType = CreateAssetFileType(dr);
+                        response.Add(assetFileType);
+                    }
+                }
+            }
+
+            return response;
+        }
+
         private static List<AssetStruct> CreateAssetStructListFromDataSet(DataSet ds)
         {
-            List <AssetStruct> response = null;
+            List<AssetStruct> response = null;
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 Dictionary<long, AssetStruct> idToAssetStructMap = new Dictionary<long, AssetStruct>();
@@ -253,8 +311,8 @@ namespace Core.Catalog.CatalogManagement
                         if (id > 0 && !idToAssetStructMap.ContainsKey(id))
                         {
                             List<DataRow> assetStructTranslations = (from row in translations
-                                                               where (Int64)row["TEMPLATE_ID"] == id
-                                                               select row).ToList();
+                                                                     where (Int64)row["TEMPLATE_ID"] == id
+                                                                     select row).ToList();
                             AssetStruct assetStruct = CreateAssetStruct(id, dr, assetStructTranslations);
                             if (assetStruct != null)
                             {
@@ -282,7 +340,7 @@ namespace Core.Catalog.CatalogManagement
                             else
                             {
                                 assetStructOrderedMetasMap.Add(assetStructId, new Dictionary<int, long>() { { order, metaId } });
-                            }                            
+                            }
                         }
                     }
 
@@ -295,11 +353,11 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                response = idToAssetStructMap.Values.ToList();                
+                response = idToAssetStructMap.Values.ToList();
             }
 
             return response;
-        }        
+        }      
 
         private static Status CreateTopicResponseStatusFromResult(long result)
         {
@@ -1512,6 +1570,23 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        public static AssetFileTypeListResponse GetAssetFileTypes(int groupId)
+        {
+            AssetFileTypeListResponse response = new AssetFileTypeListResponse();
+            try
+            {
+                DataSet dataSet = CatalogDAL.GetAssetFileTypesByGroupId(groupId);
+                response.Types = CreateAssetFileTypeListFromDataSet(dataSet);
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssetFileTypes with groupId: {0}", groupId), ex);
+            }
+
+            return response;
+        }
+
         public static AssetStructListResponse GetAssetStructsByTopicId(int groupId, long topicId, bool? isProtected)
         {
             AssetStructListResponse response = new AssetStructListResponse();
@@ -1541,7 +1616,26 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }        
+        }
+
+        public static AssetFileTypeResponse AddAssetFileType(int groupId, long userId, AssetFileType assetFileTypeToAdd)
+        {
+            AssetFileTypeResponse result = new AssetFileTypeResponse();
+            try
+            {
+                DataSet ds = CatalogDAL.InsertAssetFileType(groupId, assetFileTypeToAdd.Description, assetFileTypeToAdd.IsActive, userId, assetFileTypeToAdd.IsTrailer, (int) assetFileTypeToAdd.StreamerType, assetFileTypeToAdd.DrmId);
+                result = CreateAssetFileTypeResponseFromDataSet(ds);
+                
+                // TODO
+                // InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFileType);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddAssetStruct for groupId: {0} and assetStruct: {1}", groupId, assetFileTypeToAdd.ToString()), ex);
+            }
+
+            return result;
+        }
 
         public static AssetStructResponse AddAssetStruct(int groupId, AssetStruct assetStructToadd, long userId)
         {
@@ -1698,6 +1792,23 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public static AssetFileTypeResponse UpdateAssetFileType(int groupId, long userId, long id, AssetFileType assetFileTypeToUpdate)
+        {
+            AssetFileTypeResponse result = new AssetFileTypeResponse();
+            try
+            {
+                DataSet ds = CatalogDAL.UpdateAssetFileType(groupId, userId, id, assetFileTypeToUpdate.Description, assetFileTypeToUpdate.IsActive, assetFileTypeToUpdate.DrmId);
+                result = CreateAssetFileTypeResponseFromDataSet(ds);
+                InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFileType);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateAssetFileType for groupId: {0}, id: {1} and assetFileTypeToUpdate: {2}", groupId, id, assetFileTypeToUpdate.ToString()), ex);
+            }
+
+            return result;
+        }
+
         public static Status DeleteAssetStruct(int groupId, long id, long userId)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1709,7 +1820,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteAssetStruct", groupId);
                     return result;
                 }
-                                
+
                 if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))
                 {
                     result = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
@@ -1732,6 +1843,26 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed DeleteAssetStruct for groupId: {0} and assetStructId: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+
+        public static Status DeleteAssetFileType(int groupId, long userId, long id)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                if (CatalogDAL.DeleteAssetFileType(groupId, userId, id))
+                {
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    // TODO
+                    // InvalidateCatalogGroupCache(groupId, result, false);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteAssetFileType for groupId: {0} and asset-file-type id: {1}", groupId, id), ex);
             }
 
             return result;

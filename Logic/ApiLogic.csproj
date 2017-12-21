@@ -194,6 +194,9 @@
     <Compile Include="Catalog\CatalogManagement\AssetListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\AssetResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\CatalogGroupCache.cs" />
+    <Compile Include="Catalog\CatalogManagement\AssetFileTypeListResponse.cs" />
+    <Compile Include="Catalog\CatalogManagement\AssetFileType.cs" />
+    <Compile Include="Catalog\CatalogManagement\AssetFileTypeResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\LinearMediaAsset.cs" />
     <Compile Include="Catalog\CatalogManagement\MediaAsset.cs" />
     <Compile Include="Catalog\CatalogManagement\TopicListResponse.cs" />

@@ -216,6 +216,7 @@ namespace ApiObjects.Response
         InvalidValueSentForMeta = 4040,
         DeviceRuleDoesNotExistForGroup = 4041,
         GeoBlockRuleDoesNotExistForGroup = 4042,
+        AssetFileTypeDoesNotExist = 4043,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,
