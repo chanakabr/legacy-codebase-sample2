@@ -3259,7 +3259,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static bool UnifiedRenewalReminder(int groupId, string siteGuid, long processId, long endDate)
+        public static bool UnifiedRenewalReminder(int groupId, string siteGuid, long householdId, long processId, long endDate)
         {
             bool response = false;
 
@@ -3274,7 +3274,7 @@ namespace Core.ConditionalAccess
             {
                 try
                 {
-                    response = t.UnifiedRenewalReminder(siteGuid, processId, endDate);
+                    response = t.UnifiedRenewalReminder(siteGuid, householdId, processId, endDate);
                 }
                 catch (Exception ex)
                 {
