@@ -1505,7 +1505,7 @@ namespace Core.ConditionalAccess
                     if (eta > DateTime.UtcNow)
                     {
                         RenewUnifiedData newData = new RenewUnifiedData(data.GroupId, data.householdId, data.processId,
-                            data.endDate, eta, eSubscriptionRenewRequestType.RenewUnifiedTransaction);
+                            data.endDate, eta, eSubscriptionRenewRequestType.RenewalReminder);
                         bool enqueueSuccessful = queue.Enqueue(newData, string.Format(Utils.ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION, data.GroupId));
 
                         if (!enqueueSuccessful)
