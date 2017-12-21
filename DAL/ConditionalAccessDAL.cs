@@ -3380,11 +3380,11 @@ namespace DAL
             return null;
         }
 
-        public static DataRow UpdaeProcessDetailsForRenewal(long processId)
+        public static DataRow UpdateProcessDetailsForRenewal(long processId)
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdaeProcessDetailsForRenewal");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateProcessDetailsForRenewal");
                 sp.SetConnectionKey("CA_CONNECTION_STRING");
                 sp.AddParameter("@Id", processId);
 
