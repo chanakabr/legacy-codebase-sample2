@@ -90,11 +90,11 @@ namespace Core.ConditionalAccess
 
             /******* Check if this is a renew via INAPP PURCHASE **********/
             PaymentDetails pd = null;
-            ApiObjects.Response.Status statusVerificationS = Billing.Module.GetPaymentGatewayVerificationStatus(groupId, billingGuid, ref pd);            
-            bool ignoreUnifiedBillingCycle = statusVerificationS.Code != (int)eResponseStatus.OK || pd == null || pd.PaymentGatewayId == 0;
+            ApiObjects.Response.Status statusVerifications = Billing.Module.GetPaymentGatewayVerificationStatus(groupId, billingGuid, ref pd);            
+            bool ignoreUnifiedBillingCycle = statusVerifications.Code != (int)eResponseStatus.OK || pd == null || pd.PaymentGatewayId == 0;
 
             // check if this user permitted to renew and NOT purchases via INAPP 
-            if (ignoreUnifiedBillingCycle && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, RolePermissions.RENEW_SUBSCRIPTION))
+            if (ignoreUnifiedBillingCycle && statusVerifications.Code == (int)eResponseStatus.PaymentGatewayExternalVerification && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, RolePermissions.RENEW_SUBSCRIPTION))
             {
                 // mark this subscription in special status 
                 if (!ConditionalAccessDAL.UpdateMPPRenewalSubscriptionStatus(new List<int>() { (int)purchaseId }, (int)SubscriptionPurchaseStatus.Suspended))
