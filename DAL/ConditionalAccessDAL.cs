@@ -3379,5 +3379,26 @@ namespace DAL
 
             return null;
         }
+
+        public static DataRow UpdateProcessDetailsForRenewal(long processId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateProcessDetailsForRenewal");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                sp.AddParameter("@Id", processId);
+
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows[0];
+                }
+            }
+            catch
+            {
+                return null;
+            }
+            return null;
+        }
     }
 }
