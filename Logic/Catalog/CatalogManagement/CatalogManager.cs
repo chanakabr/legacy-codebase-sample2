@@ -31,11 +31,13 @@ namespace Core.Catalog.CatalogManagement
         private const string IS_NEW_TAG_COLUMN_NAME = "is_new";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        public static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, ENTRY_ID_META_SYSTEM_NAME, STATUS_META_SYSTEM_NAME, PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME,
             PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_START_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_TIME_META_SYSTEM_NAME
         };
+
+        private static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
 
         #endregion
 
@@ -2593,9 +2595,9 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 List<string> tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value
-                                                                                    && !CatalogManager.BasicMetasSystemNames.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                                                                                    && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
                 List<string> metas = catalogGroupCache.TopicsMapBySystemName.Where(x => (!x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value)
-                                                                                    && !CatalogManager.BasicMetasSystemNames.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                                                                                    && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
                 if (originalKey.StartsWith("tags."))
                 {
                     foreach (string tag in tags)

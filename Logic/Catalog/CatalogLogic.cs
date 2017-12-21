@@ -121,7 +121,7 @@ namespace Core.Catalog
             ENTRYID,
             SUMMARYMEDIUM,
             "...."
-        };                    
+        };
 
         private static readonly HashSet<string> reservedUnifiedSearchNumericFields = new HashSet<string>()
 		{
@@ -143,7 +143,8 @@ namespace Core.Catalog
             PLAYBACKENDDATETIME,
             CATALOGSTARTDATETIME,
             CATALOGENDDATETIME,
-            END_DATE
+            END_DATE,
+            LASTMODIFIED
         };
 
         private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
@@ -6935,24 +6936,22 @@ namespace Core.Catalog
                             searchKeys.Clear();
                             searchKeys.Add(END_DATE);
                         }
+                        else if (searchKeyLowered == LASTMODIFIED)
+                        {                            
+                            searchKeys.Clear();
+                            searchKeys.Add(UPDATE_DATE);
+                        }
 
                         if (mustBeOperator && !definitions.isOperatorSearch)
                         {
                             throw new KalturaException(string.Format("Unauthorized use of field {0}", searchKeyLowered), (int)eResponseStatus.BadSearchRequest);
                         }
                     }
-                    else if (searchKeyLowered == "update_date")
+                    else if (searchKeyLowered == UPDATE_DATE)
                     {
                         GetLeafDate(ref leaf, request.m_dServerTime);
 
                         leaf.shouldLowercase = false;
-                    }
-                    else if (searchKeyLowered == LASTMODIFIED)
-                    {
-                        GetLeafDate(ref leaf, request.m_dServerTime);
-                        leaf.shouldLowercase = false;
-                        searchKeys.Clear();
-                        searchKeys.Add(UPDATE_DATE);
                     }
                     else if (searchKeyLowered == ESUnifiedQueryBuilder.GEO_BLOCK_FIELD)
                     {
@@ -8624,6 +8623,16 @@ namespace Core.Catalog
             response.MetaList = new List<ApiObjects.Meta>();
             response.MetaList.Add(meta);
             return response;
+        }
+
+        public static HashSet<string> GetTopicsToIgnoreOnBuildIndex()
+        {
+            HashSet<string> topicsToIgnore = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            topicsToIgnore.UnionWith(reservedUnifiedSearchStringFields);
+            topicsToIgnore.UnionWith(reservedUnifiedSearchNumericFields);
+            topicsToIgnore.UnionWith(reservedUnifiedDateFields);
+
+            return topicsToIgnore;
         }
     }
 }
