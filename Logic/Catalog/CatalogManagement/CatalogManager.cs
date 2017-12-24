@@ -1268,7 +1268,7 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        private static void AddTopicLanguageValueToXml(XmlDocument metasXmlDoc, XmlNode rootNode, long topicId, int defaultLanguageId, string value)
+        private static void AddTopicLanguageValueToXml(XmlDocument metasXmlDoc, XmlNode rootNode, long topicId, int languageId, string value)
         {
             XmlNode rowNode;
             XmlNode topicIdNode;
@@ -1279,7 +1279,7 @@ namespace Core.Catalog.CatalogManagement
             topicIdNode.InnerText = topicId.ToString();
             rowNode.AppendChild(topicIdNode);
             languageIdNode = metasXmlDoc.CreateElement("language_id");
-            languageIdNode.InnerText = defaultLanguageId.ToString();
+            languageIdNode.InnerText = languageId.ToString();
             rowNode.AppendChild(languageIdNode);
             valueNode = metasXmlDoc.CreateElement("value");
             valueNode.InnerText = value;
