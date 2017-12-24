@@ -1050,14 +1050,14 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
             }
 
-            asset.Name.Validate();
+            asset.Name.Validate("multilingualName");
 
             if (asset.Description != null && asset.Description.Values != null && asset.Description.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
             }
 
-            asset.Description.Validate();
+            asset.Description.Validate("multilingualDescription");
 
             if (!asset.Type.HasValue)
             {
@@ -1069,6 +1069,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
             }
 
+            asset.ValidateMetas();
             asset.ValidateTags();
 
             if (asset is KalturaMediaAsset && !(asset as KalturaMediaAsset).Status.HasValue)
@@ -1146,7 +1147,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    asset.Name.Validate();
+                    asset.Name.Validate("multilingualName");
                 }
             }
 
@@ -1158,7 +1159,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    asset.Description.Validate();
+                    asset.Description.Validate("multilingualDescription");
                 }
             }
 
@@ -1167,6 +1168,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
             }
 
+            asset.ValidateMetas();
             asset.ValidateTags();
 
             try

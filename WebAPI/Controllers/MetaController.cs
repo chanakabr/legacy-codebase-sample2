@@ -160,7 +160,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
             }
 
-            meta.Name.Validate();
+            meta.Name.Validate("multilingualName");
             if (string.IsNullOrEmpty(meta.SystemName.Trim()))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
@@ -210,7 +210,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    meta.Name.Validate();
+                    meta.Name.Validate("multilingualName");
                 }
             }
 

@@ -204,7 +204,7 @@ namespace WebAPI.Models.General
             return null;
         }
 
-        internal void Validate(bool shouldCheckDefaultLanguageIsSent = true, bool shouldValidateValues = true, bool shouldValidateRequestLanguage = true)
+        internal void Validate(string parameterName, bool shouldCheckDefaultLanguageIsSent = true, bool shouldValidateValues = true, bool shouldValidateRequestLanguage = true)
         {
             if (Values != null && Values.Count > 0)
             {
@@ -247,7 +247,7 @@ namespace WebAPI.Models.General
 
                 if (shouldCheckDefaultLanguageIsSent && !languageCodes.Contains(GroupDefaultLanguageCode))
                 {
-                    throw new BadRequestException(ApiException.DEFUALT_LANGUAGE_MUST_BE_SENT);                    
+                    throw new BadRequestException(ApiException.DEFUALT_LANGUAGE_MUST_BE_SENT, parameterName);                    
                 }
 
                 if (shouldValidateRequestLanguage)
