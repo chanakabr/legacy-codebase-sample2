@@ -2920,7 +2920,21 @@ namespace Core.Catalog.CatalogManagement
             var tags = catalogGroupCache.TopicsMapBySystemName.Where(
                 x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Value).ToList();
 
-            DataSet dataSet = CatalogDAL.GetGroupTagValues(groupId);
+            DataSet dataSet = null;
+            try
+            {
+                dataSet = CatalogDAL.GetGroupTagValues(groupId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when getting group tag values for groupId {0}. ex = {1}", groupId, ex);
+                dataSet = null;
+            }
+
+            if (dataSet == null)
+            {
+                return null;
+            }
 
             if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 &&
                 dataSet.Tables[0] != null && dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0)
