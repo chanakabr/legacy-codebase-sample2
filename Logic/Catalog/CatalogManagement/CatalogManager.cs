@@ -1410,7 +1410,7 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.NPVR:
                         break;
                     case eAssetTypes.MEDIA:
-                        DataSet ds = CatalogDAL.GetAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
+                        DataSet ds = CatalogDAL.GetMediaAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
                         result = CreateMediaAsset(groupId, id, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                         break;
                     case eAssetTypes.UNKNOWN:
@@ -2494,7 +2494,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    DataSet ds = CatalogDAL.GetAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
+                    DataSet ds = CatalogDAL.GetMediaAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
                     MediaAsset mediaAsset = CreateMediaAsset(groupId, id, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                     if (mediaAsset != null)
                     {
@@ -2611,28 +2611,28 @@ namespace Core.Catalog.CatalogManagement
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupAssets(int groupId)
+        public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupMediaAssets(int groupId)
         {
             // <assetId, <languageId, media>>
-            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
+            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMediaAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
             try
             {
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetGroupAssets", groupId);
-                    return groupAssetsMap;
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetGroupMediaAssets", groupId);
+                    return groupMediaAssetsMap;
                 }
 
-                DataSet groupAssetsDs = CatalogDAL.GetGroupAssets(groupId, catalogGroupCache.DefaultLanguage.ID);
-                groupAssetsMap = CreateGroupMediaMapFromDataSet(groupId, groupAssetsDs, catalogGroupCache);
+                DataSet groupAssetsDs = CatalogDAL.GetGroupMediaAssets(groupId, catalogGroupCache.DefaultLanguage.ID);
+                groupMediaAssetsMap = CreateGroupMediaMapFromDataSet(groupId, groupAssetsDs, catalogGroupCache);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetGroupAssets for groupId: {0}", groupId), ex);
+                log.Error(string.Format("Failed GetGroupMediaAssets for groupId: {0}", groupId), ex);
             }
 
-            return groupAssetsMap;
+            return groupMediaAssetsMap;
         }
 
         public static HashSet<string> GetUnifiedSearchKey(int groupId, string originalKey, out bool isTagOrMeta, out Type type)
