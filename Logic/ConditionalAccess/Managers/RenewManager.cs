@@ -649,22 +649,25 @@ namespace Core.ConditionalAccess
             }
 
             // update unified billing cycle for domian with next end date
-            long? groupBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-            if (groupBillingCycle.HasValue && (int)groupBillingCycle.Value == maxVLCOfSelectedUsageModule)
+            if (!ignoreUnifiedBillingCycle)
             {
-                if (unifiedBillingCycle == null)
+                long? groupBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
+                if (groupBillingCycle.HasValue && (int)groupBillingCycle.Value == maxVLCOfSelectedUsageModule)
                 {
-                    unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupBillingCycle.Value);
-                }
-
-                if (unifiedBillingCycle != null)
-                {
-                    long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
-
-                    if (unifiedBillingCycle.endDate == nextEndDate)
+                    if (unifiedBillingCycle == null)
                     {
-                        log.DebugFormat("going to update UnifiedBillingCycle. current endDate = {0}, nextEndDate = {1}", unifiedBillingCycle.endDate, nextEndDate);
-                        UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, nextEndDate); //, unifiedBillingCycle.paymentGatewayIds);
+                        unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupBillingCycle.Value);
+                    }
+
+                    if (unifiedBillingCycle != null)
+                    {
+                        long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
+
+                        if (unifiedBillingCycle.endDate == nextEndDate)
+                        {
+                            log.DebugFormat("going to update UnifiedBillingCycle. current endDate = {0}, nextEndDate = {1}", unifiedBillingCycle.endDate, nextEndDate);
+                            UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, nextEndDate); //, unifiedBillingCycle.paymentGatewayIds);
+                        }
                     }
                 }
             }
