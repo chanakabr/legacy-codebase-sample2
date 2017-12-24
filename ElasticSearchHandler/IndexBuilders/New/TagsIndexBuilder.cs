@@ -162,6 +162,12 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 var allTagValues = CatalogManager.GetAllTagValues(groupId);
 
+                if (allTagValues == null)
+                {
+                    log.ErrorFormat("Error when getting all tag values for group {0}", groupId);
+                    return false;
+                }
+
                 if (allTagValues != null)
                 {
                     List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
@@ -169,6 +175,14 @@ namespace ElasticSearchHandler.IndexBuilders
                     // For each tag value
                     foreach (var tagValue in allTagValues)
                     {
+                        if (!catalogGroupCache.LanguageMapById.ContainsKey(tagValue.languageId))
+                        {
+                            log.WarnFormat("Found tag value with non existing language ID. tagId = {0}, tagText = {1}, languageId = {2}",
+                                tagValue.tagId, tagValue.value, tagValue.languageId);
+
+                            continue;
+                        }
+
                         var language = catalogGroupCache.LanguageMapById[tagValue.languageId];
                         string suffix = null;
 
