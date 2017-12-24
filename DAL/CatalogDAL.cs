@@ -4857,8 +4857,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertMediaAsset(int groupId, long defaultLanguageId, System.Xml.XmlDocument metas, System.Xml.XmlDocument tags, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId,
-                                                bool? isActive, DateTime startDate, DateTime? endDate, DateTime catalogStartDate, DateTime? finalEndDate, long assetStructId, long userId)
+        public static DataSet InsertMediaAsset(int groupId, long defaultLanguageId, System.Xml.XmlDocument metas, System.Xml.XmlDocument tags, string coGuid, string entryId, int? deviceRuleId,
+                                                int? geoBlockRuleId, bool? isActive, DateTime startDate, DateTime? endDate, DateTime catalogStartDate, DateTime? finalEndDate, long assetStructId,
+                                                long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4883,10 +4884,35 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateMediaAsset(int groupId, long defaultLanguageId, System.Xml.XmlDocument metas, System.Xml.XmlDocument tags, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId,
-                                                bool? isActive, DateTime startDate, DateTime? endDate, DateTime catalogStartDate, DateTime? finalEndDate, long userId)
+        public static DataSet UpdateMediaAsset(int groupId, long id, long defaultLanguageId, System.Xml.XmlDocument metasToAdd, System.Xml.XmlDocument tagsToAdd, System.Xml.XmlDocument metasToUpdate,
+                                                System.Xml.XmlDocument tagsToUpdate, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId, bool? isActive, DateTime startDate,
+                                                DateTime? endDate, DateTime catalogStartDate, DateTime? finalEndDate, long userId)
         {
-            throw new NotImplementedException();
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaAsset");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@ID", id);
+            sp.AddParameter("@DefaultLanguageId", defaultLanguageId);
+            sp.AddParameter("@MetasToAddExist", metasToAdd != null && !string.IsNullOrEmpty(metasToAdd.InnerXml) ? 1 : 0);
+            sp.AddParameter("@MetasToAddXml", metasToAdd != null ? metasToAdd.InnerXml : string.Empty);
+            sp.AddParameter("@TagsToAddExist", tagsToAdd != null && !string.IsNullOrEmpty(tagsToAdd.InnerXml) ? 1 : 0);
+            sp.AddParameter("@TagsToAddXml", tagsToAdd != null ? tagsToAdd.InnerXml : string.Empty);
+            sp.AddParameter("@MetasToUpdateExist", metasToUpdate != null && !string.IsNullOrEmpty(metasToUpdate.InnerXml) ? 1 : 0);
+            sp.AddParameter("@MetasToUpdateXml", metasToUpdate != null ? metasToUpdate.InnerXml : string.Empty);
+            sp.AddParameter("@TagsToUpdateExist", tagsToUpdate != null && !string.IsNullOrEmpty(tagsToUpdate.InnerXml) ? 1 : 0);
+            sp.AddParameter("@TagsToUpdateXml", tagsToUpdate != null ? tagsToUpdate.InnerXml : string.Empty);
+            sp.AddParameter("@CoGuid", coGuid);
+            sp.AddParameter("@EntryId", entryId);
+            sp.AddParameter("@DeviceRuleId", deviceRuleId);
+            sp.AddParameter("@GeoBlockRuleId", geoBlockRuleId);            
+            sp.AddParameter("@IsActive", isActive);
+            sp.AddParameter("@StartDate", startDate);
+            sp.AddParameter("@EndDate", endDate);
+            sp.AddParameter("@CatalogStartDate", catalogStartDate);
+            sp.AddParameter("@FinalEndDate", finalEndDate);
+            sp.AddParameter("@UpdaterId", userId);
+
+            return sp.ExecuteDataSet();
         }
 
         public static bool DeleteMediaAsset(int groupId, long id, long userId)
