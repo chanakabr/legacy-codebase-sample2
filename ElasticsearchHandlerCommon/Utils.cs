@@ -807,7 +807,7 @@ namespace ElasticsearchTasksCommon
                 
                 if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
                 {
-                    return Core.Catalog.CatalogManagement.CatalogManager.GetGroupAssets(groupId);
+                    return Core.Catalog.CatalogManagement.CatalogManager.GetGroupMediaAssets(groupId);
                 }
 
                 ODBCWrapper.StoredProcedure GroupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
