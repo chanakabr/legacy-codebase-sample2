@@ -691,7 +691,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     KalturaMultilingualStringValue metaValue = meta.Value as KalturaMultilingualStringValue;
                     metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.MultilingualString.ToString();
-                    metaToAdd.Value = metaValue.value != null ? metaValue.value.GetLanugageContainer().ToArray() : null;
+                    metaToAdd.m_sValue = metaValue.value != null ? metaValue.value.GetDefaultLanugageValue() : null;
+                    metaToAdd.Value = metaValue.value != null ? metaValue.value.GetNoneDefaultLanugageContainer().ToArray() : null;
                 }
                 else if (metaType == typeof(KalturaDoubleValue))
                 {
@@ -1188,7 +1189,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 }
                 else if (meta.m_oTagMeta.m_sType == ApiObjects.MetaType.MultilingualString.ToString())
                 {
-                    value = new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(meta.Value) };
+                    if (string.IsNullOrEmpty(meta.m_sValue))
+                    {
+                        value = new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(meta.Value) };
+                    }
+                    else
+                    {
+                        value = new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(meta.Value.ToList(), meta.m_sValue) };
+                    }
                 }
                 else if (meta.m_oTagMeta.m_sType.ToLower() == typeof(double).ToString() || meta.m_oTagMeta.m_sType == ApiObjects.MetaType.Number.ToString())
                 {
