@@ -4836,9 +4836,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet GetAsset(int groupId, long id, long defaultLanguageId)
+        public static DataSet GetMediaAsset(int groupId, long id, long defaultLanguageId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAsset");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
@@ -4847,9 +4847,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet GetGroupAssets(int groupId, long defaultLanguageId)
+        public static DataSet GetGroupMediaAssets(int groupId, long defaultLanguageId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupAssets");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupMediaAssets");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@DefaultLanguageId", defaultLanguageId);
