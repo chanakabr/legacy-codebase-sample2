@@ -303,7 +303,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("GroupImageTypes_groupId_{0}", groupId);
         }
-        
+
+        public static string GetGroupRatiosKey(int groupId)
+        {
+            return string.Format("GroupRatios_groupId_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -503,6 +508,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_GroupImageTypes_groupId_{0}", groupId);
         }
 
+        public static string GetGroupRatiosInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_GroupRatios_groupId_{0}", groupId);
+        }
+
         #region Domains
 
         public static string GetHouseholdInvalidationKey(long householdId)
@@ -533,7 +543,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKey_user_{0}", siteGuid);
         }
-
+        
         #endregion
 
         #endregion

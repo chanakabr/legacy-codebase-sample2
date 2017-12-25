@@ -3488,7 +3488,7 @@ namespace DAL
             return rowCount;
         }
 
-        public static int UpdateImageState(int groupId, long rowId, int version, eTableStatus status, int? updaterId)
+        public static int UpdateImageState(int groupId, long rowId, int version, eTableStatus status, int? updaterId, string contentId = null)
         {
             int result = -1;
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("pics");
@@ -3502,6 +3502,8 @@ namespace DAL
                     if (updaterId.HasValue)
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", updaterId.Value);
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                    if (!string.IsNullOrEmpty(contentId))
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("BASE_URL", "=", contentId);
                     updateQuery += " WHERE ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
                     updateQuery += " AND ";

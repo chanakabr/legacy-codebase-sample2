@@ -793,7 +793,7 @@ namespace TVinciShared
             }
         }
 
-        public static bool UpdateImageState(int groupId, long rowId, int version, eMediaType mediaType, eTableStatus status, int? updaterId = null)
+        public static bool UpdateImageState(int groupId, long rowId, int version, eMediaType mediaType, eTableStatus status, int? updaterId = null, string contentId = null)
         {
             bool res = false;
             int queryRes = 0;
@@ -803,7 +803,7 @@ namespace TVinciShared
                 case eTableStatus.OK:
 
                     if (mediaType == eMediaType.VOD)
-                        queryRes = ApiDAL.UpdateImageState(groupId, rowId, version, status, updaterId);
+                        queryRes = ApiDAL.UpdateImageState(groupId, rowId, version, status, updaterId, contentId);
 
                     if (mediaType == eMediaType.EPG)
                         queryRes = ApiDAL.UpdateEpgImageState(groupId, rowId, version, status, updaterId);

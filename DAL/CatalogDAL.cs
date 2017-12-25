@@ -5038,17 +5038,18 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataTable GetRatios()
+        public static DataTable GetGroupImageRatios(int groupId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPicRatios");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupImageRatios");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
 
             return sp.Execute();
         }
 
-        public static DataTable InsertImage(int groupId, long userId, long imageObjectId, eAssetImageType imageObjectType, long imageTypeId)
+        public static DataTable InsertPic(int groupId, long userId, long imageObjectId, eAssetImageType imageObjectType, long imageTypeId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertImage");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertPic");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@updaterId", userId);
             sp.AddParameter("@assetId", imageObjectId);
@@ -5083,15 +5084,26 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static bool DeleteImage(int groupId, long id, long userId)
+        public static bool DeletePic(int groupId, long id, long userId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteImage");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeletePic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@id", id);
             sp.AddParameter("@updaterId", userId);
 
             return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataTable InsertGroupImageRatios(int groupId, long userId, string ratio)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertGroupImageRatios");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@ratio", ratio);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.Execute();
         }
 
         #endregion
