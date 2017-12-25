@@ -187,8 +187,7 @@ namespace WebAPI.Models.Catalog
             if (Tags != null && Tags.Count > 0)
             {
                 foreach (KeyValuePair<string, KalturaMultilingualStringValueArray> tagValues in Tags)
-                {
-                    // TODO - Lior not needed anymore since we don't support adding\updating tag translation per asset
+                {                    
                     if (tagValues.Value.Objects != null && tagValues.Value.Objects.Count > 0)
                     {
                         foreach (KalturaMultilingualStringValue item in tagValues.Value.Objects)
@@ -201,6 +200,24 @@ namespace WebAPI.Models.Catalog
                         }
                     }
 
+                }
+            }
+        }
+
+        internal void ValidateMetas()
+        {
+            if (Metas != null && Metas.Count > 0)
+            {
+                foreach (KeyValuePair<string, KalturaValue> metaValues in Metas)
+                {
+                    if (metaValues.Value.GetType() == typeof(KalturaMultilingualStringValue))
+                    {
+                        KalturaMultilingualStringValue multilingualStringValue = metaValues.Value as KalturaMultilingualStringValue;
+                        if (multilingualStringValue != null)
+                        {
+                            multilingualStringValue.value.Validate(metaValues.Key);
+                        }
+                    }
                 }
             }            
         }

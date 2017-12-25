@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
             }
 
-            assetStruct.Name.Validate();
+            assetStruct.Name.Validate("multilingualName");
             if (string.IsNullOrEmpty(assetStruct.SystemName.Trim()))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
@@ -125,7 +125,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    assetStruct.Name.Validate();
+                    assetStruct.Name.Validate("multilingualName");
                 }
             }
 

@@ -93,7 +93,7 @@ namespace WebAPI.Controllers
                     }
                     else
                     {
-                        tag.Tag.Validate();
+                        tag.Tag.Validate("multilingualTag");
                     }
                 }
                 else
@@ -133,7 +133,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    tag.Tag.Validate();
+                    tag.Tag.Validate("multilingualTag");
                 }
             }
             else

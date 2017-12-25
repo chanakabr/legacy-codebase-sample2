@@ -198,7 +198,7 @@ namespace WebAPI.Exceptions
 
         public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");        
         public static ApiExceptionType INVALID_VALUE_FOR_FEATURE = new ApiExceptionType(StatusCode.InvalidValueForFeature, "Invalid value for feature: @feature@. feature can only contain alphanumeric values and/or underscore up until 64 characters", "feature");
-        public static ApiExceptionType DEFUALT_LANGUAGE_MUST_BE_SENT = new ApiExceptionType(StatusCode.DefaultLanguageMustBeSent, "Default language must be one of the values sent for multilingualName");
+        public static ApiExceptionType DEFUALT_LANGUAGE_MUST_BE_SENT = new ApiExceptionType(StatusCode.DefaultLanguageMustBeSent, "Default language must be one of the values sent for @object@", "object");
         public static ApiExceptionType GROUP_DOES_NOT_CONTAIN_LANGUAGE = new ApiExceptionType(StatusCode.GroupDoesNotContainLanguage, "language: @lng@ is not part of group supported languages", "lng");
         public static ApiExceptionType GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS = new ApiExceptionType(StatusCode.GlobalLanguageParameterMustBeAsterisk, "Global language parameter must be asterisk for write actions of multilingualName");
         public static ApiExceptionType MULTI_VALUE_NOT_SENT_FOR_META_DATA_TYPE_STRING = new ApiExceptionType(StatusCode.MultiValueWasNotSentForMetaDataTypeString, "multipleValue property must have a value when KalturaMetaDataType equals STRING");
