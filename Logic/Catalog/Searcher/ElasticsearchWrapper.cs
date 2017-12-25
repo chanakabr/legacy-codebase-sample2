@@ -2867,34 +2867,74 @@ namespace Core.Catalog
                 return status;
             }
 
-            var language = group.LanguageMapById[tag.languageId];
-
-            string suffix = null;
-
-            if (!language.IsDefault)
-            {
-                suffix = language.Code;
-            }
-
-            string type = "tag";
-
-            if (!language.IsDefault)
-            {
-                type = string.Format("tag_{0}", language.Code);
-            }
-            
-            // Serialize tag and create a bulk request for it
-            string serializedTag = JObject.FromObject(tag).ToString(Newtonsoft.Json.Formatting.None);
-            
             string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
 
-            string id = string.Format("{0}_{1}", tag.tagId, tag.languageId);
-            bool insertResult = m_oESApi.InsertRecord(index, type, id, serializedTag);
+            List<TagValue> tagsToInsert = new List<TagValue>();
 
-            if (!insertResult)
+            int defaultLanguageId = tag.languageId;
+
+            if (defaultLanguageId == 0)
             {
-                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
-                status.Message = "Failed performing insert query";
+                defaultLanguageId = group.DefaultLanguage.ID;
+            }
+
+            tagsToInsert.Add(new TagValue() {
+                createDate = tag.createDate,
+                languageId = defaultLanguageId,
+                tagId = tag.tagId,
+                topicId = tag.topicId,
+                updateDate = tag.updateDate,
+                value = tag.value
+            });
+
+            foreach (var languageContainer in tag.TagsInOtherLanguages)
+            {
+                int languageId = 0;
+
+                if (group.LanguageMapByCode.ContainsKey(languageContainer.LanguageCode))
+                {
+                    languageId = group.LanguageMapByCode[languageContainer.LanguageCode].ID;
+
+                    tagsToInsert.Add(new TagValue()
+                    {
+                        createDate = tag.createDate,
+                        languageId = languageId,
+                        tagId = tag.tagId,
+                        topicId = tag.topicId,
+                        updateDate = tag.updateDate,
+                        value = languageContainer.Value
+                    });
+                }
+            }
+
+            foreach (var tagToInsert in tagsToInsert)
+            {
+                var language = group.LanguageMapById[tagToInsert.languageId];
+                string suffix = null;
+
+                if (!language.IsDefault)
+                {
+                    suffix = language.Code;
+                }
+
+                string type = "tag";
+
+                if (!language.IsDefault)
+                {
+                    type = string.Format("tag_{0}", language.Code);
+                }
+
+                // Serialize tag and create a bulk request for it
+                string serializedTag = JObject.FromObject(tagToInsert).ToString(Newtonsoft.Json.Formatting.None);
+
+                string id = string.Format("{0}_{1}", tag.tagId, tag.languageId);
+                bool insertResult = m_oESApi.InsertRecord(index, type, id, serializedTag);
+
+                if (!insertResult)
+                {
+                    status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                    status.Message = "Failed performing insert query";
+                }
             }
 
             return status;
