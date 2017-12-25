@@ -73,13 +73,13 @@ namespace WebAPI.Models.Catalog
         public string Url { get; set; }
 
         /// <summary>
-        /// Image system name
+        /// Image content ID
         /// </summary>
-        [DataMember(Name = "systemName")]
-        [JsonProperty(PropertyName = "systemName")]
-        [XmlElement(ElementName = "systemName")]
+        [DataMember(Name = "contentId")]
+        [JsonProperty(PropertyName = "contentId")]
+        [XmlElement(ElementName = "contentId")]
         [SchemeProperty(ReadOnly = true)]
-        public string SystemName { get; set; }
+        public string ContentId { get; set; }
     }
 
     public class KalturaImageListResponse : KalturaListResponse

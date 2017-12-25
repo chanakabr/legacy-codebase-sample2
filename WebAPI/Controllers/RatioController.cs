@@ -43,5 +43,31 @@ namespace WebAPI.Controllers
             }
             return response;
         }
+
+        /// <summary>
+        /// Add new group ratio
+        /// </summary>
+        /// <param name="ratio">Ratio to add for the partner</param>
+        /// <returns></returns>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        public KalturaRatio Add(KalturaRatio ratio)
+        {
+            KalturaRatio response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+
+            try
+            {
+                response = ClientsManager.CatalogClient().AddRatio(groupId, userId, ratio);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
     }
 }

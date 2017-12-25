@@ -749,6 +749,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.RatioController.Add(WebAPI.Models.Catalog.KalturaRatio)">
+            <summary>
+            Add new group ratio
+            </summary>
+            <param name="ratio">Ratio to add for the partner</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.ImageTypeController.List(WebAPI.Models.Catalog.KalturaImageTypeFilter)">
             <summary>
             Get the list of image types for the partner
@@ -4167,9 +4174,9 @@
             Image URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaImage.SystemName">
+        <member name="P:WebAPI.Models.Catalog.KalturaImage.ContentId">
             <summary>
-            Image system name
+            Image content ID
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaImageListResponse.Images">

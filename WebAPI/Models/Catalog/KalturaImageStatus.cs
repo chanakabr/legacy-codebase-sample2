@@ -10,7 +10,6 @@ namespace WebAPI.Models.Catalog
     {
         PENDING,
         READY,
-        IMPORTING,
         FAILED
     }
 }

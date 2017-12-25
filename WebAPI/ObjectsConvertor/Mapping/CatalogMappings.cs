@@ -534,6 +534,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               ;
 
+            Mapper.CreateMap<KalturaRatio, Core.Catalog.CatalogManagement.Ratio>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              ;
+
             #endregion
 
             #region Image
@@ -542,7 +547,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.ImageObjectId, opt => opt.MapFrom(src => src.ImageObjectId))
               .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId))
-              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+              .ForMember(dest => dest.ContentId, opt => opt.MapFrom(src => src.ContentId))
               .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
               .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertImageStatus(src.Status)))
@@ -553,7 +558,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.ImageObjectId, opt => opt.MapFrom(src => src.ImageObjectId))
               .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId))
-              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+              .ForMember(dest => dest.ContentId, opt => opt.MapFrom(src => src.ContentId))
               .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
               .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertImageStatus(src.Status)))
@@ -809,20 +814,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static KalturaImageStatus ConvertImageStatus(ImageStatus status)
+        private static KalturaImageStatus ConvertImageStatus(eTableStatus status)
         {
             switch (status)
             {
-                case ImageStatus.Pending:
+                case eTableStatus.Pending:
                     return KalturaImageStatus.PENDING;
                     break;
-                case ImageStatus.Ready:
+                case eTableStatus.OK:
                     return KalturaImageStatus.READY;
                     break;
-                case ImageStatus.Importing:
-                    return KalturaImageStatus.IMPORTING;
-                    break;
-                case ImageStatus.Failed:
+                case eTableStatus.Failed:
                     return KalturaImageStatus.FAILED;
                     break;
                 default:
@@ -831,21 +833,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static ImageStatus ConvertImageStatus(KalturaImageStatus status)
+        private static eTableStatus ConvertImageStatus(KalturaImageStatus status)
         {
             switch (status)
             {
                 case KalturaImageStatus.PENDING:
-                    return ImageStatus.Pending;
+                    return eTableStatus.Pending;
                     break;
                 case KalturaImageStatus.READY:
-                    return ImageStatus.Ready;
-                    break;
-                case KalturaImageStatus.IMPORTING:
-                    return ImageStatus.Importing;
+                    return eTableStatus.OK;
                     break;
                 case KalturaImageStatus.FAILED:
-                    return ImageStatus.Failed;
+                    return eTableStatus.Failed;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown image status");
