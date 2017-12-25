@@ -1270,21 +1270,24 @@ namespace Core.Catalog.CatalogManagement
 
         private static void AddTopicLanguageValueToXml(XmlDocument metasXmlDoc, XmlNode rootNode, long topicId, int languageId, string value)
         {
-            XmlNode rowNode;
-            XmlNode topicIdNode;
-            XmlNode languageIdNode;
-            XmlNode valueNode;
-            rowNode = metasXmlDoc.CreateElement("row");
-            topicIdNode = metasXmlDoc.CreateElement("topic_id");
-            topicIdNode.InnerText = topicId.ToString();
-            rowNode.AppendChild(topicIdNode);
-            languageIdNode = metasXmlDoc.CreateElement("language_id");
-            languageIdNode.InnerText = languageId.ToString();
-            rowNode.AppendChild(languageIdNode);
-            valueNode = metasXmlDoc.CreateElement("value");
-            valueNode.InnerText = value;
-            rowNode.AppendChild(valueNode);
-            rootNode.AppendChild(rowNode);
+            if (value != null)
+            {
+                XmlNode rowNode;
+                XmlNode topicIdNode;
+                XmlNode languageIdNode;
+                XmlNode valueNode;
+                rowNode = metasXmlDoc.CreateElement("row");
+                topicIdNode = metasXmlDoc.CreateElement("topic_id");
+                topicIdNode.InnerText = topicId.ToString();
+                rowNode.AppendChild(topicIdNode);
+                languageIdNode = metasXmlDoc.CreateElement("language_id");
+                languageIdNode.InnerText = languageId.ToString();
+                rowNode.AppendChild(languageIdNode);
+                valueNode = metasXmlDoc.CreateElement("value");
+                valueNode.InnerText = value;
+                rowNode.AppendChild(valueNode);
+                rootNode.AppendChild(rowNode);
+            }
         }
 
         private static bool ExtractMediaAssetNamesAndDescriptionsFromMetas(List<Metas> metas, ref string name, ref string description, ref List<LanguageContainer> namesWithLanguages,
