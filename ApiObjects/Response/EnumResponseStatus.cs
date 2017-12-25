@@ -222,6 +222,7 @@ namespace ApiObjects.Response
         ImageTypeAlreadyInUse = 4046,
         ImageTypeDoesNotExist = 4047,
         ImageDoesNotExist = 4048,
+        RatioAlreadyInUse = 4049,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

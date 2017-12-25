@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Core.Catalog.CatalogManagement
     {
         public long Id { get; set; }
 
-        public string Version { get; set; }
+        public int Version { get; set; }
 
         public long ImageTypeId { get; set; }
 
@@ -19,10 +20,10 @@ namespace Core.Catalog.CatalogManagement
 
         public eAssetImageType ImageObjectType { get; set; }
 
-        public ImageStatus Status { get; set; }
+        public eTableStatus Status { get; set; }
 
         public string Url { get; set; }
 
-        public string SystemName { get; set; }
+        public string ContentId { get; set; }
     }
 }

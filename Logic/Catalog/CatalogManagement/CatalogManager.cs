@@ -1018,7 +1018,7 @@ namespace Core.Catalog.CatalogManagement
         {
             // TODO - Lior - change error codes and add new ones
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);            
+            HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
             List<Metas> metasToAdd = asset.Metas != null && currentAssetMetasAndTags != null ? asset.Metas.Where(x => !currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Metas>();
             List<Tags> tagsToAdd = asset.Tags != null && currentAssetMetasAndTags != null ? asset.Tags.Where(x => !currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Tags>();
             result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToAdd, tagsToAdd, assetStructMetaIds, ref metasXmlDocToAdd, ref tagsXmlDocToAdd,
@@ -1618,14 +1618,14 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // validate asset
-                XmlDocument metasXmlDocToAdd = null, tagsXmlDocToAdd = null, metasXmlDocToUpdate = null, tagsXmlDocToUpdate= null;
+                XmlDocument metasXmlDocToAdd = null, tagsXmlDocToAdd = null, metasXmlDocToUpdate = null, tagsXmlDocToUpdate = null;
                 AssetStruct assetStruct = null;
                 DateTime? assetCatalogStartDate = null, assetFinalEndDate = null;
                 if (currentAsset.MediaType.m_nTypeID > 0 && catalogGroupCache.AssetStructsMapById.ContainsKey(currentAsset.MediaType.m_nTypeID))
                 {
                     assetStruct = catalogGroupCache.AssetStructsMapById[currentAsset.MediaType.m_nTypeID];
                 }
-                
+
                 HashSet<string> currentAssetMetasAndTags = new HashSet<string>(currentAsset.Metas.Select(x => x.m_oTagMeta.m_sName).ToList(), StringComparer.OrdinalIgnoreCase);
                 currentAssetMetasAndTags.UnionWith(currentAsset.Tags.Select(x => x.m_oTagMeta.m_sName).ToList());
                 Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, currentAssetMetasAndTags, ref metasXmlDocToAdd,
@@ -1644,7 +1644,7 @@ namespace Core.Catalog.CatalogManagement
                 ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, NAME_META_SYSTEM_NAME);
 
                 // Add Description meta values (for languages that are not default), Description can be updated or added
-                ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, DESCRIPTION_META_SYSTEM_NAME);                
+                ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, DESCRIPTION_META_SYSTEM_NAME);
                 ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, DESCRIPTION_META_SYSTEM_NAME);
 
                 DateTime startDate = assetToUpdate.StartDate.HasValue ? assetToUpdate.StartDate.Value : DateTime.UtcNow;
@@ -1901,12 +1901,12 @@ namespace Core.Catalog.CatalogManagement
             List<Ratio> result = null;
 
             // check if image types exists for group
-            string key = LayeredCacheKeys.GET_RATIOS_KEY;
+            string key = LayeredCacheKeys.GetGroupRatiosKey(groupId);
 
             // try to get from cache  
 
-            bool cacheResult = LayeredCache.Instance.Get<List<Ratio>>(
-                key, ref result, GetRatios, null, groupId, LayeredCacheConfigNames.GET_RATIOS_CACHE_CONFIG_NAME, null);
+            bool cacheResult = LayeredCache.Instance.Get<List<Ratio>>(key, ref result, GetRatios, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GET_RATIOS_CACHE_CONFIG_NAME, null);
 
             if (!cacheResult)
             {
@@ -1923,10 +1923,17 @@ namespace Core.Catalog.CatalogManagement
             List<Ratio> ratios = null;
             try
             {
-                DataTable dt = CatalogDAL.GetRatios();
-                ratios = CreateRatios(dt);
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        DataTable dt = CatalogDAL.GetGroupImageRatios(groupId.Value);
+                        ratios = CreateRatios(dt);
 
-                res = ratios != null;
+                        res = ratios != null;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -1981,12 +1988,12 @@ namespace Core.Catalog.CatalogManagement
             return new Image()
             {
                 Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
-                Url = ODBCWrapper.Utils.GetSafeStr(row, "URL"),
-                SystemName = ODBCWrapper.Utils.GetSafeStr(row, "SYSTEM_NAME"),
+                Url = ODBCWrapper.Utils.GetSafeStr(row, "DESCRIPTION"),
+                ContentId = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL"),
                 ImageObjectId = ODBCWrapper.Utils.GetLongSafeVal(row, "ASSET_ID"),
                 ImageObjectType = (eAssetImageType)ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_TYPE"),
-                Status = (ImageStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
-                Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
+                Status = (eTableStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
+                Version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION"),
                 ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"),
             };
         }
@@ -3364,7 +3371,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                if (CatalogDAL.DeleteImage(groupId, id, userId))
+                if (CatalogDAL.DeletePic(groupId, id, userId))
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -3402,7 +3409,7 @@ namespace Core.Catalog.CatalogManagement
             ImageResponse result = new ImageResponse();
             try
             {
-                DataTable dt = CatalogDAL.InsertImage(groupId, userId, imageToAdd.ImageObjectId, imageToAdd.ImageObjectType, imageToAdd.ImageTypeId);
+                DataTable dt = CatalogDAL.InsertPic(groupId, userId, imageToAdd.ImageObjectId, imageToAdd.ImageObjectType, imageToAdd.ImageTypeId);
 
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
@@ -3442,83 +3449,85 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                //int version = 0;
-                //string baseUrl = string.Empty;
-                //int picId = 0;
-                //int picRatioId = 0;
+                Image image = imagesResponse.Images[0];
+                ImageTypeListResponse imageTypes = GetImageTypes(groupId, true, new List<long>() { image.ImageTypeId });
+                if (imageTypes != null && imageTypes.Status.Code != (int)eResponseStatus.OK)
+                {
+                    log.ErrorFormat("Failed to get image type for imageId = {0}, imageTypeId = {1}", image.Id, image.ImageTypeId);
+                    return imageTypes.Status;
+                }
 
-                ////check if pic Url exist
-                //string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");
-                //if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
-                //{
-                //    if (!ImageUtils.IsUrlExists(pic))
-                //    {
-                //        log.ErrorFormat("DownloadPicToImageServer pic url not valid: {0} ", pic);
-                //        return picId;
-                //    }
-                //}
+                ImageType imageType = imageTypes.ImageTypes[0];
 
-                //// in case ratio Id = 0 get default group's ratio
-                //if (ratioId <= 0)
-                //{
-                //    ratioId = ImageUtils.GetGroupDefaultRatio(groupId);
-                //}
+                if (string.IsNullOrEmpty(image.ContentId))
+                {
+                    //first setContent
+                    image.ContentId = TVinciShared.ImageUtils.GetDateImageName();
+                }
+                else
+                {
+                    image.Version++;
+                }
 
-                ////get pic data           
-                //if (assetId > 0 && GetPicData(ratioId, assetId, assetImageType, out picId, out version, out baseUrl, out picRatioId))
-                //{
-                //    // Get Base Url
-                //    baseUrl = Path.GetFileNameWithoutExtension(baseUrl);
+                // post image
+                ImageServerUploadRequest imageServerReq = new ImageServerUploadRequest() { GroupId = groupId, Id = image.ContentId + "_" + imageType.RatioId, SourcePath = url, Version = image.Version };
+                string res = TvinciImporter.Utils.HttpPost(TVinciShared.ImageUtils.GetImageServerUrl(groupId, eHttpRequestType.Post), JsonConvert.SerializeObject(imageServerReq), "application/json");
 
-                //    // incase row exist --> update  version number
-                //    if (picRatioId == ratioId)
-                //    {
-                //        version++;
-                //    }
-                //    else
-                //    {
-                //        picId = CatalogDAL.InsertPic(groupId, assetName, pic, baseUrl, ratioId, assetId, assetImageType);
-                //    }
-                //}
-                //else // pic does not exist -- > create new pic
-                //{
-                //    baseUrl = TVinciShared.ImageUtils.GetDateImageName();
-                //    picId = CatalogDAL.InsertPic(groupId, assetName, pic, baseUrl, ratioId, assetId, assetImageType);
-                //}
-
-                //if (picId != 0)
-                //{
-                //    if (isAsync)
-                //    {
-                //        SendImageDataToImageUploadQueue(pic, groupId, version, picId, baseUrl + "_" + ratioId, eMediaType.VOD);
-                //    }
-                //    else
-                //    {
-                //        int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
-                //        ImageServerUploadRequest imageServerReq = new ImageServerUploadRequest() { GroupId = parentGroupId, Id = baseUrl + "_" + ratioId, SourcePath = pic, Version = version };
-
-                //        // post image
-                //        string result = Utils.HttpPost(ImageUtils.GetImageServerUrl(groupId, eHttpRequestType.Post), JsonConvert.SerializeObject(imageServerReq), "application/json");
-
-                //        // check result
-                //        if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
-                //        {
-                //            ImageUtils.UpdateImageState(groupId, picId, version, eMediaType.VOD, eTableStatus.Failed, updaterId);
-                //            picId = 0;
-                //        }
-                //        else if (result.ToLower() == "true")
-                //        {
-                //            ImageUtils.UpdateImageState(groupId, picId, version, eMediaType.VOD, eTableStatus.OK, updaterId);
-                //            log.DebugFormat("post image success. picId {0} ", picId);
-                //        }
-                //    }
-                //}
-
-                //return picId;
+                // check result
+                if (string.IsNullOrEmpty(res) || res.ToLower() != "true")
+                {
+                    log.ErrorFormat("POST to image server failed. imageId = {0}, contentId = {1}", image.Id, image.ContentId);
+                    TVinciShared.ImageUtils.UpdateImageState(groupId, image.Id, image.Version, eMediaType.VOD, eTableStatus.Failed, (int)userId);
+                    return result;
+                }
+                else if (res.ToLower() == "true")
+                {
+                    log.DebugFormat("POST to image server successfully sent. imageId = {0}, contentId = {1}", image.Id, image.ContentId);
+                    TVinciShared.ImageUtils.UpdateImageState(groupId, image.Id, image.Version, eMediaType.VOD, eTableStatus.OK, (int)userId, image.ContentId);
+                }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed SetContent for groupId: {0} and ImageId: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+
+        public static RatioResponse AddRatio(int groupId, long userId, Ratio ratio)
+        {
+            RatioResponse result = new RatioResponse();
+            try
+            {
+                DataTable dt = CatalogDAL.InsertGroupImageRatios(groupId, userId, ratio.Name);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+
+                    if (id > 0)
+                    {
+                        result.Ratio = new Ratio()
+                        {
+                            Id = id,
+                            Name = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME")
+                        };
+
+                        string invalidationKey = LayeredCacheKeys.GetGroupRatiosInvalidationKey(groupId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on AddRatio key = {0}", invalidationKey);
+                        }
+                    }
+                    else
+                    {
+                        result.Status = CreateAssetStructResponseStatusFromResult(id);
+                        return result;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddRatio for groupId: {0} and ratio: {1}", groupId, JsonConvert.SerializeObject(ratio)), ex);
             }
 
             return result;
