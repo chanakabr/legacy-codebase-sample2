@@ -128,6 +128,14 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
+        private static void SendRebuildIndexMessage(int groupId, eObjectType objectType)
+        {
+            if (!CatalogLogic.SendRebuildIndexMessage(groupId, objectType, true, true))
+            {
+                log.ErrorFormat("Failed to send rebuild index message for groupId: {0}, objectType :{1}", groupId, objectType.ToString());
+            }
+        }
+
         private static Status CreateAssetStructResponseStatusFromResult(long result, Status status = null)
         {
             Status responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1029,7 +1037,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             List<Metas> metasToUpdate = asset.Metas != null && currentAssetMetasAndTags != null ? asset.Metas.Where(x => currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Metas>();
-            List<Tags> tagsToUpdate = asset.Tags != null && currentAssetMetasAndTags != null ? asset.Tags.Where(x => currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Tags>();
+            List<Tags> tagsToUpdate = asset.Tags != null && currentAssetMetasAndTags != null ? asset.Tags.Where(x => currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Tags>();                 
             result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToUpdate, tagsToUpdate, assetStructMetaIds, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate,
                                                                     ref assetCatalogStartDate, ref assetFinalEndDate);
             if (result.Code != (int)eResponseStatus.OK)
@@ -1268,23 +1276,26 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        private static void AddTopicLanguageValueToXml(XmlDocument metasXmlDoc, XmlNode rootNode, long topicId, int defaultLanguageId, string value)
+        private static void AddTopicLanguageValueToXml(XmlDocument metasXmlDoc, XmlNode rootNode, long topicId, int languageId, string value)
         {
-            XmlNode rowNode;
-            XmlNode topicIdNode;
-            XmlNode languageIdNode;
-            XmlNode valueNode;
-            rowNode = metasXmlDoc.CreateElement("row");
-            topicIdNode = metasXmlDoc.CreateElement("topic_id");
-            topicIdNode.InnerText = topicId.ToString();
-            rowNode.AppendChild(topicIdNode);
-            languageIdNode = metasXmlDoc.CreateElement("language_id");
-            languageIdNode.InnerText = defaultLanguageId.ToString();
-            rowNode.AppendChild(languageIdNode);
-            valueNode = metasXmlDoc.CreateElement("value");
-            valueNode.InnerText = value;
-            rowNode.AppendChild(valueNode);
-            rootNode.AppendChild(rowNode);
+            if (value != null)
+            {
+                XmlNode rowNode;
+                XmlNode topicIdNode;
+                XmlNode languageIdNode;
+                XmlNode valueNode;
+                rowNode = metasXmlDoc.CreateElement("row");
+                topicIdNode = metasXmlDoc.CreateElement("topic_id");
+                topicIdNode.InnerText = topicId.ToString();
+                rowNode.AppendChild(topicIdNode);
+                languageIdNode = metasXmlDoc.CreateElement("language_id");
+                languageIdNode.InnerText = languageId.ToString();
+                rowNode.AppendChild(languageIdNode);
+                valueNode = metasXmlDoc.CreateElement("value");
+                valueNode.InnerText = value;
+                rowNode.AppendChild(valueNode);
+                rootNode.AppendChild(rowNode);
+            }
         }
 
         private static bool ExtractMediaAssetNamesAndDescriptionsFromMetas(List<Metas> metas, ref string name, ref string description, ref List<LanguageContainer> namesWithLanguages,
@@ -1410,7 +1421,7 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.NPVR:
                         break;
                     case eAssetTypes.MEDIA:
-                        DataSet ds = CatalogDAL.GetAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
+                        DataSet ds = CatalogDAL.GetMediaAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
                         result = CreateMediaAsset(groupId, id, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                         break;
                     case eAssetTypes.UNKNOWN:
@@ -2389,6 +2400,8 @@ namespace Core.Catalog.CatalogManagement
                                                       topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId);
                 result = CreateTopicResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
+                // TODO: Lior - ask Ira if to also rebuild other types?
+                SendRebuildIndexMessage(groupId, eObjectType.Media);
             }
             catch (Exception ex)
             {
@@ -2439,6 +2452,8 @@ namespace Core.Catalog.CatalogManagement
                                                     topicToUpdate.IsPredefined, topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
                 result = CreateTopicResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
+                // TODO: Lior - ask Ira if to also rebuild other types?
+                SendRebuildIndexMessage(groupId, eObjectType.Media);
             }
             catch (Exception ex)
             {
@@ -2477,6 +2492,8 @@ namespace Core.Catalog.CatalogManagement
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     InvalidateCatalogGroupCache(groupId, result, false);
+                    // TODO: Lior - ask Ira if to also rebuild other types?
+                    SendRebuildIndexMessage(groupId, eObjectType.Media);
                 }
             }
             catch (Exception ex)
@@ -2501,7 +2518,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    DataSet ds = CatalogDAL.GetAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
+                    DataSet ds = CatalogDAL.GetMediaAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
                     MediaAsset mediaAsset = CreateMediaAsset(groupId, id, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                     if (mediaAsset != null)
                     {
@@ -2618,28 +2635,28 @@ namespace Core.Catalog.CatalogManagement
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupAssets(int groupId)
+        public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupMediaAssets(int groupId)
         {
             // <assetId, <languageId, media>>
-            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
+            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMediaAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
             try
             {
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetGroupAssets", groupId);
-                    return groupAssetsMap;
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetGroupMediaAssets", groupId);
+                    return groupMediaAssetsMap;
                 }
 
-                DataSet groupAssetsDs = CatalogDAL.GetGroupAssets(groupId, catalogGroupCache.DefaultLanguage.ID);
-                groupAssetsMap = CreateGroupMediaMapFromDataSet(groupId, groupAssetsDs, catalogGroupCache);
+                DataSet groupAssetsDs = CatalogDAL.GetGroupMediaAssets(groupId, catalogGroupCache.DefaultLanguage.ID);
+                groupMediaAssetsMap = CreateGroupMediaMapFromDataSet(groupId, groupAssetsDs, catalogGroupCache);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetGroupAssets for groupId: {0}", groupId), ex);
+                log.Error(string.Format("Failed GetGroupMediaAssets for groupId: {0}", groupId), ex);
             }
 
-            return groupAssetsMap;
+            return groupMediaAssetsMap;
         }
 
         public static HashSet<string> GetUnifiedSearchKey(int groupId, string originalKey, out bool isTagOrMeta, out Type type)
@@ -2927,7 +2944,21 @@ namespace Core.Catalog.CatalogManagement
             var tags = catalogGroupCache.TopicsMapBySystemName.Where(
                 x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Value).ToList();
 
-            DataSet dataSet = CatalogDAL.GetGroupTagValues(groupId);
+            DataSet dataSet = null;
+            try
+            {
+                dataSet = CatalogDAL.GetGroupTagValues(groupId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when getting group tag values for groupId {0}. ex = {1}", groupId, ex);
+                dataSet = null;
+            }
+
+            if (dataSet == null)
+            {
+                return null;
+            }
 
             if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 &&
                 dataSet.Tables[0] != null && dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0)
