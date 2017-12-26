@@ -5055,6 +5055,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@assetId", imageObjectId);
             sp.AddParameter("@assetImageType", (int)imageObjectType);
             sp.AddParameter("@imageTypeId", imageTypeId);
+            sp.AddParameter("@status", (int)eTableStatus.Pending);
+            sp.AddParameter("@version", 0);
 
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
@@ -5063,7 +5065,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable GetImagesByIds(int groupId, List<long> imageIds)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetImagesByIds");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPicsByIds");
             sp.AddParameter("@groupId", groupId);
             sp.AddIDListParameter<long>("@ids", imageIds, "id");
           
@@ -5074,7 +5076,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetImagesByIds");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPicsByAsset");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@assetId", imageObjectId);
             sp.AddParameter("@assetImageType", (int)imageObjectType);
