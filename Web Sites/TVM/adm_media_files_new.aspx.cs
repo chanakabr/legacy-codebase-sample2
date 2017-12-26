@@ -343,7 +343,7 @@ public partial class adm_media_files_new : System.Web.UI.Page
         dr_Is_default_language.Initialize("Is default language", "adm_table_header_nbg", "FormInput", "IS_DEFAULT_LANGUAGE", false);
         theRecord.AddRecord(dr_Is_default_language);
 
-        DataRecordShortIntField shortIntField = new DataRecordShortIntField(false, 9, 9);
+        DataRecordShortIntField shortIntField = new DataRecordShortIntField(true, 9, 9);
         shortIntField.Initialize("File size", "adm_table_header_nbg", "FormInput", "FILE_SIZE", false);
         theRecord.AddRecord(shortIntField);
 
