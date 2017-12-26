@@ -1647,8 +1647,14 @@ namespace Core.Catalog.CatalogManagement
                 ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, NAME_META_SYSTEM_NAME);
 
                 // Add Description meta values (for languages that are not default), Description can be updated or added
-                ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, DESCRIPTION_META_SYSTEM_NAME);
-                ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, DESCRIPTION_META_SYSTEM_NAME);
+                if (string.IsNullOrEmpty(currentAsset.Description))
+                {
+                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, DESCRIPTION_META_SYSTEM_NAME);
+                }
+                else
+                {
+                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, DESCRIPTION_META_SYSTEM_NAME);
+                }
 
                 DateTime startDate = assetToUpdate.StartDate.HasValue ? assetToUpdate.StartDate.Value : DateTime.UtcNow;
                 DateTime catalogStartDate = assetToUpdate.CatalogStartDate.HasValue ? assetToUpdate.CatalogStartDate.Value : startDate;
