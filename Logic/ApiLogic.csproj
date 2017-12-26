@@ -221,6 +221,7 @@
     <Compile Include="Catalog\Filter.cs" />
     <Compile Include="Catalog\IEpgSearchable.cs" />
     <Compile Include="Catalog\IFactoryImp.cs" />
+    <Compile Include="Catalog\CatalogManagement\ImageManager.cs" />
     <Compile Include="Catalog\IngestRequest.cs" />
     <Compile Include="Catalog\LinearChannelSettings.cs" />
     <Compile Include="Catalog\ManualMedia.cs" />

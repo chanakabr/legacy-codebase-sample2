@@ -9,8 +9,6 @@ namespace Core.Catalog.CatalogManagement
 
         public List<Image> Images { get; set; }
 
-        public int TotalItems { get; set; }
-
         public ImageListResponse()
         {
             Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
