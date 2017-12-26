@@ -3048,7 +3048,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.GetImageTypes(groupId, isSearchByIds, ids);
+                    response = Core.Catalog.CatalogManagement.ImageManager.GetImageTypes(groupId, isSearchByIds, ids);
                 }
             }
             catch (Exception ex)
@@ -3089,7 +3089,7 @@ namespace WebAPI.Clients
                 ImageType requestImageType = AutoMapper.Mapper.Map<ImageType>(imageType);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddImageType(groupId, requestImageType, userId);
+                    response = Core.Catalog.CatalogManagement.ImageManager.AddImageType(groupId, requestImageType, userId);
                 }
             }
             catch (Exception ex)
@@ -3126,7 +3126,7 @@ namespace WebAPI.Clients
                 ImageType requestImageType = AutoMapper.Mapper.Map<ImageType>(imageType);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateImageType(groupId, id, requestImageType, userId);
+                    response = Core.Catalog.CatalogManagement.ImageManager.UpdateImageType(groupId, id, requestImageType, userId);
                 }
             }
             catch (Exception ex)
@@ -3161,7 +3161,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteImageType(groupId, id, userId);
+                    response = Core.Catalog.CatalogManagement.ImageManager.DeleteImageType(groupId, id, userId);
                 }
             }
             catch (Exception ex)
@@ -3193,7 +3193,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.GetRatios(groupId);
+                    response = Core.Catalog.CatalogManagement.ImageManager.GetRatios(groupId);
                 }
             }
             catch (Exception ex)
@@ -3233,7 +3233,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.GetImagesByIds(groupId, imagesIds);
+                    response = Core.Catalog.CatalogManagement.ImageManager.GetImagesByIds(groupId, imagesIds);
                 }
             }
             catch (Exception ex)
@@ -3270,7 +3270,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.GetImagesByObject(groupId, imageObjectId, 
+                    response = Core.Catalog.CatalogManagement.ImageManager.GetImagesByObject(groupId, imageObjectId, 
                         CatalogMappings.ConvertImageObjectType(imageObjectType));
                 }
             }
@@ -3307,7 +3307,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteImage(groupId, id, userId);
+                    response = Core.Catalog.CatalogManagement.ImageManager.DeleteImage(groupId, id, userId);
                 }
             }
             catch (Exception ex)
@@ -3337,7 +3337,7 @@ namespace WebAPI.Clients
                 Image requestImage = AutoMapper.Mapper.Map<Image>(image);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddImage(groupId, requestImage, userId);
+                    response = Core.Catalog.CatalogManagement.ImageManager.AddImage(groupId, requestImage, userId);
                 }
             }
             catch (Exception ex)
@@ -3372,7 +3372,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.SetContent(groupId, userId, id, url);
+                    response = Core.Catalog.CatalogManagement.ImageManager.SetContent(groupId, userId, id, url);
                 }
             }
             catch (Exception ex)
@@ -3403,7 +3403,7 @@ namespace WebAPI.Clients
                 Core.Catalog.CatalogManagement.Ratio requestRatio = AutoMapper.Mapper.Map<Core.Catalog.CatalogManagement.Ratio>(ratio);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddRatio(groupId, userId, requestRatio);
+                    response = Core.Catalog.CatalogManagement.ImageManager.AddRatio(groupId, userId, requestRatio);
                 }
             }
             catch (Exception ex)

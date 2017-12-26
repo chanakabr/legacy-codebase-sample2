@@ -36,6 +36,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "imageTypeId")]
         [JsonProperty(PropertyName = "imageTypeId")]
         [XmlElement(ElementName = "imageTypeId")]
+        [SchemeProperty(MinInteger = 1)]
         public long ImageTypeId { get; set; }
 
         /// <summary>
@@ -44,6 +45,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "imageObjectId")]
         [JsonProperty(PropertyName = "imageObjectId")]
         [XmlElement(ElementName = "imageObjectId")]
+        [SchemeProperty(MinInteger = 1)]
         public long ImageObjectId { get; set; }
 
         /// <summary>
@@ -52,7 +54,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "imageObjectType")]
         [JsonProperty(PropertyName = "imageObjectType")]
         [XmlElement(ElementName = "imageObjectType")]
-        public KalturaImageObjectType ImageObjectType { get; set; }
+        public KalturaImageObjectType? ImageObjectType { get; set; }
 
         /// <summary>
         /// Image content status 

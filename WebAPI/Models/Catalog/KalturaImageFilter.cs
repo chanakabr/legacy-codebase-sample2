@@ -81,7 +81,7 @@ namespace WebAPI.Models.Catalog
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaImageFilter.imageObjectIdEqual");
             }
-            if ((!ImageObjectIdEqual.HasValue || ImageObjectTypeEqual == 0) && string.IsNullOrEmpty(IdIn))
+            if (!ImageObjectIdEqual.HasValue && !ImageObjectTypeEqual.HasValue && string.IsNullOrEmpty(IdIn))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaImageFilter.imageObjectIdEqual", "KalturaImageFilter.idIn");
             }
