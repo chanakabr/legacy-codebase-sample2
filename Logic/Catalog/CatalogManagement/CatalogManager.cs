@@ -128,14 +128,6 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        private static void SendRebuildIndexMessage(int groupId, eObjectType objectType)
-        {
-            if (!CatalogLogic.SendRebuildIndexMessage(groupId, objectType, true, true))
-            {
-                log.ErrorFormat("Failed to send rebuild index message for groupId: {0}, objectType :{1}", groupId, objectType.ToString());
-            }
-        }
-
         private static Status CreateAssetStructResponseStatusFromResult(long result, Status status = null)
         {
             Status responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -2400,8 +2392,6 @@ namespace Core.Catalog.CatalogManagement
                                                       topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId);
                 result = CreateTopicResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
-                // TODO: Lior - ask Ira if to also rebuild other types?
-                SendRebuildIndexMessage(groupId, eObjectType.Media);
             }
             catch (Exception ex)
             {
@@ -2452,8 +2442,6 @@ namespace Core.Catalog.CatalogManagement
                                                     topicToUpdate.IsPredefined, topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
                 result = CreateTopicResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
-                // TODO: Lior - ask Ira if to also rebuild other types?
-                SendRebuildIndexMessage(groupId, eObjectType.Media);
             }
             catch (Exception ex)
             {
@@ -2492,8 +2480,6 @@ namespace Core.Catalog.CatalogManagement
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     InvalidateCatalogGroupCache(groupId, result, false);
-                    // TODO: Lior - ask Ira if to also rebuild other types?
-                    SendRebuildIndexMessage(groupId, eObjectType.Media);
                 }
             }
             catch (Exception ex)
