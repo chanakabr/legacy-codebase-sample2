@@ -251,7 +251,7 @@ namespace Core.Catalog.Request
                                                                             m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
                                                                             m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh, contextData)));
 
-                if (resultParse && action == MediaPlayActions.HIT)
+                if (!resultParse || action == MediaPlayActions.HIT)
                 {
                     bool isFirstPlay = action == MediaPlayActions.FIRST_PLAY;
                     CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid,
@@ -266,7 +266,7 @@ namespace Core.Catalog.Request
             }
 
             //if this is not a bit rate change, log for mediahit for statistics
-            if (resultParse && action == MediaPlayActions.HIT && TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
+            if ((!resultParse || action == MediaPlayActions.HIT) && TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
             {
                 tasks.Add(Task.Run(() => WriteLiveViews(mediaHitRequest.m_nGroupID, mediaId, nMediaTypeID, nPlayTime, contextData)));
             }
