@@ -6424,6 +6424,11 @@
             Product code 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.FileSize">
+            <summary>
+            File size
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaImage">
             <summary>
             Image details
