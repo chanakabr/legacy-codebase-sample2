@@ -550,7 +550,7 @@ namespace Core.Catalog.Request
             try
             {
                 context.Load();
-                ApiDAL.Update_MediaViews(mediaID, mediaFileID);
+                //ApiDAL.Update_MediaViews(mediaID, mediaFileID);  // -https://kaltura.atlassian.net/browse/BEO-4390
 
                 int parentGroupID = Cache.CatalogCache.Instance().GetParentGroup(groupID);
 
