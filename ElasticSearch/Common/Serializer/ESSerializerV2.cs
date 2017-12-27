@@ -332,6 +332,128 @@ namespace ElasticSearch.Common
 
             mappingObj.AddProperty(descProperty);
 
+            ElasticSearch.Common.FieldsMappingPropertyV2 externalId = new FieldsMappingPropertyV2()
+            {
+                name = AddSuffix("external_id", suffix),
+                type = eESFieldType.STRING,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
+                null_value = ""
+            };
+            externalId.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = AddSuffix("external_id", suffix),
+                type = eESFieldType.STRING,
+                null_value = string.Empty,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            externalId.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "analyzed",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = normalSearchAnalyzer,
+                analyzer = normalIndexAnalyzer
+            });
+            externalId.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            externalId.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "phrase_autocomplete",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                analyzer = PHRASE_STARTS_WITH_ANALYZER
+            });
+
+            if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+            {
+                externalId.fields.Add(new BasicMappingPropertyV2()
+                {
+                    name = "autocomplete",
+                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    null_value = "",
+                    index = eMappingIndex.analyzed,
+                    search_analyzer = autocompleteSearchAnalyzer,
+                    analyzer = autocompleteIndexAnalyzer
+                });
+            }
+
+            mappingObj.AddProperty(externalId);
+
+            ElasticSearch.Common.FieldsMappingPropertyV2 entryId = new FieldsMappingPropertyV2()
+            {
+                name = AddSuffix("entry_id", suffix),
+                type = eESFieldType.STRING,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
+                null_value = ""
+            };
+            entryId.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = AddSuffix("entry_id", suffix),
+                type = eESFieldType.STRING,
+                null_value = string.Empty,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            entryId.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "analyzed",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = normalSearchAnalyzer,
+                analyzer = normalIndexAnalyzer
+            });
+            entryId.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            entryId.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "phrase_autocomplete",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
+                analyzer = PHRASE_STARTS_WITH_ANALYZER
+            });
+
+            if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+            {
+                entryId.fields.Add(new BasicMappingPropertyV2()
+                {
+                    name = "autocomplete",
+                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    null_value = "",
+                    index = eMappingIndex.analyzed,
+                    search_analyzer = autocompleteSearchAnalyzer,
+                    analyzer = autocompleteIndexAnalyzer
+                });
+            }
+
+            mappingObj.AddProperty(entryId);
+
             #endregion
 
             #region Add tags mapping
@@ -483,6 +605,7 @@ namespace ElasticSearch.Common
                                     search_analyzer = LOWERCASE_ANALYZER,
                                     analyzer = LOWERCASE_ANALYZER,
                                 });
+
                                 multiField.fields.Add(new BasicMappingPropertyV2()
                                 {
                                     name = "phrase_autocomplete",
