@@ -3440,7 +3440,7 @@ namespace TvinciImporter
             string sOverlayRule, string sBreakPoints, string sOverlayPoints,
             bool bAdsEnabled, bool bSkipPre, bool bSkipPost, string sPlayerType, long nDuration, string ppvModuleName, string sCoGuid, string sContractFamily,
             string sLanguage, int nIsLanguageDefualt, string sOutputProtectionLevel, ref string sErrorMessage, string sProductCode,
-            DateTime? fileStartDate, DateTime? fileEndDate, string sAltCoGuid, string sAltCDN, string sAltCDNID, string sAltCDNCode)
+            DateTime? fileStartDate, DateTime? fileEndDate, string sAltCoGuid, string sAltCDN, string sAltCDNID, string sAltCDNCode, long fileSize)
         {
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
 
@@ -3494,6 +3494,7 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_DEFAULT_LANGUAGE", "=", nIsLanguageDefualt);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE", "=", sLanguage);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Product_Code", "=", sProductCode);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("file_size", "=", fileSize);
 
                 if (fileStartDate.HasValue)
                 {
@@ -4391,6 +4392,13 @@ namespace TvinciImporter
                 string sAltCDNID = GetItemParameterVal(ref theItem, "alt_cdn_id");
                 string sAltCDN = GetItemParameterVal(ref theItem, "alt_cdn_name");
 
+                string size = GetItemParameterVal(ref theItem, "file_size");
+                long fileSize = 0;
+                if (!long.TryParse(size, out fileSize))
+                {
+                    log.DebugFormat("FileSize: {0} is Empty or not valid. groupId: {1}", size, nGroupID);
+                }
+
                 // try to parse the files date correctly
                 DateTime? dStartDate = null;
                 DateTime? dEndDate = null;
@@ -4429,7 +4437,7 @@ namespace TvinciImporter
                         sPreRule, sPostRule, sBreakRule, sOverlayRule, sBreakPoints, sOverlayPoints,
                         bAdsEnabled, bSkipPreEnabled, bSkipPostEnabled, sPlayerType, nDuration, sPPVModule, sCoGuid, sContractFamily,
                         sLanguage, nIsDefaultLanguage, sOutputProtectionLevel, ref sErrorMessage, sProductCode, dStartDate, dEndDate,
-                        sAltCoGuid, sAltCDN, sAltCDNID, sAltCDNCode);
+                        sAltCoGuid, sAltCDN, sAltCDNID, sAltCDNCode, fileSize);
                 }
 
 
