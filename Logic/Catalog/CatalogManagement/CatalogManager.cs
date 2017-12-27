@@ -1593,17 +1593,10 @@ namespace Core.Catalog.CatalogManagement
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null && result.Asset.Id > 0)
                 {
                     // UpdateIndex
-                    // TODO - Lior , remove duplicate index update
-                    if (!CatalogLogic.UpdateIndex(new List<long>() { result.Asset.Id }, groupId, eAction.Update))
-                    {
-                        log.ErrorFormat("Failed to UpdateIndex for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
-                    }
-
                     bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)result.Asset.Id);
-
                     if (!indexingResult)
                     {
-                        log.ErrorFormat("Failed to add media to index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
                     }
                 }
             }
@@ -1666,17 +1659,10 @@ namespace Core.Catalog.CatalogManagement
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null && result.Asset.Id > 0)
                 {
                     // UpdateIndex
-                    // TODO - Lior , remove duplicate index update
-                    if (!CatalogLogic.UpdateIndex(new List<long>() { result.Asset.Id }, groupId, eAction.Update))
-                    {
-                        log.ErrorFormat("Failed to Update Media Index for assetId after : {0}, groupId: {1} after UpdateMediaAsset", result.Asset.Id, groupId);
-                    }
-
                     bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)result.Asset.Id);
-
                     if (!indexingResult)
                     {
-                        log.ErrorFormat("Failed to add media to index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Asset.Id, groupId);
                     }
                 }
             }
@@ -2516,13 +2502,6 @@ namespace Core.Catalog.CatalogManagement
                 switch (assetType)
                 {
                     case eAssetTypes.EPG:
-
-                        bool indexingResult = AssetIndexingManager.UpsertEpg(groupId, (int)result.Asset.Id);
-
-                        if (!indexingResult)
-                        {
-                            log.ErrorFormat("Failed to add media to index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
-                        }
                         break;
                     case eAssetTypes.NPVR:
                         break;
@@ -2625,17 +2604,10 @@ namespace Core.Catalog.CatalogManagement
                         {
                             result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                             // Delete Index
-                            // TODO - Lior , remove duplicate index update
-                            if (!CatalogLogic.UpdateIndex(new List<long>() { id }, groupId, eAction.Delete))
-                            {
-                                log.ErrorFormat("Failed to Delete Index for assetId: {0}, groupId: {1}", id, groupId);
-                            }
-
                             bool indexingResult = AssetIndexingManager.DeleteMedia(groupId, (int)id);
-
                             if (!indexingResult)
                             {
-                                log.ErrorFormat("Failed to delete media to from for assetId: {0}, groupId: {1} after DeleteAsset", id, groupId);
+                                log.ErrorFormat("Failed to delete media index for assetId: {0}, groupId: {1} after DeleteAsset", id, groupId);
                             }
                         }
                         else
@@ -2660,6 +2632,105 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed DeleteTopic for groupId: {0} , id: {1} , assetType: {2}", groupId, id, assetType.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        public static Status RemoveTopicsFromAsset(int groupId, long id, eAssetTypes assetType, HashSet<long> topicIds, long userId)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                // validate that asset exist
+                AssetResponse assetResponse = GetAsset(groupId, id, assetType);
+                if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                }
+
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling RemoveTopicsFromAsset", groupId);
+                    return result;
+                }
+
+                // validate topicsIds exist on asset
+                MediaAsset asset = assetResponse.Asset as MediaAsset;
+                if (asset != null)
+                {
+                    List<long> existingTopicsIds = asset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
+                                                              .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList();
+                    List<long> noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToList();
+                    if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
+                    {
+                        result = new Status((int)eResponseStatus.MetaIdsDoesNotExistOnAsset, string.Format("{0} for the following Meta Ids: {1}",
+                                                    eResponseStatus.MetaIdsDoesNotExistOnAsset.ToString(), string.Join(",", noneExistingMetaIds)));
+                        return result;
+                    }
+                }
+
+                List<long> tagIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue
+                                                                                && x.Value.MultipleValue.Value && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                List<long> metaIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && (!x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value)).Select(x => x.Key).ToList();
+
+                int dbAssetType = -1;
+                switch (assetType)
+                {                    
+                    case eAssetTypes.EPG:
+                        break;
+                    case eAssetTypes.NPVR:
+                        break;
+                    case eAssetTypes.MEDIA:
+                        dbAssetType = 0;
+                        break;
+                    default:
+                    case eAssetTypes.UNKNOWN:
+                        break;
+                }
+
+                if (CatalogDAL.RemoveMetasAndTagsFromAsset(groupId, id, dbAssetType, metaIds, tagIds, userId))
+                {
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    // UpdateIndex
+                    bool indexingResult = false;
+                    switch (assetType)
+                    {
+                        case eAssetTypes.EPG:
+                            break;
+                        case eAssetTypes.NPVR:
+                            break;
+                        case eAssetTypes.MEDIA:
+                            indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)id);
+                            break;
+                        default:
+                        case eAssetTypes.UNKNOWN:
+                            break;
+                    }
+
+                    if (!indexingResult)
+                    {
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromAsset", id, assetType.ToString(), groupId);
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("Failed to remove topics from asset with id: {0}, type: {1}, groupId: {2}", id, assetType.ToString(), groupId);
+                }
+
+                if (result.Code == (int)eResponseStatus.OK)
+                {
+                    // invalidate asset
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id)))
+                    {
+                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after removeing topics from asset", id, assetType.ToString(), LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed RemoveTopicsFromAsset for groupId: {0} , id: {1} , assetType: {2}", groupId, id, assetType.ToString()), ex);
             }
 
             return result;
