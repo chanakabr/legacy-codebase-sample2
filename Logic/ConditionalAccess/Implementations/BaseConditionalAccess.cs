@@ -16385,5 +16385,12 @@ namespace Core.ConditionalAccess
             return RenewManager.UnifiedRenewalReminder(this, this.m_nGroupID, siteGuid, householdId, processId, endDate);
         }
 
+        internal bool SubscriptionEnds(string siteGuid, long householdId, long purchaseId, long processId, long endDate)
+        {
+            bool result = false;
+
+            return result;
+        }
+
     }
 }

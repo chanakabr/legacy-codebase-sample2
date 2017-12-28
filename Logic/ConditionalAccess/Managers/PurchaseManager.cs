@@ -1257,15 +1257,16 @@ namespace Core.ConditionalAccess
                                         cas.UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
                                     }
 
+                                    long endDateUnix = 0;
+
+                                    if (endDate.HasValue)
+                                    {
+                                        endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
+                                    }
+
+                                    // If the subscription if recurring, put a message for renewal and all that...
                                     if (subscription.m_bIsRecurring)
                                     {
-                                        long endDateUnix = 0;
-
-                                        if (endDate.HasValue)
-                                        {
-                                            endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
-                                        }
-                                        
                                         DateTime nextRenewalDate = endDate.Value;
 
                                         if (!isGiftCard)
@@ -1314,10 +1315,10 @@ namespace Core.ConditionalAccess
                                         */
                                         if (isNew) // need to insert new unified billing message to queue
                                         {
-                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, 
+                                            Utils.RenewTransactionMessageInQueue(groupId, householdId,
                                                 ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
                                         }
-                                       
+
                                         else if (unifiedBillingCycle == null || (entitleToPreview && !isNew))
                                         {
                                             // insert regular message 
@@ -1327,6 +1328,11 @@ namespace Core.ConditionalAccess
                                         //else do nothing, message already exists
 
                                         #endregion
+                                    }
+                                    else
+                                    // If subscription is not recurring, enqueue subscription ends message
+                                    {
+                                        RenewManager.EnqueueSubscriptionEndsMessage(groupId, siteguid, purchaseID, billingGuid, endDateUnix);
                                     }
 
                                     // build notification message
