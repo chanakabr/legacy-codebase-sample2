@@ -60,7 +60,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AltCdnCode, opt => opt.MapFrom(src => src.m_sAltUrl))
                  .ForMember(dest => dest.PPVModules, opt => opt.MapFrom(src => BuildPPVModulesList(src.PPVModules)))
                  .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.ProductCode))
-                 .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
                  ;
 
             //BuzzScore
