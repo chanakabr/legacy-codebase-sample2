@@ -122,7 +122,7 @@ namespace WebAPI.Managers
             return ks;
         }
 
-        public static List<long> GetRoleIds(KS ks)
+        public static List<long> GetRoleIds(KS ks, bool appendOriginalRoles = true)
         {
             List<long> roleIds = new List<long>() { RolesManager.ANONYMOUS_ROLE_ID };
 
@@ -136,7 +136,7 @@ namespace WebAPI.Managers
                 }
 
                 // if the ks was originally of operator - get he's roles too
-                if (!string.IsNullOrEmpty(ks.OriginalUserId))
+                if (appendOriginalRoles && !string.IsNullOrEmpty(ks.OriginalUserId))
                 {
                     userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.OriginalUserId);
                     if (userRoleIds != null && userRoleIds.Count > 0)
@@ -144,7 +144,6 @@ namespace WebAPI.Managers
                         roleIds.AddRange(userRoleIds);
                     }
                 }
-
             }
             return roleIds;
         }

@@ -195,7 +195,7 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
 
-            var userRoles = RolesManager.GetRoleIds(KS.GetFromRequest());
+            var userRoles = RolesManager.GetRoleIds(KS.GetFromRequest(), false);
             if (userRoles.Where(ur => ur > RolesManager.MASTER_ROLE_ID).Count() > 0)
             {
                 throw new BadRequestException(BadRequestException.UNABLE_TO_CREATE_HOUSEHOLD_FOR_USER_ROLE);
