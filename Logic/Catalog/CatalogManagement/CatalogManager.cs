@@ -25,8 +25,8 @@ namespace Core.Catalog.CatalogManagement
         private const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
         private const string STATUS_META_SYSTEM_NAME = "Status";
         private const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
-        private const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
-        private const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
+        public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
+        public const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
         private const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
         private const string IS_NEW_TAG_COLUMN_NAME = "is_new";
 
@@ -1349,7 +1349,7 @@ namespace Core.Catalog.CatalogManagement
                     rootNode = xmlDoc.FirstChild;
                 }
 
-                if (topicSystemName == NAME_META_SYSTEM_NAME)
+                if (topicSystemName == NAME_META_SYSTEM_NAME && !string.IsNullOrEmpty(asset.Name))
                 {
                     AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, asset.Name);
                     if (asset.NamesWithLanguages != null && asset.NamesWithLanguages.Count > 0)
@@ -1363,7 +1363,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                 }
-                else if (topicSystemName == DESCRIPTION_META_SYSTEM_NAME)
+                else if (topicSystemName == DESCRIPTION_META_SYSTEM_NAME && !string.IsNullOrEmpty(asset.Description))
                 {
                     AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, asset.Description);
                     if (asset.DescriptionsWithLanguages != null && asset.DescriptionsWithLanguages.Count > 0)
@@ -2282,6 +2282,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        // TODO - Lior talk to Ira about the issue with asset being null (or none castable to media asset) on local cache 
         public static AssetResponse GetAsset(int groupId, long id, eAssetTypes assetType, bool shouldGoToCache = true)
         {
             AssetResponse result = new AssetResponse();
@@ -2554,7 +2555,7 @@ namespace Core.Catalog.CatalogManagement
                         MediaAsset mediaAssetToUpdate = assetToUpdate as MediaAsset;
                         MediaAsset currentAsset = assetResponse.Asset as MediaAsset;
                         mediaAssetToUpdate.Id = id;
-                        if (mediaAssetToUpdate != null)
+                        if (currentAsset != null && mediaAssetToUpdate != null)
                         {
                             result = UpdateMediaAsset(groupId, ref catalogGroupCache, currentAsset, mediaAssetToUpdate, userId);
                         }
@@ -2587,7 +2588,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // validate that asset exist
-                AssetResponse assetResponse = GetAsset(groupId, id, assetType);
+                AssetResponse assetResponse = GetAsset(groupId, id, assetType, false);
                 if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
@@ -2643,7 +2644,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // validate that asset exist
-                AssetResponse assetResponse = GetAsset(groupId, id, assetType);
+                AssetResponse assetResponse = GetAsset(groupId, id, assetType, false);
                 if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
