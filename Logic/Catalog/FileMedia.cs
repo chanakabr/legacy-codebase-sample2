@@ -61,8 +61,6 @@ namespace Core.Catalog
         public string CdnCode;
         [DataMember]
         public List<string> PPVModules;
-        [DataMember]
-        public long FileSize;
 
         public FileMedia()
         {
