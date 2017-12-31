@@ -1311,7 +1311,7 @@ namespace DAL
 
         }
 
-        public static int SetDomainStatus(int nGroupID, int nDomainID, int nIsActive, int nStatus)
+        public static int SetDomainStatus(int nGroupID, int nDomainID, int nIsActive, int nStatus, bool purge)
         {
             int status = (-1);
 
@@ -1323,6 +1323,7 @@ namespace DAL
             spRemoveDomain.AddParameter("@GroupID", nGroupID);
             spRemoveDomain.AddParameter("@Status", nStatus);
             spRemoveDomain.AddParameter("@IsActive", nIsActive);
+            spRemoveDomain.AddParameter("@purge", purge);
 
             status = spRemoveDomain.ExecuteReturnValue<int>();
 
