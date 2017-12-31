@@ -558,14 +558,13 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Fully delete a household per specified internal or external ID. Delete all of the household information, including users, devices, transactions and assets.
         /// </summary>                
-        /// <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>
-        /// <param name="purge">Purge Household</param>
+        /// <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>        
         /// <remarks>Possible status codes: 
         ///</remarks>
         [Route("deleteByOperator"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public bool DeleteByOperator(KalturaIdentifierTypeFilter filter, bool purge)
+        public bool DeleteByOperator(KalturaIdentifierTypeFilter filter)
         {
             var ks = KS.GetFromRequest();
 
@@ -578,22 +577,20 @@ namespace WebAPI.Controllers
 
             try
             {
-
                 if (filter.By == KalturaIdentifierTypeBy.internal_id)
                 {
                     int householdId = 0;
                     if (int.TryParse(filter.Identifier, out householdId))
                     {
                         // call client
-                        return ClientsManager.DomainsClient().RemoveDomain(groupId, householdId, purge);
+                        return ClientsManager.DomainsClient().RemoveDomain(groupId, householdId, false);
                     }
-
                 }
 
                 else if (filter.By == KalturaIdentifierTypeBy.external_id)
                 {
                     // call client
-                    return ClientsManager.DomainsClient().RemoveDomain(groupId, filter.Identifier, purge);
+                    return ClientsManager.DomainsClient().RemoveDomain(groupId, filter.Identifier, false);
                 }
             }
             catch (ClientException ex)
