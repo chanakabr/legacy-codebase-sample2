@@ -74,6 +74,12 @@ namespace SubscriptionRenewHandler
                             }
                             break;
                         }
+                    case eSubscriptionRenewRequestType.SubscriptionEnds:
+                        {
+                            success = Core.ConditionalAccess.Module.SubscriptionEnds(request.GroupID, request.SiteGuid, request.HouseholdId, 
+                                request.PurchaseId, request.ProcessId, request.EndDate);
+                            break;
+                        }
                     default:
                         break;
                 }
