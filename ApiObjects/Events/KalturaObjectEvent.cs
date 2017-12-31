@@ -41,5 +41,10 @@ namespace ApiObjects
             this.Object = coreObject;
             this.type = type;
         }
+
+        public string GetSystemName()
+        {
+            return string.Format("{0}_{1}", this.PartnerId, this.Type); // notification_203_subscriptionended
+        }
     }
 }
