@@ -3299,7 +3299,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static bool SubscriptionEnds(int groupId, string siteGuid, long householdId, long purchaseId, long processId, long endDate)
+        public static bool SubscriptionEnds(int groupId, string siteGuid, long householdId, long purchaseId, long endDate)
         {
             bool response = false;
 
@@ -3314,7 +3314,7 @@ namespace Core.ConditionalAccess
             {
                 try
                 {
-                    response = t.SubscriptionEnds(siteGuid, householdId, purchaseId, processId, endDate);
+                    response = t.SubscriptionEnds(siteGuid, householdId, purchaseId, endDate);
                 }
                 catch (Exception ex)
                 {

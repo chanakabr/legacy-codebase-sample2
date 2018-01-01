@@ -42,9 +42,10 @@ namespace ApiObjects
             this.type = type;
         }
 
-        public string GetSystemName()
+        public virtual string GetSystemName()
         {
-            return string.Format("{0}_{1}", this.PartnerId, this.Type); // notification_203_subscriptionended
+            // e.g subscriptionended
+            return string.Format("{0}", this.Type); 
         }
     }
 }

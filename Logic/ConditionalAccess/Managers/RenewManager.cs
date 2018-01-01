@@ -520,18 +520,18 @@ namespace Core.ConditionalAccess
             cas.EnqueueEventRecord(NotifiedAction.FailedSubscriptionRenewal, dicData);
 
             // Enqueue event for subscription ends:
-            EnqueueSubscriptionEndsMessage(groupId, siteguid, purchaseId, billingGuid, endDateUnix);
+            EnqueueSubscriptionEndsMessage(groupId, siteguid, purchaseId, endDateUnix);
 
             return true;
         }
 
-        internal static void EnqueueSubscriptionEndsMessage(int groupId, string siteguid, long purchaseId, string billingGuid, long endDateUnix)
+        internal static void EnqueueSubscriptionEndsMessage(int groupId, string siteguid, long purchaseId, long endDateUnix)
         {
             RenewTransactionsQueue queue = new RenewTransactionsQueue();
 
             DateTime endDate = TVinciShared.DateUtils.UnixTimeStampToDateTime(endDateUnix);
 
-            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid,
+            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, string.Empty,
                             endDateUnix, endDate, eSubscriptionRenewRequestType.SubscriptionEnds);
 
             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
