@@ -684,10 +684,10 @@ namespace WebAPI.Controllers
 
                 KalturaHousehold household = null;
 
-                household = ClientsManager.DomainsClient().GetDomainInfo(groupId, id);
+                // call client
+                bool shouldPurge = ClientsManager.DomainsClient().ShouldPurgeDomain(groupId, id);
 
-
-                if (household != null)
+                if (!shouldPurge)
                 {
                     // remove entitlements
                     ClientsManager.ConditionalAccessClient().RemoveHouseholdEntitlements(groupId, id);
@@ -705,7 +705,7 @@ namespace WebAPI.Controllers
 
                     // remove users, devices and household
                     ClientsManager.DomainsClient().RemoveDomain(groupId, id, true);
-                }             
+                }
                 else
                 {
                     // remove users, devices and household
@@ -713,7 +713,7 @@ namespace WebAPI.Controllers
                 }
             }
 
-               
+
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
