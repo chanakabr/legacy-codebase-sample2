@@ -3462,9 +3462,9 @@ namespace WebAPI.Clients
             {
                 result.TotalCount = response.Types.Count;
                 result.Types = new List<KalturaAssetFileType>();
-                foreach (AssetFileType assetStruct in response.Types)
+                foreach (AssetFileType assetFileType in response.Types)
                 {
-                    result.Types.Add(AutoMapper.Mapper.Map<KalturaAssetFileType>(assetStruct));
+                    result.Types.Add(AutoMapper.Mapper.Map<KalturaAssetFileType>(assetFileType));
                 }
             }
 

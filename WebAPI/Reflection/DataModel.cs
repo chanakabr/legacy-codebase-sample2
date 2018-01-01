@@ -4196,6 +4196,8 @@ namespace WebAPI.Reflection
                 case "KalturaImage":
                     switch(property.Name)
                     {
+                        case "ContentId":
+                            return "contentId";
                         case "Id":
                             return "id";
                         case "ImageObjectId":
@@ -4206,8 +4208,6 @@ namespace WebAPI.Reflection
                             return "imageTypeId";
                         case "Status":
                             return "status";
-                        case "SystemName":
-                            return "systemName";
                         case "Url":
                             return "url";
                         case "Version":

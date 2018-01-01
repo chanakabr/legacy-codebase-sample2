@@ -87,7 +87,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "drmAdapterProfileId")]
         [JsonProperty(PropertyName = "drmAdapterProfileId")]
         [XmlElement(ElementName = "drmAdapterProfileId")]
-        [SchemeProperty(MinInteger = -1, InsertOnly = true)]
+        [SchemeProperty(MinInteger = -1)]
         public int? DrmAdapterProfileId { get; set; }
 
         public void validateForInsert()
