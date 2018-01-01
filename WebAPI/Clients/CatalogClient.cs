@@ -562,6 +562,51 @@ namespace WebAPI.Clients
             return result;
         }
 
+        public bool RemoveTopicsFromAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, HashSet<long> topicIds, long userId)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    eAssetTypes assetType = eAssetTypes.UNKNOWN;
+                    switch (assetReferenceType)
+                    {
+                        case KalturaAssetReferenceType.media:
+                            assetType = eAssetTypes.MEDIA;
+                            break;
+                        case KalturaAssetReferenceType.epg_internal:
+                            break;
+                        case KalturaAssetReferenceType.epg_external:
+                            break;
+                        default:
+                            throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                            break;
+                    }
+
+                    response = Core.Catalog.CatalogManagement.CatalogManager.RemoveTopicsFromAsset(groupId, id, assetType, topicIds, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
         #endregion        
 
         public int CacheDuration { get; set; }

@@ -183,7 +183,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedAssetStruct, "Predefined Asset Struct Can not be deleted",
                                                                                                             "can not delete predefined asset struct");        
         public static ClientExceptionType META_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.MetaSystemNameAlreadyInUse, "System Name Already Used", "The meta system name is already in use");        
-        public static ClientExceptionType META_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MetaDoesNotExist, "Invalid Asset Struct Id", "The specified meta id does not exist");
+        public static ClientExceptionType META_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MetaDoesNotExist, "Invalid Meta Id", "The specified meta id does not exist");
         public static ClientExceptionType CAN_NOT_CHANGE_PREDEFINED_META_SYSTEM_NAME = new ClientExceptionType(eResponseStatus.CanNotChangePredefinedMetaSystemName, "System Name Can Not Be Changed",
                                                                                                                         "can not change predefined meta name");
         public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_META= new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedMeta, "Predefined meta Can not be deleted",
@@ -194,7 +194,8 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType INVALID_VALUE_SENT_FOR_META = new ClientExceptionType(eResponseStatus.InvalidValueSentForMeta, "Invalid Value Sent For Meta");
         public static ClientExceptionType INVALID_DEVICE_RULE = new ClientExceptionType(eResponseStatus.DeviceRuleDoesNotExistForGroup, "Invalid Device Rules Sent");
         public static ClientExceptionType INVALID_GEO_BLOCK_RULE = new ClientExceptionType(eResponseStatus.GeoBlockRuleDoesNotExistForGroup, "Invalid Geo Block Rules Sent");
-        public static ClientExceptionType ASSET_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetDoesNotExist, "The Specified Asset ID Does Not Exist");        
+        public static ClientExceptionType ASSET_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetDoesNotExist, "The Specified Asset ID Does Not Exist");
+        public static ClientExceptionType METAS_DOES_NOT_EXIST_ON_ASSET = new ClientExceptionType(eResponseStatus.MetaIdsDoesNotExistOnAsset, "Invalid Asset Struct Id", "One or more of the specified meta ids does not exist");        
 
         public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");        
         public static ApiExceptionType INVALID_VALUE_FOR_FEATURE = new ApiExceptionType(StatusCode.InvalidValueForFeature, "Invalid value for feature: @feature@. feature can only contain alphanumeric values and/or underscore up until 64 characters", "feature");

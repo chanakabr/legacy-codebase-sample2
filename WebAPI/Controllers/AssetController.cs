@@ -1183,5 +1183,59 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// remove metas and tags from asset
+        /// </summary>
+        /// <param name="id">Asset Identifier</param>
+        /// <param name="assetReferenceType">Type of asset</param>
+        /// <param name="idIn">comma separated ids of metas and tags</param>
+        /// <returns></returns>
+        [Route("removeMetasAndTags"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        [SchemeArgument("id", MinLong = 1)]
+        [SchemeArgument("idIn", DynamicMinInt = 1)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public bool RemoveMetasAndTags(long id, KalturaAssetReferenceType assetReferenceType, string idIn)
+        {
+            bool result = false;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+            HashSet<long> topicIds = new HashSet<long>();
+            if (string.IsNullOrEmpty(idIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "topicIds");
+            }
+            else
+            {
+                string[] stringValues = idIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
+                {
+                    long value;
+                    if (long.TryParse(stringValue, out value))
+                    {
+                        topicIds.Add(value);
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "topicIdIn");
+                    }
+                }
+            }
+
+            try
+            {
+                result = ClientsManager.CatalogClient().RemoveTopicsFromAsset(groupId, id, assetReferenceType, topicIds, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
     }
 }

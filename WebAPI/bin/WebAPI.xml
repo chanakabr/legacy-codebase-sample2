@@ -349,6 +349,15 @@
             <param name="asset">Asset object</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.AssetController.RemoveMetasAndTags(System.Int64,WebAPI.Models.Catalog.KalturaAssetReferenceType,System.String)">
+            <summary>
+            remove metas and tags from asset
+            </summary>
+            <param name="id">Asset Identifier</param>
+            <param name="assetReferenceType">Type of asset</param>
+            <param name="idIn">comma separated ids of metas and tags</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
             <summary>
             get KalturaAssetFileContext
