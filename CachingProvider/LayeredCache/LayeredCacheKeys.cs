@@ -288,7 +288,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("GroupDeviceRules_groupId_{0}", groupId);
         }
-
+        
         public static string GetGroupGeoBlockRulesKey(int groupId)
         {
             return string.Format("GroupGeoBlockRules_groupId_{0}", groupId);
@@ -307,6 +307,10 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupRatiosKey(int groupId)
         {
             return string.Format("GroupRatios_groupId_{0}", groupId);
+        }
+        public static string GetGroupAssetFileTypesKey(int groupId)
+        {
+            return string.Format("GroupAssetFileTypes_groupId_{0}", groupId);
         }
 
         #endregion
@@ -511,6 +515,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupRatiosInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_GroupRatios_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupAssetFileTypesInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_GroupAssetFileTypes_groupId_{0}", groupId);
         }
 
         #region Domains
