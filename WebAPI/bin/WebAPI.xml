@@ -3721,12 +3721,11 @@
             <param name="description">Description for the household</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdController.Delete(System.Nullable{System.Int32},System.Nullable{System.Boolean})">
+        <member name="M:WebAPI.Controllers.HouseholdController.Delete(System.Nullable{System.Int32})">
              <summary>
              Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
              </summary>
-             <param name="id">Household identifier</param>        
-             <param name="purge">Purge Household</param>
+             <param name="id">Household identifier</param>                
              <remarks>Possible status codes: 
             </remarks>
         </member>
@@ -3752,6 +3751,14 @@
              </summary>                
              <remarks>Possible status codes: 
              Household already active = 1013
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdController.Purge(System.Int32)">
+             <summary>
+             Purge a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
+             </summary>
+             <param name="id">Household identifier</param>                
+             <remarks>Possible status codes: 
             </remarks>
         </member>
         <member name="T:WebAPI.Controllers.OttUserController">

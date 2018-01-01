@@ -496,8 +496,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
         /// </summary>
-        /// <param name="id">Household identifier</param>        
-        /// <param name="purge">Purge Household</param>
+        /// <param name="id">Household identifier</param>                
         /// <remarks>Possible status codes: 
         ///</remarks>
         [Route("delete"), HttpPost]
@@ -505,7 +504,7 @@ namespace WebAPI.Controllers
         [SchemeArgument("id", RequiresPermission = true)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.DomainNotExists)]
-        public bool Delete(int? id = null, bool? purge = false)
+        public bool Delete(int? id = null)
         {
             var ks = KS.GetFromRequest();
 
@@ -545,7 +544,7 @@ namespace WebAPI.Controllers
                 }
 
                 // remove users, devices and household
-                ClientsManager.DomainsClient().RemoveDomain(groupId, id.Value, purge.Value);
+                ClientsManager.DomainsClient().RemoveDomain(groupId, id.Value, false);
             }
             catch (ClientException ex)
             {
@@ -659,5 +658,70 @@ namespace WebAPI.Controllers
 
             return true;
         }
+
+        /// <summary>
+        /// Purge a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
+        /// </summary>
+        /// <param name="id">Household identifier</param>                
+        /// <remarks>Possible status codes: 
+        ///</remarks>
+        [Route("purge"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        public bool Purge(int id)
+        {
+            var ks = KS.GetFromRequest();
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (id == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
+            }
+            try
+            {
+
+                KalturaHousehold household = null;
+
+                household = ClientsManager.DomainsClient().GetDomainInfo(groupId, id);
+
+
+                if (household != null)
+                {
+                    // remove entitlements
+                    ClientsManager.ConditionalAccessClient().RemoveHouseholdEntitlements(groupId, id);
+
+                    //remove payment methods
+                    ClientsManager.BillingClient().RemoveAccount(groupId, id);
+
+                    var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true, id);
+
+                    if (householdUserIds != null && householdUserIds.Count > 0)
+                    {
+                        // remove push stuff - make sure pending users need this
+                        ClientsManager.NotificationClient().RemoveUsersNotificationData(groupId, householdUserIds.Distinct().ToList());
+                    }
+
+                    // remove users, devices and household
+                    ClientsManager.DomainsClient().RemoveDomain(groupId, id, true);
+                }             
+                else
+                {
+                    // remove users, devices and household
+                    ClientsManager.DomainsClient().PurgeDomain(groupId, id);
+                }
+            }
+
+               
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
+
+
     }
 }
