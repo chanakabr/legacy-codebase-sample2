@@ -77,7 +77,7 @@ namespace SubscriptionRenewHandler
                     case eSubscriptionRenewRequestType.SubscriptionEnds:
                         {
                             success = Core.ConditionalAccess.Module.SubscriptionEnds(request.GroupID, request.SiteGuid, request.HouseholdId, 
-                                request.PurchaseId, request.ProcessId, request.EndDate);
+                                request.PurchaseId, request.EndDate);
                             break;
                         }
                     default:
