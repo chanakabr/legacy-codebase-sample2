@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Data;
-using ODBCWrapper;
-using ApiObjects;
-using ApiObjects.MediaMarks;
-using CouchbaseManager;
-using System.Threading;
-using Newtonsoft.Json;
-using DAL;
-using ApiObjects.Epg;
-using ApiObjects.SearchObjects;
-using KLogMonitor;
-using System.Reflection;
-using ApiObjects.PlayCycle;
+﻿using ApiObjects;
 using ApiObjects.Catalog;
+using ApiObjects.Epg;
+using ApiObjects.MediaMarks;
+using ApiObjects.PlayCycle;
+using ApiObjects.SearchObjects;
+using CouchbaseManager;
+using DAL;
+using KLogMonitor;
+using Newtonsoft.Json;
+using ODBCWrapper;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 
 namespace Tvinci.Core.DAL
 {
@@ -2074,7 +2074,7 @@ namespace Tvinci.Core.DAL
             }
 
             return mediaToViewsCountMapping;
-        }
+        }      
 
         public static bool Get_MediaMarkHitInitialData(int mediaID, int mediaFileID, long ipVal, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID,
@@ -3072,7 +3072,7 @@ namespace Tvinci.Core.DAL
             }
 
             return res;
-        }
+        }        
 
         public static DataTable Get_FileAndMediaBasicDetails(int[] mediaFiles)
         {
@@ -4712,6 +4712,15 @@ namespace Tvinci.Core.DAL
 
         #region New Catalog Management
 
+        public static bool DoesGroupUsesTemplates(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DoesGroupUsesTemplates");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+
+            return sp.ExecuteReturnValue<int>() == 1;
+        }
+
         public static DataSet GetAssetStructsByGroupId(int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetStructsByGroupId");
@@ -4875,9 +4884,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet GetAsset(int groupId, long id, long defaultLanguageId)
+        public static DataSet GetMediaAsset(int groupId, long id, long defaultLanguageId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAsset");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
@@ -4886,9 +4895,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet GetGroupAssets(int groupId, long defaultLanguageId)
+        public static DataSet GetGroupMediaAssets(int groupId, long defaultLanguageId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupAssets");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupMediaAssets");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@DefaultLanguageId", defaultLanguageId);
@@ -4896,8 +4905,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertMediaAsset(int groupId, long defaultLanguageId, System.Xml.XmlDocument metas, System.Xml.XmlDocument tags, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId,
-                                                bool? isActive, DateTime startDate, DateTime? endDate, DateTime catalogStartDate, DateTime? finalEndDate, long assetStructId, long userId)
+        public static DataSet InsertMediaAsset(int groupId, long defaultLanguageId, System.Xml.XmlDocument metas, System.Xml.XmlDocument tags, string coGuid, string entryId, int? deviceRuleId,
+                                                int? geoBlockRuleId, bool? isActive, DateTime startDate, DateTime? endDate, DateTime catalogStartDate, DateTime? finalEndDate, long assetStructId,
+                                                long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4922,6 +4932,37 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
+        public static DataSet UpdateMediaAsset(int groupId, long id, long defaultLanguageId, System.Xml.XmlDocument metasToAdd, System.Xml.XmlDocument tagsToAdd, System.Xml.XmlDocument metasToUpdate,
+                                                System.Xml.XmlDocument tagsToUpdate, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId, bool? isActive, DateTime startDate,
+                                                DateTime? endDate, DateTime catalogStartDate, DateTime? finalEndDate, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaAsset");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@ID", id);
+            sp.AddParameter("@DefaultLanguageId", defaultLanguageId);
+            sp.AddParameter("@MetasToAddExist", metasToAdd != null && !string.IsNullOrEmpty(metasToAdd.InnerXml) ? 1 : 0);
+            sp.AddParameter("@MetasToAddXml", metasToAdd != null ? metasToAdd.InnerXml : string.Empty);
+            sp.AddParameter("@TagsToAddExist", tagsToAdd != null && !string.IsNullOrEmpty(tagsToAdd.InnerXml) ? 1 : 0);
+            sp.AddParameter("@TagsToAddXml", tagsToAdd != null ? tagsToAdd.InnerXml : string.Empty);
+            sp.AddParameter("@MetasToUpdateExist", metasToUpdate != null && !string.IsNullOrEmpty(metasToUpdate.InnerXml) ? 1 : 0);
+            sp.AddParameter("@MetasToUpdateXml", metasToUpdate != null ? metasToUpdate.InnerXml : string.Empty);
+            sp.AddParameter("@TagsToUpdateExist", tagsToUpdate != null && !string.IsNullOrEmpty(tagsToUpdate.InnerXml) ? 1 : 0);
+            sp.AddParameter("@TagsToUpdateXml", tagsToUpdate != null ? tagsToUpdate.InnerXml : string.Empty);
+            sp.AddParameter("@CoGuid", coGuid);
+            sp.AddParameter("@EntryId", entryId);
+            sp.AddParameter("@DeviceRuleId", deviceRuleId);
+            sp.AddParameter("@GeoBlockRuleId", geoBlockRuleId);            
+            sp.AddParameter("@IsActive", isActive);
+            sp.AddParameter("@StartDate", startDate);
+            sp.AddParameter("@EndDate", endDate);
+            sp.AddParameter("@CatalogStartDate", catalogStartDate);
+            sp.AddParameter("@FinalEndDate", finalEndDate);
+            sp.AddParameter("@UpdaterId", userId);
+
+            return sp.ExecuteDataSet();
+        }
+
         public static bool DeleteMediaAsset(int groupId, long id, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteMediaAsset");
@@ -4931,7 +4972,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteReturnValue<int>() > 0;
-        }
+        }        
 
         public static DataSet GetGroupTagValues(int groupId)
         {
@@ -4942,10 +4983,6 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        #endregion
-
-
-        #region Tag
         public static bool DeleteTag(int groupId, long tagId, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteTag");
@@ -4956,6 +4993,169 @@ namespace Tvinci.Core.DAL
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
+
+        public static DataSet InsertTag(int groupId, string tag, List<KeyValuePair<string, string>> tagsInOtherLanguages, long topicId, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertTag");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@value", tag);
+            sp.AddParameter("@tagsInOtherLanguagesExist", tagsInOtherLanguages != null && tagsInOtherLanguages.Count > 0);
+            sp.AddKeyValueListParameter<string, string>("@tagsInOtherLanguages", tagsInOtherLanguages, "key", "value");
+            sp.AddParameter("@topicId", (int)topicId);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet GetTag(int groupId, long tagId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTagById");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@tagId", tagId);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet UpdateTag(int groupId, long id, string value, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> tagsInOtherLanguages, int topicId, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTag");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@value", value);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@shouldUpdateOtherTags", shouldUpdateOtherNames ? 1 : 0);
+            sp.AddKeyValueListParameter<string, string>("@tagsInOtherLanguages", tagsInOtherLanguages, "key", "value");
+            sp.AddParameter("@topicId", topicId);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet InsertImageType(int groupId, string name, string systemName, long ratioId, string helpText, long userId, long? defaultImageId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertImageType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@name", name);
+            sp.AddParameter("@systemName", systemName);
+            sp.AddParameter("@ratioId", ratioId);
+            sp.AddParameter("@helpText", helpText);
+            sp.AddParameter("@updaterId", userId);
+            if (defaultImageId.HasValue)
+                sp.AddParameter("@defaultImageId", defaultImageId.Value);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static bool DeleteImageType(int groupId, long id, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteImageType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataSet UpdateImageType(int groupId, long id, string name, string systemName, long? ratioId, string helpText, long userId, long? defaultImageId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateImageType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@name", name);
+            sp.AddParameter("@systemName", systemName);
+            sp.AddParameter("@ratioId", ratioId);
+            sp.AddParameter("@helpText", helpText);
+            sp.AddParameter("@updaterId", userId);
+            if (defaultImageId.HasValue)
+                sp.AddParameter("@defaultImageId", defaultImageId.Value);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet GetImageTypes(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetImageTypes");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");            
+            sp.AddParameter("@groupId", groupId);
+            
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataTable GetGroupImageRatios(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupImageRatios");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+
+            return sp.Execute();
+        }
+
+        public static DataTable InsertPic(int groupId, long userId, long imageObjectId, eAssetImageType imageObjectType, long imageTypeId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertPic");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@updaterId", userId);
+            sp.AddParameter("@assetId", imageObjectId);
+            sp.AddParameter("@assetImageType", (int)imageObjectType);
+            sp.AddParameter("@imageTypeId", imageTypeId);
+            sp.AddParameter("@status", (int)eTableStatus.Pending);
+            sp.AddParameter("@version", 0);
+
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            return sp.Execute();
+        }
+
+        public static DataTable GetImagesByIds(int groupId, List<long> imageIds)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPicsByIds");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter<long>("@ids", imageIds, "id");
+          
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            return sp.Execute();
+        }
+
+        public static DataTable GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPicsByAsset");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@assetId", imageObjectId);
+            sp.AddParameter("@assetImageType", (int)imageObjectType);
+
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            return sp.Execute();
+        }
+
+        public static bool DeletePic(int groupId, long id, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeletePic");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataTable InsertGroupImageRatios(int groupId, long userId, string ratio)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertGroupImageRatios");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@ratio", ratio);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.Execute();
+        }
+
         #endregion
     }
 }

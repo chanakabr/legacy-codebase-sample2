@@ -13,6 +13,8 @@ namespace CachingProvider.LayeredCache
 
         public const string GET_CURRENCIES_KEY = "currencies";
 
+        public const string GET_RATIOS_KEY = "Ratios";
+
         #endregion
 
         #region Dynamic Keys - SHOULD START WITH "someMeaningfulName_..." prefix
@@ -272,6 +274,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("unifiedBillingCycle_groupId_{0}", groupId);
         }
 
+        public static string GetDoesGroupUsesTemplatesCacheKey(int groupId)
+        {
+            return string.Format("DoesGroupUsesTemplates_groupId_{0}", groupId);
+        }
+
         public static string GetCatalogGroupCacheKey(int groupId)
         {
             return string.Format("CatalogGroupCache_groupId_{0}", groupId);
@@ -290,6 +297,16 @@ namespace CachingProvider.LayeredCache
         public static string GetAssetKey(string assetType, long id)
         {
             return string.Format("Asset_type_{0}_id_{1}", assetType, id);
+        }
+
+        public static string GetGroupImageTypesKey(int groupId)
+        {
+            return string.Format("GroupImageTypes_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupRatiosKey(int groupId)
+        {
+            return string.Format("GroupRatios_groupId_{0}", groupId);
         }
 
         #endregion
@@ -456,6 +473,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeyUnifiedBillingCycle_domainId_{0}_renewLifeCycle", domainID, renewLifeCycle);
         }
 
+        public static string GetDoesGroupUsesTemplatesCacheInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyDoesGroupUsesTemplates_groupId_{0}", groupId);
+        }
+
         public static string GetCatalogGroupCacheInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyCatalogGroupCache_groupId_{0}", groupId);
@@ -479,6 +501,16 @@ namespace CachingProvider.LayeredCache
         public static string GetMediaConcurrencyRulesDeviceLimitationModuleInvalidationKey(int groupId, int dlmId)
         {
             return string.Format("invalidationKey_mediaConcurrencyRules_by_domainLimitationModule_{0}", dlmId);
+        }
+
+        public static string GetGroupImageTypesInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_GroupImageTypes_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupRatiosInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_GroupRatios_groupId_{0}", groupId);
         }
 
         #region Domains
@@ -511,7 +543,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKey_user_{0}", siteGuid);
         }
-
+        
         #endregion
 
         #endregion

@@ -136,6 +136,13 @@ namespace ElasticSearch.Common
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
+                name = "catalog_start_date",
+                type = eESFieldType.DATE,
+                index = eMappingIndex.not_analyzed,
+                format = DATE_FORMAT
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
                 name = "end_date",
                 type = eESFieldType.DATE,
                 index = eMappingIndex.not_analyzed,
