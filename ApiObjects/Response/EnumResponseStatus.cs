@@ -223,7 +223,8 @@ namespace ApiObjects.Response
         ImageTypeDoesNotExist = 4047,
         ImageDoesNotExist = 4048,
         RatioAlreadyInUse = 4049,
-        AssetFileTypeDoesNotExist = 4050,
+        MetaIdsDoesNotExistOnAsset = 4050,
+        AssetFileTypeDoesNotExist = 4051,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,
