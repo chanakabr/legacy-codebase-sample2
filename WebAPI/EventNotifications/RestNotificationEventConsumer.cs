@@ -20,8 +20,8 @@ namespace WebAPI
         #region Consts
         
         private const string CB_SECTION_NAME = "groups";
-        private const string CB_SPECIFIC_PARTNER_KEY_FORMAT = "notification_{0}_{1}_{2}_{3}";
-        private const string CB_GENERAL_KEY_FORMAT = "notification_0_{0}_{1}_{2}";
+        private const string CB_SPECIFIC_PARTNER_KEY_FORMAT = "notification_{0}_{1}";
+        private const string CB_GENERAL_KEY_FORMAT = "notification_0_{0}";
 
         #endregion
 
@@ -45,7 +45,7 @@ namespace WebAPI
         {
             bool result = false;
 
-            if (kalturaEvent is KalturaObjectActionEvent)
+            if (kalturaEvent is KalturaObjectEvent)
             {
                 result = true;
             }
@@ -57,13 +57,22 @@ namespace WebAPI
         {
             eEventConsumptionResult result = eEventConsumptionResult.None;
 
-            KalturaObjectActionEvent actionEvent = kalturaEvent as KalturaObjectActionEvent;
+            KalturaObjectEvent objectEvent = kalturaEvent as KalturaObjectEvent;
             EventNotification specificNotification = null;
             EventNotification generalNotification = null;
             Dictionary<string, NotificationAction> actions = new Dictionary<string, NotificationAction>();
 
-            log.DebugFormat("Start consume Notification event for: partnerId = {0}, type = {1}, action = {2}",
-                kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action);
+            string actionString = "None";
+
+            var actionEvent = objectEvent as KalturaObjectActionEvent;
+
+            if (actionEvent != null)
+            {
+                actionString = actionEvent.Action.ToString();
+            }
+
+            log.DebugFormat("Start consume Notification object action event for: partnerId = {0}, type = {1}, action = {2}",
+                actionEvent.PartnerId, actionEvent.Type, actionString);
 
             #region Get notification definitions
 
@@ -81,7 +90,7 @@ namespace WebAPI
             {
                 cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 
-                string cbKey = GetCBSpecificKey(actionEvent);
+                string cbKey = GetCBSpecificKey(objectEvent);
                 specificNotification = cbManager.Get<EventNotification>(cbKey, true);
             }
 
@@ -91,7 +100,7 @@ namespace WebAPI
                 QueryType = KLogEnums.eDBQueryType.SELECT
             })
             {
-                string cbKey = GetCBGeneralKey(actionEvent);
+                string cbKey = GetCBGeneralKey(objectEvent);
                 generalNotification = cbManager.Get<EventNotification>(cbKey, true);
             }
 
@@ -169,7 +178,7 @@ namespace WebAPI
                 phoenixType = specificNotification.PhoenixType;
             }
 
-            var eventWrapper = EventConverter.ConvertEvent(phoenixType, actionEvent);
+            var eventWrapper = EventConverter.ConvertEvent(phoenixType, objectEvent);
 
             #endregion
 
@@ -188,7 +197,7 @@ namespace WebAPI
                 {
                     log.ErrorFormat(
                         "Error when performing action event for partner {0}, event type {1}, event action {2}, specific notification is {3}. ex = {4}",
-                        kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action, action.GetType().ToString(), ex);
+                        kalturaEvent.PartnerId, objectEvent.Type, actionEvent, action.GetType().ToString(), ex);
 
                     result = eEventConsumptionResult.Failure;
                     if (action.FailureHandlers != null && action.FailureHandlers.Count > 0)
@@ -252,14 +261,14 @@ namespace WebAPI
             }
         }
 
-        protected string GetCBGeneralKey(KalturaObjectActionEvent kalturaEvent)
+        protected string GetCBGeneralKey(KalturaObjectEvent kalturaEvent)
         {
-            return string.Format(CB_GENERAL_KEY_FORMAT, kalturaEvent.Time, kalturaEvent.Type, kalturaEvent.Action).ToLower();
+            return string.Format(CB_GENERAL_KEY_FORMAT, kalturaEvent.GetSystemName()).ToLower();
         }
 
-        protected string GetCBSpecificKey(KalturaObjectActionEvent kalturaEvent)
+        protected string GetCBSpecificKey(KalturaObjectEvent kalturaEvent)
         {
-            return string.Format(CB_SPECIFIC_PARTNER_KEY_FORMAT, kalturaEvent.PartnerId, kalturaEvent.Time, kalturaEvent.Type, kalturaEvent.Action).ToLower();
+            return string.Format(CB_SPECIFIC_PARTNER_KEY_FORMAT, kalturaEvent.GetSystemName()).ToLower();
         }
 
         #endregion
