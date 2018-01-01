@@ -4972,7 +4972,23 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteReturnValue<int>() > 0;
-        }        
+        }
+
+        public static bool RemoveMetasAndTagsFromAsset(int groupId, long id, int dbAssetType, List<long> metaIds, List<long> tagIds, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveMetasAndTagsFromAsset");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Id", id);
+            sp.AddParameter("@AssetType", dbAssetType);
+            sp.AddParameter("@MetasExist", metaIds != null && metaIds.Count > 0 ? 1 : 0);
+            sp.AddIDListParameter<long>("@MetaIdsToRemove", metaIds, "Id");
+            sp.AddParameter("@TagsExist", tagIds != null && tagIds.Count > 0 ? 1 : 0);
+            sp.AddIDListParameter<long>("@TagIdsToRemove", tagIds, "Id");
+            sp.AddParameter("@UpdaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
 
         public static DataSet GetGroupTagValues(int groupId)
         {
