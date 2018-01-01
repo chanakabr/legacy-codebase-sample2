@@ -310,7 +310,8 @@ namespace ApiObjects
         Channel = 1,
         Category = 2,
         DefaultPic = 3,
-        LogoPic = 4
+        LogoPic = 4,
+        ImageType = 5
     }
 
     [Serializable]
@@ -440,7 +441,7 @@ namespace ApiObjects
         OK = 1,
 
         [EnumMember]
-        Failed = 2
+        Failed = 2,
     }
 
     [Serializable]
@@ -967,4 +968,5 @@ namespace ApiObjects
         Disable = 0,
         Delete = 1
     }
+    
 }

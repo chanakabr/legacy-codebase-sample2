@@ -50,12 +50,18 @@ namespace Core.Catalog
                 int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
-                definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes;
+                definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.IsOperatorSearch;
 
                 definitions.shouldIgnoreDeviceRuleID = request.shouldIgnoreDeviceRuleID;
 
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(parentGroupID);
+
+                definitions.isOperatorSearch = request.IsOperatorSearch;
+                if (definitions.isOperatorSearch)
+                {
+                    definitions.shouldAddIsActiveTerm = false;
+                }
 
                 if (request.filterTree != null)
                 {

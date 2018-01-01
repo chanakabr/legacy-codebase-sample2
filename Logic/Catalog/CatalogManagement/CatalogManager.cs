@@ -3,6 +3,7 @@ using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Catalog.Response;
 using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -18,27 +19,54 @@ namespace Core.Catalog.CatalogManagement
 
         #region Constants and Readonly
 
-        private const string NAME_META_SYSTEM_NAME = "Title";
+        private const string NAME_META_SYSTEM_NAME = "Name";
         private const string DESCRIPTION_META_SYSTEM_NAME = "SummaryMedium";
         private const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
         private const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
         private const string STATUS_META_SYSTEM_NAME = "Status";
         private const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
         private const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
-        private const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStratDateTime";
+        private const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
         private const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
-        private const string IS_NEW_TAG = "is_new";
+        private const string IS_NEW_TAG_COLUMN_NAME = "is_new";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly HashSet<string> basicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, ENTRY_ID_META_SYSTEM_NAME, STATUS_META_SYSTEM_NAME, PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME,
             PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_START_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_TIME_META_SYSTEM_NAME
         };
 
+        private static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
+
         #endregion
 
         #region Private Methods
+
+        private static Tuple<bool, bool> DoesGroupUsesTemplates(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            bool doesGroupUsesTemplates = false;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        doesGroupUsesTemplates = CatalogDAL.DoesGroupUsesTemplates(groupId.Value);
+                        res = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("DoesGroupUsesTemplates failed params : {0}", funcParams != null ? string.Join(";",
+                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
+            }
+
+            return new Tuple<bool, bool>(doesGroupUsesTemplates, res);
+        }
 
         private static Tuple<CatalogGroupCache, bool> GetCatalogGroupCache(Dictionary<string, object> funcParams)
         {
@@ -76,7 +104,7 @@ namespace Core.Catalog.CatalogManagement
 
                         catalogGroupCache = new CatalogGroupCache(languages, assetStructs, topics);
                         res = true;
-                    }                    
+                    }
                 }
             }
             catch (Exception ex)
@@ -165,7 +193,7 @@ namespace Core.Catalog.CatalogManagement
             List<long> basicMetaIds = new List<long>();
             if (catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.Count > 0)
             {
-                basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => basicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
+                basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
                 if (assetStructToValidate.MetaIds != null)
                 {
                     List<long> noneExistingBasicMetaIds = basicMetaIds.Except(assetStructToValidate.MetaIds).ToList();
@@ -182,30 +210,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
-
-        private static AssetFileTypeResponse CreateAssetFileTypeResponseFromDataSet(DataSet ds)
-        {
-            AssetFileTypeResponse response = new AssetFileTypeResponse();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
-                {
-                    response.AssetFileType = CreateAssetFileType(dt.Rows[0]);
-                    if (response.AssetFileType != null)
-                    {
-                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    }
-                }
-                /// AssetFileType does not exist
-                else
-                {
-                    response.Status = new Status((int)eResponseStatus.AssetFileTypeDoesNotExist, eResponseStatus.AssetFileTypeDoesNotExist.ToString());
-                }
-            }
-
-            return response;
         }
 
         private static AssetStructResponse CreateAssetStructResponseFromDataSet(DataSet ds)
@@ -255,40 +259,6 @@ namespace Core.Catalog.CatalogManagement
                 if (response.AssetStruct != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-
-            return response;
-        }
-
-        private static AssetFileType CreateAssetFileType(DataRow dr)
-        {
-            return new AssetFileType()
-            {
-                Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
-                Description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"),
-                IsActive = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_ACTIVE"),
-                CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
-                UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
-                IsTrailer = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_TRAILER"),
-                StreamerType = (StreamerType)Enum.Parse(typeof(StreamerType), ODBCWrapper.Utils.GetIntSafeVal(dr, "ID").ToString()),
-                DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID")
-            };
-        }
-
-        private static List<AssetFileType> CreateAssetFileTypeListFromDataSet(DataSet ds)
-        {
-            List<AssetFileType> response = new List<AssetFileType>();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null)
-                {
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        AssetFileType assetFileType = CreateAssetFileType(dr);
-                        response.Add(assetFileType);
-                    }
                 }
             }
 
@@ -357,7 +327,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }      
+        }
 
         private static Status CreateTopicResponseStatusFromResult(long result)
         {
@@ -384,7 +354,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                 string systemName = ODBCWrapper.Utils.GetSafeStr(dr, "SYSTEM_NAME");
-                int topicType = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOPIC_TYPE_ID", 0);                
+                int topicType = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOPIC_TYPE_ID", 0);
                 if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName) && topicType > 0 && typeof(MetaType).IsEnumDefined(topicType))
                 {
                     string commaSeparatedFeatures = ODBCWrapper.Utils.GetSafeStr(dr, "FEATURES");
@@ -394,7 +364,7 @@ namespace Core.Catalog.CatalogManagement
                         features = new HashSet<string>(commaSeparatedFeatures.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
                     }
 
-                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");                    
+                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
                     string helpText = ODBCWrapper.Utils.GetSafeStr(dr, "HELP_TEXT");
                     long parentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TOPIC_ID", 0);
                     DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
@@ -432,7 +402,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
                     if (id > 0)
-                    {                        
+                    {
                         EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
                         List<DataRow> topicTranslations = (from row in translations
                                                            select row).ToList();
@@ -440,7 +410,8 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        response.Status = CreateTopicResponseStatusFromResult(id);
+                        response.Status = CreateTagResponseStatusFromResult(id);
+                        return response;
                     }
                 }
 
@@ -448,7 +419,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
-            }            
+            }
 
             return response;
         }
@@ -458,7 +429,7 @@ namespace Core.Catalog.CatalogManagement
             List<Topic> response = null;
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
-                DataTable topicsDt = ds.Tables[0];                                
+                DataTable topicsDt = ds.Tables[0];
                 EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
                 if (topicsDt != null && topicsDt.Rows != null)
                 {
@@ -479,18 +450,18 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                 }
-            }            
+            }
 
             return response;
-        }        
+        }
 
-        private static AssetResponse CreateAssetResponseFromDataSet(int groupId, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
+        private static AssetResponse CreateMediaAssetResponseFromDataSet(int groupId, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
         {
             AssetResponse result = new AssetResponse();
             if (ds == null || ds.Tables == null)
             {
                 log.WarnFormat("CreateAssetResponseFromDataSet - dataset or tables are null");
-                return result;                
+                return result;
             }
 
             // Basic details tables
@@ -521,7 +492,7 @@ namespace Core.Catalog.CatalogManagement
         private static MediaAsset CreateMediaAsset(int groupId, long id, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
         {
             MediaAsset result = null;
-            
+
             if (ds.Tables.Count < 3)
             {
                 log.WarnFormat("CreateMediaAssetFromDataSet didn't receive dataset with 6 or more tables");
@@ -587,13 +558,20 @@ namespace Core.Catalog.CatalogManagement
             if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
             {
                 tagsTable = ds.Tables[2];
-                if (tagsTable != null && tagsTable.Rows != null && tagsTable.Rows.Count > 0 && tagsTable.Columns.Contains(IS_NEW_TAG))
+                if (tagsTable != null && tagsTable.Rows != null && tagsTable.Rows.Count > 0 && tagsTable.Columns.Contains(IS_NEW_TAG_COLUMN_NAME))
                 {
                     EnumerableRowCollection<DataRow> newTags = (from row in tagsTable.AsEnumerable()
-                                                                where (Int64)row["IS_NEW"] == 1
+                                                                where (Int32)row["IS_NEW"] == 1
                                                                 select row);
                     if (newTags != null && newTags.Count() > 0)
                     {
+                        CatalogGroupCache catalogGroupCache;
+                        if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        {
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling CreateMediaAsset", groupId);
+                            return result;
+                        }
+
                         foreach (DataRow dr in newTags)
                         {
                             int topicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "topic_id");
@@ -611,11 +589,14 @@ namespace Core.Catalog.CatalogManagement
                                 updateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(tagUpdateDate),
                                 value = translation
                             };
-                            ApiObjects.SearchObjects.TagResponse addTagResponse = AddTag(groupId, tag);
-                            if (addTagResponse == null || addTagResponse.Status == null || addTagResponse.Status.Code  != (int)eResponseStatus.OK)
+
+                            // Update Tag Index
+                            ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                            Status updateTagResponse = wrapper.UpdateTag(groupId, catalogGroupCache, tag);
+                            if (updateTagResponse == null || updateTagResponse.Code != (int)eResponseStatus.OK)
                             {
-                                log.WarnFormat("CreateMediaAssetFromDataSet - failed to addTag, tag : {0}, addTagResult: {1}", tag.ToString(),
-                                                addTagResponse != null && addTagResponse.Status != null ? addTagResponse.Status.Message : "null");
+                                log.WarnFormat("CreateMediaAsset - failed to update tag, tag : {0}, addTagResult: {1}", tag.ToString(),
+                                                updateTagResponse != null && updateTagResponse != null ? updateTagResponse.Message : "null");
                             }
                         }
                     }
@@ -634,7 +615,7 @@ namespace Core.Catalog.CatalogManagement
             List<LanguageContainer> descriptionsWithLanguages = null;
             if (!ExtractMediaAssetNamesAndDescriptionsFromMetas(metas, ref name, ref description, ref namesWithLanguages, ref descriptionsWithLanguages))
             {
-                log.WarnFormat("Title is not valid for media with Id: {0}", id);
+                log.WarnFormat("Name is not valid for media with Id: {0}", id);
                 return result;
             }
 
@@ -648,7 +629,7 @@ namespace Core.Catalog.CatalogManagement
                                     isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes);
 
             return result;
-        }            
+        }
 
         private static bool TryGetMediaTypeFromAssetStructId(int groupId, long assetStructId, out MediaType mediaType)
         {
@@ -727,7 +708,7 @@ namespace Core.Catalog.CatalogManagement
                     && groupTopicsResponse.Topics != null && groupTopicsResponse.Topics.Count > 0)
                 {
                     metas = new List<Metas>();
-                    tags = new List<Tags>();                    
+                    tags = new List<Tags>();
                     foreach (Topic topic in groupTopicsResponse.Topics)
                     {
                         if (topic.Type == MetaType.Tag)
@@ -746,15 +727,15 @@ namespace Core.Catalog.CatalogManagement
                             if (topicIdToMeta.ContainsKey(topic.Id))
                             {
                                 List<LanguageContainer> topicLanguages = null;
-                                string defaultValue = topicIdToMeta[topic.Id].Where(x => x.IsDefault == true).Select(x => x.Value).FirstOrDefault();
+                                string defaultValue = topicIdToMeta[topic.Id].Where(x => x.IsDefault).Select(x => x.Value).FirstOrDefault();
                                 if (topic.Type == MetaType.MultilingualString)
                                 {
-                                    topicLanguages = topicIdToMeta[topic.Id];
+                                    topicLanguages = topicIdToMeta[topic.Id].Where(x => !x.IsDefault).Select(x => x).ToList();
                                 }
 
                                 metas.Add(new Metas(new TagMeta(topic.SystemName, topic.Type.ToString()), defaultValue, topicLanguages));
                             }
-                        }                        
+                        }
                     }
 
                     res = true;
@@ -810,9 +791,9 @@ namespace Core.Catalog.CatalogManagement
                         {
                             EnumerableRowCollection<DataRow> assetMetas = (from row in metas
                                                                            where (Int64)row["ASSET_ID"] == id
-                                                                           select row);                   
+                                                                           select row);
                             if (assetMetas != null && assetMetas.Count() > 0)
-                            {                                
+                            {
                                 assetDataset.Tables.Add(assetMetas.CopyToDataTable());
                             }
                             else
@@ -882,8 +863,8 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static Dictionary<int, ApiObjects.SearchObjects.Media> CreateMediasFromMediaAssetAndLanguages(int groupId, MediaAsset mediaAsset, CatalogGroupCache catalogGroupCache)
-        {            
-            Dictionary<int, ApiObjects.SearchObjects.Media> result = new Dictionary<int, ApiObjects.SearchObjects.Media>();            
+        {
+            Dictionary<int, ApiObjects.SearchObjects.Media> result = new Dictionary<int, ApiObjects.SearchObjects.Media>();
             foreach (LanguageObj language in catalogGroupCache.LanguageMapById.Values)
             {
                 string name = mediaAsset.Name;
@@ -907,7 +888,20 @@ namespace Core.Catalog.CatalogManagement
                 {
                     if (language.IsDefault)
                     {
-                        metas = mediaAsset.Metas.ToDictionary(x => x.m_oTagMeta.m_sName, x => x.m_sValue);
+                        metas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType != MetaType.DateTime.ToString()).ToDictionary(x => x.m_oTagMeta.m_sName, x => x.m_sValue);
+                        // handle date metas
+                        List<Metas> dateMetas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType == MetaType.DateTime.ToString()).ToList();
+                        if (dateMetas != null && dateMetas.Count > 0)
+                        {
+                            foreach (Metas meta in dateMetas)
+                            {
+                                DateTime date;
+                                if (DateTime.TryParse(meta.m_sValue, out date))
+                                {
+                                    metas.Add(meta.m_oTagMeta.m_sName, date.ToString("yyyyMMddHHmmss"));
+                                }
+                            }
+                        }
                     }
                     else
                     {
@@ -952,14 +946,14 @@ namespace Core.Catalog.CatalogManagement
                     CoGuid = mediaAsset.CoGuid,
                     EntryId = mediaAsset.EntryId,
                     m_dMeatsValues = metas,
-                    m_dTagValues = tags           
+                    m_dTagValues = tags
                 };
 
                 result.Add(language.ID, media);
             }
 
             return result;
-        }        
+        }
 
         private static Type GetMetaType(Topic topic)
         {
@@ -970,17 +964,17 @@ namespace Core.Catalog.CatalogManagement
                 case MetaType.MultilingualString:
                 case MetaType.Tag:
                     res = typeof(string);
-                    break;                
+                    break;
                 case MetaType.Number:
                     res = typeof(double);
                     break;
                 case MetaType.Bool:
                     res = typeof(int);
-                    break;                    
+                    break;
                 case MetaType.DateTime:
                     res = typeof(DateTime);
-                    break;                    
-                case MetaType.All:                    
+                    break;
+                case MetaType.All:
                 default:
                     break;
             }
@@ -988,12 +982,14 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static Status ValidateAsset(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc, ref XmlDocument tagsXmlDoc)
+        private static Status ValidateMediaAssetForInsert(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc,
+                                                            ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate)
         {
             // TODO - Lior - change error codes and add new ones
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
-            result = ValidateAssetMetasAndTagsNamesAndTypes(catalogGroupCache, ref asset, assetStructMetaIds, ref metasXmlDoc, ref tagsXmlDoc);
+            result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, asset.Metas, asset.Tags, assetStructMetaIds, ref metasXmlDoc, ref tagsXmlDoc,
+                                                                    ref assetCatalogStartDate, ref assetFinalEndDate);
             if (result.Code != (int)eResponseStatus.OK)
             {
                 return result;
@@ -1003,7 +999,7 @@ namespace Core.Catalog.CatalogManagement
             if (asset.DeviceRuleId.HasValue && (asset.DeviceRuleId.Value <= 0 || !CatalogLogic.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value)))
             {
                 result = new Status((int)eResponseStatus.DeviceRuleDoesNotExistForGroup, eResponseStatus.DeviceRuleDoesNotExistForGroup.ToString());
-                return result;            
+                return result;
             }
 
             // validate geoblock rule id
@@ -1016,17 +1012,61 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static Status ValidateAssetMetasAndTagsNamesAndTypes(CatalogGroupCache catalogGroupCache, ref MediaAsset asset, HashSet<long> assetStructMetaIds, ref XmlDocument metasXmlDoc, ref XmlDocument tagsXmlDoc)
+        private static Status ValidateMediaAssetForUpdate(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, HashSet<string> currentAssetMetasAndTags,
+                                                            ref XmlDocument metasXmlDocToAdd, ref XmlDocument tagsXmlDocToAdd, ref XmlDocument metasXmlDocToUpdate, ref XmlDocument tagsXmlDocToUpdate,
+                                                            ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate)
+        {
+            // TODO - Lior - change error codes and add new ones
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
+            List<Metas> metasToAdd = asset.Metas != null && currentAssetMetasAndTags != null ? asset.Metas.Where(x => !currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Metas>();
+            List<Tags> tagsToAdd = asset.Tags != null && currentAssetMetasAndTags != null ? asset.Tags.Where(x => !currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Tags>();
+            result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToAdd, tagsToAdd, assetStructMetaIds, ref metasXmlDocToAdd, ref tagsXmlDocToAdd,
+                                                                    ref assetCatalogStartDate, ref assetFinalEndDate);
+            if (result.Code != (int)eResponseStatus.OK)
+            {
+                return result;
+            }
+
+            List<Metas> metasToUpdate = asset.Metas != null && currentAssetMetasAndTags != null ? asset.Metas.Where(x => currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Metas>();
+            List<Tags> tagsToUpdate = asset.Tags != null && currentAssetMetasAndTags != null ? asset.Tags.Where(x => currentAssetMetasAndTags.Contains(x.m_oTagMeta.m_sName)).ToList() : new List<Tags>();
+            result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToUpdate, tagsToUpdate, assetStructMetaIds, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate,
+                                                                    ref assetCatalogStartDate, ref assetFinalEndDate);
+            if (result.Code != (int)eResponseStatus.OK)
+            {
+                return result;
+            }
+
+            // validate device rule id
+            if (asset.DeviceRuleId.HasValue && (asset.DeviceRuleId.Value <= 0 || !CatalogLogic.ValidateDeviceRuleExists(groupId, asset.DeviceRuleId.Value)))
+            {
+                result = new Status((int)eResponseStatus.DeviceRuleDoesNotExistForGroup, eResponseStatus.DeviceRuleDoesNotExistForGroup.ToString());
+                return result;
+            }
+
+            // validate geoblock rule id
+            if (asset.GeoBlockRuleId.HasValue && (asset.GeoBlockRuleId.Value <= 0 || !CatalogLogic.ValidateGeoBlockRuleExists(groupId, asset.GeoBlockRuleId.Value)))
+            {
+                result = new Status((int)eResponseStatus.GeoBlockRuleDoesNotExistForGroup, eResponseStatus.GeoBlockRuleDoesNotExistForGroup.ToString());
+                return result;
+            }
+
+            return result;
+        }
+
+        private static Status ValidateMediaAssetMetasAndTagsNamesAndTypes(int groupId, CatalogGroupCache catalogGroupCache, List<Metas> metas, List<Tags> tags, HashSet<long> assetStructMetaIds,
+                                                                            ref XmlDocument metasXmlDoc, ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate,
+                                                                            ref DateTime? assetFinalEndDate)
         {
             // TODO - Lior - change error codes and add new ones
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<string> tempHashSet = new HashSet<string>();
-            if (asset.Metas != null && asset.Metas.Count > 0)
+            if (metas != null && metas.Count > 0)
             {
                 metasXmlDoc = new XmlDocument();
                 XmlNode rootNode = metasXmlDoc.CreateElement("root");
                 metasXmlDoc.AppendChild(rootNode);
-                foreach (Metas meta in asset.Metas)
+                foreach (Metas meta in metas)
                 {
                     // validate duplicates do not exist
                     if (tempHashSet.Contains(meta.m_oTagMeta.m_sName))
@@ -1060,7 +1100,8 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // Validate meta values are correct and add to to metaXml
-                    if (!IsMetaValueValid(ref asset, meta, topic.Id, catalogGroupCache.DefaultLanguage.ID, catalogGroupCache.LanguageMapByCode, ref result, ref metasXmlDoc, ref rootNode))
+                    if (!IsMetaValueValid(meta, topic.Id, catalogGroupCache.DefaultLanguage.ID, catalogGroupCache.LanguageMapByCode, ref result, ref metasXmlDoc, ref rootNode,
+                                            ref assetCatalogStartDate, ref assetFinalEndDate))
                     {
                         return result;
                     }
@@ -1069,12 +1110,12 @@ namespace Core.Catalog.CatalogManagement
                 tempHashSet.Clear();
             }
 
-            if (asset.Tags != null && asset.Tags.Count > 0)
+            if (tags != null && tags.Count > 0)
             {
                 tagsXmlDoc = new XmlDocument();
                 XmlNode rootNode = tagsXmlDoc.CreateElement("root");
                 tagsXmlDoc.AppendChild(rootNode);
-                foreach (Tags tag in asset.Tags)
+                foreach (Tags tag in tags)
                 {
                     // validate duplicates do not exist
                     if (tempHashSet.Contains(tag.m_oTagMeta.m_sName))
@@ -1112,18 +1153,6 @@ namespace Core.Catalog.CatalogManagement
                     {
                         AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, tagValue);
                     }
-
-                    // insert other language values into tagsXml
-                    foreach (LanguageContainer[] languageArray in tag.Values)
-                    {
-                        foreach (LanguageContainer language in languageArray)
-                        {
-                            if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
-                            {
-                                AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id,catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value);
-                            }
-                        }
-                    }
                 }
             }
 
@@ -1131,9 +1160,9 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static bool IsMetaValueValid(ref MediaAsset asset, Metas meta, long topicId, int defaultLanguageId, Dictionary<string, LanguageObj> LanguageMapByCode, ref Status resultStatus,
-                                                ref XmlDocument metasXmlDoc, ref XmlNode rootNode)
-        {            
+        private static bool IsMetaValueValid(Metas meta, long topicId, int defaultLanguageId, Dictionary<string, LanguageObj> LanguageMapByCode, ref Status resultStatus,
+                                                ref XmlDocument metasXmlDoc, ref XmlNode rootNode, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate)
+        {
             // Validate meta values are correct
             MetaType metaType;
             bool isValidMeta = false;
@@ -1164,7 +1193,7 @@ namespace Core.Catalog.CatalogManagement
                 case MetaType.Bool:
                     isValidMeta = true;
                     int intVal;
-                    isValidMetaValue = int.TryParse(meta.m_sValue, out intVal);                    
+                    isValidMetaValue = int.TryParse(meta.m_sValue, out intVal);
                     break;
                 case MetaType.DateTime:
                     isValidMeta = true;
@@ -1189,29 +1218,15 @@ namespace Core.Catalog.CatalogManagement
                 return false;
             }
 
-            if (basicMetasSystemNames.Contains(meta.m_oTagMeta.m_sName))
+            if (BasicMetasSystemNames.Contains(meta.m_oTagMeta.m_sName))
             {
                 switch (meta.m_oTagMeta.m_sName)
                 {
-                    case ENTRY_ID_META_SYSTEM_NAME:
-                        asset.EntryId = meta.m_sValue;
-                        break;
-                    case STATUS_META_SYSTEM_NAME:
-                        bool isActive;
-                        if (bool.TryParse(meta.m_sValue, out isActive))
-                        {
-                            asset.IsActive = isActive;
-                        }
-                        else
-                        {
-                            log.ErrorFormat("IsMetaValueValid failed to parse {0} meta, value: {1}", STATUS_META_SYSTEM_NAME, meta.m_sValue);
-                        }               
-                        break;
                     case CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
                         DateTime catalogStartDate;
                         if (DateTime.TryParse(meta.m_sValue, out catalogStartDate))
                         {
-                            asset.CatalogStartDate = catalogStartDate;
+                            assetCatalogStartDate = catalogStartDate;
                         }
                         else
                         {
@@ -1222,7 +1237,7 @@ namespace Core.Catalog.CatalogManagement
                         DateTime finalEndDate;
                         if (DateTime.TryParse(meta.m_sValue, out finalEndDate))
                         {
-                            asset.FinalEndDate = finalEndDate;
+                            assetFinalEndDate = finalEndDate;
                         }
                         else
                         {
@@ -1253,23 +1268,26 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        private static void AddTopicLanguageValueToXml(XmlDocument metasXmlDoc, XmlNode rootNode, long topicId, int defaultLanguageId, string value)
+        private static void AddTopicLanguageValueToXml(XmlDocument metasXmlDoc, XmlNode rootNode, long topicId, int languageId, string value)
         {
-            XmlNode rowNode;
-            XmlNode topicIdNode;
-            XmlNode languageIdNode;
-            XmlNode valueNode;
-            rowNode = metasXmlDoc.CreateElement("row");
-            topicIdNode = metasXmlDoc.CreateElement("topic_id");
-            topicIdNode.InnerText = topicId.ToString();
-            rowNode.AppendChild(topicIdNode);
-            languageIdNode = metasXmlDoc.CreateElement("language_id");
-            languageIdNode.InnerText = defaultLanguageId.ToString();
-            rowNode.AppendChild(languageIdNode);
-            valueNode = metasXmlDoc.CreateElement("value");
-            valueNode.InnerText = value;
-            rowNode.AppendChild(valueNode);
-            rootNode.AppendChild(rowNode);
+            if (value != null)
+            {
+                XmlNode rowNode;
+                XmlNode topicIdNode;
+                XmlNode languageIdNode;
+                XmlNode valueNode;
+                rowNode = metasXmlDoc.CreateElement("row");
+                topicIdNode = metasXmlDoc.CreateElement("topic_id");
+                topicIdNode.InnerText = topicId.ToString();
+                rowNode.AppendChild(topicIdNode);
+                languageIdNode = metasXmlDoc.CreateElement("language_id");
+                languageIdNode.InnerText = languageId.ToString();
+                rowNode.AppendChild(languageIdNode);
+                valueNode = metasXmlDoc.CreateElement("value");
+                valueNode.InnerText = value;
+                rowNode.AppendChild(valueNode);
+                rootNode.AppendChild(rowNode);
+            }
         }
 
         private static bool ExtractMediaAssetNamesAndDescriptionsFromMetas(List<Metas> metas, ref string name, ref string description, ref List<LanguageContainer> namesWithLanguages,
@@ -1310,7 +1328,7 @@ namespace Core.Catalog.CatalogManagement
             else
             {
                 return false;
-            }            
+            }
         }
 
         private static void ExtractTopicLanguageAndValuesFromMediaAsset(MediaAsset asset, CatalogGroupCache catalogGroupCache, ref XmlDocument xmlDoc, string topicSystemName)
@@ -1369,12 +1387,46 @@ namespace Core.Catalog.CatalogManagement
             {
                 case -111:
                     responseStatus = new Status((int)eResponseStatus.AssetExternalIdMustBeUnique, eResponseStatus.AssetExternalIdMustBeUnique.ToString());
-                    break; 
+                    break;
                 default:
                     break;
             }
 
             return responseStatus;
+        }
+
+        private static Asset GetAssetWithNoCache(int groupId, long id, eAssetTypes assetType)
+        {
+            Asset result = null;
+            try
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetWithNoCache", groupId);
+                }
+
+                switch (assetType)
+                {
+                    case eAssetTypes.EPG:
+                        break;
+                    case eAssetTypes.NPVR:
+                        break;
+                    case eAssetTypes.MEDIA:
+                        DataSet ds = CatalogDAL.GetMediaAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
+                        result = CreateMediaAsset(groupId, id, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                        break;
+                    case eAssetTypes.UNKNOWN:
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssetWithNoCache for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString()), ex);
+            }
+
+            return result;
         }
 
         private static Tuple<Asset, bool> GetAsset(Dictionary<string, object> funcParams)
@@ -1390,27 +1442,7 @@ namespace Core.Catalog.CatalogManagement
                     eAssetTypes assetType;
                     if (groupId.HasValue && groupId.Value > 0 && id.HasValue && id.Value > 0 && Enum.TryParse<eAssetTypes>(funcParams["assetType"].ToString(), out assetType))
                     {
-                        CatalogGroupCache catalogGroupCache;
-                        if (!TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
-                        {
-                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAsset", groupId);                            
-                        }
-
-                        switch (assetType)
-                        {                                                            
-                            case eAssetTypes.EPG:
-                                break;
-                            case eAssetTypes.NPVR:
-                                break;
-                            case eAssetTypes.MEDIA:
-                                DataSet ds = CatalogDAL.GetAsset(groupId.Value, id.Value, catalogGroupCache.DefaultLanguage.ID);
-                                asset = CreateMediaAsset(groupId.Value, id.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
-                                break;
-                            case eAssetTypes.UNKNOWN:
-                            default:
-                                break;
-                        }
-                                               
+                        asset = GetAssetWithNoCache(groupId.Value, id.Value, assetType);
                         res = asset != null;
                     }
                 }
@@ -1426,15 +1458,15 @@ namespace Core.Catalog.CatalogManagement
 
         private static Asset GetAssetFromCache(int groupId, long id, eAssetTypes assetType)
         {
-            Asset result = null;            
+            Asset result = null;
             try
             {
                 string key = LayeredCacheKeys.GetAssetKey(assetType.ToString(), id);
                 if (!LayeredCache.Instance.Get<Asset>(key, ref result, GetAsset, new Dictionary<string, object>() { { "groupId", groupId }, { "id", id }, { "assetType", assetType.ToString() } }, groupId,
                     LayeredCacheConfigNames.GET_ASSET_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id) }))
                 {
-                    log.ErrorFormat("Failed getting Asset from LayeredCache, groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());                    
-                }                
+                    log.ErrorFormat("Failed getting Asset from LayeredCache, groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -1507,6 +1539,278 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public static AssetResponse AddMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset assetToAdd, long userId)
+        {
+            AssetResponse result = new AssetResponse();
+            try
+            {
+                // validate assetStruct Exists
+                AssetStruct assetStruct = null;
+                if (assetToAdd.MediaType.m_nTypeID > 0 && catalogGroupCache.AssetStructsMapById.ContainsKey(assetToAdd.MediaType.m_nTypeID))
+                {
+                    assetStruct = catalogGroupCache.AssetStructsMapById[assetToAdd.MediaType.m_nTypeID];
+                }
+                else if (!string.IsNullOrEmpty(assetToAdd.MediaType.m_sTypeName) && catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(assetToAdd.MediaType.m_sTypeName))
+                {
+                    assetStruct = catalogGroupCache.AssetStructsMapBySystemName[assetToAdd.MediaType.m_sTypeName];
+                }
+                else
+                {
+                    result.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                    return result;
+                }
+
+                // validate asset
+                XmlDocument metasXmlDoc = null, tagsXmlDoc = null;
+                DateTime? assetCatalogStartDate = null, assetFinalEndDate = null;
+                Status validateAssetTopicsResult = ValidateMediaAssetForInsert(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref metasXmlDoc, ref tagsXmlDoc,
+                                                                                ref assetCatalogStartDate, ref assetFinalEndDate);
+                if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
+                {
+                    result.Status = validateAssetTopicsResult;
+                    return result;
+                }
+
+                // Update asset catalogStartDate and finalEndDate
+                assetToAdd.CatalogStartDate = assetCatalogStartDate;
+                assetToAdd.FinalEndDate = assetFinalEndDate;
+
+                // Add Name meta values (for languages that are not default)
+                ExtractTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, NAME_META_SYSTEM_NAME);
+
+                // Add Description meta values (for languages that are not default)
+                ExtractTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, DESCRIPTION_META_SYSTEM_NAME);
+
+                DateTime startDate = assetToAdd.StartDate.HasValue ? assetToAdd.StartDate.Value : DateTime.UtcNow;
+                DateTime catalogStartDate = assetToAdd.CatalogStartDate.HasValue ? assetToAdd.CatalogStartDate.Value : startDate;
+                // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
+                DataSet ds = CatalogDAL.InsertMediaAsset(
+                    groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid,
+                    assetToAdd.EntryId, assetToAdd.DeviceRuleId, assetToAdd.GeoBlockRuleId, assetToAdd.IsActive,
+                    startDate, assetToAdd.EndDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId);
+                result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+
+                if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null && result.Asset.Id > 0)
+                {
+                    // UpdateIndex
+                    // TODO - Lior , remove duplicate index update
+                    if (!CatalogLogic.UpdateIndex(new List<long>() { result.Asset.Id }, groupId, eAction.Update))
+                    {
+                        log.ErrorFormat("Failed to UpdateIndex for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
+                    }
+
+                    bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)result.Asset.Id);
+
+                    if (!indexingResult)
+                    {
+                        log.ErrorFormat("Failed to add media to index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddMediaAsset for groupId: {0} and asset: {1}", groupId, assetToAdd.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        private static AssetResponse UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, long userId)
+        {
+            AssetResponse result = new AssetResponse();
+            try
+            {
+                // validate asset
+                XmlDocument metasXmlDocToAdd = null, tagsXmlDocToAdd = null, metasXmlDocToUpdate = null, tagsXmlDocToUpdate = null;
+                AssetStruct assetStruct = null;
+                DateTime? assetCatalogStartDate = null, assetFinalEndDate = null;
+                if (currentAsset.MediaType.m_nTypeID > 0 && catalogGroupCache.AssetStructsMapById.ContainsKey(currentAsset.MediaType.m_nTypeID))
+                {
+                    assetStruct = catalogGroupCache.AssetStructsMapById[currentAsset.MediaType.m_nTypeID];
+                }
+
+                HashSet<string> currentAssetMetasAndTags = new HashSet<string>(currentAsset.Metas.Select(x => x.m_oTagMeta.m_sName).ToList(), StringComparer.OrdinalIgnoreCase);
+                currentAssetMetasAndTags.UnionWith(currentAsset.Tags.Select(x => x.m_oTagMeta.m_sName).ToList());
+                Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, currentAssetMetasAndTags, ref metasXmlDocToAdd,
+                                                                                ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate, ref assetFinalEndDate);
+                if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
+                {
+                    result.Status = validateAssetTopicsResult;
+                    return result;
+                }
+
+                // Update asset catalogStartDate and finalEndDate
+                assetToUpdate.CatalogStartDate = assetCatalogStartDate;
+                assetToUpdate.FinalEndDate = assetFinalEndDate;
+
+                // Add Name meta values (for languages that are not default), Name can only be updated
+                ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, NAME_META_SYSTEM_NAME);
+
+                // Add Description meta values (for languages that are not default), Description can be updated or added
+                if (string.IsNullOrEmpty(currentAsset.Description))
+                {
+                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToAdd, DESCRIPTION_META_SYSTEM_NAME);
+                }
+                else
+                {
+                    ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, DESCRIPTION_META_SYSTEM_NAME);
+                }
+
+                DateTime startDate = assetToUpdate.StartDate.HasValue ? assetToUpdate.StartDate.Value : DateTime.UtcNow;
+                DateTime catalogStartDate = assetToUpdate.CatalogStartDate.HasValue ? assetToUpdate.CatalogStartDate.Value : startDate;
+                // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
+                DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, assetToUpdate.Id, catalogGroupCache.DefaultLanguage.ID, metasXmlDocToAdd, tagsXmlDocToAdd, metasXmlDocToUpdate, tagsXmlDocToUpdate,
+                                                        assetToUpdate.CoGuid, assetToUpdate.EntryId, assetToUpdate.DeviceRuleId, assetToUpdate.GeoBlockRuleId, assetToUpdate.IsActive, startDate,
+                                                        assetToUpdate.EndDate, catalogStartDate, assetToUpdate.FinalEndDate, userId);
+                result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null && result.Asset.Id > 0)
+                {
+                    // UpdateIndex
+                    // TODO - Lior , remove duplicate index update
+                    if (!CatalogLogic.UpdateIndex(new List<long>() { result.Asset.Id }, groupId, eAction.Update))
+                    {
+                        log.ErrorFormat("Failed to Update Media Index for assetId after : {0}, groupId: {1} after UpdateMediaAsset", result.Asset.Id, groupId);
+                    }
+
+                    bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)result.Asset.Id);
+
+                    if (!indexingResult)
+                    {
+                        log.ErrorFormat("Failed to add media to index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateAsset for groupId: {0} and asset: {1}", groupId, assetToUpdate.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        private static TagResponse CreateTagResponseFromDataSet(DataSet ds)
+        {
+            TagResponse response = new TagResponse();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                {
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "id", 0);
+                    if (id > 0)
+                    {
+                        EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
+                        List<DataRow> tagTranslations = (from row in translations
+                                                         select row).ToList();
+                        response.TagValues.Add(CreateTag(id, dt.Rows[0], tagTranslations));
+                    }
+                    else
+                    {
+                        response.Status = CreateTagResponseStatusFromResult(id);
+                        return response;
+                    }
+                }
+
+                if (response.TagValues != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+
+            return response;
+        }
+
+        private static ApiObjects.SearchObjects.TagValue CreateTag(long id, DataRow dr, List<DataRow> tagTranslations)
+        {
+            ApiObjects.SearchObjects.TagValue result = null;
+            if (id > 0)
+            {
+                string name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                int topicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "topic_id", 0);
+                DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
+                DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+                List<LanguageContainer> tagsInOtherLanguages = new List<LanguageContainer>();
+                if (tagTranslations != null && tagTranslations.Count > 0)
+                {
+                    foreach (DataRow translationDr in tagTranslations)
+                    {
+                        string languageCode = ODBCWrapper.Utils.GetSafeStr(translationDr, "CODE3");
+                        string translation = ODBCWrapper.Utils.GetSafeStr(translationDr, "TRANSLATION");
+                        if (!string.IsNullOrEmpty(languageCode) && !string.IsNullOrEmpty(translation))
+                        {
+                            tagsInOtherLanguages.Add(new LanguageContainer(languageCode, translation));
+                        }
+                    }
+                }
+
+                result = new ApiObjects.SearchObjects.TagValue()
+                {
+                    value = name,
+                    tagId = id,
+                    topicId = topicId,
+                    TagsInOtherLanguages = tagsInOtherLanguages,
+                    createDate = createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
+                    updateDate = updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0
+                };
+            }
+
+            return result;
+        }
+
+        private static Status CreateTagResponseStatusFromResult(long result)
+        {
+            Status responseStatus = null;
+            switch (result)
+            {
+                case -222:
+                    responseStatus = new Status((int)eResponseStatus.TagAlreadyInUse, eResponseStatus.TagAlreadyInUse.ToString());
+                    break;
+                case -333:
+                    responseStatus = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    break;
+                default:
+                    responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    break;
+            }
+
+            return responseStatus;
+        }
+
+        private static AssetFileType CreateAssetFileType(DataRow dr)
+        {
+            return new AssetFileType()
+            {
+                Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                Description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"),
+                IsActive = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_ACTIVE"),
+                CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
+                UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
+                IsTrailer = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_TRAILER"),
+                StreamerType = (StreamerType)Enum.Parse(typeof(StreamerType), ODBCWrapper.Utils.GetIntSafeVal(dr, "ID").ToString()),
+                DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID")
+            };
+        }
+
+        private static List<AssetFileType> CreateAssetFileTypeListFromDataSet(DataSet ds)
+        {
+            List<AssetFileType> response = new List<AssetFileType>();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        AssetFileType assetFileType = CreateAssetFileType(dr);
+                        response.Add(assetFileType);
+                    }
+                }
+            }
+
+            return response;
+        }
+
+
         #endregion
 
         #region Public Methods
@@ -1570,23 +1874,6 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static AssetFileTypeListResponse GetAssetFileTypes(int groupId)
-        {
-            AssetFileTypeListResponse response = new AssetFileTypeListResponse();
-            try
-            {
-                DataSet dataSet = CatalogDAL.GetAssetFileTypesByGroupId(groupId);
-                response.Types = CreateAssetFileTypeListFromDataSet(dataSet);
-                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetAssetFileTypes with groupId: {0}", groupId), ex);
-            }
-
-            return response;
-        }
-
         public static AssetStructListResponse GetAssetStructsByTopicId(int groupId, long topicId, bool? isProtected)
         {
             AssetStructListResponse response = new AssetStructListResponse();
@@ -1598,7 +1885,7 @@ namespace Core.Catalog.CatalogManagement
                     if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetStructsByTopicId", groupId);
-                        return response;                        
+                        return response;
                     }
 
                     response.AssetStructs = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.MetaIds.Contains(topicId)).ToList();
@@ -1618,37 +1905,18 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static AssetFileTypeResponse AddAssetFileType(int groupId, long userId, AssetFileType assetFileTypeToAdd)
-        {
-            AssetFileTypeResponse result = new AssetFileTypeResponse();
-            try
-            {
-                DataSet ds = CatalogDAL.InsertAssetFileType(groupId, assetFileTypeToAdd.Description, assetFileTypeToAdd.IsActive, userId, assetFileTypeToAdd.IsTrailer, (int) assetFileTypeToAdd.StreamerType, assetFileTypeToAdd.DrmId);
-                result = CreateAssetFileTypeResponseFromDataSet(ds);
-                
-                // TODO
-                // InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFileType);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed AddAssetStruct for groupId: {0} and assetStruct: {1}", groupId, assetFileTypeToAdd.ToString()), ex);
-            }
-
-            return result;
-        }
-
         public static AssetStructResponse AddAssetStruct(int groupId, AssetStruct assetStructToadd, long userId)
         {
             AssetStructResponse result = new AssetStructResponse();
             try
-            {                
-                CatalogGroupCache catalogGroupCache;                
+            {
+                CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddAssetStruct", groupId);
                     return result;
                 }
-                
+
                 if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(assetStructToadd.SystemName))
                 {
                     result.Status = new Status((int)eResponseStatus.AssetStructSystemNameAlreadyInUse, eResponseStatus.AssetStructSystemNameAlreadyInUse.ToString());
@@ -1661,7 +1929,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     result.Status = validateBasicMetasResult;
                     return result;
-                }               
+                }
 
                 // validate meta ids exist
                 List<long> noneExistingMetaIds = assetStructToadd.MetaIds.Except(catalogGroupCache.TopicsMapById.Keys).ToList();
@@ -1671,7 +1939,7 @@ namespace Core.Catalog.CatalogManagement
                                                                                             eResponseStatus.MetaIdsDoesNotExist.ToString(), string.Join(",", noneExistingMetaIds)));
                     return result;
                 }
-                
+
                 List<KeyValuePair<long, int>> metaIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (assetStructToadd.MetaIds != null && assetStructToadd.MetaIds.Count > 0)
                 {
@@ -1792,23 +2060,6 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetFileTypeResponse UpdateAssetFileType(int groupId, long userId, long id, AssetFileType assetFileTypeToUpdate)
-        {
-            AssetFileTypeResponse result = new AssetFileTypeResponse();
-            try
-            {
-                DataSet ds = CatalogDAL.UpdateAssetFileType(groupId, userId, id, assetFileTypeToUpdate.Description, assetFileTypeToUpdate.IsActive, assetFileTypeToUpdate.DrmId);
-                result = CreateAssetFileTypeResponseFromDataSet(ds);
-                InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFileType);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed UpdateAssetFileType for groupId: {0}, id: {1} and assetFileTypeToUpdate: {2}", groupId, id, assetFileTypeToUpdate.ToString()), ex);
-            }
-
-            return result;
-        }
-
         public static Status DeleteAssetStruct(int groupId, long id, long userId)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1848,26 +2099,6 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Status DeleteAssetFileType(int groupId, long userId, long id)
-        {
-            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            try
-            {
-                if (CatalogDAL.DeleteAssetFileType(groupId, userId, id))
-                {
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    // TODO
-                    // InvalidateCatalogGroupCache(groupId, result, false);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed DeleteAssetFileType for groupId: {0} and asset-file-type id: {1}", groupId, id), ex);
-            }
-
-            return result;
-        }
-
         public static TopicListResponse GetTopicsByIds(int groupId, List<long> ids, MetaType type)
         {
             TopicListResponse response = new TopicListResponse();
@@ -1879,7 +2110,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetTopicsByIds", groupId);
                     return response;
                 }
-                
+
                 if (ids != null && ids.Count > 0)
                 {
                     response.Topics = ids.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
@@ -1890,7 +2121,7 @@ namespace Core.Catalog.CatalogManagement
                     response.Topics = catalogGroupCache.TopicsMapById.Values.Where(x => type == MetaType.All || x.Type == type).ToList();
                 }
 
-                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -1952,7 +2183,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddTopic", groupId);
                     return result;
                 }
-                
+
                 if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(topicToAdd.SystemName))
                 {
                     result.Status = new Status((int)eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
@@ -1985,7 +2216,7 @@ namespace Core.Catalog.CatalogManagement
         {
             TopicResponse result = new TopicResponse();
             try
-            {                
+            {
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
@@ -2035,7 +2266,7 @@ namespace Core.Catalog.CatalogManagement
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
-            {                
+            {
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
@@ -2084,7 +2315,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    DataSet ds = CatalogDAL.GetAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
+                    DataSet ds = CatalogDAL.GetMediaAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
                     MediaAsset mediaAsset = CreateMediaAsset(groupId, id, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                     if (mediaAsset != null)
                     {
@@ -2100,20 +2331,29 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetResponse GetAsset(int groupId, long id, eAssetTypes assetType)
+        public static AssetResponse GetAsset(int groupId, long id, eAssetTypes assetType, bool shouldGoToCache = true)
         {
             AssetResponse result = new AssetResponse();
             try
             {
                 if (id > 0 && assetType != eAssetTypes.UNKNOWN)
                 {
-                    result.Asset = GetAssetFromCache(groupId, id, assetType);
+                    if (shouldGoToCache)
+                    {
+                        result.Asset = GetAssetFromCache(groupId, id, assetType);
+                    }
+                    else
+                    {
+                        result.Asset = GetAssetWithNoCache(groupId, id, assetType);
+                    }
                     if (result.Asset == null)
                     {
                         log.ErrorFormat("Failed getting asset from GetAssetFromCache, for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());
                     }
-
-                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    else
+                    {
+                        result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
                 }
             }
             catch (Exception ex)
@@ -2155,28 +2395,65 @@ namespace Core.Catalog.CatalogManagement
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupAssets(int groupId)
+        public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetMediaForElasticSearchIndex(int groupId, long mediaId)
         {
             // <assetId, <languageId, media>>
-            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
+            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> result = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
+            try
+            {
+                AssetResponse GetAssetResponse = GetAsset(groupId, mediaId, eAssetTypes.MEDIA, false);
+                if (GetAssetResponse != null && GetAssetResponse.Status != null && GetAssetResponse.Status.Code == (int)eResponseStatus.OK)
+                {
+                    CatalogGroupCache catalogGroupCache;
+                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetMediaForElasticSearchIndex", groupId);
+                        return result;
+                    }
+
+                    MediaAsset mediaAsset = GetAssetResponse.Asset as MediaAsset;
+                    if (mediaAsset != null)
+                    {
+                        Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, catalogGroupCache);
+                        result.Add((int)mediaAsset.Id, assets);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetMediaForElasticSearchIndex for groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns dictionary of [assetId, [language, media]]
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupMediaAssets(int groupId)
+        {
+            // <assetId, <languageId, media>>
+            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMediaAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
             try
             {
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetGroupAssets", groupId);
-                    return groupAssetsMap;
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetGroupMediaAssets", groupId);
+                    return groupMediaAssetsMap;
                 }
 
-                DataSet groupAssetsDs = CatalogDAL.GetGroupAssets(groupId, catalogGroupCache.DefaultLanguage.ID);
-                groupAssetsMap = CreateGroupMediaMapFromDataSet(groupId, groupAssetsDs, catalogGroupCache);
+                DataSet groupAssetsDs = CatalogDAL.GetGroupMediaAssets(groupId, catalogGroupCache.DefaultLanguage.ID);
+                groupMediaAssetsMap = CreateGroupMediaMapFromDataSet(groupId, groupAssetsDs, catalogGroupCache);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetGroupAssets for groupId: {0}", groupId), ex);
+                log.Error(string.Format("Failed GetGroupMediaAssets for groupId: {0}", groupId), ex);
             }
 
-            return groupAssetsMap;
+            return groupMediaAssetsMap;
         }
 
         public static HashSet<string> GetUnifiedSearchKey(int groupId, string originalKey, out bool isTagOrMeta, out Type type)
@@ -2193,8 +2470,10 @@ namespace Core.Catalog.CatalogManagement
                     return searchKeys;
                 }
 
-                List<string> tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Key).ToList();
-                List<string> metas = catalogGroupCache.TopicsMapBySystemName.Where(x => !x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value).Select(x => x.Key).ToList();
+                List<string> tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value
+                                                                                    && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                List<string> metas = catalogGroupCache.TopicsMapBySystemName.Where(x => (!x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value)
+                                                                                    && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
                 if (originalKey.StartsWith("tags."))
                 {
                     foreach (string tag in tags)
@@ -2251,13 +2530,13 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetUnifiedSearchKey for groupId: {0}, originalKey: {1}", groupId, originalKey), ex);               
+                log.Error(string.Format("Failed GetUnifiedSearchKey for groupId: {0}, originalKey: {1}", groupId, originalKey), ex);
             }
 
             return searchKeys;
         }
 
-        public static AssetResponse AddAsset(int groupId, MediaAsset assetToAdd, long userId)
+        public static AssetResponse AddAsset(int groupId, eAssetTypes assetType, Asset assetToAdd, long userId)
         {
             AssetResponse result = new AssetResponse();
             try
@@ -2269,56 +2548,90 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                // validate assetStruct Exists
-                AssetStruct assetStruct = null;
-                if (assetToAdd.MediaType.m_nTypeID > 0 && catalogGroupCache.AssetStructsMapById.ContainsKey(assetToAdd.MediaType.m_nTypeID))
+                switch (assetType)
                 {
-                    assetStruct = catalogGroupCache.AssetStructsMapById[assetToAdd.MediaType.m_nTypeID];
-                }
-                else if (!string.IsNullOrEmpty(assetToAdd.MediaType.m_sTypeName) && catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(assetToAdd.MediaType.m_sTypeName))
-                {
-                    assetStruct = catalogGroupCache.AssetStructsMapBySystemName[assetToAdd.MediaType.m_sTypeName];
-                }
-                else
-                {                    
-                    result.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
-                    return result;
-                }
+                    case eAssetTypes.EPG:
 
-                // validate asset
-                XmlDocument metasXmlDoc = null;
-                XmlDocument tagsXmlDoc = null;
-                Status validateAssetTopicsResult = ValidateAsset(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref metasXmlDoc, ref tagsXmlDoc);
-                if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
-                {
-                    result.Status = validateAssetTopicsResult;
-                    return result;
+                        bool indexingResult = AssetIndexingManager.UpsertEpg(groupId, (int)result.Asset.Id);
+
+                        if (!indexingResult)
+                        {
+                            log.ErrorFormat("Failed to add media to index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Asset.Id, groupId);
+                        }
+                        break;
+                    case eAssetTypes.NPVR:
+                        break;
+                    case eAssetTypes.MEDIA:
+                        MediaAsset mediaAssetToAdd = assetToAdd as MediaAsset;
+                        if (mediaAssetToAdd != null)
+                        {
+                            result = AddMediaAsset(groupId, ref catalogGroupCache, mediaAssetToAdd, userId);
+                        }
+                        break;
+                    default:
+                    case eAssetTypes.UNKNOWN:
+                        break;
                 }
-
-                // Add Name meta values (for languages that are not default)
-                ExtractTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, NAME_META_SYSTEM_NAME);
-
-                // Add Description meta values (for languages that are not default)
-                ExtractTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, DESCRIPTION_META_SYSTEM_NAME);
-
-                DateTime startDate = assetToAdd.StartDate.HasValue ? assetToAdd.StartDate.Value : DateTime.UtcNow;
-                DateTime catalogStartDate = assetToAdd.CatalogStartDate.HasValue ? assetToAdd.CatalogStartDate.Value : startDate;
-                // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
-                DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid, assetToAdd.EntryId, assetToAdd.DeviceRuleId,
-                                                            assetToAdd.GeoBlockRuleId, assetToAdd.IsActive, startDate, assetToAdd.EndDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId);
-                result = CreateAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
-                if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null && result.Asset.Id > 0)
-                {                    
-                    // UpdateIndex
-                    if (!CatalogLogic.UpdateIndex(new List<long>() { result.Asset.Id }, groupId, eAction.Update))
-                    {
-                        log.ErrorFormat("Failed to UpdateIndex for assetId: {0}, groupId: {1}", result.Asset.Id, groupId);
-                    }
-                }                                                
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddAssetStruct for groupId: {0} and asset: {1}", groupId, assetToAdd.ToString()), ex);
+                log.Error(string.Format("Failed AddAsset for groupId: {0} and asset: {1}", groupId, assetToAdd.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        public static AssetResponse UpdateAsset(int groupId, long id, eAssetTypes assetType, Asset assetToUpdate, long userId)
+        {
+            AssetResponse result = new AssetResponse();
+            try
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAsset", groupId);
+                    return result;
+                }
+
+                // validate that asset exist
+                AssetResponse assetResponse = GetAsset(groupId, id, assetType);
+                if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                }
+
+                switch (assetType)
+                {
+                    case eAssetTypes.EPG:
+                        break;
+                    case eAssetTypes.NPVR:
+                        break;
+                    case eAssetTypes.MEDIA:
+                        MediaAsset mediaAssetToUpdate = assetToUpdate as MediaAsset;
+                        MediaAsset currentAsset = assetResponse.Asset as MediaAsset;
+                        mediaAssetToUpdate.Id = id;
+                        if (mediaAssetToUpdate != null)
+                        {
+                            result = UpdateMediaAsset(groupId, ref catalogGroupCache, currentAsset, mediaAssetToUpdate, userId);
+                        }
+                        break;
+                    default:
+                    case eAssetTypes.UNKNOWN:
+                        break;
+                }
+
+                if (result.Status.Code == (int)eResponseStatus.OK)
+                {
+                    // invalidate asset
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id)))
+                    {
+                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after updating asset", id, assetType.ToString(), LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateAsset for groupId: {0} , id: {1} , assetType: {2}", groupId, id, assetType.ToString()), ex);
             }
 
             return result;
@@ -2329,7 +2642,12 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                // check if asset exists???
+                // validate that asset exist
+                AssetResponse assetResponse = GetAsset(groupId, id, assetType);
+                if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                }
 
                 switch (assetType)
                 {
@@ -2342,9 +2660,17 @@ namespace Core.Catalog.CatalogManagement
                         {
                             result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                             // Delete Index
+                            // TODO - Lior , remove duplicate index update
                             if (!CatalogLogic.UpdateIndex(new List<long>() { id }, groupId, eAction.Delete))
                             {
                                 log.ErrorFormat("Failed to Delete Index for assetId: {0}, groupId: {1}", id, groupId);
+                            }
+
+                            bool indexingResult = AssetIndexingManager.DeleteMedia(groupId, (int)id);
+
+                            if (!indexingResult)
+                            {
+                                log.ErrorFormat("Failed to delete media to from for assetId: {0}, groupId: {1} after DeleteAsset", id, groupId);
                             }
                         }
                         else
@@ -2356,19 +2682,19 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.UNKNOWN:
                         break;
                 }
-                
+
                 if (result.Code == (int)eResponseStatus.OK)
                 {
                     // invalidate asset
                     if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id)))
                     {
-                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2}", id, assetType.ToString(), LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id));
+                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after deleting asset", id, assetType.ToString(), LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id));
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed DeleteTopic for groupId: {0} and assetStructId: {1}", groupId, id), ex);
+                log.Error(string.Format("Failed DeleteTopic for groupId: {0} , id: {1} , assetType: {2}", groupId, id, assetType.ToString()), ex);
             }
 
             return result;
@@ -2376,25 +2702,22 @@ namespace Core.Catalog.CatalogManagement
 
         public static bool DoesGroupUsesTemplates(int groupId)
         {
-            // TODO - Lior - change this to look somewhere and cache (after getting value from DB) and not try to get entire CatalogGroupCache object
-            bool res = false;
+            bool result = false;
             try
             {
-                CatalogGroupCache catalogGroupCache;
-                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                string key = LayeredCacheKeys.GetDoesGroupUsesTemplatesCacheKey(groupId);
+                if (!LayeredCache.Instance.Get<bool>(key, ref result, DoesGroupUsesTemplates, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                    LayeredCacheConfigNames.DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetDoesGroupUsesTemplatesCacheInvalidationKey(groupId) }))
                 {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteTopic", groupId);
-                    return res;
+                    log.ErrorFormat("Failed getting DoesGroupUsesTemplates from LayeredCache, groupId: {0}", groupId);
                 }
-
-                res = true;
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed DoesGroupUsesTemplates for groupId: {0}", groupId), ex);
+                log.Error(string.Format("Failed DoesGroupUsesTemplates with groupId: {0}", groupId), ex);
             }
 
-            return res;
+            return result;
         }
 
         /// <summary>
@@ -2418,9 +2741,23 @@ namespace Core.Catalog.CatalogManagement
             var tags = catalogGroupCache.TopicsMapBySystemName.Where(
                 x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Value).ToList();
 
-            DataSet dataSet = CatalogDAL.GetGroupTagValues(groupId);
+            DataSet dataSet = null;
+            try
+            {
+                dataSet = CatalogDAL.GetGroupTagValues(groupId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when getting group tag values for groupId {0}. ex = {1}", groupId, ex);
+                dataSet = null;
+            }
 
-            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && 
+            if (dataSet == null)
+            {
+                return null;
+            }
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 &&
                 dataSet.Tables[0] != null && dataSet.Tables[0].Rows != null && dataSet.Tables[0].Rows.Count > 0)
             {
                 // First table - default language, set default for other languages as well
@@ -2431,12 +2768,13 @@ namespace Core.Catalog.CatalogManagement
                     string tagValue = ODBCWrapper.Utils.ExtractString(row, "tag_value");
                     DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(row, "create_date");
                     DateTime updateDate = ODBCWrapper.Utils.ExtractDateTime(row, "update_date");
-                    
+
                     if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
                     {
                         Topic topic = catalogGroupCache.TopicsMapById[topicId];
 
-                        result.Add(new ApiObjects.SearchObjects.TagValue() {
+                        result.Add(new ApiObjects.SearchObjects.TagValue()
+                        {
                             createDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate),
                             languageId = defaultLanguage,
                             tagId = tagId,
@@ -2481,14 +2819,123 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static ApiObjects.SearchObjects.TagResponse AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag)
+        public static TagResponse AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId)
         {
-            throw new NotImplementedException();
+            TagResponse result = new TagResponse();
+            try
+            {
+                List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
+                if (tag.TagsInOtherLanguages != null && tag.TagsInOtherLanguages.Count > 0)
+                {
+                    foreach (LanguageContainer language in tag.TagsInOtherLanguages)
+                    {
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                CatalogGroupCache catalogGroupCache;
+                TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
+
+                if (catalogGroupCache == null)
+                {
+                    log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                    return result;
+                }
+
+                if (catalogGroupCache.TopicsMapById != null && catalogGroupCache.TopicsMapById.Count > 0)
+                {
+                    var topic = catalogGroupCache.TopicsMapById.ContainsKey(tag.topicId);
+                    if (!topic)
+                    {
+                        result.Status.Code = (int)eResponseStatus.TopicNotFound;
+                        result.Status.Message = eResponseStatus.TopicNotFound.ToString();
+                        log.ErrorFormat("Error at AddTag. TopicId not found. GroupId: {0}, Tag:{1} ", groupId, JsonConvert.SerializeObject(tag));
+                        return result;
+                    }
+                }
+
+                DataSet ds = CatalogDAL.InsertTag(groupId, tag.value, languageCodeToName, tag.topicId, userId);
+                result = CreateTagResponseFromDataSet(ds);
+
+                if (result.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return result;
+                }
+
+                ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                result.Status = wrapper.UpdateTag(groupId, catalogGroupCache, result.TagValues[0]);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddTag for groupId: {0} and tag: {1}", groupId, tag.ToString()), ex);
+            }
+
+            return result;
         }
 
-        public static ApiObjects.SearchObjects.TagResponse UpdateTag(int groupId, ApiObjects.SearchObjects.TagValue tag)
+        public static TagResponse UpdateTag(int groupId, long id, ApiObjects.SearchObjects.TagValue tagToUpdate, long userId)
         {
-            throw new NotImplementedException();
+            TagResponse result = new TagResponse();
+            try
+            {
+
+                result = GetTagById(groupId, id);
+                if (result.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return result;
+                }
+
+                List<KeyValuePair<string, string>> languageCodeToName = null;
+                bool shouldUpdateOtherNames = false;
+                if (tagToUpdate.TagsInOtherLanguages != null)
+                {
+                    shouldUpdateOtherNames = true;
+                    languageCodeToName = new List<KeyValuePair<string, string>>();
+                    foreach (LanguageContainer language in tagToUpdate.TagsInOtherLanguages)
+                    {
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                CatalogGroupCache catalogGroupCache;
+                TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
+
+                if (catalogGroupCache == null)
+                {
+                    log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                    return result;
+                }
+
+                if (catalogGroupCache.TopicsMapById != null && catalogGroupCache.TopicsMapById.Count > 0)
+                {
+                    var topic = catalogGroupCache.TopicsMapById.ContainsKey(tagToUpdate.topicId);
+                    if (!topic)
+                    {
+                        result.Status.Code = (int)eResponseStatus.TopicNotFound;
+                        result.Status.Message = eResponseStatus.TopicNotFound.ToString();
+                        log.ErrorFormat("Error at UpdateTag. TopicId not found. GroupId: {0}, Tag:{1} ", groupId, JsonConvert.SerializeObject(tagToUpdate));
+                        return result;
+                    }
+                }
+
+                DataSet ds = CatalogDAL.UpdateTag(groupId, id, tagToUpdate.value, shouldUpdateOtherNames, languageCodeToName, tagToUpdate.topicId, userId);
+                result = CreateTagResponseFromDataSet(ds);
+
+                if (result.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return result;
+                }
+
+                ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                result.Status = wrapper.UpdateTag(groupId, catalogGroupCache, result.TagValues[0]);
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateTag for groupId: {0}, id: {1} and tagToUpdate: {2}", groupId, id, tagToUpdate.ToString()), ex);
+            }
+
+            return result;
         }
 
         public static Status DeleteTag(int groupId, long tagId, long userId)
@@ -2498,7 +2945,19 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (CatalogDAL.DeleteTag(groupId, tagId, userId))
                 {
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                    
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    CatalogGroupCache catalogGroupCache;
+                    TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
+
+                    if (catalogGroupCache == null)
+                    {
+                        log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                        return result;
+                    }
+
+                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                    result = wrapper.DeleteTag(groupId, catalogGroupCache, tagId);
                 }
             }
             catch (Exception ex)
@@ -2509,9 +2968,31 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static ApiObjects.SearchObjects.TagResponse SearchTags(int groupId, string tag, int topicId, string searchValue, int languageId, int pageIndex, int pageSize)
+        /// <summary>
+        /// Returns all tag values for all languages by a given tag ID
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="tagId"></param>
+        /// <returns></returns>
+        public static TagResponse GetTagById(int groupId, long tagId)
         {
-            ApiObjects.SearchObjects.TagResponse result = new ApiObjects.SearchObjects.TagResponse();
+            TagResponse result = new TagResponse();
+            try
+            {
+                DataSet ds = CatalogDAL.GetTag(groupId, tagId);
+                result = CreateTagResponseFromDataSet(ds);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetTagById for groupId: {0} and tagId: {1}", groupId, tagId), ex);
+            }
+
+            return result;
+        }
+
+        public static TagResponse SearchTags(int groupId, bool isExcatValue, string searchValue, int topicId, int languageId, int pageIndex, int pageSize)
+        {
+            TagResponse result = new TagResponse();
 
             CatalogGroupCache catalogGroupCache;
             TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
@@ -2537,19 +3018,121 @@ namespace Core.Catalog.CatalogManagement
                 Language = language,
                 PageIndex = pageIndex,
                 PageSize = pageSize,
-                AutocompleteSearchValue = searchValue,
-                ExactSearchValue = tag,
+                AutocompleteSearchValue = isExcatValue ? string.Empty : searchValue,
+                ExactSearchValue = isExcatValue ? searchValue : string.Empty,
                 TopicId = topicId
             };
 
             int totalItemsCount = 0;
             ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
             result.TagValues = wrapper.SearchTags(definitions, out totalItemsCount);
-            result.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             result.TotalItems = totalItemsCount;
 
             return result;
         }
+
+        private static AssetFileTypeResponse CreateAssetFileTypeResponseFromDataSet(DataSet ds)
+        {
+            AssetFileTypeResponse response = new AssetFileTypeResponse();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                {
+                    response.AssetFileType = CreateAssetFileType(dt.Rows[0]);
+                    if (response.AssetFileType != null)
+                    {
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                }
+                /// AssetFileType does not exist
+                else
+                {
+                    response.Status = new Status((int)eResponseStatus.AssetFileTypeDoesNotExist, eResponseStatus.AssetFileTypeDoesNotExist.ToString());
+                }
+            }
+
+            return response;
+        }
+
+        public static AssetFileTypeListResponse GetAssetFileTypes(int groupId)
+        {
+            AssetFileTypeListResponse response = new AssetFileTypeListResponse();
+            try
+            {
+                DataSet dataSet = CatalogDAL.GetAssetFileTypesByGroupId(groupId);
+                response.Types = CreateAssetFileTypeListFromDataSet(dataSet);
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssetFileTypes with groupId: {0}", groupId), ex);
+            }
+
+            return response;
+        }
+
+
+        public static AssetFileTypeResponse AddAssetFileType(int groupId, long userId, AssetFileType assetFileTypeToAdd)
+        {
+            AssetFileTypeResponse result = new AssetFileTypeResponse();
+            try
+            {
+                DataSet ds = CatalogDAL.InsertAssetFileType(groupId, assetFileTypeToAdd.Description, assetFileTypeToAdd.IsActive, userId, assetFileTypeToAdd.IsTrailer, (int)assetFileTypeToAdd.StreamerType, assetFileTypeToAdd.DrmId);
+                result = CreateAssetFileTypeResponseFromDataSet(ds);
+
+                // TODO
+                // InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFileType);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddAssetStruct for groupId: {0} and assetStruct: {1}", groupId, assetFileTypeToAdd.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        public static AssetFileTypeResponse UpdateAssetFileType(int groupId, long userId, long id, AssetFileType assetFileTypeToUpdate)
+        {
+            AssetFileTypeResponse result = new AssetFileTypeResponse();
+            try
+            {
+                DataSet ds = CatalogDAL.UpdateAssetFileType(groupId, userId, id, assetFileTypeToUpdate.Description, assetFileTypeToUpdate.IsActive, assetFileTypeToUpdate.DrmId);
+                result = CreateAssetFileTypeResponseFromDataSet(ds);
+                
+                //InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFileType);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateAssetFileType for groupId: {0}, id: {1} and assetFileTypeToUpdate: {2}", groupId, id, assetFileTypeToUpdate.ToString()), ex);
+            }
+
+            return result;
+        }
+
+        public static Status DeleteAssetFileType(int groupId, long userId, long id)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                if (CatalogDAL.DeleteAssetFileType(groupId, userId, id))
+                {
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    // TODO
+                    // InvalidateCatalogGroupCache(groupId, result, false);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteAssetFileType for groupId: {0} and asset-file-type id: {1}", groupId, id), ex);
+            }
+
+            return result;
+
+        }
+
+        #endregion
     }
-    #endregion
 }
+
