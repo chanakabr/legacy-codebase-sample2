@@ -969,6 +969,21 @@ namespace Core.Domains
             return response;
         }
 
+        public static ApiObjects.Response.Status ShouldPurgeDomain(int groupId, int householdId, out bool shouldPurge)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Core.Users.BaseDomain t = null;
+            shouldPurge = false;
+
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                status = t.ShouldPurgeDomain(householdId, out shouldPurge);
+            }
+
+            return status;
+        }
+
         public static ApiObjects.Response.Status PurgeDomain(int groupId, int householdId)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

@@ -2211,6 +2211,42 @@ namespace Core.Users
             return response;
         }
 
+        public virtual ApiObjects.Response.Status ShouldPurgeDomain(int domainId, out bool shouldPurge)
+        {
+            shouldPurge = false;
+            DataTable dt = DomainDal.GetDomainDbObject(this.m_nGroupID, domainId);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                //check if domain exist and belong to partner
+                DataRow dr = dt.Rows[0];
+                int domianStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
+                int purge = ODBCWrapper.Utils.GetIntSafeVal(dr, "PURGE");
+
+                // if Purge column value true - error already purge
+                if (purge == 1)
+                {
+                    log.ErrorFormat("PurgeDomain failed: Household {0}, GroupId: {1} already purged", domainId, this.m_nGroupID);
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = "Household already purged" };
+                }
+
+                if (domianStatus != 2)
+                {
+                    shouldPurge = false;
+                    log.ErrorFormat("PurgeDomain failed: Household {0}, GroupId: {1} need to be deleted before purged", domainId, this.m_nGroupID);
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+                }
+                else
+                {
+                    shouldPurge = true;
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+                }
+            }
+            else
+            {
+                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.DomainNotExists, Message = eResponseStatus.DomainNotExists.ToString() };
+            }
+        }
+
         public virtual ApiObjects.Response.Status PurgeDomain(int domainId)
         {
             DataTable dt = DomainDal.GetDomainDbObject(this.m_nGroupID, domainId);
