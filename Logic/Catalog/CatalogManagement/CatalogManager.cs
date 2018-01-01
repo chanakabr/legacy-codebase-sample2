@@ -2539,10 +2539,11 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate that asset exist
-                AssetResponse assetResponse = GetAsset(groupId, id, assetType);
+                AssetResponse assetResponse = GetAsset(groupId, id, assetType, false);
                 if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                    return result;
                 }
 
                 switch (assetType)
@@ -2592,6 +2593,7 @@ namespace Core.Catalog.CatalogManagement
                 if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                    return result;
                 }
 
                 switch (assetType)
@@ -2648,6 +2650,7 @@ namespace Core.Catalog.CatalogManagement
                 if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                    return result;
                 }
 
                 CatalogGroupCache catalogGroupCache;
