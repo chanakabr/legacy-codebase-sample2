@@ -220,6 +220,7 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
+    <Compile Include="Controllers\AssetFileTypeController.cs" />
     <Compile Include="Controllers\AssetStatisticsController.cs" />
     <Compile Include="Controllers\AssetStructController.cs" />
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
@@ -240,6 +241,7 @@
     <Compile Include="Controllers\RatioController.cs" />
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetFileType.cs" />
     <Compile Include="Models\Catalog\KalturaUrlResource.cs" />
     <Compile Include="Models\Catalog\KalturaContentResource.cs" />
     <Compile Include="Models\Catalog\KalturaImageStatus.cs" />
