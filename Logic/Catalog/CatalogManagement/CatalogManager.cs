@@ -1786,7 +1786,7 @@ namespace Core.Catalog.CatalogManagement
                 CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
                 UpdateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
                 IsTrailer = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_TRAILER"),
-                StreamerType = (StreamerType)Enum.Parse(typeof(StreamerType), ODBCWrapper.Utils.GetIntSafeVal(dr, "ID").ToString()),
+                StreamerType = (StreamerType)Enum.Parse(typeof(StreamerType), ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMER_TYPE").ToString()),
                 DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID")
             };
         }
@@ -1810,6 +1810,51 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        private static List<AssetFileType> GetGroupAssetFileTypes(int groupId)
+        {
+            List<AssetFileType> result = null;
+
+            string key = LayeredCacheKeys.GetGroupAssetFileTypesKey(groupId);
+
+            bool cacheResult = LayeredCache.Instance.Get<List<AssetFileType>>(
+                key, ref result, GetAssetFileTypes, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GET_ASSET_FILE_TYPES_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId) });
+
+            if (!cacheResult)
+            {
+                log.Error(string.Format("GetGroupAssetFileTypes - Failed get data from cache groupId = {0}", groupId));
+                result = null;
+            }
+
+            return result;
+        }
+
+        private static Tuple<List<AssetFileType>, bool> GetAssetFileTypes(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<AssetFileType> assetFileType = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        DataSet ds = CatalogDAL.GetAssetFileTypesByGroupId(groupId.Value);
+                        assetFileType = CreateAssetFileTypeListFromDataSet(ds);
+
+                        res = assetFileType != null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAssetFileTypes failed params : {0}", funcParams != null ? string.Join(";",
+                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
+            }
+
+            return new Tuple<List<AssetFileType>, bool>(assetFileType, res);
+        }
 
         #endregion
 
@@ -3061,8 +3106,7 @@ namespace Core.Catalog.CatalogManagement
             AssetFileTypeListResponse response = new AssetFileTypeListResponse();
             try
             {
-                DataSet dataSet = CatalogDAL.GetAssetFileTypesByGroupId(groupId);
-                response.Types = CreateAssetFileTypeListFromDataSet(dataSet);
+                response.Types = GetGroupAssetFileTypes(groupId);
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -3082,12 +3126,21 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.InsertAssetFileType(groupId, assetFileTypeToAdd.Description, assetFileTypeToAdd.IsActive, userId, assetFileTypeToAdd.IsTrailer, (int)assetFileTypeToAdd.StreamerType, assetFileTypeToAdd.DrmId);
                 result = CreateAssetFileTypeResponseFromDataSet(ds);
 
-                // TODO
-                // InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFileType);
+                if (result.Status.Code == (int)eResponseStatus.OK)
+                {
+                    string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on AddAssetFileType key = {0}", invalidationKey);
+                    }
+
+                    // TODO
+                    // InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFileType);
+                }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddAssetStruct for groupId: {0} and assetStruct: {1}", groupId, assetFileTypeToAdd.ToString()), ex);
+                log.Error(string.Format("Failed AddAssetFileType for groupId: {0} and assetStruct: {1}", groupId, assetFileTypeToAdd.ToString()), ex);
             }
 
             return result;
@@ -3100,8 +3153,17 @@ namespace Core.Catalog.CatalogManagement
             {
                 DataSet ds = CatalogDAL.UpdateAssetFileType(groupId, userId, id, assetFileTypeToUpdate.Description, assetFileTypeToUpdate.IsActive, assetFileTypeToUpdate.DrmId);
                 result = CreateAssetFileTypeResponseFromDataSet(ds);
-                
-                //InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFileType);
+                if (result.Status.Code == (int)eResponseStatus.OK)
+                {
+                    string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on v key = {0}", invalidationKey);
+                    }
+
+                    // TODO
+                    // InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFileType);
+                }
             }
             catch (Exception ex)
             {
@@ -3119,8 +3181,18 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeleteAssetFileType(groupId, userId, id))
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    // TODO
-                    // InvalidateCatalogGroupCache(groupId, result, false);
+
+                    if (result.Code == (int)eResponseStatus.OK)
+                    {
+                        string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on DeleteAssetFileType key = {0}", invalidationKey);
+                        }
+
+                        // TODO
+                        // InvalidateCatalogGroupCache(groupId, result, false);
+                    }
                 }
             }
             catch (Exception ex)
