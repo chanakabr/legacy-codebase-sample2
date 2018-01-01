@@ -121,8 +121,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "status")]
         [JsonProperty("status")]
-        [XmlElement(ElementName = "status", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        [XmlElement(ElementName = "status", IsNullable = true)]        
         public bool? Status { get; set; }
     }
 }

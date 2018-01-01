@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.API
+namespace WebAPI.Models.Catalog
 {
     public class KalturaTag : KalturaOTTObject
     {
@@ -26,9 +26,9 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
-        [XmlElement(ElementName = "type", IsNullable = true)]
+        [XmlElement(ElementName = "type", IsNullable = false)]
         [SchemeProperty(MinInteger = 1)]
-        public int? TagTypeId { get; set; }
+        public int TagTypeId { get; set; }
 
         /// <summary>
         /// Tag 

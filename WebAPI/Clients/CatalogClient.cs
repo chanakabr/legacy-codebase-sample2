@@ -34,6 +34,7 @@ namespace WebAPI.Clients
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
+
         public string Signature { get; set; }
         public string SignString { get; set; }
         public string SignatureKey
@@ -128,47 +129,6 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetFileTypeListResponse GetAssetFileTypes(int groupId)
-        {
-            KalturaAssetFileTypeListResponse result = new KalturaAssetFileTypeListResponse() { TotalCount = 0 };
-            AssetFileTypeListResponse response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetFileTypes(groupId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            if (response.Types != null && response.Types.Count > 0)
-            {
-                result.TotalCount = response.Types.Count;
-                result.Types = new List<KalturaAssetFileType>();
-                foreach (AssetFileType assetStruct in response.Types)
-                {
-                    result.Types.Add(AutoMapper.Mapper.Map<KalturaAssetFileType>(assetStruct));
-                }
-            }
-
-            return result;
-        }     
-
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
             KalturaAssetStruct result = null;
@@ -176,10 +136,10 @@ namespace WebAPI.Clients
 
             try
             {
-                AssetStruct assetStructToadd = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);
+                AssetStruct assetStructToAdd = AutoMapper.Mapper.Map<AssetStruct>(assetStrcut);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToadd, userId);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToAdd, userId);
                 }
             }
             catch (Exception ex)
@@ -199,39 +159,6 @@ namespace WebAPI.Clients
             }
 
             result = AutoMapper.Mapper.Map<KalturaAssetStruct>(response.AssetStruct);
-            return result;
-        }
-
-        public KalturaAssetFileType AddAssetFileType(int groupId, long userId, KalturaAssetFileType assetFileType)
-        {
-            KalturaAssetFileType result = null;
-            AssetFileTypeResponse response = null;
-
-            try
-            {
-                AssetFileType assetFileTypeToAdd = AutoMapper.Mapper.Map<AssetFileType>(assetFileType);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetFileType(groupId, userId, assetFileTypeToAdd);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            result = AutoMapper.Mapper.Map<KalturaAssetFileType>(response.AssetFileType);
             return result;
         }
 
@@ -269,39 +196,6 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetFileType UpdateAssetFileType(int groupId, long userId, long id, KalturaAssetFileType assetFileType)
-        {
-            KalturaAssetFileType result = null;
-            AssetFileTypeResponse response = null;
-
-            try
-            {
-                AssetFileType assetFileTypeToUpdate = AutoMapper.Mapper.Map<AssetFileType>(assetFileType);
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetFileType(groupId, userId, id, assetFileTypeToUpdate);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            result = AutoMapper.Mapper.Map<KalturaAssetFileType>(response.AssetFileType);
-            return result;
-        }
-
         public bool DeleteAssetStruct(int groupId, long id, long userId)
         {
             Status response = null;
@@ -311,36 +205,6 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetStruct(groupId, id, userId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Code, response.Message);
-            }
-
-            return true;
-        }
-
-        public bool DeleteAssetFileType(int groupId, long userId, long id)
-        {
-            Status response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetFileType(groupId, userId, id);
                 }
             }
             catch (Exception ex)
@@ -546,17 +410,28 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public KalturaMediaAsset AddAsset(int groupId, KalturaMediaAsset asset, long userId)
+        public KalturaAsset AddAsset(int groupId, KalturaAsset asset, long userId)
         {
-            KalturaMediaAsset result = null;
+            KalturaAsset result = null;
             AssetResponse response = null;
 
             try
             {
-                MediaAsset assetToadd = AutoMapper.Mapper.Map<MediaAsset>(asset);
+                eAssetTypes assetType = eAssetTypes.UNKNOWN;
+                Asset assetToAdd = null;                
+                switch (asset.objectType)
+                {
+                    case "KalturaMediaAsset":
+                        assetToAdd = AutoMapper.Mapper.Map<MediaAsset>(asset);
+                        assetType = eAssetTypes.MEDIA;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                        break;
+                }                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAsset(groupId, assetToadd, userId);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAsset(groupId, assetType, assetToAdd, userId);
                 }
             }
             catch (Exception ex)
@@ -575,7 +450,16 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
+            switch (asset.objectType)
+            {
+                case "KalturaMediaAsset":
+                    result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                    break;
+            }
+
             return result;
         }
 
@@ -622,6 +506,60 @@ namespace WebAPI.Clients
             }
 
             return true;
+        }
+
+        public KalturaAsset UpdateAsset(int groupId, long id, KalturaAsset asset, long userId)
+        {
+            KalturaAsset result = null;
+            AssetResponse response = null;
+
+            try
+            {
+                eAssetTypes assetType = eAssetTypes.UNKNOWN;
+                Asset assetToUpdate = null;
+                switch (asset.objectType)
+                {
+                    case "KalturaMediaAsset":
+                        assetToUpdate = AutoMapper.Mapper.Map<MediaAsset>(asset as KalturaMediaAsset);
+                        assetType = eAssetTypes.MEDIA;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                        break;
+                }
+                
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAsset(groupId, id, assetType, assetToUpdate, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            switch (asset.objectType)
+            {
+                case "KalturaMediaAsset":
+                    result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                    break;
+            }
+            
+            return result;
         }
 
         #endregion        
@@ -741,7 +679,7 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
-            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null)
+            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool isOperatorSearch = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -787,7 +725,8 @@ namespace WebAPI.Clients
                 order = order,
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
-                domainId = domainId                
+                domainId = domainId,
+                IsOperatorSearch = isOperatorSearch         
             };
 
             if (groupBy != null && groupBy.Count > 0)
@@ -2952,9 +2891,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaTagListResponse SearchTags(int groupId, string language, string tag, int topicId, string tagStartsWith, int pageIndex, int pageSize)
+        internal KalturaTagListResponse SearchTags(int groupId, string language, bool isExcatValue, string value, int topicId, int pageIndex, int pageSize)
         {
-            KalturaTagListResponse result = new Models.API.KalturaTagListResponse();
+            KalturaTagListResponse result = new KalturaTagListResponse();
             TagResponse response = null;
 
             List<TagValue> tagValues = null;
@@ -2963,7 +2902,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     int languageId = Utils.Utils.GetLanguageId(groupId, language);
-                    response = Core.Catalog.CatalogManagement.CatalogManager.SearchTags(groupId, tag, topicId, tagStartsWith, languageId, pageIndex, pageSize);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.SearchTags(groupId, isExcatValue, value, topicId, languageId, pageIndex, pageSize);
                 }
             }
             catch (Exception ex)
@@ -2994,7 +2933,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaTag AddTag(int groupId, KalturaTag tag)
+        internal KalturaTag AddTag(int groupId, KalturaTag tag, long userId)
         {
             KalturaTag responseTag = new KalturaTag();
             TagResponse response = null;
@@ -3004,7 +2943,7 @@ namespace WebAPI.Clients
                 TagValue requestTag = AutoMapper.Mapper.Map<TagValue>(tag);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddTag(groupId, requestTag);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddTag(groupId, requestTag, userId);
                 }
             }
             catch (Exception ex)
@@ -3031,17 +2970,17 @@ namespace WebAPI.Clients
             return responseTag;
         }
         
-        internal KalturaTag UpdateTag(int groupId, long id, KalturaTag tag)
+        internal KalturaTag UpdateTag(int groupId, long id, KalturaTag tag, long userId)
         {
             KalturaTag responseTag = new KalturaTag();
             TagResponse response = null;
 
             try
             {
-                TagValue requestTag = AutoMapper.Mapper.Map<TagValue>(tag);
+                TagValue tagToUpdate = AutoMapper.Mapper.Map<TagValue>(tag);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateTag(groupId, requestTag);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateTag(groupId,id, tagToUpdate, userId);
                 }
             }
             catch (Exception ex)
@@ -3068,7 +3007,7 @@ namespace WebAPI.Clients
             return responseTag;
         }
 
-        internal bool DeleteTag(int groupId, long id)
+        internal bool DeleteTag(int groupId, long id, long userId)
         {
             Status response = null;
 
@@ -3076,7 +3015,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //response = Core.Catalog.CatalogManagement.CatalogManager.DeleteTag(groupId, id);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteTag(groupId, id, userId);
                 }
             }
             catch (Exception ex)
@@ -3098,5 +3037,534 @@ namespace WebAPI.Clients
             return true;
         }
 
+        internal KalturaImageTypeListResponse GetImageTypes(int groupId, bool isSearchByIds, List<long> ids)
+        {
+
+            KalturaImageTypeListResponse result = new KalturaImageTypeListResponse();
+            ImageTypeListResponse response = null;
+
+            List<ImageType> imageTypes = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.GetImageTypes(groupId, isSearchByIds, ids);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling API service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.ImageTypes != null && response.ImageTypes.Count > 0)
+            {
+                result.TotalCount = response.TotalItems;
+                // convert ImageTypes            
+                result.ImageTypes = Mapper.Map<List<KalturaImageType>>(response.ImageTypes);
+            }
+
+            return result;
+        }
+
+        internal KalturaImageType AddImageType(int groupId, long userId, KalturaImageType imageType)
+        {
+            KalturaImageType responseImageType = new KalturaImageType();
+            ImageTypeResponse response = null;
+
+            try
+            {
+                ImageType requestImageType = AutoMapper.Mapper.Map<ImageType>(imageType);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.AddImageType(groupId, requestImageType, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.ImageType != null)
+            {
+                responseImageType = AutoMapper.Mapper.Map<KalturaImageType>(response.ImageType);
+            }
+
+            return responseImageType;
+        }
+
+        internal KalturaImageType UpdateImageType(int groupId, long userId, long id, KalturaImageType imageType)
+        {
+            KalturaImageType responseImageType = new KalturaImageType();
+            ImageTypeResponse response = null;
+
+            try
+            {
+                ImageType requestImageType = AutoMapper.Mapper.Map<ImageType>(imageType);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.UpdateImageType(groupId, id, requestImageType, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.ImageType != null)
+            {
+                responseImageType = AutoMapper.Mapper.Map<KalturaImageType>(response.ImageType);
+            }
+
+            return responseImageType;
+        }
+        
+        internal bool DeleteImageType(int groupId, long userId, long id)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.DeleteImageType(groupId, id, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaRatioListResponse GetRatios(int groupId)
+        {
+            KalturaRatioListResponse result = new KalturaRatioListResponse();
+            RatioListResponse response = null;
+
+            List<ImageType> imageTypes = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.GetRatios(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling API service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Ratios != null && response.Ratios.Count > 0)
+            {
+                result.TotalCount = response.TotalItems;
+                // convert ImageTypes            
+                result.Ratios = Mapper.Map<List<KalturaRatio>>(response.Ratios);
+            }
+
+            return result;
+        }
+
+        internal KalturaImageListResponse GetImagesByIds(int groupId, List<long> imagesIds)
+        {
+            KalturaImageListResponse imagesResponse = new KalturaImageListResponse();
+            ImageListResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.GetImagesByIds(groupId, imagesIds);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Images != null)
+            {
+                imagesResponse.Images = AutoMapper.Mapper.Map<List<KalturaImage>>(response.Images);
+                imagesResponse.TotalCount = imagesResponse.Images.Count;
+            }
+
+            return imagesResponse;
+        }
+        
+        internal KalturaImageListResponse GetImagesByObject(int groupId, long imageObjectId, KalturaImageObjectType imageObjectType)
+        {
+            KalturaImageListResponse imagesResponse = new KalturaImageListResponse();
+            ImageListResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.GetImagesByObject(groupId, imageObjectId, 
+                        CatalogMappings.ConvertImageObjectType(imageObjectType));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Images != null)
+            {
+                imagesResponse.Images = AutoMapper.Mapper.Map<List<KalturaImage>>(response.Images);
+                imagesResponse.TotalCount = imagesResponse.Images.Count;
+            }
+
+            return imagesResponse;
+        }
+
+        internal void DeleteImage(int groupId, long userId, long id)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.DeleteImage(groupId, id, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+        }
+
+        internal KalturaImage AddImage(int groupId, long userId, KalturaImage image)
+        {
+            KalturaImage responseImage = new KalturaImage();
+            ImageResponse response = null;
+
+            try
+            {
+                Image requestImage = AutoMapper.Mapper.Map<Image>(image);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.AddImage(groupId, requestImage, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Image != null)
+            {
+                responseImage = AutoMapper.Mapper.Map<KalturaImage>(response.Image);
+            }
+
+            return responseImage;
+        }
+
+        internal void SetContent(int groupId, long userId, long id, string url)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.SetContent(groupId, userId, id, url);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+        }
+
+
+        internal KalturaRatio AddRatio(int groupId, long userId, KalturaRatio ratio)
+        {
+            KalturaRatio responseRatio = new KalturaRatio();
+            RatioResponse response = null;
+
+            try
+            {
+                Core.Catalog.CatalogManagement.Ratio requestRatio = AutoMapper.Mapper.Map<Core.Catalog.CatalogManagement.Ratio>(ratio);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.AddRatio(groupId, userId, requestRatio);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Ratio != null)
+            {
+                responseRatio = AutoMapper.Mapper.Map<KalturaRatio>(response.Ratio);
+            }
+
+            return responseRatio;
+        }
+
+         public KalturaAssetFileTypeListResponse GetAssetFileTypes(int groupId)
+        {
+            KalturaAssetFileTypeListResponse result = new KalturaAssetFileTypeListResponse() { TotalCount = 0 };
+            AssetFileTypeListResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetFileTypes(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Types != null && response.Types.Count > 0)
+            {
+                result.TotalCount = response.Types.Count;
+                result.Types = new List<KalturaAssetFileType>();
+                foreach (AssetFileType assetStruct in response.Types)
+                {
+                    result.Types.Add(AutoMapper.Mapper.Map<KalturaAssetFileType>(assetStruct));
+                }
+            }
+
+            return result;
+        }
+
+        public KalturaAssetFileType AddAssetFileType(int groupId, long userId, KalturaAssetFileType assetFileType)
+        {
+            KalturaAssetFileType result = null;
+            AssetFileTypeResponse response = null;
+
+            try
+            {
+                AssetFileType assetFileTypeToAdd = AutoMapper.Mapper.Map<AssetFileType>(assetFileType);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetFileType(groupId, userId, assetFileTypeToAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = AutoMapper.Mapper.Map<KalturaAssetFileType>(response.AssetFileType);
+            return result;
+        }
+
+        public KalturaAssetFileType UpdateAssetFileType(int groupId, long userId, long id, KalturaAssetFileType assetFileType)
+        {
+            KalturaAssetFileType result = null;
+            AssetFileTypeResponse response = null;
+
+            try
+            {
+                AssetFileType assetFileTypeToUpdate = AutoMapper.Mapper.Map<AssetFileType>(assetFileType);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetFileType(groupId, userId, id, assetFileTypeToUpdate);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = AutoMapper.Mapper.Map<KalturaAssetFileType>(response.AssetFileType);
+            return result;
+        }
+
+        public bool DeleteAssetFileType(int groupId, long userId, long id)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetFileType(groupId, userId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }    
     }
 }

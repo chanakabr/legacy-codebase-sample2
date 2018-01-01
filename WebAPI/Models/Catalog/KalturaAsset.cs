@@ -2,8 +2,10 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -179,6 +181,45 @@ namespace WebAPI.Models.Catalog
         {
             return Type.HasValue ? (int)Type : 0;
         }
+
+        internal void ValidateTags()
+        {
+            if (Tags != null && Tags.Count > 0)
+            {
+                foreach (KeyValuePair<string, KalturaMultilingualStringValueArray> tagValues in Tags)
+                {                    
+                    if (tagValues.Value.Objects != null && tagValues.Value.Objects.Count > 0)
+                    {
+                        foreach (KalturaMultilingualStringValue item in tagValues.Value.Objects)
+                        {
+                            List<ApiObjects.LanguageContainer> noneDefaultLanugageContainer = item.value.GetNoneDefaultLanugageContainer();
+                            if (noneDefaultLanugageContainer != null && noneDefaultLanugageContainer.Count > 0)
+                            {
+                                throw new BadRequestException(ApiException.TAG_TRANSLATION_NOT_ALLOWED);
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        internal void ValidateMetas()
+        {
+            if (Metas != null && Metas.Count > 0)
+            {
+                foreach (KeyValuePair<string, KalturaValue> metaValues in Metas)
+                {
+                    if (metaValues.Value.GetType() == typeof(KalturaMultilingualStringValue))
+                    {
+                        KalturaMultilingualStringValue multilingualStringValue = metaValues.Value as KalturaMultilingualStringValue;
+                        if (multilingualStringValue != null)
+                        {
+                            multilingualStringValue.value.Validate(metaValues.Key);
+                        }
+                    }
+                }
+            }            
+        }
     }
-    
 }

@@ -7,12 +7,12 @@ using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.API
+namespace WebAPI.Models.Catalog
 {
     public class KalturaTagListResponse : KalturaListResponse
     {
         /// <summary>
-        /// A list of generic rules
+        /// A list of partner tags
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]

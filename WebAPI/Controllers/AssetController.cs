@@ -11,6 +11,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -155,8 +156,9 @@ namespace WebAPI.Controllers
         {
             KalturaAssetListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            KS ks = KS.GetFromRequest();            
+            int groupId = ks.GroupId;
+            string userID = ks.UserId;
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
@@ -179,7 +181,7 @@ namespace WebAPI.Controllers
             bool managementData = !string.IsNullOrEmpty(format) && format == "30" ? true : false;
            
             try
-            {              
+            {
                 // external channel 
                 if (filter is KalturaChannelExternalFilter)
                 {
@@ -191,10 +193,17 @@ namespace WebAPI.Controllers
                 //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
                 else if (filter is KalturaSearchAssetFilter)
                 {
+                    bool isOperatorSearch = false;
+                    List<long> userRoles = RolesManager.GetRoleIds(ks);
+                    if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
+                    {
+                        isOperatorSearch = true;
+                    }
+
                     KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                     response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
                         regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy, 
-                        regularAssetFilter.getGroupByValue(), responseProfile);
+                        regularAssetFilter.getGroupByValue(), responseProfile, isOperatorSearch);
                 }
                 //Return list of media assets that are related to a provided asset ID (of type VOD). 
                 //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 
@@ -1031,9 +1040,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidValueSentForMeta)]
         [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
-        public KalturaMediaAsset Add(KalturaMediaAsset asset)
+        public KalturaAsset Add(KalturaAsset asset)
         {
-            KalturaMediaAsset response = null;
+            KalturaAsset response = null;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
             if (asset.Name == null || asset.Name.Values == null || asset.Name.Values.Count == 0)
@@ -1041,14 +1050,14 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
             }
 
-            asset.Name.Validate();
+            asset.Name.Validate("multilingualName");
 
             if (asset.Description != null && asset.Description.Values != null && asset.Description.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
             }
 
-            asset.Description.Validate();
+            asset.Description.Validate("multilingualDescription");
 
             if (!asset.Type.HasValue)
             {
@@ -1058,6 +1067,14 @@ namespace WebAPI.Controllers
             if (string.IsNullOrEmpty(asset.ExternalId))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
+            }
+
+            asset.ValidateMetas();
+            asset.ValidateTags();
+
+            if (asset is KalturaMediaAsset && !(asset as KalturaMediaAsset).Status.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
             }            
 
             try
@@ -1072,7 +1089,6 @@ namespace WebAPI.Controllers
             return response;
         }
 
-
         /// <summary>
         /// Delete an existing asset
         /// </summary>
@@ -1081,7 +1097,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.AssetDoseNotExists)]        
+        [Throws(eResponseStatus.AssetDoesNotExist)]        
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public bool Delete(long id, KalturaAssetReferenceType assetReferenceType)
@@ -1101,5 +1117,71 @@ namespace WebAPI.Controllers
 
             return result;
         }
+
+        /// <summary>
+        /// update an existing asset
+        /// </summary>
+        /// <param name="id">Asset Identifier</param>
+        /// <param name="assetReferenceType">Type of asset</param>
+        /// <param name="asset">Asset object</param>
+        /// <returns></returns>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.AssetExternalIdMustBeUnique)]
+        [Throws(eResponseStatus.InvalidMetaType)]
+        [Throws(eResponseStatus.InvalidValueSentForMeta)]
+        [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
+        [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
+        [SchemeArgument("id", MinLong = 1)]        
+        public KalturaAsset Update(long id, KalturaAsset asset)
+        {
+            KalturaAsset response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+            if (asset.Name != null)
+            {
+                if ((asset.Name.Values == null || asset.Name.Values.Count == 0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+                }
+                else
+                {
+                    asset.Name.Validate("multilingualName");
+                }
+            }
+
+            if (asset.Description != null)
+            {
+                if ((asset.Description.Values == null || asset.Description.Values.Count == 0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
+                }
+                else
+                {
+                    asset.Description.Validate("multilingualDescription");
+                }
+            }
+
+            if (asset.ExternalId != null && asset.ExternalId == string.Empty)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
+            }
+
+            asset.ValidateMetas();
+            asset.ValidateTags();
+
+            try
+            {
+                response = ClientsManager.CatalogClient().UpdateAsset(groupId, id, asset, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
     }
 }

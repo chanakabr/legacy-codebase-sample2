@@ -10,7 +10,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.API;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
@@ -46,8 +46,19 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                // call client                
-                response = ClientsManager.CatalogClient().SearchTags(groupId, language, filter.TagEqual, filter.TypeEqual, filter.TagStartsWith, pager.getPageIndex(), pager.getPageSize());
+                filter.Validate();
+
+                // call client      
+                if (!string.IsNullOrEmpty(filter.TagEqual))
+                {
+                    //search using tag
+                    response = ClientsManager.CatalogClient().SearchTags(groupId, language, true, filter.TagEqual, filter.TypeEqual, pager.getPageIndex(), pager.getPageSize());
+                }
+                else
+                {
+                    //search using TagStartsWith
+                    response = ClientsManager.CatalogClient().SearchTags(groupId, language, false, filter.TagStartsWith, filter.TypeEqual, pager.getPageIndex(), pager.getPageSize());
+                }
             }
             catch (ClientException ex)
             {
@@ -64,6 +75,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.TopicNotFound)]
         public KalturaTag Add(KalturaTag tag)
         {
             KalturaTag response = null;
@@ -71,10 +83,26 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                long userId = Utils.Utils.GetUserIdFromKs();
+
+                if (tag.Tag != null)
+                {
+                    if ((tag.Tag.Values == null || tag.Tag.Values.Count == 0))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
+                    }
+                    else
+                    {
+                        tag.Tag.Validate("multilingualTag");
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "multilingualTag");
+                }
 
                 // call client
-                response = ClientsManager.CatalogClient().AddTag(groupId, tag);
+                response = ClientsManager.CatalogClient().AddTag(groupId, tag, userId);
             }
             catch (ClientException ex)
             {
@@ -94,7 +122,8 @@ namespace WebAPI.Controllers
         public KalturaTag Update(long id, KalturaTag tag)
         {
             KalturaTag response = null;
-            int groupId = KS.GetFromRequest().GroupId;            
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             if (tag.Tag != null)
             {
@@ -104,13 +133,17 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    tag.Tag.Validate();
+                    tag.Tag.Validate("multilingualTag");
                 }
+            }
+            else
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "multilingualTag");
             }
 
             try
             {
-                response = ClientsManager.CatalogClient().UpdateTag(groupId, id, tag);
+                response = ClientsManager.CatalogClient().UpdateTag(groupId, id, tag, userId);
             }
             catch (ClientException ex)
             {
@@ -131,11 +164,12 @@ namespace WebAPI.Controllers
         public bool Delete(long id)
         {
             bool result = false;
-            int groupId = KS.GetFromRequest().GroupId;            
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
             try
             {
-                result = ClientsManager.CatalogClient().DeleteTag(groupId, id);
+                result = ClientsManager.CatalogClient().DeleteTag(groupId, id, userId);
             }
             catch (ClientException ex)
             {

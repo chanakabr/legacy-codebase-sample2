@@ -1332,6 +1332,12 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaImageType":
+                    ret = new Dictionary<string, string>() { 
+                        {"id", "id"},
+                    };
+                    break;
+                    
                 case "KalturaItemPrice":
                     ret = new Dictionary<string, string>() { 
                         {"fileId", "file_id"},
@@ -4187,6 +4193,84 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaImage":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "ImageObjectId":
+                            return "imageObjectId";
+                        case "ImageObjectType":
+                            return "imageObjectType";
+                        case "ImageTypeId":
+                            return "imageTypeId";
+                        case "Status":
+                            return "status";
+                        case "SystemName":
+                            return "systemName";
+                        case "Url":
+                            return "url";
+                        case "Version":
+                            return "version";
+                    }
+                    break;
+                    
+                case "KalturaImageFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                        case "ImageObjectIdEqual":
+                            return "imageObjectIdEqual";
+                        case "ImageObjectTypeEqual":
+                            return "imageObjectTypeEqual";
+                    }
+                    break;
+                    
+                case "KalturaImageListResponse":
+                    switch(property.Name)
+                    {
+                        case "Images":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaImageType":
+                    switch(property.Name)
+                    {
+                        case "DefaultImageId":
+                            return "defaultImageId";
+                        case "HelpText":
+                            return "helpText";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "RatioId":
+                            return "ratioId";
+                        case "SystemName":
+                            return "systemName";
+                    }
+                    break;
+                    
+                case "KalturaImageTypeFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                        case "RatioIdIn":
+                            return "ratioIdIn";
+                    }
+                    break;
+                    
+                case "KalturaImageTypeListResponse":
+                    switch(property.Name)
+                    {
+                        case "ImageTypes":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaInboxMessage":
                     switch(property.Name)
                     {
@@ -5523,6 +5607,24 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaRatio":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
+                case "KalturaRatioListResponse":
+                    switch(property.Name)
+                    {
+                        case "Ratios":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaRecommendationProfile":
                     switch(property.Name)
                     {
@@ -6538,6 +6640,14 @@ namespace WebAPI.Reflection
                             return "language";
                         case "Value":
                             return "value";
+                    }
+                    break;
+                    
+                case "KalturaUrlResource":
+                    switch(property.Name)
+                    {
+                        case "Url":
+                            return "url";
                     }
                     break;
                     

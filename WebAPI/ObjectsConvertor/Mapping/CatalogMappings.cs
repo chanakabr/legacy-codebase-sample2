@@ -399,11 +399,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmAdapterProfileId));
 
             // Topic to KalturaMeta
-            Mapper.CreateMap<Topic, Models.API.KalturaMeta>()              
+            Mapper.CreateMap<Topic, Models.API.KalturaMeta>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-              .ForMember(dest => dest.DataType, opt => opt.MapFrom(src => ConvertToKalturaMetaDataType(src.Type)))              
+              .ForMember(dest => dest.DataType, opt => opt.MapFrom(src => ConvertToKalturaMetaDataType(src.Type)))
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsPredefined))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
@@ -426,17 +426,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.MultipleValue))
               .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
-              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))              
+              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))
               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => ConvertToNullableLong(src.ParentId)))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));              
+              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
 
             // KalturaAsset to Asset
             Mapper.CreateMap<KalturaAsset, Asset>()
                 .Include<KalturaMediaAsset, MediaAsset>();
 
             //KalturaMediaAsset to MediaAsset
-            Mapper.CreateMap<KalturaMediaAsset, MediaAsset>()                 
+            Mapper.CreateMap<KalturaMediaAsset, MediaAsset>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
                 .ForMember(dest => dest.NamesWithLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer().ToArray()))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.GetDefaultLanugageValue() : string.Empty))
@@ -445,7 +445,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UpdateDate, opt => opt.Ignore())
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.StartDate)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.EndDate)))
-                .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => new Core.Catalog.MediaType(string.Empty, src.Type.Value)))
+                .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => new Core.Catalog.MediaType(string.Empty, src.Type.HasValue ? src.Type.Value : 0)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => src.Metas != null ? GetMetaList(src.Metas) : new List<Metas>()))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags != null ? GetTagsList(src.Tags) : new List<Tags>()))
                 .ForMember(dest => dest.DeviceRuleId, opt => opt.MapFrom(src => src.DeviceRuleId))
@@ -461,8 +461,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //MediaAsset to KalturaMediaAsset
             Mapper.CreateMap<MediaAsset, KalturaMediaAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description)))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesWithLanguages, src.Name)))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionsWithLanguages, src.Description)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.StartDate)))
@@ -513,17 +513,83 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region Tag
 
             Mapper.CreateMap<TagValue, KalturaTag>()
-              .ForMember(dest => dest.TagTypeId, opt => opt.MapFrom(src => src.topicId))              
-              .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => new KalturaMultilingualString(src.value)))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.tagId))
+              .ForMember(dest => dest.TagTypeId, opt => opt.MapFrom(src => src.topicId))
+              .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => new KalturaMultilingualString(src.TagsInOtherLanguages, src.value)))
               ;
 
             Mapper.CreateMap<KalturaTag, TagValue>()
-             .ForMember(dest => dest.topicId, opt => opt.MapFrom(src => src.TagTypeId.HasValue ? src.TagTypeId.Value : 0))
-             .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.Tag))
+             .ForMember(dest => dest.topicId, opt => opt.MapFrom(src => src.TagTypeId))
+             .ForMember(dest => dest.tagId, opt => opt.MapFrom(src => src.Id))
+             .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.Tag.GetDefaultLanugageValue()))
+             .ForMember(dest => dest.TagsInOtherLanguages, opt => opt.MapFrom(src => src.Tag.GetNoneDefaultLanugageContainer()))
              ;
 
             #endregion       
+
+            #region ImageType
+
+            Mapper.CreateMap<ImageType, KalturaImageType>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.DefaultImageId, opt => opt.MapFrom(src => src.DefaultImageId))
+              .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.RatioId, opt => opt.MapFrom(src => src.RatioId))
+              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+              ;
+
+            Mapper.CreateMap<KalturaImageType, ImageType>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.DefaultImageId, opt => opt.MapFrom(src => src.DefaultImageId))
+              .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.RatioId, opt => opt.MapFrom(src => src.RatioId))
+              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+             ;
+
+            #endregion       
+
+            #region Ratio
+
+            Mapper.CreateMap<Core.Catalog.CatalogManagement.Ratio, KalturaRatio>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              ;
+
+            Mapper.CreateMap<KalturaRatio, Core.Catalog.CatalogManagement.Ratio>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              ;
+
+            #endregion
+
+            #region Image
+
+            Mapper.CreateMap<Core.Catalog.CatalogManagement.Image, KalturaImage>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.ImageObjectId, opt => opt.MapFrom(src => src.ImageObjectId))
+              .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId))
+              .ForMember(dest => dest.ContentId, opt => opt.MapFrom(src => src.ContentId))
+              .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+              .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
+              .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertImageStatus(src.Status)))
+              .ForMember(dest => dest.ImageObjectType, opt => opt.MapFrom(src => ConvertImageObjectType(src.ImageObjectType)))
+              ;
+
+            Mapper.CreateMap<KalturaImage, Core.Catalog.CatalogManagement.Image>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.ImageObjectId, opt => opt.MapFrom(src => src.ImageObjectId))
+              .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId))
+              .ForMember(dest => dest.ContentId, opt => opt.MapFrom(src => src.ContentId))
+              .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+              .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
+              .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertImageStatus(src.Status)))
+              .ForMember(dest => dest.ImageObjectType, opt => opt.MapFrom(src => ConvertImageObjectType(src.ImageObjectType.Value)))
+              ;
+
+            #endregion    
         }
+
 
         #region New Catalog Management
 
@@ -608,7 +674,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             KalturaMetaDataType response;
             switch (metaType)
-            {                                    
+            {
                 case ApiObjects.MetaType.String:
                 case ApiObjects.MetaType.Tag:
                     response = KalturaMetaDataType.STRING;
@@ -728,7 +794,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static List<Tags> GetTagsList(SerializableDictionary<string, KalturaMultilingualStringValueArray> tagsDictionary)
         {
-            List<Tags> tags = new List<Tags>();            
+            List<Tags> tags = new List<Tags>();
 
             if (tagsDictionary == null || tagsDictionary.Count == 0)
             {
@@ -739,7 +805,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 Tags tagToAdd = new Tags() { m_oTagMeta = new TagMeta(tag.Key, ApiObjects.MetaType.Tag.ToString()) };
                 tagToAdd.m_lValues = tag.Value.Objects != null ? tag.Value.Objects.Select(x => x.value.GetDefaultLanugageValue()).ToList() : new List<string>();
-                tagToAdd.Values = tag.Value.Objects != null ? tag.Value.Objects.Select(x => x.value.GetNoneDefaultLanugageContainer().ToArray()).ToList() : new List<LanguageContainer[]>();
+                // TODO - Lior not needed anymore since we don't support adding\updating tag translation per asset
+                //tagToAdd.Values = tag.Value.Objects != null ? tag.Value.Objects.Select(x => x.value.GetNoneDefaultLanugageContainer().ToArray()).ToList() : new List<LanguageContainer[]>();
                 tags.Add(tagToAdd);
             }
 
@@ -772,31 +839,119 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return response;
         }
 
+        private static KalturaImageObjectType ConvertImageObjectType(eAssetImageType imageObjectType)
+        {
+            switch (imageObjectType)
+            {
+                case eAssetImageType.Media:
+                    return KalturaImageObjectType.MEDIA_ASSET;
+                    break;
+                case eAssetImageType.Channel:
+                    return KalturaImageObjectType.CHANNEL;
+                    break;
+                case eAssetImageType.Category:
+                    return KalturaImageObjectType.CATEGORY;
+                    break;
+                case eAssetImageType.ImageType:
+                    return KalturaImageObjectType.IMAGE_TYPE;
+                    break;
+                case eAssetImageType.DefaultPic:
+                case eAssetImageType.LogoPic:
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown image object type");
+                    break;
+            }
+        }
+
+        public static eAssetImageType ConvertImageObjectType(KalturaImageObjectType imageObjectType)
+        {
+            switch (imageObjectType)
+            {
+                case KalturaImageObjectType.MEDIA_ASSET:
+                    return eAssetImageType.Media;
+                    break;
+                case KalturaImageObjectType.CHANNEL:
+                    return eAssetImageType.Channel;
+                    break;
+                case KalturaImageObjectType.CATEGORY:
+                    return eAssetImageType.Category;
+                    break;
+                case KalturaImageObjectType.IMAGE_TYPE:
+                    return eAssetImageType.ImageType;
+                    break;
+                case KalturaImageObjectType.PARTNER:
+                case KalturaImageObjectType.PROGRAM_ASSET:
+                    throw new ClientException((int)StatusCode.Error, "Not implemented yet");
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown image object type");
+                    break;
+            }
+        }
+
+        private static KalturaImageStatus ConvertImageStatus(eTableStatus status)
+        {
+            switch (status)
+            {
+                case eTableStatus.Pending:
+                    return KalturaImageStatus.PENDING;
+                    break;
+                case eTableStatus.OK:
+                    return KalturaImageStatus.READY;
+                    break;
+                case eTableStatus.Failed:
+                    return KalturaImageStatus.FAILED;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown image status");
+                    break;
+            }
+        }
+
+        private static eTableStatus ConvertImageStatus(KalturaImageStatus status)
+        {
+            switch (status)
+            {
+                case KalturaImageStatus.PENDING:
+                    return eTableStatus.Pending;
+                    break;
+                case KalturaImageStatus.READY:
+                    return eTableStatus.OK;
+                    break;
+                case KalturaImageStatus.FAILED:
+                    return eTableStatus.Failed;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown image status");
+                    break;
+            }
+        }
+
         #endregion
 
         private static KalturaAssetGroupBy ConvertToGroupBy(SearchAggregationGroupBy searchAggregationGroupBy)
-        {            
-             KalturaAssetGroupBy kalturaAssetGroupBy = null;
+        {
+            KalturaAssetGroupBy kalturaAssetGroupBy = null;
 
-             if (searchAggregationGroupBy != null && searchAggregationGroupBy.groupBy != null && searchAggregationGroupBy.groupBy.Count() > 0)
-             {
+            if (searchAggregationGroupBy != null && searchAggregationGroupBy.groupBy != null && searchAggregationGroupBy.groupBy.Count() > 0)
+            {
 
-                 if (Enum.IsDefined(typeof(KalturaGroupByField), searchAggregationGroupBy.groupBy.FirstOrDefault()))
-                 {
-                     kalturaAssetGroupBy = new KalturaAssetFieldGroupBy();
+                if (Enum.IsDefined(typeof(KalturaGroupByField), searchAggregationGroupBy.groupBy.FirstOrDefault()))
+                {
+                    kalturaAssetGroupBy = new KalturaAssetFieldGroupBy();
 
-                     KalturaGroupByField groupByField = (KalturaGroupByField)Enum.Parse(typeof(KalturaGroupByField), searchAggregationGroupBy.groupBy.FirstOrDefault());
+                    KalturaGroupByField groupByField = (KalturaGroupByField)Enum.Parse(typeof(KalturaGroupByField), searchAggregationGroupBy.groupBy.FirstOrDefault());
 
-                     ((KalturaAssetFieldGroupBy)kalturaAssetGroupBy).Value = groupByField;
-                 }
-                 else
-                 {
-                     kalturaAssetGroupBy = new KalturaAssetMetaOrTagGroupBy();
-                     ((KalturaAssetMetaOrTagGroupBy)kalturaAssetGroupBy).Value = searchAggregationGroupBy.groupBy.FirstOrDefault();
-                 }              
-             }
+                    ((KalturaAssetFieldGroupBy)kalturaAssetGroupBy).Value = groupByField;
+                }
+                else
+                {
+                    kalturaAssetGroupBy = new KalturaAssetMetaOrTagGroupBy();
+                    ((KalturaAssetMetaOrTagGroupBy)kalturaAssetGroupBy).Value = searchAggregationGroupBy.groupBy.FirstOrDefault();
+                }
+            }
 
-             return kalturaAssetGroupBy;
+            return kalturaAssetGroupBy;
         }
 
         //eAssetTypes to KalturaAssetType
@@ -974,13 +1129,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 }
                 else
                 {
-                    LanguageContainer[] containers = new LanguageContainer[1] 
-                        { 
-                            new LanguageContainer() 
+                    LanguageContainer[] containers = new LanguageContainer[1]
+                        {
+                            new LanguageContainer()
                             {
                                 LanguageCode = WebAPI.Utils.Utils.GetDefaultLanguage(),
                                 Value = tag.Value
-                            } 
+                            }
                         };
 
                     valueToAdd = new KalturaMultilingualStringValue()
@@ -1024,13 +1179,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 }
                 else
                 {
-                    LanguageContainer[] containers = new LanguageContainer[1] 
-                    { 
-                        new LanguageContainer() 
+                    LanguageContainer[] containers = new LanguageContainer[1]
+                    {
+                        new LanguageContainer()
                         {
                             LanguageCode = WebAPI.Utils.Utils.GetDefaultLanguage(),
                             Value = meta.Value
-                        } 
+                        }
                     };
 
                     metas.Add(meta.Key, new KalturaMultilingualStringValue()
@@ -1107,7 +1262,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 }
                 else if (meta.m_oTagMeta.m_sType == ApiObjects.MetaType.MultilingualString.ToString())
                 {
-                    value = new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(meta.Value) };
+                    if (string.IsNullOrEmpty(meta.m_sValue))
+                    {
+                        value = new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(meta.Value) };
+                    }
+                    else
+                    {
+                        value = new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(meta.Value.ToList(), meta.m_sValue) };
+                    }
                 }
                 else if (meta.m_oTagMeta.m_sType.ToLower() == typeof(double).ToString() || meta.m_oTagMeta.m_sType == ApiObjects.MetaType.Number.ToString())
                 {

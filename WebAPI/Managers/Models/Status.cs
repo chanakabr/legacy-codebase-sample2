@@ -131,6 +131,7 @@ namespace WebAPI.Managers.Models
         DefaultLanguageMustBeSent = 500066,
         GroupDoesNotContainLanguage = 500067,        
         GlobalLanguageParameterMustBeAsterisk = 500068,
-        MultiValueWasNotSentForMetaDataTypeString = 500069
+        MultiValueWasNotSentForMetaDataTypeString = 500069,
+        TagTranslationNotAllowed = 500070
     }
 }
