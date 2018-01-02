@@ -22,7 +22,7 @@ namespace WebAPI.Models
         [DataMember(Name = "entryId")]
         [JsonProperty("entryId")]
         [XmlElement(ElementName = "entryId")]
-        public int EntryId { get; set; }
+        public string EntryId { get; set; }
 
         /// <summary>
         /// PartnerId  
