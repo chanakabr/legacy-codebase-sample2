@@ -1117,14 +1117,25 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        Subscription subscriptionInTheSameSet = null;
-                        KeyValuePair<long, int> setAndPriority = subscription.GetSubscriptionSetIdsToPriority().First();
-                        DomainSubscriptionPurchaseDetails oldSubscriptionPurchaseDetails = null;
-                        if (IsEntitlementContainSameSetSubscription(groupId, householdId, productId, setAndPriority.Key, ref subscriptionInTheSameSet, ref oldSubscriptionPurchaseDetails))
+                        List<SubscriptionSet> groupSwitchSubscriptionSets = Pricing.Utils.GetSubscriptionSets(groupId, null, SubscriptionSetType.Switch);
+                        HashSet<long> switchSubscriptionSetsIds = groupSwitchSubscriptionSets != null && groupSwitchSubscriptionSets.Count > 0 ? 
+                                                                new HashSet<long>(groupSwitchSubscriptionSets.Select(x => x.Id).ToList()) : new HashSet<long>();
+                        if (switchSubscriptionSetsIds.Count > 0)
                         {
-                            response.Status = new Status((int)eResponseStatus.CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet,
-                                                        "Can only be entitled to one subscription per subscriptionSet, please use Upgrade or Downgrade");
-                            return response;
+                            foreach (KeyValuePair<long, int> setAndPriority in subscription.GetSubscriptionSetIdsToPriority())
+                            {
+                                if (switchSubscriptionSetsIds.Contains(setAndPriority.Key))
+                                {
+                                    Subscription subscriptionInTheSameSet = null;
+                                    DomainSubscriptionPurchaseDetails oldSubscriptionPurchaseDetails = null;
+                                    if (IsEntitlementContainSameSetSubscription(groupId, householdId, productId, setAndPriority.Key, ref subscriptionInTheSameSet, ref oldSubscriptionPurchaseDetails))
+                                    {
+                                        response.Status = new Status((int)eResponseStatus.CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet,
+                                                                    "Can only be entitled to one subscription per subscriptionSet, please use Upgrade or Downgrade");
+                                        return response;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
