@@ -14,6 +14,14 @@ namespace WebAPI.Models
     public class KalturaPromotion : KalturaOTTObject
     {
         /// <summary>
+        /// Id  
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        public long Id { get; set; }
+
+        /// <summary>
         /// Link
         /// </summary>
         [DataMember(Name = "link")]
@@ -44,5 +52,37 @@ namespace WebAPI.Models
         [JsonProperty("endTime")]
         [XmlElement(ElementName = "endTime")]
         public TimeSpan EndTime { get; set; }
+
+        /// <summary>
+        /// Saved  
+        /// </summary>
+        [DataMember(Name = "saved")]
+        [JsonProperty("saved")]
+        [XmlElement(ElementName = "saved")]
+        public bool Saved { get; set; }
+
+        /// <summary>
+        /// Location X  
+        /// </summary>
+        [DataMember(Name = "locationX")]
+        [JsonProperty("locationX")]
+        [XmlElement(ElementName = "locationX")]
+        public int LocationX { get; set; }
+
+        /// <summary>
+        /// Location Y  
+        /// </summary>
+        [DataMember(Name = "locationY")]
+        [JsonProperty("locationY")]
+        [XmlElement(ElementName = "locationY")]
+        public int LocationY { get; set; }
+
+        /// <summary>
+        /// Theme
+        /// </summary>
+        [DataMember(Name = "thumbnail")]
+        [JsonProperty("thumbnail")]
+        [XmlElement(ElementName = "thumbnail")]
+        public string Thumbnail { get; set; }
     }
 }

@@ -677,10 +677,18 @@
             </remarks>        
             <param name="emailMessage">email details</param>     
         </member>
-        <member name="M:WebAPI.Controllers.PromotionController.List">
+        <member name="M:WebAPI.Controllers.PromotionController.List(WebAPI.Models.KalturaPromotionFilter)">
             <summary>
             Returns promotions list regarding to mediaId
             </summary>        
+            <param name="filter">Filter</param>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.PromotionController.Save(System.Int64)">
+            <summary>
+            Saves a Promotion for later
+            </summary>        
+            <param name="id">Promotion ID</param>
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.UnifiedPaymentController.GetNextRenewal(System.Int32)">
@@ -8156,6 +8164,11 @@
             Total items
             </summary>
         </member>
+        <member name="P:WebAPI.Models.KalturaPromotion.Id">
+            <summary>
+            Id  
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.KalturaPromotion.Link">
             <summary>
             Link
@@ -8176,29 +8189,44 @@
             EndTime  
             </summary>
         </member>
+        <member name="P:WebAPI.Models.KalturaPromotion.Saved">
+            <summary>
+            Saved  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.KalturaPromotion.LocationX">
+            <summary>
+            Location X  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.KalturaPromotion.LocationY">
+            <summary>
+            Location Y  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.KalturaPromotion.Thumbnail">
+            <summary>
+            Theme
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.KalturaPromotionListResponse">
             <summary>
             Prices list
             </summary>
         </member>
-        <member name="P:WebAPI.Models.KalturaPromotionListResponse.EntryId">
-            <summary>
-            EntryId  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaPromotionListResponse.PartnerId">
-            <summary>
-            PartnerId  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaPromotionListResponse.UiConfId">
-            <summary>
-            UiConfId  
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.KalturaPromotionListResponse.Promotions">
             <summary>
             A list of promotions
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.KalturaPromotionFilter.AssetIdEqual">
+            <summary>
+            Asset ID  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.KalturaPromotionFilter.SavedEqual">
+            <summary>
+            SavedEqual  
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.TemplateName">

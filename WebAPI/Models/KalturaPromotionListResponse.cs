@@ -17,30 +17,6 @@ namespace WebAPI.Models
     public class KalturaPromotionListResponse : KalturaListResponse
     {
         /// <summary>
-        /// EntryId  
-        /// </summary>
-        [DataMember(Name = "entryId")]
-        [JsonProperty("entryId")]
-        [XmlElement(ElementName = "entryId")]
-        public string EntryId { get; set; }
-
-        /// <summary>
-        /// PartnerId  
-        /// </summary>
-        [DataMember(Name = "partnerId")]
-        [JsonProperty("partnerId")]
-        [XmlElement(ElementName = "partnerId")]
-        public int PartnerId { get; set; }
-
-        /// <summary>
-        /// UiConfId  
-        /// </summary>
-        [DataMember(Name = "uiConfId")]
-        [JsonProperty("uiConfId")]
-        [XmlElement(ElementName = "uiConfId")]
-        public int UiConfId { get; set; }
-
-        /// <summary>
         /// A list of promotions
         /// </summary>
         [DataMember(Name = "objects")]
@@ -48,5 +24,34 @@ namespace WebAPI.Models
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaPromotion> Promotions { get; set; }
+    }
+
+    public class KalturaPromotionFilter : KalturaFilter<KalturaPromotionOrderBy>
+    {
+        /// <summary>
+        /// Asset ID  
+        /// </summary>
+        [DataMember(Name = "assetIdEqual")]
+        [JsonProperty("assetIdEqual")]
+        [XmlElement(ElementName = "assetIdEqual")]
+        public long AssetIdEqual { get; set; }
+
+        /// <summary>
+        /// SavedEqual  
+        /// </summary>
+        [DataMember(Name = "savedEqual")]
+        [JsonProperty("savedEqual")]
+        [XmlElement(ElementName = "savedEqual")]
+        public bool SavedEqual { get; set; }
+
+        public override KalturaPromotionOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaPromotionOrderBy.none;
+        }
+    }
+
+    public enum KalturaPromotionOrderBy
+    {
+        none
     }
 }

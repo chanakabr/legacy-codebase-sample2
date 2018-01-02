@@ -5301,26 +5301,40 @@ namespace WebAPI.Reflection
                     {
                         case "EndTime":
                             return "endTime";
+                        case "Id":
+                            return "id";
                         case "Link":
                             return "link";
+                        case "LocationX":
+                            return "locationX";
+                        case "LocationY":
+                            return "locationY";
+                        case "Saved":
+                            return "saved";
                         case "StartTime":
                             return "startTime";
                         case "Text":
                             return "text";
+                        case "Thumbnail":
+                            return "thumbnail";
+                    }
+                    break;
+                    
+                case "KalturaPromotionFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetIdEqual":
+                            return "assetIdEqual";
+                        case "SavedEqual":
+                            return "savedEqual";
                     }
                     break;
                     
                 case "KalturaPromotionListResponse":
                     switch(property.Name)
                     {
-                        case "EntryId":
-                            return "entryId";
-                        case "PartnerId":
-                            return "partnerId";
                         case "Promotions":
                             return "objects";
-                        case "UiConfId":
-                            return "uiConfId";
                     }
                     break;
                     
