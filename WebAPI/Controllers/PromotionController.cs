@@ -16,7 +16,7 @@ namespace WebAPI.Controllers
         public KalturaPromotionListResponse List()
         {
             KalturaPromotionListResponse response = new KalturaPromotionListResponse();
-            response.UiConfId = 36992401;
+            response.UiConfId = 41400451;
             response.EntryId= "1_06ex551x";
             response.PartnerId = 2091671;
             response.Promotions = new List<KalturaPromotion>();
