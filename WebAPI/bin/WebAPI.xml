@@ -677,11 +677,10 @@
             </remarks>        
             <param name="emailMessage">email details</param>     
         </member>
-        <member name="M:WebAPI.Controllers.PromotionController.List(WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter)">
+        <member name="M:WebAPI.Controllers.PromotionController.List">
             <summary>
             Returns promotions list regarding to mediaId
-            </summary>
-            <param name="filter">Request filter</param>
+            </summary>        
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.UnifiedPaymentController.GetNextRenewal(System.Int32)">
