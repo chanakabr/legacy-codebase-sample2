@@ -157,6 +157,14 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaAssetReminderFilter":
+                    switch (propertyName)
+                    {
+                        case "KSql":
+                            return true;
+                    };
+                    break;
+                    
                 case "KalturaBaseAssetInfo":
                     switch (propertyName)
                     {
@@ -2455,14 +2463,6 @@ namespace WebAPI.Reflection
                     {
                         case "AssetId":
                             return "assetId";
-                    }
-                    break;
-                    
-                case "KalturaAssetReminderFilter":
-                    switch(property.Name)
-                    {
-                        case "KSql":
-                            return "kSql";
                     }
                     break;
                     
@@ -5293,6 +5293,34 @@ namespace WebAPI.Reflection
                             return "linearAssetId";
                         case "RelatedMediaId":
                             return "relatedMediaId";
+                    }
+                    break;
+                    
+                case "KalturaPromotion":
+                    switch(property.Name)
+                    {
+                        case "EndTime":
+                            return "endTime";
+                        case "Link":
+                            return "link";
+                        case "StartTime":
+                            return "startTime";
+                        case "Text":
+                            return "text";
+                    }
+                    break;
+                    
+                case "KalturaPromotionListResponse":
+                    switch(property.Name)
+                    {
+                        case "EntryId":
+                            return "entryId";
+                        case "PartnerId":
+                            return "partnerId";
+                        case "Promotions":
+                            return "objects";
+                        case "UiConfId":
+                            return "uiConfId";
                     }
                     break;
                     

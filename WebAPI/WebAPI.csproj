@@ -237,6 +237,7 @@
     <Compile Include="Controllers\ConfigurationsController.cs" />
     <Compile Include="Controllers\CollectionController.cs" />
     <Compile Include="Controllers\EmailController.cs" />
+    <Compile Include="Controllers\PromotionController.cs" />
     <Compile Include="Controllers\UnifiedPaymentController.cs" />
     <Compile Include="Controllers\PriceDetailsController.cs" />
     <Compile Include="Controllers\PricePlanController.cs" />
@@ -295,6 +296,8 @@
     <Compile Include="Models\General\KalturaDetachedResponseProfile.cs" />
     <Compile Include="Models\General\KalturaIntegerValueListResponse.cs" />
     <Compile Include="Models\General\KalturaRelatedObjectFilter.cs" />
+    <Compile Include="Models\KalturaPromotion.cs" />
+    <Compile Include="Models\KalturaPromotionListResponse.cs" />
     <Compile Include="Models\Notification\KalturaEmailMessage.cs" />
     <Compile Include="Models\Pricing\KalturaCollectionPrice.cs" />
     <Compile Include="Models\Pricing\KalturaCollection.cs" />
