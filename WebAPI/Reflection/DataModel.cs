@@ -5299,24 +5299,28 @@ namespace WebAPI.Reflection
                 case "KalturaPromotion":
                     switch(property.Name)
                     {
+                        case "AnimationType":
+                            return "animationType";
                         case "EndTime":
                             return "endTime";
                         case "Id":
                             return "id";
+                        case "Image":
+                            return "image";
                         case "Link":
                             return "link";
                         case "LocationX":
                             return "locationX";
                         case "LocationY":
                             return "locationY";
+                        case "ProviderThumbnail":
+                            return "providerThumbnail";
                         case "Saved":
                             return "saved";
                         case "StartTime":
                             return "startTime";
                         case "Text":
                             return "text";
-                        case "Thumbnail":
-                            return "thumbnail";
                     }
                     break;
                     
