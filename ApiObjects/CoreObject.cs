@@ -211,7 +211,7 @@ namespace ApiObjects
             // If we have time, it is an action event, otherwise it is just an object event.
             if (time != null && time.HasValue)
             {
-                EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
+                afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
                     this.GroupId,
                     this,
                     eKalturaEventActions.None,
@@ -220,7 +220,7 @@ namespace ApiObjects
             }
             else
             {
-                EventManager.EventManager.HandleEvent(new KalturaObjectEvent(
+                afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectEvent(
                     this.GroupId,
                     this,
                     type));
