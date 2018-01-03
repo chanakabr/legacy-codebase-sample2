@@ -78,11 +78,35 @@ namespace WebAPI.Models
         public int LocationY { get; set; }
 
         /// <summary>
-        /// Theme
+        /// Provider Thumbnail
         /// </summary>
-        [DataMember(Name = "thumbnail")]
-        [JsonProperty("thumbnail")]
-        [XmlElement(ElementName = "thumbnail")]
-        public string Thumbnail { get; set; }
+        [DataMember(Name = "providerThumbnail")]
+        [JsonProperty("providerThumbnail")]
+        [XmlElement(ElementName = "providerThumbnail")]
+        public string ProviderThumbnail { get; set; }
+
+        /// <summary>
+        /// Image
+        /// </summary>
+        [DataMember(Name = "image")]
+        [JsonProperty("image")]
+        [XmlElement(ElementName = "image")]
+        public string Image { get; set; }
+
+        /// <summary>
+        /// Animation Type
+        /// </summary>
+        [DataMember(Name = "animationType")]
+        [JsonProperty("animationType")]
+        [XmlElement(ElementName = "animationType")]
+        public KalturaAnimationType AnimationType { get; set; }
+    }
+
+    public enum KalturaAnimationType
+    {
+        resize,
+        blink,
+        right_to_left,
+        left_to_right
     }
 }
