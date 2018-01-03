@@ -3120,6 +3120,52 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCuePoint":
+                    switch(property.Name)
+                    {
+                        case "AnimationType":
+                            return "animationType";
+                        case "EndTime":
+                            return "endTime";
+                        case "Id":
+                            return "id";
+                        case "Image":
+                            return "image";
+                        case "Link":
+                            return "link";
+                        case "LocationX":
+                            return "locationX";
+                        case "LocationY":
+                            return "locationY";
+                        case "ProviderThumbnail":
+                            return "providerThumbnail";
+                        case "Saved":
+                            return "saved";
+                        case "StartTime":
+                            return "startTime";
+                        case "Text":
+                            return "text";
+                    }
+                    break;
+                    
+                case "KalturaCuePointFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetIdEqual":
+                            return "assetIdEqual";
+                        case "SavedEqual":
+                            return "savedEqual";
+                    }
+                    break;
+                    
+                case "KalturaCuePointListResponse":
+                    switch(property.Name)
+                    {
+                        case "CuePoints":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaCurrency":
                     switch(property.Name)
                     {
@@ -5293,52 +5339,6 @@ namespace WebAPI.Reflection
                             return "linearAssetId";
                         case "RelatedMediaId":
                             return "relatedMediaId";
-                    }
-                    break;
-                    
-                case "KalturaPromotion":
-                    switch(property.Name)
-                    {
-                        case "AnimationType":
-                            return "animationType";
-                        case "EndTime":
-                            return "endTime";
-                        case "Id":
-                            return "id";
-                        case "Image":
-                            return "image";
-                        case "Link":
-                            return "link";
-                        case "LocationX":
-                            return "locationX";
-                        case "LocationY":
-                            return "locationY";
-                        case "ProviderThumbnail":
-                            return "providerThumbnail";
-                        case "Saved":
-                            return "saved";
-                        case "StartTime":
-                            return "startTime";
-                        case "Text":
-                            return "text";
-                    }
-                    break;
-                    
-                case "KalturaPromotionFilter":
-                    switch(property.Name)
-                    {
-                        case "AssetIdEqual":
-                            return "assetIdEqual";
-                        case "SavedEqual":
-                            return "savedEqual";
-                    }
-                    break;
-                    
-                case "KalturaPromotionListResponse":
-                    switch(property.Name)
-                    {
-                        case "Promotions":
-                            return "objects";
                     }
                     break;
                     

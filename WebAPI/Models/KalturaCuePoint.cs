@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models
 {
-    public class KalturaPromotion : KalturaOTTObject
+    public class KalturaCuePoint : KalturaOTTObject
     {
         /// <summary>
         /// Id  

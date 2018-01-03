@@ -10,11 +10,11 @@ using WebAPI.Models.General;
 namespace WebAPI.Models
 {
     /// <summary>
-    /// Prices list
+    /// KalturaCuePointListResponse
     /// </summary>
-    [DataContract(Name = "KalturaPromotionListResponse", Namespace = "")]
-    [XmlRoot("KalturaPromotionListResponse")]
-    public class KalturaPromotionListResponse : KalturaListResponse
+    [DataContract(Name = "KalturaCuePointListResponse", Namespace = "")]
+    [XmlRoot("KalturaCuePointListResponse")]
+    public class KalturaCuePointListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of promotions
@@ -23,10 +23,10 @@ namespace WebAPI.Models
         [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaPromotion> Promotions { get; set; }
+        public List<KalturaCuePoint> CuePoints { get; set; }
     }
 
-    public class KalturaPromotionFilter : KalturaFilter<KalturaPromotionOrderBy>
+    public class KalturaCuePointFilter : KalturaFilter<KalturaCuePointOrderBy>
     {
         /// <summary>
         /// Asset ID  
@@ -44,13 +44,13 @@ namespace WebAPI.Models
         [XmlElement(ElementName = "savedEqual")]
         public bool SavedEqual { get; set; }
 
-        public override KalturaPromotionOrderBy GetDefaultOrderByValue()
+        public override KalturaCuePointOrderBy GetDefaultOrderByValue()
         {
-            return KalturaPromotionOrderBy.none;
+            return KalturaCuePointOrderBy.none;
         }
     }
 
-    public enum KalturaPromotionOrderBy
+    public enum KalturaCuePointOrderBy
     {
         none
     }
