@@ -72,8 +72,8 @@ namespace WebAPI
             }
 
             log.DebugFormat("Start consume Notification object action event for: partnerId = {0}, type = {1}, action = {2}",
-                actionEvent.PartnerId, actionEvent.Type, actionString);
-
+                objectEvent.PartnerId, objectEvent.Type, actionString);
+            
             #region Get notification definitions
 
             bool shouldConsume = true;
@@ -268,7 +268,7 @@ namespace WebAPI
 
         protected string GetCBSpecificKey(KalturaObjectEvent kalturaEvent)
         {
-            return string.Format(CB_SPECIFIC_PARTNER_KEY_FORMAT, kalturaEvent.GetSystemName()).ToLower();
+            return string.Format(CB_SPECIFIC_PARTNER_KEY_FORMAT, kalturaEvent.PartnerId, kalturaEvent.GetSystemName()).ToLower();
         }
 
         #endregion
