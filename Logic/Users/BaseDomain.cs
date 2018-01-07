@@ -183,7 +183,7 @@ namespace Core.Users
             return new DomainResponseObject(domain, eDomainResponseStatus);
         }
 
-        public virtual DomainResponseStatus RemoveDomain(int domainId)
+        public virtual DomainResponseStatus RemoveDomain(int domainId, bool purge)
         {
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
             try
@@ -213,6 +213,7 @@ namespace Core.Users
                     }
                 }
 
+                domain.shouldPurge = purge;
                 res = domain.Remove();
 
                 if (res != DomainResponseStatus.OK)
@@ -903,7 +904,7 @@ namespace Core.Users
 
             // get current domain.roleId ==> to update the users 
             int? currentRoleId = domain.roleId;
-                        
+
             if (roleId.HasValue)
             {
                 domain.roleId = roleId.Value;
@@ -960,7 +961,7 @@ namespace Core.Users
 
             }
             // update result
-             if (suspendSucceed)
+            if (suspendSucceed)
             {
                 result.Code = (int)eResponseStatus.OK;
             }
@@ -977,7 +978,7 @@ namespace Core.Users
         {
             try
             {
-                List<Role> roles =  ApiDAL.GetRolesByNames(m_nGroupID, new List<string>() { DEFAULT_SUSPENDED_ROLE });
+                List<Role> roles = ApiDAL.GetRolesByNames(m_nGroupID, new List<string>() { DEFAULT_SUSPENDED_ROLE });
                 if (roles != null && roles.Count() > 0)
                 {
                     return roles[0];
@@ -985,7 +986,7 @@ namespace Core.Users
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("fail to get ApiDAL.GetRolesByNames ex :{0}, m_nGroupID : {1}, DefaultSuspendedRoleName : {2}", ex , m_nGroupID, DEFAULT_SUSPENDED_ROLE);
+                log.ErrorFormat("fail to get ApiDAL.GetRolesByNames ex :{0}, m_nGroupID : {1}, DefaultSuspendedRoleName : {2}", ex, m_nGroupID, DEFAULT_SUSPENDED_ROLE);
             }
             return null;
         }
@@ -1004,7 +1005,7 @@ namespace Core.Users
             catch (Exception ex)
             {
                 log.ErrorFormat("fail Upsert_SuspendedUsersRole in DB m_nGroupID={0}, domainId={1}, currentRoleId={2}, newRoleId={3}, ex={4}", groupId, domain.m_nDomainID,
-                    currentRoleId.HasValue ? currentRoleId.Value : 0, newRoleId.HasValue ? newRoleId.Value : 0, ex);                
+                    currentRoleId.HasValue ? currentRoleId.Value : 0, newRoleId.HasValue ? newRoleId.Value : 0, ex);
             }
             return rowCount > 0 ? true : false;
         }
@@ -1956,7 +1957,7 @@ namespace Core.Users
                 {
                     return false;
                 }
-                
+
                 // get domain by userId
                 Domain domain = GetDomainByUser(m_nGroupID, userId);
                 if (domain == null || domain.m_deviceFamilies == null || domain.m_deviceFamilies.Count == 0)
@@ -1965,7 +1966,7 @@ namespace Core.Users
                     return false; // error 
                 }
                 //check the uniqueness of drmID
-                 KeyValuePair<int, string> drmValue = new KeyValuePair<int,string>();
+                KeyValuePair<int, string> drmValue = new KeyValuePair<int, string>();
                 bool isDrmIdUnique = Utils.IsDrmIdUnique(drmId, domain.m_nDomainID, udid, m_nGroupID, ref drmValue);
                 if (!isDrmIdUnique)
                 {
@@ -1975,7 +1976,7 @@ namespace Core.Users
                 {
                     return true;
                 }// else - drmId unique in domain or not exsits at all continue 
-               
+
 
                 if (!string.IsNullOrEmpty(udid))
                 {
@@ -1988,7 +1989,7 @@ namespace Core.Users
                     }
 
                     device = deviceContainer.DeviceInstances.Where(x => x.m_deviceUDID == udid).First(); // get specific device by udid
-                    
+
                     // check that device family in the Family policy roles
                     if (drmPolicy.FamilyLimitation.Contains(deviceContainer.m_deviceFamilyID))
                     {
@@ -2018,7 +2019,7 @@ namespace Core.Users
                         {
                             // update device table + return true/false by success of update table and remove it from CB
 
-                            if(DomainDal.UpdateDeviceDrmID(m_nGroupID, domainDrmId.First().Key.ToString(), drmId, domain.m_nDomainID))                            
+                            if (DomainDal.UpdateDeviceDrmID(m_nGroupID, domainDrmId.First().Key.ToString(), drmId, domain.m_nDomainID))
                             {
                                 return Utils.SetDrmId(drmId, domain.m_nDomainID, udid, groupId);
                             }
@@ -2029,28 +2030,28 @@ namespace Core.Users
 
                 switch (drmPolicy.Policy)
                 {
-                    case DrmSecurityPolicy.DeviceLevel:                        
+                    case DrmSecurityPolicy.DeviceLevel:
                         if (drmValue.Key == domain.m_nDomainID && drmValue.Value != udid && !string.IsNullOrEmpty(udid) && !string.IsNullOrEmpty(drmValue.Value))
                         {
                             return false;
                         }
-                        deviceIds = new List<int>(){int.Parse(device.m_id)};
+                        deviceIds = new List<int>() { int.Parse(device.m_id) };
                         if (CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy, drmValue))
                         {
                             return Utils.SetDrmId(drmId, domain.m_nDomainID, udid, m_nGroupID);
                         }
                         return false;
-                       
+
                     case DrmSecurityPolicy.HouseholdLevel:
-                        
-                        deviceIds = (domain.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Where(f=> drmPolicy.FamilyLimitation.Count == 0||
+
+                        deviceIds = (domain.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Where(f => drmPolicy.FamilyLimitation.Count == 0 ||
                             !drmPolicy.FamilyLimitation.Contains(f.m_deviceFamilyID)).Select(y => int.Parse(y.m_id)).ToList<int>();
                         if (CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy, drmValue))
                         {
                             return Utils.SetDrmId(drmId, domain.m_nDomainID, udid, m_nGroupID);
                         }
                         return false;
-                    
+
                     default:
                         return false;
                 }
@@ -2067,7 +2068,7 @@ namespace Core.Users
             domainDrmId = Utils.GetDomainDrmId(m_nGroupID, domain.m_nDomainID, deviceIds);
             // drmid exsits (in the houshold)
             if (domainDrmId != null && domainDrmId.Count > 0)
-            {               
+            {
                 if (domainDrmId.Where(x => x.Value == drmId).Count() > 0)
                 {
                     if (drmPolicy == DrmSecurityPolicy.DeviceLevel)
@@ -2080,7 +2081,7 @@ namespace Core.Users
                         {
                             return false;
                         }
-                    } 
+                    }
                     return true;
                 }
                 else if (drmPolicy == DrmSecurityPolicy.HouseholdLevel && drmValue.Key > 0 && !string.IsNullOrEmpty(drmValue.Value))
@@ -2110,7 +2111,7 @@ namespace Core.Users
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotExists, "Device does not exist");
                 return response;
             }
-            
+
             // validations
             if (string.IsNullOrEmpty(device.m_pin))
             {
@@ -2172,7 +2173,7 @@ namespace Core.Users
             {
                 log.ErrorFormat("Failed to delete pin for device after successful login. udid = {0}, pin = {1}", udid, pin);
             }
-            
+
             return response;
         }
 
@@ -2208,6 +2209,80 @@ namespace Core.Users
                 }
             }
             return response;
+        }
+
+        public virtual ApiObjects.Response.Status ShouldPurgeDomain(int domainId, out bool shouldPurge)
+        {
+            shouldPurge = false;
+            DataTable dt = DomainDal.GetDomainDbObject(this.m_nGroupID, domainId);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                //check if domain exist and belong to partner
+                DataRow dr = dt.Rows[0];
+                int domianStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
+                int purge = ODBCWrapper.Utils.GetIntSafeVal(dr, "PURGE");
+
+                // if Purge column value true - error already purge
+                if (purge == 1)
+                {
+                    log.ErrorFormat("PurgeDomain failed: Household {0}, GroupId: {1} already purged", domainId, this.m_nGroupID);
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = "Household already purged" };
+                }
+
+                if (domianStatus != 2)
+                {
+                    shouldPurge = false;
+                    log.ErrorFormat("PurgeDomain failed: Household {0}, GroupId: {1} need to be deleted before purged", domainId, this.m_nGroupID);
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+                }
+                else
+                {
+                    shouldPurge = true;
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+                }
+            }
+            else
+            {
+                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.DomainNotExists, Message = eResponseStatus.DomainNotExists.ToString() };
+            }
+        }
+
+        public virtual ApiObjects.Response.Status PurgeDomain(int domainId)
+        {
+            DataTable dt = DomainDal.GetDomainDbObject(this.m_nGroupID, domainId);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                //check if domain exist and belong to partner
+                DataRow dr = dt.Rows[0];
+                int domianStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
+                int purge = ODBCWrapper.Utils.GetIntSafeVal(dr, "PURGE");
+
+                // if Purge column value true - error already purge
+                if (purge == 1)
+                {
+                    log.ErrorFormat("PurgeDomain failed: Household {0}, GroupId: {1} already purged", domainId, this.m_nGroupID);
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = "Household already purged" };
+                }
+
+                if (domianStatus != 2)
+                {
+                    log.ErrorFormat("PurgeDomain failed: Household {0}, GroupId: {1} need to be deleted before purged", domainId, this.m_nGroupID);
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                }
+
+                //else purge domain and users
+                bool success = DomainDal.PurgeDomain(this.m_nGroupID, domainId);
+                if (success)
+                {
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+                }
+            }
+            else
+            {
+                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.DomainNotExists, Message = eResponseStatus.DomainNotExists.ToString() };
+            }
+
+            return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
         }
     }
 }
