@@ -41,28 +41,41 @@ namespace SubscriptionRenewHandler
                 switch (requestType)
                 {
                     case eSubscriptionRenewRequestType.Renew:
-                    {
-                        success = Core.ConditionalAccess.Module.Renew(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
-                        break;
-                    }
-                    case eSubscriptionRenewRequestType.RenewUnifiedTransaction:
                         {
-                            success = Core.ConditionalAccess.Module.RenewUnifiedTransaction(request.GroupID, request.HouseholdId, request.PaymentgatewayId, request.EndDate);
+                            success = Core.ConditionalAccess.Module.Renew(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
                             break;
                         }
-
+                    case eSubscriptionRenewRequestType.RenewUnifiedTransaction:
+                        {
+                            success = Core.ConditionalAccess.Module.RenewUnifiedTransaction(request.GroupID, request.HouseholdId, request.ProcessId, request.EndDate);
+                            break;
+                        }
                     case eSubscriptionRenewRequestType.Reminder:
-                    {
-                        success = Core.ConditionalAccess.Module.GiftCardReminder(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
-                        break;
-                    }
+                    case eSubscriptionRenewRequestType.GiftCardReminder:
+                        {
+                            success = Core.ConditionalAccess.Module.GiftCardReminder(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
+                            break;
+                        }
                     case eSubscriptionRenewRequestType.Downgrade:
-                    {
-                        success = Core.ConditionalAccess.Module.HandleDowngrade(request.GroupID, request.SiteGuid, request.PurchaseId);
-                        break;
-                    }
+                        {
+                            success = Core.ConditionalAccess.Module.HandleDowngrade(request.GroupID, request.SiteGuid, request.PurchaseId);
+                            break;
+                        }
+                    case eSubscriptionRenewRequestType.RenewalReminder:
+                        {
+                            if (request.ProcessId > 0)
+                            {
+                                success = Core.ConditionalAccess.Module.UnifiedRenewalReminder(
+                                    request.GroupID, request.SiteGuid, request.HouseholdId, request.ProcessId, request.EndDate);
+                            }
+                            else if (request.PurchaseId > 0)
+                            {
+                                success = Core.ConditionalAccess.Module.RenewalReminder(request.GroupID, request.SiteGuid, request.PurchaseId, request.EndDate);
+                            }
+                            break;
+                        }
                     default:
-                    break;
+                        break;
                 }
 
                 if (!success)
