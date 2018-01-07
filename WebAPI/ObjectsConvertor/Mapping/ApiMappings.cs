@@ -518,7 +518,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.filter.ToString()))
               ;
 
-            #endregion            
+            #endregion
+
+            #region DRM Adapter
+
+            Mapper.CreateMap<DrmAdapter, KalturaDRMAdapterProfile>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings))
+              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.ExternalIdentifier))
+              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+
+            #endregion
         }
 
         private static List<Permission> ConvertPermissionsNames(string permissionNames, string excludedPermissionNames)

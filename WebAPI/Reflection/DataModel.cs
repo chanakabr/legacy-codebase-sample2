@@ -3491,6 +3491,34 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDRMAdapterProfile":
+                    switch(property.Name)
+                    {
+                        case "AdapterUrl":
+                            return "adapterUrl";
+                        case "Id":
+                            return "id";
+                        case "IsActive":
+                            return "isActive";
+                        case "Name":
+                            return "name";
+                        case "Settings":
+                            return "settings";
+                        case "SharedSecret":
+                            return "sharedSecret";
+                        case "SystemName":
+                            return "systemName";
+                    }
+                    break;
+                    
+                case "KalturaDRMAdapterProfileListResponse":
+                    switch(property.Name)
+                    {
+                        case "Adapters":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaDrmPlaybackPluginData":
                     switch(property.Name)
                     {

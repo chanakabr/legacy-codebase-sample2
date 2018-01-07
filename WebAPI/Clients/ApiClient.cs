@@ -51,7 +51,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
         }
-
+        
         internal List<KalturaUserRole> GetUserRoles(int groupId, string userId)
         {
             List<KalturaUserRole> roles = new List<KalturaUserRole>();
@@ -3007,11 +3007,9 @@ namespace WebAPI.Clients
             return isSuccess;
         }
 
-        internal KalturaCDNAdapterProfileListResponse GetCDNRAdapters(int groupId)
+        internal KalturaCDNAdapterProfileListResponse GetCDNAdapters(int groupId)
         {
             KalturaCDNAdapterProfileListResponse result = new KalturaCDNAdapterProfileListResponse() { TotalCount = 0 };
-
-
 
             CDNAdapterListResponse response = null;
             try
@@ -3840,5 +3838,43 @@ namespace WebAPI.Clients
 
             return drmAdapterResponse.Value;
         }
+
+        internal KalturaDRMAdapterProfileListResponse GetDrmAdapters(int groupId)
+        {
+            KalturaDRMAdapterProfileListResponse result = new KalturaDRMAdapterProfileListResponse() { TotalCount = 0 };
+
+            DrmAdapterListResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetDrmAdapters(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Adapters.Count > 0)
+            {
+                result.TotalCount = response.Adapters.Count;
+                result.Adapters = AutoMapper.Mapper.Map<List<KalturaDRMAdapterProfile>>(response.Adapters);
+            }
+
+            return result;
+        }
+
     }
 }
