@@ -4331,6 +4331,8 @@ namespace WebAPI.Reflection
                             return "duration";
                         case "ExternalId":
                             return "externalId";
+                        case "FileSize":
+                            return "fileSize";
                         case "HandlingType":
                             return "handlingType";
                         case "Id":
