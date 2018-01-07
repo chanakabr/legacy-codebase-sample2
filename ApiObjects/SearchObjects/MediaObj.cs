@@ -25,17 +25,14 @@ namespace ApiObjects.SearchObjects
         public string m_sFinalEndDate;
         public string m_sCreateDate;
         public string m_sUpdateDate;
-        public string CatalogStartDate { get; set; }
 
         public string m_sMFTypes;
 
         public string m_sName;
         public string m_sDescription;
         public string m_sUserTypes;
-        public string CoGuid { get; set; }
-        public string EntryId { get; set; }
 
-        public Dictionary<string, HashSet<string>> m_dTagValues;
+        public Dictionary<string, Dictionary<long, string>> m_dTagValues;
         public Dictionary<string, string> m_dMeatsValues;
 
         /// <summary>
@@ -92,18 +89,16 @@ namespace ApiObjects.SearchObjects
             m_sUpdateDate = sNow;
             m_sStartDate = sNow;
             m_sCreateDate = sNow;
-            CatalogStartDate = sNow;
+
             m_sEndDate = sMax;
             m_sFinalEndDate = sMax;
 
             m_dMeatsValues = new Dictionary<string, string>();
-            m_dTagValues = new Dictionary<string, HashSet<string>>();
+            m_dTagValues = new Dictionary<string, Dictionary<long, string>>();
             regions = new List<int>();
             freeFileTypes = new List<int>();
 
             epgIdentifier = null;
-            CoGuid = string.Empty;
-            EntryId = string.Empty;
         }
 
         #endregion
@@ -131,23 +126,26 @@ namespace ApiObjects.SearchObjects
                 m_sMFTypes = this.m_sMFTypes,
                 m_sFinalEndDate = this.m_sFinalEndDate,
                 m_sStartDate = this.m_sStartDate,
-                CatalogStartDate =this.CatalogStartDate,
                 m_sUpdateDate = this.m_sUpdateDate,
                 m_sUserTypes = this.m_sUserTypes,
                 geoBlockRule = this.geoBlockRule,
                 epgIdentifier = this.epgIdentifier,
-                isFree = this.isFree,
-                CoGuid = this.CoGuid,
-                EntryId = this.EntryId
+                isFree = this.isFree
             };
 
             clone.m_dMeatsValues = (from meta in this.m_dMeatsValues select meta).ToDictionary(x => x.Key, x => x.Value);
 
-            clone.m_dTagValues = new Dictionary<string, HashSet<string>>();
+            clone.m_dTagValues = new Dictionary<string, Dictionary<long, string>>();
 
             foreach (string tagName in this.m_dTagValues.Keys)
-            {               
-                clone.m_dTagValues[tagName] = new HashSet<string>(this.m_dTagValues[tagName], StringComparer.OrdinalIgnoreCase);
+            {
+                Dictionary<long, string> dTag = new Dictionary<long, string>();
+                foreach (int tagID in this.m_dTagValues[tagName].Keys)
+                {
+                    dTag.Add(tagID, this.m_dTagValues[tagName][tagID]);
+                }
+
+                clone.m_dTagValues[tagName] = dTag;
             }
 
             clone.regions.AddRange(this.regions);

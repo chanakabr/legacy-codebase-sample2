@@ -50,22 +50,16 @@ namespace Core.Catalog
                 int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
-                definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.IsOperatorSearch;
+                definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes;
 
                 definitions.shouldIgnoreDeviceRuleID = request.shouldIgnoreDeviceRuleID;
 
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(parentGroupID);
 
-                definitions.isOperatorSearch = request.IsOperatorSearch;
-                if (definitions.isOperatorSearch)
-                {
-                    definitions.shouldAddIsActiveTerm = false;
-                }
-
                 if (request.filterTree != null)
                 {
-                    CatalogLogic.UpdateNodeTreeFields(request, ref request.filterTree, definitions, group, parentGroupID);
+                    CatalogLogic.UpdateNodeTreeFields(request, ref request.filterTree, definitions, group);
                 }
 
                 // Get days offset for EPG search from TCM

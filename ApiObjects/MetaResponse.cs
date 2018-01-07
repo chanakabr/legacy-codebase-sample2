@@ -27,7 +27,7 @@ namespace ApiObjects
         public string ParentId { get; set; }
         public int PartnerId { get; set; }
         public string Id { get; set; }  // partnerId_AssetType_ColumnIndex  || partnerId_AssetType_TagId              
-        public bool MultipleValue { get; set; }        
+        public bool IsTag { get; set; }        
     }
 
     public enum MetaFeatureType

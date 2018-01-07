@@ -86,9 +86,6 @@ namespace Core.Catalog.Request
         [DataMember]
         public SearchAggregationGroupBy searchGroupBy;
 
-        [DataMember]
-        public bool IsOperatorSearch;
-
         #endregion
 
         #region Ctor
@@ -128,7 +125,6 @@ namespace Core.Catalog.Request
             this.nameAndDescription = nameAndDescription;
             this.shouldIgnoreDeviceRuleID = false;
             this.exactGroupId = 0;
-            this.IsOperatorSearch = false;
         }
 
         #endregion

@@ -7302,8 +7302,8 @@ namespace Core.ConditionalAccess
                         Int32 nNameLangLength = theSub.m_sName.Length;
                         for (int j = 0; j < nNameLangLength; j++)
                         {
-                            string sLang = theSub.m_sName[j].LanguageCode;
-                            string sVal = theSub.m_sName[j].Value;
+                            string sLang = theSub.m_sName[j].m_sLanguageCode3;
+                            string sVal = theSub.m_sName[j].m_sValue;
 
                             if (sLang == sMainLangCode)
                             {
@@ -8741,8 +8741,8 @@ namespace Core.ConditionalAccess
                             Int32 nNameLangLength = theSub.m_sName.Length;
                             for (int j = 0; j < nNameLangLength; j++)
                             {
-                                string sLang = theSub.m_sName[j].LanguageCode;
-                                string sVal = theSub.m_sName[j].LanguageCode;
+                                string sLang = theSub.m_sName[j].m_sLanguageCode3;
+                                string sVal = theSub.m_sName[j].m_sValue;
                                 if (sLang == sMainLangCode)
                                     pphc.m_sPurchasedItemName = sVal;
                             }

@@ -34,16 +34,6 @@ namespace Core.Catalog
         public Metas()
         {
         }
-
-        public Metas(TagMeta tagMeta, string value, List<LanguageContainer> languageContainer)
-        {
-            m_oTagMeta = tagMeta;
-            m_sValue = value;
-            if (languageContainer != null)
-            {
-                Value = new List<LanguageContainer>(languageContainer).ToArray();
-            }
-        }
     }
     [DataContract]
     public class Tags
@@ -58,13 +48,6 @@ namespace Core.Catalog
 
         public Tags()
         {
-        }
-
-        public Tags(TagMeta tagMeta, List<string> values, List<LanguageContainer[]> languageContainers)
-        {
-            m_oTagMeta = tagMeta;
-            m_lValues = new List<string>(values);
-            Values = new List<LanguageContainer[]>(languageContainers);
         }
     }
 

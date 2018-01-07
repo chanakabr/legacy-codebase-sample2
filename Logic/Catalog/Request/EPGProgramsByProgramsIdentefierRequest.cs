@@ -67,7 +67,7 @@ namespace Core.Catalog.Request
                     shouldSearchEpg = true,
                     pageIndex = 0,
                     pageSize = request.pids.Count(),
-                    shouldAddIsActiveTerm = true,
+                    shouldAddActive = true,
                     shouldUseStartDate = false,
                     shouldUseFinalEndDate = false,
                     shouldUseSearchEndDate = false,

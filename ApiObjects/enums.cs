@@ -101,9 +101,7 @@ namespace ApiObjects
         [EnumMember]
         EpgChannel = 3,
         [EnumMember]
-        Recording = 4,
-        [EnumMember]
-        Tag = 5
+        Recording = 4
     }
 
     [Serializable]
@@ -310,8 +308,7 @@ namespace ApiObjects
         Channel = 1,
         Category = 2,
         DefaultPic = 3,
-        LogoPic = 4,
-        ImageType = 5
+        LogoPic = 4
     }
 
     [Serializable]
@@ -441,7 +438,7 @@ namespace ApiObjects
         OK = 1,
 
         [EnumMember]
-        Failed = 2,
+        Failed = 2
     }
 
     [Serializable]
@@ -758,13 +755,12 @@ namespace ApiObjects
 
     public enum MetaType
     {
-        All = 0,
-        String = 1,
-        Number = 2,
-        Bool = 3,
-        Tag = 4,
-        DateTime = 5,
-        MultilingualString = 6
+        All,
+        String,
+        Number,
+        Bool,
+        Tag,
+        DateTime
     }
 
     public enum MetaFieldName
@@ -972,5 +968,4 @@ namespace ApiObjects
         Disable = 0,
         Delete = 1
     }
-    
 }
