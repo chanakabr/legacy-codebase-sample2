@@ -677,20 +677,6 @@
             </remarks>        
             <param name="emailMessage">email details</param>     
         </member>
-        <member name="M:WebAPI.Controllers.CuePointController.List(WebAPI.Models.KalturaCuePointFilter)">
-            <summary>
-            Returns promotions list regarding to mediaId
-            </summary>        
-            <param name="filter">Filter</param>
-            <remarks></remarks>
-        </member>
-        <member name="M:WebAPI.Controllers.CuePointController.Save(System.Int64)">
-            <summary>
-            Saves a Promotion for later
-            </summary>        
-            <param name="id">Promotion ID</param>
-            <remarks></remarks>
-        </member>
         <member name="M:WebAPI.Controllers.UnifiedPaymentController.GetNextRenewal(System.Int32)">
             <summary>
             Returns the data about the next renewal 
@@ -8162,81 +8148,6 @@
         <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
             <summary>
             Total items
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePoint.Id">
-            <summary>
-            Id  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePoint.Link">
-            <summary>
-            Link
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePoint.Text">
-            <summary>
-            Text
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePoint.StartTime">
-            <summary>
-            StartTime 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePoint.EndTime">
-            <summary>
-            EndTime  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePoint.Saved">
-            <summary>
-            Saved  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePoint.LocationX">
-            <summary>
-            Location X  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePoint.LocationY">
-            <summary>
-            Location Y  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePoint.ProviderThumbnail">
-            <summary>
-            Provider Thumbnail
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePoint.Image">
-            <summary>
-            Image
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePoint.AnimationType">
-            <summary>
-            Animation Type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.KalturaCuePointListResponse">
-            <summary>
-            KalturaCuePointListResponse
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePointListResponse.CuePoints">
-            <summary>
-            A list of promotions
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePointFilter.AssetIdEqual">
-            <summary>
-            Asset ID  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.KalturaCuePointFilter.SavedEqual">
-            <summary>
-            SavedEqual  
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.TemplateName">
