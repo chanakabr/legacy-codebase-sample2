@@ -23,7 +23,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "eventType")]
         [JsonProperty(PropertyName = "eventType")]
         [XmlElement(ElementName = "eventType")]
-        public KalturaEventAction eventType
+        public KalturaEventAction? eventType
         {
             get;
             set;
@@ -33,6 +33,15 @@ namespace WebAPI.Models.General
         [JsonProperty(PropertyName = "eventObjectType")]
         [XmlElement(ElementName = "eventObjectType")]
         public string eventObjectType
+        {
+            get;
+            set;
+        }
+
+        [DataMember(Name = "systemName")]
+        [JsonProperty(PropertyName = "systemName")]
+        [XmlElement(ElementName = "systemName")]
+        public string systemName
         {
             get;
             set;

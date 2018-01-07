@@ -10,7 +10,7 @@ namespace WebAPI.EventNotifications
 {
     public class EventConverter
     {
-        public static KalturaNotification ConvertEvent(string phoenixType, KalturaObjectActionEvent actionEvent)
+        public static KalturaNotification ConvertEvent(string phoenixType, KalturaObjectEvent objectEvent)
         {
             // convert the WS object to an API/rest/phoenixObject
             object phoenixObject = null;
@@ -20,17 +20,17 @@ namespace WebAPI.EventNotifications
             Type destination = Type.GetType(phoenixType);
 
             // If we have an object, convert it normally
-            if (actionEvent.Object != null)
+            if (objectEvent.Object != null)
             {
-                Type sourceType = actionEvent.Object.GetType();
+                Type sourceType = objectEvent.Object.GetType();
 
-                phoenixObject = AutoMapper.Mapper.Map(actionEvent.Object, sourceType, destination);
+                phoenixObject = AutoMapper.Mapper.Map(objectEvent.Object, sourceType, destination);
                 ottObject = phoenixObject as KalturaOTTObject;
             }
             else
             {
                 // Otherwise we need to start
-                var deleteEvent = actionEvent as KalturaObjectDeletedEvent;
+                var deleteEvent = objectEvent as KalturaObjectDeletedEvent;
 
                 if (deleteEvent != null)
                 {
@@ -42,11 +42,23 @@ namespace WebAPI.EventNotifications
                 }
             }
 
+            KalturaEventAction action = KalturaEventAction.None;
+
+            KalturaObjectActionEvent actionEvent = objectEvent as KalturaObjectActionEvent;
+
+            if (actionEvent != null)
+            {
+                action = ConvertKalturaAction(actionEvent.Action);
+            }
+
+            string systemName = objectEvent.GetSystemName();
+
             KalturaNotification eventWrapper = new KalturaNotification()
             {
                 eventObject = ottObject,
-                eventType = ConvertKalturaAction(actionEvent.Action),
-                eventObjectType = destination.Name
+                eventType = action,
+                eventObjectType = destination.Name,
+                systemName = systemName
             };
 
             return eventWrapper;
