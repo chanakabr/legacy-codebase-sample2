@@ -82,13 +82,13 @@ namespace WebAPI.Models.Catalog
         public KalturaAssetFileStreamerType? StreamerType { get; set; }
 
         /// <summary>
-        /// DRM adapter-profile identifier, use -1 for uDRM, NULL for no DRM.
+        /// DRM adapter-profile identifier, use -1 for uDRM, 0 for no DRM.
         /// </summary>
         [DataMember(Name = "drmAdapterProfileId")]
         [JsonProperty(PropertyName = "drmAdapterProfileId")]
         [XmlElement(ElementName = "drmAdapterProfileId")]
         [SchemeProperty(MinInteger = -1)]
-        public int? DrmAdapterProfileId { get; set; }
+        public int DrmAdapterProfileId { get; set; }
 
         public void validateForInsert()
         {

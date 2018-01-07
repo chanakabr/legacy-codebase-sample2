@@ -392,7 +392,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<KalturaAssetFileType, AssetFileType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status.HasValue ? src.Status.Value : true))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
