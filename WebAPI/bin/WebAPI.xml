@@ -876,6 +876,12 @@
             </remarks>        
             <param name="emailMessage">email details</param>     
         </member>
+        <member name="M:WebAPI.Controllers.UnifiedPaymentController.GetNextRenewal(System.Int32)">
+            <summary>
+            Returns the data about the next renewal 
+            </summary>                
+            <param name="id">Unified payment ID</param>
+        </member>
         <member name="M:WebAPI.Controllers.PriceDetailsController.List(WebAPI.Models.Pricing.KalturaPriceDetailsFilter)">
             <summary>
             Returns the list of available prices, can be filtered by price IDs
@@ -3037,7 +3043,7 @@
             Immediately cancel a subscription, PPV or collection. Cancel is possible only if within cancellation window and content not already consumed
             </summary>                
             <param name="assetId">The mediaFileID to cancel</param>        
-            <param name="transactionType">The transaction type for the cancelation</param>
+            <param name="productType">The product type for the cancelation</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         </member>
@@ -3046,7 +3052,7 @@
             Immediately cancel a subscription, PPV or collection. Cancel applies regardless of cancellation window and content consumption status
             </summary>                
             <param name="assetId">The mediaFileID to cancel</param>        
-            <param name="transactionType">The transaction type for the cancelation</param>
+            <param name="productType">The product type for the cancelation</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000</remarks>
         </member>
@@ -3151,6 +3157,12 @@
             </summary>
             <param name="scheduledSubscriptionId">Scheduled Subscription Identifier</param>
             <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.EntitlementController.GetNextRenewal(System.Int32)">
+            <summary>
+            Returns the data about the next renewal 
+            </summary>                
+            <param name="id">Purchase Id</param>
         </member>
         <member name="M:WebAPI.Controllers.FavoriteController.Add(WebAPI.Models.Users.KalturaFavorite)">
             <summary>
@@ -3941,7 +3953,7 @@
              <summary>
              Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
              </summary>
-             <param name="id">Household identifier</param>        
+             <param name="id">Household identifier</param>                
              <remarks>Possible status codes: 
             </remarks>
         </member>
@@ -3949,7 +3961,7 @@
              <summary>
              Fully delete a household per specified internal or external ID. Delete all of the household information, including users, devices, transactions and assets.
              </summary>                
-             <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>
+             <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>        
              <remarks>Possible status codes: 
             </remarks>
         </member>
@@ -3967,6 +3979,14 @@
              </summary>                
              <remarks>Possible status codes: 
              Household already active = 1013
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdController.Purge(System.Int32)">
+             <summary>
+             Purge a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
+             </summary>
+             <param name="id">Household identifier</param>                
+             <remarks>Possible status codes: 
             </remarks>
         </member>
         <member name="T:WebAPI.Controllers.OttUserController">
@@ -5783,6 +5803,11 @@
             Product code 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.FileSize">
+            <summary>
+            File size
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaImage">
             <summary>
             Image details
@@ -7188,6 +7213,61 @@
             The parameters to pass to the ads server 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.Price">
+            <summary>
+            Price that is going to be paid on the renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.Date">
+            <summary>
+            Next renewal date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.PurchaseId">
+            <summary>
+            Puchase ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewal.SubscriptionId">
+            <summary>
+            Subscription ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Price">
+            <summary>
+            Price that is going to be paid on the renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Date">
+            <summary>
+            Next renewal date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.UnifiedPaymentId">
+            <summary>
+            Unified payment ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaUnifiedPaymentRenewal.Entitlements">
+            <summary>
+            List of entitlements in this unified payment renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.Price">
+            <summary>
+            Price that is going to be paid on the renewal
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.PurchaseId">
+            <summary>
+            Puchase ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementRenewalBase.SubscriptionId">
+            <summary>
+            Subscription ID
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaAccessControlMessage.Message">
             <summary>
             Message
@@ -7421,6 +7501,11 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.ScheduledSubscriptionId">
             <summary>
             Scheduled Subscription Identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.UnifiedPaymentId">
+            <summary>
+            Unified payment identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsSuspended">
@@ -7664,6 +7749,11 @@
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.EntitlementTypeEqual">
+             <summary>
+            The type of the entitlements to return
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.ProductTypeEqual">
              <summary>
             The type of the entitlements to return
              </summary>
@@ -8125,6 +8215,11 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.EntitlementId">
              <summary>
             Entitlement identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.ProductId">
+             <summary>
+            Product identifier
              </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.CurrentUses">
@@ -8839,24 +8934,6 @@
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaReminderFilter`1.KSql">
-            <summary>
-            <![CDATA[
-            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
-            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
-            epg_id, media_id - for specific asset IDs.
-            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
-            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
-            user_interests - only valid value is "true". When enabled, only assets that the user defined as his interests (by tags and metas) will return.
-            epg_channel_id – the channel identifier of the EPG program.
-            entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
-            For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
-            Logical conjunction: and, or. 
-            Search values are limited to 20 characters each.
-            (maximum length of entire filter is 2048 characters)]]>
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaAssetReminderFilter.KSql">
             <summary>
             <![CDATA[
             Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
@@ -10086,7 +10163,7 @@
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaPrice.CountryId">
              <summary>
-            Currency
+            Country ID
              </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaSubscription">
@@ -11718,6 +11795,11 @@
         <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayProfile.RenewStartMinutes">
             <summary>
             Renew Start Minutes
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayProfile.ExternalVerification">
+            <summary>
+            Payment gateway external verification
             </summary>
         </member>
         <member name="T:WebAPI.Models.Billing.KalturaPaymentGatewayProfileListResponse">

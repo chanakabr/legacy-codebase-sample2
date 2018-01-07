@@ -39,6 +39,30 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaCollectionEntitlement":
+                    switch (propertyName)
+                    {
+                        case "EntitlementId":
+                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                    };
+                    break;
+                    
+                case "KalturaEntitlement":
+                    switch (propertyName)
+                    {
+                        case "EntitlementId":
+                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                    };
+                    break;
+                    
+                case "KalturaEntitlementFilter":
+                    switch (propertyName)
+                    {
+                        case "EntitlementTypeEqual":
+                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                    };
+                    break;
+                    
                 case "KalturaLinearMediaAsset":
                     switch (propertyName)
                     {
@@ -119,6 +143,14 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaPpvEntitlement":
+                    switch (propertyName)
+                    {
+                        case "EntitlementId":
+                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                    };
+                    break;
+                    
                 case "KalturaPricePlan":
                     switch (propertyName)
                     {
@@ -187,6 +219,14 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaSubscriptionEntitlement":
+                    switch (propertyName)
+                    {
+                        case "EntitlementId":
+                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                    };
+                    break;
+                    
                 case "KalturaUserRole":
                     switch (propertyName)
                     {
@@ -225,6 +265,14 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "Statistics":
+                            return true;
+                    };
+                    break;
+                    
+                case "KalturaAssetReminderFilter":
+                    switch (propertyName)
+                    {
+                        case "KSql":
                             return true;
                     };
                     break;
@@ -581,8 +629,16 @@ namespace WebAPI.Reflection
                         case "Cancel":
                             ret = new Dictionary<string, string>() { 
                                  {"assetId", "asset_id"},
-                                 {"transactionType", "transaction_type"},
+                                 {"productType", "transaction_type"},
                             };
+                            if (currentVersion != null && currentVersion.CompareTo(new Version("4.7.0.0")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)
+                            {
+                                if (ret.ContainsKey("productType"))
+                                {
+                                    ret.Remove("productType");
+                                }
+                                ret.Add("productType", "transactionType");
+                            }
                             break;
                         case "CancelRenewal":
                             ret = new Dictionary<string, string>() { 
@@ -592,8 +648,16 @@ namespace WebAPI.Reflection
                         case "ForceCancel":
                             ret = new Dictionary<string, string>() { 
                                  {"assetId", "asset_id"},
-                                 {"transactionType", "transaction_type"},
+                                 {"productType", "transaction_type"},
                             };
+                            if (currentVersion != null && currentVersion.CompareTo(new Version("4.7.0.0")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)
+                            {
+                                if (ret.ContainsKey("productType"))
+                                {
+                                    ret.Remove("productType");
+                                }
+                                ret.Add("productType", "transactionType");
+                            }
                             break;
                         case "Grant":
                             ret = new Dictionary<string, string>() { 
@@ -2569,14 +2633,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaAssetReminderFilter":
-                    switch(property.Name)
-                    {
-                        case "KSql":
-                            return "kSql";
-                    }
-                    break;
-                    
                 case "KalturaAssetsBookmarksResponse":
                     switch(property.Name)
                     {
@@ -3594,6 +3650,8 @@ namespace WebAPI.Reflection
                             return "nextRenewalDate";
                         case "PaymentMethod":
                             return "paymentMethod";
+                        case "ProductId":
+                            return "productId";
                         case "PurchaseDate":
                             return "purchaseDate";
                         case "PurchaseId":
@@ -3630,6 +3688,8 @@ namespace WebAPI.Reflection
                             return "entityReferenceEqual";
                         case "IsExpiredEqual":
                             return "isExpiredEqual";
+                        case "ProductTypeEqual":
+                            return "productTypeEqual";
                     }
                     break;
                     
@@ -3638,6 +3698,32 @@ namespace WebAPI.Reflection
                     {
                         case "Entitlements":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaEntitlementRenewal":
+                    switch(property.Name)
+                    {
+                        case "Date":
+                            return "date";
+                        case "Price":
+                            return "price";
+                        case "PurchaseId":
+                            return "purchaseId";
+                        case "SubscriptionId":
+                            return "subscriptionId";
+                    }
+                    break;
+                    
+                case "KalturaEntitlementRenewalBase":
+                    switch(property.Name)
+                    {
+                        case "Price":
+                            return "price";
+                        case "PurchaseId":
+                            return "purchaseId";
+                        case "SubscriptionId":
+                            return "subscriptionId";
                     }
                     break;
                     
@@ -4544,6 +4630,8 @@ namespace WebAPI.Reflection
                             return "duration";
                         case "ExternalId":
                             return "externalId";
+                        case "FileSize":
+                            return "fileSize";
                         case "HandlingType":
                             return "handlingType";
                         case "Id":
@@ -4968,6 +5056,8 @@ namespace WebAPI.Reflection
                             return "adapterUrl";
                         case "ExternalIdentifier":
                             return "externalIdentifier";
+                        case "ExternalVerification":
+                            return "externalVerification";
                         case "IsActive":
                             return "isActive";
                         case "PendingInterval":
@@ -6384,6 +6474,8 @@ namespace WebAPI.Reflection
                             return "paymentMethodId";
                         case "ScheduledSubscriptionId":
                             return "scheduledSubscriptionId";
+                        case "UnifiedPaymentId":
+                            return "unifiedPaymentId";
                     }
                     break;
                     
@@ -6640,6 +6732,20 @@ namespace WebAPI.Reflection
                             return "language";
                         case "Value":
                             return "value";
+                    }
+                    break;
+                    
+                case "KalturaUnifiedPaymentRenewal":
+                    switch(property.Name)
+                    {
+                        case "Date":
+                            return "date";
+                        case "Entitlements":
+                            return "entitlements";
+                        case "Price":
+                            return "price";
+                        case "UnifiedPaymentId":
+                            return "unifiedPaymentId";
                     }
                     break;
                     
