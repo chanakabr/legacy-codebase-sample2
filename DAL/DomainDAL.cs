@@ -41,6 +41,8 @@ namespace DAL
         private const string SP_REMOVE_DOMAIN = "sp_RemoveDomain";
         private const string SP_RESET_DOMAIN_FREQUENCY = "sp_ResetDomainFrequency";
         private const string SP_UPDATE_DOMAIN_CoGuid = "Update_DomainCoGuid";
+        private const string SP_PURGE_DOMAIN = "Purge_Domain";
+
         #endregion
 
 
@@ -660,12 +662,7 @@ namespace DAL
             bool res = false;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DomainDataByID");
-                sp.SetConnectionKey("USERS_CONNECTION_STRING");
-                sp.AddParameter("@GroupId", groupID);
-                sp.AddParameter("@Id", domainID);
-
-                DataTable dt = sp.Execute();
+                DataTable dt = GetDomainDbObject(groupID, domainID);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     DataRow dr = dt.Rows[0];
@@ -686,6 +683,26 @@ namespace DAL
             }
 
             return res;
+        }
+
+        public static DataTable GetDomainDbObject(int groupID, int domainID)
+        {
+            DataTable dt = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DomainDataByID");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupID);
+                sp.AddParameter("@Id", domainID);
+
+                dt = sp.Execute();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return dt;
         }
 
         public static bool GetDomainDbObject(int nGroupID, DateTime dDateTime, ref string sName, ref string sDbDescription,
@@ -1311,7 +1328,7 @@ namespace DAL
 
         }
 
-        public static int SetDomainStatus(int nGroupID, int nDomainID, int nIsActive, int nStatus)
+        public static int SetDomainStatus(int nGroupID, int nDomainID, int nIsActive, int nStatus, bool purge)
         {
             int status = (-1);
 
@@ -1323,6 +1340,7 @@ namespace DAL
             spRemoveDomain.AddParameter("@GroupID", nGroupID);
             spRemoveDomain.AddParameter("@Status", nStatus);
             spRemoveDomain.AddParameter("@IsActive", nIsActive);
+            spRemoveDomain.AddParameter("@purge", purge);
 
             status = spRemoveDomain.ExecuteReturnValue<int>();
 
@@ -1973,7 +1991,6 @@ namespace DAL
             sp.AddParameter("@isActive", isActive);
             sp.AddParameter("@dominID", domainID);
             sp.AddIDListParameter<int>("@devicesID", lDevicesID, "Id");
-            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
             if (status != null)
                 sp.AddParameter("@status", status);
             sp.AddParameter("@downgradePolicy", (int)downgradePolicy);
@@ -2461,6 +2478,20 @@ namespace DAL
             }
 
             return response;
+        }
+
+        public static bool PurgeDomain(int nGroupID, int nDomainID)
+        {
+            int status = 0;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure(SP_PURGE_DOMAIN);
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", nGroupID);
+            sp.AddParameter("@domainId", nDomainID);
+
+            status = sp.ExecuteReturnValue<int>();
+
+            return status == 1;
         }
     }
 }

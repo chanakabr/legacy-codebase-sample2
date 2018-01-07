@@ -243,8 +243,15 @@ namespace EpgIngest
 
                     if (!string.IsNullOrEmpty(epgPicture.Ratio))
                     {
-                        int ratioID = ratios.Where(x => x.Value == epgPicture.Ratio).First().Key;
-                        row["ratio_id"] = ratioID;
+                        try
+                        {
+                            int ratioID = ratios.Where(x => x.Value == epgPicture.Ratio).First().Key;
+                            row["ratio_id"] = ratioID;
+                        }
+                        catch
+                        {
+                            row["ratio_id"] = 0;
+                        }
                     }
                     else
                     {
@@ -260,7 +267,5 @@ namespace EpgIngest
                 }
             }          
         }
-
-     
     }
 }
