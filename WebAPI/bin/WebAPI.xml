@@ -3725,7 +3725,7 @@
              <summary>
              Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
              </summary>
-             <param name="id">Household identifier</param>        
+             <param name="id">Household identifier</param>                
              <remarks>Possible status codes: 
             </remarks>
         </member>
@@ -3733,7 +3733,7 @@
              <summary>
              Fully delete a household per specified internal or external ID. Delete all of the household information, including users, devices, transactions and assets.
              </summary>                
-             <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>
+             <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>        
              <remarks>Possible status codes: 
             </remarks>
         </member>
@@ -3751,6 +3751,14 @@
              </summary>                
              <remarks>Possible status codes: 
              Household already active = 1013
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdController.Purge(System.Int32)">
+             <summary>
+             Purge a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
+             </summary>
+             <param name="id">Household identifier</param>                
+             <remarks>Possible status codes: 
             </remarks>
         </member>
         <member name="T:WebAPI.Controllers.OttUserController">
