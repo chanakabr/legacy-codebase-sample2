@@ -41,5 +41,11 @@ namespace ApiObjects
             this.Object = coreObject;
             this.type = type;
         }
+
+        public virtual string GetSystemName()
+        {
+            // e.g subscriptionended
+            return string.Format("{0}", this.Type); 
+        }
     }
 }

@@ -202,22 +202,44 @@ namespace ApiObjects
 
             return result;
         }
-        public bool Notify()
+        public bool Notify(eKalturaEventTime? time = eKalturaEventTime.After, string type = null)
         {
             bool result = true;
 
-            var afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
-                this.GroupId,
-                this,
-                eKalturaEventActions.None,
-                eKalturaEventTime.After));
+            List<EventManager.eEventConsumptionResult> afterEventResults = null;
 
-            foreach (var eventResult in afterEventResults)
+            // If we have time, it is an action event, otherwise it is just an object event.
+            if (time != null && time.HasValue)
             {
-                if (eventResult == EventManager.eEventConsumptionResult.Failure)
+                afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
+                    this.GroupId,
+                    this,
+                    eKalturaEventActions.None,
+                    time.Value,
+                    type));
+            }
+            else
+            {
+                afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectEvent(
+                    this.GroupId,
+                    this,
+                    type));
+            }
+
+            // check that we actually have results before running on list...
+            if (afterEventResults == null)
+            {
+                result = false;
+            }
+            else
+            {
+                foreach (var eventResult in afterEventResults)
                 {
-                    result = false;
-                    break;
+                    if (eventResult == EventManager.eEventConsumptionResult.Failure)
+                    {
+                        result = false;
+                        break;
+                    }
                 }
             }
 

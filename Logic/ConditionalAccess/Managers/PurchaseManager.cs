@@ -537,8 +537,10 @@ namespace Core.ConditionalAccess
                                         int paymentGatewayId, int paymentMethodId, string adapterData, Subscription subscriptionInTheSameSet, DomainSubscriptionPurchaseDetails previousSubsriptionPurchaseDetails)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            
             // cancel existing subscription renewal
             Status cancelRenewalStatus = cas.CancelSubscriptionRenewal((int)domainId, subscriptionInTheSameSet.m_sObjectCode);
+
             if (cancelRenewalStatus == null || cancelRenewalStatus.Code != (int)eResponseStatus.OK)
             {
                 log.ErrorFormat("Failed cas.CancelSubscriptionRenewal for domainId: {0}, subscriptionCode: {1}", domainId, subscriptionInTheSameSet.m_sObjectCode);
@@ -547,6 +549,7 @@ namespace Core.ConditionalAccess
             }
 
             long subscriptionSetModifyDetailsId = Utils.InsertSubscriptionSetModifyDetails(groupId, domainId, previousSubsriptionPurchaseDetails.PurchaseId, productId, SubscriptionSetModifyType.Downgrade);
+
             if (subscriptionSetModifyDetailsId <= 0)
             {
                 log.ErrorFormat("Failed to insert subscription set modify details, groupId: {0}, domainId: {1}, previousSubsriptionPurchaseDetails.PurchaseId: {2}, productId: {3}, type: {4}",
@@ -1268,15 +1271,16 @@ namespace Core.ConditionalAccess
                                         cas.UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
                                     }
 
+                                    long endDateUnix = 0;
+
+                                    if (endDate.HasValue)
+                                    {
+                                        endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
+                                    }
+
+                                    // If the subscription if recurring, put a message for renewal and all that...
                                     if (subscription.m_bIsRecurring)
                                     {
-                                        long endDateUnix = 0;
-
-                                        if (endDate.HasValue)
-                                        {
-                                            endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
-                                        }
-                                        
                                         DateTime nextRenewalDate = endDate.Value;
 
                                         if (!isGiftCard)
@@ -1325,10 +1329,10 @@ namespace Core.ConditionalAccess
                                         */
                                         if (isNew) // need to insert new unified billing message to queue
                                         {
-                                            Utils.RenewTransactionMessageInQueue(groupId, householdId, 
+                                            Utils.RenewTransactionMessageInQueue(groupId, householdId,
                                                 ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
                                         }
-                                       
+
                                         else if (unifiedBillingCycle == null || (entitleToPreview && !isNew))
                                         {
                                             // insert regular message 
@@ -1338,6 +1342,11 @@ namespace Core.ConditionalAccess
                                         //else do nothing, message already exists
 
                                         #endregion
+                                    }
+                                    else
+                                    // If subscription is not recurring, enqueue subscription ends message
+                                    {
+                                        RenewManager.EnqueueSubscriptionEndsMessage(groupId, siteguid, purchaseID, endDateUnix);
                                     }
 
                                     // build notification message
