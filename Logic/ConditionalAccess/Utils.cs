@@ -3013,8 +3013,8 @@ namespace Core.ConditionalAccess
 
 
                         var pp_description = (from descValue in pp.m_sDescription
-                                              where descValue.m_sLanguageCode3 == sLanguageCode
-                                              select descValue.m_sValue.ToString()).FirstOrDefault();
+                                              where descValue.LanguageCode == sLanguageCode
+                                              select descValue.Value.ToString()).FirstOrDefault();
 
                         ClaimObj = new InAppItemObject(pp.m_sObjectVirtualName, pp_description.ToString(), dChargePrice.ToString(), sCurrencyCode, nCustomDataID.ToString(), MY_SELLER_ID, 60, "Google", "google/payments/inapp/item/v1", 0);
 
@@ -3040,8 +3040,8 @@ namespace Core.ConditionalAccess
 
 
                         var sp_description = (from descValue in sp.m_sDescription
-                                              where descValue.m_sLanguageCode3 == sLanguageCode
-                                              select descValue.m_sValue.ToString()).FirstOrDefault();
+                                              where descValue.LanguageCode == sLanguageCode
+                                              select descValue.Value.ToString()).FirstOrDefault();
 
 
                         string sNumberOfRecPeriods = sp.m_nNumberOfRecPeriods == 0 ? null : sp.m_nNumberOfRecPeriods.ToString();

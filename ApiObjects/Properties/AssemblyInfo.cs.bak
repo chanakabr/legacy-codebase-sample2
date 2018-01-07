@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ApiObjects")]
-[assembly: AssemblyDescription("2017-06-12 15:35:24 | Hostname:IL-IRENAL-RND | Published by:Irena Leibman")]
+[assembly: AssemblyDescription("2017-09-27 11:09:42 | Hostname:IL-LIORFA-RND | Published by:")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("ApiObjects")]
@@ -31,6 +31,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("4.3.500.*")]
-[assembly: AssemblyVersion("4.3.500.*")]
-[assembly: AssemblyInformationalVersion("4.3-500-geafbe1b-dirty")]
+// [assembly: AssemblyVersion("4.5.64.*")]
+[assembly: AssemblyVersion("4.5.64.*")]
+[assembly: AssemblyInformationalVersion("4.5-64-gfefa744-dirty")]

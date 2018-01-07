@@ -17,6 +17,7 @@ using KLogMonitor;
 using System.Reflection;
 using KlogMonitorHelper;
 using Catalog.Response;
+using Core.Catalog.CatalogManagement;
 
 namespace Core.Catalog
 {
@@ -1171,7 +1172,7 @@ namespace Core.Catalog
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 
-            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, unifiedSearchDefinitions.shouldAddActive);
+            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, unifiedSearchDefinitions.shouldAddIsActiveTerm);
 
             if (!string.IsNullOrEmpty(requestBody))
             {
@@ -2389,7 +2390,7 @@ namespace Core.Catalog
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 
-            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddActive);
+            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddIsActiveTerm);
 
             if (!string.IsNullOrEmpty(requestBody))
             {
@@ -2703,6 +2704,243 @@ namespace Core.Catalog
 
             return result;
         }
+
+        #region Tags
+
+        public List<TagValue> SearchTags(TagSearchDefinitions definitions, out int totalItems)
+        {
+            List<TagValue> result = new List<TagValue>();
+            totalItems = 0;
+
+            #region Build filtered query
+
+            BoolQuery query = new BoolQuery();
+
+            // Create the bool query of the topic Id and the value (autocomplete)
+            ESTerm topicTerm = new ESTerm(true)
+            {
+                Key = "topic_id",
+                Value = definitions.TopicId.ToString()
+            };
+
+            ESTerm valueTerm = null;
+
+            if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue))
+            {
+                valueTerm = new ESTerm(false)
+                {
+                    Key = "value.autocomplete",
+                    Value = definitions.AutocompleteSearchValue
+                };
+            }
+            else if (!string.IsNullOrEmpty(definitions.ExactSearchValue))
+            {
+                valueTerm = new ESTerm(false)
+                {
+                    Key = "value",
+                    Value = definitions.ExactSearchValue
+                };
+            }
+
+            query.AddChild(topicTerm, CutWith.AND);
+
+            if (valueTerm != null)
+            {
+                query.AddChild(valueTerm, CutWith.AND);
+            }
+
+            FilteredQuery filteredQuery = new FilteredQuery()
+            {
+                PageIndex = definitions.PageIndex,
+                PageSize = definitions.PageSize,
+                Query = query
+            };
+
+            filteredQuery.ESSort.Add(new ESOrderObj()
+            {
+                m_sOrderValue = "value",
+                m_eOrderDir = OrderDir.ASC
+            });
+
+            filteredQuery.ReturnFields.Clear();
+
+            #endregion
+
+            #region Perform search
+
+            string searchQueryString = filteredQuery.ToString();
+
+            string type = "tag";
+
+            if (!definitions.Language.IsDefault)
+            {
+                type = string.Format("tag_{0}", definitions.Language.Code);
+            }
+
+            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(definitions.GroupId);
+
+            string searchResultString = m_oESApi.Search(index, type, ref searchQueryString);
+
+            #endregion
+
+            #region Parse result
+
+            var jsonObj = JObject.Parse(searchResultString);
+
+            if (jsonObj != null)
+            {
+                JToken tempToken;
+                totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+
+                if (totalItems > 0)
+                {
+                    foreach (var item in jsonObj.SelectToken("hits.hits"))
+                    {
+                        var tagValue = item["_source"].ToObject<TagValue>();
+
+                        result.Add(tagValue);
+                    }
+                }
+            }
+
+            #endregion
+
+            return result;
+        }
+
+        public ApiObjects.Response.Status DeleteTag(int groupId, CatalogGroupCache group, long tagId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            if (group == null)
+            {
+                log.ErrorFormat("No catalog group cache {0}", groupId);
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Couldn't get group";
+                return status;
+            }
+
+            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
+
+            // dictionary contains all language ids and its  code (string)
+            var languages = group.LanguageMapByCode.Values;
+
+            ESTerm term = new ESTerm(true)
+            {
+                Key = "tag_id",
+                Value = tagId.ToString()
+            };
+
+            ESQuery query = new ESQuery(term);
+            string queryString = query.ToString();
+
+            foreach (var language in languages)
+            {
+                string type = "tag";
+
+                if (!language.IsDefault)
+                {
+                    type = string.Format("tag_{0}", language.Code);
+                }
+
+                bool deleteResult = m_oESApi.DeleteDocsByQuery(index, type, ref queryString);
+
+                if (!deleteResult)
+                {
+                    status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                    status.Message = "Failed performing delete query";
+                }
+            }
+
+            return status;
+        }
+
+        public ApiObjects.Response.Status UpdateTag(int groupId, CatalogGroupCache group, TagValue tag)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            if (group == null)
+            {
+                log.ErrorFormat("No catalog group cache {0}", groupId);
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Couldn't get group";
+                return status;
+            }
+
+            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
+
+            List<TagValue> tagsToInsert = new List<TagValue>();
+
+            int defaultLanguageId = tag.languageId;
+
+            if (defaultLanguageId == 0)
+            {
+                defaultLanguageId = group.DefaultLanguage.ID;
+            }
+
+            tagsToInsert.Add(new TagValue() {
+                createDate = tag.createDate,
+                languageId = defaultLanguageId,
+                tagId = tag.tagId,
+                topicId = tag.topicId,
+                updateDate = tag.updateDate,
+                value = tag.value
+            });
+
+            foreach (var languageContainer in tag.TagsInOtherLanguages)
+            {
+                int languageId = 0;
+
+                if (group.LanguageMapByCode.ContainsKey(languageContainer.LanguageCode))
+                {
+                    languageId = group.LanguageMapByCode[languageContainer.LanguageCode].ID;
+
+                    tagsToInsert.Add(new TagValue()
+                    {
+                        createDate = tag.createDate,
+                        languageId = languageId,
+                        tagId = tag.tagId,
+                        topicId = tag.topicId,
+                        updateDate = tag.updateDate,
+                        value = languageContainer.Value
+                    });
+                }
+            }
+
+            foreach (var tagToInsert in tagsToInsert)
+            {
+                var language = group.LanguageMapById[tagToInsert.languageId];
+                string suffix = null;
+
+                if (!language.IsDefault)
+                {
+                    suffix = language.Code;
+                }
+
+                string type = "tag";
+
+                if (!language.IsDefault)
+                {
+                    type = string.Format("tag_{0}", language.Code);
+                }
+
+                // Serialize tag and create a bulk request for it
+                string serializedTag = JObject.FromObject(tagToInsert).ToString(Newtonsoft.Json.Formatting.None);
+
+                string id = string.Format("{0}_{1}", tag.tagId, tag.languageId);
+                bool insertResult = m_oESApi.InsertRecord(index, type, id, serializedTag);
+
+                if (!insertResult)
+                {
+                    status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                    status.Message = "Failed performing insert query";
+                }
+            }
+
+            return status;
+        }
+
+        #endregion
     }
 
     class AssetDocCompare : IEqualityComparer<ElasticSearchApi.ESAssetDocument>

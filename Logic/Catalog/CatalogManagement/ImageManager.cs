@@ -1,0 +1,603 @@
+﻿using ApiObjects.Response;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using Tvinci.Core.DAL;
+using CachingProvider.LayeredCache;
+using ApiObjects;
+using Newtonsoft.Json;
+
+namespace Core.Catalog.CatalogManagement
+{
+    public class ImageManager
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        #region Private Methods
+
+        private static ImageTypeResponse CreateImageTypeResponseFromDataSet(DataSet ds)
+        {
+            ImageTypeResponse response = new ImageTypeResponse();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                long id = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID");
+                if (id > 0)
+                {
+                    response.ImageType = new ImageType()
+                    {
+                        Id = id,
+                        Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "NAME"),
+                        SystemName = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "SYSTEM_NAME"),
+                        RatioId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "RATIO_ID"),
+                        HelpText = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "HELP_TEXT"),
+                        DefaultImageId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "DEFAULT_IMAGE_ID")
+                    };
+                }
+                else
+                {
+                    response.Status = CreateImageTypeResponseStatusFromResult(id);
+                }
+
+                if (response.ImageType != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+
+            return response;
+        }
+
+        private static Status CreateImageTypeResponseStatusFromResult(long result)
+        {
+            Status responseStatus = null;
+            switch (result)
+            {
+                case -222:
+                    responseStatus = new Status((int)eResponseStatus.ImageTypeAlreadyInUse, eResponseStatus.ImageTypeAlreadyInUse.ToString());
+                    break;
+                case -333:
+                    responseStatus = new Status((int)eResponseStatus.ImageTypeDoesNotExist, eResponseStatus.ImageTypeDoesNotExist.ToString());
+                    break;
+                default:
+                    responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    break;
+            }
+
+            return responseStatus;
+        }
+
+        private static List<ImageType> GetGroupImageTypes(int groupId)
+        {
+            List<ImageType> result = null;
+
+            // check if image types exists for group
+            string key = LayeredCacheKeys.GetGroupImageTypesKey(groupId);
+
+            // try to get from cache  
+
+            bool cacheResult = LayeredCache.Instance.Get<List<ImageType>>(
+                key, ref result, GetImageType, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GET_IMAGE_TYPE_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId) });
+
+            if (!cacheResult)
+            {
+                log.Error(string.Format("GetImageTypes - Failed get data from cache groupId = {0}", groupId));
+                result = null;
+            }
+
+            return result;
+        }
+
+        private static Tuple<List<ImageType>, bool> GetImageType(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<ImageType> imageTypes = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        DataSet ds = CatalogDAL.GetImageTypes(groupId.Value);
+                        imageTypes = CreateImageTypes(ds);
+
+                        res = imageTypes != null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetImageType failed params : {0}", funcParams != null ? string.Join(";",
+                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
+            }
+
+            return new Tuple<List<ImageType>, bool>(imageTypes, res);
+        }
+
+        private static List<ImageType> CreateImageTypes(DataSet ds)
+        {
+            List<ImageType> response = null;
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable imageTypes = ds.Tables[0];
+                if (imageTypes != null && imageTypes.Rows != null)
+                {
+                    response = new List<ImageType>();
+                    foreach (DataRow dr in imageTypes.Rows)
+                    {
+                        ImageType imageType = new ImageType()
+                        {
+                            Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
+                            SystemName = ODBCWrapper.Utils.GetSafeStr(dr, "SYSTEM_NAME"),
+                            RatioId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RATIO_ID"),
+                            HelpText = ODBCWrapper.Utils.GetSafeStr(dr, "HELP_TEXT"),
+                            DefaultImageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DEFAULT_IMAGE_ID")
+                        };
+
+                        response.Add(imageType);
+                    }
+                }
+            }
+
+            return response;
+        }
+
+        private static List<Core.Catalog.CatalogManagement.Ratio> GetImageRatios(int groupId)
+        {
+            List<Core.Catalog.CatalogManagement.Ratio> result = null;
+
+            // check if image types exists for group
+            string key = LayeredCacheKeys.GetGroupRatiosKey(groupId);
+
+            // try to get from cache  
+
+            bool cacheResult = LayeredCache.Instance.Get<List<Core.Catalog.CatalogManagement.Ratio>>(key, ref result, GetRatios, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GET_RATIOS_CACHE_CONFIG_NAME, null);
+
+            if (!cacheResult)
+            {
+                log.Error(string.Format("GetGroupRatios - Failed get data from cache groupId = {0}", groupId));
+                result = null;
+            }
+
+            return result;
+        }
+
+        private static Tuple<List<Core.Catalog.CatalogManagement.Ratio>, bool> GetRatios(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<Core.Catalog.CatalogManagement.Ratio> ratios = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        DataTable dt = CatalogDAL.GetGroupImageRatios(groupId.Value);
+                        ratios = CreateRatios(dt);
+
+                        res = ratios != null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetRatios failed", ex);
+            }
+
+            return new Tuple<List<Core.Catalog.CatalogManagement.Ratio>, bool>(ratios, res);
+        }
+
+        private static List<Core.Catalog.CatalogManagement.Ratio> CreateRatios(DataTable dt)
+        {
+            List<Core.Catalog.CatalogManagement.Ratio> response = null;
+            if (dt != null && dt.Rows != null)
+            {
+                response = new List<Core.Catalog.CatalogManagement.Ratio>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    Core.Catalog.CatalogManagement.Ratio ratio = new Core.Catalog.CatalogManagement.Ratio()
+                    {
+                        Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id"),
+                        Name = ODBCWrapper.Utils.GetSafeStr(dr, "ratio"),
+                    };
+
+                    response.Add(ratio);
+                }
+            }
+
+            return response;
+        }
+
+        private static ImageListResponse CreateImageListResponseFromDataTable(int groupId, DataTable dt)
+        {
+            ImageListResponse response = new ImageListResponse();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                response.Images = new List<Image>();
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    response.Images.Add(CreateImageFromDataRow(groupId, row));
+                }
+            }
+            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            return response;
+        }
+
+        private static Image CreateImageFromDataRow(int groupId, DataRow row)
+        {
+            Image image = new Image()
+            {
+                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
+                ContentId = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL"),
+                ImageObjectId = ODBCWrapper.Utils.GetLongSafeVal(row, "ASSET_ID"),
+                ImageObjectType = (eAssetImageType)ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_IMAGE_TYPE"),
+                Status = (eTableStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
+                Version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION"),
+                ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"),
+            };
+
+            image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
+
+            return image;
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        public static ImageTypeResponse AddImageType(int groupId, ImageType imageTypeToAdd, long userId)
+        {
+            ImageTypeResponse result = new ImageTypeResponse();
+            try
+            {
+                DataSet ds = CatalogDAL.InsertImageType(groupId, imageTypeToAdd.Name, imageTypeToAdd.SystemName, imageTypeToAdd.RatioId, imageTypeToAdd.HelpText,
+                                                      userId, imageTypeToAdd.DefaultImageId);
+                if (ds != null)
+                {
+                    result = CreateImageTypeResponseFromDataSet(ds);
+
+                    string invalidationKey = LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on AddImageType key = {0}", invalidationKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddImageType for groupId: {0} and imageType: {1}", groupId, JsonConvert.SerializeObject(imageTypeToAdd)), ex);
+            }
+
+            return result;
+        }
+
+        public static Status DeleteImageType(int groupId, long id, long userId)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                //check if exist before delete
+                ImageTypeListResponse imageTypeListResponse = GetImageTypes(groupId, true, new List<long>(new long[] { id }));
+                if (imageTypeListResponse != null && imageTypeListResponse.ImageTypes != null && imageTypeListResponse.ImageTypes.Count == 0)
+                {
+                    result = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
+                    return result;
+                }
+
+                if (CatalogDAL.DeleteImageType(groupId, id, userId))
+                {
+                    string invalidationKey = LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on DeleteImageType key = {0}", invalidationKey);
+                    }
+
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteImageType for groupId: {0} and ImageTypeId: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+
+        public static ImageTypeResponse UpdateImageType(int groupId, long id, ImageType imageTypeToUpdate, long userId)
+        {
+            ImageTypeResponse result = new ImageTypeResponse();
+            try
+            {
+                ImageTypeListResponse imageTypeListResponse = GetImageTypes(groupId, true, null);
+                if (imageTypeListResponse == null || (imageTypeListResponse != null && imageTypeListResponse.ImageTypes == null) || (imageTypeListResponse.ImageTypes.Count == 0))
+                {
+                    result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
+                    return result;
+                }
+
+                var cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.Id == imageTypeToUpdate.Id).FirstOrDefault();
+                if (cachedImageType == null)
+                {
+                    result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
+                    return result;
+                }
+
+                cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.SystemName == imageTypeToUpdate.SystemName && x.Id != imageTypeToUpdate.Id).FirstOrDefault();
+                if (cachedImageType == null)
+                {
+                    result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeAlreadyInUse, Message = eResponseStatus.ImageTypeAlreadyInUse.ToString() };
+                    return result;
+                }
+
+                DataSet ds = CatalogDAL.UpdateImageType(groupId, id, imageTypeToUpdate.Name, imageTypeToUpdate.SystemName, imageTypeToUpdate.RatioId,
+                    imageTypeToUpdate.HelpText, userId, imageTypeToUpdate.DefaultImageId);
+                if (ds != null)
+                {
+                    result = CreateImageTypeResponseFromDataSet(ds);
+
+                    string invalidationKey = LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on UpdateImageType key = {0}", invalidationKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateImageType for groupId: {0}, id: {1} and ImageType: {2}", groupId, id, JsonConvert.SerializeObject(imageTypeToUpdate)), ex);
+            }
+
+            return result;
+        }
+
+        public static ImageTypeListResponse GetImageTypes(int groupId, bool isSearchByIds, List<long> ids)
+        {
+            ImageTypeListResponse response = new ImageTypeListResponse() { Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
+
+            List<ImageType> imageTypes = GetGroupImageTypes(groupId);
+
+            if (imageTypes != null)
+            {
+                response.Status.Code = (int)eResponseStatus.OK;
+                response.Status.Message = eResponseStatus.OK.ToString();
+
+                if (ids == null || ids.Count == 0)
+                {
+                    response.ImageTypes = imageTypes;
+                    return response;
+                }
+
+                if (isSearchByIds)
+                {
+                    // return image TYpes according to Ids
+                    response.ImageTypes = imageTypes.Where(x => ids.Contains(x.Id)).ToList();
+                }
+                else
+                {
+                    // return image TYpes according to ratio Ids
+                    response.ImageTypes = imageTypes.Where(x => ids.Contains(x.RatioId)).ToList();
+                }
+
+                response.TotalItems = imageTypes.Count;
+            }
+
+            return response;
+        }
+
+        public static RatioListResponse GetRatios(int groupId)
+        {
+            RatioListResponse response = new RatioListResponse();
+
+            response.Ratios = GetImageRatios(groupId);
+
+            if (response.Ratios != null)
+            {
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.TotalItems = response.Ratios.Count;
+            }
+
+            return response;
+        }
+
+        public static Status DeleteImage(int groupId, long id, long userId)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                //check if exist before delete
+                ImageListResponse imagesResponse = GetImagesByIds(groupId, new List<long>(new long[] { id }));
+                if (imagesResponse != null && imagesResponse.Images != null && imagesResponse.Images.Count == 0)
+                {
+                    result = new Status((int)eResponseStatus.ImageDoesNotExist, "Image does not exist");
+                    return result;
+                }
+
+                if (CatalogDAL.DeletePic(groupId, id, userId))
+                {
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteImage for groupId: {0} and ImageId: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+
+        public static ImageListResponse GetImagesByIds(int groupId, List<long> imageIds)
+        {
+            ImageListResponse response = new ImageListResponse();
+
+            DataTable dt = CatalogDAL.GetImagesByIds(groupId, imageIds);
+            response = CreateImageListResponseFromDataTable(groupId, dt);
+            return response;
+        }
+
+        public static ImageListResponse GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType)
+        {
+            ImageListResponse response = new ImageListResponse();
+
+            DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectId, imageObjectType);
+            response = CreateImageListResponseFromDataTable(groupId, dt);
+            return response;
+        }
+
+        public static ImageResponse AddImage(int groupId, Image imageToAdd, long userId)
+        {
+            ImageResponse result = new ImageResponse();
+            try
+            {
+                DataTable dt = CatalogDAL.InsertPic(groupId, userId, imageToAdd.ImageObjectId, imageToAdd.ImageObjectType, imageToAdd.ImageTypeId);
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+                    if (id > 0)
+                    {
+                        result.Image = CreateImageFromDataRow(groupId, dt.Rows[0]);
+
+                        if (result.Image != null)
+                        {
+                            if (imageToAdd.ImageObjectType == eAssetImageType.ImageType)
+                            {
+                                // update default image ID in image type
+                                ImageTypeResponse imageTypeResult = UpdateImageType(groupId, result.Image.ImageTypeId,
+                                    new ImageType() { DefaultImageId = result.Image.Id }, userId);
+
+                                result.Status = imageTypeResult.Status;
+                            }
+                            else
+                            {
+                                result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        result.Status = new Status((int)eResponseStatus.ImageTypeAlreadyInUse, "Image type already in use for object");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddImage for groupId: {0} and imageType: {1}", groupId, JsonConvert.SerializeObject(imageToAdd)), ex);
+            }
+
+            return result;
+        }
+
+        public static Status SetContent(int groupId, long userId, long id, string url)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                //check if exist before setting content
+                ImageListResponse imagesResponse = GetImagesByIds(groupId, new List<long>(new long[] { id }));
+                if (imagesResponse != null && imagesResponse.Images != null && imagesResponse.Images.Count == 0)
+                {
+                    result = new Status((int)eResponseStatus.ImageDoesNotExist, "Image does not exist");
+                    return result;
+                }
+
+                Image image = imagesResponse.Images[0];
+                //ImageTypeListResponse imageTypes = GetImageTypes(groupId, true, new List<long>() { image.ImageTypeId });
+                //if (imageTypes != null && imageTypes.Status.Code != (int)eResponseStatus.OK)
+                //{
+                //    log.ErrorFormat("Failed to get image type for imageId = {0}, imageTypeId = {1}", image.Id, image.ImageTypeId);
+                //    imageTypes.Status.Message = "Failed to get image type";
+                //    return imageTypes.Status;
+                //}
+
+                //ImageType imageType = imageTypes.ImageTypes[0];
+
+                if (string.IsNullOrEmpty(image.ContentId))
+                {
+                    //first setContent
+                    image.ContentId = TVinciShared.ImageUtils.GetDateImageName();
+                }
+                else
+                {
+                    image.Version++;
+                }
+
+                // post image
+                ImageServerUploadRequest imageServerReq = new ImageServerUploadRequest() { GroupId = groupId, Id = image.ContentId, SourcePath = url, Version = image.Version };
+                string res = TvinciImporter.Utils.HttpPost(TVinciShared.ImageUtils.GetImageServerUrl(groupId, eHttpRequestType.Post), JsonConvert.SerializeObject(imageServerReq), "application/json");
+
+                // check result
+                if (string.IsNullOrEmpty(res) || res.ToLower() != "true")
+                {
+                    log.ErrorFormat("POST to image server failed. imageId = {0}, contentId = {1}", image.Id, image.ContentId);
+                    TVinciShared.ImageUtils.UpdateImageState(groupId, image.Id, image.Version, eMediaType.VOD, eTableStatus.Failed, (int)userId);
+                    return result;
+                }
+                else if (res.ToLower() == "true")
+                {
+                    log.DebugFormat("POST to image server successfully sent. imageId = {0}, contentId = {1}", image.Id, image.ContentId);
+                    TVinciShared.ImageUtils.UpdateImageState(groupId, image.Id, image.Version, eMediaType.VOD, eTableStatus.OK, (int)userId, image.ContentId);
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed SetContent for groupId: {0} and ImageId: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+
+        public static RatioResponse AddRatio(int groupId, long userId, Core.Catalog.CatalogManagement.Ratio ratio)
+        {
+            RatioResponse result = new RatioResponse();
+            try
+            {
+                DataTable dt = CatalogDAL.InsertGroupImageRatios(groupId, userId, ratio.Name);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+
+                    if (id > 0)
+                    {
+                        result.Ratio = new Core.Catalog.CatalogManagement.Ratio()
+                        {
+                            Id = id,
+                            Name = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "RATIO")
+                        };
+
+                        string invalidationKey = LayeredCacheKeys.GetGroupRatiosInvalidationKey(groupId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on AddRatio key = {0}", invalidationKey);
+                        }
+                        result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                    else
+                    {
+                        result.Status = new Status((int)eResponseStatus.RatioAlreadyInUse, "Ratio Already in use");
+                        return result;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddRatio for groupId: {0} and ratio: {1}", groupId, JsonConvert.SerializeObject(ratio)), ex);
+            }
+
+            return result;
+        }
+
+        #endregion
+    } 
+}
