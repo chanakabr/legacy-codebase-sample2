@@ -2040,20 +2040,21 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static bool UpdateSubscriptionPurchaseActiveStatus(string billingGuid, int isActive, int isRecurringStatus)
+        public static int UpdateSubscriptionPurchaseActiveStatus(string billingGuid, int isActive, int isRecurringStatus)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PPVPurchaseActiveStatus");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseActiveStatus");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@is_active", isActive);
             sp.AddParameter("@billing_guid", billingGuid);
             sp.AddParameter("@is_recurring_status", isRecurringStatus);
 
-            return sp.ExecuteReturnValue<int>() > 0;
+            int purchaseId = sp.ExecuteReturnValue<int>();
+            return purchaseId;
         }
 
         public static bool UpdateCollectionPurchaseActiveStatus(string billingGuid, int isActive)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PPVPurchaseActiveStatus");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_CollectionPurchaseActiveStatus");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@is_active", isActive);
             sp.AddParameter("@billing_guid", billingGuid);
@@ -3399,6 +3400,32 @@ namespace DAL
                 return null;
             }
             return null;
+        }
+
+        public static DataRow Get_SubscriptionPurchaseData(int groupId, long purchaseId)
+        {
+            DataRow result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseData");
+                storedProcedure.SetConnectionKey("CA_CONNECTION_STRING");
+                storedProcedure.AddParameter("@groupID", groupId);
+                storedProcedure.AddParameter("@purchaseId", purchaseId);
+
+                DataTable table = storedProcedure.Execute();
+
+                if (table != null && table.Rows != null && table.Rows.Count > 0)
+                {
+                    result = table.Rows[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when performing Get_SubscriptionPurchaseData for purchaseId = {0}, ex = {1}", purchaseId, ex);
+            }
+
+            return result;
         }
     }
 }
