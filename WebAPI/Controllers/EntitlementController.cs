@@ -19,13 +19,14 @@ namespace WebAPI.Controllers
         /// Immediately cancel a subscription, PPV or collection. Cancel is possible only if within cancellation window and content not already consumed
         /// </summary>                
         /// <param name="assetId">The mediaFileID to cancel</param>        
-        /// <param name="transactionType">The transaction type for the cancelation</param>
+        /// <param name="productType">The product type for the cancelation</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
         [OldStandardArgument("assetId", "asset_id")]
-        [OldStandardArgument("transactionType", "transaction_type")]
+        [OldStandardArgument("productType", "transaction_type")]
+        [OldStandardArgument("productType", "transactionType", sinceVersion = "4.7.0.0")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinInteger = 1)]
         [Throws(eResponseStatus.DomainSuspended)]
@@ -35,7 +36,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentGatewayNotValid)]
         [Throws(eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending)]
         [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
-        public bool Cancel(int assetId, KalturaTransactionType transactionType)
+        public bool Cancel(int assetId, KalturaTransactionType productType)
         {
             bool response = false;
 
@@ -53,7 +54,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, transactionType, false);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, false);
             }
             catch (ClientException ex)
             {
@@ -71,19 +72,20 @@ namespace WebAPI.Controllers
         /// Immediately cancel a subscription, PPV or collection. Cancel applies regardless of cancellation window and content consumption status
         /// </summary>                
         /// <param name="assetId">The mediaFileID to cancel</param>        
-        /// <param name="transactionType">The transaction type for the cancelation</param>
+        /// <param name="productType">The product type for the cancelation</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid purchase = 3000</remarks>
         [Route("forceCancel"), HttpPost]
         [ApiAuthorize]
         [OldStandardArgument("assetId", "asset_id")]
-        [OldStandardArgument("transactionType", "transaction_type")]
+        [OldStandardArgument("productType", "transaction_type")]
+        [OldStandardArgument("productType", "transactionType", sinceVersion = "4.7.0.0")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinInteger = 1)]
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.InvalidPurchase)]
         [Throws(eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending)]
-        public bool ForceCancel(int assetId, KalturaTransactionType transactionType)
+        public bool ForceCancel(int assetId, KalturaTransactionType productType)
         {
             bool response = false;
 
@@ -101,7 +103,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, transactionType, true);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, true);
             }
             catch (ClientException ex)
             {
@@ -216,6 +218,8 @@ namespace WebAPI.Controllers
                 pager = new KalturaFilterPager();
             }
 
+            filter.Validate();
+
             try
             {
                 // call client
@@ -223,13 +227,15 @@ namespace WebAPI.Controllers
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementTypeEqual,
+                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, 
+                                filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value ,
                                 filter.getIsExpiredEqual(), pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
                         }
                         break;
                     case KalturaEntityReferenceBy.household:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementTypeEqual,
+                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), 
+                                filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value,
                                 filter.getIsExpiredEqual(), pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
                         }
                         break;
@@ -533,5 +539,28 @@ namespace WebAPI.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Returns the data about the next renewal 
+        /// </summary>                
+        /// <param name="id">Purchase Id</param>
+        [Route("getNextRenewal"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public KalturaEntitlementRenewal GetNextRenewal(int id)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+               
+                return ClientsManager.ConditionalAccessClient().GetEntitlementNextRenewal(groupId, domainID, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return null;
+        }
     }
 }

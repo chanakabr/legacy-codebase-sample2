@@ -81,7 +81,7 @@ namespace WebAPI.Managers.Models
                 (int)(AccessTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), // relative
                 isAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
                 payload,
-                new List<KalturaKeyValue>(), 
+                null, 
                 Models.KS.KSVersion.V2);
 
             KS = KsObject.ToString();
@@ -128,7 +128,7 @@ namespace WebAPI.Managers.Models
                 (int)(AccessTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)),
                 token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
                 payload,
-                new List<KalturaKeyValue>(), 
+                null, 
                 Models.KS.KSVersion.V2);
             KS = KsObject.ToString();
         }

@@ -107,7 +107,7 @@ namespace Validator.Managers.Scheme
         {
             bool valid = true;
 
-            Dictionary<StatusCode, string> codes = new Dictionary<StatusCode, string>();
+            Dictionary<int, string> codes = new Dictionary<int, string>();
             foreach (Type exception in exceptions.OrderBy(exception => exception.Name))
             {
                 FieldInfo[] fields = exception.GetFields();

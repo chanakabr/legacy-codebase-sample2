@@ -123,6 +123,15 @@ namespace WebAPI.Models.Billing
         [OldStandardProperty("renew_start_minutes")]
         public int? RenewStartMinutes { get; set; }
 
+        /// <summary>
+        /// Payment gateway external verification
+        /// </summary>
+        [DataMember(Name = "externalVerification")]
+        [JsonProperty("externalVerification")]
+        [XmlElement(ElementName = "externalVerification")]
+        public bool ExternalVerification { get; set; }
+
+
         internal int getId()
         {
             return Id.HasValue ? (int)Id : 0;

@@ -27,7 +27,7 @@ namespace WebAPI.Clients
         internal KalturaHousehold GetDomainInfo(int groupId, int domainId)
         {
             KalturaHousehold result = null;
-            
+
 
             DomainResponse response = null;
             try
@@ -109,7 +109,7 @@ namespace WebAPI.Clients
         internal KalturaHousehold AddDomain(int groupId, string domainName, string domainDescription, string masterUserId, string externalId = null)
         {
             KalturaHousehold result = null;
-            
+
 
             DomainStatusResponse response = null;
             try
@@ -154,7 +154,7 @@ namespace WebAPI.Clients
 
         internal bool RemoveUserFromDomain(int groupId, int domainId, string userId)
         {
-            
+
 
             DomainStatusResponse response = null;
             try
@@ -190,7 +190,7 @@ namespace WebAPI.Clients
 
         internal KalturaHousehold AddUserToDomain(int groupId, int domainId, string userId, string masterUserId, bool isMaster)
         {
-            
+
 
             DomainStatusResponse response = null;
             try
@@ -263,7 +263,7 @@ namespace WebAPI.Clients
             KalturaHouseholdDevice result = null;
             DeviceResponse response = null;
 
-            
+
 
             try
             {
@@ -303,7 +303,7 @@ namespace WebAPI.Clients
             KalturaDeviceRegistrationStatus result;
             DeviceRegistrationStatusResponse response = null;
 
-            
+
 
             try
             {
@@ -409,7 +409,7 @@ namespace WebAPI.Clients
             KalturaHousehold result;
             DomainStatusResponse response = null;
 
-            
+
 
             try
             {
@@ -519,7 +519,7 @@ namespace WebAPI.Clients
             KalturaHouseholdLimitations result;
             DLMResponse response = null;
 
-            
+
 
             try
             {
@@ -554,7 +554,7 @@ namespace WebAPI.Clients
             KalturaHousehold result;
             DomainStatusResponse response = null;
 
-            
+
 
             try
             {
@@ -595,7 +595,7 @@ namespace WebAPI.Clients
             KalturaHouseholdDevice result;
             DeviceResponse response = null;
 
-            
+
 
             try
             {
@@ -629,7 +629,7 @@ namespace WebAPI.Clients
         {
             KalturaHousehold result = null;
             DomainStatusResponse response = null;
-            
+
 
             try
             {
@@ -667,7 +667,7 @@ namespace WebAPI.Clients
         internal KalturaHousehold GetDomainByCoGuid(int groupId, string externalId)
         {
             KalturaHousehold result = null;
-            
+
 
             DomainStatusResponse response = null;
             try
@@ -703,7 +703,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool RemoveDomain(int groupId, int householdId)
+        internal bool RemoveDomain(int groupId, int householdId, bool purge)
         {
             ApiObjects.Response.Status response = null;
 
@@ -711,7 +711,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.RemoveDomainById(groupId, householdId);
+                    response = Core.Domains.Module.RemoveDomainById(groupId, householdId, purge);
                 }
             }
             catch (Exception ex)
@@ -733,17 +733,17 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal bool RemoveDomain(int groupId, string externalId)
+        internal bool RemoveDomain(int groupId, string externalId, bool purge)
         {
             ApiObjects.Response.Status response = null;
 
-            
+
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.RemoveDomainByCoGuid(groupId, externalId);
+                    response = Core.Domains.Module.RemoveDomainByCoGuid(groupId, externalId, purge);
                 }
             }
             catch (Exception ex)
@@ -797,7 +797,7 @@ namespace WebAPI.Clients
         internal bool Resume(int groupId, int domainId)
         {
             ApiObjects.Response.Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -829,7 +829,7 @@ namespace WebAPI.Clients
             KalturaHomeNetwork result;
             HomeNetworkResponse response = null;
 
-            
+
 
             try
             {
@@ -864,7 +864,7 @@ namespace WebAPI.Clients
             List<KalturaHomeNetwork> result;
             HomeNetworksResponse response = null;
 
-            
+
 
             try
             {
@@ -898,7 +898,7 @@ namespace WebAPI.Clients
         {
             HomeNetworkResponse response = null;
 
-            
+
 
             try
             {
@@ -931,7 +931,7 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            
+
 
             try
             {
@@ -964,7 +964,7 @@ namespace WebAPI.Clients
             bool result;
             DomainStatusResponse response = null;
 
-            
+
 
             bool isActive = deviceStatus == KalturaDeviceStatus.ACTIVATED ? true : false;
             try
@@ -997,7 +997,7 @@ namespace WebAPI.Clients
         {
             DeviceResponse response = null;
 
-            
+
 
             try
             {
@@ -1036,11 +1036,11 @@ namespace WebAPI.Clients
         {
             KalturaHousehold household = null;
 
-            
+
 
 
             DomainStatusResponse response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1177,6 +1177,99 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Domains.Module.DeleteDevice(groupId, udid);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaHousehold GetDomain(int groupId, int domainId)
+        {
+            KalturaHousehold result = null;
+
+            DomainResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Domains.Module.GetDomainInfo(groupId, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            result = Mapper.Map<KalturaHousehold>(response.Domain);
+
+            return result;
+        }
+
+        internal bool ShouldPurgeDomain(int groupId, int householdId)
+        {
+            ApiObjects.Response.Status response = null;
+            bool shouldPurgeDomain = false;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Domains.Module.ShouldPurgeDomain(groupId, householdId, out shouldPurgeDomain);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code == (int)StatusCode.OK)
+            {
+                return shouldPurgeDomain;
+            }
+            else
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool PurgeDomain(int groupId, int householdId)
+        {
+            ApiObjects.Response.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Domains.Module.PurgeDomain(groupId, householdId);
                 }
             }
             catch (Exception ex)

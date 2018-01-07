@@ -27,7 +27,8 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDeviceStatus(src.m_state)))
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID))
-                .ForMember(dest => dest.Drm, opt => opt.MapFrom(src => new KalturaCustomDrmPlaybackPluginData() { Data = src.LicenseData, Scheme = KalturaDrmSchemeName.CUSTOM_DRM }));
+                .ForMember(dest => dest.Drm, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.LicenseData) ? 
+                    new KalturaCustomDrmPlaybackPluginData() { Data = src.LicenseData, Scheme = KalturaDrmSchemeName.CUSTOM_DRM } : null));
 
             Mapper.CreateMap<Device, KalturaDevice>()
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.m_deviceUDID))

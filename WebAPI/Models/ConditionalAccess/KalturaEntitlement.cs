@@ -45,7 +45,17 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "entitlementId")]
         [SchemeProperty(ReadOnly = true)]
         [OldStandardProperty("entitlement_id")]
+        [Deprecated("4.7.0.0")]
         public string EntitlementId { get; set; }
+
+        /// <summary>
+        ///Product identifier
+        /// </summary>
+        [DataMember(Name = "productId")]
+        [JsonProperty("productId")]
+        [XmlElement(ElementName = "productId")]
+        [SchemeProperty(ReadOnly = true)]
+        public string ProductId { get; set; }
 
         /// <summary>
         ///The current number of uses 

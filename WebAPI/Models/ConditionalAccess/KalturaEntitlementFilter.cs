@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -22,7 +23,16 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("entitlementTypeEqual")]
         [XmlElement(ElementName = "entitlementTypeEqual")]
         [OldStandardProperty("entitlement_type")]
-        public KalturaTransactionType EntitlementTypeEqual { get; set; }
+        [Deprecated("4.7.0.0")]
+        public KalturaTransactionType? EntitlementTypeEqual { get; set; }
+
+        /// <summary>
+        ///The type of the entitlements to return
+        /// </summary>
+        [DataMember(Name = "productTypeEqual")]
+        [JsonProperty("productTypeEqual")]
+        [XmlElement(ElementName = "productTypeEqual")]
+        public KalturaTransactionType? ProductTypeEqual { get; set; }
 
         /// <summary>
         ///Reference type to filter by
@@ -48,6 +58,14 @@ namespace WebAPI.Models.ConditionalAccess
         internal bool getIsExpiredEqual()
         {
             return IsExpiredEqual.HasValue ? (bool)IsExpiredEqual : false;
+        }
+
+        internal void Validate()
+        {
+            if (!ProductTypeEqual.HasValue && !EntitlementTypeEqual.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaEntitlementFilter.productTypeEqual");
+            }
         }
     }
 }

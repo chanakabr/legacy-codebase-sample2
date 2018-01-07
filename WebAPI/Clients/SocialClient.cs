@@ -421,7 +421,7 @@ namespace WebAPI.Clients
 
             if (response.status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.status.Code, response.status.Message);
+                throw new ClientException((int)response.status.Code, response.status.Message, response.status.Args);
             }
 
             user = AutoMapper.Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);

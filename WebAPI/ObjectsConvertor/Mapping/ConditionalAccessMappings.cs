@@ -52,6 +52,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetNullableInt(src.paymentMethodId)))
                .ForMember(dest => dest.ScheduledSubscriptionId, opt => opt.MapFrom(src => src.ScheduledSubscriptionId))
                .ForMember(dest => dest.IsSuspended, opt => opt.MapFrom(src => src.IsSuspended))
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.entitlementId))
+               .ForMember(dest => dest.UnifiedPaymentId, opt => opt.MapFrom(src => src.UnifiedPaymentId))
                ;
 
             Mapper.CreateMap<SubscriptionPurchase, KalturaSubscriptionEntitlement>()
@@ -98,6 +100,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.mediaID)))
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxUses))
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.entitlementId))
                ;
             Mapper.CreateMap<PpvPurchase, KalturaPpvEntitlement>()
                 //.ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.ppv))
@@ -141,6 +144,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
               .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.purchaseID))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.collection))
+              .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.entitlementId))
               ;
 
             Mapper.CreateMap<PpvPurchase, KalturaEntitlementCancellation>()
@@ -484,6 +488,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.FileType))
               .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParam))
               .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => ConvertAdsPolicy(src.AdsPolicy)));
+
+            Mapper.CreateMap<APILogic.ConditionalAccess.Modules.EntitlementRenewal, KalturaEntitlementRenewal>()
+             .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId))
+             .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId))
+             .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.Date)));
+
+            Mapper.CreateMap<APILogic.ConditionalAccess.Modules.EntitlementRenewalBase, KalturaEntitlementRenewalBase>()
+             .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId))
+             .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId))
+             .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.PriceAmount));
+
+            Mapper.CreateMap<APILogic.ConditionalAccess.Modules.UnifiedPaymentRenewal, KalturaUnifiedPaymentRenewal>()
+             .ForMember(dest => dest.UnifiedPaymentId, opt => opt.MapFrom(src => src.UnifiedPaymentId))
+             .ForMember(dest => dest.Entitlements, opt => opt.MapFrom(src => src.Entitlements))
+             .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.Date)));
         }
 
         private static KalturaAdsPolicy? ConvertAdsPolicy(AdsPolicy? adsPolicy)

@@ -388,18 +388,23 @@ namespace WebAPI.Exceptions
 
         public class ApiExceptionType : ExceptionType
         {
-            public StatusCode? obsoleteStatusCode = null;
-            public StatusCode statusCode;
+            public int? obsoleteStatusCode = null;
+            public int statusCode;
             public string message;
             public string[] parameters;
 
             public ApiExceptionType(StatusCode statusCode, StatusCode obsoleteStatusCode, string message, params string[] parameters)
                 : this(statusCode, message, parameters)
             {
-                this.obsoleteStatusCode = obsoleteStatusCode;
+                this.obsoleteStatusCode = (int)obsoleteStatusCode;
             }
 
             public ApiExceptionType(StatusCode statusCode, string message, params string[] parameters)
+                : this((int)statusCode, message, parameters)
+            {
+            }
+
+            public ApiExceptionType(int statusCode, string message, params string[] parameters)
             {
                 this.statusCode = statusCode;
                 this.message = message;
@@ -460,7 +465,7 @@ namespace WebAPI.Exceptions
         }
 
         public ApiException(ClientException ex)
-            : this(ex.Code, ex.ExceptionMessage)
+            : this(new ApiExceptionType(ex.Code, ex.ExceptionMessage, ex.Args != null ? ex.Args.Select(a => a.key).ToArray() : null), ex.Args != null ? ex.Args.Select(a => a.value).ToArray() : null)
         {
         }
 
