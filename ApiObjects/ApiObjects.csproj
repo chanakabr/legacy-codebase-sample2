@@ -143,6 +143,8 @@
     <Compile Include="QueueObjects\RenewUnifiedData.cs" />
     <Compile Include="Response\StringResponse.cs" />
     <Compile Include="SearchObjects\SearchAggregationGroupBy.cs" />
+    <Compile Include="SearchObjects\TagSearchDefinitions.cs" />
+    <Compile Include="SearchObjects\TagValue.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetModifyDetails.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetDowngradeDetails.cs" />
     <Compile Include="QueueObjects\MessageInterestData.cs" />

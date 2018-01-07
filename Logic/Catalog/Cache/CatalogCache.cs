@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using CachingProvider;
+using CachingProvider.LayeredCache;
 using DAL;
 using KLogMonitor;
 using System;
@@ -465,76 +466,44 @@ namespace Core.Catalog.Cache
             return watchPermissionsTypes;
         }
 
-        internal Dictionary<int, string> GetGroupGeoBlockRules(int groupID)
+        internal Dictionary<int, string> GetGroupGeoBlockRulesFromLayeredCache(int groupId)
         {
-            Dictionary<int, string> geoblockRules = null;
+            Dictionary<int, string> result = null;
             try
             {
-                string sKey = "GroupGeoblockRules_" + groupID.ToString();
-                geoblockRules = Get<Dictionary<int, string>>(sKey);
-
-                if (geoblockRules == null || geoblockRules.Count == 0)
+                string key = LayeredCacheKeys.GetGroupGeoBlockRulesKey(groupId);
+                if (!LayeredCache.Instance.Get<Dictionary<int, string>>(key, ref result, Utils.GetGroupGeoblockRules, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                            LayeredCacheConfigNames.GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupGeoBlockRulesInvalidationKey(groupId) }))
                 {
-                    DataTable dataTable = CatalogDAL.GetGroupGeoblockRules(groupID);
-
-                    if (dataTable == null || dataTable.Rows.Count == 0)
-                        return null;
-                    else
-                    {
-                        geoblockRules = new Dictionary<int, string>();
-                        foreach (DataRow row in dataTable.Rows)
-                        {
-                            geoblockRules.Add(Utils.GetIntSafeVal(row, "ID"), Utils.GetStrSafeVal(row, "NAME"));
-                        }
-                    }
-
-                    if (geoblockRules == null)
-                        Set(sKey, new Dictionary<int, string>(), SHORT_IN_CACHE_MINUTES);
-                    else
-                        Set(sKey, geoblockRules);
+                    log.ErrorFormat("Failed getting GetGroupGeoBlockRules from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while getting group geo block Rules. GID {0}, ex: {1}", groupID, ex);
+                log.Error(string.Format("Failed GetGroupGeoBlockRulesFromLayeredCache for groupId: {0}", groupId), ex);
             }
-            return geoblockRules;
+
+            return result;
         }
 
-        internal Dictionary<int, string> GetGroupDeviceRules(int groupID)
+        internal Dictionary<int, string> GetGroupDeviceRulesFromLayeredCache(int groupId)
         {
-            Dictionary<int, string> deviceRules = null;
+            Dictionary<int, string> result = null;
             try
             {
-                string sKey = "GroupDeviceRules_" + groupID.ToString();
-                deviceRules = Get<Dictionary<int, string>>(sKey);
-
-                if (deviceRules == null || deviceRules.Count == 0)
+                string key = LayeredCacheKeys.GetGroupDeviceRulesKey(groupId);
+                if (!LayeredCache.Instance.Get<Dictionary<int, string>>(key, ref result, Utils.GetGroupDeviceRules, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                            LayeredCacheConfigNames.GET_GROUP_DEVICE_RULES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupDeviceRulesInvalidationKey(groupId) }))
                 {
-                    DataTable dataTable = CatalogDAL.GetGroupDeviceRules(groupID);
-
-                    if (dataTable == null || dataTable.Rows.Count == 0)
-                        return null;
-                    else
-                    {
-                        deviceRules = new Dictionary<int, string>();
-                        foreach (DataRow row in dataTable.Rows)
-                        {
-                            deviceRules.Add(Utils.GetIntSafeVal(row, "ID"), Utils.GetStrSafeVal(row, "NAME"));
-                        }
-                    }
-
-                    if (deviceRules == null)
-                        Set(sKey, new Dictionary<int, string>(), SHORT_IN_CACHE_MINUTES);
-                    else
-                        Set(sKey, deviceRules);
+                    log.ErrorFormat("Failed getting GroupDeviceRules from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while getting group device rules. GID {0}, ex: {1}", groupID, ex);
+                log.Error(string.Format("Failed GetGroupDeviceRulesFromLayeredCache for groupId: {0}", groupId), ex);
             }
-            return deviceRules;
+
+            return result;
         }
 
         internal Dictionary<int, string> GetMediaQualities()

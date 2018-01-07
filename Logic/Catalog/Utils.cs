@@ -1012,12 +1012,12 @@ namespace Core.Catalog
                                     {
                                         if (!medias[nTagMediaID].m_dTagValues.ContainsKey(sTagName))
                                         {
-                                            medias[nTagMediaID].m_dTagValues.Add(sTagName, new Dictionary<long, string>());
+                                            medias[nTagMediaID].m_dTagValues.Add(sTagName, new HashSet<string>());
                                         }
 
-                                        if (!medias[nTagMediaID].m_dTagValues[sTagName].ContainsKey(tagID))
+                                        if (!medias[nTagMediaID].m_dTagValues[sTagName].Contains(val))
                                         {
-                                            medias[nTagMediaID].m_dTagValues[sTagName].Add(tagID, val);
+                                            medias[nTagMediaID].m_dTagValues[sTagName].Add(val);
                                         }
                                     }
                                 }
@@ -1124,15 +1124,13 @@ namespace Core.Catalog
                                     oMedia = mediaTranslations[nTagMediaID][nLangID];
                                     string sTagTypeName = group.m_oGroupTags[mttn];
 
-                                    if (oMedia.m_dTagValues.ContainsKey(sTagTypeName))
+                                    if (!oMedia.m_dTagValues.ContainsKey(sTagTypeName))
                                     {
-                                        oMedia.m_dTagValues[sTagTypeName][tagID] = val;
+                                        oMedia.m_dTagValues.Add(sTagTypeName, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
                                     }
-                                    else
+                                    if (!oMedia.m_dTagValues[sTagTypeName].Contains(val))
                                     {
-                                        Dictionary<long, string> dTemp = new Dictionary<long, string>();
-                                        dTemp[tagID] = val;
-                                        oMedia.m_dTagValues[sTagTypeName] = dTemp;
+                                        oMedia.m_dTagValues[sTagTypeName].Add(val);
                                     }
                                 }
                             }
@@ -1165,7 +1163,6 @@ namespace Core.Catalog
 
             return epgChannelIdToLinearMediaIdMap;
         }
-
 
         internal static ApiObjects.Country GetCountryByIp(int groupId, string ip)
         {
@@ -1363,5 +1360,86 @@ namespace Core.Catalog
                 }
             }
         }
+
+        internal static Tuple<Dictionary<int, string>, bool> GetGroupDeviceRules(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<int, string> result = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        DataTable dt = CatalogDAL.GetGroupDeviceRules(groupId.Value);
+                        if (dt != null && dt.Rows != null)
+                        {
+                            result = new Dictionary<int, string>();
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
+                                string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                                if (id > 0 && !string.IsNullOrEmpty(name) && !result.ContainsKey(id))
+                                {
+                                    result.Add(id, name);
+                                }
+                            }
+
+                        }
+                    }
+                }
+
+                res = result != null;
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupDeviceRules failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<int, string>, bool>(result, res);
+        }
+
+        internal static Tuple<Dictionary<int, string>, bool> GetGroupGeoblockRules(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<int, string> result = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        DataTable dt = CatalogDAL.GetGroupGeoblockRules(groupId.Value);
+                        if (dt != null && dt.Rows != null)
+                        {
+                            result = new Dictionary<int, string>();
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
+                                string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                                if (id > 0 && !string.IsNullOrEmpty(name) && !result.ContainsKey(id))
+                                {
+                                    result.Add(id, name);
+                                }
+                            }
+                                                                                
+                        }                        
+                    }
+                }
+
+                res = result != null;
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupGeoblockRules failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<int, string>, bool>(result, res);
+        }
+
     }
 }

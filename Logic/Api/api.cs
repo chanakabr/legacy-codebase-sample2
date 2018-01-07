@@ -29,7 +29,6 @@ using QueueWrapper;
 using QueueWrapper.Queues.QueueObjects;
 using ScheduledTasks;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -1614,7 +1613,7 @@ namespace Core.Api
                 }
             }
             return res;
-        }
+        }       
 
         internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
         {
@@ -3374,14 +3373,14 @@ namespace Core.Api
                         .GroupBy(
                                  dr =>
                                  new
-                                     {
-                                         ID = dr.Field<int>("ID"),
-                                         Name = dr.Field<string>("Name"),
-                                         Type = dr.Field<int>("Type"),
-                                         CoGuid = dr.Field<string>("Client_Id"),
-                                         LoginUrl = dr.Field<string>("Operator_Login"),
-                                         LogoutUrl = dr.Field<string>("Operator_Login")
-                                     })
+                                 {
+                                     ID = dr.Field<int>("ID"),
+                                     Name = dr.Field<string>("Name"),
+                                     Type = dr.Field<int>("Type"),
+                                     CoGuid = dr.Field<string>("Client_Id"),
+                                     LoginUrl = dr.Field<string>("Operator_Login"),
+                                     LogoutUrl = dr.Field<string>("Operator_Login")
+                                 })
 
                              .Select(dr => new GroupOperator()
                              {
@@ -3399,11 +3398,11 @@ namespace Core.Api
                                      // if provider has scopes:
                                      dt.Select("ID=" + dr.Key.ID + " AND SCOPE='" + sScope + "'").Any() ?
 
-                                     // True: Set the LoginUrl to the scope's LoginUrl
+                                         // True: Set the LoginUrl to the scope's LoginUrl
                                          dt.Select("ID=" + dr.Key.ID + " AND SCOPE='" + sScope + "'").Select(r => r["Scope_Login"].ToString()).FirstOrDefault()
                                          :
 
-                                     // False: set the LoginUrl to the provider's LoginUrl
+                                         // False: set the LoginUrl to the provider's LoginUrl
                                          dr.Key.LoginUrl,
                                  LogoutURL = string.IsNullOrEmpty(sScope) ?
 
@@ -3413,11 +3412,11 @@ namespace Core.Api
                                      // if provider has scopes:
                                      dt.Select("ID=" + dr.Key.ID + " AND SCOPE='" + sScope + "'").Any() ?
 
-                                     // True: Set the LoginUrl to the scope's LoginUrl
+                                         // True: Set the LoginUrl to the scope's LoginUrl
                                          dt.Select("ID=" + dr.Key.ID + " AND SCOPE='" + sScope + "'").Select(r => r["Scope_Logout"].ToString()).FirstOrDefault()
                                          :
 
-                                     // False: set the LoginUrl to the provider's LoginUrl
+                                         // False: set the LoginUrl to the provider's LoginUrl
                                          dr.Key.LogoutUrl,
                                  Scopes =
                                            string.IsNullOrEmpty(sScope) ?
@@ -4612,7 +4611,7 @@ namespace Core.Api
 
             return response;
         }
-     
+
         #region Parental Rules
 
         public static ParentalRulesResponse GetParentalRules(int groupId)
@@ -5327,11 +5326,11 @@ namespace Core.Api
                     // media rules id 
                     key = LayeredCacheKeys.GetMediaParentalRulesKey(groupId, mediaId);
                     cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref mediaRuleIds, GetMediaParentalRules,
-                        new Dictionary<string, object>() 
-                            { 
-                                { "groupId", groupId }, 
-                                { "mediaId", mediaId }, 
-                                { "groupsParentalRules", groupsParentalRules } 
+                        new Dictionary<string, object>()
+                            {
+                                { "groupId", groupId },
+                                { "mediaId", mediaId },
+                                { "groupsParentalRules", groupsParentalRules }
                             },
                         groupId, LayeredCacheConfigNames.MEDIA_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
 
@@ -5573,11 +5572,11 @@ namespace Core.Api
                     // epg rules id 
                     key = LayeredCacheKeys.GetEpgParentalRulesKey(groupId, epgId);
                     cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref epgRuleIds, GetEpgParentalRules,
-                        new Dictionary<string, object>() 
-                            { 
-                                { "groupId", groupId }, 
-                                { "epgId", epgId }, 
-                                { "groupParentalRules", groupParentalRules } 
+                        new Dictionary<string, object>()
+                            {
+                                { "groupId", groupId },
+                                { "epgId", epgId },
+                                { "groupParentalRules", groupParentalRules }
                             },
                         groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
 
@@ -5808,10 +5807,10 @@ namespace Core.Api
                         // Transform lists of tags from ParentalRule class to lists of tag values
                         response.mediaTags.AddRange(
                             rule.mediaTagValues.Select(tag => (new IdValuePair()
-                                {
-                                    id = rule.mediaTagTypeId,
-                                    value = tag
-                                })));
+                            {
+                                id = rule.mediaTagTypeId,
+                                value = tag
+                            })));
 
                         response.epgTags.AddRange(
                             rule.epgTagValues.Select(tag => (new IdValuePair()
@@ -6928,8 +6927,8 @@ namespace Core.Api
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine deleted");
 
                     string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                    string[] keys = new string[1] 
-                    { 
+                    string[] keys = new string[1]
+                    {
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
                     };
 
@@ -7026,7 +7025,7 @@ namespace Core.Api
                     }
 
                     string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                    string[] keys = new string[1]{ 
+                    string[] keys = new string[1]{
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngine.ID)
                     };
 
@@ -7265,8 +7264,8 @@ namespace Core.Api
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine set changes");
 
                     string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                    string[] keys = new string[1] 
-                    { 
+                    string[] keys = new string[1]
+                    {
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
                     };
 
@@ -7330,8 +7329,8 @@ namespace Core.Api
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine configs delete");
 
                     string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                    string[] keys = new string[1] 
-                    { 
+                    string[] keys = new string[1]
+                    {
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
                     };
 
@@ -7584,8 +7583,8 @@ namespace Core.Api
                 }
 
                 string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                string[] keys = new string[1] 
-                { 
+                string[] keys = new string[1]
+                {
                     string.Format("{0}_external_channel_{1}_{2}", version, groupID, externalChannelId)
                 };
 
@@ -7676,8 +7675,8 @@ namespace Core.Api
                 }
 
                 string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                string[] keys = new string[1] 
-                { 
+                string[] keys = new string[1]
+                {
                     string.Format("{0}_external_channel_{1}_{2}", version, groupID, externalChannel.ID)
                 };
 
@@ -8635,8 +8634,8 @@ namespace Core.Api
                 }
 
                 string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                string[] keys = new string[1] 
-                    { 
+                string[] keys = new string[1]
+                    {
                         string.Format("{0}_cdn_adapter_{1}", version, adapterId)
                     };
 
@@ -8713,8 +8712,8 @@ namespace Core.Api
 
                     // remove adapter from cache
                     string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                    string[] keys = new string[1] 
-                    { 
+                    string[] keys = new string[1]
+                    {
                         string.Format("{0}_cdn_adapter_{1}", version, adapter.ID)
                     };
 
@@ -8770,8 +8769,8 @@ namespace Core.Api
 
                     // remove adapter from cache
                     string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                    string[] keys = new string[1] 
-                    { 
+                    string[] keys = new string[1]
+                    {
                         string.Format("{0}_cdn_adapter_{1}", version,adapterId)
                     };
 
@@ -8869,8 +8868,8 @@ namespace Core.Api
 
                     // remove adapter from cache
                     string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                    string[] keys = new string[1] 
-                    { 
+                    string[] keys = new string[1]
+                    {
                         string.Format("{0}_cdn_adapter_{1}", version, adapterId)
                     };
 
@@ -9458,7 +9457,7 @@ namespace Core.Api
                                 Name = GetTagName(val, group.m_oEpgGroupSettings.MetasDisplayName),
 
                                 Type = ApiObjects.MetaType.String,
-                                IsTag = false,
+                                MultipleValue = false,
                                 PartnerId = group.m_oEpgGroupSettings.GroupId
                             };
 
@@ -9479,7 +9478,7 @@ namespace Core.Api
                                 FieldName = MetaFieldName.None,
                                 Name = GetTagName(val, group.m_oEpgGroupSettings.TagsDisplayName),
                                 Type = ApiObjects.MetaType.Tag,
-                                IsTag = true,
+                                MultipleValue = true,
                                 PartnerId = group.m_oEpgGroupSettings.GroupId
                             };
 
@@ -9530,7 +9529,7 @@ namespace Core.Api
                                     Name = metaVal.Value,
                                     Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
                                     PartnerId = partnerId,
-                                    IsTag = false
+                                    MultipleValue = false
                                 };
 
                                 meta.Id = BuildMetaId(meta, metaVal.Key);
@@ -9553,7 +9552,7 @@ namespace Core.Api
                                 FieldName = MetaFieldName.None,
                                 Name = tagVal.Value,
                                 Type = ApiObjects.MetaType.Tag,
-                                IsTag = true
+                                MultipleValue = true
                             };
 
                             meta.PartnerId = GetPartnerIdforTag(tagVal, group);
@@ -9673,7 +9672,7 @@ namespace Core.Api
         private static string BuildMetaId(Meta meta, string metaDBId)
         {
             string prefix = meta.AssetType == eAssetTypes.MEDIA && meta.Type == ApiObjects.MetaType.String ? "_NAME" : "";
-            return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_{3}{4}", meta.PartnerId, (int)meta.AssetType, meta.IsTag ? 1 : 0, metaDBId, prefix));
+            return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_{3}{4}", meta.PartnerId, (int)meta.AssetType, meta.MultipleValue ? 1 : 0, metaDBId, prefix));
         }
 
         private static int GetPartnerIdforTag(KeyValuePair<int, string> tagVal, GroupsCacheManager.Group group)
@@ -10308,5 +10307,36 @@ namespace Core.Api
             }
             return response;
         }
+
+        /*internal static List<TagValue> SearchTags(int groupId, int topicId, int languageId, string searchValue)
+        {
+            List<TagValue> result = new List<TagValue>();
+
+            Catalog.CatalogManagement.CatalogGroupCache catalogGroupCache;
+            Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
+
+            if (catalogGroupCache == null)
+            {
+                log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+            }
+            else
+            {
+                LanguageObj language = null;
+                catalogGroupCache.LanguageMapById.TryGetValue(languageId, out language);
+
+                if (language == null)
+                {
+                    log.ErrorFormat("Invalid language id {0}", languageId);
+                }
+                else
+                {
+                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+
+                    result = wrapper.SearchTags(groupId, language, topicId, searchValue);
+                }
+            }
+            return result;
+        }
+        */
     }
 }
