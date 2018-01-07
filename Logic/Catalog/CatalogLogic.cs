@@ -4444,6 +4444,9 @@ namespace Core.Catalog
                                     fileMedia.PPVModules = dicMediaFilePPVModules[fileMedia.m_nFileId];
                             }
 
+                            fileMedia.FileSize = Utils.GetLongSafeVal(dtFileMedia.Rows[i], "FILE_SIZE");
+
+
                             lFileMedia.Add(fileMedia);
                         }
                     }
