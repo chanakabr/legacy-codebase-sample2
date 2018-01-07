@@ -1837,5 +1837,10 @@ namespace Core.Api
         {
             return Core.Api.api.GetMediaConcurrencyRulesByDeviceLimitionModule(groupId, dlmId);
         }
+
+        public static DrmAdapterListResponse GetDrmAdapters(int groupId)
+        {
+            return Core.Api.api.GetDrmAdapters(groupId);
+        }
     }
 }

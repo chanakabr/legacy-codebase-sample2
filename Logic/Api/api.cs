@@ -10338,5 +10338,28 @@ namespace Core.Api
             return result;
         }
         */
+
+        public static DrmAdapterListResponse GetDrmAdapters(int groupID)
+        {
+            DrmAdapterListResponse response = new DrmAdapterListResponse();
+            try
+            {
+                response.Adapters = DAL.ApiDAL.GetDrmAdapters(groupID);
+                if (response.Adapters == null || response.Adapters.Count == 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No adapters found");
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed groupID={0}", groupID), ex);
+            }
+
+            return response;
+        }
     }
 }
