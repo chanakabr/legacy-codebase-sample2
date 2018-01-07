@@ -17,9 +17,7 @@ namespace ElasticSearchHandler.IndexBuilders
 {
     public abstract class AbstractIndexBuilder
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
-        #region Consts
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());                
 
         #region Consts
 
