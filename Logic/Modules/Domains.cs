@@ -59,15 +59,15 @@ namespace Core.Domains
 
             return response;
         }
+        
+        public static DomainResponseStatus RemoveDomain(int nGroupID, int nDomainID, bool purge)
 
-
-        public static DomainResponseStatus RemoveDomain(int nGroupID, int nDomainID)
         {
             Core.Users.BaseDomain t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.RemoveDomain(nDomainID);
+                return t.RemoveDomain(nDomainID, purge);
             }
 
             return DomainResponseStatus.Error;
@@ -857,7 +857,7 @@ namespace Core.Domains
         }
 
 
-        public static ApiObjects.Response.Status RemoveDomainById(int nGroupID, int nDomainID)
+        public static ApiObjects.Response.Status RemoveDomainById(int nGroupID, int nDomainID, bool purge)
         {
 
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -865,7 +865,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                DomainResponseStatus domainResponseStatus = t.RemoveDomain(nDomainID);
+                DomainResponseStatus domainResponseStatus = t.RemoveDomain(nDomainID, purge);
                 status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
             }
 
@@ -873,7 +873,7 @@ namespace Core.Domains
         }
 
         
-        public static ApiObjects.Response.Status RemoveDomainByCoGuid(int nGroupID, string coGuid)
+        public static ApiObjects.Response.Status RemoveDomainByCoGuid(int nGroupID, string coGuid, bool purge)
         {
 
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -884,7 +884,7 @@ namespace Core.Domains
                 int householdId = t.GetDomainIDByCoGuid(coGuid);
                 if (householdId > 0)
                 {
-                    DomainResponseStatus domainResponseStatus = t.RemoveDomain(householdId);
+                    DomainResponseStatus domainResponseStatus = t.RemoveDomain(householdId, purge);
                     status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                 }
             }
@@ -967,6 +967,34 @@ namespace Core.Domains
             }
 
             return response;
+        }
+
+        public static ApiObjects.Response.Status ShouldPurgeDomain(int groupId, int householdId, out bool shouldPurge)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Core.Users.BaseDomain t = null;
+            shouldPurge = false;
+
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                status = t.ShouldPurgeDomain(householdId, out shouldPurge);
+            }
+
+            return status;
+        }
+
+        public static ApiObjects.Response.Status PurgeDomain(int groupId, int householdId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Core.Users.BaseDomain t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                status = t.PurgeDomain(householdId);                
+            }
+
+            return status;
         }
     }
 }
