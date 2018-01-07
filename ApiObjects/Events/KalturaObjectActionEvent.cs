@@ -56,5 +56,11 @@ namespace ApiObjects
             this.action = action;
             this.Time = time;
         }
+
+        public override string GetSystemName()
+        {
+            // e.g before_subscriptionpurchase_created
+            return string.Format("{0}_{1}_{2}", this.Time, this.Type, this.Action);
+        }
     }
 }

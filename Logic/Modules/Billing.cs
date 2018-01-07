@@ -16,8 +16,7 @@ namespace Core.Billing
     public class Module
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        
+                
         public static string GetBillingCutomData(int nGroupID)
         {
             BaseBilling t = null;
@@ -32,8 +31,7 @@ namespace Core.Billing
             }
 
         }
-
-        
+                
         public static string CC_GetUserCCDigits(int nGroupID, string sSiteGUID)
         {
             // add siteguid to logs/monitor

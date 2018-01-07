@@ -112,8 +112,10 @@ namespace Core.ConditionalAccess
             // get end date
             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
 
+            long endDateUnix =TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate);
+
             // validate renewal did not already happened
-            if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
+            if (Math.Abs(endDateUnix - nextEndDate) > 60)
             {
                 // subscription purchase wasn't found
                 log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling renew task. Purchase ID: {0}, sub end_date: {1}, data: {2}",
@@ -269,7 +271,8 @@ namespace Core.ConditionalAccess
                     // change is recurring to false and call event handle
                     // renew subscription failed!
                     bool handleNonRenew = HandleRenewSubscriptionFailed(cas, groupId,
-                        siteguid, purchaseId, logString, productId, subscription, householdId, 0, "AddOn with no BaseSubscription valid");
+                        siteguid, purchaseId, logString, productId, subscription, householdId, 0, "AddOn with no BaseSubscription valid",
+                        billingGuid, endDateUnix);
 
                     log.ErrorFormat("failed renew subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", subscription.m_SubscriptionCode, status.Code, status.Message);
                     return true;
@@ -304,8 +307,6 @@ namespace Core.ConditionalAccess
 
             // get compensation data
             Compensation compensation = ConditionalAccessDAL.GetSubscriptionCompensationByPurchaseId(purchaseId);
-
-            
 
             // get MPP
             int recPeriods = 0;
@@ -364,7 +365,8 @@ namespace Core.ConditionalAccess
                 {
                     // renew subscription failed! pass 0 as failReasonCode since we don't get it on the transactionResponse
                     return HandleRenewSubscriptionFailed(cas, groupId,
-                        siteguid, purchaseId, logString, productId, subscription, householdId, 0, transactionResponse.Status.Message);
+                        siteguid, purchaseId, logString, productId, subscription, householdId, 0, transactionResponse.Status.Message,
+                        billingGuid, endDateUnix);
                 }
                 else if (transactionResponse.Status.Code == (int)eResponseStatus.PaymentGatewaySuspended)
                 {
@@ -379,6 +381,7 @@ namespace Core.ConditionalAccess
                     return false;
                 }
             }
+
             bool res = false;
             switch (transactionResponse.State)
             {
@@ -417,7 +420,9 @@ namespace Core.ConditionalAccess
                     {
                         // renew subscription failed!
                         res = HandleRenewSubscriptionFailed(cas, groupId,
-                            siteguid, purchaseId, logString, productId, subscription, householdId, transactionResponse.FailReasonCode);
+                            siteguid, purchaseId, logString, productId, subscription, householdId, transactionResponse.FailReasonCode, null,
+                            billingGuid, endDateUnix);
+
                     }
                     break;
                 default:
@@ -467,7 +472,8 @@ namespace Core.ConditionalAccess
 
         protected internal static bool HandleRenewSubscriptionFailed(BaseConditionalAccess cas, int groupId,
             string siteguid, long purchaseId, string logString, long productId,
-            Subscription subscription, long domainId, int failReasonCode, string billingSettingError = null)
+            Subscription subscription, long domainId, int failReasonCode, string billingSettingError = null, string billingGuid = null,
+            long endDateUnix = 0)
         {
             log.DebugFormat("Transaction renew failed. data: {0}", logString);
 
@@ -479,7 +485,9 @@ namespace Core.ConditionalAccess
                 productId = subscription.m_SubscriptionCode,
                 status = SubscriptionPurchaseStatus.Fail
             };
+
             bool success = subscriptionPurchase.Update();
+
             if (!success)
             {
                 log.Error("Error while trying to cancel subscription");
@@ -496,7 +504,7 @@ namespace Core.ConditionalAccess
 
             // PS message 
             var dicData = new Dictionary<string, object>()
-                                        {                                            
+                                        {
                                             {"SiteGUID", siteguid},
                                             {"DomainID", domainId},
                                             {"FailReasonCode", failReasonCode},
@@ -511,7 +519,27 @@ namespace Core.ConditionalAccess
 
             cas.EnqueueEventRecord(NotifiedAction.FailedSubscriptionRenewal, dicData);
 
+            // Enqueue event for subscription ends:
+            EnqueueSubscriptionEndsMessage(groupId, siteguid, purchaseId, endDateUnix);
+
             return true;
+        }
+
+        internal static void EnqueueSubscriptionEndsMessage(int groupId, string siteguid, long purchaseId, long endDateUnix)
+        {
+            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+
+            DateTime endDate = TVinciShared.DateUtils.UnixTimeStampToDateTime(endDateUnix);
+
+            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, string.Empty,
+                            endDateUnix, endDate, eSubscriptionRenewRequestType.SubscriptionEnds);
+
+            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+
+            if (!enqueueSuccessful)
+            {
+                log.ErrorFormat("Failed enqueue of subscription ends event {0}", data);
+            }
         }
 
         protected internal static bool HandleRenewSubscriptionPending(BaseConditionalAccess cas, int groupId,
@@ -1275,7 +1303,9 @@ namespace Core.ConditionalAccess
                             // change is recurring to false and call event handle- this renew subscription failed!                        
 
                             RenewSubscriptionDetails rsDetail = renewSubscriptioDetails.Where(x => x.ProductId == subscription.m_SubscriptionCode).FirstOrDefault();
-                            if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, rsDetail, 0, "AddOn with no BaseSubscription valid"))
+                            if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, 
+                                rsDetail, 0, "AddOn with no BaseSubscription valid", 
+                                string.Empty, nextEndDate))
                             {
                                 // save all SubscriptionCode to remove from subscription list 
                                 removeSubscriptionCodes.Add(subscription.m_SubscriptionCode);
@@ -1346,7 +1376,8 @@ namespace Core.ConditionalAccess
                             foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
                             {
                                 Subscription subscription = subscriptions.Where(x => x.m_SubscriptionCode == renewUnifiedData.ProductId).FirstOrDefault();
-                                HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, renewUnifiedData, 0, transactionResponse.Status.Message);
+                                HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, renewUnifiedData, 0, transactionResponse.Status.Message,
+                                    string.Empty, nextEndDate);
                             }
                             continue;
                         }
@@ -1376,7 +1407,8 @@ namespace Core.ConditionalAccess
                                     foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
                                     {
                                         Subscription subscription = subscriptions.Where(x => x.m_SubscriptionCode == renewUnifiedData.ProductId).FirstOrDefault();
-                                        HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, renewUnifiedData, transactionResponse.FailReasonCode);
+                                        HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, renewUnifiedData, transactionResponse.FailReasonCode,
+                                             null, string.Empty, nextEndDate);
                                     }
 
                                 }
@@ -1686,13 +1718,15 @@ namespace Core.ConditionalAccess
         }
 
         private static bool HandleRenewUnifiedSubscriptionFailed(BaseConditionalAccess cas, int groupId, int paymentgatewayId, long householdId, Subscription subscription,
-            RenewSubscriptionDetails spDetails, int failReasonCode, string billingSettingError = null)
+            RenewSubscriptionDetails spDetails, int failReasonCode, string billingSettingError = null, string billingGuid = null, long endDateUnix = 0)
         {
             string logString = string.Empty;
 
-            logString = string.Format("Unified Purchase request (fail): householdId:{0}, siteguid {1}, purchaseId {2}, billingGuid {3}", householdId, spDetails.UserId, spDetails.PurchaseId, spDetails.BillingGuid);
+            logString = string.Format("Unified Purchase request (fail): householdId:{0}, siteguid {1}, purchaseId {2}, billingGuid {3}", 
+                householdId, spDetails.UserId, spDetails.PurchaseId, spDetails.BillingGuid);
 
-            return HandleRenewSubscriptionFailed(cas, groupId, spDetails.UserId, spDetails.PurchaseId, logString, long.Parse(spDetails.ProductId), subscription, householdId, failReasonCode, billingSettingError);
+            return HandleRenewSubscriptionFailed(cas, groupId, spDetails.UserId, spDetails.PurchaseId, logString, long.Parse(spDetails.ProductId), 
+                subscription, householdId, failReasonCode, billingSettingError, billingGuid, endDateUnix);
         }
 
         public static bool HandleResumeDomainSubscription(int groupId, long householdId, string siteguid, long purchaseId, string billingGuid, DateTime endDate)
@@ -2009,8 +2043,11 @@ namespace Core.ConditionalAccess
                         {
                             // change is recurring to false and call event handle- this renew subscription failed!                        
 
+                            long nextEndDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(processEndDate.Value);
+
                             RenewSubscriptionDetails rsDetail = renewSubscriptioDetails.Where(x => x.ProductId == subscription.m_SubscriptionCode).FirstOrDefault();
-                            if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, rsDetail, 0, "AddOn with no BaseSubscription valid"))
+                            if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, rsDetail, 0, "AddOn with no BaseSubscription valid",
+                                string.Empty, nextEndDate))
                             {
                                 // save all SubscriptionCode to remove from subscription list 
                                 removeSubscriptionCodes.Add(subscription.m_SubscriptionCode);

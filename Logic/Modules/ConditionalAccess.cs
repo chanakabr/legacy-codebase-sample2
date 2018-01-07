@@ -3298,5 +3298,31 @@ namespace Core.ConditionalAccess
 
             return response;
         }
+
+        public static bool SubscriptionEnds(int groupId, string siteGuid, long householdId, long purchaseId, long endDate)
+        {
+            bool response = false;
+
+            // add siteguid to logs/monitor
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+
+            // get partner implementation and group ID
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+
+            if (t != null)
+            {
+                try
+                {
+                    response = t.SubscriptionEnds(siteGuid, householdId, purchaseId, endDate);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error while trying to remind about subscription renewal", ex);
+                }
+            }
+
+            return response;
+        }
     }
 }

@@ -873,9 +873,20 @@ namespace Core.Notification
                         long nGroupID = ODBCWrapper.Utils.GetLongSafeVal(dr["group_id"].ToString());
                         string messageText = ODBCWrapper.Utils.GetSafeStr(dr["messageText"].ToString());
                         string title = ODBCWrapper.Utils.GetSafeStr(dr["title"].ToString());
-                        DateTime publishDate = ODBCWrapper.Utils.GetDateSafeVal(dr["publishDate"].ToString());
+                        DateTime publishDate = ODBCWrapper.Utils.ExtractDateTime(dr, "publishDate");
                         string appName = ODBCWrapper.Utils.GetSafeStr(dr["appName"].ToString());
-                        NotificationMessageType NotificationType = (NotificationMessageType)Enum.Parse(typeof(NotificationMessageType), ODBCWrapper.Utils.GetSafeStr(dr["notificationType"].ToString()));
+                        NotificationMessageType drNotificationType = NotificationMessageType.All;
+                        int notificationTypeInt = ODBCWrapper.Utils.ExtractInteger(dr, "notificationType");
+
+                        try
+                        {
+                            drNotificationType = (NotificationMessageType)notificationTypeInt;
+                        }
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Error getting notification message type for notification message id {0} and type {1}", notificationMessageID, notificationTypeInt);
+                        }
+                        
                         NotificationMessageViewStatus ViewStatus = (NotificationMessageViewStatus)Enum.Parse(typeof(NotificationMessageViewStatus), ODBCWrapper.Utils.GetSafeStr(dr["viewStatus"].ToString()));
                         NotificationMessageStatus nms = (NotificationMessageStatus)Enum.Parse(typeof(NotificationMessageStatus), ODBCWrapper.Utils.GetSafeStr(dr["NotificationMessageStatus"].ToString()));
                         string sTagParams = ODBCWrapper.Utils.GetSafeStr(dr["parameters"].ToString());
@@ -887,7 +898,8 @@ namespace Core.Notification
                             tagParams = js.Deserialize<ExtraParams>(sTagParams);
                             //Dictionary<string, List<string>> tagNames = GetTagsNameByIDs(tagParams.TagDict, int.Parse(nGroupID.ToString()));
                         }
-                        NotificationMessage temp = new NotificationMessage(NotificationType, notificationID, notificationRequestID, notificationMessageID, userID, nms, messageText, title, publishDate, appName, DeviceID, sDeviceUDID, null, ViewStatus, tagParams, nGroupID);
+                        NotificationMessage temp = new NotificationMessage(drNotificationType, notificationID, notificationRequestID, 
+                            notificationMessageID, userID, nms, messageText, title, publishDate, appName, DeviceID, sDeviceUDID, null, ViewStatus, tagParams, nGroupID);
                         res.Add(temp);
                     }
                 }
