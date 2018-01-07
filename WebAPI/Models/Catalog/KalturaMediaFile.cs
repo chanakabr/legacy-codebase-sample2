@@ -135,5 +135,13 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "productCode")]
         [JsonIgnore]
         public string ProductCode { get; set; }
+
+        /// <summary>
+        /// File size
+        /// </summary>
+        [DataMember(Name = "fileSize")]
+        [JsonProperty(PropertyName = "fileSize")]
+        [XmlElement(ElementName = "fileSize")]        
+        public long FileSize { get; set; }
     }
 }

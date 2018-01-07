@@ -157,6 +157,14 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaAssetReminderFilter":
+                    switch (propertyName)
+                    {
+                        case "KSql":
+                            return true;
+                    };
+                    break;
+                    
                 case "KalturaBaseAssetInfo":
                     switch (propertyName)
                     {
@@ -2458,14 +2466,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaAssetReminderFilter":
-                    switch(property.Name)
-                    {
-                        case "KSql":
-                            return "kSql";
-                    }
-                    break;
-                    
                 case "KalturaAssetsBookmarksResponse":
                     switch(property.Name)
                     {
@@ -4331,6 +4331,8 @@ namespace WebAPI.Reflection
                             return "duration";
                         case "ExternalId":
                             return "externalId";
+                        case "FileSize":
+                            return "fileSize";
                         case "HandlingType":
                             return "handlingType";
                         case "Id":
