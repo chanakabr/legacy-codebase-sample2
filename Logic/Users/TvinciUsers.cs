@@ -1097,14 +1097,8 @@ namespace Core.Users
                     UserDynamicData d = new UserDynamicData();
                     d.Initialize(sDynamicDataXML);
                     u.Update(b, d, m_nGroupID);
-                    if (u.m_eSuspendState == DomainSuspentionStatus.Suspended)
-                    {
-                        resp.Initialize(ResponseStatus.UserSuspended, u);
-                    }
-                    else
-                    {
-                        resp.Initialize(ResponseStatus.OK, u);
-                    }
+
+                    resp.Initialize(ResponseStatus.OK, u);                  
                 }
                 else
                 {
@@ -1220,14 +1214,7 @@ namespace Core.Users
                     }
                 }
 
-                if (u.m_eSuspendState == DomainSuspentionStatus.Suspended)
-                {
-                    resp.Initialize(ResponseStatus.UserSuspended, u);
-                }
-                else
-                {
-                    resp.Initialize(ResponseStatus.OK, u);
-                }
+                resp.Initialize(ResponseStatus.OK, u);
             }
             catch
             {
