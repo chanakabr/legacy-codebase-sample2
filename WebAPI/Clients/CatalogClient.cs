@@ -312,7 +312,7 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }
+        }        
 
         public KalturaMeta AddMeta(int groupId, KalturaMeta meta, long userId)
         {
@@ -3610,6 +3610,39 @@ namespace WebAPI.Clients
             }
 
             return true;
-        }    
+        }
+
+        internal KalturaAssetFile AddAssetFile(int groupId, KalturaAssetFile assetFile, long userId)
+        {
+            KalturaAssetFile result = null;
+            AssetFileResponse response = null;
+
+            try
+            {
+                AssetFile assetFileToAdd = AutoMapper.Mapper.Map<AssetFile>(assetFile);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetFile(groupId, userId, assetFileToAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = AutoMapper.Mapper.Map<KalturaAssetFile>(response.File);
+            return result;
+        }
     }
 }

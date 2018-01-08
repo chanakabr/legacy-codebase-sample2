@@ -167,5 +167,49 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
         }
+
+        /// <summary>
+        /// Add a new asset
+        /// </summary>
+        /// <param name="assetFile">Asset object</param>
+        /// <returns></returns>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        public KalturaAssetFile Add(KalturaAssetFile assetFile)
+        {
+            KalturaAssetFile response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+            if (assetFile.AssetId <= 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetId");
+            }
+            
+            if (!assetFile.TypeId.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
+            }
+
+            if (string.IsNullOrEmpty(assetFile.ExternalId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
+            }
+
+            try
+            {
+                response = ClientsManager.CatalogClient().AddAssetFile(groupId, assetFile, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+
     }
 }

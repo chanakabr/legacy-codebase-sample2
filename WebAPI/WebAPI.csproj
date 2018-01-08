@@ -245,6 +245,7 @@
     <Compile Include="Models\API\KalturaDRMAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaDRMAdapterProfileListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetFileType.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetFile.cs" />
     <Compile Include="Models\Catalog\KalturaUrlResource.cs" />
     <Compile Include="Models\Catalog\KalturaContentResource.cs" />
     <Compile Include="Models\Catalog\KalturaImageStatus.cs" />

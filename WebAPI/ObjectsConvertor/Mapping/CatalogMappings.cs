@@ -588,7 +588,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ImageObjectType, opt => opt.MapFrom(src => ConvertImageObjectType(src.ImageObjectType.Value)))
               ;
 
-            #endregion    
+            #endregion
+
+            #region AssetFile
+            //File 
+            Mapper.CreateMap<AssetFile, KalturaAssetFile>()
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.Type))
+                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+                 .ForMember(dest => dest.BillingType, opt => opt.MapFrom(src => src.BillingType))
+                 .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => src.Quality));
+                 
+            #endregion
         }
 
 

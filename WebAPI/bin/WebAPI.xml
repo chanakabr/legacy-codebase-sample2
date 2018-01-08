@@ -378,6 +378,13 @@
             <param name="partnerId">Partner identifier</param>
             <remarks></remarks>
         </member>
+        <member name="M:WebAPI.Controllers.AssetFileController.Add(WebAPI.Models.Catalog.KalturaAssetFile)">
+            <summary>
+            Add a new asset
+            </summary>
+            <param name="assetFile">Asset object</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.AssetFileTypeController.List">
             <summary>
             Returns a list of asset-file types
@@ -5498,6 +5505,51 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAssetFileTypeListResponse.Types">
             <summary>
             A list of asset-file types
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetFile">
+            <summary>
+            Asset file details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.AssetId">
+            <summary>
+            Unique identifier for the asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.Id">
+            <summary>
+            File unique identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.TypeId">
+            <summary>
+            Device types identifier as defined in the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.Url">
+            <summary>
+            URL of the asset file to be played
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.Duration">
+            <summary>
+            Duration of the asset file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.ExternalId">
+            <summary>
+            External identifier for the asset file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.BillingType">
+            <summary>
+            Billing type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.Quality">
+            <summary>
+            Quality
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaUrlResource.Url">
