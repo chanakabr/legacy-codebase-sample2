@@ -3711,7 +3711,7 @@ namespace Tvinci.Core.DAL
             }
 
             return result;
-        }
+        }       
 
         public static int GetExternalChannelIdByExternalIdentifier(int groupId, string externalIdentifier)
         {
@@ -5170,6 +5170,23 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@updaterId", userId);
 
             return sp.Execute();
+        }
+
+        public static DataSet InsertAssetFile(int groupId, long userId, long assetId, string billingType, double duration, string externalId, string quality, string url, int type)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertAssetFile");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@updaterId", userId);
+            sp.AddParameter("@assetId", assetId);
+            sp.AddParameter("@billingType", billingType);            
+            sp.AddParameter("@duration", duration);
+            sp.AddParameter("@externalId", externalId);
+            sp.AddParameter("@quality", quality);
+            sp.AddParameter("@url", url);
+            sp.AddParameter("@type", type);
+
+            return sp.ExecuteDataSet();
         }
 
         #endregion
