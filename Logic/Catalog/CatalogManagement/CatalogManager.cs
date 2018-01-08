@@ -1842,6 +1842,47 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<List<AssetFileType>, bool>(assetFileType, res);
         }
 
+        private static AssetFileResponse CreateAssetFileResponseFromDataSet(DataSet ds)
+        {
+            AssetFileResponse response = new AssetFileResponse();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                {
+                    response.File = CreateAssetFile(dt.Rows[0]);
+                    if (response.File != null)
+                    {
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                }
+                /// AssetFile does not exist
+                else
+                {
+                    response.Status = new Status((int)eResponseStatus.AssetFileDoesNotExist, eResponseStatus.AssetFileDoesNotExist.ToString());
+                }
+            }
+
+            return response;
+        }
+
+        private static AssetFile CreateAssetFile(DataRow dr)
+        {
+            return new AssetFile()
+            {
+                //AssetId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                //BillingType = ODBCWrapper.Utils.GetSafeStr(dr, "ID"),
+                //Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                //ExternalId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                //Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                //Quality = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                //Type = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                //Url = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID")
+                ////Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+              
+            };
+        }
+
         #endregion
 
         #region Public Methods
@@ -2763,7 +2804,7 @@ namespace Core.Catalog.CatalogManagement
 
                 int dbAssetType = -1;
                 switch (assetType)
-                {                    
+                {
                     case eAssetTypes.EPG:
                         break;
                     case eAssetTypes.NPVR:
@@ -3280,6 +3321,37 @@ namespace Core.Catalog.CatalogManagement
             return result;
 
         }
+
+        public static AssetFileResponse AddAssetFile(int groupId, long userId, AssetFile assetFileToAdd)
+        {
+            AssetFileResponse result = new AssetFileResponse();
+            try
+            {
+                DataSet ds = CatalogDAL.InsertAssetFile(groupId, userId, assetFileToAdd.AssetId, assetFileToAdd.BillingType, assetFileToAdd.Duration, assetFileToAdd.ExternalId,
+                    assetFileToAdd.Quality, assetFileToAdd.Url, assetFileToAdd.Type);
+                result = CreateAssetFileResponseFromDataSet(ds);
+
+                //if (result.Status.Code == (int)eResponseStatus.OK)
+                //{
+                //    string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
+                //    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                //    {
+                //        log.ErrorFormat("Failed to set invalidation key on AddAssetFileType key = {0}", invalidationKey);
+                //    }
+
+                //    // TODO
+                //    // InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFileType);
+                //}
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed AddAssetFile for groupId: {0} and AssetFile: {1}", groupId, JsonConvert.SerializeObject(assetFileToAdd)), ex);
+            }
+
+            return result;
+        }
+
+
 
         #endregion
     }
