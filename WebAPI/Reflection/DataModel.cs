@@ -2467,6 +2467,28 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetFile":
+                    switch(property.Name)
+                    {
+                        case "AssetId":
+                            return "assetId";
+                        case "BillingType":
+                            return "billingType";
+                        case "Duration":
+                            return "duration";
+                        case "ExternalId":
+                            return "externalId";
+                        case "Id":
+                            return "id";
+                        case "Quality":
+                            return "quality";
+                        case "TypeId":
+                            return "type";
+                        case "Url":
+                            return "url";
+                    }
+                    break;
+                    
                 case "KalturaAssetFileContext":
                     switch(property.Name)
                     {
