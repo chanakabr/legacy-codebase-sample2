@@ -1649,8 +1649,8 @@ namespace Core.Catalog.CatalogManagement
                     ExtractTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, DESCRIPTION_META_SYSTEM_NAME);
                 }
 
-                DateTime startDate = assetToUpdate.StartDate.HasValue ? assetToUpdate.StartDate.Value : DateTime.UtcNow;
-                DateTime catalogStartDate = assetToUpdate.CatalogStartDate.HasValue ? assetToUpdate.CatalogStartDate.Value : startDate;
+                DateTime startDate = assetToUpdate.StartDate.HasValue ? assetToUpdate.StartDate.Value : currentAsset.StartDate.Value;
+                DateTime catalogStartDate = assetToUpdate.CatalogStartDate.HasValue ? assetToUpdate.CatalogStartDate.Value : currentAsset.CatalogStartDate.Value;
                 // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
                 DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, assetToUpdate.Id, catalogGroupCache.DefaultLanguage.ID, metasXmlDocToAdd, tagsXmlDocToAdd, metasXmlDocToUpdate, tagsXmlDocToUpdate,
                                                         assetToUpdate.CoGuid, assetToUpdate.EntryId, assetToUpdate.DeviceRuleId, assetToUpdate.GeoBlockRuleId, assetToUpdate.IsActive, startDate,
