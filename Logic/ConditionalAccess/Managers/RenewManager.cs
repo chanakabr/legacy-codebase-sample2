@@ -1726,7 +1726,7 @@ namespace Core.ConditionalAccess
                 householdId, spDetails.UserId, spDetails.PurchaseId, spDetails.BillingGuid);
 
             return HandleRenewSubscriptionFailed(cas, groupId, spDetails.UserId, spDetails.PurchaseId, logString, long.Parse(spDetails.ProductId), 
-                subscription, householdId, failReasonCode, billingSettingError, billingGuid, endDateUnix);
+                subscription, householdId, failReasonCode, billingSettingError, billingGuid, endDateUnix / 1000);
         }
 
         public static bool HandleResumeDomainSubscription(int groupId, long householdId, string siteguid, long purchaseId, string billingGuid, DateTime endDate)
