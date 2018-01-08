@@ -11,7 +11,7 @@ namespace Core.Catalog.CatalogManagement
     {
         public long Id { get; set; }
         public string Description { get; set; }
-        public bool? IsActive { get; set; }
+        public bool IsActive { get; set; }
         public long CreateDate { get; set; }
         public long UpdateDate { get; set; }
         public bool IsTrailer { get; set; }

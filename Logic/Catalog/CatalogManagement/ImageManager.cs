@@ -369,8 +369,8 @@ namespace Core.Catalog.CatalogManagement
 
             if (imageTypes != null)
             {
-                response.Status.Code = (int)eResponseStatus.OK;
-                response.Status.Message = eResponseStatus.OK.ToString();
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.TotalItems = imageTypes.Count;
 
                 if (ids == null || ids.Count == 0)
                 {
