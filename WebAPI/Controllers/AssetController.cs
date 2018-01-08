@@ -357,6 +357,7 @@ namespace WebAPI.Controllers
                         }
                         break;
                     default:
+                        throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "assetReferenceType");
                         break;
                 }
             }
