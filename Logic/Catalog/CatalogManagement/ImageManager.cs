@@ -326,14 +326,14 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                var cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.Id == imageTypeToUpdate.Id).FirstOrDefault();
+                var cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.Id == id).FirstOrDefault();
                 if (cachedImageType == null)
                 {
                     result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };
                     return result;
                 }
 
-                cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.SystemName == imageTypeToUpdate.SystemName && x.Id != imageTypeToUpdate.Id).FirstOrDefault();
+                cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.SystemName == imageTypeToUpdate.SystemName && x.Id != id).FirstOrDefault();
                 if (cachedImageType == null)
                 {
                     result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeAlreadyInUse, Message = eResponseStatus.ImageTypeAlreadyInUse.ToString() };
