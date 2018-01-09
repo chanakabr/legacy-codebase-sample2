@@ -21,9 +21,9 @@ namespace WebAPI.Controllers
         /// </summary>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaDRMProfileListResponse List()
+        public KalturaDrmProfileListResponse List()
         {
-            KalturaDRMProfileListResponse response = null;
+            KalturaDrmProfileListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 

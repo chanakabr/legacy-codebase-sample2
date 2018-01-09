@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaDRMProfileListResponse : KalturaListResponse
+    public class KalturaDrmProfileListResponse : KalturaListResponse
     {
         /// <summary>
         /// Adapters
@@ -18,6 +18,6 @@ namespace WebAPI.Models.API
         [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaDRMProfile> Adapters { get; set; }
+        public List<KalturaDrmProfile> Adapters { get; set; }
     }
 }

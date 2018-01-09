@@ -242,8 +242,8 @@
     <Compile Include="Controllers\RatioController.cs" />
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
-    <Compile Include="Models\API\KalturaDRMProfile.cs" />
-    <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
+    <Compile Include="Models\API\KalturaDrmProfile.cs" />
+    <Compile Include="Models\API\KalturaDrmProfileListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetFileType.cs" />
     <Compile Include="Models\Catalog\KalturaAssetFile.cs" />
     <Compile Include="Models\Catalog\KalturaUrlResource.cs" />

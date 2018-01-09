@@ -3839,9 +3839,9 @@ namespace WebAPI.Clients
             return drmAdapterResponse.Value;
         }
 
-        internal KalturaDRMProfileListResponse GetDrmAdapters(int groupId)
+        internal KalturaDrmProfileListResponse GetDrmAdapters(int groupId)
         {
-            KalturaDRMProfileListResponse result = new KalturaDRMProfileListResponse() { TotalCount = 0 };
+            KalturaDrmProfileListResponse result = new KalturaDrmProfileListResponse() { TotalCount = 0 };
 
             DrmAdapterListResponse response = null;
             try
@@ -3870,7 +3870,7 @@ namespace WebAPI.Clients
             if (response.Adapters.Count > 0)
             {
                 result.TotalCount = response.Adapters.Count;
-                result.Adapters = AutoMapper.Mapper.Map<List<KalturaDRMProfile>>(response.Adapters);
+                result.Adapters = AutoMapper.Mapper.Map<List<KalturaDrmProfile>>(response.Adapters);
             }
 
             return result;

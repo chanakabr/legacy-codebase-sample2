@@ -4208,47 +4208,47 @@
             <param name="userId">User identifier</param>
             <returns></returns>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaDRMProfile">
+        <member name="T:WebAPI.Models.API.KalturaDrmProfile">
             <summary>
             DRM Adapter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMProfile.Id">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.Id">
             <summary>
             DRM adapter identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMProfile.Name">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.Name">
             <summary>
             DRM adapter name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMProfile.IsActive">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.IsActive">
             <summary>
             DRM adapter active status
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMProfile.AdapterUrl">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.AdapterUrl">
             <summary>
             DRM adapter URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMProfile.Settings">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.Settings">
             <summary>
             DRM adapter settings
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMProfile.SystemName">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.SystemName">
             <summary>
             DRM adapter alias
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMProfile.SharedSecret">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfile.SharedSecret">
             <summary>
             DRM shared secret
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMProfileListResponse.Adapters">
+        <member name="P:WebAPI.Models.API.KalturaDrmProfileListResponse.Adapters">
             <summary>
             Adapters
             </summary>

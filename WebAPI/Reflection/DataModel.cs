@@ -3547,7 +3547,7 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaDRMProfile":
+                case "KalturaDrmProfile":
                     switch(property.Name)
                     {
                         case "AdapterUrl":
@@ -3567,7 +3567,7 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaDRMProfileListResponse":
+                case "KalturaDrmProfileListResponse":
                     switch(property.Name)
                     {
                         case "Adapters":
