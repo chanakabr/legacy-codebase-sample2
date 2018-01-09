@@ -334,7 +334,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.SystemName == imageTypeToUpdate.SystemName && x.Id != id).FirstOrDefault();
-                if (cachedImageType == null)
+                if (cachedImageType != null)
                 {
                     result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeAlreadyInUse, Message = eResponseStatus.ImageTypeAlreadyInUse.ToString() };
                     return result;
