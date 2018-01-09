@@ -434,13 +434,19 @@ namespace ElasticSearch.Common
                 return deleteResult;
             }
 
-
             string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sId);
             int nStatus = 0;
 
             string sRetVal = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty, true);
 
+            log.DebugFormat("ElasticSearchApi DeleteDoc result: {0}", sRetVal);
+
             deleteResult = ESDeleteResult.GetDeleteResult(sRetVal);
+
+            if (nStatus == 200 && deleteResult != null)
+            {
+                deleteResult.Ok = true;
+            }
 
             return deleteResult;
         }
