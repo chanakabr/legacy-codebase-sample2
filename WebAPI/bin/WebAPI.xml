@@ -5552,6 +5552,66 @@
             Quality
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.AdditionalData">
+            <summary>
+            Additional Data
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.AltStreamingCode">
+            <summary>
+            AltStreamingCode
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.AltStreamingSuplierId">
+            <summary>
+            AltStreamingSuplierId
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.EndDate">
+            <summary>
+            EndDate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.StartDate">
+            <summary>
+            StartDate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.ExternalStoreId">
+            <summary>
+            ExternalStoreId
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.IsDefaultLanguage">
+            <summary>
+            IsDefaultLanguage
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.Language">
+            <summary>
+            Language
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.OrderNum">
+            <summary>
+            OrderNum
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.OutputProtecationLevel">
+            <summary>
+            OutputProtecationLevel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.StreamingCode">
+            <summary>
+            StreamingCode
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.StreamingSuplierId">
+            <summary>
+            StreamingSuplierId
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaUrlResource.Url">
             <summary>
             URL of the content

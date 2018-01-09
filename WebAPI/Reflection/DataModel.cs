@@ -2470,18 +2470,42 @@ namespace WebAPI.Reflection
                 case "KalturaAssetFile":
                     switch(property.Name)
                     {
+                        case "AdditionalData":
+                            return "additionalData";
+                        case "AltStreamingCode":
+                            return "altStreamingCode";
+                        case "AltStreamingSuplierId":
+                            return "altStreamingSuplierId";
                         case "AssetId":
                             return "assetId";
                         case "BillingType":
                             return "billingType";
                         case "Duration":
                             return "duration";
+                        case "EndDate":
+                            return "endDate";
                         case "ExternalId":
                             return "externalId";
+                        case "ExternalStoreId":
+                            return "externalStoreId";
                         case "Id":
                             return "id";
+                        case "IsDefaultLanguage":
+                            return "isDefaultLanguage";
+                        case "Language":
+                            return "language";
+                        case "OrderNum":
+                            return "orderNum";
+                        case "OutputProtecationLevel":
+                            return "outputProtecationLevel";
                         case "Quality":
                             return "quality";
+                        case "StartDate":
+                            return "startDate";
+                        case "StreamingCode":
+                            return "streamingCode";
+                        case "StreamingSuplierId":
+                            return "streamingSuplierId";
                         case "TypeId":
                             return "type";
                         case "Url":

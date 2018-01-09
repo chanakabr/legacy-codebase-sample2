@@ -78,6 +78,102 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "quality")]
         [XmlElement(ElementName = "quality")]
         [JsonIgnore]
-        public string Quality { get; set; }       
+        public string Quality { get; set; }
+
+        /// <summary>
+        /// Additional Data
+        /// </summary>
+        [DataMember(Name = "additionalData")]
+        [JsonProperty(PropertyName = "additionalData")]
+        [XmlElement(ElementName = "additionalData")]
+        public string AdditionalData { get; set; }
+
+        /// <summary>
+        /// AltStreamingCode
+        /// </summary>
+        [DataMember(Name = "altStreamingCode")]
+        [JsonProperty(PropertyName = "altStreamingCode")]
+        [XmlElement(ElementName = "altStreamingCode")]
+        public string AltStreamingCode { get; set; }
+
+        /// <summary>
+        /// AltStreamingSuplierId
+        /// </summary>
+        [DataMember(Name = "altStreamingSuplierId")]
+        [JsonProperty(PropertyName = "altStreamingSuplierId")]
+        [XmlElement(ElementName = "altStreamingSuplierId")]
+        public string AltStreamingSuplierId { get; set; }
+
+        /// <summary>
+        /// EndDate
+        /// </summary>
+        [DataMember(Name = "endDate")]
+        [JsonProperty(PropertyName = "endDate")]
+        [XmlElement(ElementName = "endDate")]
+        public long EndDate { get; set; }
+
+        /// <summary>
+        /// StartDate
+        /// </summary>
+        [DataMember(Name = "startDate")]
+        [JsonProperty(PropertyName = "startDate")]
+        [XmlElement(ElementName = "startDate")]
+        public long StartDate { get; set; }
+
+        /// <summary>
+        /// ExternalStoreId
+        /// </summary>
+        [DataMember(Name = "externalStoreId")]
+        [JsonProperty(PropertyName = "externalStoreId")]
+        [XmlElement(ElementName = "externalStoreId")]
+        public long ExternalStoreId { get; set; }
+
+        /// <summary>
+        /// IsDefaultLanguage
+        /// </summary>
+        [DataMember(Name = "isDefaultLanguage")]
+        [JsonProperty(PropertyName = "isDefaultLanguage")]
+        [XmlElement(ElementName = "isDefaultLanguage")]
+        public long IsDefaultLanguage { get; set; }
+
+        /// <summary>
+        /// Language
+        /// </summary>
+        [DataMember(Name = "language")]
+        [JsonProperty(PropertyName = "language")]
+        [XmlElement(ElementName = "language")]
+        public long Language { get; set; }
+
+        /// <summary>
+        /// OrderNum
+        /// </summary>
+        [DataMember(Name = "orderNum")]
+        [JsonProperty(PropertyName = "orderNum")]
+        [XmlElement(ElementName = "orderNum")]
+        public int OrderNum { get; set; }
+
+        /// <summary>
+        /// OutputProtecationLevel
+        /// </summary>
+        [DataMember(Name = "outputProtecationLevel")]
+        [JsonProperty(PropertyName = "outputProtecationLevel")]
+        [XmlElement(ElementName = "outputProtecationLevel")]
+        public string OutputProtecationLevel { get; set; }
+
+        /// <summary>
+        /// StreamingCode
+        /// </summary>
+        [DataMember(Name = "streamingCode")]
+        [JsonProperty(PropertyName = "streamingCode")]
+        [XmlElement(ElementName = "streamingCode")]
+        public string StreamingCode { get; set; }
+
+        /// <summary>
+        /// StreamingSuplierId
+        /// </summary>
+        [DataMember(Name = "streamingSuplierId")]
+        [JsonProperty(PropertyName = "streamingSuplierId")]
+        [XmlElement(ElementName = "streamingSuplierId")]
+        public string StreamingSuplierId { get; set; }
     }
 }
