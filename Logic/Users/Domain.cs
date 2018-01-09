@@ -503,7 +503,8 @@ namespace Core.Users
                 return eRetVal;
             }
 
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            //BEO-4478
+            if (m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
             {
                 eRetVal = DomainResponseStatus.DomainSuspended;
                 return eRetVal;
@@ -615,7 +616,8 @@ namespace Core.Users
             int isActive = 0;
             int nDeviceID = 0;
 
-            if (!forceRemove && m_DomainStatus == DomainStatus.DomainSuspended)
+            //BEO-4478
+            if (!forceRemove && m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
             {
                 bRes = DomainResponseStatus.DomainSuspended;
                 return bRes;
@@ -840,7 +842,8 @@ namespace Core.Users
         {
             DomainResponseStatus domainResponseStatus = DomainResponseStatus.UnKnown;
 
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            //BEO-4478
+            if (m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
             {
                 domainResponseStatus = DomainResponseStatus.DomainSuspended;
                 return domainResponseStatus;
@@ -1086,7 +1089,8 @@ namespace Core.Users
             int nBrandID = 0;
             Device device = null;
 
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            //BEO-4478
+            if (m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
             {
                 eRetVal = DeviceResponseStatus.Error;
                 device = new Device(m_nGroupID);
@@ -1207,7 +1211,8 @@ namespace Core.Users
                 return DomainResponseStatus.DomainNotInitialized;
             }
 
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            //BEO-4478
+            if (m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
             {
                 return DomainResponseStatus.DomainSuspended;
             }
@@ -2161,7 +2166,8 @@ namespace Core.Users
             Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
             SetReadingInvalidationKeys();
 
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            //BEO-4478
+            if (m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
             {
                 bRemove = false;
                 return DomainResponseStatus.DomainSuspended;
@@ -2486,7 +2492,8 @@ namespace Core.Users
             int tempDeviceID = 0;
             int nDbDomainDeviceID = 0;
 
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            //BEO-4478
+            if (m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
             {
                 eRetVal = DomainResponseStatus.DomainSuspended;
                 return eRetVal;
@@ -2637,6 +2644,7 @@ namespace Core.Users
 
             return eRetVal;
         }
+
         private bool IsDomainRemovedSuccessfully(int statusRes)
         {
             return statusRes == 2;
