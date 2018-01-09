@@ -84,11 +84,11 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// DRM adapter-profile identifier, use -1 for uDRM, 0 for no DRM.
         /// </summary>
-        [DataMember(Name = "drmAdapterProfileId")]
-        [JsonProperty(PropertyName = "drmAdapterProfileId")]
-        [XmlElement(ElementName = "drmAdapterProfileId")]
+        [DataMember(Name = "drmProfileId")]
+        [JsonProperty(PropertyName = "drmProfileId")]
+        [XmlElement(ElementName = "drmProfileId")]
         [SchemeProperty(MinInteger = -1)]
-        public int DrmAdapterProfileId { get; set; }
+        public int DrmProfileId { get; set; }
 
         public void validateForInsert()
         {

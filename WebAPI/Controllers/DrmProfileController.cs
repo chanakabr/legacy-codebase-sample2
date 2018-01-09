@@ -13,17 +13,17 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/drmAdapterProfile/action")]
-    public class DrmAdapterProfileController : ApiController
+    [RoutePrefix("_service/drmProfile/action")]
+    public class DrmProfileController : ApiController
     {
         /// <summary>
         /// Returns all DRM adapters for partner
         /// </summary>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaDRMAdapterProfileListResponse List()
+        public KalturaDRMProfileListResponse List()
         {
-            KalturaDRMAdapterProfileListResponse response = null;
+            KalturaDRMProfileListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 

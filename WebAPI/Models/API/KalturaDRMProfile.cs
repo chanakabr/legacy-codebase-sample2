@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// DRM Adapter
     /// </summary>
-    public class KalturaDRMAdapterProfile : KalturaOTTObject
+    public class KalturaDRMProfile : KalturaOTTObject
     {
         /// <summary>
         /// DRM adapter identifier

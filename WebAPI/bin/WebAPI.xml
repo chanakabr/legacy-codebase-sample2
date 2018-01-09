@@ -454,7 +454,7 @@
             <param name="id">AssetStruct Identifier</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.DrmAdapterProfileController.List">
+        <member name="M:WebAPI.Controllers.DrmProfileController.List">
             <summary>
             Returns all DRM adapters for partner
             </summary>
@@ -4208,47 +4208,47 @@
             <param name="userId">User identifier</param>
             <returns></returns>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaDRMAdapterProfile">
+        <member name="T:WebAPI.Models.API.KalturaDRMProfile">
             <summary>
             DRM Adapter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMAdapterProfile.Id">
+        <member name="P:WebAPI.Models.API.KalturaDRMProfile.Id">
             <summary>
             DRM adapter identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMAdapterProfile.Name">
+        <member name="P:WebAPI.Models.API.KalturaDRMProfile.Name">
             <summary>
             DRM adapter name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMAdapterProfile.IsActive">
+        <member name="P:WebAPI.Models.API.KalturaDRMProfile.IsActive">
             <summary>
             DRM adapter active status
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMAdapterProfile.AdapterUrl">
+        <member name="P:WebAPI.Models.API.KalturaDRMProfile.AdapterUrl">
             <summary>
             DRM adapter URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMAdapterProfile.Settings">
+        <member name="P:WebAPI.Models.API.KalturaDRMProfile.Settings">
             <summary>
             DRM adapter settings
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMAdapterProfile.SystemName">
+        <member name="P:WebAPI.Models.API.KalturaDRMProfile.SystemName">
             <summary>
             DRM adapter alias
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMAdapterProfile.SharedSecret">
+        <member name="P:WebAPI.Models.API.KalturaDRMProfile.SharedSecret">
             <summary>
             DRM shared secret
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaDRMAdapterProfileListResponse.Adapters">
+        <member name="P:WebAPI.Models.API.KalturaDRMProfileListResponse.Adapters">
             <summary>
             Adapters
             </summary>
@@ -5492,7 +5492,7 @@
             Defines playback streamer type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.DrmAdapterProfileId">
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.DrmProfileId">
             <summary>
             DRM adapter-profile identifier, use -1 for uDRM, 0 for no DRM.
             </summary>

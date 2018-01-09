@@ -223,7 +223,7 @@
     <Compile Include="Controllers\AssetFileTypeController.cs" />
     <Compile Include="Controllers\AssetStatisticsController.cs" />
     <Compile Include="Controllers\AssetStructController.cs" />
-    <Compile Include="Controllers\DRMAdapterProfileController.cs" />
+    <Compile Include="Controllers\DrmProfileController.cs" />
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
@@ -242,8 +242,8 @@
     <Compile Include="Controllers\RatioController.cs" />
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
-    <Compile Include="Models\API\KalturaDRMAdapterProfile.cs" />
-    <Compile Include="Models\API\KalturaDRMAdapterProfileListResponse.cs" />
+    <Compile Include="Models\API\KalturaDRMProfile.cs" />
+    <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetFileType.cs" />
     <Compile Include="Models\Catalog\KalturaAssetFile.cs" />
     <Compile Include="Models\Catalog\KalturaUrlResource.cs" />

@@ -522,7 +522,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region DRM Adapter
 
-            Mapper.CreateMap<DrmAdapter, KalturaDRMAdapterProfile>()
+            Mapper.CreateMap<DrmAdapter, KalturaDRMProfile>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))

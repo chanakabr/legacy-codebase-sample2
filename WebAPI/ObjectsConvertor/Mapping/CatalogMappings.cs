@@ -386,7 +386,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
                 .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => ConvertStreamerType(src.StreamerType)))
-                .ForMember(dest => dest.DrmAdapterProfileId, opt => opt.MapFrom(src => src.DrmId));
+                .ForMember(dest => dest.DrmProfileId, opt => opt.MapFrom(src => src.DrmId));
 
             // KalturaAssetStruct to AssetStruct
             Mapper.CreateMap<KalturaAssetFileType, AssetFileType>()
@@ -397,7 +397,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
                 .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => ConvertStreamerType(src.StreamerType)))
-                .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmAdapterProfileId));
+                .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmProfileId));
 
             // Topic to KalturaMeta
             Mapper.CreateMap<Topic, Models.API.KalturaMeta>()

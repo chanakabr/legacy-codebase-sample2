@@ -2532,8 +2532,8 @@ namespace WebAPI.Reflection
                             return "createDate";
                         case "Description":
                             return "description";
-                        case "DrmAdapterProfileId":
-                            return "drmAdapterProfileId";
+                        case "DrmProfileId":
+                            return "drmProfileId";
                         case "Id":
                             return "id";
                         case "IsTrailer":
@@ -3537,7 +3537,17 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaDRMAdapterProfile":
+                case "KalturaDrmPlaybackPluginData":
+                    switch(property.Name)
+                    {
+                        case "LicenseURL":
+                            return "licenseURL";
+                        case "Scheme":
+                            return "scheme";
+                    }
+                    break;
+                    
+                case "KalturaDRMProfile":
                     switch(property.Name)
                     {
                         case "AdapterUrl":
@@ -3557,21 +3567,11 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaDRMAdapterProfileListResponse":
+                case "KalturaDRMProfileListResponse":
                     switch(property.Name)
                     {
                         case "Adapters":
                             return "objects";
-                    }
-                    break;
-                    
-                case "KalturaDrmPlaybackPluginData":
-                    switch(property.Name)
-                    {
-                        case "LicenseURL":
-                            return "licenseURL";
-                        case "Scheme":
-                            return "scheme";
                     }
                     break;
                     
