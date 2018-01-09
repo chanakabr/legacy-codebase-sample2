@@ -103,13 +103,12 @@ namespace Core.Catalog.CatalogManagement
 
         public static bool DeleteMedia(int groupId, int assetId)
         {
-            bool result = true;
+            bool result = false;
 
             try
             {
                 string index = groupId.ToString();
-
-                ESDeleteResult deleteResult = null;
+                
                 ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
 
                 if (assetId <= 0)
@@ -118,27 +117,53 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else
                 {
-                    deleteResult = esApi.DeleteDoc(index, MEDIA, assetId.ToString());
-
-                    if (deleteResult != null)
+                    // Check if group supports Templates
+                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
                     {
-                        if (!deleteResult.Found)
+                        CatalogGroupCache catalogGroupCache;
+
+                        try
                         {
-                            log.WarnFormat("ES Delete request: delete media with ID {0} not found", assetId);
+                            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                            {
+                                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteMedia", groupId);
+                                return false;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error(string.Format("Failed DeleteMedia for media of groupId: {0} because of CatalogGroupCache error", groupId), ex);
+                            return false;
                         }
 
-                        if (!deleteResult.Ok)
+                        if (catalogGroupCache != null)
                         {
-                            log.Error("Error - " + String.Concat("Could not delete media from ES. Media id=", assetId));
-                        }
+                            var languages = catalogGroupCache.LanguageMapById.Values;
 
-                        result &= deleteResult.Ok;
+                            ESTerm term = new ESTerm(true)
+                            {
+                                Key = "media_id",
+                                Value = assetId.ToString()
+                            };
+
+                            ESQuery query = new ESQuery(term);
+                            string queryString = query.ToString();
+
+                            foreach (var lang in languages)
+                            {
+                                string type = GetTanslationType(MEDIA, lang);
+                                esApi.DeleteDocsByQuery(index, type, ref queryString);
+                            }
+
+                            result = true;
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Could not delete media from ES. Media id={0}, ex={1}", assetId, ex);
+                result = false;
             }
 
             return result;
