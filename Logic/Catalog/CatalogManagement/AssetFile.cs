@@ -1,31 +1,27 @@
-﻿using System.Runtime.Serialization;
-
-namespace Core.Catalog.CatalogManagement
+﻿namespace Core.Catalog.CatalogManagement
 {
     public class AssetFile
     {
-        [DataMember]
         public long Id { get; set; }
-
-        [DataMember]
         public long AssetId { get; set; }
-
-        [DataMember]
         public int Type { get; set; }
-
-        [DataMember]
         public string Url { get; set; }
-
-        [DataMember]
         public double Duration { get; set; }
-
-        [DataMember]
         public string ExternalId { get; set; }
-
-        [DataMember]
-        public string BillingType { get; set; }
-
-        [DataMember]
+        public string ExternalStoreId { get; set; }
         public string Quality { get; set; }
+        public string StreamingCode { get; set; }
+        public string StreamingSuplierId { get; set; }
+        public string AltStreamingCode { get; set; }
+        public string AltStreamingSuplierId { get; set; }
+        public string AdditionalData { get; set; }
+        public string BillingType { get; set; }
+        public int OrderNum { get; set; }
+        public string Language { get; set; }
+        public string IsDefaultLanguage { get; set; }
+        public string OutputProtecationLevel { get; set; }
+        public long StartDate { get; set; }
+        public long EndDate { get; set; }
+        public long FileSize { get; set; }
     }
 }
