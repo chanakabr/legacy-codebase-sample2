@@ -98,6 +98,12 @@ namespace Core.Catalog.CatalogManagement
                 throw ex;
             }
 
+            // if true sleep for 0.5 seconds because of the ES internal delay
+            if (result)
+            {
+                System.Threading.Thread.Sleep(500);
+            }
+
             return result;
         }
 
@@ -164,6 +170,12 @@ namespace Core.Catalog.CatalogManagement
             {
                 log.ErrorFormat("Could not delete media from ES. Media id={0}, ex={1}", assetId, ex);
                 result = false;
+            }
+
+            // if true sleep for 0.5 seconds because of the ES internal delay
+            if (result)
+            {
+                System.Threading.Thread.Sleep(500);
             }
 
             return result;
@@ -287,6 +299,12 @@ namespace Core.Catalog.CatalogManagement
                 result = false;
             }
 
+            // if true sleep for 0.5 seconds because of the ES internal delay
+            if (result)
+            {
+                System.Threading.Thread.Sleep(500);
+            }
+
             return result;
         }
 
@@ -333,6 +351,12 @@ namespace Core.Catalog.CatalogManagement
             {
                 result = false;
                 log.ErrorFormat("Failed deleting epg from index. id = {0} ex = {1}", assetId, ex);
+            }
+
+            // if true sleep for 0.5 seconds because of the ES internal delay
+            if (result)
+            {
+                System.Threading.Thread.Sleep(500);
             }
 
             return result;
