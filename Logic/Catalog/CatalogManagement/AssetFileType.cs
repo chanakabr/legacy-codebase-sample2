@@ -10,6 +10,7 @@ namespace Core.Catalog.CatalogManagement
     public class AssetFileType
     {
         public long Id { get; set; }
+        public string Name { get; set; }
         public string Description { get; set; }
         public bool IsActive { get; set; }
         public long CreateDate { get; set; }
@@ -22,6 +23,7 @@ namespace Core.Catalog.CatalogManagement
         public AssetFileType()
         {
             this.Id = 0;
+            this.Name = string.Empty;
             this.Description = string.Empty;
             this.IsActive = true;
             this.CreateDate = 0;
@@ -35,6 +37,7 @@ namespace Core.Catalog.CatalogManagement
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(string.Format("Id: {0}, ", Id));
+            sb.AppendFormat("Name: {0},", Name);
             sb.AppendFormat("Description: {0},", Description);
             sb.AppendFormat("IsActive: {0}, ", IsActive);
             sb.AppendFormat("CreateDate: {0}, ", CreateDate);

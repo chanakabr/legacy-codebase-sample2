@@ -1758,16 +1758,16 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
-        private static AssetFileType CreateAssetFileType(DataRow dr)
+        private static AssetFileType CreateAssetFileType(long id, DataRow dr)
         {
-            AssetFileType result = null;
-            long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+            AssetFileType result = null;            ;
             int qualityType = ODBCWrapper.Utils.GetIntSafeVal(dr, "QUALITY", 0);
             if (id > 0 && typeof(AssetFileTypeQuality).IsEnumDefined(qualityType))
             {
                 result = new AssetFileType()
                 {
                     Id = id,
+                    Name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
                     Description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"),
                     IsActive = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_ACTIVE"),
                     CreateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
@@ -1780,7 +1780,22 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }                        
+        }
+
+        private static Status CreateAssetFileTypeResponseStatusFromResult(long result)
+        {
+            Status responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            switch (result)
+            {
+                case -222:
+                    responseStatus = new Status((int)eResponseStatus.AssetFileTypeNameAlreadyInUse, eResponseStatus.AssetFileTypeNameAlreadyInUse.ToString());
+                    break;
+                default:
+                    break;
+            }
+
+            return responseStatus;
+        }
 
         private static List<AssetFileType> CreateAssetFileTypeListFromDataSet(DataSet ds)
         {
@@ -1792,10 +1807,14 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        AssetFileType assetFileType = CreateAssetFileType(dr);
-                        if (assetFileType != null)
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                        if (id > 0)
                         {
-                            response.Add(assetFileType);
+                            AssetFileType assetFileType = CreateAssetFileType(id, dr);
+                            if (assetFileType != null)
+                            {
+                                response.Add(assetFileType);
+                            }
                         }
                     }
                 }
@@ -1858,13 +1877,22 @@ namespace Core.Catalog.CatalogManagement
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
-                    response.AssetFileType = CreateAssetFileType(dt.Rows[0]);
-                    if (response.AssetFileType != null)
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
+                    if (id > 0)
                     {
-                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        response.AssetFileType = CreateAssetFileType(id, dt.Rows[0]);
+                        if (response.AssetFileType != null)
+                        {
+                            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        }
+                    }                    
+                    else
+                    {
+                        response.Status = CreateTopicResponseStatusFromResult(id);
+                        return response;
                     }
                 }
-                /// AssetFileType does not exist
+                /// AssetFileType does not exist (on update)
                 else
                 {
                     response.Status = new Status((int)eResponseStatus.AssetFileTypeDoesNotExist, eResponseStatus.AssetFileTypeDoesNotExist.ToString());
@@ -1876,7 +1904,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static AssetFileResponse CreateAssetFileResponseFromDataSet(DataSet ds)
         {
-            AssetFileResponse response = new AssetFileResponse() { Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
+            AssetFileResponse response = new AssetFileResponse();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -3260,7 +3288,7 @@ namespace Core.Catalog.CatalogManagement
             AssetFileTypeResponse result = new AssetFileTypeResponse();
             try
             {
-                DataSet ds = CatalogDAL.InsertAssetFileType(groupId, assetFileTypeToAdd.Description, assetFileTypeToAdd.IsActive, assetFileTypeToAdd.IsTrailer,
+                DataSet ds = CatalogDAL.InsertAssetFileType(groupId, assetFileTypeToAdd.Name, assetFileTypeToAdd.Description, assetFileTypeToAdd.IsActive, assetFileTypeToAdd.IsTrailer,
                                                             (int)assetFileTypeToAdd.StreamerType, assetFileTypeToAdd.DrmId, assetFileTypeToAdd.Quality, userId);
                 result = CreateAssetFileTypeResponseFromDataSet(ds);
 
@@ -3286,7 +3314,7 @@ namespace Core.Catalog.CatalogManagement
             AssetFileTypeResponse result = new AssetFileTypeResponse();
             try
             {
-                DataSet ds = CatalogDAL.UpdateAssetFileType(groupId, id, assetFileTypeToUpdate.Description, assetFileTypeToUpdate.IsActive,
+                DataSet ds = CatalogDAL.UpdateAssetFileType(groupId, id, assetFileTypeToUpdate.Name, assetFileTypeToUpdate.Description, assetFileTypeToUpdate.IsActive,
                                                             assetFileTypeToUpdate.DrmId, assetFileTypeToUpdate.Quality, userId);
                 result = CreateAssetFileTypeResponseFromDataSet(ds);
                 if (result.Status.Code == (int)eResponseStatus.OK)
@@ -3323,6 +3351,11 @@ namespace Core.Catalog.CatalogManagement
                             log.ErrorFormat("Failed to set invalidation key on DeleteAssetFileType key = {0}", invalidationKey);
                         }
                     }
+                }
+                /// AssetFileType does not exist (on delete)
+                else
+                {
+                    result = new Status((int)eResponseStatus.AssetFileTypeDoesNotExist, eResponseStatus.AssetFileTypeDoesNotExist.ToString());
                 }
             }
             catch (Exception ex)

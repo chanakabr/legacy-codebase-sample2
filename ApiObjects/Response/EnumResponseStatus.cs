@@ -224,9 +224,10 @@ namespace ApiObjects.Response
         ImageDoesNotExist = 4048,
         RatioAlreadyInUse = 4049,
         MetaIdsDoesNotExistOnAsset = 4050,
-        AssetFileTypeDoesNotExist = 4051,
-        AssetFileDoesNotExist = 4052,
-        AssetFileNotBelongToAsset = 4053,
+        AssetFileTypeNameAlreadyInUse = 4051,
+        AssetFileTypeDoesNotExist = 4052,
+        AssetFileDoesNotExist = 4053,
+        AssetFileNotBelongToAsset = 4054,
 
 
         // Api 5000 - 5999
