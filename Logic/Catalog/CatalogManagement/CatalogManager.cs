@@ -1870,16 +1870,25 @@ namespace Core.Catalog.CatalogManagement
         {
             return new AssetFile()
             {
-                //AssetId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
-                //BillingType = ODBCWrapper.Utils.GetSafeStr(dr, "ID"),
-                //Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
-                //ExternalId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
-                //Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
-                //Quality = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
-                //Type = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
-                //Url = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID")
-                ////Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
-              
+                AdditionalData = ODBCWrapper.Utils.GetSafeStr(dr, "[ADDITIONAL_DATA"),
+                AltStreamingCode = ODBCWrapper.Utils.GetSafeStr(dr, "[ALT_STREAMING_CODE"),
+                AltStreamingSuplierId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ALT_STREAMING_SUPLIER_ID"),
+                AssetId = ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID"),
+                BillingType = ODBCWrapper.Utils.GetLongSafeVal(dr, "BILLING_TYPE_ID"),
+                Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "DURATION"),
+                EndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE"),
+                ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_STREAMING_CODE"),
+                ExternalStoreId = ODBCWrapper.Utils.GetSafeStr(dr, "PRODUCT_CODE"),
+                FileSize = ODBCWrapper.Utils.GetLongSafeVal(dr, "FILE_SIZE"),
+                Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                IsDefaultLanguage = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_DEFAULT_LANGUAGE"),
+                Language = ODBCWrapper.Utils.GetSafeStr(dr, "LANGUAGE"),
+                OrderNum = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER_NUM"),
+                OutputProtecationLevel = ODBCWrapper.Utils.GetIntSafeVal(dr, "OUTPUT_PROTECTION_LEVEL"),
+                StartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE"),
+                StreamingSuplierId = ODBCWrapper.Utils.GetLongSafeVal(dr, "STREAMING_SUPLIER_ID"),
+                Type = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID"),
+                Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE")
             };
         }
 
@@ -3327,21 +3336,23 @@ namespace Core.Catalog.CatalogManagement
             AssetFileResponse result = new AssetFileResponse();
             try
             {
-                DataSet ds = CatalogDAL.InsertAssetFile(groupId, userId, assetFileToAdd.AssetId, assetFileToAdd.BillingType, assetFileToAdd.Duration, assetFileToAdd.ExternalId,
-                    assetFileToAdd.Quality, assetFileToAdd.Url, assetFileToAdd.Type);
+                DataSet ds = CatalogDAL.InsertAssetFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AltStreamingSuplierId
+                    , assetFileToAdd.AssetId, assetFileToAdd.BillingType, assetFileToAdd.Duration, assetFileToAdd.EndDate, assetFileToAdd.ExternalId
+                    , assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize, assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum
+                    , assetFileToAdd.OutputProtecationLevel, assetFileToAdd.StartDate, assetFileToAdd.Url, assetFileToAdd.StreamingSuplierId, assetFileToAdd.Type);
                 result = CreateAssetFileResponseFromDataSet(ds);
 
-                //if (result.Status.Code == (int)eResponseStatus.OK)
-                //{
-                //    string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
-                //    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                //    {
-                //        log.ErrorFormat("Failed to set invalidation key on AddAssetFileType key = {0}", invalidationKey);
-                //    }
+                if (result.Status.Code == (int)eResponseStatus.OK)
+                {
+                    //string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
+                    //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    //{
+                    //    log.ErrorFormat("Failed to set invalidation key on AddAssetFileType key = {0}", invalidationKey);
+                    //}
 
-                //    // TODO
-                //    // InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFileType);
-                //}
+                    // TODO
+                    // InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFile);
+                }
             }
             catch (Exception ex)
             {
