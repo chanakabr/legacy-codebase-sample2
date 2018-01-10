@@ -90,6 +90,14 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(MinInteger = -1)]
         public int DrmProfileId { get; set; }
 
+        /// <summary>
+        ///  Asset file type quality
+        /// </summary>
+        [DataMember(Name = "quality")]
+        [JsonProperty("quality")]
+        [XmlElement(ElementName = "quality", IsNullable = true)]        
+        public KalturaAssetFileTypeQuality? Quality { get; set; }
+
         public void validateForInsert()
         {
             if (Description == null || Description.Trim().Length == 0)

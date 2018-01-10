@@ -386,7 +386,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
                 .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => ConvertStreamerType(src.StreamerType)))
-                .ForMember(dest => dest.DrmProfileId, opt => opt.MapFrom(src => src.DrmId));
+                .ForMember(dest => dest.DrmProfileId, opt => opt.MapFrom(src => src.DrmId))
+                .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => ConvertToKalturaAssetFileTypeQuality(src.Quality)));
 
             // KalturaAssetStruct to AssetStruct
             Mapper.CreateMap<KalturaAssetFileType, AssetFileType>()
@@ -397,7 +398,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
                 .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => ConvertStreamerType(src.StreamerType)))
-                .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmProfileId));
+                .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmProfileId))
+                .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => ConvertToAssetFileTypeQuality(src.Quality)));
 
             // Topic to KalturaMeta
             Mapper.CreateMap<Topic, Models.API.KalturaMeta>()
@@ -716,6 +718,71 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown streamer type");
             }
+        }
+
+        private static KalturaAssetFileTypeQuality? ConvertToKalturaAssetFileTypeQuality(AssetFileTypeQuality qualityType)
+        {
+            KalturaAssetFileTypeQuality? response = null;
+            switch (qualityType)
+            {
+                case AssetFileTypeQuality.None:
+                    break;
+                case AssetFileTypeQuality.Adaptive:
+                    response = KalturaAssetFileTypeQuality.ADAPTIVE;
+                    break;
+                case AssetFileTypeQuality.SD:
+                    response = KalturaAssetFileTypeQuality.SD;
+                    break;
+                case AssetFileTypeQuality.HD_720:
+                    response = KalturaAssetFileTypeQuality.HD_720;
+                    break;
+                case AssetFileTypeQuality.HD_1080:
+                    response = KalturaAssetFileTypeQuality.HD_1080;
+                    break;
+                case AssetFileTypeQuality.UHD_4K:
+                    response = KalturaAssetFileTypeQuality.UHD_4K;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown asset file type quality");
+                    break;
+            }
+
+            return response;
+        }
+
+        private static AssetFileTypeQuality ConvertToAssetFileTypeQuality(KalturaAssetFileTypeQuality? qualityType)
+        {
+            AssetFileTypeQuality response;
+            if (qualityType.HasValue)
+            {
+                switch (qualityType.Value)
+                {
+                    case KalturaAssetFileTypeQuality.ADAPTIVE:
+                        response = AssetFileTypeQuality.Adaptive;
+                        break;
+                    case KalturaAssetFileTypeQuality.SD:
+                        response = AssetFileTypeQuality.SD;
+                        break;
+                    case KalturaAssetFileTypeQuality.HD_720:
+                        response = AssetFileTypeQuality.HD_720;
+                        break;
+                    case KalturaAssetFileTypeQuality.HD_1080:
+                        response = AssetFileTypeQuality.HD_1080;
+                        break;
+                    case KalturaAssetFileTypeQuality.UHD_4K:
+                        response = AssetFileTypeQuality.UHD_4K;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown asset file type quality");
+                        break;
+                }
+            }
+            else
+            {
+                response = AssetFileTypeQuality.None;
+            }
+
+            return response;
         }
 
         private static KalturaMetaDataType? ConvertToKalturaMetaDataType(ApiObjects.MetaType metaType)

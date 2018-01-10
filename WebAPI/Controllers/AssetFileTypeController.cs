@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                return ClientsManager.CatalogClient().AddAssetFileType(groupId, userId, assetFileType);
+                return ClientsManager.CatalogClient().AddAssetFileType(groupId, assetFileType, userId);
             }
             catch (ClientException ex)
             {
@@ -91,7 +91,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                return ClientsManager.CatalogClient().UpdateAssetFileType(groupId, userId, id, assetFileType);
+                return ClientsManager.CatalogClient().UpdateAssetFileType(groupId, id, assetFileType, userId);
             }
             catch (ClientException ex)
             {
@@ -115,7 +115,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                return ClientsManager.CatalogClient().DeleteAssetFileType(groupId, userId, id);
+                return ClientsManager.CatalogClient().DeleteAssetFileType(groupId, id, userId);
             }
             catch (ClientException ex)
             {

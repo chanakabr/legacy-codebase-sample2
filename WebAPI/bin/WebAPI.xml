@@ -5512,6 +5512,11 @@
             DRM adapter-profile identifier, use -1 for uDRM, 0 for no DRM.
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.Quality">
+            <summary>
+             Asset file type quality
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetFileTypeListResponse">
             <summary>
             Asset-file types list

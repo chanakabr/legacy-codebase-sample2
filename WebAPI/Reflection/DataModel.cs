@@ -2534,6 +2534,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "IsTrailer":
                             return "isTrailer";
+                        case "Quality":
+                            return "quality";
                         case "Status":
                             return "status";
                         case "StreamerType":

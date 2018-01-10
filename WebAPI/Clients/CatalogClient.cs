@@ -3516,7 +3516,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetFileType AddAssetFileType(int groupId, long userId, KalturaAssetFileType assetFileType)
+        public KalturaAssetFileType AddAssetFileType(int groupId, KalturaAssetFileType assetFileType, long userId)
         {
             KalturaAssetFileType result = null;
             AssetFileTypeResponse response = null;
@@ -3526,7 +3526,7 @@ namespace WebAPI.Clients
                 AssetFileType assetFileTypeToAdd = AutoMapper.Mapper.Map<AssetFileType>(assetFileType);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetFileType(groupId, userId, assetFileTypeToAdd);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetFileType(groupId, assetFileTypeToAdd, userId);
                 }
             }
             catch (Exception ex)
@@ -3549,7 +3549,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetFileType UpdateAssetFileType(int groupId, long userId, long id, KalturaAssetFileType assetFileType)
+        public KalturaAssetFileType UpdateAssetFileType(int groupId, long id, KalturaAssetFileType assetFileType, long userId)
         {
             KalturaAssetFileType result = null;
             AssetFileTypeResponse response = null;
@@ -3559,7 +3559,7 @@ namespace WebAPI.Clients
                 AssetFileType assetFileTypeToUpdate = AutoMapper.Mapper.Map<AssetFileType>(assetFileType);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetFileType(groupId, userId, id, assetFileTypeToUpdate);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetFileType(groupId, id, assetFileTypeToUpdate, userId);
                 }
             }
             catch (Exception ex)
@@ -3582,7 +3582,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public bool DeleteAssetFileType(int groupId, long userId, long id)
+        public bool DeleteAssetFileType(int groupId, long id, long userId)
         {
             Status response = null;
 
@@ -3590,7 +3590,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetFileType(groupId, userId, id);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetFileType(groupId, id, userId);
                 }
             }
             catch (Exception ex)
