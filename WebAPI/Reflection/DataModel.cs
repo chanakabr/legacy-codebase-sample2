@@ -2498,12 +2498,8 @@ namespace WebAPI.Reflection
                             return "orderNum";
                         case "OutputProtecationLevel":
                             return "outputProtecationLevel";
-                        case "Quality":
-                            return "quality";
                         case "StartDate":
                             return "startDate";
-                        case "StreamingCode":
-                            return "streamingCode";
                         case "StreamingSuplierId":
                             return "streamingSuplierId";
                         case "TypeId":

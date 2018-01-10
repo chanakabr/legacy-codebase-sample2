@@ -5547,11 +5547,6 @@
             Billing type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.Quality">
-            <summary>
-            Quality
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.AdditionalData">
             <summary>
             Additional Data
@@ -5600,11 +5595,6 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.OutputProtecationLevel">
             <summary>
             OutputProtecationLevel
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.StreamingCode">
-            <summary>
-            StreamingCode
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.StreamingSuplierId">

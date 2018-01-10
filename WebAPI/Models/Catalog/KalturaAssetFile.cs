@@ -72,15 +72,6 @@ namespace WebAPI.Models.Catalog
         public string BillingType { get; set; }
 
         /// <summary>
-        /// Quality
-        /// </summary>
-        [DataMember(Name = "quality")]
-        [JsonProperty(PropertyName = "quality")]
-        [XmlElement(ElementName = "quality")]
-        [JsonIgnore]
-        public string Quality { get; set; }
-
-        /// <summary>
         /// Additional Data
         /// </summary>
         [DataMember(Name = "additionalData")]
@@ -110,7 +101,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "endDate")]
         [JsonProperty(PropertyName = "endDate")]
         [XmlElement(ElementName = "endDate")]
-        public long EndDate { get; set; }
+        public long? EndDate { get; set; }
 
         /// <summary>
         /// StartDate
@@ -118,7 +109,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "startDate")]
         [JsonProperty(PropertyName = "startDate")]
         [XmlElement(ElementName = "startDate")]
-        public long StartDate { get; set; }
+        public long? StartDate { get; set; }
 
         /// <summary>
         /// ExternalStoreId
@@ -159,14 +150,6 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "outputProtecationLevel")]
         [XmlElement(ElementName = "outputProtecationLevel")]
         public string OutputProtecationLevel { get; set; }
-
-        /// <summary>
-        /// StreamingCode
-        /// </summary>
-        [DataMember(Name = "streamingCode")]
-        [JsonProperty(PropertyName = "streamingCode")]
-        [XmlElement(ElementName = "streamingCode")]
-        public string StreamingCode { get; set; }
 
         /// <summary>
         /// StreamingSuplierId
