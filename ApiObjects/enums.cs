@@ -939,7 +939,13 @@ namespace ApiObjects
         RENEW_SUBSCRIPTION = 4,
         PURCHASE_SERVICE = 5,
         LOGIN = 6,
-        DELETE_ALL_APP_TOKENS = 7
+        HOUSEHOLDDEVICE_DELETE = 7,
+        HOUSEHOLDDEVICE_ADDBYPIN = 8,
+        HOUSEHOLDDEVICE_ADD = 9,
+        HOUSEHOLDDEVICE_UPDATESTATUS = 10,
+        HOUSEHOLDUSER_DELETE = 11,
+        HOUSEHOLDUSER_ADD = 12,
+        DELETE_ALL_APP_TOKENS = 13
     }
 
     public enum BlockEntitlementType

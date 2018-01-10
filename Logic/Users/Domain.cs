@@ -504,10 +504,14 @@ namespace Core.Users
             }
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                eRetVal = DomainResponseStatus.DomainSuspended;
-                return eRetVal;
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, m_masterGUIDs[0].ToString(), RolePermissions.HOUSEHOLDUSER_DELETE)))
+                {
+                    eRetVal = DomainResponseStatus.DomainSuspended;
+                    return eRetVal;
+                }
             }
 
             Dictionary<int, int> dTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
@@ -617,10 +621,14 @@ namespace Core.Users
             int nDeviceID = 0;
 
             //BEO-4478
-            if (!forceRemove && m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
+            if (!forceRemove && m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                bRes = DomainResponseStatus.DomainSuspended;
-                return bRes;
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, m_masterGUIDs[0].ToString(), RolePermissions.HOUSEHOLDDEVICE_DELETE)))
+                {
+                    bRes = DomainResponseStatus.DomainSuspended;
+                    return bRes;
+                }
             }
 
             // try to get device from cache 
@@ -843,10 +851,14 @@ namespace Core.Users
             DomainResponseStatus domainResponseStatus = DomainResponseStatus.UnKnown;
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                domainResponseStatus = DomainResponseStatus.DomainSuspended;
-                return domainResponseStatus;
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, m_masterGUIDs[0].ToString(), RolePermissions.HOUSEHOLDDEVICE_UPDATESTATUS)))
+                {
+                    domainResponseStatus = DomainResponseStatus.DomainSuspended;
+                    return domainResponseStatus;
+                }
             }
 
             /** 1. Since frequency is defined at domain level and not in device family level we can pass a fictive (0)
@@ -1090,12 +1102,16 @@ namespace Core.Users
             Device device = null;
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
-            {
-                eRetVal = DeviceResponseStatus.Error;
-                device = new Device(m_nGroupID);
-                device.m_state = DeviceState.Error;
-                return device;
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            {   
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, m_masterGUIDs[0].ToString(), RolePermissions.HOUSEHOLDDEVICE_ADDBYPIN)))
+                {
+                    eRetVal = DeviceResponseStatus.Error;
+                    device = new Device(m_nGroupID);
+                    device.m_state = DeviceState.Error;
+                    return device;
+                }
             }
 
             bool res = DomainDal.GetDeviceIdAndBrandByPin(sPIN, nGroupID, ref sUDID, ref nBrandID);
@@ -1212,7 +1228,7 @@ namespace Core.Users
             }
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 return DomainResponseStatus.DomainSuspended;
             }
