@@ -1864,7 +1864,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static AssetFileResponse CreateAssetFileResponseFromDataSet(DataSet ds)
         {
-            AssetFileResponse response = new AssetFileResponse();
+            AssetFileResponse response = new AssetFileResponse() { Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -3222,7 +3222,7 @@ namespace Core.Catalog.CatalogManagement
             result.TotalItems = totalItemsCount;
 
             return result;
-        }        
+        }
 
         public static AssetFileTypeListResponse GetAssetFileTypes(int groupId)
         {
@@ -3355,6 +3355,46 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed AddAssetFile for groupId: {0} and AssetFile: {1}", groupId, JsonConvert.SerializeObject(assetFileToAdd)), ex);
+            }
+
+            return result;
+        }
+
+        public static Status DeleteAssetFile(int groupId, long userId, long id)
+        {
+            Status result = null;
+            AssetFileResponse assetFileResponse = null;
+            try
+            {
+
+                DataSet ds = CatalogDAL.GetAssetFile(groupId, id);
+                assetFileResponse = CreateAssetFileResponseFromDataSet(ds);
+
+                if (assetFileResponse != null && assetFileResponse.Status != null && assetFileResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return assetFileResponse.Status;
+                }
+
+                if (CatalogDAL.DeleteAssetFile(groupId, userId, id))
+                {
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    if (result.Code == (int)eResponseStatus.OK)
+                    {
+                        //string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
+                        //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        //{
+                        //    log.ErrorFormat("Failed to set invalidation key on DeleteAssetFileType key = {0}", invalidationKey);
+                        //}
+
+                        // TODO
+                        // InvalidateCatalogGroupCache(groupId, result, false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed DeleteAssetFile for groupId: {0} and AssetFileId: {1}", groupId, id), ex);
             }
 
             return result;
