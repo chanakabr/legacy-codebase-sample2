@@ -820,6 +820,7 @@ namespace Core.Notification
         //}
         #endregion
 
+
         /// <summary>
         /// Get notifications messages by device UDID and userID
         /// </summary>
@@ -886,7 +887,7 @@ namespace Core.Notification
                         {
                             log.ErrorFormat("Error getting notification message type for notification message id {0} and type {1}", notificationMessageID, notificationTypeInt);
                         }
-                        
+
                         NotificationMessageViewStatus ViewStatus = (NotificationMessageViewStatus)Enum.Parse(typeof(NotificationMessageViewStatus), ODBCWrapper.Utils.GetSafeStr(dr["viewStatus"].ToString()));
                         NotificationMessageStatus nms = (NotificationMessageStatus)Enum.Parse(typeof(NotificationMessageStatus), ODBCWrapper.Utils.GetSafeStr(dr["NotificationMessageStatus"].ToString()));
                         string sTagParams = ODBCWrapper.Utils.GetSafeStr(dr["parameters"].ToString());
@@ -898,7 +899,8 @@ namespace Core.Notification
                             tagParams = js.Deserialize<ExtraParams>(sTagParams);
                             //Dictionary<string, List<string>> tagNames = GetTagsNameByIDs(tagParams.TagDict, int.Parse(nGroupID.ToString()));
                         }
-                        NotificationMessage temp = new NotificationMessage(drNotificationType, notificationID, notificationRequestID, 
+
+                        NotificationMessage temp = new NotificationMessage(drNotificationType, notificationID, notificationRequestID,
                             notificationMessageID, userID, nms, messageText, title, publishDate, appName, DeviceID, sDeviceUDID, null, ViewStatus, tagParams, nGroupID);
                         res.Add(temp);
                     }

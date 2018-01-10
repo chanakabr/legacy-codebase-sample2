@@ -1329,7 +1329,7 @@ namespace Core.ConditionalAccess
                                         */
                                         if (isNew) // need to insert new unified billing message to queue
                                         {
-                                            Utils.RenewTransactionMessageInQueue(groupId, householdId,
+                                            Utils.RenewUnifiedTransactionMessageInQueue(groupId, householdId,
                                                 ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
                                         }
 
