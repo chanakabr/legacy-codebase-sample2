@@ -210,6 +210,33 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Delete an existing asset file
+        /// </summary>
+        /// <param name="id">Asset file identifier</param>        
+        /// <returns></returns>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        [SchemeArgument("id", MinLong = 1)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.AssetFileDoesNotExist)]
+        public bool Delete(long id)
+        {
+            bool result = false;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
 
+            try
+            {
+                result = ClientsManager.CatalogClient().DeleteAssetFile(groupId, userId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
     }
 }

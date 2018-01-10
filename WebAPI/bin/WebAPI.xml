@@ -385,6 +385,13 @@
             <param name="assetFile">Asset object</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.AssetFileController.Delete(System.Int64)">
+            <summary>
+            Delete an existing asset file
+            </summary>
+            <param name="id">Asset file identifier</param>        
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.AssetFileTypeController.List">
             <summary>
             Returns a list of asset-file types
