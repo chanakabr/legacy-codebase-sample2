@@ -972,5 +972,15 @@ namespace ApiObjects
         Disable = 0,
         Delete = 1
     }
-    
+
+    public enum AssetFileTypeQuality
+    {
+        None = 0,
+        Adaptive = 1,
+        SD = 2,
+        HD_720 = 3,
+        HD_1080 = 4,
+        UHD_4K = 5
+    }
+
 }

@@ -17,6 +17,7 @@ namespace Core.Catalog.CatalogManagement
         public bool IsTrailer { get; set; }
         public StreamerType? StreamerType { get; set; }
         public int? DrmId { get; set; }
+        public AssetFileTypeQuality Quality { get; set; }
 
         public AssetFileType()
         {
@@ -28,6 +29,7 @@ namespace Core.Catalog.CatalogManagement
             this.IsTrailer = false;
             this.StreamerType = null;
             this.DrmId = null;
+            this.Quality = AssetFileTypeQuality.None;
         }
         
         public override string ToString()
@@ -40,6 +42,7 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("IsTrailer: {0}, ", IsTrailer);
             sb.AppendFormat("StreamerType: {0}, ", StreamerType.HasValue ? StreamerType.Value.ToString() : string.Empty);
             sb.AppendFormat("DrmId: {0}, ", DrmId.HasValue ? DrmId.Value.ToString() : string.Empty);
+            sb.AppendFormat("Quality: {0}, ", Quality.ToString());
             return sb.ToString();
         }
 

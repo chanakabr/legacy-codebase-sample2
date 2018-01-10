@@ -28,6 +28,7 @@ namespace Core.Catalog.CatalogManagement
             TopicsMapById = new Dictionary<long, Topic>();            
         }
 
+        // TODO - Lior, move all language related properties in this class to seperate cache or invalidate catalogGroupCache when adding\updating languages (doesn't exist at the moment)
         public CatalogGroupCache(List<LanguageObj> languages, List<AssetStruct> assetStructs, List<Topic> topics)
         {
             LanguageObj defaultLanguage = languages.Where(x => x.IsDefault).FirstOrDefault();
