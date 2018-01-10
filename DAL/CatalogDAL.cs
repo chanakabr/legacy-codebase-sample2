@@ -3812,7 +3812,7 @@ namespace Tvinci.Core.DAL
             externalChannelRes = SetExternalChannel(ds);
 
             return externalChannelRes;
-        }
+        }      
 
         private static ExternalChannel SetExternalChannel(DataSet ds)
         {
@@ -5199,6 +5199,27 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@endDate", endDate);
             sp.AddParameter("@altCoGuid", externalId); //TODO: check the value 
             sp.AddParameter("@fileSize", fileSize);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static bool DeleteAssetFile(int groupId, long userId, long id)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteAssetFile");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataSet GetAssetFile(int groupId, long id)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetFile");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
 
             return sp.ExecuteDataSet();
         }
