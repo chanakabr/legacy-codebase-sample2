@@ -5173,8 +5173,8 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataSet InsertAssetFile(int groupId, long userId, string additionalData, string altStreamingCode, long altStreamingSuplierId, long assetId,
-            long billingType, double duration, DateTime? endDate, string externalId, string externalStoreId, long fileSize, int isDefaultLanguage,
-            string language, int orderNum, int outputProtecationLevel, DateTime? startDate, string url, long streamingSuplierId, long type)
+            long billingType, double duration, DateTime endDate, string externalId, string externalStoreId, long fileSize, int isDefaultLanguage,
+            string language, int orderNum, int outputProtecationLevel, DateTime startDate, string url, long streamingSuplierId, long type)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertAssetFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
