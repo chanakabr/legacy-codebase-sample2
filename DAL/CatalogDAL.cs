@@ -4737,17 +4737,18 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertAssetFileType(int groupId, string description, bool? isActive, long userId, bool isTrailer, int streamerType, int? drmId)
+        public static DataSet InsertAssetFileType(int groupId, string description, bool? isActive, bool isTrailer, int streamerType, int? drmId, AssetFileTypeQuality quality, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertAssetFileType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Description", description);
-            sp.AddParameter("@IsActive", isActive.HasValue && isActive.Value ? 1 : 0);
-            sp.AddParameter("@UpdaterId", userId);
+            sp.AddParameter("@IsActive", isActive.HasValue && isActive.Value ? 1 : 0);            
             sp.AddParameter("@IsTrailer", isTrailer ? 1 : 0);
             sp.AddParameter("@StreamerType", streamerType);
             sp.AddParameter("@DrmId", drmId);
+            sp.AddParameter("@Quality", (int)quality);
+            sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();
         }
@@ -4789,7 +4790,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateAssetFileType(int groupId, long userId, long id, string description, bool? isActive, int? drmId)
+        public static DataSet UpdateAssetFileType(int groupId, long id, string description, bool? isActive, int? drmId, AssetFileTypeQuality quality, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetFileType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4798,6 +4799,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Description", description);
             sp.AddParameter("@IsActive", isActive);
             sp.AddParameter("@DrmId", drmId);
+            sp.AddParameter("@Quality", quality);
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();
@@ -4814,7 +4816,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static bool DeleteAssetFileType(int groupId, long userId, long id)
+        public static bool DeleteAssetFileType(int groupId, long id, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteAssetFileType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
