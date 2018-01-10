@@ -3331,10 +3331,13 @@ namespace Core.Catalog.CatalogManagement
             AssetFileResponse result = new AssetFileResponse();
             try
             {
+                DateTime startDate = assetFileToAdd.StartDate.HasValue ? assetFileToAdd.StartDate.Value : DateTime.UtcNow;
+                DateTime endDate = assetFileToAdd.EndDate.HasValue ? assetFileToAdd.EndDate.Value : startDate;
+
                 DataSet ds = CatalogDAL.InsertAssetFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AltStreamingSuplierId
-                    , assetFileToAdd.AssetId, assetFileToAdd.BillingType, assetFileToAdd.Duration, assetFileToAdd.EndDate, assetFileToAdd.ExternalId
+                    , assetFileToAdd.AssetId, assetFileToAdd.BillingType, assetFileToAdd.Duration, endDate, assetFileToAdd.ExternalId
                     , assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize, assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum
-                    , assetFileToAdd.OutputProtecationLevel, assetFileToAdd.StartDate, assetFileToAdd.Url, assetFileToAdd.StreamingSuplierId, assetFileToAdd.Type);
+                    , assetFileToAdd.OutputProtecationLevel, startDate, assetFileToAdd.Url, assetFileToAdd.StreamingSuplierId, assetFileToAdd.Type);
                 result = CreateAssetFileResponseFromDataSet(ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
