@@ -3009,7 +3009,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
+        }       
 
         public static TagResponse AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId)
         {
@@ -3395,6 +3395,56 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed DeleteAssetFile for groupId: {0} and AssetFileId: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+
+        public static AssetFileResponse UpdateAssetFile(int groupId, long id, AssetFile assetFileToUpdate, long userId)
+        {
+            AssetFileResponse result = new AssetFileResponse();
+            try
+            {
+                DataSet ds = CatalogDAL.GetAssetFile(groupId, id);
+                result = CreateAssetFileResponseFromDataSet(ds);
+
+                if (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return result;
+                }
+
+                if( result.File != null && result.File.AssetId != assetFileToUpdate.AssetId)
+                {
+                    result.File = null;
+                    result.Status = new Status() { Code = (int)eResponseStatus.AssetFileNotBelongToAsset, Message = eResponseStatus.AssetFileNotBelongToAsset.ToString() };
+                    return result;
+                }
+
+                DateTime startDate = assetFileToUpdate.StartDate.HasValue ? assetFileToUpdate.StartDate.Value : DateTime.UtcNow;
+                DateTime endDate = assetFileToUpdate.EndDate.HasValue ? assetFileToUpdate.EndDate.Value : startDate;
+
+                ds = CatalogDAL.UpdateAssetFile(groupId, id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, assetFileToUpdate.AltStreamingSuplierId
+                    , assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, assetFileToUpdate.Duration, endDate, assetFileToUpdate.ExternalId
+                    , assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum
+                    , assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.StreamingSuplierId, assetFileToUpdate.Type);
+                            
+                result = CreateAssetFileResponseFromDataSet(ds);
+
+                if (result.Status.Code == (int)eResponseStatus.OK)
+                {
+                    //string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
+                    //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    //{
+                    //    log.ErrorFormat("Failed to set invalidation key on AddAssetFileType key = {0}", invalidationKey);
+                    //}
+
+                    // TODO
+                    // InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateAssetFile for groupId: {0} and AssetFile: {1}", groupId, JsonConvert.SerializeObject(assetFileToUpdate)), ex);
             }
 
             return result;
