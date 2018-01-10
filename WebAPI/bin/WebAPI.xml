@@ -392,6 +392,14 @@
             <param name="id">Asset file identifier</param>        
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.AssetFileController.Update(System.Int64,WebAPI.Models.Catalog.KalturaAssetFile)">
+            <summary>
+            update an existing asset file
+            </summary>
+            <param name="id">Asset file identifier</param>        
+            <param name="assetFile">Asset file object</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.AssetFileTypeController.List">
             <summary>
             Returns a list of asset-file types

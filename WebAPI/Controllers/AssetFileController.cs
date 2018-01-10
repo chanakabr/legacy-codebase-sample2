@@ -238,5 +238,33 @@ namespace WebAPI.Controllers
 
             return result;
         }
+
+        /// <summary>
+        /// update an existing asset file
+        /// </summary>
+        /// <param name="id">Asset file identifier</param>        
+        /// <param name="assetFile">Asset file object</param>
+        /// <returns></returns>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetFileDoesNotExist)]
+        [SchemeArgument("id", MinLong = 1)]
+        public KalturaAssetFile Update(long id, KalturaAssetFile assetFile)
+        {
+            KalturaAssetFile response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+            try
+            {
+                response = ClientsManager.CatalogClient().UpdateAssetFile(groupId, id, assetFile, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }
