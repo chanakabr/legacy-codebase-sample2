@@ -421,7 +421,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
     private bool IsImageUrlVaild(string picLink)
     {
-        bool isImageUrlVaild = false;
+        bool isImageUrlVaild = true;
         //check if thumb Url exist
         string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");
         if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
@@ -430,10 +430,6 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
             {
                 log.ErrorFormat("DownloadPicToImageServer thumb Uri not valid: {0} ", picLink);
                 isImageUrlVaild = false;
-            }
-            else
-            {
-                isImageUrlVaild = true;
             }
         }
 
