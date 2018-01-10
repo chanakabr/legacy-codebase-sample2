@@ -2074,7 +2074,7 @@ namespace Tvinci.Core.DAL
             }
 
             return mediaToViewsCountMapping;
-        }      
+        }
 
         public static bool Get_MediaMarkHitInitialData(int mediaID, int mediaFileID, long ipVal, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID,
@@ -3072,7 +3072,7 @@ namespace Tvinci.Core.DAL
             }
 
             return res;
-        }        
+        }
 
         public static DataTable Get_FileAndMediaBasicDetails(int[] mediaFiles)
         {
@@ -3711,7 +3711,7 @@ namespace Tvinci.Core.DAL
             }
 
             return result;
-        }       
+        }
 
         public static int GetExternalChannelIdByExternalIdentifier(int groupId, string externalIdentifier)
         {
@@ -4952,7 +4952,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@CoGuid", coGuid);
             sp.AddParameter("@EntryId", entryId);
             sp.AddParameter("@DeviceRuleId", deviceRuleId);
-            sp.AddParameter("@GeoBlockRuleId", geoBlockRuleId);            
+            sp.AddParameter("@GeoBlockRuleId", geoBlockRuleId);
             sp.AddParameter("@IsActive", isActive);
             sp.AddParameter("@StartDate", startDate);
             sp.AddParameter("@EndDate", endDate);
@@ -5096,9 +5096,9 @@ namespace Tvinci.Core.DAL
         public static DataSet GetImageTypes(int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetImageTypes");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");            
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
-            
+
             return sp.ExecuteDataSet();
         }
 
@@ -5132,7 +5132,7 @@ namespace Tvinci.Core.DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPicsByIds");
             sp.AddParameter("@groupId", groupId);
             sp.AddIDListParameter<long>("@ids", imageIds, "id");
-          
+
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             return sp.Execute();
@@ -5172,19 +5172,33 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataSet InsertAssetFile(int groupId, long userId, long assetId, string billingType, double duration, string externalId, string quality, string url, int type)
+        public static DataSet InsertAssetFile(int groupId, long userId, string additionalData, string altStreamingCode, long altStreamingSuplierId, long assetId,
+            long billingType, double duration, DateTime? endDate, string externalId, string externalStoreId, long fileSize, int isDefaultLanguage,
+            string language, int orderNum, int outputProtecationLevel, DateTime? startDate, string url, long streamingSuplierId, long type)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertAssetFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@updaterId", userId);
             sp.AddParameter("@assetId", assetId);
-            sp.AddParameter("@billingType", billingType);            
+            sp.AddParameter("@type", type);
+            sp.AddParameter("@url", url);
+            sp.AddParameter("@streamingSuplierId", streamingSuplierId);
+            sp.AddParameter("@altStreamingCode", altStreamingCode);
+            sp.AddParameter("@altStreamingSuplierId", altStreamingSuplierId);
+            sp.AddParameter("@additionalData", additionalData);
+            sp.AddParameter("@billingType", billingType);
+            sp.AddParameter("@orderNum", orderNum);
             sp.AddParameter("@duration", duration);
             sp.AddParameter("@externalId", externalId);
-            sp.AddParameter("@quality", quality);
-            sp.AddParameter("@url", url);
-            sp.AddParameter("@type", type);
+            sp.AddParameter("@externalStoreId", externalStoreId);
+            sp.AddParameter("@language", language);
+            sp.AddParameter("@isDefaultLanguage", isDefaultLanguage);
+            sp.AddParameter("@outputProtecationLevel", outputProtecationLevel);
+            sp.AddParameter("@startDate", startDate);
+            sp.AddParameter("@endDate", endDate);
+            sp.AddParameter("@altCoGuid", externalId); //TODO: check the value 
+            sp.AddParameter("@fileSize", fileSize);
 
             return sp.ExecuteDataSet();
         }
