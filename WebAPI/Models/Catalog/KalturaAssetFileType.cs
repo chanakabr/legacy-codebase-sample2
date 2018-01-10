@@ -29,6 +29,15 @@ namespace WebAPI.Models.Catalog
         public int? Id { get; set; }
 
         /// <summary>
+        /// Unique name
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty("name")]
+        [XmlElement(ElementName = "name", IsNullable = true)]
+        [SchemeProperty(MinLength = 1, MaxLength = 50)]
+        public string Name { get; set; }
+
+        /// <summary>
         /// Unique description
         /// </summary>
         [DataMember(Name = "description")]
@@ -100,9 +109,9 @@ namespace WebAPI.Models.Catalog
 
         public void validateForInsert()
         {
-            if (Description == null || Description.Trim().Length == 0)
+            if (Name == null || Name.Trim().Length == 0)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetFileType.description");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetFileType.name");
             }
 
             if (StreamerType == null)

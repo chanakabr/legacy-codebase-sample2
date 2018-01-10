@@ -5477,6 +5477,11 @@
             Unique identifier
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.Name">
+            <summary>
+            Unique name
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.Description">
             <summary>
             Unique description

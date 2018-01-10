@@ -16,6 +16,7 @@ using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
+using ApiObjects.Response;
 
 namespace WebAPI.Controllers
 {
@@ -57,6 +58,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AssetFileTypeNameAlreadyInUse)]
         public KalturaAssetFileType Add(KalturaAssetFileType assetFileType)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -84,6 +86,8 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AssetFileTypeNameAlreadyInUse)]
+        [Throws(eResponseStatus.AssetFileTypeDoesNotExist)]
         public KalturaAssetFileType Update(int id, KalturaAssetFileType assetFileType)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -108,6 +112,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AssetFileTypeDoesNotExist)]
         public bool Delete(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;

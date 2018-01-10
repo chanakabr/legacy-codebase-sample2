@@ -380,6 +380,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // AssetStruct to KalturaAssetStruct
             Mapper.CreateMap<AssetFileType, KalturaAssetFileType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
@@ -392,6 +393,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // KalturaAssetStruct to AssetStruct
             Mapper.CreateMap<KalturaAssetFileType, AssetFileType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status.HasValue ? src.Status.Value : true))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
