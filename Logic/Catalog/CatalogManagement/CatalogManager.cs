@@ -3228,9 +3228,17 @@ namespace Core.Catalog.CatalogManagement
 
         public static Status DeleteTag(int groupId, long tagId, long userId)
         {
+            TagResponse tagResponse = new TagResponse();
+
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
+                tagResponse = GetTagById(groupId, tagId);
+                if (tagResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return tagResponse.Status;
+                }
+
                 if (CatalogDAL.DeleteTag(groupId, tagId, userId))
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -3423,11 +3431,19 @@ namespace Core.Catalog.CatalogManagement
 
         }
 
-        public static AssetFileResponse AddAssetFile(int groupId, long userId, AssetFile assetFileToAdd)
+        public static AssetFileResponse AddAssetFile(int groupId, long userId, AssetFile assetFileToAdd, eAssetTypes assetType)
         {
             AssetFileResponse result = new AssetFileResponse();
             try
             {
+                // validate that asset exist
+                AssetResponse assetResponse = GetAsset(groupId, assetFileToAdd.AssetId, assetType, false);
+                if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                    return result;
+                }
+
                 DateTime startDate = assetFileToAdd.StartDate.HasValue ? assetFileToAdd.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToAdd.EndDate.HasValue ? assetFileToAdd.EndDate.Value : startDate;
 
