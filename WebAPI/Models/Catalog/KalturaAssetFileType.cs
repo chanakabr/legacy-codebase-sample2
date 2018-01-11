@@ -96,7 +96,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "drmProfileId")]
         [JsonProperty(PropertyName = "drmProfileId")]
         [XmlElement(ElementName = "drmProfileId")]
-        [SchemeProperty(MinInteger = -1)]
+        [SchemeProperty(MinInteger = -1, InsertOnly = true)]        
         public int DrmProfileId { get; set; }
 
         /// <summary>
