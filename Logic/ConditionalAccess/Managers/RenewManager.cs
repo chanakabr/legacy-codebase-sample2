@@ -1581,7 +1581,7 @@ namespace Core.ConditionalAccess
             DateTime nextRenewalDate = endDatedt.AddMinutes(paymentGateway.RenewalStartMinutes);
 
             // insert message to queue
-            Utils.RenewTransactionMessageInQueue(groupId, householdId, endDate, nextRenewalDate, processId);
+            Utils.RenewUnifiedTransactionMessageInQueue(groupId, householdId, endDate, nextRenewalDate, processId);
 
             if (updateUnifiedProcess)
             {
@@ -1708,7 +1708,7 @@ namespace Core.ConditionalAccess
                 DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(renewalIntervalMinutes);
 
                 // enqueue unified renew transaction
-                Utils.RenewTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate), nextRenewalDate, processID);
+                Utils.RenewUnifiedTransactionMessageInQueue(groupId, householdId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate), nextRenewalDate, processID);
             }
             catch (Exception ex)
             {
