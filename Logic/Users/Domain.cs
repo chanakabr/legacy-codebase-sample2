@@ -507,7 +507,7 @@ namespace Core.Users
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, m_masterGUIDs[0].ToString(), RolePermissions.HOUSEHOLDUSER_DELETE)))
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_DELETE.ToString())))
                 {
                     eRetVal = DomainResponseStatus.DomainSuspended;
                     return eRetVal;
@@ -624,7 +624,7 @@ namespace Core.Users
             if (!forceRemove && m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, m_masterGUIDs[0].ToString(), RolePermissions.HOUSEHOLDDEVICE_DELETE)))
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_DELETE.ToString())))
                 {
                     bRes = DomainResponseStatus.DomainSuspended;
                     return bRes;
@@ -854,7 +854,7 @@ namespace Core.Users
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, m_masterGUIDs[0].ToString(), RolePermissions.HOUSEHOLDDEVICE_UPDATESTATUS)))
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_UPDATESTATUS.ToString())))
                 {
                     domainResponseStatus = DomainResponseStatus.DomainSuspended;
                     return domainResponseStatus;
@@ -1105,7 +1105,7 @@ namespace Core.Users
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {   
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, m_masterGUIDs[0].ToString(), RolePermissions.HOUSEHOLDDEVICE_ADDBYPIN)))
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADDBYPIN.ToString())))
                 {
                     eRetVal = DeviceResponseStatus.Error;
                     device = new Device(m_nGroupID);
@@ -2186,7 +2186,7 @@ namespace Core.Users
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                   && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, m_masterGUIDs[0].ToString(), RolePermissions.HOUSEHOLDUSER_ADD)))
+                   && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_ADD.ToString())))
                 {
                     bRemove = false;
                     return DomainResponseStatus.DomainSuspended;
@@ -2516,7 +2516,7 @@ namespace Core.Users
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, m_masterGUIDs[0].ToString(), RolePermissions.HOUSEHOLDDEVICE_ADD)))
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADD.ToString())))
                 {
                     eRetVal = DomainResponseStatus.DomainSuspended;
                     return eRetVal;
