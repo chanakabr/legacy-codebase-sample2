@@ -2521,6 +2521,24 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetFileFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetIdEqual":
+                            return "assetIdEqual";
+                        case "IdEqual":
+                            return "idEqual";
+                    }
+                    break;
+                    
+                case "KalturaAssetFileListResponse":
+                    switch(property.Name)
+                    {
+                        case "Files":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaAssetFileType":
                     switch(property.Name)
                     {

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
@@ -159,4 +160,21 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "streamingSuplierId")]
         public string StreamingSuplierId { get; set; }
     }
+
+    /// <summary>
+    /// Asset-file list
+    /// </summary>
+    [DataContract(Name = "Collections", Namespace = "")]
+    [XmlRoot("Collections")]
+    public class KalturaAssetFileListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// A list of asset-file types
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaAssetFile> Files { get; set; }
+    }   
 }

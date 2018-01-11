@@ -187,7 +187,7 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetId");
             }
-            
+
             if (!assetFile.TypeId.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
@@ -265,6 +265,37 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
+            return response;
+        }
+
+        /// <summary>
+        /// Returns a list of asset-file types
+        /// </summary>
+        /// <param name="filter">Filter</param>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaAssetFileListResponse List(KalturaAssetFileFilter filter = null)
+        {
+            KalturaAssetFileListResponse response = null;
+
+            if (filter == null)
+            {
+                filter = new KalturaAssetFileFilter();
+            }
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                filter.Validate();
+
+                // call client      
+                response = ClientsManager.CatalogClient().GetAssetFiles(groupId, filter.IdEqual,  filter.AssetIdEqual);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
             return response;
         }
     }
