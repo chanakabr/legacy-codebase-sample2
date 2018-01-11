@@ -1760,7 +1760,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static AssetFileType CreateAssetFileType(long id, DataRow dr)
         {
-            AssetFileType result = null;            ;
+            AssetFileType result = null; ;
             int qualityType = ODBCWrapper.Utils.GetIntSafeVal(dr, "QUALITY", 0);
             if (id > 0 && typeof(AssetFileTypeQuality).IsEnumDefined(qualityType))
             {
@@ -1885,7 +1885,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         }
-                    }                    
+                    }
                     else
                     {
                         response.Status = CreateTopicResponseStatusFromResult(id);
@@ -1904,7 +1904,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static AssetFileResponse CreateAssetFileResponseFromDataSet(DataSet ds)
         {
-            AssetFileResponse response = new AssetFileResponse();
+            AssetFileResponse response = new AssetFileResponse() { Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -3049,7 +3049,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }       
+        }
 
         public static TagResponse AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId)
         {
@@ -3454,7 +3454,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                if( result.File != null && result.File.AssetId != assetFileToUpdate.AssetId)
+                if (result.File != null && result.File.AssetId != assetFileToUpdate.AssetId)
                 {
                     result.File = null;
                     result.Status = new Status() { Code = (int)eResponseStatus.AssetFileNotBelongToAsset, Message = eResponseStatus.AssetFileNotBelongToAsset.ToString() };
@@ -3468,7 +3468,7 @@ namespace Core.Catalog.CatalogManagement
                     , assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, assetFileToUpdate.Duration, endDate, assetFileToUpdate.ExternalId
                     , assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum
                     , assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.StreamingSuplierId, assetFileToUpdate.Type);
-                            
+
                 result = CreateAssetFileResponseFromDataSet(ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
