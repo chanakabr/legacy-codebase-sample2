@@ -248,6 +248,7 @@ namespace WebAPI.Controllers
         [Route("update"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetFileDoesNotExist)]
+        [Throws(eResponseStatus.AssetFileNotBelongToAsset)]
         [SchemeArgument("id", MinLong = 1)]
         public KalturaAssetFile Update(long id, KalturaAssetFile assetFile)
         {
