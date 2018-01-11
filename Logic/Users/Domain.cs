@@ -2183,10 +2183,14 @@ namespace Core.Users
             SetReadingInvalidationKeys();
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                bRemove = false;
-                return DomainResponseStatus.DomainSuspended;
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                   && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, m_masterGUIDs[0].ToString(), RolePermissions.HOUSEHOLDUSER_ADD)))
+                {
+                    bRemove = false;
+                    return DomainResponseStatus.DomainSuspended;
+                }
             }
 
             // If domain has no users, insert new Master user
