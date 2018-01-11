@@ -2730,7 +2730,7 @@ namespace Core.Catalog
                 valueTerm = new ESTerm(false)
                 {
                     Key = "value.autocomplete",
-                    Value = definitions.AutocompleteSearchValue
+                    Value = definitions.AutocompleteSearchValue.ToLower()
                 };
             }
             else if (!string.IsNullOrEmpty(definitions.ExactSearchValue))
