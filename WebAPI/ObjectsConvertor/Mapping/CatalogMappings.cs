@@ -1044,6 +1044,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
+        //KalturaAssetType to eAssetType
+        public static eAssetTypes ConvertToAssetTypes(KalturaAssetReferenceType assetReferenceType)
+        {
+            eAssetTypes assetType = eAssetTypes.UNKNOWN;
+            switch (assetReferenceType)
+            {
+                case KalturaAssetReferenceType.media:
+                    assetType = eAssetTypes.MEDIA;
+                    break;
+                case KalturaAssetReferenceType.epg_internal:
+                    break;
+                case KalturaAssetReferenceType.epg_external:
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                    break;
+            }
+
+            return assetType;
+        }
+
         #endregion
 
         private static KalturaAssetGroupBy ConvertToGroupBy(SearchAggregationGroupBy searchAggregationGroupBy)

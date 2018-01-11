@@ -162,6 +162,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.TagDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
         public bool Delete(long id)
         {

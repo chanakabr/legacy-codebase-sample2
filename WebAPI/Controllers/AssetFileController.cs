@@ -169,15 +169,17 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Add a new asset
+        /// Add a new asset file
         /// </summary>
         /// <param name="assetFile">Asset object</param>
+        /// <param name="assetReferenceType">Type of asset</param>
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
-        public KalturaAssetFile Add(KalturaAssetFile assetFile)
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        public KalturaAssetFile Add(KalturaAssetFile assetFile, KalturaAssetReferenceType assetReferenceType)
         {
             KalturaAssetFile response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -200,7 +202,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().AddAssetFile(groupId, assetFile, userId);
+                response = ClientsManager.CatalogClient().AddAssetFile(groupId, assetFile, userId, assetReferenceType);
             }
             catch (ClientException ex)
             {

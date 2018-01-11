@@ -312,8 +312,8 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }       
-
+        }
+        
         public KalturaMeta AddMeta(int groupId, KalturaMeta meta, long userId)
         {
             KalturaMeta result = null;
@@ -471,20 +471,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    eAssetTypes assetType = eAssetTypes.UNKNOWN;
-                    switch (assetReferenceType)
-                    {
-                        case KalturaAssetReferenceType.media:
-                            assetType = eAssetTypes.MEDIA;
-                            break;
-                        case KalturaAssetReferenceType.epg_internal:
-                            break;
-                        case KalturaAssetReferenceType.epg_external:
-                            break;
-                        default:
-                            throw new ClientException((int)StatusCode.Error, "Invalid assetType");
-                            break;
-                    }
+                    eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);                   
 
                     response = Core.Catalog.CatalogManagement.CatalogManager.DeleteAsset(groupId, id, assetType, userId);
                 }
@@ -3612,7 +3599,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaAssetFile AddAssetFile(int groupId, KalturaAssetFile assetFile, long userId)
+        internal KalturaAssetFile AddAssetFile(int groupId, KalturaAssetFile assetFile, long userId, KalturaAssetReferenceType assetReferenceType)
         {
             KalturaAssetFile result = null;
             AssetFileResponse response = null;
@@ -3622,7 +3609,9 @@ namespace WebAPI.Clients
                 AssetFile assetFileToAdd = AutoMapper.Mapper.Map<AssetFile>(assetFile);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetFile(groupId, userId, assetFileToAdd);
+                    eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
+
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetFile(groupId, userId, assetFileToAdd, assetType);
                 }
             }
             catch (Exception ex)

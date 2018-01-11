@@ -378,11 +378,12 @@
             <param name="partnerId">Partner identifier</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetFileController.Add(WebAPI.Models.Catalog.KalturaAssetFile)">
+        <member name="M:WebAPI.Controllers.AssetFileController.Add(WebAPI.Models.Catalog.KalturaAssetFile,WebAPI.Models.Catalog.KalturaAssetReferenceType)">
             <summary>
-            Add a new asset
+            Add a new asset file
             </summary>
             <param name="assetFile">Asset object</param>
+            <param name="assetReferenceType">Type of asset</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.AssetFileController.Delete(System.Int64)">
