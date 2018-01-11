@@ -3979,7 +3979,7 @@ namespace Tvinci.Core.DAL
             }
 
             return result;
-        }
+        }       
 
         public static List<KSQLChannel> GetKSQLChannels(int groupID)
         {
@@ -5253,6 +5253,16 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@endDate", endDate);
             sp.AddParameter("@altCoGuid", externalId); //TODO: check the value 
             sp.AddParameter("@fileSize", fileSize);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet GetAssetFilesByAssetId(int groupId, long assetId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetFileByAssetId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@assetId", assetId);
 
             return sp.ExecuteDataSet();
         }
