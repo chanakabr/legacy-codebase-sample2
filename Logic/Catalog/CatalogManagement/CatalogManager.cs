@@ -1926,6 +1926,28 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        private static List<AssetFile> CreateAssetFileListResponseFromDataSet(DataSet ds)
+        {
+            List<AssetFile> response = new List<AssetFile>();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        AssetFile assetFile = CreateAssetFile(dr);
+                        if (assetFile != null)
+                        {
+                            response.Add(assetFile);
+                        }
+                    }
+                }
+            }
+
+            return response;
+        }
+
         private static AssetFile CreateAssetFile(DataRow dr)
         {
             return new AssetFile()
@@ -1950,6 +1972,40 @@ namespace Core.Catalog.CatalogManagement
                 Type = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID"),
                 Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE")
             };
+        }
+
+        private static List<AssetFile> GetAssetFilesById(int groupId, long id)
+        {
+            List<AssetFile> files = new List<AssetFile>();
+            AssetFileResponse result = new AssetFileResponse();
+
+            DataSet ds = CatalogDAL.GetAssetFile(groupId, id);
+            result = CreateAssetFileResponseFromDataSet(ds);
+
+            if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
+            {
+                return files;
+            }
+
+            files.Add(result.File);
+            return files;
+        }
+
+        private static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId)
+        {
+            List<AssetFile> files = new List<AssetFile>();
+            AssetFileResponse result = new AssetFileResponse();
+
+            DataSet ds = CatalogDAL.GetAssetFilesByAssetId(groupId, assetId);
+            result = CreateAssetFileResponseFromDataSet(ds);
+
+            if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
+            {
+                return files;
+            }
+
+            files.Add(result.File);
+            return files;
         }
 
         #endregion
@@ -3491,8 +3547,32 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public static AssetFileListResponse GetAssetFiles(int groupId, long id, long assetId)
+        {
+            AssetFileListResponse response = new AssetFileListResponse();
+            try
+            {
+                if (id > 0)
+                {
+                    response.Files = GetAssetFilesById(groupId, id);
+                }
+                else
+                {
+                    response.Files = GetAssetFilesByAssetId(groupId, assetId);
+                }
 
+                if (response.Files != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssetFileTypes with groupId: {0}", groupId), ex);
+            }
 
+            return response;
+        }
         #endregion
     }
 }
