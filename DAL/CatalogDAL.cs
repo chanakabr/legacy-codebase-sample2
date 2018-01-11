@@ -5232,10 +5232,9 @@ namespace Tvinci.Core.DAL
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@id", groupId);
+            sp.AddParameter("@id", id);
             sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@updaterId", userId);
-            sp.AddParameter("@assetId", assetId);
+            sp.AddParameter("@updaterId", userId);            
             sp.AddParameter("@type", type);
             sp.AddParameter("@url", url);
             sp.AddParameter("@streamingSuplierId", streamingSuplierId);
