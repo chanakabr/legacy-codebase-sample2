@@ -2245,7 +2245,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName, shouldUpdateMetaIds,
-                                                            metaIdsToPriority, assetStructToUpdate.IsPredefined, userId);
+                                                          metaIdsToPriority, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
             }
@@ -2447,7 +2447,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, topicToUpdate.SystemName, topicToUpdate.GetFeaturesForDB(topic.Features),
-                                                    topicToUpdate.IsPredefined, topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
+                                                    topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
                 result = CreateTopicResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
             }
