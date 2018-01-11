@@ -2509,10 +2509,14 @@ namespace Core.Users
             int nDbDomainDeviceID = 0;
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended && roleId == 0)
+            if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                eRetVal = DomainResponseStatus.DomainSuspended;
-                return eRetVal;
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, m_masterGUIDs[0].ToString(), RolePermissions.HOUSEHOLDDEVICE_ADD)))
+                {
+                    eRetVal = DomainResponseStatus.DomainSuspended;
+                    return eRetVal;
+                }
             }
 
             int domainID = DomainDal.GetDeviceDomainData(nGroupID, sUDID, ref tempDeviceID, ref isDevActive, ref status, ref nDbDomainDeviceID);
