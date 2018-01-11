@@ -4773,7 +4773,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataSet UpdateAssetStruct(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName,
-                                                bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined, long userId)
+                                                bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4782,8 +4782,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Name", name);
             sp.AddParameter("@ShouldUpdateOtherNames", shouldUpdateOtherNames ? 1 : 0);
             sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
-            sp.AddParameter("@SystemName", systemName);
-            sp.AddParameter("@IsPredefined", isPredefined.HasValue && isPredefined.Value ? 1 : 0);
+            sp.AddParameter("@SystemName", systemName);            
             sp.AddParameter("@ShouldUpdateMetaIds", shouldUpdateMetaIds ? 1 : 0);
             sp.AddKeyValueListParameter<long, int>("@MetaIdsToPriority", metaIdsToPriority, "key", "value");
             sp.AddParameter("@UpdaterId", userId);
@@ -4857,8 +4856,8 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateTopic(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, string commaSeparatedFeatures,
-                                            bool? isPredefined, long? parent_topic_id, string helpText, long userId)
+        public static DataSet UpdateTopic(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName,
+                                            string commaSeparatedFeatures, long? parent_topic_id, string helpText, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4868,8 +4867,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ShouldUpdateOtherNames", shouldUpdateOtherNames ? 1 : 0);
             sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
             sp.AddParameter("@SystemName", systemName);
-            sp.AddParameter("@Features", commaSeparatedFeatures);
-            sp.AddParameter("@IsPredefined", isPredefined.HasValue && isPredefined.Value ? 1 : 0);
+            sp.AddParameter("@Features", commaSeparatedFeatures);            
             sp.AddParameter("@ParentTopicId", parent_topic_id);
             sp.AddParameter("@HelpText", helpText);
             sp.AddParameter("@UpdaterId", userId);
