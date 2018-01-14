@@ -261,7 +261,7 @@ namespace Core.Catalog.CatalogManagement
             ImageTypeResponse result = new ImageTypeResponse();
             try
             {
-                DataSet ds = CatalogDAL.InsertImageType(groupId, imageTypeToAdd.Name, imageTypeToAdd.SystemName, imageTypeToAdd.RatioId, imageTypeToAdd.HelpText,
+                DataSet ds = CatalogDAL.InsertImageType(groupId, imageTypeToAdd.Name, imageTypeToAdd.SystemName, imageTypeToAdd.RatioId.Value, imageTypeToAdd.HelpText,
                                                       userId, imageTypeToAdd.DefaultImageId);
                 if (ds != null)
                 {
@@ -380,13 +380,13 @@ namespace Core.Catalog.CatalogManagement
 
                 if (isSearchByIds)
                 {
-                    // return image TYpes according to Ids
+                    // return image Types according to Ids
                     response.ImageTypes = imageTypes.Where(x => ids.Contains(x.Id)).ToList();
                 }
                 else
                 {
-                    // return image TYpes according to ratio Ids
-                    response.ImageTypes = imageTypes.Where(x => ids.Contains(x.RatioId)).ToList();
+                    // return image Types according to ratio Ids
+                    response.ImageTypes = imageTypes.Where(x => ids.Contains(x.RatioId.Value)).ToList();
                 }
 
                 response.TotalItems = response.ImageTypes.Count;
@@ -599,5 +599,5 @@ namespace Core.Catalog.CatalogManagement
         }
 
         #endregion
-    } 
+    }
 }
