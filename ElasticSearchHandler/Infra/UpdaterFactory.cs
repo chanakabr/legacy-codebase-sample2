@@ -96,6 +96,24 @@ namespace ElasticSearchHandler.Updaters
 
                     break;
                 }
+                case ApiObjects.eObjectType.Tag:
+                {
+                    if (!string.IsNullOrEmpty(urlV2))
+                    {
+                        result = new TagUpdater(nGroupID);
+                    }
+
+                    break;
+                }
+                case ApiObjects.eObjectType.ChannelMetadata:
+                {
+                    if (!string.IsNullOrEmpty(urlV2))
+                    {
+                        result = new ChannelMetadataUpdater(nGroupID);
+                    }
+
+                    break;
+                }
                 default:
                 break;
             }

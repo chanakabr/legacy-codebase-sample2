@@ -87,6 +87,7 @@
     <Compile Include="IndexBuilders\Dual\DualMediaIndexBuilder.cs" />
     <Compile Include="IndexBuilders\Dual\DualRecordingIndexBuilder.cs" />
     <Compile Include="IndexBuilders\New\ChannelIndexBuilderV2.cs" />
+    <Compile Include="IndexBuilders\New\ChannelMetadataIndexBuilder.cs" />
     <Compile Include="IndexBuilders\New\EpgIndexBuilderV2.cs" />
     <Compile Include="IndexBuilders\New\MediaIndexBuilderV2.cs" />
     <Compile Include="IndexBuilders\New\RecordingIndexBuilderV2.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="Updaters\Dual\DualEpgUpdater.cs" />
     <Compile Include="Updaters\Dual\DualMediaUpdater.cs" />
     <Compile Include="Updaters\Dual\DualUpdater.cs" />
+    <Compile Include="Updaters\New\ChannelMetadataUpdater.cs" />
     <Compile Include="Updaters\New\ChannelUpdaterV2.cs" />
     <Compile Include="Updaters\New\EpgChannelUpdaterV2.cs" />
     <Compile Include="Updaters\New\EpgUpdaterV2.cs" />

@@ -18,14 +18,14 @@ using Newtonsoft.Json.Linq;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
-    public class TagsIndexBuilder : AbstractIndexBuilder
+    public class ChannelMetadataIndexBuilder : AbstractIndexBuilder
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly string TAG = "tag";
+        private static readonly string CHANNEL = "channel";
         protected const string VERSION = "2";
 
-        public TagsIndexBuilder(int groupId) : base(groupId)
+        public ChannelMetadataIndexBuilder(int groupId) : base(groupId)
         {
             serializer = new ESSerializerV2();
         }
@@ -34,7 +34,7 @@ namespace ElasticSearchHandler.IndexBuilders
         {
             bool result = false;
             ContextData cd = new ContextData();
-            string newIndexName = ElasticSearchTaskUtils.GetNewMetadataIndexName(groupId);
+            string newIndexName = ElasticSearchTaskUtils.GetNewChannelMetadataIndexName(groupId);
 
             // Basic TCM configurations for indexing - number of shards/replicas, size of bulks 
             int numOfShards = TVinciShared.WS_Utils.GetTcmIntValue("ES_NUM_OF_SHARDS");
@@ -54,8 +54,6 @@ namespace ElasticSearchHandler.IndexBuilders
                 maxResults = 100000;
             }
             
-            List<Topic> tags = new List<Topic>();
-
             // Check if group supports Templates
             if (CatalogManager.DoesGroupUsesTemplates(groupId))
             {
@@ -69,12 +67,10 @@ namespace ElasticSearchHandler.IndexBuilders
                         return false;
                     }
 
-                    tags = catalogGroupCache.TopicsMapBySystemName.Where(
-                        x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Value).ToList();
                 }
                 catch (Exception ex)
                 {
-                    log.Error(string.Format("Failed BuildIndex for tags of groupId: {0} because of CatalogGroupCache error", groupId), ex);
+                    log.Error(string.Format("Failed BuildIndex for channels metadatae of groupId: {0} because of CatalogGroupCache error", groupId), ex);
                     return false;
                 }
 
@@ -84,7 +80,12 @@ namespace ElasticSearchHandler.IndexBuilders
                 List<string> filters;
                 List<string> tokenizers;
 
-                GetAnalyzers(catalogGroupCache.LanguageMapById.Values.ToList(), out analyzers, out filters, out tokenizers);
+                List<ApiObjects.LanguageObj> languages = new List<ApiObjects.LanguageObj>()
+                {
+                    catalogGroupCache.DefaultLanguage
+                };
+
+                GetAnalyzers(languages, out analyzers, out filters, out tokenizers);
 
                 bool actionResult = api.BuildIndex(newIndexName, numOfShards, numOfReplicas,
                     analyzers, filters, tokenizers, maxResults);
@@ -96,9 +97,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
 
                 #endregion
-
-                var languages = catalogGroupCache.LanguageMapById.Values;
-
+                
                 #region Mapping
                 // Mapping for each language
                 foreach (ApiObjects.LanguageObj language in languages)
@@ -130,17 +129,11 @@ namespace ElasticSearchHandler.IndexBuilders
                         log.Error(string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
                     }
 
-                    string type = TAG;
+                    string type = CHANNEL;
                     string suffix = null;
-
-                    if (!language.IsDefault)
-                    {
-                        type = string.Concat(TAG, "_", language.Code);
-                        suffix = language.Code;
-                    }
-
+                    
                     // Ask serializer to create the mapping definitions string
-                    string mapping = serializer.CreateMetadataMapping(indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix);
+                    string mapping = serializer.CreateChannelMapping(indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix);
 
                     bool mappingResult = api.InsertMapping(newIndexName, type, mapping.ToString());
 
@@ -152,7 +145,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (!mappingResult)
                     {
-                        log.Error(string.Concat("Could not create mapping of type tag for language ", language.Name));
+                        log.Error(string.Concat("Could not create mapping of type channel for language ", language.Name));
                     }
                 }
 
@@ -160,49 +153,31 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 #region Populate Index
 
-                var allTagValues = CatalogManager.GetAllTagValues(groupId);
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(groupId);
 
-                if (allTagValues == null)
-                {
-                    log.ErrorFormat("Error when getting all tag values for group {0}", groupId);
-                    return false;
-                }
+                groupManager.RemoveGroup(groupId);
 
-                if (allTagValues != null)
+                List<Channel> allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
+
+                if (allChannels != null)
                 {
                     List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
 
-                    // For each tag value
-                    foreach (var tagValue in allTagValues)
-                    {
-                        if (!catalogGroupCache.LanguageMapById.ContainsKey(tagValue.languageId))
-                        {
-                            log.WarnFormat("Found tag value with non existing language ID. tagId = {0}, tagText = {1}, languageId = {2}",
-                                tagValue.tagId, tagValue.value, tagValue.languageId);
+                    // For each channel value
+                    foreach (var channel in allChannels)
+                    {   
+                        string documentType = CHANNEL;
 
-                            continue;
-                        }
-
-                        var language = catalogGroupCache.LanguageMapById[tagValue.languageId];
-                        string suffix = null;
-
-                        if (!language.IsDefault)
-                        {
-                            suffix = language.Code;
-                        }
-
-                        string documentType = ElasticSearchTaskUtils.GetTanslationType(TAG, language);
-
-                        // Serialize tag and create a bulk request for it
-                        string serializedTag = JObject.FromObject(tagValue).ToString(Newtonsoft.Json.Formatting.None);
-                            //serializer.SerializeMetadataObject(tagValue.topicId, tagValue.tagId, tagValue.value);
+                        // Serialize channel and create a bulk request for it
+                        string serializedChannel = serializer.SerializeChannelObject(channel);
 
                         bulkList.Add(new ESBulkRequestObj<string>()
                         {
-                            docID = string.Format("{0}_{1}", tagValue.tagId, tagValue.languageId),
+                            docID = channel.m_nChannelID.ToString(),
                             index = newIndexName,
                             type = documentType,
-                            document = serializedTag
+                            document = serializedChannel
                         });
 
                         // If we exceeded the size of a single bulk reuquest
@@ -220,8 +195,8 @@ namespace ElasticSearchHandler.IndexBuilders
                                 {
                                     foreach (var item in invalidResults)
                                     {
-                                        log.ErrorFormat("Error - Could not add tag to ES index. GroupID={0};Type={1};ID={2};error={3};",
-                                            groupId, TAG, item.Key, item.Value);
+                                        log.ErrorFormat("Error - Could not add channel to ES index. GroupID={0};Type={1};ID={2};error={3};",
+                                            groupId, CHANNEL, item.Key, item.Value);
                                     }
                                 }
                             });
@@ -245,15 +220,14 @@ namespace ElasticSearchHandler.IndexBuilders
                             {
                                 foreach (var item in invalidResults)
                                 {
-                                    log.ErrorFormat("Error - Could not add tag to ES index. GroupID={0};Type={1};ID={2};error={3};",
-                                        groupId, TAG, item.Key, item.Value);
+                                    log.ErrorFormat("Error - Could not add channel to ES index. GroupID={0};Type={1};ID={2};error={3};",
+                                        groupId, CHANNEL, item.Key, item.Value);
                                 }
                             }
                         });
                         t.Wait();
                     }
                 }
-
                 #endregion
 
                 #region Switch index alias + Delete old indices handling

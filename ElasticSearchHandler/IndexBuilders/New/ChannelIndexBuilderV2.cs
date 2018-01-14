@@ -153,7 +153,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             if (channelIds != null)
             {
-                log.Info(string.Format("Start indexing channels. total channels={0}", channelIds.Count));
+                log.Info(string.Format("Start indexing channel percolators. total channels={0}", channelIds.Count));
 
                 List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
 

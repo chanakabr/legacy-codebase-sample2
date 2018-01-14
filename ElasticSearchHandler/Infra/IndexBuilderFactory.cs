@@ -105,6 +105,14 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     break;
                 }
+                case ApiObjects.eObjectType.ChannelMetadata:
+                {
+                    if (!string.IsNullOrEmpty(urlV2))
+                    {
+                    }
+
+                    break;
+                }
                 default:
                     break;
             }

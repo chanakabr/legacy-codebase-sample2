@@ -91,6 +91,16 @@ namespace ElasticSearchHandler
             return string.Format("{0}_metadata_{1}", groupId, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
         }
 
+        internal static string GetNewChannelMetadataIndexName(int groupId)
+        {
+            return string.Format("{0}_channel_{1}", groupId, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
+        }
+
+        internal static string GetChannelMetadataIndexName(int groupId)
+        {
+            return string.Format("{0}_channel", groupId);
+        }
+
         public static string GetTanslationType(string sType, LanguageObj oLanguage)
         {
             if (oLanguage.IsDefault)
