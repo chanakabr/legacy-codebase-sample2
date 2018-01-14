@@ -63,7 +63,7 @@ namespace WebAPI.Models.Catalog
         public List<long> GetRatioIdIn()
         {
             List<long> list = new List<long>();
-            if (!string.IsNullOrEmpty(IdIn))
+            if (!string.IsNullOrEmpty(RatioIdIn))
             {
                 string[] stringValues = RatioIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string stringValue in stringValues)

@@ -3074,8 +3074,7 @@ namespace WebAPI.Clients
 
             KalturaImageTypeListResponse result = new KalturaImageTypeListResponse();
             ImageTypeListResponse response = null;
-
-            List<ImageType> imageTypes = null;
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
