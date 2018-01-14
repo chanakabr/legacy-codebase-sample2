@@ -389,7 +389,7 @@ namespace Core.Catalog.CatalogManagement
                     response.ImageTypes = imageTypes.Where(x => ids.Contains(x.RatioId)).ToList();
                 }
 
-                response.TotalItems = imageTypes.Count;
+                response.TotalItems = response.ImageTypes.Count;
             }
 
             return response;
