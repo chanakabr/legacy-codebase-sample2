@@ -4790,7 +4790,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateAssetFileType(int groupId, long id, string name, string description, bool? isActive, int? drmId, AssetFileTypeQuality quality, long userId)
+        public static DataSet UpdateAssetFileType(int groupId, long id, string name, string description, bool? isActive, AssetFileTypeQuality quality, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetFileType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4798,8 +4798,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@GroupId", groupId);            
             sp.AddParameter("@Name", name);
             sp.AddParameter("@Description", description);
-            sp.AddParameter("@IsActive", isActive);
-            sp.AddParameter("@DrmId", drmId);
+            sp.AddParameter("@IsActive", isActive);            
             sp.AddParameter("@Quality", quality);
             sp.AddParameter("@UpdaterId", userId);
 
