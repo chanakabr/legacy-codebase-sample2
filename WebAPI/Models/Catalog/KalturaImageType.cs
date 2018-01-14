@@ -49,7 +49,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "ratioId")]
         [XmlElement(ElementName = "ratioId")]
         [SchemeProperty(MinLong = 1)]
-        public long RatioId { get; set; }
+        public long? RatioId { get; set; }
 
         /// <summary>
         /// Help text
