@@ -1888,7 +1888,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        response.Status = CreateTopicResponseStatusFromResult(id);
+                        response.Status = CreateAssetFileTypeResponseStatusFromResult(id);
                         return response;
                     }
                 }
@@ -1926,6 +1926,28 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        private static List<AssetFile> CreateAssetFileListResponseFromDataSet(DataSet ds)
+        {
+            List<AssetFile> response = new List<AssetFile>();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        AssetFile assetFile = CreateAssetFile(dr);
+                        if (assetFile != null)
+                        {
+                            response.Add(assetFile);
+                        }
+                    }
+                }
+            }
+
+            return response;
+        }
+
         private static AssetFile CreateAssetFile(DataRow dr)
         {
             return new AssetFile()
@@ -1950,6 +1972,40 @@ namespace Core.Catalog.CatalogManagement
                 Type = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID"),
                 Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE")
             };
+        }
+
+        private static List<AssetFile> GetAssetFilesById(int groupId, long id)
+        {
+            List<AssetFile> files = new List<AssetFile>();
+            AssetFileResponse result = new AssetFileResponse();
+
+            DataSet ds = CatalogDAL.GetAssetFile(groupId, id);
+            result = CreateAssetFileResponseFromDataSet(ds);
+
+            if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
+            {
+                return files;
+            }
+
+            files.Add(result.File);
+            return files;
+        }
+
+        private static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId)
+        {
+            List<AssetFile> files = new List<AssetFile>();
+            AssetFileResponse result = new AssetFileResponse();
+
+            DataSet ds = CatalogDAL.GetAssetFilesByAssetId(groupId, assetId);
+            result = CreateAssetFileResponseFromDataSet(ds);
+
+            if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
+            {
+                return files;
+            }
+
+            files.Add(result.File);
+            return files;
         }
 
         #endregion
@@ -2189,7 +2245,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName, shouldUpdateMetaIds,
-                                                            metaIdsToPriority, assetStructToUpdate.IsPredefined, userId);
+                                                          metaIdsToPriority, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
             }
@@ -2391,7 +2447,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, topicToUpdate.SystemName, topicToUpdate.GetFeaturesForDB(topic.Features),
-                                                    topicToUpdate.IsPredefined, topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
+                                                    topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
                 result = CreateTopicResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
             }
@@ -3172,9 +3228,17 @@ namespace Core.Catalog.CatalogManagement
 
         public static Status DeleteTag(int groupId, long tagId, long userId)
         {
+            TagResponse tagResponse = new TagResponse();
+
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
+                tagResponse = GetTagById(groupId, tagId);
+                if (tagResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return tagResponse.Status;
+                }
+
                 if (CatalogDAL.DeleteTag(groupId, tagId, userId))
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -3314,8 +3378,7 @@ namespace Core.Catalog.CatalogManagement
             AssetFileTypeResponse result = new AssetFileTypeResponse();
             try
             {
-                DataSet ds = CatalogDAL.UpdateAssetFileType(groupId, id, assetFileTypeToUpdate.Name, assetFileTypeToUpdate.Description, assetFileTypeToUpdate.IsActive,
-                                                            assetFileTypeToUpdate.DrmId, assetFileTypeToUpdate.Quality, userId);
+                DataSet ds = CatalogDAL.UpdateAssetFileType(groupId, id, assetFileTypeToUpdate.Name, assetFileTypeToUpdate.Description, assetFileTypeToUpdate.IsActive, assetFileTypeToUpdate.Quality, userId);
                 result = CreateAssetFileTypeResponseFromDataSet(ds);
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
@@ -3367,11 +3430,19 @@ namespace Core.Catalog.CatalogManagement
 
         }
 
-        public static AssetFileResponse AddAssetFile(int groupId, long userId, AssetFile assetFileToAdd)
+        public static AssetFileResponse AddAssetFile(int groupId, long userId, AssetFile assetFileToAdd, eAssetTypes assetType)
         {
             AssetFileResponse result = new AssetFileResponse();
             try
             {
+                // validate that asset exist
+                AssetResponse assetResponse = GetAsset(groupId, assetFileToAdd.AssetId, assetType, false);
+                if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                    return result;
+                }
+
                 DateTime startDate = assetFileToAdd.StartDate.HasValue ? assetFileToAdd.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToAdd.EndDate.HasValue ? assetFileToAdd.EndDate.Value : startDate;
 
@@ -3491,8 +3562,32 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public static AssetFileListResponse GetAssetFiles(int groupId, long id, long assetId)
+        {
+            AssetFileListResponse response = new AssetFileListResponse();
+            try
+            {
+                if (id > 0)
+                {
+                    response.Files = GetAssetFilesById(groupId, id);
+                }
+                else
+                {
+                    response.Files = GetAssetFilesByAssetId(groupId, assetId);
+                }
 
+                if (response.Files != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssetFileTypes with groupId: {0}", groupId), ex);
+            }
 
+            return response;
+        }
         #endregion
     }
 }
