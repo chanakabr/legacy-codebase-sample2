@@ -1888,7 +1888,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        response.Status = CreateTopicResponseStatusFromResult(id);
+                        response.Status = CreateAssetFileTypeResponseStatusFromResult(id);
                         return response;
                     }
                 }
@@ -3378,8 +3378,7 @@ namespace Core.Catalog.CatalogManagement
             AssetFileTypeResponse result = new AssetFileTypeResponse();
             try
             {
-                DataSet ds = CatalogDAL.UpdateAssetFileType(groupId, id, assetFileTypeToUpdate.Name, assetFileTypeToUpdate.Description, assetFileTypeToUpdate.IsActive,
-                                                            assetFileTypeToUpdate.DrmId, assetFileTypeToUpdate.Quality, userId);
+                DataSet ds = CatalogDAL.UpdateAssetFileType(groupId, id, assetFileTypeToUpdate.Name, assetFileTypeToUpdate.Description, assetFileTypeToUpdate.IsActive, assetFileTypeToUpdate.Quality, userId);
                 result = CreateAssetFileTypeResponseFromDataSet(ds);
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
