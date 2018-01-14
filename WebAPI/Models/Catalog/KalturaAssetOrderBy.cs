@@ -24,6 +24,10 @@ namespace WebAPI.Models.Catalog
 
         START_DATE_ASC,
 
-        LIKES_DESC
+        LIKES_DESC,
+
+        CREATE_DATE_ASC,
+
+        CREATE_DATE_DESC
     }
 }

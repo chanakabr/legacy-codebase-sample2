@@ -1533,6 +1533,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         }
                         break;
                     }
+                case OrderBy.CREATE_DATE:
+                    {
+                        if (OrderDir == OrderDir.DESC)
+                        {
+                            result = KalturaAssetOrderBy.CREATE_DATE_DESC;
+                        }
+                        else
+                        {
+                            result = KalturaAssetOrderBy.CREATE_DATE_ASC;
+                        }
+                        break;
+                    }
                 case OrderBy.NAME:
                     {
                         if (OrderDir == OrderDir.ASC)
@@ -1550,8 +1562,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         result = KalturaAssetOrderBy.RELEVANCY_DESC;
                         break;
                     }
-                case OrderBy.META:
-                case OrderBy.CREATE_DATE:
+                case OrderBy.META:                
                 case OrderBy.RECOMMENDATION:
                 case OrderBy.RANDOM:
                 case OrderBy.LIKE_COUNTER:
