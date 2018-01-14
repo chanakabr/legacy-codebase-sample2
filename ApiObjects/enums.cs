@@ -103,7 +103,9 @@ namespace ApiObjects
         [EnumMember]
         Recording = 4,
         [EnumMember]
-        Tag = 5
+        Tag = 5,
+        [EnumMember]
+        ChannelMetadata = 6
     }
 
     [Serializable]

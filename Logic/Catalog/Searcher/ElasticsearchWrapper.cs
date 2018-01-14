@@ -2941,6 +2941,20 @@ namespace Core.Catalog
         }
 
         #endregion
+
+        #region Channels
+
+        public ApiObjects.Response.Status UpdateChannel(int groupId, Channel channel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ApiObjects.Response.Status DeleteChannel(int groupId, int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 
     class AssetDocCompare : IEqualityComparer<ElasticSearchApi.ESAssetDocument>
