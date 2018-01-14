@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.SearchObjects;
+using GroupsCacheManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1063,7 +1064,19 @@ namespace ElasticSearch.Common
             return string.Empty;
         }
 
+        public virtual string CreateChannelMapping(string normalIndexAnalyzer, string normalSearchAnalyzer,
+            string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
+            string suffix = null)
+        {
+            return string.Empty;
+        }
+
         public virtual string SerializeMetadataObject(long topicId, int tagId, string tagValue)
+        {
+            return string.Empty;
+        }
+
+        public virtual string SerializeChannelObject(Channel channel)
         {
             return string.Empty;
         }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GroupsCacheManager;
 
 namespace ElasticSearch.Common
 {
@@ -1370,6 +1371,92 @@ namespace ElasticSearch.Common
             json["topic_id"] = JToken.FromObject(topicId);
             json["tag_id"] = JToken.FromObject(tagId);
             json["tag_value"] = JToken.FromObject(tagValue);
+
+            result = json.ToString(Newtonsoft.Json.Formatting.None);
+
+            return result;
+        }
+
+        public override string CreateChannelMapping(string normalIndexAnalyzer, string normalSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null)
+        {
+            string result = string.Empty;
+
+            ESMappingObj mappingObj = new ESMappingObj(AddSuffix("channel", suffix));
+
+            FieldsMappingPropertyV2 nameProperty = new FieldsMappingPropertyV2()
+            {
+                name = AddSuffix("name", suffix),
+                type = eESFieldType.STRING,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
+                null_value = ""
+            };
+            nameProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = AddSuffix("name", suffix),
+                type = eESFieldType.STRING,
+                null_value = string.Empty,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            nameProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "analyzed",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = normalSearchAnalyzer,
+                analyzer = normalIndexAnalyzer
+            });
+            nameProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            nameProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "autocomplete",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = autocompleteSearchAnalyzer,
+                analyzer = autocompleteIndexAnalyzer
+            });
+
+            mappingObj.AddProperty(nameProperty);
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "channel_type",
+                type = eESFieldType.LONG,
+                index = eMappingIndex.not_analyzed,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "create_date",
+                type = eESFieldType.DATE,
+                index = eMappingIndex.not_analyzed,
+                format = DATE_FORMAT
+            });
+
+            result = mappingObj.ToString();
+
+            return result;
+        }
+
+        public override string SerializeChannelObject(Channel channel)
+        {
+            string result = string.Empty;
+            JObject json = new JObject();
+
+            json["name"] = JToken.FromObject(channel.m_sName);
+            json["channel_type"] = JToken.FromObject(channel.m_nChannelTypeID);
 
             result = json.ToString(Newtonsoft.Json.Formatting.None);
 
