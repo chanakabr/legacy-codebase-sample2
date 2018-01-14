@@ -3598,7 +3598,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaAssetFile AddAssetFile(int groupId, KalturaAssetFile assetFile, long userId, KalturaAssetReferenceType assetReferenceType)
+        internal KalturaAssetFile AddAssetFile(int groupId, KalturaAssetFile assetFile, long userId)
         {
             KalturaAssetFile result = null;
             AssetFileResponse response = null;
@@ -3608,9 +3608,8 @@ namespace WebAPI.Clients
                 AssetFile assetFileToAdd = AutoMapper.Mapper.Map<AssetFile>(assetFile);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
-
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetFile(groupId, userId, assetFileToAdd, assetType);
+                    // Asset type should always eAssetTypes.MEDIA
+                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetFile(groupId, userId, assetFileToAdd, eAssetTypes.MEDIA);
                 }
             }
             catch (Exception ex)
