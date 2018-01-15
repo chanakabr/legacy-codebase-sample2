@@ -202,10 +202,6 @@ namespace APILogic.CRUD
                 };
 
                 TVinciShared.QueueUtils.UpdateCache(groupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
-
-                // Delete channel data from index
-                Core.Catalog.ElasticsearchWrapper wrapper = new Core.Catalog.ElasticsearchWrapper();
-                wrapper.DeleteChannel(groupID, channelId);
             }
             catch (Exception ex)
             {
@@ -322,11 +318,6 @@ namespace APILogic.CRUD
                 };
 
                 TVinciShared.QueueUtils.UpdateCache(groupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
-
-
-                // Delete channel data from index
-                Core.Catalog.ElasticsearchWrapper wrapper = new Core.Catalog.ElasticsearchWrapper();
-                wrapper.UpdateChannelIndex(groupID, channel.ID);
             }
             catch (Exception ex)
             {
