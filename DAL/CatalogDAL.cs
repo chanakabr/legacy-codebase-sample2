@@ -5173,11 +5173,11 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataSet InsertAssetFile(int groupId, long userId, string additionalData, string altStreamingCode, long altStreamingSuplierId, long assetId,
+        public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long altStreamingSuplierId, long assetId,
             long billingType, double duration, DateTime endDate, string externalId, string externalStoreId, long fileSize, int isDefaultLanguage,
             string language, int orderNum, int outputProtecationLevel, DateTime startDate, string url, long streamingSuplierId, long type)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertAssetFile");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@updaterId", userId);
@@ -5204,9 +5204,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static bool DeleteAssetFile(int groupId, long userId, long id)
+        public static bool DeleteMediaFile(int groupId, long userId, long id)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteAssetFile");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@id", id);
@@ -5215,9 +5215,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet GetAssetFile(int groupId, long id)
+        public static DataSet GetMediaFile(int groupId, long id)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetFile");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@id", id);
@@ -5225,9 +5225,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateAssetFile(int groupId, long id, long userId, string additionalData, string altStreamingCode, long altStreamingSuplierId, long assetId, long billingType, double duration, DateTime endDate, string externalId, string externalStoreId, long fileSize, int isDefaultLanguage, string language, int orderNum, int outputProtecationLevel, DateTime startDate, string url, long streamingSuplierId, int type)
+        public static DataSet UpdateMediaFile(int groupId, long id, long userId, string additionalData, string altStreamingCode, long altStreamingSuplierId, long assetId, long billingType, double duration, DateTime endDate, string externalId, string externalStoreId, long fileSize, int isDefaultLanguage, string language, int orderNum, int outputProtecationLevel, DateTime startDate, string url, long streamingSuplierId, int type)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetFile");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@id", id);
             sp.AddParameter("@groupId", groupId);
@@ -5254,9 +5254,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet GetAssetFilesByAssetId(int groupId, long assetId)
+        public static DataSet GetMediaFilesByAssetId(int groupId, long assetId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetFileByAssetId");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFileByAssetId");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@assetId", assetId);
