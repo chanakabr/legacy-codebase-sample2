@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
@@ -37,7 +38,16 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
+        [Deprecated("4.6.0.0")]
         public string Type { get; set; }
+
+        /// <summary>
+        /// Device types identifier as defined in the system
+        /// </summary>
+        [DataMember(Name = "typeId")]
+        [JsonProperty(PropertyName = "typeId")]
+        [XmlElement(ElementName = "typeId")]
+        public int? TypeId { get; set; }
 
         /// <summary>
         /// URL of the media file to be played
@@ -71,14 +81,14 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "billingType")]
         [XmlElement(ElementName = "billingType")]
         [JsonIgnore]
-        public string BillingType { get; set; }
+        public string BillingType { get; set; } 
 
         /// <summary>
         /// Quality
         /// </summary>
         [DataMember(Name = "quality")]
         [JsonProperty(PropertyName = "quality")]
-        [XmlElement(ElementName = "quality")]
+        [XmlElement(ElementName = "quality")]        
         [JsonIgnore]
         public string Quality { get; set; }
 
@@ -143,5 +153,110 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "fileSize")]
         [XmlElement(ElementName = "fileSize")]        
         public long FileSize { get; set; }
+
+        /// <summary>
+        /// Additional Data
+        /// </summary>
+        [DataMember(Name = "additionalData")]
+        [JsonProperty(PropertyName = "additionalData")]
+        [XmlElement(ElementName = "additionalData")]
+        public string AdditionalData { get; set; }
+
+        /// <summary>
+        /// AltStreamingCode
+        /// </summary>
+        [DataMember(Name = "altStreamingCode")]
+        [JsonProperty(PropertyName = "altStreamingCode")]
+        [XmlElement(ElementName = "altStreamingCode")]
+        public string AltStreamingCode { get; set; }
+
+        /// <summary>
+        /// AltStreamingSuplierId
+        /// </summary>
+        [DataMember(Name = "altStreamingSuplierId")]
+        [JsonProperty(PropertyName = "altStreamingSuplierId")]
+        [XmlElement(ElementName = "altStreamingSuplierId")]
+        public string AltStreamingSuplierId { get; set; }
+
+        /// <summary>
+        /// EndDate
+        /// </summary>
+        [DataMember(Name = "endDate")]
+        [JsonProperty(PropertyName = "endDate")]
+        [XmlElement(ElementName = "endDate")]
+        public long? EndDate { get; set; }
+
+        /// <summary>
+        /// StartDate
+        /// </summary>
+        [DataMember(Name = "startDate")]
+        [JsonProperty(PropertyName = "startDate")]
+        [XmlElement(ElementName = "startDate")]
+        public long? StartDate { get; set; }
+
+        /// <summary>
+        /// ExternalStoreId
+        /// </summary>
+        [DataMember(Name = "externalStoreId")]
+        [JsonProperty(PropertyName = "externalStoreId")]
+        [XmlElement(ElementName = "externalStoreId")]
+        public long ExternalStoreId { get; set; }
+
+        /// <summary>
+        /// IsDefaultLanguage
+        /// </summary>
+        [DataMember(Name = "isDefaultLanguage")]
+        [JsonProperty(PropertyName = "isDefaultLanguage")]
+        [XmlElement(ElementName = "isDefaultLanguage")]
+        public long IsDefaultLanguage { get; set; }
+
+        /// <summary>
+        /// Language
+        /// </summary>
+        [DataMember(Name = "language")]
+        [JsonProperty(PropertyName = "language")]
+        [XmlElement(ElementName = "language")]
+        public long Language { get; set; }
+
+        /// <summary>
+        /// OrderNum
+        /// </summary>
+        [DataMember(Name = "orderNum")]
+        [JsonProperty(PropertyName = "orderNum")]
+        [XmlElement(ElementName = "orderNum")]
+        public int OrderNum { get; set; }
+
+        /// <summary>
+        /// OutputProtecationLevel
+        /// </summary>
+        [DataMember(Name = "outputProtecationLevel")]
+        [JsonProperty(PropertyName = "outputProtecationLevel")]
+        [XmlElement(ElementName = "outputProtecationLevel")]
+        public string OutputProtecationLevel { get; set; }
+
+        /// <summary>
+        /// StreamingSuplierId
+        /// </summary>
+        [DataMember(Name = "streamingSuplierId")]
+        [JsonProperty(PropertyName = "streamingSuplierId")]
+        [XmlElement(ElementName = "streamingSuplierId")]
+        public string StreamingSuplierId { get; set; }
+    }
+
+    /// <summary>
+    /// Media-file list
+    /// </summary>
+    [DataContract(Name = "Collections", Namespace = "")]
+    [XmlRoot("Collections")]
+    public class KalturaMediaFileListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// A list of media-file types
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaMediaFile> Files { get; set; }
     }
 }

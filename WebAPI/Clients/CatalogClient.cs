@@ -3598,9 +3598,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaAssetFile AddAssetFile(int groupId, KalturaAssetFile assetFile, long userId)
+        internal KalturaMediaFile AddMediaFile(int groupId, KalturaMediaFile assetFile, long userId)
         {
-            KalturaAssetFile result = null;
+            KalturaMediaFile result = null;
             AssetFileResponse response = null;
 
             try
@@ -3628,11 +3628,11 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = AutoMapper.Mapper.Map<KalturaAssetFile>(response.File);
+            result = AutoMapper.Mapper.Map<KalturaMediaFile>(response.File);
             return result;
         }
 
-        internal bool DeleteAssetFile(int groupId, long userId, long id)
+        internal bool DeleteMediaFile(int groupId, long userId, long id)
         {
             Status response = null;
 
@@ -3662,9 +3662,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaAssetFile UpdateAssetFile(int groupId, long id, KalturaAssetFile assetFile, long userId)
+        internal KalturaMediaFile UpdateMediaFile(int groupId, long id, KalturaMediaFile assetFile, long userId)
         {
-            KalturaAssetFile result = null;
+            KalturaMediaFile result = null;
             AssetFileResponse response = null;
 
             try
@@ -3692,13 +3692,13 @@ namespace WebAPI.Clients
             }
 
 
-            result = AutoMapper.Mapper.Map<KalturaAssetFile>(response.File);
+            result = AutoMapper.Mapper.Map<KalturaMediaFile>(response.File);
             return result;
         }
 
-        internal KalturaAssetFileListResponse GetAssetFiles(int groupId, long id, long assetId)
+        internal KalturaMediaFileListResponse GetMediaFiles(int groupId, long id, long assetId)
         {
-            KalturaAssetFileListResponse result = new KalturaAssetFileListResponse() { TotalCount = 0 };
+            KalturaMediaFileListResponse result = new KalturaMediaFileListResponse() { TotalCount = 0 };
             AssetFileListResponse response = null;
 
             try
@@ -3727,10 +3727,10 @@ namespace WebAPI.Clients
             if (response.Files != null && response.Files.Count > 0)
             {
                 result.TotalCount = response.Files.Count;
-                result.Files = new List<KalturaAssetFile>();
+                result.Files = new List<KalturaMediaFile>();
                 foreach (AssetFile assetFile in response.Files)
                 {
-                    result.Files.Add(AutoMapper.Mapper.Map<KalturaAssetFile>(assetFile));
+                    result.Files.Add(AutoMapper.Mapper.Map<KalturaMediaFile>(assetFile));
                 }
             }
 

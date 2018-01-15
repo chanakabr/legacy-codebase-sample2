@@ -103,6 +103,14 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaMediaFile":
+                    switch (propertyName)
+                    {
+                        case "Type":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
                 case "KalturaMeta":
                     switch (propertyName)
                     {
@@ -139,6 +147,8 @@ namespace WebAPI.Reflection
                         case "AdsParams":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "AdsPolicy":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "Type":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                     };
                     break;
@@ -2467,48 +2477,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaAssetFile":
-                    switch(property.Name)
-                    {
-                        case "AdditionalData":
-                            return "additionalData";
-                        case "AltStreamingCode":
-                            return "altStreamingCode";
-                        case "AltStreamingSuplierId":
-                            return "altStreamingSuplierId";
-                        case "AssetId":
-                            return "assetId";
-                        case "BillingType":
-                            return "billingType";
-                        case "Duration":
-                            return "duration";
-                        case "EndDate":
-                            return "endDate";
-                        case "ExternalId":
-                            return "externalId";
-                        case "ExternalStoreId":
-                            return "externalStoreId";
-                        case "Id":
-                            return "id";
-                        case "IsDefaultLanguage":
-                            return "isDefaultLanguage";
-                        case "Language":
-                            return "language";
-                        case "OrderNum":
-                            return "orderNum";
-                        case "OutputProtecationLevel":
-                            return "outputProtecationLevel";
-                        case "StartDate":
-                            return "startDate";
-                        case "StreamingSuplierId":
-                            return "streamingSuplierId";
-                        case "TypeId":
-                            return "type";
-                        case "Url":
-                            return "url";
-                    }
-                    break;
-                    
                 case "KalturaAssetFileContext":
                     switch(property.Name)
                     {
@@ -2518,24 +2486,6 @@ namespace WebAPI.Reflection
                             return "isOfflinePlayBack";
                         case "ViewLifeCycle":
                             return "viewLifeCycle";
-                    }
-                    break;
-                    
-                case "KalturaAssetFileFilter":
-                    switch(property.Name)
-                    {
-                        case "AssetIdEqual":
-                            return "assetIdEqual";
-                        case "IdEqual":
-                            return "idEqual";
-                    }
-                    break;
-                    
-                case "KalturaAssetFileListResponse":
-                    switch(property.Name)
-                    {
-                        case "Files":
-                            return "objects";
                     }
                     break;
                     
@@ -3048,6 +2998,14 @@ namespace WebAPI.Reflection
                             return "kSql";
                         case "OrderBy":
                             return "orderBy";
+                    }
+                    break;
+                    
+                case "KalturaChannelListResponse":
+                    switch(property.Name)
+                    {
+                        case "Channels":
+                            return "objects";
                     }
                     break;
                     
@@ -4674,8 +4632,14 @@ namespace WebAPI.Reflection
                 case "KalturaMediaFile":
                     switch(property.Name)
                     {
+                        case "AdditionalData":
+                            return "additionalData";
                         case "AltCdnCode":
                             return "altCdnCode";
+                        case "AltStreamingCode":
+                            return "altStreamingCode";
+                        case "AltStreamingSuplierId":
+                            return "altStreamingSuplierId";
                         case "AssetId":
                             return "assetId";
                         case "BillingType":
@@ -4686,24 +4650,60 @@ namespace WebAPI.Reflection
                             return "cdnName";
                         case "Duration":
                             return "duration";
+                        case "EndDate":
+                            return "endDate";
                         case "ExternalId":
                             return "externalId";
+                        case "ExternalStoreId":
+                            return "externalStoreId";
                         case "FileSize":
                             return "fileSize";
                         case "HandlingType":
                             return "handlingType";
                         case "Id":
                             return "id";
+                        case "IsDefaultLanguage":
+                            return "isDefaultLanguage";
+                        case "Language":
+                            return "language";
+                        case "OrderNum":
+                            return "orderNum";
+                        case "OutputProtecationLevel":
+                            return "outputProtecationLevel";
                         case "PPVModules":
                             return "ppvModules";
                         case "ProductCode":
                             return "productCode";
                         case "Quality":
                             return "quality";
+                        case "StartDate":
+                            return "startDate";
+                        case "StreamingSuplierId":
+                            return "streamingSuplierId";
                         case "Type":
                             return "type";
+                        case "TypeId":
+                            return "typeId";
                         case "Url":
                             return "url";
+                    }
+                    break;
+                    
+                case "KalturaMediaFileFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetIdEqual":
+                            return "assetIdEqual";
+                        case "IdEqual":
+                            return "idEqual";
+                    }
+                    break;
+                    
+                case "KalturaMediaFileListResponse":
+                    switch(property.Name)
+                    {
+                        case "Files":
+                            return "objects";
                     }
                     break;
                     

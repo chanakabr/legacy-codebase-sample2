@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaAssetFileFilter : KalturaFilter<KalturaAssetFileOrderBy>
+    public class KalturaMediaFileFilter : KalturaFilter<KalturaMediaFileOrderBy>
     {
         /// <summary>
         /// Asset identifier to filter by
@@ -33,17 +33,17 @@ namespace WebAPI.Models.Catalog
         {
             if (AssetIdEqual > 0 && IdEqual > 0)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaAssetFileFilter.idEqual", "KalturaAssetFileFilter.assetIdEqual");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaMediaFileFilter.idEqual", "KalturaMediaFileFilter.assetIdEqual");
             }
         }
 
-        public override KalturaAssetFileOrderBy GetDefaultOrderByValue()
+        public override KalturaMediaFileOrderBy GetDefaultOrderByValue()
         {
-            return KalturaAssetFileOrderBy.NONE;
+            return KalturaMediaFileOrderBy.NONE;
         }
     }
 
-    public enum KalturaAssetFileOrderBy
+    public enum KalturaMediaFileOrderBy
     {
         NONE
     }

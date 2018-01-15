@@ -358,6 +358,34 @@
             <param name="idIn">comma separated ids of metas and tags</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.MediaFileController.Add(WebAPI.Models.Catalog.KalturaMediaFile)">
+            <summary>
+            Add a new media file
+            </summary>
+            <param name="mediaFile">Media file object</param>        
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MediaFileController.Delete(System.Int64)">
+            <summary>
+            Delete an existing media file
+            </summary>
+            <param name="id">Media file identifier</param>        
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MediaFileController.Update(System.Int64,WebAPI.Models.Catalog.KalturaMediaFile)">
+            <summary>
+            update an existing media file
+            </summary>
+            <param name="id">Media file identifier</param>        
+            <param name="mediaFile">Media file object</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.MediaFileController.List(WebAPI.Models.Catalog.KalturaMediaFileFilter)">
+            <summary>
+            Returns a list of media-file
+            </summary>
+            <param name="filter">Filter</param>
+        </member>
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
             <summary>
             get KalturaAssetFileContext
@@ -377,35 +405,6 @@
             <param name="ks">Kaltura session for the user, not mandatory for anonymous user</param>
             <param name="partnerId">Partner identifier</param>
             <remarks></remarks>
-        </member>
-        <member name="M:WebAPI.Controllers.AssetFileController.Add(WebAPI.Models.Catalog.KalturaAssetFile)">
-            <summary>
-            Add a new asset file
-            </summary>
-            <param name="assetFile">Asset object</param>
-            <param name="assetReferenceType">Type of asset</param>
-            <returns></returns>
-        </member>
-        <member name="M:WebAPI.Controllers.AssetFileController.Delete(System.Int64)">
-            <summary>
-            Delete an existing asset file
-            </summary>
-            <param name="id">Asset file identifier</param>        
-            <returns></returns>
-        </member>
-        <member name="M:WebAPI.Controllers.AssetFileController.Update(System.Int64,WebAPI.Models.Catalog.KalturaAssetFile)">
-            <summary>
-            update an existing asset file
-            </summary>
-            <param name="id">Asset file identifier</param>        
-            <param name="assetFile">Asset file object</param>
-            <returns></returns>
-        </member>
-        <member name="M:WebAPI.Controllers.AssetFileController.List(WebAPI.Models.Catalog.KalturaAssetFileFilter)">
-            <summary>
-            Returns a list of asset-file types
-            </summary>
-            <param name="filter">Filter</param>
         </member>
         <member name="M:WebAPI.Controllers.MediaFileTypeController.List">
             <summary>
@@ -5474,16 +5473,6 @@
             PIN type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileFilter.AssetIdEqual">
-            <summary>
-            Asset identifier to filter by
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileFilter.IdEqual">
-            <summary>
-            Asset file identifier to filter by
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaFileType">
             <summary>
             Media-file type
@@ -5549,109 +5538,19 @@
             A list of media-file types
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaAssetFile">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileFilter.AssetIdEqual">
             <summary>
-            Asset file details
+            Asset identifier to filter by
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.AssetId">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileFilter.IdEqual">
             <summary>
-            Unique identifier for the asset
+            Asset file identifier to filter by
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.Id">
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelListResponse.Channels">
             <summary>
-            File unique identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.TypeId">
-            <summary>
-            Device types identifier as defined in the system
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.Url">
-            <summary>
-            URL of the asset file to be played
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.Duration">
-            <summary>
-            Duration of the asset file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.ExternalId">
-            <summary>
-            External identifier for the asset file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.BillingType">
-            <summary>
-            Billing type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.AdditionalData">
-            <summary>
-            Additional Data
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.AltStreamingCode">
-            <summary>
-            AltStreamingCode
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.AltStreamingSuplierId">
-            <summary>
-            AltStreamingSuplierId
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.EndDate">
-            <summary>
-            EndDate
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.StartDate">
-            <summary>
-            StartDate
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.ExternalStoreId">
-            <summary>
-            ExternalStoreId
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.IsDefaultLanguage">
-            <summary>
-            IsDefaultLanguage
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.Language">
-            <summary>
-            Language
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.OrderNum">
-            <summary>
-            OrderNum
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.OutputProtecationLevel">
-            <summary>
-            OutputProtecationLevel
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFile.StreamingSuplierId">
-            <summary>
-            StreamingSuplierId
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaAssetFileListResponse">
-            <summary>
-            Asset-file list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileListResponse.Files">
-            <summary>
-            A list of asset-file types
+            A list of channels
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaUrlResource.Url">
@@ -7151,6 +7050,11 @@
             Device types as defined in the system
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.TypeId">
+            <summary>
+            Device types identifier as defined in the system
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Url">
             <summary>
             URL of the media file to be played
@@ -7209,6 +7113,71 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.FileSize">
             <summary>
             File size
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AdditionalData">
+            <summary>
+            Additional Data
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltStreamingCode">
+            <summary>
+            AltStreamingCode
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltStreamingSuplierId">
+            <summary>
+            AltStreamingSuplierId
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.EndDate">
+            <summary>
+            EndDate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.StartDate">
+            <summary>
+            StartDate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ExternalStoreId">
+            <summary>
+            ExternalStoreId
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.IsDefaultLanguage">
+            <summary>
+            IsDefaultLanguage
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Language">
+            <summary>
+            Language
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.OrderNum">
+            <summary>
+            OrderNum
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.OutputProtecationLevel">
+            <summary>
+            OutputProtecationLevel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.StreamingSuplierId">
+            <summary>
+            StreamingSuplierId
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaMediaFileListResponse">
+            <summary>
+            Media-file list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileListResponse.Files">
+            <summary>
+            A list of media-file types
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaImage">
