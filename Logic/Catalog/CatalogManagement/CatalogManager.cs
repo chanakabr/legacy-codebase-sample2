@@ -1979,7 +1979,7 @@ namespace Core.Catalog.CatalogManagement
             List<AssetFile> files = new List<AssetFile>();
             AssetFileResponse result = new AssetFileResponse();
 
-            DataSet ds = CatalogDAL.GetAssetFile(groupId, id);
+            DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
             result = CreateAssetFileResponseFromDataSet(ds);
 
             if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
@@ -1996,7 +1996,7 @@ namespace Core.Catalog.CatalogManagement
             List<AssetFile> files = new List<AssetFile>();
             AssetFileResponse result = new AssetFileResponse();
 
-            DataSet ds = CatalogDAL.GetAssetFilesByAssetId(groupId, assetId);
+            DataSet ds = CatalogDAL.GetMediaFilesByAssetId(groupId, assetId);
             result = CreateAssetFileResponseFromDataSet(ds);
 
             if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
@@ -3430,7 +3430,7 @@ namespace Core.Catalog.CatalogManagement
 
         }
 
-        public static AssetFileResponse AddAssetFile(int groupId, long userId, AssetFile assetFileToAdd, eAssetTypes assetType)
+        public static AssetFileResponse InsertMediaFile(int groupId, long userId, AssetFile assetFileToAdd, eAssetTypes assetType)
         {
             AssetFileResponse result = new AssetFileResponse();
             try
@@ -3446,7 +3446,7 @@ namespace Core.Catalog.CatalogManagement
                 DateTime startDate = assetFileToAdd.StartDate.HasValue ? assetFileToAdd.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToAdd.EndDate.HasValue ? assetFileToAdd.EndDate.Value : startDate;
 
-                DataSet ds = CatalogDAL.InsertAssetFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AltStreamingSuplierId
+                DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AltStreamingSuplierId
                     , assetFileToAdd.AssetId, assetFileToAdd.BillingType, assetFileToAdd.Duration, endDate, assetFileToAdd.ExternalId
                     , assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize, assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum
                     , assetFileToAdd.OutputProtecationLevel, startDate, assetFileToAdd.Url, assetFileToAdd.StreamingSuplierId, assetFileToAdd.Type);
@@ -3472,14 +3472,14 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Status DeleteAssetFile(int groupId, long userId, long id)
+        public static Status DeleteMediaFile(int groupId, long userId, long id)
         {
             Status result = null;
             AssetFileResponse assetFileResponse = null;
             try
             {
 
-                DataSet ds = CatalogDAL.GetAssetFile(groupId, id);
+                DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
                 assetFileResponse = CreateAssetFileResponseFromDataSet(ds);
 
                 if (assetFileResponse != null && assetFileResponse.Status != null && assetFileResponse.Status.Code != (int)eResponseStatus.OK)
@@ -3487,7 +3487,7 @@ namespace Core.Catalog.CatalogManagement
                     return assetFileResponse.Status;
                 }
 
-                if (CatalogDAL.DeleteAssetFile(groupId, userId, id))
+                if (CatalogDAL.DeleteMediaFile(groupId, userId, id))
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
@@ -3512,12 +3512,12 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetFileResponse UpdateAssetFile(int groupId, long id, AssetFile assetFileToUpdate, long userId)
+        public static AssetFileResponse UpdateMediaFile(int groupId, long id, AssetFile assetFileToUpdate, long userId)
         {
             AssetFileResponse result = new AssetFileResponse();
             try
             {
-                DataSet ds = CatalogDAL.GetAssetFile(groupId, id);
+                DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
                 result = CreateAssetFileResponseFromDataSet(ds);
 
                 if (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK)
@@ -3535,7 +3535,7 @@ namespace Core.Catalog.CatalogManagement
                 DateTime startDate = assetFileToUpdate.StartDate.HasValue ? assetFileToUpdate.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToUpdate.EndDate.HasValue ? assetFileToUpdate.EndDate.Value : startDate;
 
-                ds = CatalogDAL.UpdateAssetFile(groupId, id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, assetFileToUpdate.AltStreamingSuplierId
+                ds = CatalogDAL.UpdateMediaFile(groupId, id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, assetFileToUpdate.AltStreamingSuplierId
                     , assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, assetFileToUpdate.Duration, endDate, assetFileToUpdate.ExternalId
                     , assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum
                     , assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.StreamingSuplierId, assetFileToUpdate.Type);
@@ -3562,7 +3562,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetFileListResponse GetAssetFiles(int groupId, long id, long assetId)
+        public static AssetFileListResponse GetMediaFiles(int groupId, long id, long assetId)
         {
             AssetFileListResponse response = new AssetFileListResponse();
             try
