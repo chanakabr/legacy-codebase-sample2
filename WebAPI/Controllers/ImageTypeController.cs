@@ -77,11 +77,6 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
-            if (!imageType.RatioId.HasValue)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ratioId");
-            }
-
             try
             {
                 response = ClientsManager.CatalogClient().AddImageType(groupId, userId, imageType);
