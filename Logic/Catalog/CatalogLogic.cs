@@ -2907,6 +2907,27 @@ namespace Core.Catalog
                     legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
                 }
 
+                // Update channel index directly
+                if (updatedObjectType == eObjectType.Channel || updatedObjectType == eObjectType.ChannelMetadata)
+                {
+                    ElasticsearchWrapper wrapper = new Catalog.ElasticsearchWrapper();
+
+                    if (action == eAction.Delete || action == eAction.Off)
+                    {
+                        foreach (long id in ids)
+                        {
+                            wrapper.DeleteChannel(groupId, (int)id);
+                        }
+                    }
+                    else if (action == eAction.On || action == eAction.Update)
+                    {
+                        foreach (long id in ids)
+                        {
+                            wrapper.UpdateChannelIndex(groupId, (int)id);
+                        }
+                    }
+                }
+
                 switch (updatedObjectType)
                 {
                     case eObjectType.Unknown:
