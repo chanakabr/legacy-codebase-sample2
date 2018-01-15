@@ -1439,6 +1439,13 @@ namespace ElasticSearch.Common
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
+                name = "channel_id",
+                type = eESFieldType.LONG,
+                index = eMappingIndex.not_analyzed,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
                 name = "create_date",
                 type = eESFieldType.DATE,
                 index = eMappingIndex.not_analyzed,
@@ -1457,6 +1464,7 @@ namespace ElasticSearch.Common
 
             json["name"] = JToken.FromObject(channel.m_sName);
             json["channel_type"] = JToken.FromObject(channel.m_nChannelTypeID);
+            json["channel_id"] = JToken.FromObject(channel.m_nChannelID);
 
             result = json.ToString(Newtonsoft.Json.Formatting.None);
 
