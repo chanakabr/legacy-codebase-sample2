@@ -18,7 +18,7 @@ namespace Core.Catalog.CatalogManagement
         public bool IsTrailer { get; set; }
         public StreamerType? StreamerType { get; set; }
         public int? DrmId { get; set; }
-        public AssetFileTypeQuality Quality { get; set; }
+        public MediaFileTypeQuality Quality { get; set; }
 
         public MediaFileType()
         {
@@ -31,7 +31,7 @@ namespace Core.Catalog.CatalogManagement
             this.IsTrailer = false;
             this.StreamerType = null;
             this.DrmId = null;
-            this.Quality = AssetFileTypeQuality.None;
+            this.Quality = MediaFileTypeQuality.None;
         }
         
         public override string ToString()

@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class AssetFileTypeResponse
+    public class MediaFileTypeResponse
     {
         public Status Status { get; set; }
-        public MediaFileType AssetFileType { get; set; }
+        public MediaFileType MediaFileType { get; set; }
 
-        public AssetFileTypeResponse()
+        public MediaFileTypeResponse()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            AssetFileType = null;
+            MediaFileType = null;
         }
     }
 }

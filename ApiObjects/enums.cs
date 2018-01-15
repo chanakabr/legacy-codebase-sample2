@@ -975,7 +975,7 @@ namespace ApiObjects
         Delete = 1
     }
 
-    public enum AssetFileTypeQuality
+    public enum MediaFileTypeQuality
     {
         None = 0,
         Adaptive = 1,

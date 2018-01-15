@@ -200,7 +200,7 @@
     <Compile Include="Catalog\CatalogManagement\CatalogGroupCache.cs" />
     <Compile Include="Catalog\CatalogManagement\AssetFileTypeListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\MediaFileType.cs" />
-    <Compile Include="Catalog\CatalogManagement\AssetFileTypeResponse.cs" />
+    <Compile Include="Catalog\CatalogManagement\MediaFileTypeResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\Image.cs" />
     <Compile Include="Catalog\CatalogManagement\ImageListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\ImageResponse.cs" />

@@ -1758,11 +1758,11 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
-        private static MediaFileType CreateAssetFileType(long id, DataRow dr)
+        private static MediaFileType CreateMediaFileType(long id, DataRow dr)
         {
             MediaFileType result = null; ;
             int qualityType = ODBCWrapper.Utils.GetIntSafeVal(dr, "QUALITY", 0);
-            if (id > 0 && typeof(AssetFileTypeQuality).IsEnumDefined(qualityType))
+            if (id > 0 && typeof(MediaFileTypeQuality).IsEnumDefined(qualityType))
             {
                 result = new MediaFileType()
                 {
@@ -1775,14 +1775,14 @@ namespace Core.Catalog.CatalogManagement
                     IsTrailer = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_TRAILER"),
                     StreamerType = (StreamerType)Enum.Parse(typeof(StreamerType), ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMER_TYPE").ToString()),
                     DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
-                    Quality = (AssetFileTypeQuality)qualityType
+                    Quality = (MediaFileTypeQuality)qualityType
                 };
             }
 
             return result;
         }
 
-        private static Status CreateAssetFileTypeResponseStatusFromResult(long result)
+        private static Status CreateMediaFileTypeResponseStatusFromResult(long result)
         {
             Status responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             switch (result)
@@ -1797,7 +1797,7 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
-        private static List<MediaFileType> CreateAssetFileTypeListFromDataSet(DataSet ds)
+        private static List<MediaFileType> CreateMediaFileTypeListFromDataSet(DataSet ds)
         {
             List<MediaFileType> response = new List<MediaFileType>();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -1810,10 +1810,10 @@ namespace Core.Catalog.CatalogManagement
                         long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                         if (id > 0)
                         {
-                            MediaFileType assetFileType = CreateAssetFileType(id, dr);
-                            if (assetFileType != null)
+                            MediaFileType mediaFileType = CreateMediaFileType(id, dr);
+                            if (mediaFileType != null)
                             {
-                                response.Add(assetFileType);
+                                response.Add(mediaFileType);
                             }
                         }
                     }
@@ -1823,29 +1823,29 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static List<MediaFileType> GetGroupAssetFileTypes(int groupId)
+        private static List<MediaFileType> GetGroupMediaFileTypes(int groupId)
         {
             List<MediaFileType> result = null;
 
-            string key = LayeredCacheKeys.GetGroupAssetFileTypesKey(groupId);
+            string key = LayeredCacheKeys.GetGroupMediaFileTypesKey(groupId);
 
             bool cacheResult = LayeredCache.Instance.Get<List<MediaFileType>>(
-                key, ref result, GetAssetFileTypes, new Dictionary<string, object>() { { "groupId", groupId } },
-                groupId, LayeredCacheConfigNames.GET_ASSET_FILE_TYPES_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId) });
+                key, ref result, GetMediaFileTypes, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GET_MEDIA_FILE_TYPES_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupMediaFileTypesInvalidationKey(groupId) });
 
             if (!cacheResult)
             {
-                log.Error(string.Format("GetGroupAssetFileTypes - Failed get data from cache groupId = {0}", groupId));
+                log.Error(string.Format("GetGroupMediaFileTypes - Failed get data from cache groupId = {0}", groupId));
                 result = null;
             }
 
             return result;
         }
 
-        private static Tuple<List<MediaFileType>, bool> GetAssetFileTypes(Dictionary<string, object> funcParams)
+        private static Tuple<List<MediaFileType>, bool> GetMediaFileTypes(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            List<MediaFileType> assetFileType = null;
+            List<MediaFileType> mediaFileType = null;
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
@@ -1853,25 +1853,25 @@ namespace Core.Catalog.CatalogManagement
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue && groupId.Value > 0)
                     {
-                        DataSet ds = CatalogDAL.GetAssetFileTypesByGroupId(groupId.Value);
-                        assetFileType = CreateAssetFileTypeListFromDataSet(ds);
+                        DataSet ds = CatalogDAL.GetMediaFileTypesByGroupId(groupId.Value);
+                        mediaFileType = CreateMediaFileTypeListFromDataSet(ds);
 
-                        res = assetFileType != null;
+                        res = mediaFileType != null;
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetAssetFileTypes failed params : {0}", funcParams != null ? string.Join(";",
+                log.Error(string.Format("GetMediaFileTypes failed params : {0}", funcParams != null ? string.Join(";",
                          funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
             }
 
-            return new Tuple<List<MediaFileType>, bool>(assetFileType, res);
+            return new Tuple<List<MediaFileType>, bool>(mediaFileType, res);
         }
 
-        private static AssetFileTypeResponse CreateAssetFileTypeResponseFromDataSet(DataSet ds)
+        private static MediaFileTypeResponse CreateMediaFileTypeResponseFromDataSet(DataSet ds)
         {
-            AssetFileTypeResponse response = new AssetFileTypeResponse();
+            MediaFileTypeResponse response = new MediaFileTypeResponse();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -1880,19 +1880,19 @@ namespace Core.Catalog.CatalogManagement
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
                     if (id > 0)
                     {
-                        response.AssetFileType = CreateAssetFileType(id, dt.Rows[0]);
-                        if (response.AssetFileType != null)
+                        response.MediaFileType = CreateMediaFileType(id, dt.Rows[0]);
+                        if (response.MediaFileType != null)
                         {
                             response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         }
                     }
                     else
                     {
-                        response.Status = CreateAssetFileTypeResponseStatusFromResult(id);
+                        response.Status = CreateMediaFileTypeResponseStatusFromResult(id);
                         return response;
                     }
                 }
-                /// AssetFileType does not exist (on update)
+                /// MediaFileType does not exist (on update)
                 else
                 {
                     response.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
@@ -3328,12 +3328,12 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetFileTypeListResponse GetAssetFileTypes(int groupId)
+        public static AssetFileTypeListResponse GetMediaFileTypes(int groupId)
         {
             AssetFileTypeListResponse response = new AssetFileTypeListResponse();
             try
             {
-                response.Types = GetGroupAssetFileTypes(groupId);
+                response.Types = GetGroupMediaFileTypes(groupId);
                 if (response.Types != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -3341,48 +3341,48 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetAssetFileTypes with groupId: {0}", groupId), ex);
+                log.Error(string.Format("Failed GetMediaFileTypes with groupId: {0}", groupId), ex);
             }
 
             return response;
         }
 
-        public static AssetFileTypeResponse AddAssetFileType(int groupId, MediaFileType assetFileTypeToAdd, long userId)
+        public static MediaFileTypeResponse AddMediaFileType(int groupId, MediaFileType mediaFileTypeToAdd, long userId)
         {
-            AssetFileTypeResponse result = new AssetFileTypeResponse();
+            MediaFileTypeResponse result = new MediaFileTypeResponse();
             try
             {
-                DataSet ds = CatalogDAL.InsertAssetFileType(groupId, assetFileTypeToAdd.Name, assetFileTypeToAdd.Description, assetFileTypeToAdd.IsActive, assetFileTypeToAdd.IsTrailer,
-                                                            (int)assetFileTypeToAdd.StreamerType, assetFileTypeToAdd.DrmId, assetFileTypeToAdd.Quality, userId);
-                result = CreateAssetFileTypeResponseFromDataSet(ds);
+                DataSet ds = CatalogDAL.InsertMediaFileType(groupId, mediaFileTypeToAdd.Name, mediaFileTypeToAdd.Description, mediaFileTypeToAdd.IsActive, mediaFileTypeToAdd.IsTrailer,
+                                                            (int)mediaFileTypeToAdd.StreamerType, mediaFileTypeToAdd.DrmId, mediaFileTypeToAdd.Quality, userId);
+                result = CreateMediaFileTypeResponseFromDataSet(ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
-                    string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
+                    string invalidationKey = LayeredCacheKeys.GetGroupMediaFileTypesInvalidationKey(groupId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
-                        log.ErrorFormat("Failed to set invalidation key on AddAssetFileType, key = {0}", invalidationKey);
+                        log.ErrorFormat("Failed to set invalidation key on AddMediaFileType, key = {0}", invalidationKey);
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddAssetFileType for groupId: {0} and assetFileType: {1}", groupId, assetFileTypeToAdd.ToString()), ex);
+                log.Error(string.Format("Failed AddMediaFileType for groupId: {0} and mediaFileType: {1}", groupId, mediaFileTypeToAdd.ToString()), ex);
             }
 
             return result;
         }
 
-        public static AssetFileTypeResponse UpdateAssetFileType(int groupId, long id, MediaFileType assetFileTypeToUpdate, long userId)
+        public static MediaFileTypeResponse UpdateMediaFileType(int groupId, long id, MediaFileType mediaFileTypeToUpdate, long userId)
         {
-            AssetFileTypeResponse result = new AssetFileTypeResponse();
+            MediaFileTypeResponse result = new MediaFileTypeResponse();
             try
             {
-                DataSet ds = CatalogDAL.UpdateAssetFileType(groupId, id, assetFileTypeToUpdate.Name, assetFileTypeToUpdate.Description, assetFileTypeToUpdate.IsActive, assetFileTypeToUpdate.Quality, userId);
-                result = CreateAssetFileTypeResponseFromDataSet(ds);
+                DataSet ds = CatalogDAL.UpdateMediaFileType(groupId, id, mediaFileTypeToUpdate.Name, mediaFileTypeToUpdate.Description, mediaFileTypeToUpdate.IsActive, mediaFileTypeToUpdate.Quality, userId);
+                result = CreateMediaFileTypeResponseFromDataSet(ds);
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
-                    string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
+                    string invalidationKey = LayeredCacheKeys.GetGroupMediaFileTypesInvalidationKey(groupId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on UpdateAssetFileType, key = {0}", invalidationKey);
@@ -3391,31 +3391,31 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed UpdateAssetFileType for groupId: {0}, id: {1} and assetFileType: {2}", groupId, id, assetFileTypeToUpdate.ToString()), ex);
+                log.Error(string.Format("Failed UpdateMediaFileType for groupId: {0}, id: {1} and mediaFileType: {2}", groupId, id, mediaFileTypeToUpdate.ToString()), ex);
             }
 
             return result;
         }
 
-        public static Status DeleteAssetFileType(int groupId, long id, long userId)
+        public static Status DeleteMediaFileType(int groupId, long id, long userId)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                if (CatalogDAL.DeleteAssetFileType(groupId, id, userId))
+                if (CatalogDAL.DeleteMediaFileType(groupId, id, userId))
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                     if (result.Code == (int)eResponseStatus.OK)
                     {
-                        string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
+                        string invalidationKey = LayeredCacheKeys.GetGroupMediaFileTypesInvalidationKey(groupId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
-                            log.ErrorFormat("Failed to set invalidation key on DeleteAssetFileType key = {0}", invalidationKey);
+                            log.ErrorFormat("Failed to set invalidation key on DeleteMediaFileType key = {0}", invalidationKey);
                         }
                     }
                 }
-                /// AssetFileType does not exist (on delete)
+                /// MediaFileType does not exist (on delete)
                 else
                 {
                     result = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
@@ -3423,7 +3423,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed DeleteAssetFileType for groupId: {0} and assetFileType id: {1}", groupId, id), ex);
+                log.Error(string.Format("Failed DeleteMediaFileType for groupId: {0} and mediaFileType id: {1}", groupId, id), ex);
             }
 
             return result;
