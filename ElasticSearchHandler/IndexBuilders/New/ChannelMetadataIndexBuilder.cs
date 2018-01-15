@@ -154,9 +154,8 @@ namespace ElasticSearchHandler.IndexBuilders
                 #region Populate Index
 
                 GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(groupId);
-
                 groupManager.RemoveGroup(groupId);
+                Group group = groupManager.GetGroup(groupId);
 
                 List<Channel> allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
 
@@ -206,7 +205,6 @@ namespace ElasticSearchHandler.IndexBuilders
                         }
                     }
 
-
                     // If we have a final bulk pending
                     if (bulkList.Count > 0)
                     {
@@ -232,7 +230,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 #region Switch index alias + Delete old indices handling
 
-                string alias = ElasticSearchTaskUtils.GetMetadataGroupAliasStr(groupId);
+                string alias = ElasticSearchTaskUtils.GetChannelMetadataIndexName(groupId);
                 bool indexExists = api.IndexExists(alias);
 
                 if (this.SwitchIndexAlias || !indexExists)
