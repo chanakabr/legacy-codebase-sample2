@@ -3461,9 +3461,9 @@ namespace WebAPI.Clients
             return responseRatio;
         }
 
-        public KalturaAssetFileTypeListResponse GetAssetFileTypes(int groupId)
+        public KalturaMediaFileTypeListResponse GetMediaFileTypes(int groupId)
         {
-            KalturaAssetFileTypeListResponse result = new KalturaAssetFileTypeListResponse() { TotalCount = 0 };
+            KalturaMediaFileTypeListResponse result = new KalturaMediaFileTypeListResponse() { TotalCount = 0 };
             AssetFileTypeListResponse response = null;
 
             try
@@ -3492,24 +3492,24 @@ namespace WebAPI.Clients
             if (response.Types != null && response.Types.Count > 0)
             {
                 result.TotalCount = response.Types.Count;
-                result.Types = new List<KalturaAssetFileType>();
-                foreach (AssetFileType assetFileType in response.Types)
+                result.Types = new List<KalturaMediaFileType>();
+                foreach (MediaFileType assetFileType in response.Types)
                 {
-                    result.Types.Add(AutoMapper.Mapper.Map<KalturaAssetFileType>(assetFileType));
+                    result.Types.Add(AutoMapper.Mapper.Map<KalturaMediaFileType>(assetFileType));
                 }
             }
 
             return result;
         }
 
-        public KalturaAssetFileType AddAssetFileType(int groupId, KalturaAssetFileType assetFileType, long userId)
+        public KalturaMediaFileType AddMediaFileType(int groupId, KalturaMediaFileType assetFileType, long userId)
         {
-            KalturaAssetFileType result = null;
+            KalturaMediaFileType result = null;
             AssetFileTypeResponse response = null;
 
             try
             {
-                AssetFileType assetFileTypeToAdd = AutoMapper.Mapper.Map<AssetFileType>(assetFileType);
+                MediaFileType assetFileTypeToAdd = AutoMapper.Mapper.Map<MediaFileType>(assetFileType);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetFileType(groupId, assetFileTypeToAdd, userId);
@@ -3531,18 +3531,18 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = AutoMapper.Mapper.Map<KalturaAssetFileType>(response.AssetFileType);
+            result = AutoMapper.Mapper.Map<KalturaMediaFileType>(response.AssetFileType);
             return result;
         }
 
-        public KalturaAssetFileType UpdateAssetFileType(int groupId, long id, KalturaAssetFileType assetFileType, long userId)
+        public KalturaMediaFileType UpdateMediaFileType(int groupId, long id, KalturaMediaFileType assetFileType, long userId)
         {
-            KalturaAssetFileType result = null;
+            KalturaMediaFileType result = null;
             AssetFileTypeResponse response = null;
 
             try
             {
-                AssetFileType assetFileTypeToUpdate = AutoMapper.Mapper.Map<AssetFileType>(assetFileType);
+                MediaFileType assetFileTypeToUpdate = AutoMapper.Mapper.Map<MediaFileType>(assetFileType);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetFileType(groupId, id, assetFileTypeToUpdate, userId);
@@ -3564,11 +3564,11 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = AutoMapper.Mapper.Map<KalturaAssetFileType>(response.AssetFileType);
+            result = AutoMapper.Mapper.Map<KalturaMediaFileType>(response.AssetFileType);
             return result;
         }
 
-        public bool DeleteAssetFileType(int groupId, long id, long userId)
+        public bool DeleteMediaFileType(int groupId, long id, long userId)
         {
             Status response = null;
 

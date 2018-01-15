@@ -407,35 +407,35 @@
             </summary>
             <param name="filter">Filter</param>
         </member>
-        <member name="M:WebAPI.Controllers.AssetFileTypeController.List">
+        <member name="M:WebAPI.Controllers.MediaFileTypeController.List">
             <summary>
-            Returns a list of asset-file types
+            Returns a list of media-file types
             </summary>
         </member>
-        <member name="M:WebAPI.Controllers.AssetFileTypeController.Add(WebAPI.Models.Catalog.KalturaAssetFileType)">
+        <member name="M:WebAPI.Controllers.MediaFileTypeController.Add(WebAPI.Models.Catalog.KalturaMediaFileType)">
             <summary>
-            Add new asset-file type
+            Add new media-file type
             </summary>
-            <param name="assetFileType">Asset-file type</param>
+            <param name="mediaFileType">Media-file type</param>
             <remarks>
             </remarks>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.AssetFileTypeController.Update(System.Int32,WebAPI.Models.Catalog.KalturaAssetFileType)">
+        <member name="M:WebAPI.Controllers.MediaFileTypeController.Update(System.Int32,WebAPI.Models.Catalog.KalturaMediaFileType)">
             <summary>
-            Update existing asset-file type
+            Update existing media-file type
             </summary>
-            <param name="id">Asset-file type identifier</param>
-            <param name="assetFileType">Asset-file type</param>
+            <param name="id">Media-file type identifier</param>
+            <param name="mediaFileType">Media-file type</param>
             <remarks>
             </remarks>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.AssetFileTypeController.Delete(System.Int32)">
+        <member name="M:WebAPI.Controllers.MediaFileTypeController.Delete(System.Int32)">
             <summary>
-            Delete asset-file type by id
+            Delete media-file type by id
             </summary>
-            <param name="id">Asset-file type identifier</param>
+            <param name="id">Media-file type identifier</param>
             <remarks>
             </remarks>
             <returns></returns>
@@ -5484,69 +5484,69 @@
             Asset file identifier to filter by
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaAssetFileType">
+        <member name="T:WebAPI.Models.Catalog.KalturaMediaFileType">
             <summary>
-            Asset-file type
+            Media-file type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.Id">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.Id">
             <summary>
             Unique identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.Name">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.Name">
             <summary>
             Unique name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.Description">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.Description">
             <summary>
             Unique description
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.Status">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.Status">
             <summary>
-            Indicates if asset-file type is active or disabled
+            Indicates if media-file type is active or disabled
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.CreateDate">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.CreateDate">
             <summary>
             Specifies when was the type was created. Date and time represented as epoch.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.UpdateDate">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.UpdateDate">
             <summary>
             Specifies when was the type last updated. Date and time represented as epoch.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.IsTrailer">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.IsTrailer">
             <summary>
             Specifies whether playback as trailer is allowed
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.StreamerType">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.StreamerType">
             <summary>
             Defines playback streamer type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.DrmProfileId">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.DrmProfileId">
             <summary>
             DRM adapter-profile identifier, use -1 for uDRM, 0 for no DRM.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileType.Quality">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.Quality">
             <summary>
-             Asset file type quality
+             Media file type quality
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaAssetFileTypeListResponse">
+        <member name="T:WebAPI.Models.Catalog.KalturaMediaFileTypeListResponse">
             <summary>
-            Asset-file types list
+            Media-file types list
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetFileTypeListResponse.Types">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileTypeListResponse.Types">
             <summary>
-            A list of asset-file types
+            A list of media-file types
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetFile">

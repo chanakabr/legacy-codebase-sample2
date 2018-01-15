@@ -15,9 +15,9 @@ using WebAPI.Models.Users;
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
-    /// Asset-file type
+    /// Media-file type
     /// </summary>
-    public class KalturaAssetFileType : KalturaOTTObject
+    public class KalturaMediaFileType : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier
@@ -47,7 +47,7 @@ namespace WebAPI.Models.Catalog
         public string Description { get; set; }
 
         /// <summary>
-        /// Indicates if asset-file type is active or disabled
+        /// Indicates if media-file type is active or disabled
         /// </summary>
         [DataMember(Name = "status")]
         [JsonProperty("status")]
@@ -88,7 +88,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "streamerType")]
         [XmlElement(ElementName = "streamerType")]
         [SchemeProperty(InsertOnly = true)]
-        public KalturaAssetFileStreamerType? StreamerType { get; set; }
+        public KalturaMediaFileStreamerType? StreamerType { get; set; }
 
         /// <summary>
         /// DRM adapter-profile identifier, use -1 for uDRM, 0 for no DRM.
@@ -100,50 +100,50 @@ namespace WebAPI.Models.Catalog
         public int DrmProfileId { get; set; }
 
         /// <summary>
-        ///  Asset file type quality
+        ///  Media file type quality
         /// </summary>
         [DataMember(Name = "quality")]
         [JsonProperty("quality")]
         [XmlElement(ElementName = "quality", IsNullable = true)]        
-        public KalturaAssetFileTypeQuality? Quality { get; set; }
+        public KalturaMediaFileTypeQuality? Quality { get; set; }
 
         public void validateForInsert()
         {
             if (Name == null || Name.Trim().Length == 0)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetFileType.name");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "mediaFileType.name");
             }
 
             if (Description == null || Description.Trim().Length == 0)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetFileType.description");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "mediaFileType.description");
             }
 
             if (StreamerType == null)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetFileType.streamerType");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "mediaFileType.streamerType");
             }
         }
     }
 
     /// <summary>
-    /// Asset-file types list
+    /// Media-file types list
     /// </summary>
     [DataContract(Name = "Collections", Namespace = "")]
     [XmlRoot("Collections")]
-    public class KalturaAssetFileTypeListResponse : KalturaListResponse
+    public class KalturaMediaFileTypeListResponse : KalturaListResponse
     {
         /// <summary>
-        /// A list of asset-file types
+        /// A list of media-file types
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaAssetFileType> Types { get; set; }
+        public List<KalturaMediaFileType> Types { get; set; }
     }
     
-    public enum KalturaAssetFileStreamerType
+    public enum KalturaMediaFileStreamerType
     {
         APPLE_HTTP = 0,
         MPEG_DASH = 1,

@@ -2539,40 +2539,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaAssetFileType":
-                    switch(property.Name)
-                    {
-                        case "CreateDate":
-                            return "createDate";
-                        case "Description":
-                            return "description";
-                        case "DrmProfileId":
-                            return "drmProfileId";
-                        case "Id":
-                            return "id";
-                        case "IsTrailer":
-                            return "isTrailer";
-                        case "Name":
-                            return "name";
-                        case "Quality":
-                            return "quality";
-                        case "Status":
-                            return "status";
-                        case "StreamerType":
-                            return "streamerType";
-                        case "UpdateDate":
-                            return "updateDate";
-                    }
-                    break;
-                    
-                case "KalturaAssetFileTypeListResponse":
-                    switch(property.Name)
-                    {
-                        case "Types":
-                            return "objects";
-                    }
-                    break;
-                    
                 case "KalturaAssetFilter":
                     switch(property.Name)
                     {
@@ -4738,6 +4704,40 @@ namespace WebAPI.Reflection
                             return "type";
                         case "Url":
                             return "url";
+                    }
+                    break;
+                    
+                case "KalturaMediaFileType":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Description":
+                            return "description";
+                        case "DrmProfileId":
+                            return "drmProfileId";
+                        case "Id":
+                            return "id";
+                        case "IsTrailer":
+                            return "isTrailer";
+                        case "Name":
+                            return "name";
+                        case "Quality":
+                            return "quality";
+                        case "Status":
+                            return "status";
+                        case "StreamerType":
+                            return "streamerType";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaMediaFileTypeListResponse":
+                    switch(property.Name)
+                    {
+                        case "Types":
+                            return "objects";
                     }
                     break;
                     

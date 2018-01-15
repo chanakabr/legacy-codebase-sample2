@@ -20,26 +20,26 @@ using ApiObjects.Response;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetFileType/action")]
-    public class AssetFileTypeController : ApiController
+    [RoutePrefix("_service/mediaFileType/action")]
+    public class MediaFileTypeController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
        
         /// <summary>
-        /// Returns a list of asset-file types
+        /// Returns a list of media-file types
         /// </summary>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetFileTypeListResponse List()
+        public KalturaMediaFileTypeListResponse List()
         {
-            KalturaAssetFileTypeListResponse response = new KalturaAssetFileTypeListResponse();
+            KalturaMediaFileTypeListResponse response = new KalturaMediaFileTypeListResponse();
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
 
             try
             {
-                response = ClientsManager.CatalogClient().GetAssetFileTypes(groupId);
+                response = ClientsManager.CatalogClient().GetMediaFileTypes(groupId);
             }
             catch (ClientException ex)
             {
@@ -50,25 +50,25 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Add new asset-file type
+        /// Add new media-file type
         /// </summary>
-        /// <param name="assetFileType">Asset-file type</param>
+        /// <param name="mediaFileType">Media-file type</param>
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.AssetFileTypeNameAlreadyInUse)]
-        public KalturaAssetFileType Add(KalturaAssetFileType assetFileType)
+        [Throws(eResponseStatus.MediaFileTypeNameAlreadyInUse)]
+        public KalturaMediaFileType Add(KalturaMediaFileType mediaFileType)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
-            assetFileType.validateForInsert();
+            mediaFileType.validateForInsert();
 
             try
             {
-                return ClientsManager.CatalogClient().AddAssetFileType(groupId, assetFileType, userId);
+                return ClientsManager.CatalogClient().AddMediaFileType(groupId, mediaFileType, userId);
             }
             catch (ClientException ex)
             {
@@ -77,25 +77,25 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update existing asset-file type
+        /// Update existing media-file type
         /// </summary>
-        /// <param name="id">Asset-file type identifier</param>
-        /// <param name="assetFileType">Asset-file type</param>
+        /// <param name="id">Media-file type identifier</param>
+        /// <param name="mediaFileType">Media-file type</param>
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.AssetFileTypeNameAlreadyInUse)]
-        [Throws(eResponseStatus.AssetFileTypeDoesNotExist)]
-        public KalturaAssetFileType Update(int id, KalturaAssetFileType assetFileType)
+        [Throws(eResponseStatus.MediaFileTypeNameAlreadyInUse)]
+        [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
+        public KalturaMediaFileType Update(int id, KalturaMediaFileType mediaFileType)
         {
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
             {
-                return ClientsManager.CatalogClient().UpdateAssetFileType(groupId, id, assetFileType, userId);
+                return ClientsManager.CatalogClient().UpdateMediaFileType(groupId, id, mediaFileType, userId);
             }
             catch (ClientException ex)
             {
@@ -104,15 +104,15 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete asset-file type by id
+        /// Delete media-file type by id
         /// </summary>
-        /// <param name="id">Asset-file type identifier</param>
+        /// <param name="id">Media-file type identifier</param>
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.AssetFileTypeDoesNotExist)]
+        [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
         public bool Delete(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                return ClientsManager.CatalogClient().DeleteAssetFileType(groupId, id, userId);
+                return ClientsManager.CatalogClient().DeleteMediaFileType(groupId, id, userId);
             }
             catch (ClientException ex)
             {

@@ -6,7 +6,7 @@ using System.Web;
 namespace WebAPI.Models.Catalog
 {
     [Serializable]
-    public enum KalturaAssetFileTypeQuality
+    public enum KalturaMediaFileTypeQuality
     {        
         ADAPTIVE,
         SD,
