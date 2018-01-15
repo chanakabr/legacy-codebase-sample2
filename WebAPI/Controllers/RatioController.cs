@@ -57,6 +57,10 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
+            if (string.IsNullOrEmpty(ratio.Name))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+            }
 
             try
             {
