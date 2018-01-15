@@ -3609,7 +3609,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // Asset type should always eAssetTypes.MEDIA
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAssetFile(groupId, userId, assetFileToAdd, eAssetTypes.MEDIA);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.InsertMediaFile(groupId, userId, assetFileToAdd, eAssetTypes.MEDIA);
                 }
             }
             catch (Exception ex)
@@ -3640,7 +3640,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetFile(groupId, userId, id);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteMediaFile(groupId, userId, id);
                 }
             }
             catch (Exception ex)
@@ -3672,7 +3672,7 @@ namespace WebAPI.Clients
                 AssetFile assetFileToUpdate = AutoMapper.Mapper.Map<AssetFile>(assetFile);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetFile(groupId, id, assetFileToUpdate, userId);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateMediaFile(groupId, id, assetFileToUpdate, userId);
                 }
             }
             catch (Exception ex)
@@ -3705,7 +3705,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.GetAssetFiles(groupId, id, assetId);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.GetMediaFiles(groupId, id, assetId);
                 }
             }
             catch (Exception ex)
