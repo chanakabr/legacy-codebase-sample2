@@ -226,9 +226,8 @@ namespace ApiObjects.Response
         MetaIdsDoesNotExistOnAsset = 4050,
         MediaFileTypeNameAlreadyInUse = 4051,
         MediaFileTypeDoesNotExist = 4052,
-        AssetFileDoesNotExist = 4053,
-        AssetFileNotBelongToAsset = 4054,
-
+        MediaFileDoesNotExist = 4053,
+        MediaFileNotBelongToAsset = 4054,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

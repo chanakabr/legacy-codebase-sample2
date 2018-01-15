@@ -1919,7 +1919,7 @@ namespace Core.Catalog.CatalogManagement
                 /// AssetFile does not exist
                 else
                 {
-                    response.Status = new Status((int)eResponseStatus.AssetFileDoesNotExist, eResponseStatus.AssetFileDoesNotExist.ToString());
+                    response.Status = new Status((int)eResponseStatus.MediaFileDoesNotExist, eResponseStatus.MediaFileDoesNotExist.ToString());
                 }
             }
 
@@ -3439,7 +3439,7 @@ namespace Core.Catalog.CatalogManagement
                 AssetResponse assetResponse = GetAsset(groupId, assetFileToAdd.AssetId, assetType, false);
                 if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
                 {
-                    result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                    result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     return result;
                 }
 
@@ -3528,7 +3528,7 @@ namespace Core.Catalog.CatalogManagement
                 if (result.File != null && result.File.AssetId != assetFileToUpdate.AssetId)
                 {
                     result.File = null;
-                    result.Status = new Status() { Code = (int)eResponseStatus.AssetFileNotBelongToAsset, Message = eResponseStatus.AssetFileNotBelongToAsset.ToString() };
+                    result.Status = new Status() { Code = (int)eResponseStatus.MediaFileNotBelongToAsset, Message = eResponseStatus.MediaFileNotBelongToAsset.ToString() };
                     return result;
                 }
 
