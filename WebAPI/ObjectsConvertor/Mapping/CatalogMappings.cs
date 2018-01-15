@@ -722,26 +722,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static KalturaMediaFileTypeQuality? ConvertToKalturaAssetFileTypeQuality(AssetFileTypeQuality qualityType)
+        private static KalturaMediaFileTypeQuality? ConvertToKalturaAssetFileTypeQuality(MediaFileTypeQuality qualityType)
         {
             KalturaMediaFileTypeQuality? response = null;
             switch (qualityType)
             {
-                case AssetFileTypeQuality.None:
+                case MediaFileTypeQuality.None:
                     break;
-                case AssetFileTypeQuality.Adaptive:
+                case MediaFileTypeQuality.Adaptive:
                     response = KalturaMediaFileTypeQuality.ADAPTIVE;
                     break;
-                case AssetFileTypeQuality.SD:
+                case MediaFileTypeQuality.SD:
                     response = KalturaMediaFileTypeQuality.SD;
                     break;
-                case AssetFileTypeQuality.HD_720:
+                case MediaFileTypeQuality.HD_720:
                     response = KalturaMediaFileTypeQuality.HD_720;
                     break;
-                case AssetFileTypeQuality.HD_1080:
+                case MediaFileTypeQuality.HD_1080:
                     response = KalturaMediaFileTypeQuality.HD_1080;
                     break;
-                case AssetFileTypeQuality.UHD_4K:
+                case MediaFileTypeQuality.UHD_4K:
                     response = KalturaMediaFileTypeQuality.UHD_4K;
                     break;
                 default:
@@ -752,27 +752,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return response;
         }
 
-        private static AssetFileTypeQuality ConvertToAssetFileTypeQuality(KalturaMediaFileTypeQuality? qualityType)
+        private static MediaFileTypeQuality ConvertToAssetFileTypeQuality(KalturaMediaFileTypeQuality? qualityType)
         {
-            AssetFileTypeQuality response;
+            MediaFileTypeQuality response;
             if (qualityType.HasValue)
             {
                 switch (qualityType.Value)
                 {
                     case KalturaMediaFileTypeQuality.ADAPTIVE:
-                        response = AssetFileTypeQuality.Adaptive;
+                        response = MediaFileTypeQuality.Adaptive;
                         break;
                     case KalturaMediaFileTypeQuality.SD:
-                        response = AssetFileTypeQuality.SD;
+                        response = MediaFileTypeQuality.SD;
                         break;
                     case KalturaMediaFileTypeQuality.HD_720:
-                        response = AssetFileTypeQuality.HD_720;
+                        response = MediaFileTypeQuality.HD_720;
                         break;
                     case KalturaMediaFileTypeQuality.HD_1080:
-                        response = AssetFileTypeQuality.HD_1080;
+                        response = MediaFileTypeQuality.HD_1080;
                         break;
                     case KalturaMediaFileTypeQuality.UHD_4K:
-                        response = AssetFileTypeQuality.UHD_4K;
+                        response = MediaFileTypeQuality.UHD_4K;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown asset file type quality");
@@ -781,7 +781,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             else
             {
-                response = AssetFileTypeQuality.None;
+                response = MediaFileTypeQuality.None;
             }
 
             return response;
