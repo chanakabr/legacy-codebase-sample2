@@ -135,7 +135,7 @@ namespace ElasticSearchHandler.Updaters
                             }
                             else
                             {
-                                var status = wrapper.UpdateChannel(groupId, channel);
+                                var status = wrapper.UpdateChannelIndex(groupId, channel);
 
                                 if (status == null || status.Code != (int)eResponseStatus.OK)
                                 {
