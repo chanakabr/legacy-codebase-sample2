@@ -3062,7 +3062,20 @@ namespace Core.Catalog
             return result;
         }
 
-        public ApiObjects.Response.Status UpdateChannel(int groupId, Channel channel)
+        public ApiObjects.Response.Status UpdateChannelIndex(int groupId, int channelId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            var groupManager = new GroupManager();
+            var group = groupManager.GetGroup(groupId);
+            var channel = groupManager.GetChannel(channelId, ref group);
+
+            status = UpdateChannelIndex(groupId, channel);
+
+            return status;
+        }
+
+        public ApiObjects.Response.Status UpdateChannelIndex(int groupId, Channel channel)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             
