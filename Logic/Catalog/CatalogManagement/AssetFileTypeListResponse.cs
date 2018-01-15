@@ -12,12 +12,12 @@ namespace Core.Catalog.CatalogManagement
 
         public Status Status { get; set; }
 
-        public List<AssetFileType> Types { get; set; }
+        public List<MediaFileType> Types { get; set; }
 
         public AssetFileTypeListResponse()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            Types = new List<AssetFileType>();
+            Types = new List<MediaFileType>();
         }
 
     }

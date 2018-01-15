@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class AssetFileType
+    public class MediaFileType
     {
         public long Id { get; set; }
         public string Name { get; set; }
@@ -20,7 +20,7 @@ namespace Core.Catalog.CatalogManagement
         public int? DrmId { get; set; }
         public AssetFileTypeQuality Quality { get; set; }
 
-        public AssetFileType()
+        public MediaFileType()
         {
             this.Id = 0;
             this.Name = string.Empty;

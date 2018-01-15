@@ -10,7 +10,7 @@ namespace Core.Catalog.CatalogManagement
     public class AssetFileTypeResponse
     {
         public Status Status { get; set; }
-        public AssetFileType AssetFileType { get; set; }
+        public MediaFileType AssetFileType { get; set; }
 
         public AssetFileTypeResponse()
         {

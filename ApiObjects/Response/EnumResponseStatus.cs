@@ -224,8 +224,8 @@ namespace ApiObjects.Response
         ImageDoesNotExist = 4048,
         RatioAlreadyInUse = 4049,
         MetaIdsDoesNotExistOnAsset = 4050,
-        AssetFileTypeNameAlreadyInUse = 4051,
-        AssetFileTypeDoesNotExist = 4052,
+        MediaFileTypeNameAlreadyInUse = 4051,
+        MediaFileTypeDoesNotExist = 4052,
         AssetFileDoesNotExist = 4053,
         AssetFileNotBelongToAsset = 4054,
 

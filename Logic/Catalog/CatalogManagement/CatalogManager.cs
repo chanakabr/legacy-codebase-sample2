@@ -1758,13 +1758,13 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
-        private static AssetFileType CreateAssetFileType(long id, DataRow dr)
+        private static MediaFileType CreateAssetFileType(long id, DataRow dr)
         {
-            AssetFileType result = null; ;
+            MediaFileType result = null; ;
             int qualityType = ODBCWrapper.Utils.GetIntSafeVal(dr, "QUALITY", 0);
             if (id > 0 && typeof(AssetFileTypeQuality).IsEnumDefined(qualityType))
             {
-                result = new AssetFileType()
+                result = new MediaFileType()
                 {
                     Id = id,
                     Name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
@@ -1788,7 +1788,7 @@ namespace Core.Catalog.CatalogManagement
             switch (result)
             {
                 case -222:
-                    responseStatus = new Status((int)eResponseStatus.AssetFileTypeNameAlreadyInUse, eResponseStatus.AssetFileTypeNameAlreadyInUse.ToString());
+                    responseStatus = new Status((int)eResponseStatus.MediaFileTypeNameAlreadyInUse, eResponseStatus.MediaFileTypeNameAlreadyInUse.ToString());
                     break;
                 default:
                     break;
@@ -1797,9 +1797,9 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
-        private static List<AssetFileType> CreateAssetFileTypeListFromDataSet(DataSet ds)
+        private static List<MediaFileType> CreateAssetFileTypeListFromDataSet(DataSet ds)
         {
-            List<AssetFileType> response = new List<AssetFileType>();
+            List<MediaFileType> response = new List<MediaFileType>();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -1810,7 +1810,7 @@ namespace Core.Catalog.CatalogManagement
                         long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                         if (id > 0)
                         {
-                            AssetFileType assetFileType = CreateAssetFileType(id, dr);
+                            MediaFileType assetFileType = CreateAssetFileType(id, dr);
                             if (assetFileType != null)
                             {
                                 response.Add(assetFileType);
@@ -1823,13 +1823,13 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static List<AssetFileType> GetGroupAssetFileTypes(int groupId)
+        private static List<MediaFileType> GetGroupAssetFileTypes(int groupId)
         {
-            List<AssetFileType> result = null;
+            List<MediaFileType> result = null;
 
             string key = LayeredCacheKeys.GetGroupAssetFileTypesKey(groupId);
 
-            bool cacheResult = LayeredCache.Instance.Get<List<AssetFileType>>(
+            bool cacheResult = LayeredCache.Instance.Get<List<MediaFileType>>(
                 key, ref result, GetAssetFileTypes, new Dictionary<string, object>() { { "groupId", groupId } },
                 groupId, LayeredCacheConfigNames.GET_ASSET_FILE_TYPES_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId) });
 
@@ -1842,10 +1842,10 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static Tuple<List<AssetFileType>, bool> GetAssetFileTypes(Dictionary<string, object> funcParams)
+        private static Tuple<List<MediaFileType>, bool> GetAssetFileTypes(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            List<AssetFileType> assetFileType = null;
+            List<MediaFileType> assetFileType = null;
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
@@ -1866,7 +1866,7 @@ namespace Core.Catalog.CatalogManagement
                          funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
             }
 
-            return new Tuple<List<AssetFileType>, bool>(assetFileType, res);
+            return new Tuple<List<MediaFileType>, bool>(assetFileType, res);
         }
 
         private static AssetFileTypeResponse CreateAssetFileTypeResponseFromDataSet(DataSet ds)
@@ -1895,7 +1895,7 @@ namespace Core.Catalog.CatalogManagement
                 /// AssetFileType does not exist (on update)
                 else
                 {
-                    response.Status = new Status((int)eResponseStatus.AssetFileTypeDoesNotExist, eResponseStatus.AssetFileTypeDoesNotExist.ToString());
+                    response.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
                 }
             }
 
@@ -3347,7 +3347,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static AssetFileTypeResponse AddAssetFileType(int groupId, AssetFileType assetFileTypeToAdd, long userId)
+        public static AssetFileTypeResponse AddAssetFileType(int groupId, MediaFileType assetFileTypeToAdd, long userId)
         {
             AssetFileTypeResponse result = new AssetFileTypeResponse();
             try
@@ -3373,7 +3373,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetFileTypeResponse UpdateAssetFileType(int groupId, long id, AssetFileType assetFileTypeToUpdate, long userId)
+        public static AssetFileTypeResponse UpdateAssetFileType(int groupId, long id, MediaFileType assetFileTypeToUpdate, long userId)
         {
             AssetFileTypeResponse result = new AssetFileTypeResponse();
             try
@@ -3418,7 +3418,7 @@ namespace Core.Catalog.CatalogManagement
                 /// AssetFileType does not exist (on delete)
                 else
                 {
-                    result = new Status((int)eResponseStatus.AssetFileTypeDoesNotExist, eResponseStatus.AssetFileTypeDoesNotExist.ToString());
+                    result = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
                 }
             }
             catch (Exception ex)
