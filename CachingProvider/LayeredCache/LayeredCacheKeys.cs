@@ -308,9 +308,9 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("GroupRatios_groupId_{0}", groupId);
         }
-        public static string GetGroupAssetFileTypesKey(int groupId)
+        public static string GetGroupMediaFileTypesKey(int groupId)
         {
-            return string.Format("GroupAssetFileTypes_groupId_{0}", groupId);
+            return string.Format("GroupMediaFileTypes_groupId_{0}", groupId);
         }
 
         #endregion
@@ -517,9 +517,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_GroupRatios_groupId_{0}", groupId);
         }
 
-        public static string GetGroupAssetFileTypesInvalidationKey(int groupId)
+        public static string GetGroupMediaFileTypesInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_GroupAssetFileTypes_groupId_{0}", groupId);
+            return string.Format("invalidationKey_GroupMediaFileTypes_groupId_{0}", groupId);
         }
 
         #region Domains

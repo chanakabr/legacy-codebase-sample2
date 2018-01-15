@@ -4729,17 +4729,17 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet GetAssetFileTypesByGroupId(int groupId)
+        public static DataSet GetMediaFileTypesByGroupId(int groupId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetFileTypesByGroupId");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFileTypesByGroupId");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertAssetFileType(int groupId, string name, string description, bool? isActive, bool isTrailer, int streamerType, int? drmId, AssetFileTypeQuality quality, long userId)
+        public static DataSet InsertMediaFileType(int groupId, string name, string description, bool? isActive, bool isTrailer, int streamerType, int? drmId, MediaFileTypeQuality quality, long userId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertAssetFileType");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaFileType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Name", name);
@@ -4790,9 +4790,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateAssetFileType(int groupId, long id, string name, string description, bool? isActive, AssetFileTypeQuality quality, long userId)
+        public static DataSet UpdateMediaFileType(int groupId, long id, string name, string description, bool? isActive, MediaFileTypeQuality quality, long userId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetFileType");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaFileType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@Id", id);
             sp.AddParameter("@GroupId", groupId);            
@@ -4816,9 +4816,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static bool DeleteAssetFileType(int groupId, long id, long userId)
+        public static bool DeleteMediaFileType(int groupId, long id, long userId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteAssetFileType");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteMediaFileType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
