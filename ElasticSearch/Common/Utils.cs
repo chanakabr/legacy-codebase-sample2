@@ -179,6 +179,11 @@ namespace ElasticSearch.Common
             return string.Concat(groupId, "_metadata");
         }
 
+        public static string GetGroupChannelIndex(int groupId)
+        {
+            return string.Concat(groupId, "_channel");
+        }
+
         public static List<string> GetDocumentIds(string originalString)
         {
             List<string> result = new List<string>();
