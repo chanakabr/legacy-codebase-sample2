@@ -109,6 +109,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 {
                     if (!string.IsNullOrEmpty(urlV2))
                     {
+                        result = new ChannelMetadataIndexBuilder(groupID);
                     }
 
                     break;
