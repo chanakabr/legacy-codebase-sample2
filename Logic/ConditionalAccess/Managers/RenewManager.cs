@@ -1151,7 +1151,6 @@ namespace Core.ConditionalAccess
             DateTime? processEndDate = null;
             if (UpdateProcessDetailsForRenewal(processId, ref paymentgatewayId, ref processState, ref processEndDate))
             {
-                log.DebugFormat("validate that this is the right message - pg:{0}, ed:{1}", paymentgatewayId, processEndDate);
                 // validate that this is the right message                              
                 if (Math.Abs(ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(processEndDate.Value) - nextEndDate) > 60)
                 {
@@ -2241,7 +2240,6 @@ namespace Core.ConditionalAccess
                 int state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");
                 processPurchasesState = (ProcessUnifiedState)state;
                 processEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
-                log.DebugFormat("UpdateProcessDetailsForRenewal - pg:{0}, ed:{1}", paymentgatewayId, processEndDate);
             }
 
             return paymentgatewayId > 0 && processEndDate.HasValue;
