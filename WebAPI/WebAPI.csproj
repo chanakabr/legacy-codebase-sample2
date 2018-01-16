@@ -244,9 +244,10 @@
     <Compile Include="Controllers\ImageTypeController.cs" />
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Models\API\KalturaDRMProfile.cs" />
-    <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />    
-    <Compile Include="Models\Catalog\KalturaMediaFileType.cs" />    
-    <Compile Include="Models\Catalog\KalturaMediaFileFilter.cs" />    
+    <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaChannelsFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaMediaFileType.cs" />
+    <Compile Include="Models\Catalog\KalturaMediaFileFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetFileTypeQuality.cs" />
     <Compile Include="Models\Catalog\KalturaChannelListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaUrlResource.cs" />

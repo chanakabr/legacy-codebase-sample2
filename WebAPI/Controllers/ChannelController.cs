@@ -1,7 +1,9 @@
 ﻿using ApiObjects.Response;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
@@ -11,6 +13,8 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
+using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -31,7 +35,7 @@ namespace WebAPI.Controllers
             KalturaChannel response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            
+
             try
             {
                 string userID = KS.GetFromRequest().UserId;
@@ -222,6 +226,53 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
+            return response;
+        }
+
+        /// <summary>
+        /// Get the list of tags for the partner
+        /// </summary>
+        /// <param name="filter">Filter</param>
+        /// <param name="pager">Page size and index</param>
+        /// <returns></returns>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public KalturaChannelListResponse List(KalturaChannelsFilter filter = null, KalturaFilterPager pager = null)
+        {
+            KalturaChannelListResponse response = null;
+
+            if (pager == null)
+            {
+                pager = new KalturaFilterPager();
+            }
+
+            if (filter == null)
+            {
+                filter = new KalturaChannelsFilter();
+            }
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                filter.Validate();
+
+                // call client      
+                if (!string.IsNullOrEmpty(filter.ChannelEqual))
+                {
+                    //search using ChannelEqual
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.ChannelEqual, pager.getPageIndex(), pager.getPageSize());
+                }
+                else
+                {
+                    //search using ChannelLike
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.ChannelLike, pager.getPageIndex(), pager.getPageSize());
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
             return response;
         }
     }

@@ -3029,6 +3029,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaChannelsFilter":
+                    switch(property.Name)
+                    {
+                        case "ChannelEqual":
+                            return "channelEqual";
+                        case "ChannelLike":
+                            return "channelLike";
+                    }
+                    break;
+                    
                 case "KalturaClientConfiguration":
                     switch(property.Name)
                     {

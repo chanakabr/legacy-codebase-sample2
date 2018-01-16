@@ -3002,6 +3002,14 @@
             </remarks>
             <param name="channel">KSQL channel Object</param>       
         </member>
+        <member name="M:WebAPI.Controllers.ChannelController.List(WebAPI.Models.Catalog.KalturaChannelsFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Get the list of tags for the partner
+            </summary>
+            <param name="filter">Filter</param>
+            <param name="pager">Page size and index</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayProfileSettingsController.List">
             <summary>
             Returns all payment gateway settings for partner
@@ -5471,6 +5479,16 @@
         <member name="P:WebAPI.Models.API.KalturaPinResponse.Type">
             <summary>
             PIN type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.ChannelEqual">
+            <summary>
+            Channel to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.ChannelLike">
+            <summary>
+            Channel like
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaFileType">

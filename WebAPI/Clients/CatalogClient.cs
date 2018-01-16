@@ -224,7 +224,7 @@ namespace WebAPI.Clients
             }
 
             return true;
-        }
+        }       
 
         public KalturaMetaListResponse GetMetas(int groupId, List<long> ids, KalturaMetaDataType? type, KalturaMetaOrderBy? orderBy,
                                                 bool? multipleValue = null, long assetStructId = 0)
@@ -3733,6 +3733,47 @@ namespace WebAPI.Clients
                     result.Files.Add(AutoMapper.Mapper.Map<KalturaMediaFile>(assetFile));
                 }
             }
+
+            return result;
+        }
+
+        internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, int pageIndex, int pageSize)
+        {
+            KalturaChannelListResponse result = new KalturaChannelListResponse();
+            object response = null;
+
+            List<TagValue> tagValues = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.CatalogManager.SearchChannels(groupId, isExcatValue, value, pageIndex, pageSize);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling API service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            //if (response.Status.Code != (int)StatusCode.OK)
+            //{
+            //    // internal web service exception
+            //    throw new ClientException(response.Status.Code, response.Status.Message);
+            //}
+
+            //if (response.TagValues != null && response.TagValues.Count > 0)
+            //{
+            //    result.TotalCount = response.TotalItems;
+            //    // convert TagValues            
+            //    result.Channels = Mapper.Map<List<KalturaTag>>(response.TagValues);
+            //}
 
             return result;
         }
