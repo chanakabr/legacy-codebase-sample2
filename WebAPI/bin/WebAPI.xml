@@ -5483,12 +5483,12 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.ChannelEqual">
             <summary>
-            Channel to filter by
+            Exact channel name to filter by
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.ChannelLike">
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.ChannelStartsWith">
             <summary>
-            Channel like
+            Channel starts with (autocomplete)
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaFileType">
