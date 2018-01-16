@@ -15,7 +15,7 @@ namespace WebAPI.Models.Catalog
     public class KalturaChannelsFilter : KalturaFilter<KalturaChannelOrderBy>
     {
         /// <summary>
-        /// Channel to filter by
+        /// Exact channel name to filter by
         /// </summary>
         [DataMember(Name = "channelEqual")]
         [JsonProperty("channelEqual")]
@@ -23,19 +23,19 @@ namespace WebAPI.Models.Catalog
         public string ChannelEqual { get; set; }
 
         /// <summary>
-        /// Channel like
+        /// Channel starts with (autocomplete)
         /// </summary>
-        [DataMember(Name = "channelLike")]
-        [JsonProperty("channelLike")]
-        [XmlElement(ElementName = "channelLike")]
-        public string ChannelLike { get; set; }
+        [DataMember(Name = "channelStartsWith")]
+        [JsonProperty("channelStartsWith")]
+        [XmlElement(ElementName = "channelStartsWith")]
+        public string ChannelStartsWith { get; set; }
 
 
         internal void Validate()
         {
-            if (!string.IsNullOrEmpty(ChannelEqual) && !string.IsNullOrEmpty(ChannelLike))
+            if (!string.IsNullOrEmpty(ChannelEqual) && !string.IsNullOrEmpty(ChannelStartsWith))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaChannelsFilter.channelLike", "KalturaChannelsFilter.channelEqual");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaChannelsFilter.channelStartsWith", "KalturaChannelsFilter.channelEqual");
             }
         }
 

@@ -266,7 +266,7 @@ namespace WebAPI.Controllers
                 else
                 {
                     //search using ChannelLike
-                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.ChannelLike, pager.getPageIndex(), pager.getPageSize());
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.ChannelStartsWith, pager.getPageIndex(), pager.getPageSize());
                 }
             }
             catch (ClientException ex)
