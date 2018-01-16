@@ -1149,8 +1149,7 @@ namespace Core.ConditionalAccess
             int paymentgatewayId = 0;
             ProcessUnifiedState processState = ProcessUnifiedState.Renew;
             DateTime? processEndDate = null;
-            UpdateProcessDetailsForRenewal(processId, ref paymentgatewayId, ref processState, ref processEndDate);
-            if (paymentgatewayId != 0 && processEndDate.HasValue)
+            if (UpdateProcessDetailsForRenewal(processId, ref paymentgatewayId, ref processState, ref processEndDate))
             {
                 // validate that this is the right message                              
                 if (Math.Abs(ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(processEndDate.Value) - nextEndDate) > 60)
@@ -1162,9 +1161,9 @@ namespace Core.ConditionalAccess
                     return true;
                 }
             }
-            else // process is in runtime = 1
+            else 
             {
-                bool changeUnifiedStatus = ConditionalAccessDAL.UpdateUnifiedProcess(processId, null, null);
+                log.DebugFormat("No data return from DB for processId", processId);
                 return true;
             }
 
@@ -2235,7 +2234,6 @@ namespace Core.ConditionalAccess
 
         private static bool UpdateProcessDetailsForRenewal(long processId, ref int paymentgatewayId, ref ProcessUnifiedState processPurchasesState, ref DateTime? processEndDate)
         {
-            bool result = false;
             DataRow dr = ConditionalAccessDAL.UpdateProcessDetailsForRenewal(processId);
             if (dr != null)
             {
@@ -2243,10 +2241,9 @@ namespace Core.ConditionalAccess
                 int state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");
                 processPurchasesState = (ProcessUnifiedState)state;
                 processEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
-                result = true;
             }
 
-            return result;
+            return paymentgatewayId > 0 && processEndDate.HasValue;
         }
     }
 }
