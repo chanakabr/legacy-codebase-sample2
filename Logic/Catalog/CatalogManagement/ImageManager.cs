@@ -159,7 +159,7 @@ namespace Core.Catalog.CatalogManagement
             // try to get from cache  
 
             bool cacheResult = LayeredCache.Instance.Get<List<Core.Catalog.CatalogManagement.Ratio>>(key, ref result, GetRatios, new Dictionary<string, object>() { { "groupId", groupId } },
-                groupId, LayeredCacheConfigNames.GET_RATIOS_CACHE_CONFIG_NAME, null);
+                groupId, LayeredCacheConfigNames.GET_RATIOS_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupRatiosInvalidationKey(groupId) } );
 
             if (!cacheResult)
             {
