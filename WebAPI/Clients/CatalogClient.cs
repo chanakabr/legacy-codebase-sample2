@@ -3740,9 +3740,9 @@ namespace WebAPI.Clients
         internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, int pageIndex, int pageSize)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
-            object response = null;
+            ChannelsResponse response = null;
 
-            List<TagValue> tagValues = null;
+            List<GroupsCacheManager.Channel> channels = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -3762,18 +3762,18 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            //if (response.Status.Code != (int)StatusCode.OK)
-            //{
-            //    // internal web service exception
-            //    throw new ClientException(response.Status.Code, response.Status.Message);
-            //}
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
 
-            //if (response.TagValues != null && response.TagValues.Count > 0)
-            //{
-            //    result.TotalCount = response.TotalItems;
-            //    // convert TagValues            
-            //    result.Channels = Mapper.Map<List<KalturaTag>>(response.TagValues);
-            //}
+            if (response.Channels != null && response.Channels.Count > 0)
+            {
+                result.TotalCount = response.TotalItems;
+                // convert channels
+                result.Channels = Mapper.Map<List<KalturaChannel>>(response.Channels);
+            }
 
             return result;
         }
