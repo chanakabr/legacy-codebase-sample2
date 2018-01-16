@@ -3589,9 +3589,9 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static object SearchChannels(int groupId, bool isExcatValue, string searchValue, int pageIndex, int pageSize)
+        public static ChannelsResponse SearchChannels(int groupId, bool isExcatValue, string searchValue, int pageIndex, int pageSize)
         {
-            TagResponse result = new TagResponse();
+            ChannelsResponse result = new ChannelsResponse();
 
             CatalogGroupCache catalogGroupCache;
             TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
@@ -3613,9 +3613,14 @@ namespace Core.Catalog.CatalogManagement
 
             int totalItemsCount = 0;
             ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-            //result.TagValues = wrapper.SearchChannels(definitions, out totalItemsCount);
-            //result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            //result.TotalItems = totalItemsCount;
+            var channelIds = wrapper.SearchChannels(definitions, out totalItemsCount);
+
+            GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+            var channels = groupManager.GetChannels(channelIds, groupId);
+
+            result.Channels = channels;
+            result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            result.TotalItems = totalItemsCount;
 
             return result;
         }
