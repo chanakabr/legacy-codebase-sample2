@@ -3588,6 +3588,37 @@ namespace Core.Catalog.CatalogManagement
 
             return response;
         }
+
+        public static object SearchChannels(int groupId, bool isExcatValue, string searchValue, int pageIndex, int pageSize)
+        {
+            TagResponse result = new TagResponse();
+
+            CatalogGroupCache catalogGroupCache;
+            TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
+
+            if (catalogGroupCache == null)
+            {
+                log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                return result;
+            }
+
+            ApiObjects.SearchObjects.ChannelSearchDefinitions definitions = new ApiObjects.SearchObjects.ChannelSearchDefinitions()
+            {
+                GroupId = groupId,                 
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                AutocompleteSearchValue = isExcatValue ? string.Empty : searchValue,
+                ExactSearchValue = isExcatValue ? searchValue : string.Empty                
+            };
+
+            int totalItemsCount = 0;
+            ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+            //result.TagValues = wrapper.SearchChannels(definitions, out totalItemsCount);
+            //result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            //result.TotalItems = totalItemsCount;
+
+            return result;
+        }
         #endregion
     }
 }

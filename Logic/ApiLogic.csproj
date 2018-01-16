@@ -212,6 +212,7 @@
     <Compile Include="Catalog\CatalogManagement\MediaAsset.cs" />
     <Compile Include="Catalog\CatalogManagement\ImageTypeResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\TagResponse.cs" />
+    <Compile Include="Catalog\CatalogManagement\ChannelListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\TopicListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\TopicResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\Topic.cs" />
