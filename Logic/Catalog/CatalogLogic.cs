@@ -6275,18 +6275,25 @@ namespace Core.Catalog
                     assetIDs.Clear();
                 }
 
-                if (searcher.GetType().Equals(typeof(ElasticsearchWrapper)) && assetIDs != null && assetIDs.Count > 0)
+                if (searcher.GetType().Equals(typeof(ElasticsearchWrapper)))
                 {
-                    Dictionary<string, UnifiedSearchResult> assetDictionary = searchResults.ToDictionary(item => item.AssetId);
-
-                    searchResults = new List<UnifiedSearchResult>();
-
-                    foreach (int item in assetIDs)
+                    if (assetIDs != null && assetIDs.Count > 0)
                     {
-                        if (assetDictionary.ContainsKey(item.ToString()))
+                        Dictionary<string, UnifiedSearchResult> assetDictionary = searchResults.ToDictionary(item => item.AssetId);
+
+                        searchResults = new List<UnifiedSearchResult>();
+
+                        foreach (int item in assetIDs)
                         {
-                            searchResults.Add(assetDictionary[item.ToString()]);
+                            if (assetDictionary.ContainsKey(item.ToString()))
+                            {
+                                searchResults.Add(assetDictionary[item.ToString()]);
+                            }
                         }
+                    }
+                    else
+                    {
+                        searchResults.Clear();
                     }
                 }
             }
