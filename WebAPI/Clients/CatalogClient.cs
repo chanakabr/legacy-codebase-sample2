@@ -1979,14 +1979,14 @@ namespace WebAPI.Clients
                 // Bad response received from WS
                 throw new ClientException(channelResponse.status.Code, channelResponse.status.Message);
             }
-            
-            if (channelResponse.aggregationResults != null && channelResponse.aggregationResults.Count > 0 && 
+
+            if (channelResponse.aggregationResults != null && channelResponse.aggregationResults.Count > 0 &&
                 channelResponse.aggregationResults[0].results != null && channelResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
             {
                 // build the assetsBaseDataList from the hit array 
                 result.Objects = CatalogUtils.GetAssets(channelResponse.aggregationResults[0].results, request, CacheDuration, false, responseProfile);
                 result.TotalCount = channelResponse.aggregationResults[0].totalItems;
-            }            
+            }
             else if (channelResponse.searchResults != null && channelResponse.searchResults.Count > 0)
             {
                 // get base objects list

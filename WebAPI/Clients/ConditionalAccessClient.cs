@@ -525,9 +525,10 @@ namespace WebAPI.Clients
 
         //    return entitlements;
         //}
-        internal List<KalturaEntitlement> GetDomainEntitlements(int groupId, int domainId, KalturaTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0,
+        internal KalturaEntitlementListResponse GetDomainEntitlements(int groupId, int domainId, KalturaTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0,
             KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC)
         {
+            KalturaEntitlementListResponse response = new Models.ConditionalAccess.KalturaEntitlementListResponse();
             List<KalturaEntitlement> entitlements = new List<KalturaEntitlement>();
             Entitlements wsResponse = null;
 
@@ -575,12 +576,17 @@ namespace WebAPI.Clients
                     entitlements.Add(ConditionalAccessMappings.ConvertToKalturaEntitlement(entitelment));
                 }
             }
-            return entitlements;
+
+            response.Entitlements = entitlements;
+            response.TotalCount = wsResponse.totalItems;
+
+            return response;
         }
 
-        internal List<KalturaEntitlement> GetUserEntitlements(int groupId, string userId, KalturaTransactionType type, bool isExpired = false, int pageSize = 50, int pageIndex = 0,
+        internal KalturaEntitlementListResponse GetUserEntitlements(int groupId, string userId, KalturaTransactionType type, bool isExpired = false, int pageSize = 50, int pageIndex = 0,
             KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC)
         {
+            KalturaEntitlementListResponse response = new Models.ConditionalAccess.KalturaEntitlementListResponse();
             List<KalturaEntitlement> entitlements = new List<KalturaEntitlement>();
             Entitlements wsResponse = null;
 
@@ -629,7 +635,10 @@ namespace WebAPI.Clients
                 }
             }
 
-            return entitlements;
+            response.Entitlements = entitlements;
+            response.TotalCount = wsResponse.totalItems;
+
+            return response;
         }
         
         internal bool GrantEntitlements(int groupId, string user_id, long household_id, int content_id, int product_id, KalturaTransactionType product_type, bool history, string deviceName)

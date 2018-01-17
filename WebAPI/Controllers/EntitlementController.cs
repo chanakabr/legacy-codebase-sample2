@@ -170,7 +170,7 @@ namespace WebAPI.Controllers
         [Obsolete]
         public KalturaEntitlementListResponse ListOldStandard(KalturaEntitlementsFilter filter)
         {
-            List<KalturaEntitlement> response = new List<KalturaEntitlement>();
+            KalturaEntitlementListResponse response = new KalturaEntitlementListResponse();
 
             int groupId = KS.GetFromRequest().GroupId;
             
@@ -196,7 +196,12 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaEntitlementListResponse() { Entitlements = response, TotalCount = response != null ? response.Count : 0 };
+            if (response != null && response.TotalCount == 0)
+            {
+                response.TotalCount = response.Entitlements.Count;
+            }
+
+            return response;
         }
 
         /// <summary>
@@ -209,7 +214,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         public KalturaEntitlementListResponse List(KalturaEntitlementFilter filter, KalturaFilterPager pager = null)
         {
-            List<KalturaEntitlement> response = new List<KalturaEntitlement>();
+            KalturaEntitlementListResponse response = new KalturaEntitlementListResponse();
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -246,7 +251,12 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaEntitlementListResponse() { Entitlements = response, TotalCount = response != null ? response.Count : 0 };
+            if (response != null && response.TotalCount == 0)
+            {
+                response.TotalCount = response.Entitlements.Count;
+            }
+
+            return response;
         }
 
         /// <summary>
@@ -260,7 +270,7 @@ namespace WebAPI.Controllers
         [Obsolete]
         public KalturaEntitlementListResponse ListExpired(KalturaEntitlementsFilter filter, KalturaFilterPager pager = null)
         {
-            List<KalturaEntitlement> response = new List<KalturaEntitlement>();
+            KalturaEntitlementListResponse response = new KalturaEntitlementListResponse();
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -289,7 +299,12 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaEntitlementListResponse() { Entitlements = response, TotalCount = response != null ? response.Count : 0 };
+            if (response != null && response.TotalCount == 0)
+            {
+                response.TotalCount = response.Entitlements.Count;
+            }
+
+            return response;
         }
 
         /// <summary>        
