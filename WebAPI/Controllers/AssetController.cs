@@ -1193,6 +1193,7 @@ namespace WebAPI.Controllers
         [Route("removeMetasAndTags"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.CanNotRemoveBasicMetaIds)]
         [SchemeArgument("id", MinLong = 1)]
         [SchemeArgument("idIn", DynamicMinInt = 1)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
