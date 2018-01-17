@@ -65,7 +65,7 @@ namespace Core.Catalog
         private static readonly string PLAYBACKSTARTDATETIME = "playbackstartdatetime";
         private static readonly string START_DATE = "start_date";
         private static readonly string PLAYBACKENDDATETIME = "playbackenddatetime";
-        private static readonly string FINAL_END_DATE = "final_end_date";
+        private static readonly string FINAL_DATE = "final_date";
         private static readonly string CATALOGSTARTDATETIME = "catalogstartdatetime";
         private static readonly string CATALOG_START_DATE = "catalog_start_date";
         private static readonly string CATALOGENDDATETIME = "catalogenddatetime";
@@ -6946,7 +6946,7 @@ namespace Core.Catalog
                         else if (searchKeyLowered == PLAYBACKENDDATETIME)
                         {
                             searchKeys.Clear();
-                            searchKeys.Add(FINAL_END_DATE);
+                            searchKeys.Add(FINAL_DATE);
                             mustBeOperator = true;
                         }
                         else if (searchKeyLowered == CATALOGSTARTDATETIME)
