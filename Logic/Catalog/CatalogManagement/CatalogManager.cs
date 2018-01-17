@@ -212,6 +212,26 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static Status ValidateTopicIdsToRemove(CatalogGroupCache catalogGroupCache, HashSet<long> topicIds)
+        {
+            Status result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            if (topicIds != null && topicIds.Count > 0 && catalogGroupCache.TopicsMapBySystemName != null && catalogGroupCache.TopicsMapBySystemName.Count > 0)
+            {
+                List<long> basicMetaIds = catalogGroupCache.TopicsMapBySystemName.Where(x => BasicMetasSystemNames.Contains(x.Key.ToLower())).Select(x => x.Value.Id).ToList();
+                if (basicMetaIds != null && basicMetaIds.Count > 0)
+                {
+                    List<long> basicMetaIdsToRemove = basicMetaIds.Intersect(topicIds).ToList();
+                    if (basicMetaIdsToRemove != null && basicMetaIdsToRemove.Count > 0)
+                    {
+                        result = new Status((int)eResponseStatus.CanNotRemoveBasicMetaIds, string.Format("{0} for the following Meta Ids: {1}",
+                                            eResponseStatus.CanNotRemoveBasicMetaIds.ToString(), string.Join(",", basicMetaIdsToRemove)));
+                    }
+                }
+            }
+
+            return result;
+        }
+
         private static AssetStructResponse CreateAssetStructResponseFromDataSet(DataSet ds)
         {
             AssetStructResponse response = new AssetStructResponse();
@@ -1580,10 +1600,9 @@ namespace Core.Catalog.CatalogManagement
                 DateTime startDate = assetToAdd.StartDate.HasValue ? assetToAdd.StartDate.Value : DateTime.UtcNow;
                 DateTime catalogStartDate = assetToAdd.CatalogStartDate.HasValue ? assetToAdd.CatalogStartDate.Value : startDate;
                 // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
-                DataSet ds = CatalogDAL.InsertMediaAsset(
-                    groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid,
-                    assetToAdd.EntryId, assetToAdd.DeviceRuleId, assetToAdd.GeoBlockRuleId, assetToAdd.IsActive,
-                    startDate, assetToAdd.EndDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId);
+                DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid,
+                                                        assetToAdd.EntryId, assetToAdd.DeviceRuleId, assetToAdd.GeoBlockRuleId, assetToAdd.IsActive,
+                                                        startDate, assetToAdd.EndDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId);
                 result = CreateMediaAssetResponseFromDataSet(groupId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
 
                 if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null && result.Asset.Id > 0)
@@ -2906,26 +2925,13 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                // validate topicsIds exist on asset
-                MediaAsset asset = assetResponse.Asset as MediaAsset;
-                if (asset != null)
+                // validate not trying to remove basic topicIds    
+                Status validateBasicTopicsResult = ValidateTopicIdsToRemove(catalogGroupCache, topicIds);
+                if (validateBasicTopicsResult.Code != (int)eResponseStatus.OK)
                 {
-                    List<long> existingTopicsIds = asset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
-                                                              .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList();
-                    existingTopicsIds.AddRange(asset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
-                                                              .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList());
-                    List<long> noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToList();
-                    if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
-                    {
-                        result = new Status((int)eResponseStatus.MetaIdsDoesNotExistOnAsset, string.Format("{0} for the following Meta Ids: {1}",
-                                                    eResponseStatus.MetaIdsDoesNotExistOnAsset.ToString(), string.Join(",", noneExistingMetaIds)));
-                        return result;
-                    }
+                    result = validateBasicTopicsResult;
+                    return result;
                 }
-
-                List<long> tagIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue
-                                                                                && x.Value.MultipleValue.Value && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
-                List<long> metaIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && (!x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value)).Select(x => x.Key).ToList();
 
                 int dbAssetType = -1;
                 switch (assetType)
@@ -2936,11 +2942,31 @@ namespace Core.Catalog.CatalogManagement
                         break;
                     case eAssetTypes.MEDIA:
                         dbAssetType = 0;
+                        // validate topicsIds exist on asset
+                        MediaAsset asset = assetResponse.Asset as MediaAsset;
+                        if (asset != null)
+                        {
+                            List<long> existingTopicsIds = asset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
+                                                                      .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList();
+                            existingTopicsIds.AddRange(asset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
+                                                                      .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList());
+                            List<long> noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToList();
+                            if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
+                            {
+                                result = new Status((int)eResponseStatus.MetaIdsDoesNotExistOnAsset, string.Format("{0} for the following Meta Ids: {1}",
+                                                            eResponseStatus.MetaIdsDoesNotExistOnAsset.ToString(), string.Join(",", noneExistingMetaIds)));
+                                return result;
+                            }
+                        }
                         break;
                     default:
-                    case eAssetTypes.UNKNOWN:
+                    case eAssetTypes.UNKNOWN:                        
                         break;
                 }
+
+                List<long> tagIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue
+                                                                                && x.Value.MultipleValue.Value && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                List<long> metaIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && (!x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value)).Select(x => x.Key).ToList();                
 
                 if (CatalogDAL.RemoveMetasAndTagsFromAsset(groupId, id, dbAssetType, metaIds, tagIds, userId))
                 {

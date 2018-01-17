@@ -228,6 +228,7 @@ namespace ApiObjects.Response
         MediaFileTypeDoesNotExist = 4052,
         MediaFileDoesNotExist = 4053,
         MediaFileNotBelongToAsset = 4054,
+        CanNotRemoveBasicMetaIds = 4055,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,
