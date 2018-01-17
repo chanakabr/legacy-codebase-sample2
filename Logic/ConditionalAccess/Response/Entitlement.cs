@@ -12,10 +12,13 @@ namespace Core.ConditionalAccess.Response
         public ApiObjects.Response.Status status { get; set; }
         public List<Entitlement> entitelments { get; set; }
 
+        public int totalItems { get; set; }
+
         public Entitlements()
         {
             status = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
             entitelments = new List<Entitlement>();
+            totalItems = 0;
         }
 
         public Entitlements(ApiObjects.Response.Status status, List<Entitlement> entitelments)

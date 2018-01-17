@@ -429,6 +429,8 @@ namespace Core.ConditionalAccess
                     return entitlementsResponse;
                 }
 
+                entitlementsResponse.totalItems = allSubscriptionsPurchases.Rows.Count;
+
                 //Get Iteration Rows according page size and index
                 IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allSubscriptionsPurchases);
 
@@ -489,6 +491,8 @@ namespace Core.ConditionalAccess
                     return entitlementsResponse;
                 }
 
+                entitlementsResponse.totalItems = allPPVModules.Rows.Count;
+
                 //Get Iteration Rows according page size and index
                 IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allPPVModules);
 
@@ -546,6 +550,8 @@ namespace Core.ConditionalAccess
                     entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
                     return entitlementsResponse;
                 }
+
+                entitlementsResponse.totalItems = allCollectionsPurchases.Rows.Count;
 
                 //Get Iteration Rows according page size and index
                 IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allCollectionsPurchases);

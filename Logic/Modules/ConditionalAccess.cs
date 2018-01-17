@@ -2084,7 +2084,8 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static Entitlements GetUserEntitlements(int groupID, string sSiteGUID, eTransactionType type, bool isExpired, int pageSize, int pageIndex, ApiObjects.EntitlementOrderBy orderBy)
+        public static Entitlements GetUserEntitlements(int groupID, string sSiteGUID, eTransactionType type, bool isExpired, 
+            int pageSize, int pageIndex, ApiObjects.EntitlementOrderBy orderBy)
         {
             Entitlements response = new Entitlements();
             BaseConditionalAccess t = null;
