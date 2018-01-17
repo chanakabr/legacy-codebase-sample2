@@ -224,6 +224,7 @@
     <Compile Include="Controllers\MediaFileTypeController.cs" />
     <Compile Include="Controllers\AssetStatisticsController.cs" />
     <Compile Include="Controllers\AssetStructController.cs" />
+    <Compile Include="Controllers\UploadTokenController.cs" />
     <Compile Include="Controllers\DrmProfileController.cs" />
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
@@ -252,6 +253,9 @@
     <Compile Include="Models\Catalog\KalturaMediaFileFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetFileTypeQuality.cs" />
     <Compile Include="Models\Catalog\KalturaChannelListResponse.cs" />
+    <Compile Include="Managers\Models\UploadToken.cs" />
+    <Compile Include="Managers\UploadManager.cs" />
+    <Compile Include="Models\Catalog\KalturaUploadedFileTokenResource.cs" />
     <Compile Include="Models\Catalog\KalturaUrlResource.cs" />
     <Compile Include="Models\Catalog\KalturaContentResource.cs" />
     <Compile Include="Models\Catalog\KalturaImageStatus.cs" />
@@ -343,6 +347,7 @@
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencySetFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetType.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionDependencyType .cs" />
+    <Compile Include="Models\Upload\KalturaUploadToken.cs" />
     <Compile Include="Models\Users\KalturaOTTUserDynamicData.cs" />
     <Compile Include="Models\Users\KalturaUserInterestListResponse.cs" />
     <Compile Include="Models\API\KalturaLanguageOrderBy.cs" />

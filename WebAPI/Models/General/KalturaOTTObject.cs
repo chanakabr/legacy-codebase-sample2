@@ -41,4 +41,21 @@ namespace WebAPI.Models.General
 
         }
     }
+
+    /// <summary>
+    /// Base class
+    /// </summary>
+    public class KalturaOTTFile
+    {
+        public KalturaOTTFile(string filepath)
+        {
+            path = filepath;
+        }
+
+        public string path 
+        {
+            get;
+            set;
+        }
+    }
 }

@@ -393,6 +393,7 @@ namespace WebAPI.Exceptions
         {
             public int? obsoleteStatusCode = null;
             public int statusCode;
+            public string name;
             public string message;
             public string[] parameters;
 
@@ -403,8 +404,14 @@ namespace WebAPI.Exceptions
             }
 
             public ApiExceptionType(StatusCode statusCode, string message, params string[] parameters)
-                : this((int)statusCode, message, parameters)
+                : this((int)statusCode, statusCode.ToString(), message, parameters)
             {
+            }
+
+            public ApiExceptionType(int statusCode, string name, string message, params string[] parameters)
+                : this(statusCode, message, parameters)
+            {
+                this.name = name;
             }
 
             public ApiExceptionType(int statusCode, string message, params string[] parameters)

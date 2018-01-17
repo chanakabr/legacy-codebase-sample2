@@ -16,6 +16,7 @@ using System.Runtime.CompilerServices;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using System.Text.RegularExpressions;
+using System.Net.Http;
 
 namespace Validator.Managers.Scheme
 {
@@ -442,7 +443,7 @@ namespace Validator.Managers.Scheme
             //    logError("Error", declaringClass, string.Format("{0} unexpected type", description));
             //    valid = false;
             //}
-            else if (attribute.IsClass && attribute != typeof(string) && !attribute.IsSubclassOf(typeof(KalturaOTTObject)))
+            else if (attribute.IsClass && attribute != typeof(string) && attribute != typeof(KalturaOTTFile) && !attribute.IsSubclassOf(typeof(KalturaOTTObject)))
             {
                 logError("Error", declaringClass, string.Format("{0} object must inherit from KalturaOTTObject (or something that extends it)", description));
                 valid = false;

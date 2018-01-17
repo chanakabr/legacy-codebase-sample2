@@ -10,14 +10,14 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaUrlResource : KalturaContentResource
+    public class KalturaUploadedFileTokenResource : KalturaContentResource
     {
         /// <summary>
-        /// URL of the content
+        /// Token that returned from uploadToken.add action
         /// </summary>
-        [DataMember(Name = "url")]
-        [JsonProperty(PropertyName = "url")]
-        [XmlElement(ElementName = "url")]
-        public string Url { get; set; }
+        [DataMember(Name = "token")]
+        [JsonProperty(PropertyName = "token")]
+        [XmlElement(ElementName = "token")]
+        public string Token { get; set; }
     }
 }

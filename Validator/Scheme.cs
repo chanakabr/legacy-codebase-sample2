@@ -22,6 +22,7 @@ using WebAPI.Models.Renderers;
 using WebAPI.Controllers;
 using System.Text.RegularExpressions;
 using WebAPI.App_Start;
+using System.Net.Http;
 
 namespace Validator.Managers.Scheme
 {
@@ -585,7 +586,7 @@ namespace Validator.Managers.Scheme
                     if (type.GetType() == typeof(ApiException.ApiExceptionType))
                     {
                         ApiException.ApiExceptionType exceptionType = type as ApiException.ApiExceptionType;
-                        writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
+                        writer.WriteAttributeString("name", exceptionType.name);
                         writer.WriteAttributeString("code", exceptionType.statusCode.GetHashCode().ToString());
                         writer.WriteAttributeString("message", exceptionType.message);
 
@@ -941,6 +942,9 @@ namespace Validator.Managers.Scheme
                 return "bool";
             if (type.IsEnum)
                 return type.Name;
+
+            if (type == typeof(KalturaOTTFile))
+                return "file";
 
             if (typeof(KalturaRenderer).IsAssignableFrom(type))
                 return "file";
