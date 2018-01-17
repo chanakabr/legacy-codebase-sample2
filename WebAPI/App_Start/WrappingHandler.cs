@@ -46,10 +46,13 @@ namespace WebAPI.App_Start
             // get request ID
             HttpContext.Current.Items[Constants.REQUEST_ID_KEY] = request.GetCorrelationId();
 
+            byte[] requestBody = await request.Content.ReadAsByteArrayAsync();
+            HttpContext.Current.Items["body"] = requestBody;
+
             // log request body
             log.DebugFormat("API Request - {0} {1}",
                             request.RequestUri.OriginalString,            // 0
-                            await request.Content.ReadAsStringAsync());   // 1 
+                            Encoding.UTF8.GetString(requestBody));   // 1 
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
             {

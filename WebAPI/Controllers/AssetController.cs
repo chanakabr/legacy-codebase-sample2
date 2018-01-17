@@ -1057,7 +1057,10 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
             }
 
-            asset.Description.Validate("multilingualDescription");
+            if (asset.Description != null)
+            {
+                asset.Description.Validate("multilingualDescription");
+            }
 
             if (!asset.Type.HasValue)
             {
