@@ -13,15 +13,40 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Channel details
     /// </summary>
-    public class KalturaChannel : KalturaBaseChannel
+    public abstract class KalturaChannel : KalturaOTTObject
     {
         /// <summary>
-        /// Cannel description
+        /// Unique identifier for the channel
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty(PropertyName = "id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
+        public long? Id { get; set; }
+
+        /// <summary>
+        /// Channel name
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty(PropertyName = "name")]
+        [XmlElement(ElementName = "name")]
+        public KalturaMultilingualString Name { get; set; }
+
+        /// <summary>
+        /// Channel system name
+        /// </summary>
+        [DataMember(Name = "systemName")]
+        [JsonProperty("systemName")]
+        [XmlElement(ElementName = "systemName", IsNullable = true)]
+        public string SystemName { get; set; }
+
+        /// <summary>
+        /// Channel description
         /// </summary>
         [DataMember(Name = "description")]
         [JsonProperty(PropertyName = "description")]
         [XmlElement(ElementName = "description")]
-        public string Description { get; set; }
+        public KalturaMultilingualString Description { get; set; }
 
         /// <summary>
         /// Channel images 
@@ -41,6 +66,7 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "assetTypes", IsNullable = true)]
         [XmlArrayItem("item")]
         [OldStandardProperty("asset_types")]
+        [Deprecated("4.6.0.0")]
         public List<KalturaIntegerValue> AssetTypes { get; set; }
         
         /// <summary>
@@ -50,6 +76,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "media_types")]
         [JsonIgnore]
         [Obsolete]
+        [Deprecated("4.6.0.0")]
         public List<KalturaIntegerValue> MediaTypes { get; set; }
 
         /// <summary>
@@ -59,6 +86,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("filterExpression")]
         [XmlElement(ElementName = "filterExpression")]
         [OldStandardProperty("filter_expression")]
+        [Deprecated("4.6.0.0")]
         public string FilterExpression
         {
             get;
@@ -83,6 +111,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "order")]
         [JsonProperty("order")]
         [XmlElement(ElementName = "order")]
+        [Deprecated("4.6.0.0")]
         public KalturaAssetOrderBy Order
         {
             get;
@@ -95,29 +124,12 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "groupBy")]
         [JsonProperty("groupBy")]
         [XmlElement(ElementName = "groupBy")]
+        [Deprecated("4.6.0.0")]
         public KalturaAssetGroupBy GroupBy
         {
             get;
             set;
         }
 
-
-
-        public int[] getAssetTypes()
-        {
-            if (AssetTypes == null && MediaTypes != null)
-                AssetTypes = MediaTypes;
-
-            if (AssetTypes == null)
-                return new int[0];
-
-            int[] assetTypes = new int[AssetTypes.Count];
-            for (int i = 0; i < AssetTypes.Count; i++)
-            {
-                assetTypes[i] = AssetTypes[i].value;
-            }
-
-            return assetTypes;
-        }
     }
 }

@@ -5491,6 +5491,37 @@
             Channel starts with (autocomplete)
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaKsqlChannel.FilterExpression">
+            <summary>
+            Filter expression
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaKsqlChannel.AssetTypes">
+            <summary>
+            Asset types in the channel.
+            -26 is EPG
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaKsqlChannel.Order">
+            <summary>
+            Channel order
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaKsqlChannel.GroupBy">
+            <summary>
+            Channel group by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaManualChannel.MediaIds">
+            <summary>
+            A list of comma separated media ids associated with this channel, according to the order of the medias in the channel.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaManualChannel.DynamicOrderBy">
+            <summary>
+            dynamicOrderBy - order by Meta
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaFileType">
             <summary>
             Media-file type
@@ -6894,9 +6925,24 @@
             Channel details
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.Id">
+            <summary>
+            Unique identifier for the channel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.Name">
+            <summary>
+            Channel name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.SystemName">
+            <summary>
+            Channel system name
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannel.Description">
             <summary>
-            Cannel description
+            Channel description
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannel.Images">

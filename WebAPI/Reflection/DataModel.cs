@@ -39,6 +39,22 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaChannel":
+                    switch (propertyName)
+                    {
+                        case "AssetTypes":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "FilterExpression":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "GroupBy":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "MediaTypes":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "Order":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
                 case "KalturaCollectionEntitlement":
                     switch (propertyName)
                     {
@@ -63,6 +79,14 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaKsqlChannel":
+                    switch (propertyName)
+                    {
+                        case "MediaTypes":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
                 case "KalturaLinearMediaAsset":
                     switch (propertyName)
                     {
@@ -79,6 +103,22 @@ namespace WebAPI.Reflection
                         case "EnableTrickPlay":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "TrickPlayBuffer":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
+                case "KalturaManualChannel":
+                    switch (propertyName)
+                    {
+                        case "AssetTypes":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "FilterExpression":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "GroupBy":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "MediaTypes":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "Order":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                     };
                     break;
@@ -442,6 +482,14 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaKsqlChannel":
+                    switch (propertyName)
+                    {
+                        case "MediaTypes":
+                            return true;
+                    };
+                    break;
+                    
                 case "KalturaLinearMediaAsset":
                     switch (propertyName)
                     {
@@ -454,6 +502,14 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "RefreshToken":
+                            return true;
+                    };
+                    break;
+                    
+                case "KalturaManualChannel":
+                    switch (propertyName)
+                    {
+                        case "MediaTypes":
                             return true;
                     };
                     break;
@@ -1437,6 +1493,13 @@ namespace WebAPI.Reflection
                 case "KalturaLoginSession":
                     ret = new Dictionary<string, string>() { 
                         {"refreshToken", "refresh_token"},
+                    };
+                    break;
+                    
+                case "KalturaManualChannel":
+                    ret = new Dictionary<string, string>() { 
+                        {"assetTypes", "asset_types"},
+                        {"filterExpression", "filter_expression"},
                     };
                     break;
                     
@@ -2966,14 +3029,20 @@ namespace WebAPI.Reflection
                             return "filterExpression";
                         case "GroupBy":
                             return "groupBy";
+                        case "Id":
+                            return "id";
                         case "Images":
                             return "images";
                         case "IsActive":
                             return "isActive";
                         case "MediaTypes":
                             return "media_types";
+                        case "Name":
+                            return "name";
                         case "Order":
                             return "order";
+                        case "SystemName":
+                            return "systemName";
                     }
                     break;
                     
@@ -3034,8 +3103,8 @@ namespace WebAPI.Reflection
                     {
                         case "ChannelEqual":
                             return "channelEqual";
-                        case "ChannelLike":
-                            return "channelLike";
+                        case "ChannelStartsWith":
+                            return "channelStartsWith";
                     }
                     break;
                     
@@ -3763,6 +3832,36 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaEpgChannel":
+                    switch(property.Name)
+                    {
+                        case "CatchUpBuffer":
+                            return "catchUpBuffer";
+                        case "CreateDate":
+                            return "createDate";
+                        case "Description":
+                            return "description";
+                        case "EnableCatchUp":
+                            return "enableCatchUp";
+                        case "EnableCdvr":
+                            return "enableCdvr";
+                        case "EnableRecordingPlaybackNonEntitledChannel":
+                            return "enableRecordingPlaybackNonEntitledChannel";
+                        case "EnableStartOver":
+                            return "enableStartOver";
+                        case "EnableTrickPlay":
+                            return "enableTrickPlay";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "TrickPlayBuffer":
+                            return "trickPlayBuffer";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
                 case "KalturaEPGChannelAssets":
                     switch(property.Name)
                     {
@@ -4455,6 +4554,20 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaKsqlChannel":
+                    switch(property.Name)
+                    {
+                        case "AssetTypes":
+                            return "assetTypes";
+                        case "FilterExpression":
+                            return "filterExpression";
+                        case "GroupBy":
+                            return "groupBy";
+                        case "Order":
+                            return "order";
+                    }
+                    break;
+                    
                 case "KalturaLanguage":
                     switch(property.Name)
                     {
@@ -4606,6 +4719,16 @@ namespace WebAPI.Reflection
                             return "ks";
                         case "RefreshToken":
                             return "refreshToken";
+                    }
+                    break;
+                    
+                case "KalturaManualChannel":
+                    switch(property.Name)
+                    {
+                        case "DynamicOrderBy":
+                            return "dynamicOrderBy";
+                        case "MediaIds":
+                            return "mediaIds";
                     }
                     break;
                     

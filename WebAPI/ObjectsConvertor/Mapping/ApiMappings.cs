@@ -308,7 +308,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderObjToOrder(src.Order)))
                ;
 
-            Mapper.CreateMap<KalturaChannel, KSQLChannel>()
+            Mapper.CreateMap<KalturaKsqlChannel, KSQLChannel>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.getAssetTypes()))
@@ -320,7 +320,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                ;
 
-            Mapper.CreateMap<KSQLChannel, KalturaChannel>()
+            Mapper.CreateMap<KSQLChannel, KalturaKsqlChannel>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))

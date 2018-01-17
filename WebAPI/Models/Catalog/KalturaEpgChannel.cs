@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaEpgChannel
+    public class KalturaEpgChannel : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the epg channel
