@@ -3615,7 +3615,8 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static ChannelsResponse SearchChannels(int groupId, bool isExcatValue, string searchValue, int pageIndex, int pageSize)
+        public static ChannelsResponse SearchChannels(int groupId, bool isExcatValue, string searchValue, int pageIndex, int pageSize,
+            ApiObjects.SearchObjects.ChannelOrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection)
         {
             ChannelsResponse result = new ChannelsResponse();
 
@@ -3634,7 +3635,9 @@ namespace Core.Catalog.CatalogManagement
                 PageIndex = pageIndex,
                 PageSize = pageSize,
                 AutocompleteSearchValue = isExcatValue ? string.Empty : searchValue,
-                ExactSearchValue = isExcatValue ? searchValue : string.Empty                
+                ExactSearchValue = isExcatValue ? searchValue : string.Empty,
+                OrderBy = orderBy,
+                OrderDirection = orderDirection
             };
 
             int totalItemsCount = 0;
