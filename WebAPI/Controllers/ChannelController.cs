@@ -258,15 +258,17 @@ namespace WebAPI.Controllers
                 filter.Validate();
 
                 // call client      
-                if (!string.IsNullOrEmpty(filter.ChannelEqual))
+                if (!string.IsNullOrEmpty(filter.NameEqual))
                 {
                     //search using ChannelEqual
-                    response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.ChannelEqual, pager.getPageIndex(), pager.getPageSize());
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.NameEqual, pager.getPageIndex(), pager.getPageSize(),
+                        filter.OrderBy);
                 }
                 else
                 {
                     //search using ChannelLike
-                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.ChannelStartsWith, pager.getPageIndex(), pager.getPageSize());
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.NameStartsWith, pager.getPageIndex(), pager.getPageSize(),
+                        filter.OrderBy);
                 }
             }
             catch (ClientException ex)

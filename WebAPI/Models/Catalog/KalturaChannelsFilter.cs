@@ -17,25 +17,25 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Exact channel name to filter by
         /// </summary>
-        [DataMember(Name = "channelEqual")]
-        [JsonProperty("channelEqual")]
-        [XmlElement(ElementName = "channelEqual")]
-        public string ChannelEqual { get; set; }
+        [DataMember(Name = "nameEqual")]
+        [JsonProperty("nameEqual")]
+        [XmlElement(ElementName = "nameEqual")]
+        public string NameEqual { get; set; }
 
         /// <summary>
-        /// Channel starts with (autocomplete)
+        /// Channel name starts with (autocomplete)
         /// </summary>
-        [DataMember(Name = "channelStartsWith")]
-        [JsonProperty("channelStartsWith")]
-        [XmlElement(ElementName = "channelStartsWith")]
-        public string ChannelStartsWith { get; set; }
+        [DataMember(Name = "nameStartsWith")]
+        [JsonProperty("nameStartsWith")]
+        [XmlElement(ElementName = "nameStartsWith")]
+        public string NameStartsWith { get; set; }
 
 
         internal void Validate()
         {
-            if (!string.IsNullOrEmpty(ChannelEqual) && !string.IsNullOrEmpty(ChannelStartsWith))
+            if (!string.IsNullOrEmpty(NameEqual) && !string.IsNullOrEmpty(NameStartsWith))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaChannelsFilter.channelStartsWith", "KalturaChannelsFilter.channelEqual");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaChannelsFilter.nameStartsWith", "KalturaChannelsFilter.nameEquals");
             }
         }
 
@@ -47,6 +47,10 @@ namespace WebAPI.Models.Catalog
 
     public enum KalturaChannelOrderBy
     {
-        NONE        
+        NONE,
+        NAME_ASC,
+        NAME_DESC,
+        CREATE_DATE_ASC,
+        CREATE_DATE_DESC
     }
 }

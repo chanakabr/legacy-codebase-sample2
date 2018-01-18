@@ -3737,17 +3737,57 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, int pageIndex, int pageSize)
+        internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, int pageIndex, int pageSize,
+            KalturaChannelOrderBy channelOrderBy)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
             ChannelsResponse response = null;
 
             List<GroupsCacheManager.Channel> channels = null;
+            ChannelOrderBy orderBy = ChannelOrderBy.Id;
+            OrderDir orderDirection = OrderDir.NONE;
+
+            switch (channelOrderBy)
+            {
+                case KalturaChannelOrderBy.NONE:
+                    {
+                        orderBy = ChannelOrderBy.Id;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                case KalturaChannelOrderBy.NAME_ASC:
+                    {
+                        orderBy = ChannelOrderBy.Name;
+                        orderDirection = OrderDir.ASC;
+                        break;
+                    }
+                case KalturaChannelOrderBy.NAME_DESC:
+                    {
+                        orderBy = ChannelOrderBy.Name;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                case KalturaChannelOrderBy.CREATE_DATE_ASC:
+                    {
+                        orderBy = ChannelOrderBy.CreateDate;
+                        orderDirection = OrderDir.ASC;
+                        break;
+                    }
+                case KalturaChannelOrderBy.CREATE_DATE_DESC:
+                    {
+                        orderBy = ChannelOrderBy.CreateDate;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                default:
+                    break;
+            }
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.SearchChannels(groupId, isExcatValue, value, pageIndex, pageSize);
+                    response = Core.Catalog.CatalogManagement.CatalogManager.SearchChannels(groupId, isExcatValue, value, pageIndex, pageSize, orderBy, orderDirection);
                 }
             }
             catch (Exception ex)
