@@ -3330,7 +3330,7 @@ namespace WebAPI.Clients
             return imagesResponse;
         }
 
-        internal void DeleteImage(int groupId, long userId, long id)
+        internal bool DeleteImage(int groupId, long userId, long id)
         {
             Status response = null;
 
@@ -3356,6 +3356,8 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Code, response.Message);
             }
+
+            return true;
         }
 
         internal KalturaImage AddImage(int groupId, long userId, KalturaImage image)

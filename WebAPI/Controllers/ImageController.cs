@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
-        public void Delete(long id)
+        public bool Delete(long id)
         {
             bool result = false;
             int groupId = KS.GetFromRequest().GroupId;
@@ -109,12 +109,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                ClientsManager.CatalogClient().DeleteImage(groupId, userId, id);
+                result = ClientsManager.CatalogClient().DeleteImage(groupId, userId, id);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
+            return result;
         }     
 
         /// <summary>
