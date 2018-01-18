@@ -1978,11 +1978,11 @@ namespace Core.Catalog.CatalogManagement
                 BillingType = ODBCWrapper.Utils.GetLongSafeVal(dr, "BILLING_TYPE_ID"),
                 Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "DURATION"),
                 EndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE"),
-                ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_STREAMING_CODE"),
+                ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "CO_GUID"),
                 ExternalStoreId = ODBCWrapper.Utils.GetSafeStr(dr, "PRODUCT_CODE"),
                 FileSize = ODBCWrapper.Utils.GetLongSafeVal(dr, "FILE_SIZE"),
                 Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
-                IsDefaultLanguage = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_DEFAULT_LANGUAGE"),
+                IsDefaultLanguage = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_DEFAULT_LANGUAGE"),
                 Language = ODBCWrapper.Utils.GetSafeStr(dr, "LANGUAGE"),
                 OrderNum = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER_NUM"),
                 OutputProtecationLevel = ODBCWrapper.Utils.GetIntSafeVal(dr, "OUTPUT_PROTECTION_LEVEL"),
@@ -2960,13 +2960,13 @@ namespace Core.Catalog.CatalogManagement
                         }
                         break;
                     default:
-                    case eAssetTypes.UNKNOWN:                        
+                    case eAssetTypes.UNKNOWN:
                         break;
                 }
 
                 List<long> tagIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue
                                                                                 && x.Value.MultipleValue.Value && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
-                List<long> metaIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && (!x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value)).Select(x => x.Key).ToList();                
+                List<long> metaIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && (!x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value)).Select(x => x.Key).ToList();
 
                 if (CatalogDAL.RemoveMetasAndTagsFromAsset(groupId, id, dbAssetType, metaIds, tagIds, userId))
                 {
@@ -3475,7 +3475,7 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AltStreamingSuplierId
                     , assetFileToAdd.AssetId, assetFileToAdd.BillingType, assetFileToAdd.Duration, endDate, assetFileToAdd.ExternalId
                     , assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize, assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum
-                    , assetFileToAdd.OutputProtecationLevel, startDate, assetFileToAdd.Url, assetFileToAdd.StreamingSuplierId, assetFileToAdd.Type);
+                    , assetFileToAdd.OutputProtecationLevel, startDate, assetFileToAdd.Url, assetFileToAdd.StreamingSuplierId, assetFileToAdd.Type, assetFileToAdd.AltExternalId);
                 result = CreateAssetFileResponseFromDataSet(ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
@@ -3564,7 +3564,7 @@ namespace Core.Catalog.CatalogManagement
                 ds = CatalogDAL.UpdateMediaFile(groupId, id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, assetFileToUpdate.AltStreamingSuplierId
                     , assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, assetFileToUpdate.Duration, endDate, assetFileToUpdate.ExternalId
                     , assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum
-                    , assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.StreamingSuplierId, assetFileToUpdate.Type);
+                    , assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.StreamingSuplierId, assetFileToUpdate.Type, assetFileToUpdate.AltExternalId);
 
                 result = CreateAssetFileResponseFromDataSet(ds);
 
@@ -3631,7 +3631,7 @@ namespace Core.Catalog.CatalogManagement
 
             ApiObjects.SearchObjects.ChannelSearchDefinitions definitions = new ApiObjects.SearchObjects.ChannelSearchDefinitions()
             {
-                GroupId = groupId,                 
+                GroupId = groupId,
                 PageIndex = pageIndex,
                 PageSize = pageSize,
                 AutocompleteSearchValue = isExcatValue ? string.Empty : searchValue,

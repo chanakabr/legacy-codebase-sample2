@@ -10,6 +10,7 @@ namespace Core.Catalog.CatalogManagement
         public string Url { get; set; }
         public double Duration { get; set; }
         public string ExternalId { get; set; }
+        public string AltExternalId { get; set; }
         public string ExternalStoreId { get; set; }                
         public long StreamingSuplierId { get; set; }
         public string AltStreamingCode { get; set; }
@@ -18,7 +19,7 @@ namespace Core.Catalog.CatalogManagement
         public long BillingType { get; set; }
         public int OrderNum { get; set; }
         public string Language { get; set; }
-        public int IsDefaultLanguage { get; set; }
+        public bool IsDefaultLanguage { get; set; }
         public int OutputProtecationLevel { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
