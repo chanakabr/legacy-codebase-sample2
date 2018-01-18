@@ -39,6 +39,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "imageObjectTypeEqual")]
         public KalturaImageObjectType? ImageObjectTypeEqual { get; set; }
 
+        /// <summary>
+        /// Filter images that are default on atleast on image type or not default at any
+        /// </summary>
+        [DataMember(Name = "isDefaultEqual")]
+        [JsonProperty("isDefaultEqual")]
+        [XmlElement(ElementName = "isDefaultEqual", IsNullable = true)]
+        public bool? IsDefaultEqual { get; set; }
+
         public override KalturaImageOrderBy GetDefaultOrderByValue()
         {
             return KalturaImageOrderBy.NONE;

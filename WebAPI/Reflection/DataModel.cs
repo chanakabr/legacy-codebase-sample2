@@ -63,6 +63,16 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaDynamicChannel":
+                    switch (propertyName)
+                    {
+                        case "FilterExpression":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "MediaTypes":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                    };
+                    break;
+                    
                 case "KalturaEntitlement":
                     switch (propertyName)
                     {
@@ -76,14 +86,6 @@ namespace WebAPI.Reflection
                     {
                         case "EntitlementTypeEqual":
                             return DeprecatedAttribute.IsDeprecated("4.7.0.0");
-                    };
-                    break;
-                    
-                case "KalturaKsqlChannel":
-                    switch (propertyName)
-                    {
-                        case "MediaTypes":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                     };
                     break;
                     
@@ -418,6 +420,14 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaDynamicChannel":
+                    switch (propertyName)
+                    {
+                        case "MediaTypes":
+                            return true;
+                    };
+                    break;
+                    
                 case "KalturaEntitlement":
                     switch (propertyName)
                     {
@@ -486,14 +496,6 @@ namespace WebAPI.Reflection
                         case "AllowMultiInstance":
                         case "Name":
                         case "Selected":
-                            return true;
-                    };
-                    break;
-                    
-                case "KalturaKsqlChannel":
-                    switch (propertyName)
-                    {
-                        case "MediaTypes":
                             return true;
                     };
                     break;
@@ -1288,6 +1290,12 @@ namespace WebAPI.Reflection
                     ret = new Dictionary<string, string>() { 
                         {"endDate", "end_date"},
                         {"startDate", "start_date"},
+                    };
+                    break;
+                    
+                case "KalturaDynamicChannel":
+                    ret = new Dictionary<string, string>() { 
+                        {"filterExpression", "filter_expression"},
                     };
                     break;
                     
@@ -3604,6 +3612,20 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDynamicChannel":
+                    switch(property.Name)
+                    {
+                        case "AssetTypes":
+                            return "assetTypes";
+                        case "GroupBy":
+                            return "groupBy";
+                        case "Ksql":
+                            return "ksql";
+                        case "Order":
+                            return "order";
+                    }
+                    break;
+                    
                 case "KalturaDynamicOrderBy":
                     switch(property.Name)
                     {
@@ -4425,6 +4447,8 @@ namespace WebAPI.Reflection
                             return "imageObjectType";
                         case "ImageTypeId":
                             return "imageTypeId";
+                        case "IsDefault":
+                            return "isDefault";
                         case "Status":
                             return "status";
                         case "Url":
@@ -4559,20 +4583,6 @@ namespace WebAPI.Reflection
                     {
                         case "ItemPrice":
                             return "objects";
-                    }
-                    break;
-                    
-                case "KalturaKsqlChannel":
-                    switch(property.Name)
-                    {
-                        case "AssetTypes":
-                            return "assetTypes";
-                        case "FilterExpression":
-                            return "filterExpression";
-                        case "GroupBy":
-                            return "groupBy";
-                        case "Order":
-                            return "order";
                     }
                     break;
                     

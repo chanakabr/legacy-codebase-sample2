@@ -3255,7 +3255,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaImageListResponse GetImagesByIds(int groupId, List<long> imagesIds)
+        internal KalturaImageListResponse GetImagesByIds(int groupId, List<long> imagesIds, bool? isDefault = null)
         {
             KalturaImageListResponse imagesResponse = new KalturaImageListResponse();
             ImageListResponse response = null;
@@ -3264,7 +3264,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ImageManager.GetImagesByIds(groupId, imagesIds);
+                    response = Core.Catalog.CatalogManagement.ImageManager.GetImagesByIds(groupId, imagesIds, isDefault);
                 }
             }
             catch (Exception ex)
@@ -3292,7 +3292,7 @@ namespace WebAPI.Clients
             return imagesResponse;
         }
 
-        internal KalturaImageListResponse GetImagesByObject(int groupId, long imageObjectId, KalturaImageObjectType imageObjectType)
+        internal KalturaImageListResponse GetImagesByObject(int groupId, long imageObjectId, KalturaImageObjectType imageObjectType, bool? isDefault = null)
         {
             KalturaImageListResponse imagesResponse = new KalturaImageListResponse();
             ImageListResponse response = null;
@@ -3301,8 +3301,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ImageManager.GetImagesByObject(groupId, imageObjectId,
-                        CatalogMappings.ConvertImageObjectType(imageObjectType));
+                    response = Core.Catalog.CatalogManagement.ImageManager.GetImagesByObject(groupId, imageObjectId, CatalogMappings.ConvertImageObjectType(imageObjectType), isDefault);
                 }
             }
             catch (Exception ex)

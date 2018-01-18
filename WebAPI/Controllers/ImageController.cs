@@ -46,13 +46,12 @@ namespace WebAPI.Controllers
                 if (!string.IsNullOrEmpty(filter.IdIn))
                 {
                     //search using IDs
-                    response = ClientsManager.CatalogClient().GetImagesByIds(groupId, filter.GetIdIn());
+                    response = ClientsManager.CatalogClient().GetImagesByIds(groupId, filter.GetIdIn(), filter.IsDefaultEqual);
                 }
                 else
                 {
                     //search using object ID and type
-                    response = ClientsManager.CatalogClient().GetImagesByObject(groupId, filter.ImageObjectIdEqual.Value, 
-                        filter.ImageObjectTypeEqual.Value);
+                    response = ClientsManager.CatalogClient().GetImagesByObject(groupId, filter.ImageObjectIdEqual.Value, filter.ImageObjectTypeEqual.Value, filter.IsDefaultEqual);
                 }
             }
             catch (ClientException ex)

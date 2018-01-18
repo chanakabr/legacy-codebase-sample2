@@ -579,7 +579,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertImageStatus(src.Status)))
               .ForMember(dest => dest.ImageObjectType, opt => opt.MapFrom(src => ConvertImageObjectType(src.ImageObjectType)))
-              ;
+              .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
             Mapper.CreateMap<KalturaImage, Core.Catalog.CatalogManagement.Image>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -590,7 +590,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertImageStatus(src.Status)))
               .ForMember(dest => dest.ImageObjectType, opt => opt.MapFrom(src => ConvertImageObjectType(src.ImageObjectType.Value)))
-              ;
+              .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
             #endregion
 

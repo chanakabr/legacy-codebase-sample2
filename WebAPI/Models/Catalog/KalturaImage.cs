@@ -82,6 +82,15 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "contentId")]
         [SchemeProperty(ReadOnly = true)]
         public string ContentId { get; set; }
+
+        /// <summary>
+        ///  Specifies if the image is default for atleast one image type.
+        /// </summary>
+        [DataMember(Name = "isDefault")]
+        [JsonProperty("isDefault")]
+        [XmlElement(ElementName = "isDefault")]
+        [SchemeProperty(ReadOnly = true)]
+        public bool IsDefault { get; set; }
     }
 
     public class KalturaImageListResponse : KalturaListResponse

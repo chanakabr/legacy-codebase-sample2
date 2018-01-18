@@ -247,7 +247,7 @@
     <Compile Include="Models\API\KalturaDRMProfile.cs" />
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaChannelsFilter.cs" />
-    <Compile Include="Models\Catalog\KalturaKsqlChannel.cs" />
+    <Compile Include="Models\Catalog\KalturaDynamicChannel.cs" />
     <Compile Include="Models\Catalog\KalturaManualChannel.cs" />
     <Compile Include="Models\Catalog\KalturaMediaFileType.cs" />
     <Compile Include="Models\Catalog\KalturaMediaFileFilter.cs" />

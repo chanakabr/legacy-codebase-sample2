@@ -70,7 +70,7 @@ namespace WebAPI.Models.API
         public KalturaMetaDataType? DataTypeEqual { get; set; }
 
         /// <summary>
-        /// Filter meta's by multipleValueEqual value
+        /// Filter metas by multipleValueEqual value
         /// </summary>
         [DataMember(Name = "multipleValueEqual")]
         [JsonProperty("multipleValueEqual")]
