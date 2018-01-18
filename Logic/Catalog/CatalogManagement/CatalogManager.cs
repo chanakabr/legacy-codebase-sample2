@@ -1971,8 +1971,8 @@ namespace Core.Catalog.CatalogManagement
         {
             return new AssetFile()
             {
-                AdditionalData = ODBCWrapper.Utils.GetSafeStr(dr, "[ADDITIONAL_DATA"),
-                AltStreamingCode = ODBCWrapper.Utils.GetSafeStr(dr, "[ALT_STREAMING_CODE"),
+                AdditionalData = ODBCWrapper.Utils.GetSafeStr(dr, "ADDITIONAL_DATA"),
+                AltStreamingCode = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_STREAMING_CODE"),
                 AltStreamingSuplierId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ALT_STREAMING_SUPLIER_ID"),
                 AssetId = ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID"),
                 BillingType = ODBCWrapper.Utils.GetLongSafeVal(dr, "BILLING_TYPE_ID"),
