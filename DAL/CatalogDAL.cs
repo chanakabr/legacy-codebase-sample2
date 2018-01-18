@@ -5115,38 +5115,51 @@ namespace Tvinci.Core.DAL
         public static DataTable InsertPic(int groupId, long userId, long imageObjectId, eAssetImageType imageObjectType, long imageTypeId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertPic");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@updaterId", userId);
             sp.AddParameter("@assetId", imageObjectId);
             sp.AddParameter("@assetImageType", (int)imageObjectType);
             sp.AddParameter("@imageTypeId", imageTypeId);
             sp.AddParameter("@status", (int)eTableStatus.Pending);
-            sp.AddParameter("@version", 0);
-
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@version", 0);            
 
             return sp.Execute();
         }
 
-        public static DataTable GetImagesByIds(int groupId, List<long> imageIds)
+        public static DataTable GetImagesByIds(int groupId, List<long> imageIds, bool? isDefault = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPicsByIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddIDListParameter<long>("@ids", imageIds, "id");
-
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            if (isDefault.HasValue)
+            {
+                sp.AddParameter("@isDefault", isDefault.Value ? 1 : 0);
+            }
+            else
+            {
+                sp.AddParameter("@isDefault", -1);
+            }
 
             return sp.Execute();
         }
 
-        public static DataTable GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType)
+        public static DataTable GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType, bool? isDefault = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPicsByAsset");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@assetId", imageObjectId);
             sp.AddParameter("@assetImageType", (int)imageObjectType);
-
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            if (isDefault.HasValue)
+            {
+                sp.AddParameter("@isDefault", isDefault.Value ? 1 : 0);
+            }
+            else
+            {
+                sp.AddParameter("@isDefault", -1);
+            }
 
             return sp.Execute();
         }
