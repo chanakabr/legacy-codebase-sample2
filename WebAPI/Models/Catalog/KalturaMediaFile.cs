@@ -143,8 +143,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "ppvModules")]
         [JsonProperty(PropertyName = "ppvModules")]
         [XmlElement(ElementName = "ppvModules")]
-        [JsonIgnore]
-        [Deprecated("4.6.0.0")]
+        [JsonIgnore]        
         public KalturaStringValueArray PPVModules { get; set; }
 
         /// <summary>
@@ -218,8 +217,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "isDefaultLanguage")]
         [JsonProperty(PropertyName = "isDefaultLanguage")]
-        [XmlElement(ElementName = "isDefaultLanguage")]
-        [SchemeProperty(ReadOnly = true)]
+        [XmlElement(ElementName = "isDefaultLanguage")]        
         public bool IsDefaultLanguage { get; set; }
 
         /// <summary>
