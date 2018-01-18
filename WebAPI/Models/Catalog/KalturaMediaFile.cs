@@ -75,6 +75,14 @@ namespace WebAPI.Models.Catalog
         public string ExternalId { get; set; }
 
         /// <summary>
+        /// Alternative external identifier for the media file 
+        /// </summary>
+        [DataMember(Name = "altExternalId")]
+        [JsonProperty(PropertyName = "altExternalId")]
+        [XmlElement(ElementName = "altExternalId")]        
+        public string AltExternalId { get; set; }
+
+        /// <summary>
         /// Billing type
         /// </summary>
         [DataMember(Name = "billingType")]
@@ -90,6 +98,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "quality")]
         [XmlElement(ElementName = "quality")]        
         [JsonIgnore]
+        [Deprecated("4.6.0.0")]
         public string Quality { get; set; }
 
         /// <summary>
@@ -120,7 +129,7 @@ namespace WebAPI.Models.Catalog
         public string CdnCode { get; set; }
 
         /// <summary>
-        /// Alt CDN code
+        /// Alternative CDN code
         /// </summary>
         [DataMember(Name = "altCdnCode")]
         [JsonProperty(PropertyName = "altCdnCode")]
@@ -135,6 +144,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "ppvModules")]
         [XmlElement(ElementName = "ppvModules")]
         [JsonIgnore]
+        [Deprecated("4.6.0.0")]
         public KalturaStringValueArray PPVModules { get; set; }
 
         /// <summary>
@@ -144,6 +154,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "productCode")]
         [XmlElement(ElementName = "productCode")]
         [JsonIgnore]
+        [Deprecated("4.6.0.0")]
         public string ProductCode { get; set; }
 
         /// <summary>
@@ -163,7 +174,7 @@ namespace WebAPI.Models.Catalog
         public string AdditionalData { get; set; }
 
         /// <summary>
-        /// AltStreamingCode
+        /// Alternative streaming code
         /// </summary>
         [DataMember(Name = "altStreamingCode")]
         [JsonProperty(PropertyName = "altStreamingCode")]
@@ -171,7 +182,7 @@ namespace WebAPI.Models.Catalog
         public string AltStreamingCode { get; set; }
 
         /// <summary>
-        /// AltStreamingSuplierId
+        /// Alternative streaming supplier identifier
         /// </summary>
         [DataMember(Name = "altStreamingSuplierId")]
         [JsonProperty(PropertyName = "altStreamingSuplierId")]
@@ -208,7 +219,8 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "isDefaultLanguage")]
         [JsonProperty(PropertyName = "isDefaultLanguage")]
         [XmlElement(ElementName = "isDefaultLanguage")]
-        public long IsDefaultLanguage { get; set; }
+        [SchemeProperty(ReadOnly = true)]
+        public bool IsDefaultLanguage { get; set; }
 
         /// <summary>
         /// Language
@@ -216,7 +228,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "language")]
         [JsonProperty(PropertyName = "language")]
         [XmlElement(ElementName = "language")]
-        public long Language { get; set; }
+        public string Language { get; set; }
 
         /// <summary>
         /// OrderNum
@@ -240,7 +252,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "streamingSuplierId")]
         [JsonProperty(PropertyName = "streamingSuplierId")]
         [XmlElement(ElementName = "streamingSuplierId")]
-        public string StreamingSuplierId { get; set; }
+        public string StreamingSuplierId { get; set; }       
     }
 
     /// <summary>

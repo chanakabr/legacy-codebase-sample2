@@ -146,6 +146,12 @@ namespace WebAPI.Reflection
                 case "KalturaMediaFile":
                     switch (propertyName)
                     {
+                        case "PPVModules":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "ProductCode":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "Quality":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "Type":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                     };
@@ -187,6 +193,12 @@ namespace WebAPI.Reflection
                         case "AdsParams":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "AdsPolicy":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "PPVModules":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "ProductCode":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "Quality":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "Type":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
@@ -3101,10 +3113,10 @@ namespace WebAPI.Reflection
                 case "KalturaChannelsFilter":
                     switch(property.Name)
                     {
-                        case "ChannelEqual":
-                            return "channelEqual";
-                        case "ChannelStartsWith":
-                            return "channelStartsWith";
+                        case "NameEqual":
+                            return "nameEqual";
+                        case "NameStartsWith":
+                            return "nameStartsWith";
                     }
                     break;
                     
@@ -4769,6 +4781,8 @@ namespace WebAPI.Reflection
                             return "additionalData";
                         case "AltCdnCode":
                             return "altCdnCode";
+                        case "AltExternalId":
+                            return "altExternalId";
                         case "AltStreamingCode":
                             return "altStreamingCode";
                         case "AltStreamingSuplierId":
@@ -6971,6 +6985,30 @@ namespace WebAPI.Reflection
                             return "price";
                         case "UnifiedPaymentId":
                             return "unifiedPaymentId";
+                    }
+                    break;
+                    
+                case "KalturaUploadedFileTokenResource":
+                    switch(property.Name)
+                    {
+                        case "Token":
+                            return "token";
+                    }
+                    break;
+                    
+                case "KalturaUploadToken":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "FileSize":
+                            return "fileSize";
+                        case "Id":
+                            return "id";
+                        case "Status":
+                            return "status";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     

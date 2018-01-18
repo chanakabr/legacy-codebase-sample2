@@ -7152,6 +7152,11 @@
             External identifier for the media file
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltExternalId">
+            <summary>
+            Alternative external identifier for the media file 
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.BillingType">
             <summary>
             Billing type
@@ -7179,7 +7184,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltCdnCode">
             <summary>
-            Alt CDN code
+            Alternative CDN code
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.PPVModules">
@@ -7204,12 +7209,12 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltStreamingCode">
             <summary>
-            AltStreamingCode
+            Alternative streaming code
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltStreamingSuplierId">
             <summary>
-            AltStreamingSuplierId
+            Alternative streaming supplier identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.EndDate">

@@ -598,6 +598,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //File 
             Mapper.CreateMap<AssetFile, KalturaMediaFile>()
                  .ForMember(dest => dest.AdditionalData, opt => opt.MapFrom(src => src.AdditionalData))
+                 .ForMember(dest => dest.AltExternalId, opt => opt.MapFrom(src => src.AltExternalId))
                  .ForMember(dest => dest.AltStreamingCode, opt => opt.MapFrom(src => src.AltStreamingCode))
                  .ForMember(dest => dest.AltStreamingSuplierId, opt => opt.MapFrom(src => src.AltStreamingSuplierId))
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
@@ -621,6 +622,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //File 
             Mapper.CreateMap<KalturaMediaFile, AssetFile>()
                  .ForMember(dest => dest.AdditionalData, opt => opt.MapFrom(src => src.AdditionalData))
+                 .ForMember(dest => dest.AltExternalId, opt => opt.MapFrom(src => src.AltExternalId))
                  .ForMember(dest => dest.AltStreamingCode, opt => opt.MapFrom(src => src.AltStreamingCode))
                  .ForMember(dest => dest.AltStreamingSuplierId, opt => opt.MapFrom(src => src.AltStreamingSuplierId))
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
