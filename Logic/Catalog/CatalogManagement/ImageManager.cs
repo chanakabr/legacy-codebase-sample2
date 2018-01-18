@@ -245,6 +245,7 @@ namespace Core.Catalog.CatalogManagement
                 Status = (eTableStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
                 Version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION"),
                 ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"),
+                IsDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_DEFAULT", 0) > 0 ? true : false
             };
 
             image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
@@ -436,20 +437,20 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static ImageListResponse GetImagesByIds(int groupId, List<long> imageIds)
+        public static ImageListResponse GetImagesByIds(int groupId, List<long> imageIds, bool? isDefault = null)
         {
             ImageListResponse response = new ImageListResponse();
 
-            DataTable dt = CatalogDAL.GetImagesByIds(groupId, imageIds);
+            DataTable dt = CatalogDAL.GetImagesByIds(groupId, imageIds, isDefault);
             response = CreateImageListResponseFromDataTable(groupId, dt);
             return response;
         }
 
-        public static ImageListResponse GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType)
+        public static ImageListResponse GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType, bool? isDefault = null)
         {
             ImageListResponse response = new ImageListResponse();
 
-            DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectId, imageObjectType);
+            DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectId, imageObjectType, isDefault);
             response = CreateImageListResponseFromDataTable(groupId, dt);
             return response;
         }

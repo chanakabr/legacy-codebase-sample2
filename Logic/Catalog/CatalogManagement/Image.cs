@@ -25,5 +25,7 @@ namespace Core.Catalog.CatalogManagement
         public string Url { get; set; }
 
         public string ContentId { get; set; }
+
+        public bool IsDefault { get; set; }
     }
 }
