@@ -5279,6 +5279,16 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
+        public static DataSet UpdateAssetsTag(int groupId, long tagId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetsTag");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@tagId", tagId);
+
+            return sp.ExecuteDataSet();
+        }
+
         #endregion
     }
 }
