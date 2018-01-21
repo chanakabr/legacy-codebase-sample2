@@ -2014,17 +2014,10 @@ namespace Core.Catalog.CatalogManagement
         private static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId)
         {
             List<AssetFile> files = new List<AssetFile>();
-            AssetFileResponse result = new AssetFileResponse();
 
             DataSet ds = CatalogDAL.GetMediaFilesByAssetId(groupId, assetId);
-            result = CreateAssetFileResponseFromDataSet(ds);
-
-            if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
-            {
-                return files;
-            }
-
-            files.Add(result.File);
+            files = CreateAssetFileListResponseFromDataSet(ds);
+            
             return files;
         }
 
