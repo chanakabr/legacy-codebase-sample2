@@ -164,6 +164,17 @@ namespace Core.Users.Cache
                     log.ErrorFormat("Get invalid domains - failed getting values from couchbase. Error = {0}", ex);
                 }
             }
+
+            string invalidDomainsString = string.Empty;
+
+            if (invalidDomainIds != null && invalidDomainIds.Count > 0)
+            {
+                invalidDomainsString = string.Join(",", invalidDomainIds);
+            }
+
+            log.InfoFormat("Get invalid domains - invalid domains for group id {0} are: {1}",
+                groupId, invalidDomainsString);
+
             return invalidDomainIds;
         }
 
