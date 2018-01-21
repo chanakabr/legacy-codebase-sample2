@@ -128,6 +128,21 @@ namespace Core.Catalog.Response
             m_lTags = new List<Tags>(mediaAsset.Tags);
             GeoblockRule = mediaAsset.GeoBlockRuleId.HasValue ? Core.Catalog.CatalogLogic.GetGeoBlockRuleName(groupId, mediaAsset.GeoBlockRuleId.Value) : null;
             DeviceRule = mediaAsset.DeviceRuleId.HasValue ? Core.Catalog.CatalogLogic.GetDeviceRuleName(groupId, mediaAsset.DeviceRuleId.Value) : null;
+            m_lFiles = ConvertFiles(mediaAsset.Files);
+        }
+
+        private List<FileMedia> ConvertFiles(List<AssetFile> assetFiles)
+        {
+            List<FileMedia> result = new List<FileMedia>();
+            if (assetFiles != null && assetFiles.Count > 0)
+            {
+                foreach (AssetFile file in assetFiles)
+                {
+                    result.Add(new FileMedia(file));
+                }
+            }
+
+            return result;
         }
     }
 

@@ -623,7 +623,7 @@ namespace Core.Catalog.CatalogManagement
                 // update dates
                 else
                 {
-                    DateTime? assetUpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "UPDATE_DATE");
+                    DateTime? assetUpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ds.Tables[4].Rows[0], "UPDATE_DATE");
                     // overide existing update with the max update date from all possible tables (from GetAssetUpdateDate stored procedure)
                     if (assetUpdateDate.HasValue)
                     {
