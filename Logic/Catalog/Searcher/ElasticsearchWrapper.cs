@@ -2707,7 +2707,7 @@ namespace Core.Catalog
 
         #region Tags
 
-        public List<TagValue> SearchTags(TagSearchDefinitions definitions, out int totalItems)
+        public List<TagValue> SearchTags(TagSearchDefinitions definitions, CatalogGroupCache catalogGroupCache, out int totalItems)
         {
             List<TagValue> result = new List<TagValue>();
             totalItems = 0;
@@ -2770,11 +2770,49 @@ namespace Core.Catalog
 
             string searchQueryString = filteredQuery.ToString();
 
-            string type = "tag";
+            string type = string.Empty;
 
-            if (!definitions.Language.IsDefault)
+            // if we have a specific language
+            if (definitions.Language != null)
             {
-                type = string.Format("tag_{0}", definitions.Language.Code);
+                if (!definitions.Language.IsDefault)
+                {
+                    type = string.Format("tag_{0}", definitions.Language.Code);
+                }
+                else
+                {
+                    type = "tag";
+                }
+            }
+            // no language = all languages
+            else
+            {
+                StringBuilder typeBuilder = new StringBuilder();
+
+                // combine all language codes together
+                foreach (var language in catalogGroupCache.LanguageMapByCode.Values)
+                {
+                    string currentType = string.Empty;
+
+                    if (!language.IsDefault)
+                    {
+                        currentType = string.Format("tag_{0}", language.Code);
+                    }
+                    else
+                    {
+                        currentType = "tag";
+                    }
+
+                    typeBuilder.Append(currentType);
+                    typeBuilder.Append(",");
+                }
+
+                if (typeBuilder.Length > 0)
+                {
+                    typeBuilder.Remove(typeBuilder.Length - 1, 1);
+                }
+
+                type = typeBuilder.ToString();
             }
 
             string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(definitions.GroupId);
@@ -2784,6 +2822,11 @@ namespace Core.Catalog
             #endregion
 
             #region Parse result
+
+            if (string.IsNullOrEmpty(searchResultString))
+            {
+                return result;
+            }
 
             var jsonObj = JObject.Parse(searchResultString);
 
