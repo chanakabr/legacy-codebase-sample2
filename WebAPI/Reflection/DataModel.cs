@@ -3624,7 +3624,7 @@ namespace WebAPI.Reflection
                         case "GroupBy":
                             return "groupBy";
                         case "Ksql":
-                            return "ksql";
+                            return "kSql";
                         case "Order":
                             return "order";
                     }

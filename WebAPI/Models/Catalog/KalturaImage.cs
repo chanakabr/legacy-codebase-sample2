@@ -88,9 +88,9 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "isDefault")]
         [JsonProperty("isDefault")]
-        [XmlElement(ElementName = "isDefault")]
+        [XmlElement(ElementName = "isDefault", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
-        public bool IsDefault { get; set; }
+        public bool? IsDefault { get; set; }
     }
 
     public class KalturaImageListResponse : KalturaListResponse
