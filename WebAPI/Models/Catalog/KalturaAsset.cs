@@ -65,6 +65,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "images", NullValueHandling = NullValueHandling.Ignore)]
         [XmlArray(ElementName = "images", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(ReadOnly = true)]
         public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
@@ -74,6 +75,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "mediaFiles", NullValueHandling = NullValueHandling.Ignore)]
         [XmlArray(ElementName = "mediaFiles", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(ReadOnly = true)]
         public List<KalturaMediaFile> MediaFiles { get; set; }
 
         /// <summary>
