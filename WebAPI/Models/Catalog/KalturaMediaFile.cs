@@ -89,6 +89,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "billingType")]
         [XmlElement(ElementName = "billingType")]
         [JsonIgnore]
+        [Deprecated("4.6.0.0")]
         public string BillingType { get; set; } 
 
         /// <summary>
@@ -186,7 +187,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "altStreamingSuplierId")]
         [JsonProperty(PropertyName = "altStreamingSuplierId")]
         [XmlElement(ElementName = "altStreamingSuplierId")]
-        public string AltStreamingSuplierId { get; set; }
+        public long AltStreamingSuplierId { get; set; }
 
         /// <summary>
         /// EndDate

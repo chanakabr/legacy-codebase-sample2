@@ -4467,6 +4467,8 @@ namespace WebAPI.Reflection
                             return "imageObjectIdEqual";
                         case "ImageObjectTypeEqual":
                             return "imageObjectTypeEqual";
+                        case "IsDefaultEqual":
+                            return "isDefaultEqual";
                     }
                     break;
                     
