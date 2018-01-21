@@ -2028,6 +2028,62 @@ namespace Core.Catalog.CatalogManagement
             return files;
         }
 
+        private static void UpdateAssetIndex(int groupId, long id)
+        {
+            // get all assets with tag
+            DataSet ds = CatalogDAL.GetAssetsByTagId(groupId, id);
+
+            // preparing media list and epg
+            List<int> mediaIds = null;
+            List<int> epgIds = null;
+
+            SetAssetsListsForUpdateIndex(ds, out mediaIds, out epgIds);
+
+            if (mediaIds != null && mediaIds.Count > 0)
+            {
+                if (!Core.Catalog.Module.UpdateIndex(mediaIds, groupId, eAction.Update))
+                {
+                    log.ErrorFormat("Error while update Media index. groupId:{0}, mediaIds:{1}", groupId, string.Join(",", mediaIds));
+                }
+            }
+
+            if (epgIds != null && epgIds.Count > 0)
+            {
+                if (!Core.Catalog.Module.UpdateEpgIndex(epgIds, groupId, eAction.Update))
+                {
+                    log.ErrorFormat("Error while update Epg index. groupId:{0}, epgIds:{1}", groupId, string.Join(",", epgIds));
+                }
+            }
+        }
+
+        private static void SetAssetsListsForUpdateIndex(DataSet ds, out List<int> mediaIds, out List<int> epgIds)
+        {
+            mediaIds = new List<int>();
+            epgIds = new List<int>();
+
+            int assetId = 0;
+            int assetType = 0;
+
+            if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    assetId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ASSET_ID");
+                    assetType = ODBCWrapper.Utils.GetIntSafeVal(dr, "ASSET_TYPE");
+
+                    if (assetType == (int)eObjectType.Media)
+                    {
+                        mediaIds.Add(assetId);
+                    }
+
+                    if (assetType == (int)eObjectType.EPG)
+                    {
+                        epgIds.Add(assetId);
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -3241,6 +3297,8 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                UpdateAssetIndex(groupId, id);
+
                 ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
                 result.Status = wrapper.UpdateTag(groupId, catalogGroupCache, result.TagValues[0]);
 
@@ -3251,7 +3309,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
+        }      
 
         public static Status DeleteTag(int groupId, long tagId, long userId)
         {
