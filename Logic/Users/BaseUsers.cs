@@ -464,7 +464,7 @@ namespace Core.Users
                 bool exists = false;//indicates if the pair exists inside the current dynamic data or not
                 for (int i = 0; i < uro.m_user.m_oDynamicData.m_sUserData.Length && !exists; i++)
                 {
-                    if (uro.m_user.m_oDynamicData.m_sUserData[i].m_sDataType == pair.key)
+                    if (uro.m_user.m_oDynamicData.m_sUserData[i].m_sDataType.ToLower() == pair.key.ToLower())
                     {
                         exists = true;
                         if (uro.m_user.m_oDynamicData.m_sUserData[i].m_sValue != pair.value) //change the value only if it has changed
