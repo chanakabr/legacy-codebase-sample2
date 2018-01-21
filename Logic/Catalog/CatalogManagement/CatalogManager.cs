@@ -3470,6 +3470,21 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                //// validate that asset file type 
+                List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
+                if (mediaFileTypes == null || mediaFileTypes.Count < 1)
+                {
+                    result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                    return result;
+                }
+
+                var mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToAdd.Type).SingleOrDefault();
+                if (mediaFileType == null)
+                {
+                    result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                    return result;
+                }
+
                 DateTime startDate = assetFileToAdd.StartDate.HasValue ? assetFileToAdd.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToAdd.EndDate.HasValue ? assetFileToAdd.EndDate.Value : startDate;
 
