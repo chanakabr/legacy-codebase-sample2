@@ -148,6 +148,8 @@ namespace WebAPI.Reflection
                 case "KalturaMediaFile":
                     switch (propertyName)
                     {
+                        case "BillingType":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "ProductCode":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "Quality":
@@ -193,6 +195,8 @@ namespace WebAPI.Reflection
                         case "AdsParams":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "AdsPolicy":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "BillingType":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "ProductCode":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");

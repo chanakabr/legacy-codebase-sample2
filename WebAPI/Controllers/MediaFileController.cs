@@ -29,6 +29,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
         [Throws(eResponseStatus.AssetDoesNotExist)]
         public KalturaMediaFile Add(KalturaMediaFile mediaFile)
         {
