@@ -513,7 +513,7 @@ namespace Core.Catalog.CatalogManagement
         {
             MediaAsset result = null;
 
-            if (ds.Tables.Count < 3)
+            if (ds.Tables.Count < 4)
             {
                 log.WarnFormat("CreateMediaAssetFromDataSet didn't receive dataset with 3 or more tables");
                 return result;
@@ -548,22 +548,6 @@ namespace Core.Catalog.CatalogManagement
             //    }
             //}
 
-            // Files table
-            List<FileMedia> files = null;
-            //if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
-            //{
-            //    bool filesResult = false;
-            //    List<Branding> branding = new List<Branding>();
-            //    Dictionary<int, List<string>> mediaFilePPVModules = mediaFilePPVModules = CatalogLogic.GetMediaFilePPVModules(ds.Tables[2]);
-            //    // TODO - Lior - what to do with management data
-            //    files = CatalogLogic.FilesValues(ds.Tables[2], ref branding, false, ref filesResult, true, mediaFilePPVModules);
-            //    if (!filesResult)
-            //    {
-            //        log.WarnFormat("CreateMediaAssetFromDataSet - failed to get files for Id: {0}", id);
-            //        return null;
-            //    }
-            //}
-
             // Metas and Tags table
             List<Metas> metas = null;
             List<Tags> tags = null;
@@ -586,8 +570,16 @@ namespace Core.Catalog.CatalogManagement
                 return null;
             }
 
+            // Files table
+            DataTable filesTable = new DataTable();
+            List<AssetFile> files = null;
+            if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+            {
+                files = CreateAssetFileListResponseFromDataSet(ds.Tables[3]);
+            }  
+
             // Handle new tags if exist
-            if (ds.Tables.Count >= 4 && ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+            if (ds.Tables.Count >= 5 && ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
             {
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -596,7 +588,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                foreach (DataRow dr in ds.Tables[3].Rows)
+                foreach (DataRow dr in ds.Tables[4].Rows)
                 {
                     int topicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "topic_id");
                     int tagId = ODBCWrapper.Utils.GetIntSafeVal(dr, "tag_id");
@@ -1945,13 +1937,11 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static List<AssetFile> CreateAssetFileListResponseFromDataSet(DataSet ds)
+        private static List<AssetFile> CreateAssetFileListResponseFromDataSet(DataTable dt)
         {
             List<AssetFile> response = new List<AssetFile>();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null)
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
@@ -1962,7 +1952,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                 }
-            }
+            }                    
 
             return response;
         }
@@ -2013,18 +2003,13 @@ namespace Core.Catalog.CatalogManagement
 
         private static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId)
         {
-            List<AssetFile> files = new List<AssetFile>();
-            AssetFileResponse result = new AssetFileResponse();
-
-            DataSet ds = CatalogDAL.GetMediaFilesByAssetId(groupId, assetId);
-            result = CreateAssetFileResponseFromDataSet(ds);
-
-            if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
+            List<AssetFile> files = null;
+            DataSet ds = CatalogDAL.GetMediaFilesByAssetId(groupId, new List<long>() { assetId });
+            if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
             {
-                return files;
-            }
+                files = CreateAssetFileListResponseFromDataSet(ds.Tables[0]);
+            }            
 
-            files.Add(result.File);
             return files;
         }
 

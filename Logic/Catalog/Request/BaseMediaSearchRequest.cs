@@ -73,7 +73,7 @@ namespace Core.Catalog.Request
                     if (isLucene)
                     {
                         //Complete max updatedate per mediaId
-                        List<SearchResult> lMediaRes = Utils.GetMediaUpdateDate(mediaIds);
+                        List<SearchResult> lMediaRes = Utils.GetMediaUpdateDate(mediaIds, oBaseRequest.m_nGroupID);
                         lMediaRes = Utils.GetMediaForPaging(lMediaRes, request);
                         oMediaResponse.m_nMediaIds = new List<SearchResult>(lMediaRes);
                     }
