@@ -5269,12 +5269,11 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet GetMediaFilesByAssetId(int groupId, long assetId)
+        public static DataSet GetMediaFilesByAssetId(int groupId, List<long> assetIds)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFileByAssetId");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@assetId", assetId);
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");            
+            sp.AddIDListParameter<long>("@AssetIds", assetIds, "Id");            
 
             return sp.ExecuteDataSet();
         }
@@ -5287,6 +5286,16 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@tagId", tagId);
 
             return sp.ExecuteDataSet();
+        }
+
+        public static DataTable GetAssetUpdateDate(List<int> assetIds, eObjectType assetType)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAssetUpdateDate");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@AssetIds", assetIds, "Id");
+            sp.AddParameter("@AssetType", (int)assetType);
+
+            return sp.Execute();
         }
 
         #endregion
