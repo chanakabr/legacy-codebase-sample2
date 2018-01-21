@@ -3680,6 +3680,21 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                //// validate that asset file type 
+                List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
+                if (mediaFileTypes == null || mediaFileTypes.Count < 1)
+                {
+                    result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                    return result;
+                }
+
+                var mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToUpdate.Type).SingleOrDefault();
+                if (mediaFileType == null)
+                {
+                    result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
+                    return result;
+                }
+
                 DateTime startDate = assetFileToUpdate.StartDate.HasValue ? assetFileToUpdate.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToUpdate.EndDate.HasValue ? assetFileToUpdate.EndDate.Value : startDate;
 
