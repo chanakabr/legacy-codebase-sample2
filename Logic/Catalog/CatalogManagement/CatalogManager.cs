@@ -3385,12 +3385,16 @@ namespace Core.Catalog.CatalogManagement
             }
 
             LanguageObj language = null;
-            catalogGroupCache.LanguageMapById.TryGetValue(languageId, out language);
 
-            if (language == null)
+            if (languageId != 0)
             {
-                log.ErrorFormat("Invalid language id {0}", languageId);
-                return result;
+                catalogGroupCache.LanguageMapById.TryGetValue(languageId, out language);
+
+                if (language == null)
+                {
+                    log.ErrorFormat("Invalid language id {0}", languageId);
+                    return result;
+                }
             }
 
             ApiObjects.SearchObjects.TagSearchDefinitions definitions = new ApiObjects.SearchObjects.TagSearchDefinitions()
@@ -3406,7 +3410,7 @@ namespace Core.Catalog.CatalogManagement
 
             int totalItemsCount = 0;
             ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-            result.TagValues = wrapper.SearchTags(definitions, out totalItemsCount);
+            result.TagValues = wrapper.SearchTags(definitions, catalogGroupCache, out totalItemsCount);
             result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             result.TotalItems = totalItemsCount;
 
