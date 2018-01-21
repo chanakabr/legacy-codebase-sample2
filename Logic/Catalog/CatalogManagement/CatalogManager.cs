@@ -575,7 +575,7 @@ namespace Core.Catalog.CatalogManagement
             List<AssetFile> files = null;
             if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
             {
-                files = CreateAssetFileListResponseFromDataSet(ds.Tables[3]);
+                files = CreateAssetFileListResponseFromDataTable(ds.Tables[3]);
             }  
 
             // Handle new tags if exist
@@ -1937,7 +1937,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static List<AssetFile> CreateAssetFileListResponseFromDataSet(DataTable dt)
+        private static List<AssetFile> CreateAssetFileListResponseFromDataTable(DataTable dt)
         {
             List<AssetFile> response = new List<AssetFile>();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -2007,7 +2007,7 @@ namespace Core.Catalog.CatalogManagement
             DataSet ds = CatalogDAL.GetMediaFilesByAssetId(groupId, new List<long>() { assetId });
             if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
             {
-                files = CreateAssetFileListResponseFromDataSet(ds.Tables[0]);
+                files = CreateAssetFileListResponseFromDataTable(ds.Tables[0]);
             }            
 
             return files;
