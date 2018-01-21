@@ -14,6 +14,9 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     public class KalturaMediaFile : KalturaOTTObject
     {
+
+        private const string GENESIS_VERSION = "4.6.0.0";
+
         /// <summary>
         /// Unique identifier for the asset
         /// </summary>
@@ -38,7 +41,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public string Type { get; set; }
 
         /// <summary>
@@ -89,7 +92,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "billingType")]
         [XmlElement(ElementName = "billingType")]
         [JsonIgnore]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public string BillingType { get; set; } 
 
         /// <summary>
@@ -99,7 +102,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "quality")]
         [XmlElement(ElementName = "quality")]        
         [JsonIgnore]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public string Quality { get; set; }
 
         /// <summary>
@@ -154,7 +157,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "productCode")]
         [XmlElement(ElementName = "productCode")]
         [JsonIgnore]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public string ProductCode { get; set; }
 
         /// <summary>

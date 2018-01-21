@@ -20,6 +20,7 @@ namespace WebAPI.Models.API
     {
 
         private const string FEATURES_PATTERN = @"\W|[^ ]{64}[^ ]";
+        private const string GENESIS_VERSION = "4.6.0.0";
 
         /// <summary>
         /// Meta id 
@@ -52,7 +53,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "fieldName")]
         [JsonProperty("fieldName")]
         [XmlElement(ElementName = "fieldName", IsNullable = true)]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public KalturaMetaFieldName? FieldName { get; set; }
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         [XmlElement(ElementName = "type", IsNullable = true)]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public KalturaMetaType? Type { get; set; }
 
         /// <summary>
@@ -104,7 +105,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "assetType")]
         [JsonProperty("assetType")]
         [XmlElement(ElementName = "assetType", IsNullable = true)]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public KalturaAssetType? AssetType { get; set; }
 
         /// <summary>
@@ -130,7 +131,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "partnerId")]
         [JsonProperty("partnerId")]
         [XmlElement(ElementName = "partnerId", IsNullable = true)]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public int? PartnerId { get; set; }
 
         /// <summary>

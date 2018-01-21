@@ -16,6 +16,9 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     public class KalturaMediaAsset : KalturaAsset
     {
+
+        private const string GENESIS_VERSION = "4.6.0.0";
+
         /// <summary>
         /// External identifiers
         /// </summary>
@@ -30,7 +33,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "catchUpBuffer")]
         [JsonProperty(PropertyName = "catchUpBuffer")]
         [XmlElement(ElementName = "catchUpBuffer")]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public long? CatchUpBuffer { get; set; }
 
         /// <summary>
@@ -39,7 +42,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "trickPlayBuffer")]
         [JsonProperty(PropertyName = "trickPlayBuffer")]
         [XmlElement(ElementName = "trickPlayBuffer")]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public long? TrickPlayBuffer { get; set; }
 
         /// <summary>
@@ -49,7 +52,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannel")]
         [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
         [SchemeProperty(ReadOnly = true)]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public bool? EnableRecordingPlaybackNonEntitledChannel { get; set; }
 
         /// <summary>

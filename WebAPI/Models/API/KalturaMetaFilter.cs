@@ -16,6 +16,8 @@ namespace WebAPI.Models.API
     public class KalturaMetaFilter : KalturaFilter<KalturaMetaOrderBy>
     {
 
+        private const string GENESIS_VERSION = "4.6.0.0";
+
         /// <summary>
         /// Comma separated identifiers
         /// </summary>
@@ -40,7 +42,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "fieldNameEqual")]
         [JsonProperty("fieldNameEqual")]
         [XmlElement(ElementName = "fieldNameEqual")]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public KalturaMetaFieldName? FieldNameEqual { get; set; }
 
         /// <summary>
@@ -49,7 +51,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "fieldNameNotEqual")]
         [JsonProperty("fieldNameNotEqual")]
         [XmlElement(ElementName = "fieldNameNotEqual")]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public KalturaMetaFieldName? FieldNameNotEqual { get; set; }
 
         /// <summary>
@@ -58,7 +60,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "typeEqual")]
         [JsonProperty("typeEqual")]
         [XmlElement(ElementName = "typeEqual")]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public KalturaMetaType? TypeEqual { get; set; }
 
         /// <summary>
@@ -83,7 +85,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "assetTypeEqual")]
         [JsonProperty("assetTypeEqual")]
         [XmlElement(ElementName = "assetTypeEqual")]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public KalturaAssetType? AssetTypeEqual { get; set; }
 
         /// <summary>
@@ -92,7 +94,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "featuresIn")]
         [JsonProperty("featuresIn")]
         [XmlElement(ElementName = "featuresIn", IsNullable = true)]
-        [Deprecated("4.6.0.0")]
+        [Deprecated(GENESIS_VERSION)]
         public string FeaturesIn { get; set; }
 
         public override KalturaMetaOrderBy GetDefaultOrderByValue()
