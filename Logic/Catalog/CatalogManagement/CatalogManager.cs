@@ -2031,7 +2031,7 @@ namespace Core.Catalog.CatalogManagement
         private static void UpdateAssetIndex(int groupId, long id)
         {
             // get all assets with tag
-            DataSet ds = CatalogDAL.GetAssetsByTagId(groupId, id);
+            DataSet ds = CatalogDAL.UpdateAssetsTag(groupId, id);
 
             // preparing media list and epg
             List<int> mediaIds = null;
