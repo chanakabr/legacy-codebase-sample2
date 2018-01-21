@@ -28,7 +28,7 @@ namespace Core.Catalog.CatalogManagement
         public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
         public const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
         private const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
-        private const string IS_NEW_TAG_COLUMN_NAME = "is_new";
+        private const string IS_NEW_TAG_COLUMN_NAME = "tag_id";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly HashSet<string> BasicMetasSystemNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -578,41 +578,56 @@ namespace Core.Catalog.CatalogManagement
                 files = CreateAssetFileListResponseFromDataTable(ds.Tables[3]);
             }  
 
-            // Handle new tags if exist
+            // new tags or update dates
             if (ds.Tables.Count >= 5 && ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
             {
-                CatalogGroupCache catalogGroupCache;
-                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                // Handle new tags if exist
+                if (ds.Tables[4].Columns.Contains(IS_NEW_TAG_COLUMN_NAME))
                 {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling CreateMediaAsset", groupId);
-                    return result;
+                    CatalogGroupCache catalogGroupCache;
+                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling CreateMediaAsset", groupId);
+                        return result;
+                    }
+
+                    foreach (DataRow dr in ds.Tables[4].Rows)
+                    {
+                        int topicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "topic_id");
+                        int tagId = ODBCWrapper.Utils.GetIntSafeVal(dr, "tag_id");
+                        int languageId = ODBCWrapper.Utils.GetIntSafeVal(dr, "language_id");
+                        string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
+                        DateTime tagCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "create_date");
+                        DateTime tagUpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "update_date");
+                        ApiObjects.SearchObjects.TagValue tag = new ApiObjects.SearchObjects.TagValue()
+                        {
+                            createDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(tagCreateDate),
+                            languageId = languageId,
+                            tagId = tagId,
+                            topicId = topicId,
+                            updateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(tagUpdateDate),
+                            value = translation
+                        };
+
+                        // Update Tag Index
+                        ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                        Status updateTagResponse = wrapper.UpdateTag(groupId, catalogGroupCache, tag);
+                        if (updateTagResponse == null || updateTagResponse.Code != (int)eResponseStatus.OK)
+                        {
+                            log.WarnFormat("CreateMediaAsset - failed to update tag, tag : {0}, addTagResult: {1}", tag.ToString(),
+                                            updateTagResponse != null && updateTagResponse != null ? updateTagResponse.Message : "null");
+                        }
+                    }
                 }
 
-                foreach (DataRow dr in ds.Tables[4].Rows)
+                // update dates
+                else
                 {
-                    int topicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "topic_id");
-                    int tagId = ODBCWrapper.Utils.GetIntSafeVal(dr, "tag_id");
-                    int languageId = ODBCWrapper.Utils.GetIntSafeVal(dr, "language_id");
-                    string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
-                    DateTime tagCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "create_date");
-                    DateTime tagUpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "update_date");
-                    ApiObjects.SearchObjects.TagValue tag = new ApiObjects.SearchObjects.TagValue()
+                    DateTime? assetUpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "UPDATE_DATE");
+                    // overide existing update with the max update date from all possible tables (from GetAssetUpdateDate stored procedure)
+                    if (assetUpdateDate.HasValue)
                     {
-                        createDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(tagCreateDate),
-                        languageId = languageId,
-                        tagId = tagId,
-                        topicId = topicId,
-                        updateDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(tagUpdateDate),
-                        value = translation
-                    };
-
-                    // Update Tag Index
-                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                    Status updateTagResponse = wrapper.UpdateTag(groupId, catalogGroupCache, tag);
-                    if (updateTagResponse == null || updateTagResponse.Code != (int)eResponseStatus.OK)
-                    {
-                        log.WarnFormat("CreateMediaAsset - failed to update tag, tag : {0}, addTagResult: {1}", tag.ToString(),
-                                        updateTagResponse != null && updateTagResponse != null ? updateTagResponse.Message : "null");
+                        updateDate = assetUpdateDate;
                     }
                 }
             }
@@ -759,9 +774,9 @@ namespace Core.Catalog.CatalogManagement
             Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
             try
             {
-                if (ds == null || ds.Tables == null || ds.Tables.Count < 3)
+                if (ds == null || ds.Tables == null || ds.Tables.Count < 5)
                 {
-                    log.WarnFormat("CreateGroupMediaMapFromDataSet didn't receive dataset with 3 or more tables");
+                    log.WarnFormat("CreateGroupMediaMapFromDataSet didn't receive dataset with 5 or more tables");
                     return null;
                 }
 
@@ -784,6 +799,20 @@ namespace Core.Catalog.CatalogManagement
                 if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
                 {
                     tags = ds.Tables[2].AsEnumerable();
+                }
+
+                EnumerableRowCollection<DataRow> files = new DataTable().AsEnumerable();
+                // files table
+                if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+                {
+                    files = ds.Tables[3].AsEnumerable();
+                }
+
+                EnumerableRowCollection<DataRow> assetUpdateDate = new DataTable().AsEnumerable();
+                // files table
+                if (ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
+                {
+                    assetUpdateDate = ds.Tables[4].AsEnumerable();
                 }
 
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
@@ -822,6 +851,36 @@ namespace Core.Catalog.CatalogManagement
                             else
                             {
                                 assetDataset.Tables.Add(ds.Tables[2].Clone());
+                            }
+                        }
+
+                        if (files.Count() > 0)
+                        {
+                            EnumerableRowCollection<DataRow> assetfiles = (from row in files
+                                                                          where (Int64)row["MEDIA_ID"] == id
+                                                                          select row);
+                            if (assetfiles != null && assetfiles.Count() > 0)
+                            {
+                                assetDataset.Tables.Add(assetfiles.CopyToDataTable());
+                            }
+                            else
+                            {
+                                assetDataset.Tables.Add(ds.Tables[3].Clone());
+                            }
+                        }
+
+                        if (assetUpdateDate.Count() > 0)
+                        {
+                            EnumerableRowCollection<DataRow> assetUpdateDateRow = (from row in assetUpdateDate
+                                                                           where (Int64)row["ID"] == id
+                                                                           select row);
+                            if (assetUpdateDateRow != null && assetUpdateDateRow.Count() > 0)
+                            {
+                                assetDataset.Tables.Add(assetUpdateDateRow.CopyToDataTable());
+                            }
+                            else
+                            {
+                                assetDataset.Tables.Add(ds.Tables[4].Clone());
                             }
                         }
 
