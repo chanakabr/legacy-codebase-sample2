@@ -5188,7 +5188,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long altStreamingSuplierId, long assetId,
             long billingType, double duration, DateTime endDate, string externalId, string externalStoreId, long fileSize, bool isDefaultLanguage,
-            string language, int orderNum, int outputProtecationLevel, DateTime startDate, string url, long streamingSuplierId, long type, string altExternalId)
+            string language, int orderNum, int outputProtecationLevel, DateTime startDate, string url, long streamingSuplierId, long type, string altExternalId, bool? isActive)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5213,6 +5213,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@endDate", endDate);
             sp.AddParameter("@altCoGuid", altExternalId);
             sp.AddParameter("@fileSize", fileSize);
+            sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);
 
             return sp.ExecuteDataSet();
         }
@@ -5240,7 +5241,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet UpdateMediaFile(int groupId, long id, long userId, string additionalData, string altStreamingCode, long altStreamingSuplierId, long assetId, long billingType,
             double duration, DateTime endDate, string externalId, string externalStoreId, long fileSize, bool isDefaultLanguage, string language, int orderNum, int outputProtecationLevel, DateTime startDate,
-            string url, long streamingSuplierId, int type, string altExternalId)
+            string url, long streamingSuplierId, int type, string altExternalId, bool? isActive)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5265,6 +5266,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@endDate", endDate);
             sp.AddParameter("@altCoGuid", altExternalId); 
             sp.AddParameter("@fileSize", fileSize);
+            sp.AddParameter("@IsActive", isActive);
 
             return sp.ExecuteDataSet();
         }
