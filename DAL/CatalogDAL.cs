@@ -5122,7 +5122,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@assetImageType", (int)imageObjectType);
             sp.AddParameter("@imageTypeId", imageTypeId);
             sp.AddParameter("@status", (int)eTableStatus.Pending);
-            sp.AddParameter("@version", 0);            
+            sp.AddParameter("@version", 0);
 
             return sp.Execute();
         }
@@ -5264,7 +5264,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@outputProtecationLevel", outputProtecationLevel);
             sp.AddParameter("@startDate", startDate);
             sp.AddParameter("@endDate", endDate);
-            sp.AddParameter("@altCoGuid", altExternalId); 
+            sp.AddParameter("@altCoGuid", altExternalId);
             sp.AddParameter("@fileSize", fileSize);
             sp.AddParameter("@IsActive", isActive);
 
@@ -5274,8 +5274,8 @@ namespace Tvinci.Core.DAL
         public static DataSet GetMediaFilesByAssetId(int groupId, List<long> assetIds)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFileByAssetId");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");            
-            sp.AddIDListParameter<long>("@AssetIds", assetIds, "Id");            
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<long>("@AssetIds", assetIds, "Id");
 
             return sp.ExecuteDataSet();
         }
@@ -5298,6 +5298,17 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@AssetType", (int)assetType);
 
             return sp.Execute();
+        }
+
+        public static DataSet GetMediaFilesByExternalIdAndAltExternalId(int groupId, string externalId, string altExternalId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFilesByExternalId"); // TODO: anat rename Sp Name
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);           
+            sp.AddParameter("@externalId", externalId);
+            sp.AddParameter("@altExternalId", altExternalId);
+
+            return sp.ExecuteDataSet();
         }
 
         #endregion
