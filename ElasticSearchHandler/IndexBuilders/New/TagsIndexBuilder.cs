@@ -194,8 +194,7 @@ namespace ElasticSearchHandler.IndexBuilders
                         string documentType = ElasticSearchTaskUtils.GetTanslationType(TAG, language);
 
                         // Serialize tag and create a bulk request for it
-                        string serializedTag = JObject.FromObject(tagValue).ToString(Newtonsoft.Json.Formatting.None);
-                            //serializer.SerializeMetadataObject(tagValue.topicId, tagValue.tagId, tagValue.value);
+                        string serializedTag = serializer.SerializeTagValueObject(tagValue, language);
 
                         bulkList.Add(new ESBulkRequestObj<string>()
                         {
