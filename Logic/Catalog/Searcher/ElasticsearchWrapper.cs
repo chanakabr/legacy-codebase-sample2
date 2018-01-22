@@ -2738,7 +2738,7 @@ namespace Core.Catalog
                 valueTerm = new ESTerm(false)
                 {
                     Key = "value",
-                    Value = definitions.ExactSearchValue
+                    Value = definitions.ExactSearchValue.ToLower()
                 };
             }
 
