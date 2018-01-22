@@ -2923,7 +2923,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaTagListResponse SearchTags(int groupId, string language, bool isExcatValue, string value, int topicId, int pageIndex, int pageSize)
+        internal KalturaTagListResponse SearchTags(int groupId, bool isExcatValue, string value, int topicId, string searchLanguage, int pageIndex, int pageSize)
         {
             KalturaTagListResponse result = new KalturaTagListResponse();
             TagResponse response = null;
@@ -2933,8 +2933,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    int languageId = Utils.Utils.GetLanguageId(groupId, language);
-                    response = Core.Catalog.CatalogManagement.CatalogManager.SearchTags(groupId, isExcatValue, value, topicId, languageId, pageIndex, pageSize);
+                    int searchLanguageId = Utils.Utils.GetLanguageId(groupId, searchLanguage);                    
+                    response = Core.Catalog.CatalogManagement.CatalogManager.SearchTags(groupId, isExcatValue, value, topicId, searchLanguageId, pageIndex, pageSize);
                 }
             }
             catch (Exception ex)

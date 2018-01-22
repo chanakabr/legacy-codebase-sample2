@@ -4837,6 +4837,8 @@ namespace WebAPI.Reflection
                             return "quality";
                         case "StartDate":
                             return "startDate";
+                        case "Status":
+                            return "status";
                         case "StreamingSuplierId":
                             return "streamingSuplierId";
                         case "Type":
@@ -6821,6 +6823,8 @@ namespace WebAPI.Reflection
                 case "KalturaTagFilter":
                     switch(property.Name)
                     {
+                        case "LanguageEqual":
+                            return "languageEqual";
                         case "TagEqual":
                             return "tagEqual";
                         case "TagStartsWith":

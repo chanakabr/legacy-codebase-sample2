@@ -617,6 +617,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.StreamingSuplierId, opt => opt.MapFrom(src => src.StreamingSuplierId))
                  .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.Type))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
                  ;
 
             //File 
@@ -639,7 +640,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.StartDate)))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.StreamingSuplierId, opt => opt.MapFrom(src => src.StreamingSuplierId))
-                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.TypeId))                 
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.TypeId))
+                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
                  ;
 
             #endregion

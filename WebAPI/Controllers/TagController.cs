@@ -43,6 +43,11 @@ namespace WebAPI.Controllers
                 filter = new KalturaTagFilter();
             }
 
+            if (string.IsNullOrEmpty(filter.LanguageEqual))
+            {
+                filter.LanguageEqual = Utils.Utils.GetDefaultLanguage();
+            }
+
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
@@ -52,12 +57,12 @@ namespace WebAPI.Controllers
                 if (!string.IsNullOrEmpty(filter.TagEqual))
                 {
                     //search using tag
-                    response = ClientsManager.CatalogClient().SearchTags(groupId, language, true, filter.TagEqual, filter.TypeEqual, pager.getPageIndex(), pager.getPageSize());
+                    response = ClientsManager.CatalogClient().SearchTags(groupId, true, filter.TagEqual, filter.TypeEqual, filter.LanguageEqual, pager.getPageIndex(), pager.getPageSize());
                 }
                 else
                 {
                     //search using TagStartsWith
-                    response = ClientsManager.CatalogClient().SearchTags(groupId, language, false, filter.TagStartsWith, filter.TypeEqual, pager.getPageIndex(), pager.getPageSize());
+                    response = ClientsManager.CatalogClient().SearchTags(groupId, false, filter.TagStartsWith, filter.TypeEqual, filter.LanguageEqual, pager.getPageIndex(), pager.getPageSize());
                 }
             }
             catch (ClientException ex)

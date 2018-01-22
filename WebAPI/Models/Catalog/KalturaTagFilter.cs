@@ -38,6 +38,14 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(MinInteger = 1)]
         public int TypeEqual { get; set; }
 
+        /// <summary>
+        /// Language to filter by
+        /// </summary>
+        [DataMember(Name = "languageEqual")]
+        [JsonProperty("languageEqual")]
+        [XmlElement(ElementName = "languageEqual")]        
+        public string LanguageEqual { get; set; }
+
         internal void Validate()
         {
             if (this.TypeEqual <= 0)
@@ -48,6 +56,15 @@ namespace WebAPI.Models.Catalog
             if (!string.IsNullOrEmpty(TagEqual) && !string.IsNullOrEmpty(TagStartsWith))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaTagFilter.tagEqual", "KalturaTagFilter.tagStartsWith");
+            }
+
+            if (!string.IsNullOrEmpty(LanguageEqual))
+            {
+                HashSet<string> groupLanguageCodes = Utils.Utils.GetGroupLanguageCodes();
+                if (!groupLanguageCodes.Contains(LanguageEqual))
+                {
+                    throw new BadRequestException(ApiException.GROUP_DOES_NOT_CONTAIN_LANGUAGE, LanguageEqual);
+                }
             }
         }
 

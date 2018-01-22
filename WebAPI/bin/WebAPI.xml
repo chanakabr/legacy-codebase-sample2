@@ -5748,6 +5748,11 @@
             Type identifier
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaTagFilter.LanguageEqual">
+            <summary>
+            Language to filter by
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaTagListResponse.Tags">
             <summary>
             A list of partner tags
@@ -7278,6 +7283,11 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.StreamingSuplierId">
             <summary>
             StreamingSuplierId
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Status">
+            <summary>
+             The media file status
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaFileListResponse">

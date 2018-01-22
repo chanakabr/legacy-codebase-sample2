@@ -254,7 +254,16 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "streamingSuplierId")]
         [JsonProperty(PropertyName = "streamingSuplierId")]
         [XmlElement(ElementName = "streamingSuplierId")]
-        public string StreamingSuplierId { get; set; }       
+        public string StreamingSuplierId { get; set; }
+
+        /// <summary>
+        ///  The media file status
+        /// </summary>
+        [DataMember(Name = "status")]
+        [JsonProperty("status")]
+        [XmlElement(ElementName = "status", IsNullable = true)]
+        public bool? Status { get; set; }
+
     }
 
     /// <summary>
