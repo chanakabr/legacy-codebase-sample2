@@ -2723,26 +2723,29 @@ namespace Core.Catalog
                 Value = definitions.TopicId.ToString()
             };
 
-            ESTerm valueTerm = null;
-
-            if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue))
-            {
-                valueTerm = new ESTerm(false)
-                {
-                    Key = "value.autocomplete",
-                    Value = definitions.AutocompleteSearchValue.ToLower()
-                };
-            }
-            else if (!string.IsNullOrEmpty(definitions.ExactSearchValue))
-            {
-                valueTerm = new ESTerm(false)
-                {
-                    Key = "value",
-                    Value = definitions.ExactSearchValue.ToLower()
-                };
-            }
-
             query.AddChild(topicTerm, CutWith.AND);
+
+            IESTerm valueTerm = null;
+
+            // if we have a specific language - we will search it only
+            if (definitions.Language != null)
+            {
+                valueTerm = CreateTagValueTerm(definitions.Language, definitions.AutocompleteSearchValue, definitions.ExactSearchValue);
+            }
+            else
+            {
+                // if we don't have a specific language - we will search all languageas using OR between them
+                BoolQuery boolQuery = new BoolQuery();
+
+                foreach (var language in catalogGroupCache.LanguageMapByCode.Values)
+                {
+                    var currentTerm = CreateTagValueTerm(language, definitions.AutocompleteSearchValue, definitions.ExactSearchValue);
+
+                    boolQuery.AddChild(currentTerm, CutWith.OR);
+                }
+
+                valueTerm = boolQuery;
+            }
 
             if (valueTerm != null)
             {
@@ -2839,7 +2842,23 @@ namespace Core.Catalog
                 {
                     foreach (var item in jsonObj.SelectToken("hits.hits"))
                     {
-                        var tagValue = item["_source"].ToObject<TagValue>();
+                        var itemSource = item["_source"];
+                        var tagValue = itemSource.ToObject<TagValue>();
+
+                        if (string.IsNullOrEmpty(tagValue.value))
+                        {
+                            foreach (var subSubItem in itemSource)
+                            {
+                                JProperty property = subSubItem as JProperty;
+
+                                if (property != null && property.Name.Contains("value"))
+                                {
+                                    tagValue.value = (itemSource[property.Name] as JValue).Value.ToString();
+
+                                    break;
+                                }
+                            }
+                        }
 
                         result.Add(tagValue);
                     }
@@ -2849,6 +2868,38 @@ namespace Core.Catalog
             #endregion
 
             return result;
+        }
+
+        private static IESTerm CreateTagValueTerm(LanguageObj language, string autocompleteValue, string exactValue)
+        {
+            IESTerm valueTerm;
+            string key = "value";
+
+            // not default language - add suffix
+            if (!language.IsDefault)
+            {
+                key = string.Format("value_{0}", language.Code);
+            }
+
+            string value = string.Empty;
+
+            // whether it is autocomplete or not
+            if (!string.IsNullOrEmpty(autocompleteValue))
+            {
+                key = string.Format("{0}.autocomplete", key);
+                value = autocompleteValue.ToLower();
+            }
+            else if (!string.IsNullOrEmpty(exactValue))
+            {
+                value = exactValue.ToLower();
+            }
+
+            valueTerm = new ESTerm(false)
+            {
+                Key = key,
+                Value = value
+            };
+            return valueTerm;
         }
 
         public ApiObjects.Response.Status DeleteTag(int groupId, CatalogGroupCache group, long tagId)
