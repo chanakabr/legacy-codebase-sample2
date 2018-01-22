@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Core.Catalog
-{
+{    
+
     [DataContract]
     public class FileMedia
     {
+        public const string HANDLING_TYPE = "CLIP";
+
         [DataMember]
         public Int32 m_nFileId;
         [DataMember]
@@ -114,13 +117,12 @@ namespace Core.Catalog
 
         }
 
-        public FileMedia(CatalogManagement.AssetFile assetFile)
+        public FileMedia(CatalogManagement.AssetFile assetFile, CatalogManagement.MediaFileType fileType)
         {
             this.m_nFileId = (int)assetFile.Id;
             this.m_nMediaID = (int)assetFile.AssetId;                        
-            this.m_nDuration = assetFile.Duration;
-            // TODO: Lior - how to get the file format now?
-            //this.m_sFileFormat = assetFile.
+            this.m_nDuration = assetFile.Duration;            
+            this.HandlingType = HANDLING_TYPE;
             this.m_sUrl = assetFile.Url;
             this.m_sAltUrl = assetFile.AltStreamingCode;
             this.m_sBillingType = assetFile.BillingType.ToString();
@@ -130,7 +132,9 @@ namespace Core.Catalog
             this.m_sAltCoGUID = assetFile.AltExternalId;
             this.m_sLanguage = assetFile.Language;
             this.m_nIsDefaultLanguage = assetFile.IsDefaultLanguage ? 1 : 0;
-            this.FileSize = assetFile.FileSize;            
+            this.FileSize = assetFile.FileSize;
+            this.Quality = fileType.Quality.ToString();
+            this.m_sFileFormat = fileType.Description;
         }
 
         private void initializeAdvertisingMembers()

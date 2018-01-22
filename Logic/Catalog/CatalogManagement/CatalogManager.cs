@@ -576,7 +576,9 @@ namespace Core.Catalog.CatalogManagement
             if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
             {
                 files = CreateAssetFileListResponseFromDataTable(ds.Tables[3]);
-            }  
+                // get only active files
+                files = files.Where(x => x.IsActive.HasValue && x.IsActive.Value).ToList();
+            }
 
             // new tags or update dates
             if (ds.Tables.Count >= 5 && ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
@@ -932,6 +934,23 @@ namespace Core.Catalog.CatalogManagement
         private static Dictionary<int, ApiObjects.SearchObjects.Media> CreateMediasFromMediaAssetAndLanguages(int groupId, MediaAsset mediaAsset, CatalogGroupCache catalogGroupCache)
         {
             Dictionary<int, ApiObjects.SearchObjects.Media> result = new Dictionary<int, ApiObjects.SearchObjects.Media>();
+            // File Types + is free
+            HashSet<int> fileTypes = null;
+            List<int> freeFileTypes = null;
+            bool isFree = false;
+            if (mediaAsset.Files != null && mediaAsset.Files.Count > 0)
+            {                
+                //fileTypes = new HashSet<int>();
+                //foreach (AssetFile assetFile in mediaAsset.Files)
+                //{
+                //    if (!fileTypes.Contains(assetFile.Type))
+                //    {
+                //        fileTypes.Add(assetFile.Type);
+                //        bool isFileTypeFree = CheckIfMediaFile(files);
+                //        isFree = CheckIfMediaIsFreeByFiles(files);
+                //    }
+                //}
+            }
             foreach (LanguageObj language in catalogGroupCache.LanguageMapById.Values)
             {
                 string name = mediaAsset.Name;
@@ -1013,7 +1032,10 @@ namespace Core.Catalog.CatalogManagement
                     CoGuid = mediaAsset.CoGuid,
                     EntryId = mediaAsset.EntryId,
                     m_dMeatsValues = metas,
-                    m_dTagValues = tags
+                    m_dTagValues = tags,
+                    m_sMFTypes = fileTypes != null ? string.Join(",", fileTypes) : string.Empty,
+                    freeFileTypes = freeFileTypes,
+                    isFree = isFree
                 };
 
                 result.Add(language.ID, media);
@@ -2039,7 +2061,8 @@ namespace Core.Catalog.CatalogManagement
                 StartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE"),
                 StreamingSuplierId = ODBCWrapper.Utils.GetLongSafeVal(dr, "STREAMING_SUPLIER_ID"),
                 Type = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID"),
-                Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE")
+                Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
+                IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1
             };
         }
 
@@ -3415,7 +3438,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static TagResponse SearchTags(int groupId, bool isExcatValue, string searchValue, int topicId, int languageId, int pageIndex, int pageSize)
+        public static TagResponse SearchTags(int groupId, bool isExcatValue, string searchValue, int topicId, int searchLanguageId, int pageIndex, int pageSize)
         {
             TagResponse result = new TagResponse();
 
@@ -3428,15 +3451,15 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
 
-            LanguageObj language = null;
+            LanguageObj searchLanguage = null;
 
-            if (languageId != 0)
+            if (searchLanguageId != 0)
             {
-                catalogGroupCache.LanguageMapById.TryGetValue(languageId, out language);
+                catalogGroupCache.LanguageMapById.TryGetValue(searchLanguageId, out searchLanguage);
 
-                if (language == null)
+                if (searchLanguage == null)
                 {
-                    log.ErrorFormat("Invalid language id {0}", languageId);
+                    log.ErrorFormat("Invalid language id {0}", searchLanguageId);
                     return result;
                 }
             }
@@ -3444,7 +3467,7 @@ namespace Core.Catalog.CatalogManagement
             ApiObjects.SearchObjects.TagSearchDefinitions definitions = new ApiObjects.SearchObjects.TagSearchDefinitions()
             {
                 GroupId = groupId,
-                Language = language,
+                Language = searchLanguage,
                 PageIndex = pageIndex,
                 PageSize = pageSize,
                 AutocompleteSearchValue = isExcatValue ? string.Empty : searchValue,
@@ -3456,24 +3479,18 @@ namespace Core.Catalog.CatalogManagement
             ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
             var tagValues = wrapper.SearchTags(definitions, catalogGroupCache, out totalItemsCount);
 
-            if (languageId > 0)
-            {
-                result.TagValues = tagValues;
-            }
-            else
-            {
-                var tagResponses = new List<TagResponse>();
-                HashSet<long> tagIds = new HashSet<long>();
 
-                foreach (var tagValue in tagValues)
+            List<TagResponse> tagResponses = new List<TagResponse>();
+            HashSet<long> tagIds = new HashSet<long>();
+
+            foreach (var tagValue in tagValues)
+            {
+                if (!tagIds.Contains(tagValue.tagId))
                 {
-                    if (!tagIds.Contains(tagValue.tagId))
-                    {
-                        var tagResponse = GetTagById(groupId, tagValue.tagId);
-                        tagResponses.Add(tagResponse);
-                        tagIds.Add(tagValue.tagId);
-                        result.TagValues.AddRange(tagResponse.TagValues);
-                    }
+                    var tagResponse = GetTagById(groupId, tagValue.tagId);
+                    tagResponses.Add(tagResponse);
+                    tagIds.Add(tagValue.tagId);
+                    result.TagValues.AddRange(tagResponse.TagValues);
                 }
             }
 
@@ -3500,6 +3517,11 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
+        }
+
+        public static MediaFileType GetMediaFileType(int groupId, int id)
+        {
+            return null;
         }
 
         public static MediaFileTypeResponse AddMediaFileType(int groupId, MediaFileType mediaFileTypeToAdd, long userId)
@@ -3598,7 +3620,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                //// validate that asset file type 
+                //// validate that asset file type exist 
                 List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
                 if (mediaFileTypes == null || mediaFileTypes.Count < 1)
                 {
@@ -3616,10 +3638,10 @@ namespace Core.Catalog.CatalogManagement
                 DateTime startDate = assetFileToAdd.StartDate.HasValue ? assetFileToAdd.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToAdd.EndDate.HasValue ? assetFileToAdd.EndDate.Value : startDate;
 
-                DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AltStreamingSuplierId
-                    , assetFileToAdd.AssetId, assetFileToAdd.BillingType, assetFileToAdd.Duration, endDate, assetFileToAdd.ExternalId
-                    , assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize, assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum
-                    , assetFileToAdd.OutputProtecationLevel, startDate, assetFileToAdd.Url, assetFileToAdd.StreamingSuplierId, assetFileToAdd.Type, assetFileToAdd.AltExternalId);
+                DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AltStreamingSuplierId, assetFileToAdd.AssetId,
+                                                        assetFileToAdd.BillingType, assetFileToAdd.Duration, endDate, assetFileToAdd.ExternalId, assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize,
+                                                        assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, assetFileToAdd.OutputProtecationLevel, startDate,
+                                                        assetFileToAdd.Url, assetFileToAdd.StreamingSuplierId, assetFileToAdd.Type, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive);
                 result = CreateAssetFileResponseFromDataSet(ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
@@ -3702,7 +3724,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                //// validate that asset file type 
+                //// validate that asset file type exist
                 List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
                 if (mediaFileTypes == null || mediaFileTypes.Count < 1)
                 {
@@ -3720,10 +3742,11 @@ namespace Core.Catalog.CatalogManagement
                 DateTime startDate = assetFileToUpdate.StartDate.HasValue ? assetFileToUpdate.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToUpdate.EndDate.HasValue ? assetFileToUpdate.EndDate.Value : startDate;
 
-                ds = CatalogDAL.UpdateMediaFile(groupId, id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, assetFileToUpdate.AltStreamingSuplierId
-                    , assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, assetFileToUpdate.Duration, endDate, assetFileToUpdate.ExternalId
-                    , assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum
-                    , assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.StreamingSuplierId, assetFileToUpdate.Type, assetFileToUpdate.AltExternalId);
+                ds = CatalogDAL.UpdateMediaFile(groupId, id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, assetFileToUpdate.AltStreamingSuplierId,
+                                                assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, assetFileToUpdate.Duration, endDate, assetFileToUpdate.ExternalId,
+                                                assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language,
+                                                assetFileToUpdate.OrderNum, assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.StreamingSuplierId,
+                                                assetFileToUpdate.Type, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive);
 
                 result = CreateAssetFileResponseFromDataSet(ds);
 

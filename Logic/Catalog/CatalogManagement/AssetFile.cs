@@ -24,5 +24,6 @@ namespace Core.Catalog.CatalogManagement
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public long FileSize { get; set; }
+        public bool? IsActive { get; set; }
     }
 }
