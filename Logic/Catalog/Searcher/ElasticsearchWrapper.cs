@@ -2938,20 +2938,29 @@ namespace Core.Catalog
                 {
                     languageId = group.LanguageMapByCode[languageContainer.LanguageCode].ID;
 
-                    tagsToInsert.Add(new TagValue()
+                    if (languageId > 0)
                     {
-                        createDate = tag.createDate,
-                        languageId = languageId,
-                        tagId = tag.tagId,
-                        topicId = tag.topicId,
-                        updateDate = tag.updateDate,
-                        value = languageContainer.Value
-                    });
+                        tagsToInsert.Add(new TagValue()
+                        {
+                            createDate = tag.createDate,
+                            languageId = languageId,
+                            tagId = tag.tagId,
+                            topicId = tag.topicId,
+                            updateDate = tag.updateDate,
+                            value = languageContainer.Value
+                        });
+                    }
                 }
             }
 
             foreach (var tagToInsert in tagsToInsert)
             {
+                // insert only tags with valid language id
+                if (tagToInsert.languageId == 0)
+                {
+                    continue;
+                }
+
                 var language = group.LanguageMapById[tagToInsert.languageId];
                 string suffix = null;
 
@@ -2970,7 +2979,7 @@ namespace Core.Catalog
                 // Serialize tag and create a bulk request for it
                 string serializedTag = JObject.FromObject(tagToInsert).ToString(Newtonsoft.Json.Formatting.None);
 
-                string id = string.Format("{0}_{1}", tag.tagId, tag.languageId);
+                string id = string.Format("{0}_{1}", tagToInsert.tagId, tagToInsert.languageId);
                 bool insertResult = m_oESApi.InsertRecord(index, type, id, serializedTag);
 
                 if (!insertResult)
