@@ -3352,7 +3352,29 @@ namespace Core.Catalog.CatalogManagement
 
             int totalItemsCount = 0;
             ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-            result.TagValues = wrapper.SearchTags(definitions, catalogGroupCache, out totalItemsCount);
+            var tagValues = wrapper.SearchTags(definitions, catalogGroupCache, out totalItemsCount);
+
+            if (languageId > 0)
+            {
+                result.TagValues = tagValues;
+            }
+            else
+            {
+                var tagResponses = new List<TagResponse>();
+                HashSet<long> tagIds = new HashSet<long>();
+
+                foreach (var tagValue in tagValues)
+                {
+                    if (!tagIds.Contains(tagValue.tagId))
+                    {
+                        var tagResponse = GetTagById(groupId, tagValue.tagId);
+                        tagResponses.Add(tagResponse);
+                        tagIds.Add(tagValue.tagId);
+                        result.TagValues.AddRange(tagResponse.TagValues);
+                    }
+                }
+            }
+
             result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             result.TotalItems = totalItemsCount;
 
