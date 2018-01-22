@@ -31,6 +31,8 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
         [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.MediaFileExternalIdMustBeUnique)]
+        [Throws(eResponseStatus.MediaFileAltExternalIdMustBeUnique)]
         public KalturaMediaFile Add(KalturaMediaFile mediaFile)
         {
             KalturaMediaFile response = null;
@@ -103,6 +105,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileDoesNotExist)]
         [Throws(eResponseStatus.MediaFileNotBelongToAsset)]
+        [Throws(eResponseStatus.MediaFileExternalIdMustBeUnique)]
+        [Throws(eResponseStatus.MediaFileAltExternalIdMustBeUnique)]
         [SchemeArgument("id", MinLong = 1)]
         public KalturaMediaFile Update(long id, KalturaMediaFile mediaFile)
         {

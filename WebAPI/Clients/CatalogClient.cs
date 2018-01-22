@@ -3673,7 +3673,8 @@ namespace WebAPI.Clients
                 AssetFile assetFileToUpdate = AutoMapper.Mapper.Map<AssetFile>(assetFile);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateMediaFile(groupId, id, assetFileToUpdate, userId);
+                    assetFileToUpdate.Id = id;
+                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateMediaFile(groupId,  assetFileToUpdate, userId);
                 }
             }
             catch (Exception ex)
