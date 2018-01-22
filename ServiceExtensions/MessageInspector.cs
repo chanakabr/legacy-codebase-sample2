@@ -9,7 +9,6 @@ using System.ServiceModel.Description;
 using System.Diagnostics.Eventing;
 using KLogMonitor;
 using System.ServiceModel;
-using TVinciShared;
 using System.Xml;
 using System.ServiceModel.Web;
 using System.Net;

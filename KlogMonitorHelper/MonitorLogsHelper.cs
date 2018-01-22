@@ -189,6 +189,12 @@ namespace KlogMonitorHelper
                     else
                         MonitorLogsHelper.SetContext(KLogMonitor.Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageHeaders.GetHeader<string>(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty));
 
+                    // get KS
+                    if (OperationContext.Current.IncomingMessageHeaders.FindHeader(KLogMonitor.Constants.KS, string.Empty) == -1)
+                        MonitorLogsHelper.SetContext(KLogMonitor.Constants.KS, Guid.NewGuid().ToString());
+                    else
+                        MonitorLogsHelper.SetContext(KLogMonitor.Constants.KS, OperationContext.Current.IncomingMessageHeaders.GetHeader<string>(KLogMonitor.Constants.KS, string.Empty));
+
                     // get user agent
                     MonitorLogsHelper.SetContext(Constants.CLIENT_TAG, Dns.GetHostName());
 
