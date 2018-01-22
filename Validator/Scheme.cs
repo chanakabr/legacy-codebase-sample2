@@ -23,6 +23,7 @@ using WebAPI.Controllers;
 using System.Text.RegularExpressions;
 using WebAPI.App_Start;
 using System.Net.Http;
+using Newtonsoft.Json;
 
 namespace Validator.Managers.Scheme
 {
@@ -771,6 +772,10 @@ namespace Validator.Managers.Scheme
         {
             ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
             if (obsolete != null)
+                return;
+
+            JsonIgnoreAttribute jsonIgnore = property.GetCustomAttribute<JsonIgnoreAttribute>(true);
+            if (jsonIgnore != null)
                 return;
 
             DeprecatedAttribute deprecated = property.GetCustomAttribute<DeprecatedAttribute>(true);
