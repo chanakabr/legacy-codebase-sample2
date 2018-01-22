@@ -20,7 +20,7 @@ namespace KLogMonitor
         private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private bool disposed = false;
         SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
-        private static ConcurrentDictionary<string, ILog> separateLogsMap = null;             
+        private static ConcurrentDictionary<string, ILog> separateLogsMap = null;
 
         public static KLogEnums.AppType AppType { get; set; }
         public static string UniqueStaticId { get; set; }
@@ -35,6 +35,7 @@ namespace KLogMonitor
         public string MethodName { get; set; }
         public string Topic { get; set; }
         public string LoggerName { get; set; }
+        public string Ks { get; set; }
 
         private List<LogEvent> logs;
 
@@ -61,7 +62,7 @@ namespace KLogMonitor
             {
                 this.LoggerName = string.Empty;
             }
-            
+
         }
 
         public KLogger(string className)
@@ -143,6 +144,9 @@ namespace KLogMonitor
 
                             if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.TOPIC, out temp))
                                 this.Topic = temp.ToString();
+
+                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.KS, out temp))
+                                this.Ks = temp.ToString();
                         }
                         break;
 
@@ -176,6 +180,9 @@ namespace KLogMonitor
 
                             if (HttpContext.Current.Items[Constants.TOPIC] != null)
                                 this.Topic = HttpContext.Current.Items[Constants.TOPIC].ToString();
+
+                            if (HttpContext.Current.Items[Constants.KS] != null)
+                                this.Ks = HttpContext.Current.Items[Constants.KS].ToString();
                         }
                         break;
                 }
@@ -199,25 +206,9 @@ namespace KLogMonitor
             }
         }
 
-        //private string formatMessage(string msg, DateTime creationDate)
-        //{
-        //    return string.Format("{0} - class: {1}, method: {2}, server:{3} ip:{4} reqid:{5} partner:{6} action:{7} client:{8} uid:{9} msg:{10}",
-        //        creationDate,                                  // 0
-        //        ClassName != null ? ClassName : string.Empty,  // 1
-        //        MethodName != null ? MethodName : string.Empty,// 2
-        //        Server != null ? Server : string.Empty,        // 3
-        //        IPAddress != null ? IPAddress : string.Empty,  // 4
-        //        UniqueID != null ? UniqueID : string.Empty,    // 5
-        //        PartnerID != null ? PartnerID : string.Empty,  // 6
-        //        Action != null ? Action : string.Empty,        // 7
-        //        ClientTag != null ? ClientTag : string.Empty,  // 8
-        //        UserID != null ? UserID : "0",                 // 9
-        //        msg != null ? msg : string.Empty);             // 10
-        //}
-
         private string formatMessage(string msg, DateTime creationDate)
         {
-            return string.Format("class:{0} topic:{1} method:{2} server:{3} ip:{4} reqid:{5} partner:{6} action:{7} uid:{8} msg:{9}",
+            return string.Format("class:{0} topic:{1} method:{2} server:{3} ip:{4} reqid:{5} partner:{6} action:{7} uid:{8} ks:{9} msg:{10}",
                 !string.IsNullOrWhiteSpace(ClassName) ? ClassName : "null",  // 0
                 !string.IsNullOrWhiteSpace(Topic) ? Topic : "null",          // 1
                 !string.IsNullOrWhiteSpace(MethodName) ? MethodName : "null",// 2
@@ -227,7 +218,8 @@ namespace KLogMonitor
                 !string.IsNullOrWhiteSpace(PartnerID) ? PartnerID : "null",  // 6
                 !string.IsNullOrWhiteSpace(Action) ? Action : "null",        // 7
                 !string.IsNullOrWhiteSpace(UserID) ? UserID : "0",           // 8
-                !string.IsNullOrWhiteSpace(msg) ? msg : "null");             // 9
+                !string.IsNullOrWhiteSpace(Ks) ? Ks : "null",                // 9
+                !string.IsNullOrWhiteSpace(msg) ? msg : "null");             // 10
         }
 
         private void sendLog(LogEvent logEvent)
@@ -275,7 +267,7 @@ namespace KLogMonitor
                         if (!string.IsNullOrEmpty(this.LoggerName))
                         {
                             ILog separateLogeer;
-                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))                            
+                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
                             {
                                 separateLogeer.WarnFormat(logEvent.Message, logEvent.args);
                             }
