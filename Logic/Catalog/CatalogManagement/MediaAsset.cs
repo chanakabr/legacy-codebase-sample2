@@ -15,7 +15,7 @@ namespace Core.Catalog.CatalogManagement
         public string EntryId { get; set; }        
         public int? DeviceRuleId { get; set; }
         public int? GeoBlockRuleId { get; set; }
-        public List<FileMedia> Files { get; set; }
+        public List<AssetFile> Files { get; set; }
         public string UserTypes { get; set; }
         public bool? IsActive { get; set; }
 
@@ -28,14 +28,14 @@ namespace Core.Catalog.CatalogManagement
             this.EntryId = string.Empty;            
             this.DeviceRuleId = null;
             this.GeoBlockRuleId = null;
-            this.Files = new List<FileMedia>();
+            this.Files = new List<AssetFile>();
             this.UserTypes = string.Empty;
             this.IsActive = null;
         }
 
         public MediaAsset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages, DateTime? createDate,
                         DateTime? updateDate, DateTime? startDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Picture> pictures, string coGuid, bool isActive, DateTime? catalogStartDate,
-                        DateTime? finalEndDate, MediaType mediaType, string entryId, int? deviceRuleId, int? geoBlockRuleId, List<FileMedia> files, string userTypes)
+                        DateTime? finalEndDate, MediaType mediaType, string entryId, int? deviceRuleId, int? geoBlockRuleId, List<AssetFile> files, string userTypes)
             : base(id, assetType, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, startDate, updateDate, endDate, metas, tags, pictures, coGuid)
         {
             this.CatalogStartDate = catalogStartDate;
@@ -54,7 +54,7 @@ namespace Core.Catalog.CatalogManagement
             this.EntryId = entryId;
             this.DeviceRuleId = deviceRuleId;
             this.GeoBlockRuleId = geoBlockRuleId;
-            this.Files = files != null ? new List<FileMedia>(files) : new List<FileMedia>();
+            this.Files = files != null ? new List<AssetFile>(files) : new List<AssetFile>();
             this.UserTypes = userTypes;
             this.IsActive = isActive;
         }

@@ -260,7 +260,7 @@ namespace Core.Catalog
 
         //This method is used specifically for Lucene cases when we get a search result which does not consist of an update date (Lucene does not hold update_date
         //within its documents and therefore we need to go to the DB and return the media update date
-        public static List<SearchResult> GetMediaUpdateDate(List<ApiObjects.SearchObjects.SearchResult> lSearchResults)
+        public static List<SearchResult> GetMediaUpdateDate(List<ApiObjects.SearchObjects.SearchResult> lSearchResults, int groupId)
         {
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
             List<SearchResult> lMediaRes = new List<SearchResult>();
@@ -270,7 +270,15 @@ namespace Core.Catalog
                 {
                     List<int> mediaIds = lSearchResults.Select(item => item.assetID).ToList();
 
-                    DataTable dt = CatalogDAL.Get_MediaUpdateDate(mediaIds);
+                    DataTable dt = null;
+                    if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+                    {
+                        dt = CatalogDAL.GetAssetUpdateDate(mediaIds, eObjectType.Media);
+                    }
+                    else
+                    {
+                        dt = CatalogDAL.Get_MediaUpdateDate(mediaIds);
+                    }
 
                     SearchResult oMediaRes = new SearchResult();
                     if (dt != null)
@@ -315,7 +323,7 @@ namespace Core.Catalog
                 {
                     DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0);
 
-                    lMediaRes = GetMediaUpdateDate(lMediaIDs.Select(id => new SearchResult() { assetID = id, UpdateDate = dt }).ToList());
+                    lMediaRes = GetMediaUpdateDate(lMediaIDs.Select(id => new SearchResult() { assetID = id, UpdateDate = dt }).ToList(), nParentGroupID);
                 }
                 else
                 {

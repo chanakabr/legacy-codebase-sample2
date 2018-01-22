@@ -114,6 +114,25 @@ namespace Core.Catalog
 
         }
 
+        public FileMedia(CatalogManagement.AssetFile assetFile)
+        {
+            this.m_nFileId = (int)assetFile.Id;
+            this.m_nMediaID = (int)assetFile.AssetId;                        
+            this.m_nDuration = assetFile.Duration;
+            // TODO: Lior - how to get the file format now?
+            //this.m_sFileFormat = assetFile.
+            this.m_sUrl = assetFile.Url;
+            this.m_sAltUrl = assetFile.AltStreamingCode;
+            this.m_sBillingType = assetFile.BillingType.ToString();
+            this.m_nCdnID = (int)assetFile.StreamingSuplierId;
+            this.m_nAltCdnID = (int)assetFile.AltStreamingSuplierId;            
+            this.m_sCoGUID = assetFile.ExternalId;
+            this.m_sAltCoGUID = assetFile.AltExternalId;
+            this.m_sLanguage = assetFile.Language;
+            this.m_nIsDefaultLanguage = assetFile.IsDefaultLanguage ? 1 : 0;
+            this.FileSize = assetFile.FileSize;            
+        }
+
         private void initializeAdvertisingMembers()
         {
             m_sBreakpoints = string.Empty;
