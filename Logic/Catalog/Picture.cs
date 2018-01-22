@@ -27,6 +27,12 @@ namespace Core.Catalog
         [DataMember]
         public bool isDefault = false;
 
+        [DataMember]
+        public long imageTypeId;
+
+        [DataMember]
+        public string imageTypeName;
+
         public Picture() { }
 
         public Picture(string sSize, string sURL, string picRatio)
@@ -35,5 +41,16 @@ namespace Core.Catalog
             m_sURL = sURL;
             ratio = picRatio;
         }
+
+        public Picture(CatalogManagement.Image image, string imageTypeName, string picRatio)
+        {
+            this.m_sURL = image.Url;
+            this.ratio = picRatio;
+            this.version = image.Version;
+            this.id = image.ContentId;
+            this.imageTypeId = image.ImageTypeId;
+            this.imageTypeName = imageTypeName;
+        }
     }
+
 }

@@ -24,11 +24,11 @@ namespace Core.Catalog.CatalogManagement
         public List<Metas> Metas { get; set; }
         public List<Tags> Tags { get; set; }
         public Dictionary<string, int> TagNameToIdMap { get; set; }
-        public List<Picture> Pictures { get; set; }
+        public List<Image> Images { get; set; }
         public string CoGuid{ get; set; }        
 
         public Asset()
-        {
+        {            
             this.Id = 0;
             this.AssetType = eAssetTypes.UNKNOWN;
             this.Name = string.Empty;
@@ -42,12 +42,12 @@ namespace Core.Catalog.CatalogManagement
             this.Metas = new List<Metas>();
             this.Tags = new List<Tags>();
             this.TagNameToIdMap = new Dictionary<string, int>();
-            this.Pictures = new List<Picture>();
+            this.Images = new List<Image>();
             this.CoGuid = string.Empty;            
         }
 
         public Asset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages, DateTime? createDate, 
-                    DateTime? startDate, DateTime? updateDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Picture> pictures, string coGuid, Dictionary<string, int> tagNameToIdMap = null)
+                    DateTime? startDate, DateTime? updateDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Image> images, string coGuid, Dictionary<string, int> tagNameToIdMap = null)
         {
             this.Id = id;
             this.AssetType = assetType;
@@ -61,7 +61,7 @@ namespace Core.Catalog.CatalogManagement
             this.EndDate = endDate;
             this.Metas = metas != null ? new List<Metas>(metas) : new List<Metas>();
             this.Tags = tags != null ? new List<Tags>(tags) : new List<Tags>();
-            this.Pictures = pictures != null ? new List<Picture>(pictures) : new List<Picture>();
+            this.Images = images != null ? new List<Image>(images) : new List<Image>();
             this.CoGuid = coGuid;            
             this.TagNameToIdMap = tagNameToIdMap != null ? new Dictionary<string, int>(tagNameToIdMap, StringComparer.OrdinalIgnoreCase) : new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         }

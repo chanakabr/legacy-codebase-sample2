@@ -115,9 +115,7 @@ namespace Core.Catalog.Response
             CoGuid = string.Copy(mediaAsset.CoGuid);
             m_oMediaType = new MediaType(mediaAsset.MediaType.m_sTypeName, mediaAsset.MediaType.m_nTypeID);
             m_dCreationDate = mediaAsset.CreateDate.Value;
-            m_dFinalDate = mediaAsset.FinalEndDate.HasValue ? mediaAsset.FinalEndDate.Value : DateTime.MaxValue;
-            // TODO: Lior - Ask Ira about value of publish date
-            m_dPublishDate = mediaAsset.CreateDate.HasValue ? mediaAsset.CreateDate.Value : DateTime.MinValue;
+            m_dFinalDate = mediaAsset.FinalEndDate.HasValue ? mediaAsset.FinalEndDate.Value : DateTime.MaxValue;                        
             m_dStartDate = mediaAsset.StartDate.HasValue ? mediaAsset.StartDate.Value : DateTime.MinValue;
             m_dEndDate = mediaAsset.EndDate.HasValue ? mediaAsset.EndDate.Value : DateTime.MaxValue;
             m_dCatalogStartDate = mediaAsset.CatalogStartDate.HasValue ? mediaAsset.CatalogStartDate.Value : DateTime.MinValue;
@@ -129,6 +127,7 @@ namespace Core.Catalog.Response
             GeoblockRule = mediaAsset.GeoBlockRuleId.HasValue ? Core.Catalog.CatalogLogic.GetGeoBlockRuleName(groupId, mediaAsset.GeoBlockRuleId.Value) : null;
             DeviceRule = mediaAsset.DeviceRuleId.HasValue ? Core.Catalog.CatalogLogic.GetDeviceRuleName(groupId, mediaAsset.DeviceRuleId.Value) : null;
             m_lFiles = ConvertFiles(mediaAsset.Files, groupId);
+            m_lPicture = ConvertImagesToPictures(mediaAsset.Images, groupId);
         }
 
         private List<FileMedia> ConvertFiles(List<AssetFile> assetFiles, int groupId)
@@ -143,6 +142,24 @@ namespace Core.Catalog.Response
             }
 
             return result;
+        }
+
+        private List<Picture> ConvertImagesToPictures(List<Image> assetImages, int groupId)
+        {
+            List<Picture> pictures = new List<Picture>();
+            if (assetImages != null && assetImages.Count > 0)
+            {
+                foreach (Image image in assetImages)
+                {
+                    ImageType imageType = ImageManager.GetImageType(groupId, image.ImageTypeId);
+                    if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
+                    {
+                        pictures.Add(new Picture(image, imageType.Name, ImageManager.GetRatioName(groupId, imageType.RatioId.Value)));
+                    }
+                }
+            }
+
+            return pictures;
         }
     }
 

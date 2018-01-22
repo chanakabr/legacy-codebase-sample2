@@ -513,7 +513,7 @@ namespace Core.Catalog.CatalogManagement
         {
             MediaAsset result = null;
 
-            if (ds.Tables.Count < 4)
+            if (ds.Tables.Count < 5)
             {
                 log.WarnFormat("CreateMediaAssetFromDataSet didn't receive dataset with 3 or more tables");
                 return result;
@@ -534,19 +534,6 @@ namespace Core.Catalog.CatalogManagement
             DateTime? endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "END_DATE");
             DateTime? catalogStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "CATALOG_START_DATE");
             DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "UPDATE_DATE");
-
-            // Pictures table
-            List<Picture> pictures = null;
-            //if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
-            //{
-            //    bool picturesResult = false;
-            //    pictures = CatalogLogic.GetAllPic(groupId, (int)id, ds.Tables[1], ref picturesResult, groupId);
-            //    if (!picturesResult)
-            //    {
-            //        log.WarnFormat("CreateMediaAssetFromDataSet - failed to get pictures for Id: {0}", id);
-            //        return null;
-            //    }
-            //}
 
             // Metas and Tags table
             List<Metas> metas = null;
@@ -570,8 +557,7 @@ namespace Core.Catalog.CatalogManagement
                 return null;
             }
 
-            // Files table
-            DataTable filesTable = new DataTable();
+            // Files table            
             List<AssetFile> files = null;
             if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
             {
@@ -580,11 +566,26 @@ namespace Core.Catalog.CatalogManagement
                 files = files.Where(x => x.IsActive.HasValue && x.IsActive.Value).ToList();
             }
 
+            // Images table
+            List<Image> images = null;
+            if (ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
+            {                
+                ImageListResponse imageResponse = ImageManager.CreateImageListResponseFromDataTable(groupId, ds.Tables[4]);
+                if (imageResponse == null || imageResponse.Status == null || imageResponse.Status.Code != (int)eResponseStatus.OK || imageResponse.Images.Count == 0)
+                {
+                    log.WarnFormat("CreateMediaAssetFromDataSet - failed to get images for Id: {0}", id);
+                    return null;
+                }
+
+                // get only active images
+                images = imageResponse.Images.Where(x => x.Status == eTableStatus.OK).Count() > 0 ? imageResponse.Images.Where(x => x.Status == eTableStatus.OK).ToList() : new List<Image>();
+            }
+
             // new tags or update dates
-            if (ds.Tables.Count >= 5 && ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
+            if (ds.Tables.Count >= 6 && ds.Tables[5] != null && ds.Tables[5].Rows != null && ds.Tables[5].Rows.Count > 0)
             {
                 // Handle new tags if exist
-                if (ds.Tables[4].Columns.Contains(IS_NEW_TAG_COLUMN_NAME))
+                if (ds.Tables[5].Columns.Contains(IS_NEW_TAG_COLUMN_NAME))
                 {
                     CatalogGroupCache catalogGroupCache;
                     if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -593,7 +594,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    foreach (DataRow dr in ds.Tables[4].Rows)
+                    foreach (DataRow dr in ds.Tables[5].Rows)
                     {
                         int topicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "topic_id");
                         int tagId = ODBCWrapper.Utils.GetIntSafeVal(dr, "tag_id");
@@ -625,7 +626,7 @@ namespace Core.Catalog.CatalogManagement
                 // update dates
                 else
                 {
-                    DateTime? assetUpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ds.Tables[4].Rows[0], "UPDATE_DATE");
+                    DateTime? assetUpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ds.Tables[5].Rows[0], "UPDATE_DATE");
                     // overide existing update with the max update date from all possible tables (from GetAssetUpdateDate stored procedure)
                     if (assetUpdateDate.HasValue)
                     {
@@ -650,7 +651,7 @@ namespace Core.Catalog.CatalogManagement
             int? deviceRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "DEVICE_RULE_ID", -1);
             int? geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "GEO_BLOCK_RULE_ID", -1);
             string userTypes = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "user_types");
-            result = new MediaAsset(id, eAssetTypes.MEDIA, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, updateDate, startDate, endDate, metas, tags, pictures, coGuid,
+            result = new MediaAsset(id, eAssetTypes.MEDIA, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, updateDate, startDate, endDate, metas, tags, images, coGuid,
                                     isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes);
 
             return result;
@@ -3646,6 +3647,13 @@ namespace Core.Catalog.CatalogManagement
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
+                    // UpdateIndex
+                    bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)assetFileToAdd.AssetId);
+                    if (!indexingResult)
+                    {
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after InsertMediaFile", assetFileToAdd.AssetId, groupId);
+                    }
+
                     //string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
                     //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     //{
@@ -3685,6 +3693,13 @@ namespace Core.Catalog.CatalogManagement
 
                     if (result.Code == (int)eResponseStatus.OK)
                     {
+                        // UpdateIndex
+                        bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)assetFileResponse.File.AssetId);
+                        if (!indexingResult)
+                        {
+                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after DeleteMediaFile", assetFileResponse.File.AssetId, groupId);
+                        }
+
                         //string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
                         //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         //{
@@ -3752,6 +3767,13 @@ namespace Core.Catalog.CatalogManagement
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
+                    // UpdateIndex
+                    bool indexingResult = AssetIndexingManager.UpsertMedia(groupId, (int)assetFileToUpdate.AssetId);
+                    if (!indexingResult)
+                    {
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaFile", assetFileToUpdate.AssetId, groupId);
+                    }
+
                     //string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
                     //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     //{

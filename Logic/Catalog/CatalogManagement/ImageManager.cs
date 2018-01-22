@@ -50,7 +50,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }
+        }        
 
         private static Status CreateImageTypeResponseStatusFromResult(long result)
         {
@@ -215,24 +215,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }
-
-        private static ImageListResponse CreateImageListResponseFromDataTable(int groupId, DataTable dt)
-        {
-            ImageListResponse response = new ImageListResponse();
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                response.Images = new List<Image>();
-
-                foreach (DataRow row in dt.Rows)
-                {
-                    response.Images.Add(CreateImageFromDataRow(groupId, row));
-                }
-            }
-            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-            return response;
-        }
+        }        
 
         private static Image CreateImageFromDataRow(int groupId, DataRow row)
         {
@@ -251,6 +234,63 @@ namespace Core.Catalog.CatalogManagement
             image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
 
             return image;
+        }
+
+        // for backward compatibility
+        private static string GetRatioNameById(int groupId, long ratioId)
+        {
+            string ratio = string.Empty;
+            List<Ratio> groupRatios = GetImageRatios(groupId);
+            if (groupRatios != null && groupRatios.Count > 0)
+            {
+                ratio = groupRatios.Where(x => x.Id == ratioId).Select(x => x.Name).FirstOrDefault();
+            }
+
+            return ratio;
+        }
+
+        #endregion
+
+        #region Internal
+
+        internal static ImageListResponse CreateImageListResponseFromDataTable(int groupId, DataTable dt)
+        {
+            ImageListResponse response = new ImageListResponse();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                response.Images = new List<Image>();
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    response.Images.Add(CreateImageFromDataRow(groupId, row));
+                }
+            }
+            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            return response;
+        }
+
+        internal static string GetRatioName(int groupId, long ratioId)
+        {
+            string ratio = string.Empty;
+            if (ratioId > 0)
+            {
+                ratio = GetRatioNameById(groupId, ratioId);
+            }
+
+            return ratio;
+        }
+
+        internal static ImageType GetImageType(int groupId, long imageTypeId)
+        {
+            ImageType imageType = null;
+            ImageTypeListResponse imageTypeResponse = GetImageTypes(groupId, true, new List<long>() { imageTypeId });
+            if (imageTypeResponse != null && imageTypeResponse.Status != null && imageTypeResponse.Status.Code == (int)eResponseStatus.OK && imageTypeResponse.ImageTypes.Count == 1)
+            {
+                imageType = imageTypeResponse.ImageTypes[0];
+            }
+
+            return imageType;
         }
 
         #endregion
