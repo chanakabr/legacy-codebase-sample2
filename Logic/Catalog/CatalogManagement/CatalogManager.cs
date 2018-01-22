@@ -569,7 +569,7 @@ namespace Core.Catalog.CatalogManagement
             // Images table
             List<Image> images = null;
             if (ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
-            {                
+            {
                 ImageListResponse imageResponse = ImageManager.CreateImageListResponseFromDataTable(groupId, ds.Tables[4]);
                 if (imageResponse == null || imageResponse.Status == null || imageResponse.Status.Code != (int)eResponseStatus.OK || imageResponse.Images.Count == 0)
                 {
@@ -860,8 +860,8 @@ namespace Core.Catalog.CatalogManagement
                         if (files.Count() > 0)
                         {
                             EnumerableRowCollection<DataRow> assetfiles = (from row in files
-                                                                          where (Int64)row["MEDIA_ID"] == id
-                                                                          select row);
+                                                                           where (Int64)row["MEDIA_ID"] == id
+                                                                           select row);
                             if (assetfiles != null && assetfiles.Count() > 0)
                             {
                                 assetDataset.Tables.Add(assetfiles.CopyToDataTable());
@@ -875,8 +875,8 @@ namespace Core.Catalog.CatalogManagement
                         if (assetUpdateDate.Count() > 0)
                         {
                             EnumerableRowCollection<DataRow> assetUpdateDateRow = (from row in assetUpdateDate
-                                                                           where (Int64)row["ID"] == id
-                                                                           select row);
+                                                                                   where (Int64)row["ID"] == id
+                                                                                   select row);
                             if (assetUpdateDateRow != null && assetUpdateDateRow.Count() > 0)
                             {
                                 assetDataset.Tables.Add(assetUpdateDateRow.CopyToDataTable());
@@ -940,7 +940,7 @@ namespace Core.Catalog.CatalogManagement
             List<int> freeFileTypes = null;
             bool isFree = false;
             if (mediaAsset.Files != null && mediaAsset.Files.Count > 0)
-            {                
+            {
                 //fileTypes = new HashSet<int>();
                 //foreach (AssetFile assetFile in mediaAsset.Files)
                 //{
@@ -2034,7 +2034,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                 }
-            }                    
+            }
 
             return response;
         }
@@ -2091,7 +2091,7 @@ namespace Core.Catalog.CatalogManagement
             if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
             {
                 files = CreateAssetFileListResponseFromDataTable(ds.Tables[0]);
-            }            
+            }
 
             return files;
         }
@@ -2152,6 +2152,48 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
+        private static Status ValidateMediaFileExternalIdUniqueness(int groupId, AssetFile assetFile)
+        {
+            Status status = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+
+            DataSet ds = CatalogDAL.GetMediaFilesByExternalIdAndAltExternalId(groupId, assetFile.ExternalId, assetFile.AltExternalId);
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                long id = 0;
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    // get all mediaFiles with  ExternalId
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                        if (id != assetFile.Id)
+                        {
+                            status.Code = (int)eResponseStatus.MediaFileExternalIdMustBeUnique;
+                            status.Message = eResponseStatus.MediaFileExternalIdMustBeUnique.ToString();
+                            return status;
+                        }
+                    }
+                }
+
+                // get all mediaFiles with  AltExternalId
+                if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                {
+                    foreach (DataRow dr in ds.Tables[1].Rows)
+                    {
+                        id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                        if (id != assetFile.Id)
+                        {
+                            status.Code = (int)eResponseStatus.MediaFileAltExternalIdMustBeUnique;
+                            status.Message = eResponseStatus.MediaFileAltExternalIdMustBeUnique.ToString();
+                            return status;
+                        }
+                    }
+                }
+            }
+
+            return status;
+        }
         #endregion
 
         #region Public Methods
@@ -3377,7 +3419,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }      
+        }
 
         public static Status DeleteTag(int groupId, long tagId, long userId)
         {
@@ -3621,7 +3663,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                //// validate that asset file type exist 
+                // validate that asset file type exist 
                 List<MediaFileType> mediaFileTypes = GetGroupMediaFileTypes(groupId);
                 if (mediaFileTypes == null || mediaFileTypes.Count < 1)
                 {
@@ -3635,6 +3677,14 @@ namespace Core.Catalog.CatalogManagement
                     result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
                     return result;
                 }
+
+                // validate ExternalId and AltExternalId  are unique 
+                result.Status = ValidateMediaFileExternalIdUniqueness(groupId, assetFileToAdd);
+                if (result.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return result;
+                }
+
 
                 DateTime startDate = assetFileToAdd.StartDate.HasValue ? assetFileToAdd.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToAdd.EndDate.HasValue ? assetFileToAdd.EndDate.Value : startDate;
@@ -3719,12 +3769,12 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetFileResponse UpdateMediaFile(int groupId, long id, AssetFile assetFileToUpdate, long userId)
+        public static AssetFileResponse UpdateMediaFile(int groupId, AssetFile assetFileToUpdate, long userId)
         {
             AssetFileResponse result = new AssetFileResponse();
             try
             {
-                DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
+                DataSet ds = CatalogDAL.GetMediaFile(groupId, assetFileToUpdate.Id);
                 result = CreateAssetFileResponseFromDataSet(ds);
 
                 if (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK)
@@ -3754,10 +3804,17 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                // validate ExternalId and AltExternalId  are unique 
+                result.Status = ValidateMediaFileExternalIdUniqueness(groupId, assetFileToUpdate);
+                if (result.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return result;
+                }
+
                 DateTime startDate = assetFileToUpdate.StartDate.HasValue ? assetFileToUpdate.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToUpdate.EndDate.HasValue ? assetFileToUpdate.EndDate.Value : startDate;
 
-                ds = CatalogDAL.UpdateMediaFile(groupId, id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, assetFileToUpdate.AltStreamingSuplierId,
+                ds = CatalogDAL.UpdateMediaFile(groupId, assetFileToUpdate.Id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, assetFileToUpdate.AltStreamingSuplierId,
                                                 assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, assetFileToUpdate.Duration, endDate, assetFileToUpdate.ExternalId,
                                                 assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language,
                                                 assetFileToUpdate.OrderNum, assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.StreamingSuplierId,
