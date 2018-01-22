@@ -1076,6 +1076,11 @@ namespace ElasticSearch.Common
             return string.Empty;
         }
 
+        public virtual string SerializeTagValueObject(TagValue tagValue, LanguageObj language)
+        {
+            return string.Empty;
+        }
+
         public virtual string SerializeChannelObject(Channel channel)
         {
             return string.Empty;

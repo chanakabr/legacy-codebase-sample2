@@ -1377,6 +1377,23 @@ namespace ElasticSearch.Common
             return result;
         }
 
+        public override string SerializeTagValueObject(TagValue tagValue, LanguageObj language)
+        {
+            string result = string.Empty;
+            JObject json = JObject.FromObject(tagValue);
+
+            // if it is not default language, value field should have suffix
+            if (!language.IsDefault)
+            {
+                json.Remove("value");
+                string valueField = string.Format("value_{0}", language.Code);
+                json[valueField] = tagValue.value;
+            }
+
+            result = json.ToString(Newtonsoft.Json.Formatting.None);
+
+            return result;
+        }
         public override string CreateChannelMapping(string normalIndexAnalyzer, string normalSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null)
         {
             string result = string.Empty;
