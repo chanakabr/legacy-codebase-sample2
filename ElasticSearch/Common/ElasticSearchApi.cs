@@ -434,13 +434,19 @@ namespace ElasticSearch.Common
                 return deleteResult;
             }
 
-
             string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sId);
             int nStatus = 0;
 
             string sRetVal = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty, true);
 
+            log.DebugFormat("ElasticSearchApi DeleteDoc result: {0}", sRetVal);
+
             deleteResult = ESDeleteResult.GetDeleteResult(sRetVal);
+
+            if (nStatus == 200 && deleteResult != null)
+            {
+                deleteResult.Ok = true;
+            }
 
             return deleteResult;
         }
@@ -454,7 +460,7 @@ namespace ElasticSearch.Common
                 int nStatus = 0;
 
                 string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
-                log.Debug("Status - " + string.Format("DeleteDocsByQuery. Returned JSON from ES: ", sResult, " Query: ", sQuery));
+                log.DebugFormat("Status - DeleteDocsByQuery. Returned JSON from ES: {0}, Query: {1}", sResult, sQuery);
                 bResult = nStatus == 200;
 
             }
@@ -1179,6 +1185,8 @@ namespace ElasticSearch.Common
                 string sAlternativeURL = sUrl.Replace(ES_URL, ALT_ES_URL);
                 res = SendDeleteHttpReq(sAlternativeURL, ref nStatus, sUserName, sPassword, sParams, false);
             }
+
+            log.DebugFormat("SendDeleteHttpReq to url = {0} with body = {1} : result = {2}", sUrl, sParams, res);
 
             nStatus = nStatusCode;
             return res;
