@@ -16458,7 +16458,7 @@ namespace Core.ConditionalAccess
                 customData = customData,
                 couponCode = couponCode,
                 country = country,
-                currency = currency
+                currency = currency,
             };
 
             result = subscriptionPurchase.Notify(null, "SubscriptionEnded");
