@@ -688,12 +688,13 @@ namespace Core.ConditionalAccess
 
             if (pageIndex > 0 && pageSize > 0)
             {
-                int takeTop = pageIndex * pageSize;
-                Int64 maxTransactionID = (from row in usersPermittedItems.AsEnumerable().Take(takeTop)
-                                          select row.Field<Int64>("ID")).ToList().Min();
-                filteredRows = (from row in usersPermittedItems.AsEnumerable()
-                                where (Int64)row["ID"] < maxTransactionID
-                                select row).Take(pageSize).ToList();
+                filteredRows = usersPermittedItems.AsEnumerable().Skip(pageSize * pageIndex).Take(pageSize).ToList();
+                //int takeTop = pageIndex * pageSize;
+                //Int64 maxTransactionID = (from row in usersPermittedItems.AsEnumerable().Take(takeTop)
+                //                          select row.Field<Int64>("ID")).ToList().Min();
+                //filteredRows = (from row in usersPermittedItems.AsEnumerable()
+                //                where (Int64)row["ID"] < maxTransactionID
+                //                select row).Take(pageSize).ToList();
             }
 
             if (filteredRows != null)
@@ -708,6 +709,7 @@ namespace Core.ConditionalAccess
             {
                 iterationRows = usersPermittedItems.AsEnumerable();
             }
+
             return iterationRows;
         }
 
