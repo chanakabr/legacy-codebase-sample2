@@ -506,20 +506,9 @@ namespace TVinciShared
                             }
                             else
                             {
-                            sTable.Append("<td ><img src='" + sBP);
-                            if (sBP.EndsWith("=") == false)
-                                sTable.Append("/");
-                            Random random = new Random();
-                            int randomInt = random.Next();
-                            sTable.Append(sFileName + "_tn");
-
-                            if (sBP.EndsWith("=") == false)
-                                sTable.Append(sFileExt);
-                            sTable.Append("?");
-                            sTable.Append(randomInt.ToString());
-
-                            sTable.Append("'/></td>");
-                                }
+                                sTable.Append("<td><img src='" + sFileName);
+                                sTable.Append("'/></td>");
+                            }   
                         }
                         else
                         {
