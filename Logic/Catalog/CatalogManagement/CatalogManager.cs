@@ -2156,6 +2156,14 @@ namespace Core.Catalog.CatalogManagement
         {
             Status status = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
 
+            if (!string.IsNullOrEmpty(assetFile.ExternalId) && !string.IsNullOrEmpty(assetFile.AltExternalId) && assetFile.ExternalId.ToLower() == assetFile.AltExternalId.ToLower())
+            {
+                status.Code = (int)eResponseStatus.ExternaldAndAltExternalIdMustBeUnique;
+                status.Message = eResponseStatus.ExternaldAndAltExternalIdMustBeUnique.ToString();
+                return status;
+            }
+
+
             DataSet ds = CatalogDAL.GetMediaFilesByExternalIdAndAltExternalId(groupId, assetFile.ExternalId, assetFile.AltExternalId);
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -3824,6 +3832,17 @@ namespace Core.Catalog.CatalogManagement
                 {
                     result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
                     return result;
+                }
+
+                // ExternalId and AltExternalId cannot be the same value
+                if (string.IsNullOrEmpty(assetFileToUpdate.ExternalId))
+                {
+                    assetFileToUpdate.ExternalId = result.File.ExternalId;
+                }
+
+                if (string.IsNullOrEmpty(assetFileToUpdate.AltExternalId) && !string.IsNullOrEmpty(result.File.AltExternalId))
+                {
+                    assetFileToUpdate.AltExternalId = result.File.AltExternalId;
                 }
 
                 // validate ExternalId and AltExternalId  are unique 

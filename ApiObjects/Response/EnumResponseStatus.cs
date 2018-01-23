@@ -231,6 +231,7 @@ namespace ApiObjects.Response
         CanNotRemoveBasicMetaIds = 4055,
         MediaFileExternalIdMustBeUnique = 4056,
         MediaFileAltExternalIdMustBeUnique = 4057,
+        ExternaldAndAltExternalIdMustBeUnique = 4058,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,
