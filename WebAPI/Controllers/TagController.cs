@@ -81,6 +81,7 @@ namespace WebAPI.Controllers
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.TopicNotFound)]        
+        [Throws(eResponseStatus.TagAlreadyInUse)]        
         public KalturaTag Add(KalturaTag tag)
         {
             KalturaTag response = null;
@@ -126,6 +127,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.TopicNotFound)]
         [Throws(eResponseStatus.TagDoesNotExist)]
+        [Throws(eResponseStatus.TagAlreadyInUse)]
         public KalturaTag Update(long id, KalturaTag tag)
         {
             KalturaTag response = null;
