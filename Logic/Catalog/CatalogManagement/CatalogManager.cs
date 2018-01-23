@@ -1785,11 +1785,21 @@ namespace Core.Catalog.CatalogManagement
                         return response;
                     }
                 }
+                else
+                {
+                    response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+                    return response;
+                }
 
                 if (response.TagValues != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
+            }
+            else
+            {
+                response.Status = new Status((int)eResponseStatus.TagDoesNotExist, eResponseStatus.TagDoesNotExist.ToString());
+
             }
 
             return response;
