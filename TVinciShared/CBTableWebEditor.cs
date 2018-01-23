@@ -506,6 +506,15 @@ namespace TVinciShared
                             }
                             else
                             {
+                                int x = sFileName.LastIndexOf(".");
+                                int y = sFileName.LastIndexOf("_");
+
+                                if (x > 0 && y > 0 && x > y)
+                                {
+                                    string replace = sFileName.Substring(y, x - y);
+                                    sFileName = sFileName.Replace(replace, "_tn");
+                                }
+
                                 sTable.Append("<td><img src='" + sFileName);
                                 sTable.Append("'/></td>");
                             }   
