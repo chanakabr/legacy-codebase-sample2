@@ -3201,6 +3201,28 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public static bool CheckMetaExsits(int groupId, string metaName)
+        {
+            bool result = false;
+            try
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling CheckMetaExsits", groupId);
+                    return result;
+                }
+
+                result = catalogGroupCache.TopicsMapBySystemName.ContainsKey(metaName) && catalogGroupCache.TopicsMapBySystemName[metaName].Type != MetaType.Tag;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed CheckMetaExsits for groupId: {0}, metaName: {1}", groupId, metaName), ex);
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// 
         /// </summary>

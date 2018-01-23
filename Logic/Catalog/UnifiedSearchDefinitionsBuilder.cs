@@ -160,12 +160,23 @@ namespace Core.Catalog
                     }
                 }
 
-                if (order.m_eOrderBy == OrderBy.META && 
-                    !Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia, definitions.shouldSearchRecordings, group, order.m_sOrderValue.ToLower()))
+                if (order.m_eOrderBy == OrderBy.META)
                 {
-                    //return error - meta not erxsits
-                    log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
-                    throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
+                    if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+                    {
+                        if (!CatalogManagement.CatalogManager.CheckMetaExsits(request.m_nGroupID, order.m_sOrderValue.ToLower()))
+                        {
+                            //return error - meta not erxsits
+                            log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
+                            throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
+                        }
+                    }
+                    else if (!Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia, definitions.shouldSearchRecordings, group, order.m_sOrderValue.ToLower()))
+                    {
+                        //return error - meta not erxsits
+                        log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
+                        throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
+                    }
                 }
 
                 #endregion
