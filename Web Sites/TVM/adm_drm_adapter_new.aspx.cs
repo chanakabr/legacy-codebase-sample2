@@ -159,15 +159,15 @@ public partial class adm_drm_adapter_new : System.Web.UI.Page
         dr_settings.Initialize("Settings", "adm_table_header_nbg", "FormInput", "settings", false);
         theRecord.AddRecord(dr_settings);
 
-        DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", false, 60, 128);
+        DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
         theRecord.AddRecord(dr_shared_secret);
 
-        if (t == null)
-        {
-            string sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
-            dr_shared_secret.SetValue(sharedSecret);
-        }
+        //if (t == null)
+        //{
+        //    string sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+        //    dr_shared_secret.SetValue(sharedSecret);
+        //}
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "group_id", false);
