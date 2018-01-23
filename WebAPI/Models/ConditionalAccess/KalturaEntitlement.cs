@@ -45,7 +45,7 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "entitlementId")]
         [SchemeProperty(ReadOnly = true)]
         [OldStandardProperty("entitlement_id")]
-        [Deprecated("4.7.0.0")]
+        [Deprecated("4.8.0.0")]
         public string EntitlementId { get; set; }
 
         /// <summary>
