@@ -5271,10 +5271,11 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet GetMediaFilesByAssetId(int groupId, List<long> assetIds)
+        public static DataSet GetMediaFilesByAssetIds(int groupId, List<long> assetIds)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFileByAssetId");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFilesByAssetIds");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
             sp.AddIDListParameter<long>("@AssetIds", assetIds, "Id");
 
             return sp.ExecuteDataSet();
