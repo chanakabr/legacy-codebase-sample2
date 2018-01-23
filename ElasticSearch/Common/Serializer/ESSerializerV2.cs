@@ -341,7 +341,7 @@ namespace ElasticSearch.Common
 
             ElasticSearch.Common.FieldsMappingPropertyV2 externalId = new FieldsMappingPropertyV2()
             {
-                name = AddSuffix("external_id", suffix),
+                name = "external_id",
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -350,7 +350,7 @@ namespace ElasticSearch.Common
             };
             externalId.fields.Add(new BasicMappingPropertyV2()
             {
-                name = AddSuffix("external_id", suffix),
+                name = "external_id",
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
                 index = eMappingIndex.analyzed,
@@ -402,7 +402,7 @@ namespace ElasticSearch.Common
 
             ElasticSearch.Common.FieldsMappingPropertyV2 entryId = new FieldsMappingPropertyV2()
             {
-                name = AddSuffix("entry_id", suffix),
+                name = "entry_id",
                 type = eESFieldType.STRING,
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -411,7 +411,7 @@ namespace ElasticSearch.Common
             };
             entryId.fields.Add(new BasicMappingPropertyV2()
             {
-                name = AddSuffix("entry_id", suffix),
+                name = "entry_id",
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
                 index = eMappingIndex.analyzed,
