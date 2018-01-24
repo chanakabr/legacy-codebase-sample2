@@ -3645,7 +3645,8 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataSet ds = CatalogDAL.InsertMediaFileType(groupId, mediaFileTypeToAdd.Name, mediaFileTypeToAdd.Description, mediaFileTypeToAdd.IsActive, mediaFileTypeToAdd.IsTrailer,
-                                                            (int)mediaFileTypeToAdd.StreamerType, mediaFileTypeToAdd.DrmId, mediaFileTypeToAdd.Quality, userId);
+                                                            (int)mediaFileTypeToAdd.StreamerType, mediaFileTypeToAdd.DrmId, mediaFileTypeToAdd.Quality, mediaFileTypeToAdd.VideoCodecs,
+                                                            mediaFileTypeToAdd.AudioCodecs, userId);
                 result = CreateMediaFileTypeResponseFromDataSet(ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
@@ -3670,7 +3671,8 @@ namespace Core.Catalog.CatalogManagement
             MediaFileTypeResponse result = new MediaFileTypeResponse();
             try
             {
-                DataSet ds = CatalogDAL.UpdateMediaFileType(groupId, id, mediaFileTypeToUpdate.Name, mediaFileTypeToUpdate.Description, mediaFileTypeToUpdate.IsActive, mediaFileTypeToUpdate.Quality, userId);
+                DataSet ds = CatalogDAL.UpdateMediaFileType(groupId, id, mediaFileTypeToUpdate.Name, mediaFileTypeToUpdate.Description, mediaFileTypeToUpdate.IsActive, mediaFileTypeToUpdate.Quality,
+                                                            mediaFileTypeToUpdate.VideoCodecs, mediaFileTypeToUpdate.AudioCodecs, userId);
                 result = CreateMediaFileTypeResponseFromDataSet(ds);
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
