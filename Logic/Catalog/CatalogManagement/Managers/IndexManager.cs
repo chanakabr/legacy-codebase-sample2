@@ -21,7 +21,7 @@ using Tvinci.Core.DAL;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class AssetIndexingManager
+    public class IndexManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly string MEDIA = "media";
@@ -397,7 +397,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
                 {
-                    return Core.Catalog.CatalogManagement.CatalogManager.GetMediaForElasticSearchIndex(groupId, mediaId);
+                    return Core.Catalog.CatalogManagement.AssetManager.GetMediaForElasticSearchIndex(groupId, mediaId);
                 }
 
                 ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");

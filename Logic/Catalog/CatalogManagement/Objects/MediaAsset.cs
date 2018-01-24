@@ -41,13 +41,13 @@ namespace Core.Catalog.CatalogManagement
             this.CatalogStartDate = catalogStartDate;
             if (this.CatalogStartDate.HasValue)
             {                                
-                this.Metas.Add(new Metas(new TagMeta(CatalogManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME,MetaType.DateTime.ToString()), this.CatalogStartDate.Value.ToString(), null));
+                this.Metas.Add(new Metas(new TagMeta(AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME,MetaType.DateTime.ToString()), this.CatalogStartDate.Value.ToString(), null));
             }
 
             this.FinalEndDate = finalEndDate;
             if (this.FinalEndDate.HasValue)
             {
-                this.Metas.Add(new Metas(new TagMeta(CatalogManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString()), this.FinalEndDate.Value.ToString(), null));
+                this.Metas.Add(new Metas(new TagMeta(AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString()), this.FinalEndDate.Value.ToString(), null));
             }
 
             this.MediaType = new MediaType(mediaType.m_sTypeName, mediaType.m_nTypeID);
