@@ -129,7 +129,11 @@ namespace ApiObjects
                     case KLogEnums.AppType.WCF:
 
                         if (OperationContext.Current != null)
-                            return OperationContext.Current.IncomingMessageProperties[key].ToString();
+                        {
+                            object res = null;
+                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(key, out res))
+                                return res.ToString();
+                        }
                         break;
 
                     case KLogEnums.AppType.WS:
