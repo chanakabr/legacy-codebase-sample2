@@ -1276,7 +1276,7 @@ namespace Core.Catalog
             return true;
         }
 
-        public static void BuildSearchGroupBy(SearchAggregationGroupBy searchGroupBy, Group group, UnifiedSearchDefinitions definitions, HashSet<string> reservedGroupByFields)
+        public static void BuildSearchGroupBy(SearchAggregationGroupBy searchGroupBy, Group group, UnifiedSearchDefinitions definitions, HashSet<string> reservedGroupByFields, int groupId)
         {
             if (searchGroupBy != null && searchGroupBy.groupBy != null && searchGroupBy.groupBy.Count > 0)
             {
@@ -1315,27 +1315,61 @@ namespace Core.Catalog
                 definitions.groupBy = new List<KeyValuePair<string, string>>();
                 string distinctGroupByFormatted = string.Empty;
 
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+                CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+                if (doesGroupUsesTemplates)
+                {
+                    try
+                    {
+                        if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        {
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildSearchGroupBy", groupId);
+                            return;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(string.Format("Failed TryGetCatalogGroupCacheFromCache for groupId: {0} on BuildSearchGroupBy", groupId), ex);
+                    }
+                }
+
                 foreach (var groupBy in searchGroupBy.groupBy)
                 {
                     string lowered = groupBy.ToLower();
                     string requestGroupBy = lowered;
                     bool valid = false;
 
-                    if (allMetas.Contains(lowered))
-                    {
-                        valid = true;
-                        requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
-                    }
-                    else if (allTags.Contains(lowered))
-                    {
-                        valid = true;
-                        requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
-                    }
-                    else if (reservedGroupByFields.Contains(lowered))
+                    if (reservedGroupByFields.Contains(lowered))
                     {
                         valid = true;
                     }
-
+                    else if (doesGroupUsesTemplates)
+                    {
+                        if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(lowered) && catalogGroupCache.TopicsMapBySystemName[lowered].Type == ApiObjects.MetaType.Tag)
+                        {
+                            valid = true;
+                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
+                        }
+                        else if (catalogGroupCache.TopicsMapBySystemName.ContainsKey(lowered) && catalogGroupCache.TopicsMapBySystemName[lowered].Type != ApiObjects.MetaType.Tag)
+                        {
+                            valid = true;
+                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
+                        }
+                    }
+                    else
+                    {
+                        if (allMetas.Contains(lowered))
+                        {
+                            valid = true;
+                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
+                        }
+                        else if (allTags.Contains(lowered))
+                        {
+                            valid = true;
+                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
+                        }                        
+                    }
+                    
                     if (!valid)
                     {
                         throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy), (int)eResponseStatus.BadSearchRequest);
@@ -1351,6 +1385,7 @@ namespace Core.Catalog
                         }
                     }
                 }
+
 
                 definitions.groupByOrder = searchGroupBy.groupByOrder;
                 definitions.topHitsCount = searchGroupBy.topHitsCount;

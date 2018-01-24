@@ -6722,7 +6722,7 @@ namespace Core.Catalog
 
             #region Group By
 
-            Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields);
+            Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
 
             #endregion
 
@@ -7463,7 +7463,7 @@ namespace Core.Catalog
 
                 #region Group By
 
-                Utils.BuildSearchGroupBy(channel.searchGroupBy, group, definitions, reservedGroupByFields);
+                Utils.BuildSearchGroupBy(channel.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
                 
                 #endregion
             }

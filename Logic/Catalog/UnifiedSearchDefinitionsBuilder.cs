@@ -338,7 +338,7 @@ namespace Core.Catalog
 
                 #region Group By
 
-                Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields);
+                Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
 
                 #endregion
 
