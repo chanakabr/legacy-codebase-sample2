@@ -89,6 +89,7 @@
     <Compile Include="Common\SearchResults\SearchHits.cs" />
     <Compile Include="Common\SearchResults\ESSearchResult.cs" />
     <Compile Include="Common\SearchResults\ShardStatus.cs" />
+    <Compile Include="Common\Serializer\MappingAnalyzers.cs" />
     <Compile Include="Common\Utils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Searcher\BaseFilterCompositeType.cs" />

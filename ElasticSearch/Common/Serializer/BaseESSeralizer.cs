@@ -237,12 +237,16 @@ namespace ElasticSearch.Common
         }
 
         public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags,
-            string normalIndexAnalyzer, string normalSearchAnalyzer, 
-            string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, 
-            string suffix = null,
-            string phoneticIndexAnalyzer = null,
-            string phoneticSearchAnalyzer = null)
+            MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers)
         {
+            string normalIndexAnalyzer = specificLanguageAnalyzers.normalIndexAnalyzer;
+            string normalSearchAnalyzer = specificLanguageAnalyzers.normalSearchAnalyzer;
+            string autocompleteIndexAnalyzer = specificLanguageAnalyzers.autocompleteIndexAnalyzer;
+            string autocompleteSearchAnalyzer = specificLanguageAnalyzers.autocompleteSearchAnalyzer;
+            string suffix = specificLanguageAnalyzers.suffix;
+            string phoneticIndexAnalyzer = specificLanguageAnalyzers.phoneticIndexAnalyzer;
+            string phoneticSearchAnalyzer = specificLanguageAnalyzers.phoneticSearchAnalyzer;
+
             if (metasMap == null || groupTags == null)
                 return string.Empty;
 
