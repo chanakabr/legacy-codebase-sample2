@@ -3819,14 +3819,18 @@ namespace Core.Catalog
                             Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                             for (int i = 0; i < lAssetIDs.Count; i++)
                             {
-                                tasks[(int)i] = Task.Run<AssetStatsResult.SocialPartialAssetStatsResult>(() =>
+                                tasks[(int)i] = new Task<Response.AssetStatsResult.SocialPartialAssetStatsResult>((obj) =>
                                 {
+                                    int index = (int)obj;
                                     // load monitor and logs context data
                                     contextData.Load();
 
-                                    return GetSocialAssetStats(nGroupID, lAssetIDs[(int)i], eType, dStartDate, dEndDate);
-                                });
+                                    return GetSocialAssetStats(nGroupID, lAssetIDs[index], eType, dStartDate, dEndDate);
+                                }, i);
+
+                                tasks[i].Start();
                             }
+
                             Task.WaitAll(tasks);
                             for (int i = 0; i < tasks.Length; i++)
                             {
@@ -3900,14 +3904,19 @@ namespace Core.Catalog
                                 Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                                 for (int i = 0; i < lAssetIDs.Count; i++)
                                 {
-                                    tasks[(int)i] = Task.Run<AssetStatsResult.SocialPartialAssetStatsResult>(() =>
+                                    tasks[(int)i] = new Task<Response.AssetStatsResult.SocialPartialAssetStatsResult>((obj) =>
                                     {
+                                        int index = (int)obj;
+
                                         // load monitor and logs context data
                                         contextData.Load();
 
-                                        return GetSocialAssetStats(nGroupID, lAssetIDs[(int)i], eType, dStartDate, dEndDate);
-                                    });
+                                        return GetSocialAssetStats(nGroupID, lAssetIDs[index], eType, dStartDate, dEndDate);
+                                    }, i);
+
+                                    tasks[(int)i].Start();
                                 }
+
                                 Task.WaitAll(tasks);
                                 for (int i = 0; i < tasks.Length; i++)
                                 {
