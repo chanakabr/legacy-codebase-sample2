@@ -4737,7 +4737,8 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertMediaFileType(int groupId, string name, string description, bool? isActive, bool isTrailer, int streamerType, int? drmId, MediaFileTypeQuality quality, long userId)
+        public static DataSet InsertMediaFileType(int groupId, string name, string description, bool? isActive, bool isTrailer, int streamerType, int? drmId,
+                                                    MediaFileTypeQuality quality, HashSet<string> videoCodecs, HashSet<string> audioCodecs, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaFileType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4749,6 +4750,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@StreamerType", streamerType);
             sp.AddParameter("@DrmId", drmId);
             sp.AddParameter("@Quality", (int)quality);
+            sp.AddParameter("@VideoCodecs", videoCodecs != null && videoCodecs.Count > 0 ? string.Join(",", videoCodecs) : string.Empty);
+            sp.AddParameter("@AudioCodecs", audioCodecs != null && audioCodecs.Count > 0 ? string.Join(",", audioCodecs) : string.Empty);
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();
@@ -4790,7 +4793,8 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateMediaFileType(int groupId, long id, string name, string description, bool? isActive, MediaFileTypeQuality quality, long userId)
+        public static DataSet UpdateMediaFileType(int groupId, long id, string name, string description, bool? isActive, MediaFileTypeQuality quality,
+                                                    HashSet<string> videoCodecs, HashSet<string> audioCodecs, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaFileType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4800,6 +4804,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Description", description);
             sp.AddParameter("@IsActive", isActive);
             sp.AddParameter("@Quality", quality);
+            sp.AddParameter("@VideoCodecs", videoCodecs != null && videoCodecs.Count > 0 ? string.Join(",", videoCodecs) : string.Empty);
+            sp.AddParameter("@AudioCodecs", audioCodecs != null && audioCodecs.Count > 0 ? string.Join(",", audioCodecs) : string.Empty);
             sp.AddParameter("@UpdaterId", userId);
 
             return sp.ExecuteDataSet();
