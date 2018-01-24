@@ -5603,6 +5603,16 @@
              Media file type quality
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.VideoCodecs">
+            <summary>
+            List of comma separated video codecs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFileType.AudioCodecs">
+            <summary>
+            List of comma separated audio codecs
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaFileTypeListResponse">
             <summary>
             Media-file types list

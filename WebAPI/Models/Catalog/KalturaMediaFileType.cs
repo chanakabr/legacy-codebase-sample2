@@ -107,6 +107,24 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "quality", IsNullable = true)]        
         public KalturaMediaFileTypeQuality? Quality { get; set; }
 
+        /// <summary>
+        /// List of comma separated video codecs
+        /// </summary>
+        [DataMember(Name = "videoCodecs")]
+        [JsonProperty("videoCodecs")]
+        [XmlElement(ElementName = "videoCodecs", IsNullable = true)]
+        [SchemeProperty(MaxLength = 100)]
+        public string VideoCodecs { get; set; }
+
+        /// <summary>
+        /// List of comma separated audio codecs
+        /// </summary>
+        [DataMember(Name = "audioCodecs")]
+        [JsonProperty("audioCodecs")]
+        [XmlElement(ElementName = "audioCodecs", IsNullable = true)]
+        [SchemeProperty(MaxLength = 100)]
+        public string AudioCodecs { get; set; }
+
         public void validateForInsert()
         {
             if (Name == null || Name.Trim().Length == 0)
@@ -123,6 +141,28 @@ namespace WebAPI.Models.Catalog
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "mediaFileType.streamerType");
             }
+        }
+
+        internal HashSet<string> CreateMappedHashSetForMediaFileType(string codecs)
+        {
+            HashSet<string> result = null;
+            if (!string.IsNullOrEmpty(codecs))
+            {
+                string[] codecValues = codecs.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (codecValues != null && codecValues.Length > 0)
+                {
+                    result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    foreach (string codec in codecValues)
+                    {
+                        if (!result.Contains(codec))
+                        {
+                            result.Add(codec);
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
     }
 

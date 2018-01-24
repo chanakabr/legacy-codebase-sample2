@@ -4871,6 +4871,8 @@ namespace WebAPI.Reflection
                 case "KalturaMediaFileType":
                     switch(property.Name)
                     {
+                        case "AudioCodecs":
+                            return "audioCodecs";
                         case "CreateDate":
                             return "createDate";
                         case "Description":
@@ -4891,6 +4893,8 @@ namespace WebAPI.Reflection
                             return "streamerType";
                         case "UpdateDate":
                             return "updateDate";
+                        case "VideoCodecs":
+                            return "videoCodecs";
                     }
                     break;
                     

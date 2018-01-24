@@ -377,7 +377,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
 
-            // AssetStruct to KalturaAssetStruct
+            // MediaFileType to KalturaMediaFileType
             Mapper.CreateMap<MediaFileType, KalturaMediaFileType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -388,9 +388,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
                 .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => ConvertStreamerType(src.StreamerType)))
                 .ForMember(dest => dest.DrmProfileId, opt => opt.MapFrom(src => src.DrmId))
-                .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => ConvertToKalturaAssetFileTypeQuality(src.Quality)));
+                .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => ConvertToKalturaAssetFileTypeQuality(src.Quality)))
+                .ForMember(dest => dest.VideoCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForKalturaMediaFileType(src.VideoCodecs)))
+                .ForMember(dest => dest.AudioCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForKalturaMediaFileType(src.AudioCodecs)));
 
-            // KalturaAssetStruct to AssetStruct
+            // KalturaMediaFileType to MediaFileType
             Mapper.CreateMap<KalturaMediaFileType, MediaFileType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -401,7 +403,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
                 .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => ConvertStreamerType(src.StreamerType)))
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmProfileId))
-                .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => ConvertToAssetFileTypeQuality(src.Quality)));
+                .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => ConvertToAssetFileTypeQuality(src.Quality)))
+                .ForMember(dest => dest.VideoCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForMediaFileType(src.VideoCodecs)))
+                .ForMember(dest => dest.AudioCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForMediaFileType(src.AudioCodecs)));
 
             // Topic to KalturaMeta
             Mapper.CreateMap<Topic, Models.API.KalturaMeta>()
