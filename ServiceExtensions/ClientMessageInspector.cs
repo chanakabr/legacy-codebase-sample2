@@ -33,11 +33,12 @@ namespace ServiceExtensions
                 {
                     if (OperationContext.Current != null)
                     {
-                        if (OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
-                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString()));
+                        object res = null;
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.REQUEST_ID_KEY, out res))
+                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, res.ToString()));
 
-                        if (OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.KS] != null)
-                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.KS, string.Empty, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.KS].ToString()));
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.KS, out res))
+                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.KS, string.Empty, res.ToString()));
                     }
                 }
                 else

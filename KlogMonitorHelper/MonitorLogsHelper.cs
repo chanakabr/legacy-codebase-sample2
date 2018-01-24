@@ -272,11 +272,12 @@ namespace KlogMonitorHelper
         {
             if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
             {
+                object res = null;
                 if (request.Headers != null &&
                 request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY] == null &&
                 OperationContext.Current != null &&
                 OperationContext.Current.IncomingMessageProperties != null &&
-                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                !OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.REQUEST_ID_KEY, out res))
                 {
                     request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
                 }
@@ -311,7 +312,11 @@ namespace KlogMonitorHelper
                     case KLogEnums.AppType.WCF:
 
                         if (OperationContext.Current != null)
-                            return OperationContext.Current.IncomingMessageProperties[key].ToString();
+                        {
+                            object res = null;
+                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(key, out res))
+                                return res.ToString();
+                        }
                         break;
 
                     case KLogEnums.AppType.WS:
