@@ -123,7 +123,7 @@ namespace ElasticSearchHandler.Updaters
 
             foreach (int id in epgIds)
             {
-                result &= Core.Catalog.CatalogManagement.AssetIndexingManager.UpsertEpg(groupId, id);
+                result &= Core.Catalog.CatalogManagement.IndexManager.UpsertEpg(groupId, id);
             }
 
             return result;
@@ -157,7 +157,7 @@ namespace ElasticSearchHandler.Updaters
             {
                 foreach (int id in epgIDs)
                 {
-                    result &= Core.Catalog.CatalogManagement.AssetIndexingManager.DeleteEpg(groupId, id);
+                    result &= Core.Catalog.CatalogManagement.IndexManager.DeleteEpg(groupId, id);
                 }
             }
 

@@ -116,7 +116,7 @@ namespace ElasticSearchHandler.Updaters
 
             foreach (int mediaId in mediaIds)
             {
-                result &= Core.Catalog.CatalogManagement.AssetIndexingManager.UpsertMedia(groupID, mediaId);
+                result &= Core.Catalog.CatalogManagement.IndexManager.UpsertMedia(groupID, mediaId);
             }
             
             return result;
@@ -128,7 +128,7 @@ namespace ElasticSearchHandler.Updaters
 
             foreach (int id in mediaIDs)
             {
-                result &= Core.Catalog.CatalogManagement.AssetIndexingManager.DeleteMedia(groupID, id);
+                result &= Core.Catalog.CatalogManagement.IndexManager.DeleteMedia(groupID, id);
             }
 
             return result;
