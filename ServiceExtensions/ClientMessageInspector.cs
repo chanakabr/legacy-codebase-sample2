@@ -31,13 +31,26 @@ namespace ServiceExtensions
             {
                 if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
                 {
-                    if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
-                        request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString()));
+                    if (OperationContext.Current != null)
+                    {
+                        object res = null;
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.REQUEST_ID_KEY, out res))
+                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, res.ToString()));
+
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.KS, out res))
+                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.KS, string.Empty, res.ToString()));
+                    }
                 }
                 else
                 {
-                    if (HttpContext.Current != null && HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
-                        request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString()));
+                    if (HttpContext.Current != null)
+                    {
+                        if (HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString()));
+
+                        if (HttpContext.Current.Items[KLogMonitor.Constants.KS] != null)
+                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.KS, string.Empty, HttpContext.Current.Items[KLogMonitor.Constants.KS].ToString()));
+                    }
                 }
             }
 
