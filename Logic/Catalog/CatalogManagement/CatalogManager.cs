@@ -513,9 +513,9 @@ namespace Core.Catalog.CatalogManagement
         {
             MediaAsset result = null;
 
-            if (ds.Tables.Count < 5)
+            if (ds.Tables.Count < 6)
             {
-                log.WarnFormat("CreateMediaAssetFromDataSet didn't receive dataset with 3 or more tables");
+                log.WarnFormat("CreateMediaAssetFromDataSet didn't receive dataset with 6 or more tables");
                 return result;
             }
 
@@ -777,9 +777,9 @@ namespace Core.Catalog.CatalogManagement
             Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
             try
             {
-                if (ds == null || ds.Tables == null || ds.Tables.Count < 5)
+                if (ds == null || ds.Tables == null || ds.Tables.Count < 6)
                 {
-                    log.WarnFormat("CreateGroupMediaMapFromDataSet didn't receive dataset with 5 or more tables");
+                    log.WarnFormat("CreateGroupMediaMapFromDataSet didn't receive dataset with 6 or more tables");
                     return null;
                 }
 
@@ -812,10 +812,10 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 EnumerableRowCollection<DataRow> assetUpdateDate = new DataTable().AsEnumerable();
-                // files table
-                if (ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
+                // update dates table
+                if (ds.Tables[5] != null && ds.Tables[5].Rows != null && ds.Tables[5].Rows.Count > 0)
                 {
-                    assetUpdateDate = ds.Tables[4].AsEnumerable();
+                    assetUpdateDate = ds.Tables[5].AsEnumerable();
                 }
 
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
@@ -872,6 +872,8 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
 
+                        assetDataset.Tables.Add(ds.Tables[4].Clone());
+
                         if (assetUpdateDate.Count() > 0)
                         {
                             EnumerableRowCollection<DataRow> assetUpdateDateRow = (from row in assetUpdateDate
@@ -883,7 +885,7 @@ namespace Core.Catalog.CatalogManagement
                             }
                             else
                             {
-                                assetDataset.Tables.Add(ds.Tables[4].Clone());
+                                assetDataset.Tables.Add(ds.Tables[5].Clone());
                             }
                         }
 
@@ -894,34 +896,6 @@ namespace Core.Catalog.CatalogManagement
                             groupAssetsMap.Add((int)mediaAsset.Id, assets);
                         }
                     }
-
-                    //get all the media files types for each mediaId that have been selected.
-                    //if (ds.Tables[1] != null && ds.Tables[1].Columns != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
-                    //{
-                    //    foreach (DataRow row in ds.Tables[1].Rows)
-                    //    {
-                    //        int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
-                    //        string sMFT = ODBCWrapper.Utils.GetSafeStr(row, "media_type_id");
-                    //        bool isTypeFree = ODBCWrapper.Utils.ExtractBoolean(row, "is_free");
-
-                    //        if (groupAssetsMap.ContainsKey(mediaID) && groupAssetsMap[mediaID].ContainsKey(defaultLanguage.ID))
-                    //        {
-                    //            ApiObjects.SearchObjects.Media theMedia = groupAssetsMap[mediaID][defaultLanguage.ID];
-                    //            theMedia.m_sMFTypes += string.Format("{0};", sMFT);
-                    //            int mediaTypeId;
-                    //            if (isTypeFree)
-                    //            {
-                    //                // if at least one of the media types is free - this media is free
-                    //                theMedia.isFree = true;
-
-                    //                if (int.TryParse(sMFT, out mediaTypeId))
-                    //                {
-                    //                    theMedia.freeFileTypes.Add(mediaTypeId);
-                    //                }
-                    //            }
-                    //        }
-                    //    }
-                    //}
                 }
             }
             catch (Exception ex)
