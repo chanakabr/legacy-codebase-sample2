@@ -431,7 +431,7 @@ namespace WebAPI.Clients
                 }
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddAsset(groupId, assetType, assetToAdd, userId);
+                    response = Core.Catalog.CatalogManagement.AssetManager.AddAsset(groupId, assetType, assetToAdd, userId);
                 }
             }
             catch (Exception ex)
@@ -473,7 +473,7 @@ namespace WebAPI.Clients
                 {
                     eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);                   
 
-                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteAsset(groupId, id, assetType, userId);
+                    response = Core.Catalog.CatalogManagement.AssetManager.DeleteAsset(groupId, id, assetType, userId);
                 }
             }
             catch (Exception ex)
@@ -517,7 +517,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateAsset(groupId, id, assetType, assetToUpdate, userId);
+                    response = Core.Catalog.CatalogManagement.AssetManager.UpdateAsset(groupId, id, assetType, assetToUpdate, userId);
                 }
             }
             catch (Exception ex)
@@ -572,7 +572,7 @@ namespace WebAPI.Clients
                             break;
                     }
 
-                    response = Core.Catalog.CatalogManagement.CatalogManager.RemoveTopicsFromAsset(groupId, id, assetType, topicIds, userId);
+                    response = Core.Catalog.CatalogManagement.AssetManager.RemoveTopicsFromAsset(groupId, id, assetType, topicIds, userId);
                 }
             }
             catch (Exception ex)
@@ -3471,7 +3471,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.GetMediaFileTypes(groupId);
+                    response = Core.Catalog.CatalogManagement.FileManager.GetMediaFileTypes(groupId);
                 }
             }
             catch (Exception ex)
@@ -3513,7 +3513,7 @@ namespace WebAPI.Clients
                 MediaFileType mediaFileTypeToAdd = AutoMapper.Mapper.Map<MediaFileType>(mediaFileType);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.AddMediaFileType(groupId, mediaFileTypeToAdd, userId);
+                    response = Core.Catalog.CatalogManagement.FileManager.AddMediaFileType(groupId, mediaFileTypeToAdd, userId);
                 }
             }
             catch (Exception ex)
@@ -3546,7 +3546,7 @@ namespace WebAPI.Clients
                 MediaFileType mediaFileTypeToUpdate = AutoMapper.Mapper.Map<MediaFileType>(mediaFileType);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateMediaFileType(groupId, id, mediaFileTypeToUpdate, userId);
+                    response = Core.Catalog.CatalogManagement.FileManager.UpdateMediaFileType(groupId, id, mediaFileTypeToUpdate, userId);
                 }
             }
             catch (Exception ex)
@@ -3577,7 +3577,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteMediaFileType(groupId, id, userId);
+                    response = Core.Catalog.CatalogManagement.FileManager.DeleteMediaFileType(groupId, id, userId);
                 }
             }
             catch (Exception ex)
@@ -3610,7 +3610,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // Asset type should always eAssetTypes.MEDIA
-                    response = Core.Catalog.CatalogManagement.CatalogManager.InsertMediaFile(groupId, userId, assetFileToAdd, eAssetTypes.MEDIA);
+                    response = Core.Catalog.CatalogManagement.FileManager.InsertMediaFile(groupId, userId, assetFileToAdd, eAssetTypes.MEDIA);
                 }
             }
             catch (Exception ex)
@@ -3641,7 +3641,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.DeleteMediaFile(groupId, userId, id);
+                    response = Core.Catalog.CatalogManagement.FileManager.DeleteMediaFile(groupId, userId, id);
                 }
             }
             catch (Exception ex)
@@ -3674,7 +3674,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     assetFileToUpdate.Id = id;
-                    response = Core.Catalog.CatalogManagement.CatalogManager.UpdateMediaFile(groupId,  assetFileToUpdate, userId);
+                    response = Core.Catalog.CatalogManagement.FileManager.UpdateMediaFile(groupId,  assetFileToUpdate, userId);
                 }
             }
             catch (Exception ex)
@@ -3707,7 +3707,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.GetMediaFiles(groupId, id, assetId);
+                    response = Core.Catalog.CatalogManagement.FileManager.GetMediaFiles(groupId, id, assetId);
                 }
             }
             catch (Exception ex)
