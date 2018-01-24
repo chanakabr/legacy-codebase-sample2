@@ -5281,12 +5281,23 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateAssetsTag(int groupId, long tagId)
+        public static DataSet GetTagAssets(int groupId, long tagId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetsTag");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTagAssets");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@tagId", tagId);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet UpdateTagAssets(int groupId, long tagId, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTagAssets");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@tagId", tagId);
+            sp.AddParameter("@updaterId", userId);
 
             return sp.ExecuteDataSet();
         }
