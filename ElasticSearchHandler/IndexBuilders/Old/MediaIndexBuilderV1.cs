@@ -83,29 +83,8 @@ namespace ElasticSearchHandler.IndexBuilders
             #region create mapping
             foreach (ApiObjects.LanguageObj language in group.GetLangauges())
             {
-                string indexAnalyzer, searchAnalyzer;
-                string autocompleteIndexAnalyzer = null;
-                string autocompleteSearchAnalyzer = null;
+                MappingAnalyzers specificMappingAnlyzers = GetMappingAnalyzers(language, string.Empty);
 
-                string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, string.Empty);
-
-                if (ElasticSearchApi.AnalyzerExists(analyzerDefinitionName))
-                {
-                    indexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
-                    searchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
-
-                    if (ElasticSearchApi.GetAnalyzerDefinition(analyzerDefinitionName).Contains("autocomplete"))
-                    {
-                        autocompleteIndexAnalyzer = string.Concat(language.Code, "_autocomplete_analyzer");
-                        autocompleteSearchAnalyzer = string.Concat(language.Code, "_autocomplete_search_analyzer");
-                    }
-                }
-                else
-                {
-                    indexAnalyzer = "whitespace";
-                    searchAnalyzer = "whitespace";
-                    log.Error(string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
-                }
 
                 List<string> tags = new List<string>();
                 Dictionary<string, KeyValuePair<eESFieldType, string>> metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();      
@@ -158,7 +137,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     tags.AddRange(group.m_oGroupTags.Values);
                 }
 
-                string mapping = serializer.CreateMediaMapping(metas, tags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
+                string mapping = serializer.CreateMediaMapping(metas, tags, specificMappingAnlyzers, null);
                 string type = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
                 bool bMappingRes = api.InsertMapping(newIndexName, type, mapping.ToString());
 

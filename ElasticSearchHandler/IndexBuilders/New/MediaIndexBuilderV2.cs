@@ -96,56 +96,24 @@ namespace ElasticSearchHandler.IndexBuilders
 
             var languages = group.GetLangauges();
 
+            var defaultLanguage = group.GetGroupDefaultLanguage();
+            MappingAnalyzers defaultMappingAnalyzers = GetMappingAnalyzers(defaultLanguage, VERSION);
+
             // Mapping for each language
             foreach (ApiObjects.LanguageObj language in languages)
             {
-                string indexAnalyzer, searchAnalyzer;
-                string autocompleteIndexAnalyzer = null;
-                string autocompleteSearchAnalyzer = null;
-                string phoneticIndexAnalyzer = null;
-                string phoneticSearchAnalyzer = null;
-
-                // create names for analyzers to be used in the mapping later on
-                string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, VERSION);
-
-                if (ElasticSearchApi.AnalyzerExists(analyzerDefinitionName))
-                {
-                    indexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
-                    searchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
-
-                    string analyzerDefinition = ElasticSearchApi.GetAnalyzerDefinition(analyzerDefinitionName);
-
-                    if (analyzerDefinition.Contains("autocomplete"))
-                    {
-                        autocompleteIndexAnalyzer = string.Concat(language.Code, "_autocomplete_analyzer");
-                        autocompleteSearchAnalyzer = string.Concat(language.Code, "_autocomplete_search_analyzer");
-                    }
-
-                    if (analyzerDefinition.Contains("dbl_metaphone"))
-                    {
-                        phoneticIndexAnalyzer = string.Concat(language.Code, "_index_dbl_metaphone");
-                        phoneticSearchAnalyzer = string.Concat(language.Code, "_search_dbl_metaphone");
-                    }
-                }
-                else
-                {
-                    indexAnalyzer = "whitespace";
-                    searchAnalyzer = "whitespace";
-                    log.Error(string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
-                }
-
                 string type = MEDIA;
-                string suffix = null;
 
                 if (!language.IsDefault)
                 {
                     type = string.Concat(MEDIA, "_", language.Code);
-                    suffix = language.Code;
                 }
+
+                MappingAnalyzers specificMappingAnalyzers = GetMappingAnalyzers(language, VERSION);
 
                 #region Join tags and metas of EPG and media to same mapping
 
-                List<string> tags = new List<string>();                
+                List<string> tags = new List<string>();
                 Dictionary<string, KeyValuePair<eESFieldType, string>> metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();
                 // Check if group supports Templates
                 if (CatalogManager.DoesGroupUsesTemplates(groupId))
@@ -165,18 +133,18 @@ namespace ElasticSearchHandler.IndexBuilders
                         foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => (!x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value)
                                                                                                 && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Value))
                         {
-                            
+
                             string nullValue;
                             eESFieldType metaType;
                             serializer.GetMetaType(topic.Type, out metaType, out nullValue);
                             metas.Add(topic.SystemName, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
-                        }                        
+                        }
                     }
                     catch (Exception ex)
                     {
                         log.Error(string.Format("Failed BuildIndex for groupId: {0} because CatalogGroupCache", groupId), ex);
                         return false;
-                    }                    
+                    }
                 }
                 else
                 {
@@ -194,11 +162,11 @@ namespace ElasticSearchHandler.IndexBuilders
                                 tags.Add(item);
                             }
                         }
-                    }                    
+                    }
 
                     if (group.m_oMetasValuesByGroupId != null)
                     {
-                        foreach (Dictionary<string,string> metaMap in group.m_oMetasValuesByGroupId.Values)
+                        foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
                         {
                             foreach (KeyValuePair<string, string> meta in metaMap)
                             {
@@ -225,8 +193,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 #endregion
 
                 // Ask serializer to create the mapping definitions string
-                string mapping = serializer.CreateMediaMapping(metas, tags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix, phoneticIndexAnalyzer,
-                                                                phoneticSearchAnalyzer);      
+                string mapping = serializer.CreateMediaMapping(metas, tags, specificMappingAnalyzers, defaultMappingAnalyzers);
 
                 bool mappingResult = api.InsertMapping(newIndexName, type, mapping.ToString());
 

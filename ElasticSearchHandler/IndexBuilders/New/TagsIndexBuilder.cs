@@ -230,7 +230,6 @@ namespace ElasticSearchHandler.IndexBuilders
                         }
                     }
 
-
                     // If we have a final bulk pending
                     if (bulkList.Count > 0)
                     {

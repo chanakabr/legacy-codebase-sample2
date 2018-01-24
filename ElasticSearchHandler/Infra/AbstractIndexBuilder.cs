@@ -113,6 +113,49 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #region Protected Methods
 
+        protected static MappingAnalyzers GetMappingAnalyzers(ApiObjects.LanguageObj language, string version)
+        {
+            MappingAnalyzers specificMappingAnlyzers = new MappingAnalyzers();
+
+            // create names for analyzers to be used in the mapping later on
+            string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, version);
+
+            if (ElasticSearchApi.AnalyzerExists(analyzerDefinitionName))
+            {
+                specificMappingAnlyzers.normalIndexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
+                specificMappingAnlyzers.normalSearchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
+
+                string analyzerDefinition = ElasticSearchApi.GetAnalyzerDefinition(analyzerDefinitionName);
+
+                if (analyzerDefinition.Contains("autocomplete"))
+                {
+                    specificMappingAnlyzers.autocompleteIndexAnalyzer = string.Concat(language.Code, "_autocomplete_analyzer");
+                    specificMappingAnlyzers.autocompleteSearchAnalyzer = string.Concat(language.Code, "_autocomplete_search_analyzer");
+                }
+
+                if (analyzerDefinition.Contains("dbl_metaphone"))
+                {
+                    specificMappingAnlyzers.phoneticIndexAnalyzer = string.Concat(language.Code, "_index_dbl_metaphone");
+                    specificMappingAnlyzers.phoneticSearchAnalyzer = string.Concat(language.Code, "_search_dbl_metaphone");
+                }
+            }
+            else
+            {
+                specificMappingAnlyzers.normalIndexAnalyzer = "whitespace";
+                specificMappingAnlyzers.normalSearchAnalyzer = "whitespace";
+                log.Error(string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
+            }
+
+            specificMappingAnlyzers.suffix = null;
+
+            if (!language.IsDefault)
+            {
+                specificMappingAnlyzers.suffix = language.Code;
+            }
+
+            return specificMappingAnlyzers;
+        }
+
         protected bool DualBuild(AbstractIndexBuilder firstBuilder, AbstractIndexBuilder secondBuilder)
         {
             bool success = false;
