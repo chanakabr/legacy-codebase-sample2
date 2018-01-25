@@ -1081,13 +1081,13 @@ namespace Core.Catalog.CatalogManagement
                     result.Status = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
                     return result;
                 }
-
-                Topic topic = new Topic(catalogGroupCache.TopicsMapById[id]);
-                if (topic.IsPredefined.HasValue && topic.IsPredefined.Value && topicToUpdate.SystemName != null && topicToUpdate.SystemName != topic.SystemName)
-                {
-                    result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedMetaSystemName, eResponseStatus.CanNotChangePredefinedMetaSystemName.ToString());
-                    return result;
-                }
+                
+                /************** According to new TVM UI system name can not be modified so no need for this validation *************************************************/
+                //if (topic.IsPredefined.HasValue && topic.IsPredefined.Value && topicToUpdate.SystemName != null && topicToUpdate.SystemName != topic.SystemName)
+                //{
+                //    result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedMetaSystemName, eResponseStatus.CanNotChangePredefinedMetaSystemName.ToString());
+                //    return result;
+                //}
 
                 List<KeyValuePair<string, string>> languageCodeToName = null;
                 bool shouldUpdateOtherNames = false;
@@ -1101,7 +1101,8 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataSet ds = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, topicToUpdate.SystemName, topicToUpdate.GetFeaturesForDB(topic.Features),
+                Topic topic = new Topic(catalogGroupCache.TopicsMapById[id]);
+                DataSet ds = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, topicToUpdate.GetFeaturesForDB(topic.Features),
                                                     topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
                 result = CreateTopicResponseFromDataSet(ds);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Topic);
