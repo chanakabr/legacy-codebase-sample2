@@ -51,7 +51,6 @@ namespace Core.Catalog
 
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
                 definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.IsOperatorSearch;
-
                 definitions.shouldIgnoreDeviceRuleID = request.shouldIgnoreDeviceRuleID;
 
                 GroupManager groupManager = new GroupManager();
@@ -75,7 +74,7 @@ namespace Core.Catalog
 
                 if (request.m_oFilter != null)
                 {
-                    definitions.shouldUseStartDate = request.m_oFilter.m_bUseStartDate;
+                    definitions.shouldUseStartDateForMedia = request.m_oFilter.m_bUseStartDate;
                     definitions.shouldUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                     definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
                     if (!definitions.shouldIgnoreDeviceRuleID)
@@ -83,6 +82,10 @@ namespace Core.Catalog
                         definitions.deviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
                     }
                 }
+
+                // in case opeartor is searching we override the existing value
+                definitions.shouldUseStartDateForMedia = !request.IsOperatorSearch;
+                definitions.shouldUseEndDateForMedia = !request.IsOperatorSearch;
 
                 OrderObj order = new OrderObj();
                 order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;

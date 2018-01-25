@@ -6600,7 +6600,7 @@ namespace Core.Catalog
 
             if (request.m_oFilter != null)
             {
-                definitions.shouldUseStartDate = request.m_oFilter.m_bUseStartDate;
+                definitions.shouldUseStartDateForMedia = request.m_oFilter.m_bUseStartDate;
                 definitions.shouldUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                 definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
             }
@@ -6938,7 +6938,7 @@ namespace Core.Catalog
                     // TODO - Lior , ask Ira if to allow this for all types or only EPG\Recording
                     if (reservedUnifiedDateFields.Contains(searchKeyLowered))
                     {
-                        definitions.defaultStartDate = false;
+                        definitions.shouldUseStartDateForEpg = false;
                         GetLeafDate(ref leaf, request.m_dServerTime);
 
                         if (!definitions.shouldDateSearchesApplyToAllTypes)
@@ -7374,7 +7374,7 @@ namespace Core.Catalog
 
             if (request.m_oFilter != null)
             {
-                definitions.shouldUseStartDate = request.m_oFilter.m_bUseStartDate;
+                definitions.shouldUseStartDateForMedia = request.m_oFilter.m_bUseStartDate;
                 definitions.shouldUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                 definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
             }
@@ -8132,10 +8132,10 @@ namespace Core.Catalog
                             groupId = groupId,
                             permittedWatchRules = watchRules,
                             specificAssets = new Dictionary<eAssetTypes, List<string>>(),
-                            defaultEndDate = true,
-                            defaultStartDate = true,
+                            shouldUseEndDateForEpg = true,
+                            shouldUseStartDateForEpg = true,
                             shouldUseFinalEndDate = true,
-                            shouldUseStartDate = true,
+                            shouldUseStartDateForMedia = true,
                             shouldAddIsActiveTerm = true
                         };
 

@@ -50,7 +50,10 @@ namespace ApiObjects.SearchObjects
         public bool shouldUseFinalEndDate;
         [JsonProperty()]
         [DataMember]
-        public bool shouldUseStartDate;
+        public bool shouldUseStartDateForMedia;
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldUseEndDateForMedia;
         [JsonProperty()]
         [DataMember]
         public bool shouldIgnoreDeviceRuleID = false;
@@ -99,14 +102,14 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public bool defaultStartDate;
+        public bool shouldUseStartDateForEpg;
 
         /// <summary>
         /// Whether or not use the default end date range filter or not
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public bool defaultEndDate;
+        public bool shouldUseEndDateForEpg;
 
         [JsonProperty()]
         [DataMember]
@@ -358,7 +361,7 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public UserInterestsMetasAndTags userPreferences;
+        public UserInterestsMetasAndTags userPreferences;        
 
         [JsonProperty()]
         [DataMember]
@@ -380,9 +383,10 @@ namespace ApiObjects.SearchObjects
 
             shouldSearchEpg = false;
             shouldUseFinalEndDate = false;
-            shouldUseStartDate = true;
-            defaultEndDate = true;
-            defaultStartDate = true;
+            shouldUseStartDateForMedia = true;
+            shouldUseEndDateForMedia = true;
+            shouldUseEndDateForEpg = true;
+            shouldUseStartDateForEpg = true;
 
             filterPhrase = null;
             deviceRuleId = null;
