@@ -618,7 +618,7 @@ namespace ElasticSearch.Searcher
                 string nowPlusOffsetDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
                 string nowMinusOffsetDateString = DateTime.UtcNow.AddDays(-this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
 
-                if (this.SearchDefinitions.defaultStartDate)
+                if (this.SearchDefinitions.shouldUseStartDateForEpg)
                 {
                     ESRange epgStartDateRange = new ESRange(false)
                     {
@@ -631,7 +631,7 @@ namespace ElasticSearch.Searcher
                     epgDatesFilter.AddChild(epgStartDateRange);
                 }
 
-                if (this.SearchDefinitions.defaultEndDate)
+                if (this.SearchDefinitions.shouldUseEndDateForEpg)
                 {
                     ESRange epgEndDateRange = new ESRange(false)
                     {
@@ -785,26 +785,26 @@ namespace ElasticSearch.Searcher
                 FilterCompositeType mediaDatesFilter = new FilterCompositeType(CutWith.AND);
 
                 string nowDateString = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-                string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
+                string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");                
 
-                ESRange mediaStartDateRange = new ESRange(false);
-
-                if (this.SearchDefinitions.shouldUseStartDate)
+                if (this.SearchDefinitions.shouldUseStartDateForMedia)
                 {
+                    ESRange mediaStartDateRange = new ESRange(false);
                     mediaStartDateRange.Key = "start_date";
                     string minimumDateString = DateTime.MinValue.ToString("yyyyMMddHHmmss");
                     mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, minimumDateString));
                     mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));
-                }
+                    mediaDatesFilter.AddChild(mediaStartDateRange);
+                }                
 
-                mediaDatesFilter.AddChild(mediaStartDateRange);
-
-                ESRange mediaEndDateRange = new ESRange(false);
-                mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
-                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
-                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
-
-                mediaDatesFilter.AddChild(mediaEndDateRange);
+                if (this.SearchDefinitions.shouldUseEndDateForMedia)
+                {
+                    ESRange mediaEndDateRange = new ESRange(false);
+                    mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
+                    mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
+                    mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
+                    mediaDatesFilter.AddChild(mediaEndDateRange);
+                }                
 
                 if (!mediaDatesFilter.IsEmpty())
                 {
