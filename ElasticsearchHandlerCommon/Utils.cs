@@ -412,7 +412,7 @@ namespace ElasticsearchTasksCommon
             definitions.permittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
             definitions.order = new OrderObj();
 
-            definitions.shouldUseStartDate = false;
+            definitions.shouldUseStartDateForMedia = false;
             definitions.shouldUseFinalEndDate = false;
 
             if (!string.IsNullOrEmpty(channel.filterQuery))
@@ -577,7 +577,7 @@ namespace ElasticsearchTasksCommon
                     // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
                     if (searchKeyLowered == "start_date")
                     {
-                        definitions.defaultStartDate = false;
+                        definitions.shouldUseStartDateForEpg = false;
                         leaf.valueType = typeof(DateTime);
 
                         long epoch = Convert.ToInt64(leaf.value);
@@ -586,7 +586,7 @@ namespace ElasticsearchTasksCommon
                     }
                     else if (searchKeyLowered == "end_date")
                     {
-                        definitions.defaultEndDate = false;
+                        definitions.shouldUseEndDateForEpg = false;
                         leaf.valueType = typeof(DateTime);
 
                         long epoch = Convert.ToInt64(leaf.value);
