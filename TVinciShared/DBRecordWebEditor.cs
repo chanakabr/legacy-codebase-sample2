@@ -2103,9 +2103,8 @@ namespace TVinciShared
             string sCollPointer = "c." + m_sCollectionPointerField;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey(m_sConnectionKey);
-            selectQuery += "select distinct " + sFieldName + " as txt from ";
+            selectQuery += string.Format("select {0} {1} as txt from ", m_sMiddleTable == "media_tags" ? "" : "distinct", sFieldName);
             selectQuery += m_sCollectionTable;
-
             selectQuery += " c, " + m_sMiddleTable + " m where " + PageUtils.GetStatusQueryPart("m") + " and " + PageUtils.GetStatusQueryPart("c") + " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM(sMidleMainRef, "=", oIndexFieldVal);
             selectQuery += "and " + sMidleCollRef + "=" + sCollPointer;
@@ -2113,6 +2112,11 @@ namespace TVinciShared
             {
                 string sExtra = "c." + m_sExtraWhere;
                 selectQuery += "and " + sExtra;
+            }
+
+            if (m_sMiddleTable == "media_tags")
+            {
+                selectQuery += "order by m.UPDATE_DATE asc";
             }
 
             if (selectQuery.Execute("query", true) != null)

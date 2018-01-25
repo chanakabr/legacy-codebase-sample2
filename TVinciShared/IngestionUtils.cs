@@ -8,6 +8,7 @@ using System.Configuration;
 using System.Threading;
 using KLogMonitor;
 using System.Reflection;
+using System.Linq;
 
 namespace TVinciShared
 {
@@ -523,11 +524,13 @@ namespace TVinciShared
             Int32 nGroupID, Int32 nMediaID)
         {
             System.Collections.Specialized.NameValueCollection coll = new System.Collections.Specialized.NameValueCollection();
-            System.Collections.IEnumerator iter = theStr.m_theTable.Keys.GetEnumerator();
-            string sFinalVal = "";
-            while (iter.MoveNext())
+            //System.Collections.IEnumerator iter = theStr.m_theTable.Keys.GetEnumerator();
+            string sFinalVal = string.Empty;
+            int index = 0;
+
+            while (theStr.m_theTable.ContainsKey(index.ToString()))
             {
-                string sKey = iter.Current.ToString();
+                string sKey = index.ToString();
                 string sValues = GetTransactionStringHolderValue(theStr, sKey, sMainLang);
                 string[] sSpliter = { ";" }; //{ ";", "," };
                 string[] sVals = sValues.Split(sSpliter, StringSplitOptions.RemoveEmptyEntries);
@@ -575,6 +578,7 @@ namespace TVinciShared
                         selectQuery = null;
                     }
                 }
+                index++;
             }
             ODBCWrapper.DataSetSelectQuery selectQuery1 = null;
             TVinciShared.DBManipulator.GetManyToManyContainer(ref coll,
