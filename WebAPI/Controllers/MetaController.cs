@@ -214,11 +214,6 @@ namespace WebAPI.Controllers
                 }
             }
 
-            if (meta.SystemName != null && meta.SystemName.Trim() == string.Empty)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
-            }
-
             try
             {
                 response = ClientsManager.CatalogClient().UpdateMeta(groupId, id, meta, userId);

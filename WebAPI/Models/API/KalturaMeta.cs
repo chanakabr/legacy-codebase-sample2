@@ -45,6 +45,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "systemName")]
         [JsonProperty("systemName")]
         [XmlElement(ElementName = "systemName", IsNullable = true)]
+        [SchemeProperty(InsertOnly = true)]
         public string SystemName { get; set; }
 
         /// <summary>
