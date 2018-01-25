@@ -81,6 +81,16 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "image.imageObjectType");
             }
 
+            if (image.ImageTypeId == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "image.imageTypeId");
+            }
+
+            if (image.ImageObjectId == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "image.imageObjectId");
+            }
+
             try
             {
                 response = ClientsManager.CatalogClient().AddImage(groupId, userId, image);
