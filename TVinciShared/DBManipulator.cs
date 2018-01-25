@@ -626,7 +626,7 @@ namespace TVinciShared
             updateQuery += " where ";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sMiddleFieldRefToMain, "=", mainPointerValue);
             updateQuery += "and";
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "<", 3);
             if (sMiddleFieldRefToMain.Trim().ToLower() != "group_id" && sMiddleTable.Trim().ToLower() != "watch_permissions_types_groups")
                 updateQuery += "and group_id " + sGroups;
             //updateQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
@@ -642,7 +642,7 @@ namespace TVinciShared
             updateQuery1.SetConnectionKey(sConnectionKey);
             updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
             updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
-            //updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.UtcNow);
+            updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.UtcNow);
             updateQuery1 += " where ";
             updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM(sMiddleFieldRefToMain, "=", mainPointerValue);
             updateQuery1 += "and";
@@ -678,7 +678,7 @@ namespace TVinciShared
             Int32 nCo = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey(sConnectionKey);
-            selectQuery += "select TOP 1 id as co from " + sMiddleTable + " where ";
+            selectQuery += "select id as co from " + sMiddleTable + " where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM(sMiddleFieldRefToMain, "=", mainPointerValue);
             selectQuery += "and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM(sMiddleFieldRefToCollection, "=", collectionPointreValue);
@@ -686,7 +686,6 @@ namespace TVinciShared
                 selectQuery += "and group_id " + sGroups;
             //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
             selectQuery += "order by id desc";
-            selectQuery.SetCachedSec(0);
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
