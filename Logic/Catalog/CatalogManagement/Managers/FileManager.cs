@@ -19,6 +19,28 @@ namespace Core.Catalog.CatalogManagement
 
         #region Private Methods
 
+        private static HashSet<string> CreateMappedHashSetForMediaFileType(string codecs)
+        {
+            HashSet<string> result = null;
+            if (!string.IsNullOrEmpty(codecs))
+            {
+                string[] codecValues = codecs.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (codecValues != null && codecValues.Length > 0)
+                {
+                    result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    foreach (string codec in codecValues)
+                    {
+                        if (!result.Contains(codec))
+                        {
+                            result.Add(codec);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
         private static MediaFileType CreateMediaFileType(long id, DataRow dr)
         {
             MediaFileType result = null; ;
@@ -36,7 +58,9 @@ namespace Core.Catalog.CatalogManagement
                     IsTrailer = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_TRAILER"),
                     StreamerType = (StreamerType)Enum.Parse(typeof(StreamerType), ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMER_TYPE").ToString()),
                     DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
-                    Quality = (MediaFileTypeQuality)qualityType
+                    Quality = (MediaFileTypeQuality)qualityType,
+                    VideoCodecs = CreateMappedHashSetForMediaFileType(ODBCWrapper.Utils.GetSafeStr(dr, "VIDEO_CODECS")),
+                    AudioCodecs = CreateMappedHashSetForMediaFileType(ODBCWrapper.Utils.GetSafeStr(dr, "AUDIO_CODECS"))
                 };
             }
 
