@@ -4913,7 +4913,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataSet InsertMediaAsset(int groupId, long defaultLanguageId, System.Xml.XmlDocument metas, System.Xml.XmlDocument tags, string coGuid, string entryId, int? deviceRuleId,
-                                                int? geoBlockRuleId, bool? isActive, DateTime startDate, DateTime? endDate, DateTime catalogStartDate, DateTime? finalEndDate, long assetStructId,
+                                                int? geoBlockRuleId, bool? isActive, DateTime startDate, DateTime endDate, DateTime catalogStartDate, DateTime? finalEndDate, long assetStructId,
                                                 long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaAsset");
@@ -4941,7 +4941,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet UpdateMediaAsset(int groupId, long id, long defaultLanguageId, System.Xml.XmlDocument metasToAdd, System.Xml.XmlDocument tagsToAdd, System.Xml.XmlDocument metasToUpdate,
                                                 System.Xml.XmlDocument tagsToUpdate, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId, bool? isActive, DateTime startDate,
-                                                DateTime? endDate, DateTime catalogStartDate, DateTime? finalEndDate, long userId)
+                                                DateTime endDate, DateTime catalogStartDate, DateTime? finalEndDate, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
