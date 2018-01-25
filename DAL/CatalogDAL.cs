@@ -4861,8 +4861,8 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateTopic(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName,
-                                            string commaSeparatedFeatures, long? parent_topic_id, string helpText, long userId)
+        public static DataSet UpdateTopic(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, string commaSeparatedFeatures,
+                                            long? parent_topic_id, string helpText, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4870,8 +4870,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Name", name);
             sp.AddParameter("@Id", id);
             sp.AddParameter("@ShouldUpdateOtherNames", shouldUpdateOtherNames ? 1 : 0);
-            sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
-            sp.AddParameter("@SystemName", systemName);
+            sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");            
             sp.AddParameter("@Features", commaSeparatedFeatures);
             sp.AddParameter("@ParentTopicId", parent_topic_id);
             sp.AddParameter("@HelpText", helpText);
