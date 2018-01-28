@@ -23,7 +23,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("entitlementTypeEqual")]
         [XmlElement(ElementName = "entitlementTypeEqual")]
         [OldStandardProperty("entitlement_type")]
-        [Deprecated("4.7.0.0")]
+        [Deprecated("4.8.0.0")]
         public KalturaTransactionType? EntitlementTypeEqual { get; set; }
 
         /// <summary>

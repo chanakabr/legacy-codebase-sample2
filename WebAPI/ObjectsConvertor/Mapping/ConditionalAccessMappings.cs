@@ -57,7 +57,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                ;
 
             Mapper.CreateMap<SubscriptionPurchase, KalturaSubscriptionEntitlement>()
-              .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.productId))
+              .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.purchaseId))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.subscription))
                 //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
               .ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)))
@@ -80,6 +80,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 //.ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetNullableInt(src.paymentMethodId)))
               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
               .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
+              .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.productId))
               ;
 
 

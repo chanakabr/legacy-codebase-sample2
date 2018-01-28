@@ -114,7 +114,11 @@ namespace WebAPI.Filters
         public const string REQUEST_LANGUAGE = "language";
         public const string REQUEST_CURRENCY = "currency";
         public const string REQUEST_FORMAT = "format";
+
+        // same key as in REST solution KLogMonitor.Constants
+        // in-case changing this  - you must change there  as well
         public const string REQUEST_GLOBAL_KS = "global_ks";
+
         public const string REQUEST_GLOBAL_USER_ID = "global_user_id";
         public const string REQUEST_GLOBAL_LANGUAGE = "global_language";
         public const string REQUEST_GLOBAL_CURRENCY = "global_currency";
