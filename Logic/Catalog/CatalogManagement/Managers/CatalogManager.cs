@@ -596,14 +596,14 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, long topicId, bool isTag, long assetStructId, long userId)
+        private static bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, List<long> metaTopicIds, long assetStructId, long userId)
         {
             bool res = true;
             try
             {
                 DataSet ds;
                 // update and get all assets
-                ds = CatalogDAL.UpdateTopicAssets(groupId, topicId, isTag, assetStructId, userId);
+                ds = CatalogDAL.UpdateTopicAssets(groupId, tagTopicIds,shouldDeleteTag, metaTopicIds, assetStructId, userId);
 
                 // preparing media list and epg
                 List<int> mediaIds = null;
@@ -615,7 +615,8 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, topicId: {1}", groupId, topicId), ex);
+                log.Error(string.Format("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, assetStructId: {1}, tagTopicIds: {2}, metaTopicIds: {3}",
+                            groupId, assetStructId, tagTopicIds != null ? string.Join(",", tagTopicIds) : string.Empty, metaTopicIds != null ? string.Join(",", metaTopicIds) : string.Empty), ex);
                 res = false;
             }
 
@@ -881,9 +882,10 @@ namespace Core.Catalog.CatalogManagement
                     result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedAssetStructSystemName, eResponseStatus.CanNotChangePredefinedAssetStructSystemName.ToString());
                     return result;
                 }
-
+                
                 if (shouldUpdateMetaIds)
                 {
+
                     // validate basic metas
                     Status validateBasicMetasResult = ValidateBasicMetaIds(catalogGroupCache, assetStructToUpdate);
                     if (validateBasicMetasResult.Code != (int)eResponseStatus.OK)
@@ -901,7 +903,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
                 }
-
+                
                 List<KeyValuePair<long, int>> metaIdsToPriority = null;
                 if (assetStructToUpdate.MetaIds != null && shouldUpdateMetaIds)
                 {
@@ -917,6 +919,19 @@ namespace Core.Catalog.CatalogManagement
                     if (assetStruct.MetaIds != null && assetStructToUpdate.MetaIds.SequenceEqual(assetStruct.MetaIds))
                     {
                         shouldUpdateMetaIds = false;
+                    }                    
+                }
+
+                // check if assets and index should be updated now
+                bool shouldUpdateAssetStructAssets = shouldUpdateMetaIds;
+                List<long> removedTopicIds = new List<long>();
+                if (shouldUpdateAssetStructAssets && assetStruct.MetaIds != null && assetStructToUpdate.MetaIds != null)
+                {
+                    removedTopicIds = assetStruct.MetaIds.Except(assetStructToUpdate.MetaIds).ToList();
+                    // if its just the oreder of the metas being changed on the asset struct we don't need to update the assets
+                    if (removedTopicIds == null || removedTopicIds.Count == 0)
+                    {
+                        shouldUpdateAssetStructAssets = false;
                     }
                 }
 
@@ -935,6 +950,34 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName, shouldUpdateMetaIds,
                                                           metaIdsToPriority, userId);
                 result = CreateAssetStructResponseFromDataSet(ds);
+
+                if (result.Status != null && result.Status.Code == (int)eResponseStatus.OK && shouldUpdateAssetStructAssets && removedTopicIds != null && removedTopicIds.Count > 0)
+                {
+                    List<long> tagTopicIds = new List<long>();
+                    List<long> metaTopicIds = new List<long>();
+                    foreach (long topicId in removedTopicIds)
+                    {
+                        if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
+                        {
+                            Topic topicToRemoveFromAssetStruct = catalogGroupCache.TopicsMapById[topicId];
+                            if (topicToRemoveFromAssetStruct.Type == MetaType.Tag)
+                            {
+                                tagTopicIds.Add(topicId);
+                            }
+                            else
+                            {
+                                metaTopicIds.Add(topicId);
+                            }
+                        }
+                    }
+
+                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, false, metaTopicIds, id, userId))
+                    {
+                        log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, assetStructId: {1}, tagTopicIds: {2}, metaTopicIds: {3}",
+                                        groupId, id, string.Join(",", tagTopicIds), string.Join(",", metaTopicIds));
+                    }
+                }
+
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetStruct);
             }
             catch (Exception ex)
@@ -972,6 +1015,30 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteAssetStruct(groupId, id, userId))
                 {
+                    List<long> tagTopicIds = new List<long>();
+                    List<long> metaTopicIds = new List<long>();
+                    foreach (long topicId in assetStruct.MetaIds)
+                    {
+                        if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
+                        {
+                            Topic topicToRemoveFromAssetStruct = catalogGroupCache.TopicsMapById[topicId];
+                            if (topicToRemoveFromAssetStruct.Type == MetaType.Tag)
+                            {
+                                tagTopicIds.Add(topicId);
+                            }
+                            else
+                            {
+                                metaTopicIds.Add(topicId);
+                            }
+                        }
+                    }
+
+                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, false, metaTopicIds, id, userId))
+                    {
+                        log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, assetStructId: {1}, tagTopicIds: {2}, metaTopicIds: {3}",
+                                        groupId, id, string.Join(",", tagTopicIds), string.Join(",", metaTopicIds));
+                    }
+
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     InvalidateCatalogGroupCache(groupId, result, false);
                 }
@@ -1174,24 +1241,32 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 if (CatalogDAL.DeleteTopic(groupId, id, userId))
-                {
-                    //TODO - Lior : Ira needs to continue...
+                {                    
                     bool isTag = topic.Type == MetaType.Tag;
                     bool isDeletedFromEs = true;
+                    List<long> tagTopicIds = new List<long>();
+                    List<long> metaTopicIds = new List<long>();
                     if (isTag)
-                    {                        
+                    {
                         ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                        Status deleteTopicFromEsResult =  wrapper.DeleteTagsByTopic(groupId, catalogGroupCache, id);
+                        Status deleteTopicFromEsResult = wrapper.DeleteTagsByTopic(groupId, catalogGroupCache, id);
                         if (deleteTopicFromEsResult == null || deleteTopicFromEsResult.Code != (int)eResponseStatus.OK)
                         {
                             isDeletedFromEs = false;
                             log.ErrorFormat("Failed deleting topic from ElasticSearch, for groupId: {0} and topicId: {1}", groupId, id);
-                        }                        
+                        }
+
+                        tagTopicIds.Add(id);
+                    }
+                    else
+                    {
+                        metaTopicIds.Add(id);
                     }
 
-                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, id, isTag, 0, userId))
+                    // shouldDelete = isTag on purpose, since we are in DeleteTopic, if its a tag then delete it, on UpdateAssetStruct we don't delete the tag itself
+                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, isTag, metaTopicIds, 0, userId))
                     {
-                        log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0} and topicId: {1}", groupId, id);
+                        log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0} and topicId: {1}, isTag: {2}", groupId, id, isTag);
                     }
 
                     if (!isTag || isDeletedFromEs)
