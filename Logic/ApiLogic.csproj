@@ -412,6 +412,7 @@
     <Compile Include="Modules\Users.cs" />
     <Compile Include="Notification\Adapters\DmsAdapter.cs" />
     <Compile Include="Notification\Adapters\EngagementAdapterClient.cs" />
+    <Compile Include="Notification\Adapters\MailNotificationAdapter.cs" />
     <Compile Include="Notification\Adapters\NotificationAdapter.cs" />
     <Compile Include="Notification\AnnouncementManager.cs" />
     <Compile Include="Notification\BaseImplementor.cs" />

@@ -269,8 +269,20 @@ namespace Core.Notification
                     }
                 }
 
+                string mailExternalAnnouncementId = string.Empty;
+                if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId))
+                {
+                    mailExternalAnnouncementId = MailNotificationAdapter.CreateAnnouncement(groupId, announcementName);
+                    if (string.IsNullOrEmpty(externalAnnouncementId))
+                    {
+                        log.DebugFormat("failed to create announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
+                    }
+                }
+
                 // create DB announcement
-                announcementId = DAL.NotificationDal.Insert_Announcement(groupId, announcementName, externalAnnouncementId, (int)eMessageType.Push, (int)eAnnouncementRecipientsType.Other, followData.FollowPhrase, followData.FollowReference);
+                announcementId = DAL.NotificationDal.Insert_Announcement(groupId, announcementName, externalAnnouncementId, (int)eMessageType.Push, 
+                    (int)eAnnouncementRecipientsType.Other, mailExternalAnnouncementId, followData.FollowPhrase, followData.FollowReference);
                 if (announcementId == 0)
                 {
                     log.DebugFormat("failed to insert announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
@@ -287,7 +299,8 @@ namespace Core.Notification
                         FollowReference = followData.FollowReference,
                         ID = announcementId,
                         Name = announcementName,
-                        RecipientsType = eAnnouncementRecipientsType.Other
+                        RecipientsType = eAnnouncementRecipientsType.Other,
+                        MailExternalId = mailExternalAnnouncementId
                     };
                 }
             }
@@ -393,6 +406,12 @@ namespace Core.Notification
                 statusResult = new Status((int)eResponseStatus.UserNotFollowing, "user is not following asset");
                 return statusResult;
             }
+
+            if (!string.IsNullOrEmpty(userNotificationData.Email) && userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value)
+            {
+                MailNotificationAdapter.UnSubscribeToAnnouncement(groupId, new List<string>() { announcements.First().MailExternalId }, userNotificationData.Email);
+            }
+
 
             // iterate through user devices and unfollow series
             if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
@@ -503,6 +522,14 @@ namespace Core.Notification
 
                     //update user settings according to partner settings configuration                    
                     userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(groupId, userId);
+
+                    userNotificationData.Settings.EnableMail = NotificationSettings.IsPartnerMailNotificationEnabled(groupId);
+
+                    if (userNotificationData.Settings.EnableMail.Value)
+                    {
+                        Users.User user = Users.User.GetUser(userId, groupId);
+                        userNotificationData.Email = user.m_oBasicData.m_sEmail;
+                    }
                 }
             }
 
@@ -547,6 +574,14 @@ namespace Core.Notification
 
                 // create added time
                 long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
+
+                if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.Email))
+                {
+                    if (!MailNotificationAdapter.SubscribeToAnnouncement(groupId, new List<string>() { announcementToFollow.MailExternalId }, userNotificationData.Email))
+                    {
+                        log.ErrorFormat("Failed subscribing user to email announcement. group: {0}, userId: {1}, email: {2}", groupId, userId, userNotificationData.Email);
+                    }
+                }
 
                 if (userNotificationData.devices != null &&
                     userNotificationData.devices.Count > 0 &&

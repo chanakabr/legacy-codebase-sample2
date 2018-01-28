@@ -400,5 +400,34 @@ namespace Core.Notification
 
             return false;
         }
+
+        public static bool IsPartnerMailNotificationEnabled(int groupId)
+        {
+            var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+            if (partnerSettingsResponse != null &&
+                partnerSettingsResponse.settings != null &&
+                partnerSettingsResponse.settings.MailNotificationAdapterId.HasValue &&
+                partnerSettingsResponse.settings.MailNotificationAdapterId.Value > 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static long GetPartnerMailNotificationAdapterId(int groupId)
+        {
+            long adapterId = 0;
+            var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+            if (partnerSettingsResponse != null &&
+                partnerSettingsResponse.settings != null &&
+                partnerSettingsResponse.settings.MailNotificationAdapterId.HasValue &&
+                partnerSettingsResponse.settings.MailNotificationAdapterId.Value > 0)
+            {
+                adapterId = partnerSettingsResponse.settings.MailNotificationAdapterId.Value;
+            }
+
+            return adapterId;
+        }
     }
 }

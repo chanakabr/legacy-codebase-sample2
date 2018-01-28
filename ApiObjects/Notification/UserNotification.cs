@@ -22,6 +22,8 @@ namespace ApiObjects.Notification
 
         public UserNotificationSettings Settings { get; set; }
 
+        public string Email { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ulong cas { get; set; }
 
