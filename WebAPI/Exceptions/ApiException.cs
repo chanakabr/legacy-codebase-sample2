@@ -182,7 +182,8 @@ namespace WebAPI.Exceptions
                                                                                                                         "can not change predefined asset struct name");
         public static ClientExceptionType CAN_NOT_DELETE_PREDEFINED_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CanNotDeletePredefinedAssetStruct, "Predefined Asset Struct Can not be deleted",
                                                                                                             "can not delete predefined asset struct");        
-        public static ClientExceptionType META_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.MetaSystemNameAlreadyInUse, "System Name Already Used", "The meta system name is already in use");        
+        public static ClientExceptionType META_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.MetaSystemNameAlreadyInUse, "System Name Already Used", "The meta system name is already in use");
+        public static ClientExceptionType INVALID_MULTIPLE_VALUE_FOR_META_DATA_TYPE = new ClientExceptionType(eResponseStatus.InvalidMutlipleValueForMetaType, "MultipleValue can only be set to true for KalturaMetaType - STRING");
         public static ClientExceptionType META_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MetaDoesNotExist, "Invalid Meta Id", "The specified meta id does not exist");
         public static ClientExceptionType CAN_NOT_CHANGE_PREDEFINED_META_SYSTEM_NAME = new ClientExceptionType(eResponseStatus.CanNotChangePredefinedMetaSystemName, "System Name Can Not Be Changed",
                                                                                                                         "can not change predefined meta name");
