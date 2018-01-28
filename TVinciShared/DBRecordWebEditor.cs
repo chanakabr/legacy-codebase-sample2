@@ -3686,6 +3686,8 @@ namespace TVinciShared
                 m_sStartValue = m_sDefaultVal;
             if (m_sStartValue != "")
             {
+                this.m_sStartValue = this.m_sStartValue.Replace(".", "/");
+
                 if (!string.IsNullOrEmpty(m_timeZone))
                 {                    
                     DateTime dateTime = ODBCWrapper.Utils.GetDateSafeVal(m_sStartValue, "dd/MM/yyyy H:mm");

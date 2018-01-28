@@ -75,12 +75,6 @@
     <Compile Include="WSExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
-      <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
-      <Name>TVinciShared</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
