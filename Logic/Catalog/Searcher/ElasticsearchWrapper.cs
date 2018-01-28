@@ -2949,7 +2949,7 @@ namespace Core.Catalog
             return status;
         }
 
-        public ApiObjects.Response.Status DeleteTagsByTopic(int groupId, CatalogGroupCache group, int topicId)
+        public ApiObjects.Response.Status DeleteTagsByTopic(int groupId, CatalogGroupCache group, long topicId)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 

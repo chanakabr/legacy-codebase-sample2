@@ -585,51 +585,84 @@ namespace Core.Catalog.CatalogManagement
 
                 CreateAssetsListForUpdateIndexFromDataSet(ds, out mediaIds, out epgIds);
 
-                if (mediaIds != null && mediaIds.Count > 0)
-                {
-                    // update medias index
-                    if (!Core.Catalog.Module.UpdateIndex(mediaIds, groupId, eAction.Update))
-                    {
-                        res = false;
-                        log.ErrorFormat("Error while update Media index. groupId:{0}, mediaIds:{1}", groupId, string.Join(",", mediaIds));
-                    }
-
-                    // invalidate medias
-                    foreach (int mediaId in mediaIds)
-                    {
-                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.MEDIA.ToString(), mediaId)))
-                        {
-                            log.ErrorFormat("Failed to invalidate media with id: {0}", mediaId);
-                            res = false;
-                        }
-                    }
-                }
-
-                // TODO: need to update epg object in CB
-                if (epgIds != null && epgIds.Count > 0)
-                {
-                    // update epgs index
-                    if (!Core.Catalog.Module.UpdateEpgIndex(epgIds, groupId, eAction.Update))
-                    {
-                        res = false;
-                        log.ErrorFormat("Error while update Epg index. groupId:{0}, epgIds:{1}", groupId, string.Join(",", epgIds));
-                    }
-
-                    // invalidate epgs
-                    foreach (int epgId in epgIds)
-                    {
-                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), epgId)))
-                        {
-                            log.ErrorFormat("Failed to invalidate epg with id: {0}", epgId);
-                            res = false;
-                        }
-                    }
-                }
+                res = InvalidateCacheAndUpdateIndexForAssets(groupId, res, mediaIds, epgIds);
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed InvalidateCacheAndUpdateIndexForTagAssets for groupId: {0}, tagId: {1}", groupId, tagId), ex);
                 res = false;
+            }
+
+            return res;
+        }
+
+        private static bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, long topicId, bool isTag, long assetStructId, long userId)
+        {
+            bool res = true;
+            try
+            {
+                DataSet ds;
+                // update and get all assets
+                ds = CatalogDAL.UpdateTopicAssets(groupId, topicId, isTag, assetStructId, userId);
+
+                // preparing media list and epg
+                List<int> mediaIds = null;
+                List<int> epgIds = null;
+
+                CreateAssetsListForUpdateIndexFromDataSet(ds, out mediaIds, out epgIds);
+
+                res = InvalidateCacheAndUpdateIndexForAssets(groupId, res, mediaIds, epgIds);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, topicId: {1}", groupId, topicId), ex);
+                res = false;
+            }
+
+            return res;
+        }
+
+        private static bool InvalidateCacheAndUpdateIndexForAssets(int groupId, bool res, List<int> mediaIds, List<int> epgIds)
+        {
+            if (mediaIds != null && mediaIds.Count > 0)
+            {
+                // update medias index
+                if (!Core.Catalog.Module.UpdateIndex(mediaIds, groupId, eAction.Update))
+                {
+                    res = false;
+                    log.ErrorFormat("Error while update Media index. groupId:{0}, mediaIds:{1}", groupId, string.Join(",", mediaIds));
+                }
+
+                // invalidate medias
+                foreach (int mediaId in mediaIds)
+                {
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.MEDIA.ToString(), mediaId)))
+                    {
+                        log.ErrorFormat("Failed to invalidate media with id: {0}", mediaId);
+                        res = false;
+                    }
+                }
+            }
+
+            // TODO: need to update epg object in CB
+            if (epgIds != null && epgIds.Count > 0)
+            {
+                // update epgs index
+                if (!Core.Catalog.Module.UpdateEpgIndex(epgIds, groupId, eAction.Update))
+                {
+                    res = false;
+                    log.ErrorFormat("Error while update Epg index. groupId:{0}, epgIds:{1}", groupId, string.Join(",", epgIds));
+                }
+
+                // invalidate epgs
+                foreach (int epgId in epgIds)
+                {
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), epgId)))
+                    {
+                        log.ErrorFormat("Failed to invalidate epg with id: {0}", epgId);
+                        res = false;
+                    }
+                }
             }
 
             return res;
@@ -1142,7 +1175,30 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteTopic(groupId, id, userId))
                 {
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    //TODO - Lior : Ira needs to continue...
+                    bool isTag = topic.Type == MetaType.Tag;
+                    bool isDeletedFromEs = true;
+                    if (isTag)
+                    {                        
+                        ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                        Status deleteTopicFromEsResult =  wrapper.DeleteTagsByTopic(groupId, catalogGroupCache, id);
+                        if (deleteTopicFromEsResult == null || deleteTopicFromEsResult.Code != (int)eResponseStatus.OK)
+                        {
+                            isDeletedFromEs = false;
+                            log.ErrorFormat("Failed deleting topic from ElasticSearch, for groupId: {0} and topicId: {1}", groupId, id);
+                        }                        
+                    }
+
+                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, id, isTag, 0, userId))
+                    {
+                        log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0} and topicId: {1}", groupId, id);
+                    }
+
+                    if (!isTag || isDeletedFromEs)
+                    {
+                        result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+
                     InvalidateCatalogGroupCache(groupId, result, false);
                 }
             }
