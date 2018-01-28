@@ -682,7 +682,7 @@ namespace Core.ConditionalAccess
                         nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalIntervalMinutes);
                     }
 
-                    Utils.RenewTransactionMessageInQueue(groupId, domainId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate), nextRenewalDate, processId);
+                    Utils.RenewUnifiedTransactionMessageInQueue(groupId, domainId, ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate), nextRenewalDate, processId);
                 }
 
                 if (processId > 0) // already have message to queue so update subscription purchase row
@@ -8397,9 +8397,9 @@ namespace Core.ConditionalAccess
             }
         }
 
-        internal static bool RenewTransactionMessageInQueue(int groupId, long householdId, long endDateUnix, DateTime nextRenewalDate, long processId)
+        internal static bool RenewUnifiedTransactionMessageInQueue(int groupId, long householdId, long endDateUnix, DateTime nextRenewalDate, long processId)
         {
-            log.DebugFormat("RenewTransactionMessageInQueue (RenewUnifiedData) processId:{0}", processId);
+            log.DebugFormat("RenewUnifiedTransactionMessageInQueue (RenewUnifiedData) processId:{0}", processId);
 
             // add new message to new routing key queue
             RenewTransactionsQueue queue = new RenewTransactionsQueue();
@@ -8407,12 +8407,12 @@ namespace Core.ConditionalAccess
             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION, groupId));
             if (!enqueueSuccessful)
             {
-                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                log.ErrorFormat("Failed enqueue of renew unified transaction {0}", data);
             }
             else
             {
                 PurchaseManager.SendRenewalReminder(data);
-                log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
+                log.DebugFormat("New task created (upon subscription purchase success). next unified renewal date: {0}, data: {1}",
                     nextRenewalDate, data);
             }
 

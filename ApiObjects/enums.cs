@@ -948,6 +948,16 @@ namespace ApiObjects
         DELETE_ALL_APP_TOKENS = 7
     }
 
+    public enum PermissionItems
+    {
+        HOUSEHOLDDEVICE_DELETE = 1,
+        HOUSEHOLDDEVICE_ADDBYPIN = 2,
+        HOUSEHOLDDEVICE_ADD = 3,
+        HOUSEHOLDDEVICE_UPDATESTATUS = 4,
+        HOUSEHOLDUSER_DELETE = 5,
+        HOUSEHOLDUSER_ADD = 6
+    }
+
     public enum BlockEntitlementType
     {
         NONE = 0, // to support previous versions 

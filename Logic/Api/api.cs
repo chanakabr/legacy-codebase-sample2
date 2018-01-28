@@ -2444,6 +2444,19 @@ namespace Core.Api
                 log.Error(string.Format("Failed GetCountryByIp for ip: {0}", ip), ex);
             }
 
+            string debugString = string.Empty;
+
+            if (country == null)
+            {
+                debugString = string.Format("No country found for ip {0}", ip);
+            }
+            else
+            {
+                debugString = string.Format("Found country with id = {0} and name = {1} for ip {2}", country.Id, country.Name, ip);
+            }
+
+            log.Debug(debugString);
+
             return country;
         }
 

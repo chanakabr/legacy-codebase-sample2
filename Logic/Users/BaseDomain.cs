@@ -269,11 +269,6 @@ namespace Core.Users
                 oDomainResponseObject.m_oDomain = null;
                 oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainNotExists;
             }
-            else if (oDomainResponseObject.m_oDomain.m_DomainStatus == DomainStatus.DomainSuspended)
-            {
-                // domain is suspended
-                oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.DomainSuspended;
-            }
             else
             {
                 // create new device
@@ -311,11 +306,6 @@ namespace Core.Users
                 // error getting domain
                 log.ErrorFormat("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", groupId, domainId, udid, deviceName, brandId);
                 domainResponseStatus = DomainResponseStatus.DomainNotExists;
-            }
-            else if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
-            {
-                // domain is suspended
-                domainResponseStatus = DomainResponseStatus.DomainSuspended;
             }
             else
             {
@@ -400,15 +390,8 @@ namespace Core.Users
 
             DomainResponseObject oDomainResponseObject;
             DomainResponseStatus eDomainResponseStatus;
-            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
-            {
-                eDomainResponseStatus = DomainResponseStatus.DomainSuspended;
-            }
-            else
-            {
-                eDomainResponseStatus = domain.ChangeDeviceDomainStatus(m_nGroupID, nDomainID, sDeviceUDID, bIsEnable);
-            }
-
+            
+            eDomainResponseStatus = domain.ChangeDeviceDomainStatus(m_nGroupID, nDomainID, sDeviceUDID, bIsEnable);
             oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
 
             return oDomainResponseObject;

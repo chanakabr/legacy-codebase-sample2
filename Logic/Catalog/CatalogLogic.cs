@@ -3912,14 +3912,18 @@ namespace Core.Catalog
                             Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                             for (int i = 0; i < lAssetIDs.Count; i++)
                             {
-                                tasks[(int)i] = Task.Run<AssetStatsResult.SocialPartialAssetStatsResult>(() =>
+                                tasks[(int)i] = new Task<Response.AssetStatsResult.SocialPartialAssetStatsResult>((obj) =>
                                 {
+                                    int index = (int)obj;
                                     // load monitor and logs context data
                                     contextData.Load();
 
-                                    return GetSocialAssetStats(nGroupID, lAssetIDs[(int)i], eType, dStartDate, dEndDate);
-                                });
+                                    return GetSocialAssetStats(nGroupID, lAssetIDs[index], eType, dStartDate, dEndDate);
+                                }, i);
+
+                                tasks[i].Start();
                             }
+
                             Task.WaitAll(tasks);
                             for (int i = 0; i < tasks.Length; i++)
                             {
@@ -3993,14 +3997,19 @@ namespace Core.Catalog
                                 Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                                 for (int i = 0; i < lAssetIDs.Count; i++)
                                 {
-                                    tasks[(int)i] = Task.Run<AssetStatsResult.SocialPartialAssetStatsResult>(() =>
+                                    tasks[(int)i] = new Task<Response.AssetStatsResult.SocialPartialAssetStatsResult>((obj) =>
                                     {
+                                        int index = (int)obj;
+
                                         // load monitor and logs context data
                                         contextData.Load();
 
-                                        return GetSocialAssetStats(nGroupID, lAssetIDs[(int)i], eType, dStartDate, dEndDate);
-                                    });
+                                        return GetSocialAssetStats(nGroupID, lAssetIDs[index], eType, dStartDate, dEndDate);
+                                    }, i);
+
+                                    tasks[(int)i].Start();
                                 }
+
                                 Task.WaitAll(tasks);
                                 for (int i = 0; i < tasks.Length; i++)
                                 {
@@ -6368,18 +6377,25 @@ namespace Core.Catalog
                     assetIDs.Clear();
                 }
 
-                if (searcher.GetType().Equals(typeof(ElasticsearchWrapper)) && assetIDs != null && assetIDs.Count > 0)
+                if (searcher.GetType().Equals(typeof(ElasticsearchWrapper)))
                 {
-                    Dictionary<string, UnifiedSearchResult> assetDictionary = searchResults.ToDictionary(item => item.AssetId);
-
-                    searchResults = new List<UnifiedSearchResult>();
-
-                    foreach (int item in assetIDs)
+                    if (assetIDs != null && assetIDs.Count > 0)
                     {
-                        if (assetDictionary.ContainsKey(item.ToString()))
+                        Dictionary<string, UnifiedSearchResult> assetDictionary = searchResults.ToDictionary(item => item.AssetId);
+
+                        searchResults = new List<UnifiedSearchResult>();
+
+                        foreach (int item in assetIDs)
                         {
-                            searchResults.Add(assetDictionary[item.ToString()]);
+                            if (assetDictionary.ContainsKey(item.ToString()))
+                            {
+                                searchResults.Add(assetDictionary[item.ToString()]);
+                            }
                         }
+                    }
+                    else
+                    {
+                        searchResults.Clear();
                     }
                 }
             }

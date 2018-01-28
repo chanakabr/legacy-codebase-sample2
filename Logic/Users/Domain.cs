@@ -503,10 +503,15 @@ namespace Core.Users
                 return eRetVal;
             }
 
+            //BEO-4478
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                eRetVal = DomainResponseStatus.DomainSuspended;
-                return eRetVal;
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_DELETE.ToString())))
+                {
+                    eRetVal = DomainResponseStatus.DomainSuspended;
+                    return eRetVal;
+                }
             }
 
             Dictionary<int, int> dTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
@@ -615,10 +620,15 @@ namespace Core.Users
             int isActive = 0;
             int nDeviceID = 0;
 
+            //BEO-4478
             if (!forceRemove && m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                bRes = DomainResponseStatus.DomainSuspended;
-                return bRes;
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_DELETE.ToString())))
+                {
+                    bRes = DomainResponseStatus.DomainSuspended;
+                    return bRes;
+                }
             }
 
             // try to get device from cache 
@@ -840,10 +850,15 @@ namespace Core.Users
         {
             DomainResponseStatus domainResponseStatus = DomainResponseStatus.UnKnown;
 
+            //BEO-4478
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                domainResponseStatus = DomainResponseStatus.DomainSuspended;
-                return domainResponseStatus;
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_UPDATESTATUS.ToString())))
+                {
+                    domainResponseStatus = DomainResponseStatus.DomainSuspended;
+                    return domainResponseStatus;
+                }
             }
 
             /** 1. Since frequency is defined at domain level and not in device family level we can pass a fictive (0)
@@ -1086,12 +1101,17 @@ namespace Core.Users
             int nBrandID = 0;
             Device device = null;
 
+            //BEO-4478
             if (m_DomainStatus == DomainStatus.DomainSuspended)
-            {
-                eRetVal = DeviceResponseStatus.Error;
-                device = new Device(m_nGroupID);
-                device.m_state = DeviceState.Error;
-                return device;
+            {   
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADDBYPIN.ToString())))
+                {
+                    eRetVal = DeviceResponseStatus.Error;
+                    device = new Device(m_nGroupID);
+                    device.m_state = DeviceState.Error;
+                    return device;
+                }
             }
 
             bool res = DomainDal.GetDeviceIdAndBrandByPin(sPIN, nGroupID, ref sUDID, ref nBrandID);
@@ -1207,6 +1227,7 @@ namespace Core.Users
                 return DomainResponseStatus.DomainNotInitialized;
             }
 
+            //BEO-4478
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 return DomainResponseStatus.DomainSuspended;
@@ -2161,10 +2182,15 @@ namespace Core.Users
             Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
             SetReadingInvalidationKeys();
 
+            //BEO-4478
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                bRemove = false;
-                return DomainResponseStatus.DomainSuspended;
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                   && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_ADD.ToString())))
+                {
+                    bRemove = false;
+                    return DomainResponseStatus.DomainSuspended;
+                }
             }
 
             // If domain has no users, insert new Master user
@@ -2486,10 +2512,15 @@ namespace Core.Users
             int tempDeviceID = 0;
             int nDbDomainDeviceID = 0;
 
+            //BEO-4478
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                eRetVal = DomainResponseStatus.DomainSuspended;
-                return eRetVal;
+                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
+                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADD.ToString())))
+                {
+                    eRetVal = DomainResponseStatus.DomainSuspended;
+                    return eRetVal;
+                }
             }
 
             int domainID = DomainDal.GetDeviceDomainData(nGroupID, sUDID, ref tempDeviceID, ref isDevActive, ref status, ref nDbDomainDeviceID);
@@ -2637,6 +2668,7 @@ namespace Core.Users
 
             return eRetVal;
         }
+
         private bool IsDomainRemovedSuccessfully(int statusRes)
         {
             return statusRes == 2;
