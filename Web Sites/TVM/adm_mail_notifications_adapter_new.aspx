@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_mail_notifications_adapter_new .aspx.cs" Inherits="adm_mail_notifications_adapter" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_mail_notifications_adapter_new.aspx.cs" Inherits="adm_mail_notifications_adapter_new" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -22,7 +22,7 @@
 
 <script type="text/javascript">   
     function GetPageTable(orderBy, pageNum) {
-        RS.Execute("adm_mail_notifications_adapter.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
+        RS.Execute("adm_mail_notifications_adapter_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
     }
 </script>
 </head>

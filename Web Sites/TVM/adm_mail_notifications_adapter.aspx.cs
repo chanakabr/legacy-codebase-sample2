@@ -63,7 +63,7 @@ public partial class adm_mail_notifications_adapter : System.Web.UI.Page
 
         theTable += "select id, name, group_id, is_active, status, adapter_url as 'adapter url', settings";
         theTable += ",external_identifier as 'external id'";
-        theTable += "from mail_notification_adapters ";
+        theTable += "from mail_notifications_adapters ";
         theTable += "where";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
         theTable += "and";
@@ -74,13 +74,13 @@ public partial class adm_mail_notifications_adapter : System.Web.UI.Page
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("group_id");
         theTable.AddActivationField("is_active");
-        theTable.AddActivationField("mail_notification_adapters");
+        theTable.AddActivationField("mail_notifications_adapters");
         theTable.SetConnectionKey("notifications_connection");
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_mail_notifications_adapter_new.aspx", "Edit", "");
-            linkColumn1.AddQueryStringValue("mail_notification_adapter_id", "field=id");
+            linkColumn1.AddQueryStringValue("mail_notifications_adapter_id", "field=id");
             theTable.AddLinkColumn(linkColumn1);
         }
 
@@ -88,7 +88,7 @@ public partial class adm_mail_notifications_adapter : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "mail_notification_adapters");
+            linkColumn.AddQueryStringValue("table", "mail_notifications_adapters");
             linkColumn.AddQueryStringValue("db", "notifications_connection");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "6");
@@ -102,7 +102,7 @@ public partial class adm_mail_notifications_adapter : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "mail_notification_adapters");
+            linkColumn.AddQueryStringValue("table", "mail_notifications_adapters");
             linkColumn.AddQueryStringValue("db", "notifications_connection");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "6");
@@ -116,7 +116,7 @@ public partial class adm_mail_notifications_adapter : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
             linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "mail_notification_adapters");
+            linkColumn.AddQueryStringValue("table", "mail_notifications_adapters");
             linkColumn.AddQueryStringValue("db", "notifications_connection");
             linkColumn.AddQueryStringValue("confirm", "false");
             linkColumn.AddQueryStringValue("main_menu", "6");
@@ -133,9 +133,9 @@ public partial class adm_mail_notifications_adapter : System.Web.UI.Page
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
 
-        int drmAdapterIdentifier = 0;
+        int adapterIdentifier = 0;
         Int32 groupID = LoginManager.GetLoginGroupID();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50, drmAdapterIdentifier, drmAdapterIdentifier);
+        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50, adapterIdentifier, adapterIdentifier);
         FillTheTableEditor(ref theTable, sOrderBy);
 
 
@@ -147,6 +147,6 @@ public partial class adm_mail_notifications_adapter : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": " + "Mail notification adapter");
+        Response.Write(PageUtils.GetPreHeader() + ": " + "Mail Notifications Adapters");
     }
 }

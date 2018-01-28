@@ -10,7 +10,7 @@ using TVinciShared;
 using ca_ws;
 using CachingProvider.LayeredCache;
 
-public partial class adm_mail_notifications_adapter : System.Web.UI.Page
+public partial class adm_mail_notifications_adapter_new : System.Web.UI.Page
 {
     private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
