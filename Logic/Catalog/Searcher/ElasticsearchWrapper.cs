@@ -2949,6 +2949,53 @@ namespace Core.Catalog
             return status;
         }
 
+        public ApiObjects.Response.Status DeleteTagsByTopic(int groupId, CatalogGroupCache group, int topicId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            if (group == null)
+            {
+                log.ErrorFormat("No catalog group cache {0}", groupId);
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Couldn't get group";
+                return status;
+            }
+
+            string index = ElasticSearch.Common.Utils.GetGroupMetadataIndex(groupId);
+
+            // dictionary contains all language ids and its  code (string)
+            var languages = group.LanguageMapByCode.Values;
+
+            ESTerm term = new ESTerm(true)
+            {
+                Key = "topic_id",
+                Value = topicId.ToString()
+            };
+
+            ESQuery query = new ESQuery(term);
+            string queryString = query.ToString();
+
+            foreach (var language in languages)
+            {
+                string type = "tag";
+
+                if (!language.IsDefault)
+                {
+                    type = string.Format("tag_{0}", language.Code);
+                }
+
+                bool deleteResult = m_oESApi.DeleteDocsByQuery(index, type, ref queryString);
+
+                if (!deleteResult)
+                {
+                    status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                    status.Message = "Failed performing delete query";
+                }
+            }
+
+            return status;
+        }
+
         public ApiObjects.Response.Status UpdateTag(int groupId, CatalogGroupCache group, TagValue tag)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
