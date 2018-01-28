@@ -1237,7 +1237,6 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeleteTopic(groupId, id, userId))
                 {                    
                     bool isTag = topic.Type == MetaType.Tag;
-                    bool isDeletedFromEs = true;
                     List<long> tagTopicIds = new List<long>();
                     List<long> metaTopicIds = new List<long>();
                     if (isTag)
@@ -1246,7 +1245,6 @@ namespace Core.Catalog.CatalogManagement
                         Status deleteTopicFromEsResult = wrapper.DeleteTagsByTopic(groupId, catalogGroupCache, id);
                         if (deleteTopicFromEsResult == null || deleteTopicFromEsResult.Code != (int)eResponseStatus.OK)
                         {
-                            isDeletedFromEs = false;
                             log.ErrorFormat("Failed deleting topic from ElasticSearch, for groupId: {0} and topicId: {1}", groupId, id);
                         }
 
@@ -1263,11 +1261,7 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0} and topicId: {1}, isTag: {2}", groupId, id, isTag);
                     }
 
-                    if (!isTag || isDeletedFromEs)
-                    {
-                        result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    }
-
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     InvalidateCatalogGroupCache(groupId, result, false);
                 }
             }
