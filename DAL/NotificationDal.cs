@@ -1010,7 +1010,8 @@ namespace DAL
             return ret;
         }
 
-        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType, string followPhrase = null, string followReference = null)
+        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType, 
+            string mailExternalAnnouncementId, string followPhrase = null, string followReference = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -1023,6 +1024,7 @@ namespace DAL
             spInsert.AddParameter("@created_at", DateTime.UtcNow);
             spInsert.AddParameter("@follow_phrase", followPhrase);
             spInsert.AddParameter("@follow_reference", followReference);
+            spInsert.AddParameter("@mail_external_id", mailExternalAnnouncementId);
 
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
@@ -1190,7 +1192,8 @@ namespace DAL
                             AutomaticIssueFollowNotification = automaticIssueFollowNotification,
                             RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All,
                             LastMessageSentDateSec = lastMessageSentDateSec,
-                            QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name")
+                            QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name"),
+                            MailExternalId = ODBCWrapper.Utils.GetSafeStr(row, "mail_external_id"),
                         };
 
                         result.Add(dbAnnouncement);
