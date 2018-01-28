@@ -69,8 +69,7 @@ namespace ElasticSearchHandler.IndexBuilders
                         return false;
                     }
 
-                    tags = catalogGroupCache.TopicsMapBySystemName.Where(
-                        x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Value).ToList();
+                    tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag).Select(x => x.Value).ToList();
                 }
                 catch (Exception ex)
                 {

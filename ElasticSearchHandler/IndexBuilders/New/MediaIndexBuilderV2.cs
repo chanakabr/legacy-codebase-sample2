@@ -128,10 +128,8 @@ namespace ElasticSearchHandler.IndexBuilders
                         }
 
                         HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
-                        tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value
-                                                                                && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
-                        foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => (!x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value)
-                                                                                                && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Value))
+                        tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                        foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Value))
                         {
 
                             string nullValue;
