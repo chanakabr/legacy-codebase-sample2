@@ -498,6 +498,16 @@ namespace Core.Catalog.CatalogManagement
             ImageResponse result = new ImageResponse();
             try
             {
+                if (imageToAdd.ImageObjectId > 0)
+                {
+                    AssetResponse asset = AssetManager.GetAsset(groupId, imageToAdd.ImageObjectId, eAssetTypes.MEDIA);
+                    if (asset.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Asset not found. assetId = {0}, assetType = {2}", imageToAdd.ImageObjectId, imageToAdd.ImageObjectType);
+                        result.Status = new Status(asset.Status.Code, "Asset not found");
+                        return result;
+                    }
+                }
                 DataTable dt = CatalogDAL.InsertPic(groupId, userId, imageToAdd.ImageObjectId, imageToAdd.ImageObjectType, imageToAdd.ImageTypeId);
 
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
