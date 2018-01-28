@@ -5307,13 +5307,16 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateTopicAssets(int groupId, long topicId, bool isTag, long assetStructId, long userId)
+        public static DataSet UpdateTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, List<long> MetaTopicIds, long assetStructId, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTopicsAssets");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@TopicId", topicId);
-            sp.AddParameter("@IsTag", isTag ? 1 : 0);
+            sp.AddParameter("@MetaTopicExist", MetaTopicIds != null && MetaTopicIds.Count > 0 ? 1 : 0);
+            sp.AddIDListParameter<long>("@MetaTopicIds", MetaTopicIds, "Id");
+            sp.AddParameter("@TagsTopicsExist", tagTopicIds != null && tagTopicIds.Count > 0 ? 1 : 0);
+            sp.AddIDListParameter<long>("@TagTopicIds", tagTopicIds, "Id");
+            sp.AddParameter("@ShouldDeleteTag", shouldDeleteTag ? 1 : 0);
             sp.AddParameter("@AssetStructId", assetStructId);
             sp.AddParameter("@UpdaterId", userId);
 
