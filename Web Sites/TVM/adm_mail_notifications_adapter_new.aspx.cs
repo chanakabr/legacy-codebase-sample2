@@ -155,7 +155,7 @@ public partial class adm_mail_notifications_adapter_new : System.Web.UI.Page
         theRecord.AddRecord(dr_adapter_url);
 
 
-        DataRecordLongTextField dr_settings = new DataRecordLongTextField("ltr", true, 60, 128, true);
+        DataRecordLongTextField dr_settings = new DataRecordLongTextField("ltr", true, 60, 30, true);
         dr_settings.Initialize("Settings", "adm_table_header_nbg", "FormInput", "settings", false);
         theRecord.AddRecord(dr_settings);
 
