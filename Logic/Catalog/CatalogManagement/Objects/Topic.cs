@@ -19,7 +19,6 @@ namespace Core.Catalog.CatalogManagement
         public MetaType Type { get; set; }
         public HashSet<string> Features { get; set; }
         public bool? IsPredefined { get; set; }
-        public bool? MultipleValue { get; set; }
         public bool SearchRelated { get; set; }
         public string HelpText { get; set; }
         public long? ParentId { get; set; }
@@ -35,7 +34,6 @@ namespace Core.Catalog.CatalogManagement
             this.Type = MetaType.All;
             this.Features = null;
             this.IsPredefined = null;
-            this.MultipleValue = null;
             this.SearchRelated = false;
             this.HelpText = string.Empty;
             this.ParentId = 0;            
@@ -50,8 +48,7 @@ namespace Core.Catalog.CatalogManagement
             this.Name = name;
             this.NamesInOtherLanguages = new List<LanguageContainer>(namesInOtherLanguages);
             this.SystemName = systemName;
-            this.Type = type;
-            this.MultipleValue = this.Type == MetaType.Tag;
+            this.Type = type;            
             this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             if (this.Features.Contains(SEARCH_RELATED))
             {
@@ -78,7 +75,6 @@ namespace Core.Catalog.CatalogManagement
             this.Type = topicToCopy.Type;
             this.Features = new HashSet<string>(topicToCopy.Features, StringComparer.OrdinalIgnoreCase);
             this.IsPredefined = topicToCopy.IsPredefined;
-            this.MultipleValue = topicToCopy.MultipleValue;
             this.SearchRelated = topicToCopy.SearchRelated;
             this.HelpText = topicToCopy.HelpText;
             this.ParentId = topicToCopy.ParentId;
@@ -123,7 +119,6 @@ namespace Core.Catalog.CatalogManagement
             sb.AppendFormat("Type: {0}, ", Type);
             sb.AppendFormat("Features: {0}, ", Features != null ? string.Join(",", Features) : string.Empty);
             sb.AppendFormat("IsPredefined: {0}, ", IsPredefined.HasValue ? IsPredefined.ToString() : string.Empty);
-            sb.AppendFormat("MultipleValue: {0}", MultipleValue.HasValue ? MultipleValue.ToString() : string.Empty);
             sb.AppendFormat("SearchRelated: {0}", SearchRelated);
             sb.AppendFormat("HelpText: {0}, ", HelpText);
             sb.AppendFormat("ParentId: {0}, ", ParentId);

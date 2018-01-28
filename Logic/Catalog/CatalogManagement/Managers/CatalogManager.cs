@@ -1123,12 +1123,6 @@ namespace Core.Catalog.CatalogManagement
             TopicResponse result = new TopicResponse();
             try
             {
-                if (topicToAdd.MultipleValue.HasValue && topicToAdd.MultipleValue.Value && topicToAdd.Type != MetaType.Tag)
-                {
-                    result.Status = new Status((int)eResponseStatus.InvalidMutlipleValueForMetaType, "MultipleValue can only be set to true for KalturaMetaType - STRING");
-                    return result;
-                }
-
                 CatalogGroupCache catalogGroupCache;
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
@@ -1299,10 +1293,8 @@ namespace Core.Catalog.CatalogManagement
                     return searchKeys;
                 }
 
-                List<string> tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value
-                                                                                    && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
-                List<string> metas = catalogGroupCache.TopicsMapBySystemName.Where(x => (!x.Value.MultipleValue.HasValue || !x.Value.MultipleValue.Value)
-                                                                                    && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                List<string> tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                List<string> metas = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
                 if (originalKey.StartsWith("tags."))
                 {
                     foreach (string tag in tags)
@@ -1425,8 +1417,7 @@ namespace Core.Catalog.CatalogManagement
 
             int defaultLanguage = catalogGroupCache.DefaultLanguage.ID;
 
-            var tags = catalogGroupCache.TopicsMapBySystemName.Where(
-                x => x.Value.Type == ApiObjects.MetaType.Tag && x.Value.MultipleValue.HasValue && x.Value.MultipleValue.Value).Select(x => x.Value).ToList();
+            var tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag).Select(x => x.Value).ToList();
 
             DataSet dataSet = null;
             try
