@@ -168,7 +168,7 @@ namespace WebAPI.Controllers
 
             if (!meta.DataType.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "dataType");
             }
 
             try
