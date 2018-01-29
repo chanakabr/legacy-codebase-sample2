@@ -699,6 +699,9 @@ namespace DAL
             if (!string.IsNullOrEmpty(settings.ChurnMailTemplateName))
                 sp.AddParameter("@churnMailTemplateName", settings.ChurnMailTemplateName);
 
+            if (settings.MailNotificationAdapterId.HasValue)
+                sp.AddParameter("@mailNotificationAdapterId", settings.MailNotificationAdapterId.Value);
+
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -742,7 +745,8 @@ namespace DAL
                         ChurnMailSubject = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "churn_mail_subject"),
                         ChurnMailTemplateName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "churn_mail_template_name"),
                         MailSenderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_sender_name"),
-                        SenderEmail = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "sender_email")
+                        SenderEmail = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "sender_email"),
+                        MailNotificationAdapterId= ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "MAIL_NOTIFICATION_ADAPTER_ID")
                     });
                 }
             }
