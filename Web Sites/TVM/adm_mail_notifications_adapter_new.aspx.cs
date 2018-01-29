@@ -98,8 +98,8 @@ public partial class adm_mail_notifications_adapter_new : System.Web.UI.Page
             }
 
             Int32 nMenuID = 0;
-            //m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID);
-            //m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
+            m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
             
             if (Request.QueryString["mail_notifications_adapter_id"] != null && Request.QueryString["mail_notifications_adapter_id"].ToString() != "")
             {
@@ -133,8 +133,8 @@ public partial class adm_mail_notifications_adapter_new : System.Web.UI.Page
             return Session["last_page_html"].ToString();
         }
         object t = null; ;
-        if (Session["mail_notifications_id"] != null && Session["mail_notifications_id"].ToString() != "" && int.Parse(Session["mail_notifications_id"].ToString()) != 0)
-            t = Session["mail_notifications_id"];
+        if (Session["mail_notifications_adapter_id"] != null && Session["mail_notifications_adapter_id"].ToString() != "" && int.Parse(Session["mail_notifications_adapter_id"].ToString()) != 0)
+            t = Session["mail_notifications_adapter_id"];
         string sBack = "adm_mail_notifications_adapter.aspx?search_save=1";
 
         object group_id = LoginManager.GetLoginGroupID();
