@@ -10,5 +10,6 @@ namespace ApiObjects.Notification
         public string Sound { get; set; }
         public string Action { get; set; }
         public string URL { get; set; }
+        public string MailTemplate { get; set; }
     }
 }
