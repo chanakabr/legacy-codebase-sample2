@@ -2195,6 +2195,7 @@ namespace DAL
                 sp.AddParameter("@externalId", dbReminder.ExternalPushId);
                 sp.AddParameter("@externalResult", dbReminder.ExternalResult);
                 sp.AddParameter("@message", dbReminder.Message);
+                sp.AddParameter("@mailExternalId", dbReminder.MailExternalId);
 
                 reminderId = sp.ExecuteReturnValue<int>();
             }
@@ -2270,6 +2271,7 @@ namespace DAL
                 Reference = ODBCWrapper.Utils.GetIntSafeVal(row, "reference"),
                 ExternalPushId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
                 Message = ODBCWrapper.Utils.GetSafeStr(row, "message"),
+                MailExternalId = ODBCWrapper.Utils.GetSafeStr(row, "mail_external_id"),
 
                 SendTime = sentDateSec
             };
@@ -2315,6 +2317,7 @@ namespace DAL
                 SeriesId = ODBCWrapper.Utils.GetSafeStr(row, "series_id"),
                 SeasonNumber = ODBCWrapper.Utils.GetLongSafeVal(row, "season_number"),
                 EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(row, "epg_channel_id"),
+                MailExternalId = ODBCWrapper.Utils.GetSafeStr(row, "mail_external_id"),
             };
 
             return result;
@@ -2337,6 +2340,7 @@ namespace DAL
                 sp.AddParameter("@seasonNumber", dbReminder.SeasonNumber);
                 sp.AddParameter("@epgChannelId", dbReminder.EpgChannelId);
                 sp.AddParameter("@lastSendDate", dbReminder.LastSendDate);
+                sp.AddParameter("@mailExternalId", dbReminder.MailExternalId);
 
                 reminderId = sp.ExecuteReturnValue<int>();
             }
