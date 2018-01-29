@@ -216,7 +216,7 @@ namespace Core.Notification
                     userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
                     !string.IsNullOrEmpty(userNotificationData.Email))
                 {
-                    if (!MailNotificationAdapter.SubscribeToAnnouncement(dbReminder.GroupId, new List<string>() { dbReminder.MailExternalId }, userNotificationData.Email))
+                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(dbReminder.GroupId, new List<string>() { dbReminder.MailExternalId }, userNotificationData.Email))
                     {
                         log.ErrorFormat("Failed subscribing user reminder to email announcement. group: {0}, userId: {1}, email: {2}", dbReminder.GroupId, userId, userNotificationData.Email);
                     }
@@ -413,7 +413,7 @@ namespace Core.Notification
                     userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
                     !string.IsNullOrEmpty(userNotificationData.Email))
                 {
-                    if (!MailNotificationAdapter.SubscribeToAnnouncement(dbSeriesReminder.GroupId, new List<string>() { dbSeriesReminder.MailExternalId }, userNotificationData.Email))
+                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(dbSeriesReminder.GroupId, new List<string>() { dbSeriesReminder.MailExternalId }, userNotificationData.Email))
                     {
                         log.ErrorFormat("Failed subscribing user series reminder to email announcement. group: {0}, userId: {1}, email: {2}", dbSeriesReminder.GroupId, userId, userNotificationData.Email);
                     }
@@ -721,7 +721,7 @@ namespace Core.Notification
                 if (string.IsNullOrEmpty(dbReminder.MailExternalId))
                 {
                     // Create topic
-                    string externalId = MailNotificationAdapter.CreateAnnouncement(dbReminder.GroupId, dbReminder.Name);
+                    string externalId = MailNotificationAdapterClient.CreateAnnouncement(dbReminder.GroupId, dbReminder.Name);
                     if (string.IsNullOrEmpty(externalId))
                     {
                         log.DebugFormat("failed to create mail announcement groupID = {0}, reminderName = {1}", dbReminder.GroupId, dbReminder.Name);
@@ -809,7 +809,7 @@ namespace Core.Notification
                 List<DbReminder> reminders = NotificationDal.GetReminders(groupId, reminderId);
                 if (reminders != null && reminders.Count > 0)
                 {
-                    if (!MailNotificationAdapter.UnSubscribeToAnnouncement(groupId, new List<string>() { reminders[0].MailExternalId }, userNotificationData.Email))
+                    if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, new List<string>() { reminders[0].MailExternalId }, userNotificationData.Email))
                     {
                         log.ErrorFormat("Failed subscribing user reminder to email announcement. group: {0}, userId: {1}, email: {2}", groupId, userId, userNotificationData.Email);
                     }
@@ -913,7 +913,7 @@ namespace Core.Notification
                 List<DbSeriesReminder> reminders = NotificationDal.GetSeriesReminders(groupId, new List<long> () { reminderId });
                 if (reminders != null && reminders.Count > 0)
                 {
-                    if (!MailNotificationAdapter.UnSubscribeToAnnouncement(groupId, new List<string>() { reminders[0].MailExternalId }, userNotificationData.Email))
+                    if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, new List<string>() { reminders[0].MailExternalId }, userNotificationData.Email))
                     {
                         log.ErrorFormat("Failed subscribing user reminder to email announcement. group: {0}, userId: {1}, email: {2}", groupId, userId, userNotificationData.Email);
                     }

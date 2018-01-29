@@ -1104,6 +1104,11 @@ namespace Core.Notification
             return EngagementManager.SetEngagementAdapterConfiguration(groupId, engagementId);
         }
 
+        public static ApiObjects.Response.Status SetMailNotificationsAdapterConfiguration(int groupId, int adapterId)
+        {
+            return NotificationManager.SetMailNotificationsAdapterConfiguration(groupId, adapterId);
+        }
+
         public static bool ReSendEngagement(int partnerId, int engagementId)
         {
             try

@@ -583,7 +583,7 @@ namespace Core.Notification
                 }
 
                 announcementName = "Mail";
-                string mailExternalAnnouncementId = MailNotificationAdapter.CreateAnnouncement(groupId, announcementName);
+                string mailExternalAnnouncementId = MailNotificationAdapterClient.CreateAnnouncement(groupId, announcementName);
                 if (string.IsNullOrEmpty(mailExternalAnnouncementId))
                 {
                     log.ErrorFormat("CreateSystemAnnouncement failed Create guest mail announcement groupID = {0}, announcementName = {1}", groupId, announcementName);

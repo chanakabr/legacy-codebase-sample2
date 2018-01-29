@@ -272,7 +272,7 @@ namespace Core.Notification
                 string mailExternalAnnouncementId = string.Empty;
                 if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId))
                 {
-                    mailExternalAnnouncementId = MailNotificationAdapter.CreateAnnouncement(groupId, announcementName);
+                    mailExternalAnnouncementId = MailNotificationAdapterClient.CreateAnnouncement(groupId, announcementName);
                     if (string.IsNullOrEmpty(externalAnnouncementId))
                     {
                         log.DebugFormat("failed to create announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
@@ -409,7 +409,7 @@ namespace Core.Notification
 
             if (!string.IsNullOrEmpty(userNotificationData.Email) && userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value)
             {
-                MailNotificationAdapter.UnSubscribeToAnnouncement(groupId, new List<string>() { announcements.First().MailExternalId }, userNotificationData.Email);
+                MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, new List<string>() { announcements.First().MailExternalId }, userNotificationData.Email);
             }
 
 
@@ -554,7 +554,7 @@ namespace Core.Notification
 
                 if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.Email))
                 {
-                    if (!MailNotificationAdapter.SubscribeToAnnouncement(groupId, new List<string>() { announcementToFollow.MailExternalId }, userNotificationData.Email))
+                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, new List<string>() { announcementToFollow.MailExternalId }, userNotificationData.Email))
                     {
                         log.ErrorFormat("Failed subscribing user to email announcement. group: {0}, userId: {1}, email: {2}", groupId, userId, userNotificationData.Email);
                     }
