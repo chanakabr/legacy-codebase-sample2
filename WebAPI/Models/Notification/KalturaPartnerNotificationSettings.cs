@@ -141,6 +141,14 @@ namespace WebAPI.Models.Notification
         [JsonProperty("mailSenderName")]
         [XmlElement(ElementName = "mailSenderName", IsNullable = true)]
         public string MailSenderName { get; set; }
+
+        /// <summary>
+        /// Mail notification adapter identifier
+        /// </summary>
+        [DataMember(Name = "mailNotificationAdapterId")]
+        [JsonProperty("mailNotificationAdapterId")]
+        [XmlElement(ElementName = "mailNotificationAdapterId", IsNullable = true)]
+        public long? MailNotificationAdapterId { get; set; }
     }
 
     [Obsolete]

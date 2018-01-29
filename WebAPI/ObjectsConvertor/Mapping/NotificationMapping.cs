@@ -34,6 +34,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  ;
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
@@ -53,6 +54,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  ;
 
             //NotificationPartnerSettings to KalturaNotificationPartnerSettings
@@ -72,6 +74,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
@@ -90,6 +93,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ChurnMailSubject, opt => opt.MapFrom(src => src.ChurnMailSubject))
                  .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  ;
 
