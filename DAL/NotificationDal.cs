@@ -746,7 +746,7 @@ namespace DAL
                         ChurnMailTemplateName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "churn_mail_template_name"),
                         MailSenderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_sender_name"),
                         SenderEmail = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "sender_email"),
-                        MailNotificationAdapterId= ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "MAIL_NOTIFICATION_ADAPTER_ID")
+                        MailNotificationAdapterId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "MAIL_NOTIFICATION_ADAPTER_ID")
                     });
                 }
             }
@@ -922,7 +922,7 @@ namespace DAL
             return dt.Rows[0];
         }
 
-        public static DataRow Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, 
+        public static DataRow Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId,
             string resultMsgId = null, string imageUrl = null, bool includeMail = false)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
@@ -1018,7 +1018,7 @@ namespace DAL
             return ret;
         }
 
-        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType, 
+        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType,
             string mailExternalAnnouncementId, string followPhrase = null, string followReference = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
@@ -1470,7 +1470,7 @@ namespace DAL
             }
 
             return userNotification;
-        }             
+        }
 
         public static bool SetUserNotificationData(int groupId, int userId, UserNotification userNotification, bool unlock = false)
         {
@@ -2554,9 +2554,46 @@ namespace DAL
             return id;
         }
 
-        public static MailNotificationAdapter GetMailNotification(int groupId, int adapterId)
+        public static MailNotificationAdapter GetMailNotificationAdapter(int groupId, int adapterId)
         {
-            throw new NotImplementedException();
+            MailNotificationAdapter adapterRes = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MailNotificationAdapter");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@adapterId", adapterId);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterRes = CreateMailNotificationAdapter(ds);
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetMailNotificationAdapter. groupId: {0}. Error {1}", groupId, ex);
+            }
+            return adapterRes;
+        }
+
+        private static MailNotificationAdapter CreateMailNotificationAdapter(DataSet ds)
+        {
+            MailNotificationAdapter adapterRes = null;
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                adapterRes = new MailNotificationAdapter()
+                {
+                    AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url"),
+                    IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active") == 1 ? true : false,
+                    Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name"),
+                    ProviderUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "provider_url"),
+                    Settings = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "settings"),
+                    SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret")
+                };
+            }
+
+            return adapterRes;
         }
     }
 }
