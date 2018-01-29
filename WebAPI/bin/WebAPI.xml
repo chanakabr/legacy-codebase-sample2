@@ -8531,6 +8531,11 @@
             URL template for deep linking. Example - /app/location/{mediaId}
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.MailTemplate">
+            <summary>
+            Mail template name
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.AnnouncementId">
             <summary>
             Announcement Id
