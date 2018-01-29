@@ -43,9 +43,13 @@ namespace ApiObjects.Notification
         [DataMember]
         public string ImageUrl { get; set; }
 
+        [DataMember]
+        public bool IncludeMail { get; set; }
+
         public MessageAnnouncement() { }
 
-        public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, eAnnouncementStatus status = eAnnouncementStatus.NotSent, string messageReference = null, int announcementId = 0, string imageUrl = null)
+        public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, 
+            eAnnouncementStatus status = eAnnouncementStatus.NotSent, string messageReference = null, int announcementId = 0, string imageUrl = null, bool includeMail = false)
         {
             Name = name;
             Message = msg;
@@ -57,11 +61,12 @@ namespace ApiObjects.Notification
             AnnouncementId = announcementId;
             MessageReference = messageReference;
             ImageUrl = imageUrl;
+            IncludeMail = includeMail;
         }
 
         public override string ToString()
         {
-            return string.Format("MessageAnnouncement: Name: {0}, Message {1}, StartTime: {2}, TimeZone: {3} Status: {4}, Recipients {5}, Enabled {6}, AnnouncementId: {7}",
+            return string.Format("MessageAnnouncement: Name: {0}, Message {1}, StartTime: {2}, TimeZone: {3} Status: {4}, Recipients {5}, Enabled {6}, AnnouncementId: {7}, IncludeMail: {8}",
                 Name,
                 Message,
                 StartTime,
@@ -69,7 +74,8 @@ namespace ApiObjects.Notification
                 Status,
                 Recipients,
                 Enabled,
-                AnnouncementId);
+                AnnouncementId,
+                IncludeMail);
         }
     }
 }
