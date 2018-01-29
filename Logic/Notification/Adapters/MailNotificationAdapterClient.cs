@@ -16,50 +16,45 @@ namespace Core.Notification
 
         public static bool SendConfigurationToAdapter(int groupId, MailNotificationAdapter adapter)
         {
-            //try
-            //{
-            //    if (engagementAdapter == null || string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
-            //    {
-            //        log.ErrorFormat("Adapter URL was not found. group ID: {0}, adapter: {1}",
-            //            groupId,
-            //            engagementAdapter != null ? JsonConvert.SerializeObject(engagementAdapter) : "null");
-            //        return false;
-            //    }
+            try
+            {
+                if (adapter == null || string.IsNullOrEmpty(adapter.AdapterUrl))
+                {
+                    log.ErrorFormat("Adapter URL was not found. group ID: {0}, adapter: {1}",
+                        groupId,
+                        adapter != null ? JsonConvert.SerializeObject(adapter) : "null");
+                    return false;
+                }
 
-            //    //set unixTimestamp
-            //    long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                //set unixTimestamp
+                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
-            //    //set signature
-            //    string signature = string.Concat(engagementAdapter.ID, engagementAdapter.ProviderUrl, engagementAdapter.Settings != null ? string.Concat(engagementAdapter.Settings.Select(s => string.Concat(s.Key, s.Value))) : string.Empty,
-            //        groupId, unixTimestamp);
+                //set signature
+                string signature = string.Concat(adapter.Id, adapter.ProviderUrl, adapter.Settings, groupId, unixTimestamp);
 
-            //    using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.AdapterUrl))
-            //    {
-            //        APILogic.EngagementAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
-            //            engagementAdapter.ID,
-            //            engagementAdapter.ProviderUrl,
-            //            engagementAdapter.Settings != null ? engagementAdapter.Settings.Select(s => new APILogic.EngagementAdapterService.KeyValue() { Key = s.Key, Value = s.Value }).ToArray() : null,
-            //            groupId,
-            //            unixTimestamp,
-            //            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
+                {
+                    APILogic.MailNotificationsAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
+                        adapter.Id, adapter.Settings, groupId,  unixTimestamp,
+                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
-            //        if (adapterResponse != null && adapterResponse.Code == (int)EngagementAdapterStatus.OK)
-            //        {
-            //            log.DebugFormat("Successfully set configuration of engagement adapter. Result: AdapterID = {0}, AdapterStatus = {1}", engagementAdapter.ID, adapterResponse.Code);
-            //            return true;
-            //        }
-            //        else
-            //        {
-            //            log.ErrorFormat("Failed to set engagement Adapter configuration. Result: AdapterID = {0}, AdapterStatus = {1}",
-            //                engagementAdapter.ID, adapterResponse != null ? adapterResponse.Code.ToString() : "ERROR");
-            //            return false;
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.ErrorFormat("SendConfigurationToAdapter Failed: AdapterID = {0}, ex = {1}", engagementAdapter.ID, ex);
-            //}
+                    if (adapterResponse != null && adapterResponse.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                    {
+                        log.DebugFormat("Successfully set configuration of mail notification adapter. Result: AdapterID = {0}", adapter.Id);
+                        return true;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed to set mail notification  Adapter configuration. Result: AdapterID = {0}, AdapterStatus = {1}",
+                            adapter.Id, adapterResponse != null ? adapterResponse.Code.ToString() : "ERROR");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("SendConfigurationToAdapter Failed: AdapterID = {0}, ex = {1}", adapter.Id, ex);
+            }
 
             return false;
         }

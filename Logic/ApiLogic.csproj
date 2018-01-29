@@ -543,6 +543,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="Service References\MailNotificationsAdapterService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Service References\OSSAdapterService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -928,6 +933,19 @@
     <None Include="Service References\EngagementAdapterService\Service32.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AdapterStatus.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\Service1.wsdl" />
+    <None Include="Service References\MailNotificationsAdapterService\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\Service31.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\Service32.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.AdapterStatus.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
@@ -1145,6 +1163,7 @@
     <WCFMetadataStorage Include="Service References\AmazonSnsAdapter\" />
     <WCFMetadataStorage Include="Service References\DmsService\" />
     <WCFMetadataStorage Include="Service References\EngagementAdapterService\" />
+    <WCFMetadataStorage Include="Service References\MailNotificationsAdapterService\" />
     <WCFMetadataStorage Include="Service References\PaymentGWAdapter\" />
   </ItemGroup>
   <ItemGroup>
@@ -1233,6 +1252,21 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\MailNotificationsAdapterService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\MailNotificationsAdapterService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\MailNotificationsAdapterService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\MailNotificationsAdapterService\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
