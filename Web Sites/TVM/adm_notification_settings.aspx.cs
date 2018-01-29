@@ -169,6 +169,12 @@ public partial class adm_notification_settings : System.Web.UI.Page
             shortTextField.Initialize("Mail sender name", "adm_table_header_nbg", "FormInput", "mail_sender_name", false);
             theRecord.AddRecord(shortTextField);
 
+            DataRecordDropDownField drDropDownField = new DataRecordDropDownField("mail_notifications_adapters", "name", "id", "group_id", groupId, 60, true);
+            drDropDownField.Initialize("Mail notification adapter", "adm_table_header_nbg", "FormInput", "MAIL_NOTIFICATION_ADAPTER_ID", false);
+            drDropDownField.SetWhereString("status=1 and is_active=1");
+            drDropDownField.SetNoSelectStr("Not enabled");
+            theRecord.AddRecord(drDropDownField);
+
             sTable = theRecord.GetTableHTML("adm_notification_settings.aspx?submited=1");
         }
         return sTable;

@@ -46,18 +46,19 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
                 int recipients = 0;
                 DateTime date = new DateTime();
                 bool Enabled = false;
+                bool includeMail = false;
 
-                PageFiled(ref Enabled, ref recipients, ref name, ref message, ref date, ref timezone, ref imageUrl);
+                PageFiled(ref Enabled, ref recipients, ref name, ref message, ref date, ref timezone, ref imageUrl, ref includeMail);
 
                 if (id == 0)
                 {
-                    result = ImporterImpl.AddMessageAnnouncement(groupId, Enabled, name, message, recipients, date, timezone, imageUrl, ref id);//Notification                           
+                    result = ImporterImpl.AddMessageAnnouncement(groupId, Enabled, name, message, recipients, date, timezone, imageUrl, includeMail, ref id);
                     Session["message_announcement_id"] = id;
 
                 }
                 else
                 {
-                    result = ImporterImpl.UpdateMessageAnnouncement(groupId, id, Enabled, name, message, recipients, date, timezone, imageUrl);
+                    result = ImporterImpl.UpdateMessageAnnouncement(groupId, id, Enabled, name, message, recipients, date, timezone, imageUrl, includeMail);
                 }
                 if (result == null)
                 {
@@ -289,9 +290,44 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         dr_imageUrl.Initialize("Image URL", "adm_table_header_nbg", "FormInput", "image_url", true);
         theRecord.AddRecord(dr_imageUrl);
 
+        bool enable = IsMailNotificationEnabled();
+
+        DataRecordCheckBoxField drCheckBoxField = new DataRecordCheckBoxField(enable);
+        drCheckBoxField.Initialize("Mail Notification", "adm_table_header_nbg", "FormInput", "include_email", false);
+        drCheckBoxField.SetDefault(0);
+        theRecord.AddRecord(drCheckBoxField);
+
         string sTable = theRecord.GetTableHTML("adm_system_announcements_new.aspx?submited=1");
 
         return sTable;
+    }
+
+    private bool IsMailNotificationEnabled()
+    {
+        bool mailNotificationEnabled = false;
+        try
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("notifications_connection");
+            selectQuery += "select MAIL_NOTIFICATION_ADAPTER_ID from notification_settings where status=1 and is_active =1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", LoginManager.GetLoginGroupID());
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    int mailNotificationAdapterId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row, "MAIL_NOTIFICATION_ADAPTER_ID");
+                    mailNotificationEnabled = mailNotificationAdapterId > 0;
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+        catch (Exception ex)
+        {
+            log.Error("", ex);            
+        }
+        return mailNotificationEnabled;
     }
 
     private System.Data.DataTable GetReceipentType()
@@ -403,7 +439,7 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
             return false;
         }
     }
-    private void PageFiled(ref bool Enabled, ref int recipients, ref string name, ref string message, ref DateTime date, ref string timezone, ref string imageUrl)
+    private void PageFiled(ref bool Enabled, ref int recipients, ref string name, ref string message, ref DateTime date, ref string timezone, ref string imageUrl, ref bool includeMail)
     {
         System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
         if (coll["table_name"] == null)
@@ -433,6 +469,12 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
                             #region case
                             switch (sFieldName)
                             {
+                                case "include_email":
+                                    if (sVal == "1")
+                                        includeMail = true;
+                                    else
+                                        includeMail = false;
+                                    break;
                                 case "Enabled":
                                     if (sVal == "1")
                                         Enabled = true;
