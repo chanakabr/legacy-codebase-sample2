@@ -1336,7 +1336,7 @@ namespace Core.Notification
                 }
 
                 //get adapter
-                MailNotificationAdapter adapter = NotificationDal.GetMailNotification(groupId, adapterId);
+                MailNotificationAdapter adapter = NotificationDal.GetMailNotificationAdapter(groupId, adapterId);
 
                 if (adapter == null || adapter.Id <= 0)
                 {
