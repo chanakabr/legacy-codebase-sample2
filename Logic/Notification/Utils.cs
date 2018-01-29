@@ -386,5 +386,41 @@ namespace Core.Notification
             return new Tuple<Dictionary<string, DbReminder>, bool>(result, res);
         }
 
+
+        public static Status GetUserNotificationData(int groupId, int userId, out UserNotification userNotificationData)
+        {
+            bool docExists = false;
+            userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
+            if (userNotificationData == null)
+            {
+                if (docExists)
+                {
+                    // error while getting user notification data
+                    log.ErrorFormat("error retrieving user notification data. GID: {0}, UID: {1}", groupId, userId);
+                    return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+                else
+                {
+                    log.DebugFormat("user announcement data wasn't found - going to create a new one. GID: {0}, UID: {1}", groupId, userId);
+
+                    // create user notification object
+                    userNotificationData = new UserNotification(userId) { CreateDateSec = TVinciShared.DateUtils.UnixTimeStampNow() };
+
+                    //update user settings according to partner settings configuration                    
+                    userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(groupId, userId);
+
+                    userNotificationData.Settings.EnableMail = NotificationSettings.IsPartnerMailNotificationEnabled(groupId);
+
+                    if (userNotificationData.Settings.EnableMail.Value)
+                    {
+                        Users.User user = Users.User.GetUser(userId, groupId);
+                        userNotificationData.Email = user.m_oBasicData.m_sEmail;
+                    }
+                }
+            }
+
+            return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+        }
+
     }
 }

@@ -74,7 +74,7 @@ namespace Core.Notification
 
                 // get user notifications
                 UserNotification userNotificationData = null;
-                response.Status = GetUserNotificationData(dbReminder.GroupId, userId, out userNotificationData);
+                response.Status = Utils.GetUserNotificationData(dbReminder.GroupId, userId, out userNotificationData);
                 if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
                 {
                     return response;
@@ -212,6 +212,16 @@ namespace Core.Notification
                     return response;
                 }
 
+                if (NotificationSettings.IsPartnerMailNotificationEnabled(dbReminder.GroupId) &&
+                    userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
+                    !string.IsNullOrEmpty(userNotificationData.Email))
+                {
+                    if (!MailNotificationAdapter.SubscribeToAnnouncement(dbReminder.GroupId, new List<string>() { dbReminder.MailExternalId }, userNotificationData.Email))
+                    {
+                        log.ErrorFormat("Failed subscribing user reminder to email announcement. group: {0}, userId: {1}, email: {2}", dbReminder.GroupId, userId, userNotificationData.Email);
+                    }
+                }
+
                 // update user devices
                 if (userNotificationData.devices != null &&
                    userNotificationData.devices.Count > 0 &&
@@ -323,7 +333,7 @@ namespace Core.Notification
 
                 // get user notifications
                 UserNotification userNotificationData = null;
-                response.Status = GetUserNotificationData(dbSeriesReminder.GroupId, userId, out userNotificationData);
+                response.Status = Utils.GetUserNotificationData(dbSeriesReminder.GroupId, userId, out userNotificationData);
                 if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
                 {
                     return response;
@@ -341,7 +351,6 @@ namespace Core.Notification
                     response.Status = new Status((int)eResponseStatus.UserAlreadySetReminder, "User already set a reminder");
                     return response;
                 }
-
 
                 dbSeriesReminder.Name = clientReminder.SeasonNumber != 0 ? string.Format("{0}, season {1}", clientReminder.SeriesId, clientReminder.SeasonNumber) : clientReminder.SeriesId.ToString();
 
@@ -398,6 +407,16 @@ namespace Core.Notification
                     response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     Utils.WaitForAllTasksToFinish(tasks);
                     return response;
+                }
+
+                if (NotificationSettings.IsPartnerMailNotificationEnabled(dbSeriesReminder.GroupId) &&
+                    userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
+                    !string.IsNullOrEmpty(userNotificationData.Email))
+                {
+                    if (!MailNotificationAdapter.SubscribeToAnnouncement(dbSeriesReminder.GroupId, new List<string>() { dbSeriesReminder.MailExternalId }, userNotificationData.Email))
+                    {
+                        log.ErrorFormat("Failed subscribing user series reminder to email announcement. group: {0}, userId: {1}, email: {2}", dbSeriesReminder.GroupId, userId, userNotificationData.Email);
+                    }
                 }
 
                 // update user devices
@@ -692,6 +711,29 @@ namespace Core.Notification
                 }
             }
 
+            if (!NotificationSettings.IsPartnerMailNotificationEnabled(dbReminder.GroupId))
+            {
+                log.DebugFormat("AddUserReminder - partner mail notifications is disabled. groupID = {0}", dbReminder.GroupId);
+            }
+            else
+            {
+                // push enabled - check if topic creation is needed
+                if (string.IsNullOrEmpty(dbReminder.MailExternalId))
+                {
+                    // Create topic
+                    string externalId = MailNotificationAdapter.CreateAnnouncement(dbReminder.GroupId, dbReminder.Name);
+                    if (string.IsNullOrEmpty(externalId))
+                    {
+                        log.DebugFormat("failed to create mail announcement groupID = {0}, reminderName = {1}", dbReminder.GroupId, dbReminder.Name);
+                        response = new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create mail announcement");
+                        return response;
+                    }
+
+                    dbReminder.MailExternalId = externalId;
+                    setReminderDBNeeded = true;
+                }
+            }
+
             return response;
         }
 
@@ -731,33 +773,6 @@ namespace Core.Notification
             return programs;
         }
 
-        private static Status GetUserNotificationData(int groupId, int userId, out UserNotification userNotificationData)
-        {
-            bool docExists = false;
-            userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
-            if (userNotificationData == null)
-            {
-                if (docExists)
-                {
-                    // error while getting user notification data
-                    log.ErrorFormat("error retrieving user notification data. GID: {0}, UID: {1}", groupId, userId);
-                    return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                }
-                else
-                {
-                    log.DebugFormat("user notification data wasn't found - going to create a new one. GID: {0}, UID: {1}", groupId, userId);
-
-                    // create user notification object
-                    userNotificationData = new UserNotification(userId) { CreateDateSec = TVinciShared.DateUtils.UnixTimeStampNow() };
-
-                    //update user settings according to partner settings configuration                    
-                    userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(groupId, userId);
-                }
-            }
-
-            return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-        }
-
         public static Status DeleteUserReminder(int groupId, int userId, long reminderId)
         {
             Status statusResult = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -787,6 +802,24 @@ namespace Core.Notification
                 statusResult = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
+            if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) &&
+                   userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
+                   !string.IsNullOrEmpty(userNotificationData.Email))
+            {
+                List<DbReminder> reminders = NotificationDal.GetReminders(groupId, reminderId);
+                if (reminders != null && reminders.Count > 0)
+                {
+                    if (!MailNotificationAdapter.UnSubscribeToAnnouncement(groupId, new List<string>() { reminders[0].MailExternalId }, userNotificationData.Email))
+                    {
+                        log.ErrorFormat("Failed subscribing user reminder to email announcement. group: {0}, userId: {1}, email: {2}", groupId, userId, userNotificationData.Email);
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("Reminder not found. group: {0}, reminderId: {1}", groupId, reminderId);
+                }
+            }
+
             // iterate through user devices and remove reminders
             if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
                 log.DebugFormat("User doesn't have any devices. no reminders were removed. PID: {0}, UID: {1}, reminderId: {2}", groupId, userId, reminderId);
@@ -812,12 +845,12 @@ namespace Core.Notification
                     }
 
                     // unsubscribe device 
-                    List<UnSubscribe> unsubscibeList = new List<UnSubscribe>() 
-                    { 
-                        new UnSubscribe() 
-                        { 
-                            SubscriptionArn = subscribedReminder.ExternalId 
-                        } 
+                    List<UnSubscribe> unsubscibeList = new List<UnSubscribe>()
+                    {
+                        new UnSubscribe()
+                        {
+                            SubscriptionArn = subscribedReminder.ExternalId
+                        }
                     };
 
                     // unsubscribe reminder from Amazon
@@ -873,6 +906,24 @@ namespace Core.Notification
                 statusResult = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
+            if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) &&
+                  userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
+                  !string.IsNullOrEmpty(userNotificationData.Email))
+            {
+                List<DbSeriesReminder> reminders = NotificationDal.GetSeriesReminders(groupId, new List<long> () { reminderId });
+                if (reminders != null && reminders.Count > 0)
+                {
+                    if (!MailNotificationAdapter.UnSubscribeToAnnouncement(groupId, new List<string>() { reminders[0].MailExternalId }, userNotificationData.Email))
+                    {
+                        log.ErrorFormat("Failed subscribing user reminder to email announcement. group: {0}, userId: {1}, email: {2}", groupId, userId, userNotificationData.Email);
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("Series reminder not found. group: {0}, reminderId: {1}", groupId, reminderId);
+                }
+            }
+
             // iterate through user devices and remove reminders
             if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
                 log.DebugFormat("User doesn't have any devices. no reminders were removed. PID: {0}, UID: {1}, reminderId: {2}", groupId, userId, reminderId);
@@ -898,12 +949,12 @@ namespace Core.Notification
                     }
 
                     // unsubscribe device 
-                    List<UnSubscribe> unsubscibeList = new List<UnSubscribe>() 
-                    { 
-                        new UnSubscribe() 
-                        { 
-                            SubscriptionArn = subscribedReminder.ExternalId 
-                        } 
+                    List<UnSubscribe> unsubscibeList = new List<UnSubscribe>()
+                    {
+                        new UnSubscribe()
+                        {
+                            SubscriptionArn = subscribedReminder.ExternalId
+                        }
                     };
 
                     // unsubscribe reminder from Amazon

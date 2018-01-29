@@ -503,34 +503,11 @@ namespace Core.Notification
 
             // get user notifications
             bool docExists = false;
-            UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
-            if (userNotificationData == null)
+            UserNotification userNotificationData = null;
+            response.Status = Utils.GetUserNotificationData(groupId, userId, out userNotificationData);
+            if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
             {
-                if (docExists)
-                {
-                    // error while getting user notification data
-                    log.ErrorFormat("error retrieving user announcement data. GID: {0}, UID: {1}", groupId, userId);
-                    response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    return response;
-                }
-                else
-                {
-                    log.DebugFormat("user announcement data wasn't found - going to create a new one. GID: {0}, UID: {1}", groupId, userId);
-
-                    // create user notification object
-                    userNotificationData = new UserNotification(userId) { CreateDateSec = TVinciShared.DateUtils.UnixTimeStampNow() };
-
-                    //update user settings according to partner settings configuration                    
-                    userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(groupId, userId);
-
-                    userNotificationData.Settings.EnableMail = NotificationSettings.IsPartnerMailNotificationEnabled(groupId);
-
-                    if (userNotificationData.Settings.EnableMail.Value)
-                    {
-                        Users.User user = Users.User.GetUser(userId, groupId);
-                        userNotificationData.Email = user.m_oBasicData.m_sEmail;
-                    }
-                }
+                return response;
             }
 
             try
