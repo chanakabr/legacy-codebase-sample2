@@ -88,6 +88,14 @@ namespace WebAPI.Models.Notifications
         [XmlElement(ElementName = "imageUrl")]
         public string ImageUrl { get; set; }
 
+        /// <summary>
+        /// Include Mail
+        /// </summary>
+        [DataMember(Name = "includeMail")]
+        [JsonProperty(PropertyName = "includeMail")]
+        [XmlElement(ElementName = "includeMail")]
+        public bool IncludeMail { get; set; }
+
         internal long getStartTime()
         {
             return StartTime.HasValue ? (long)StartTime : 0;
