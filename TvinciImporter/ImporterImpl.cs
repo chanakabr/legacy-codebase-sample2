@@ -5730,6 +5730,30 @@ namespace TvinciImporter
             }
         }
 
+        public static Status SetMailNotificationsAdapterConfiguration(int groupId, int adapterId)
+        {
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                TVinciShared.WS_Utils.GetWSUNPass(groupId, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+
+                return service.SetMailNotificationsAdapterConfiguration(sWSUserName, sWSPass, adapterId);
+            }
+            catch
+            {
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+        }
+
+
         #endregion
 
         private static string GetConfigVal(string sKey)
@@ -6518,6 +6542,8 @@ namespace TvinciImporter
 
             return result;
         }
+
+
     }
 }
 

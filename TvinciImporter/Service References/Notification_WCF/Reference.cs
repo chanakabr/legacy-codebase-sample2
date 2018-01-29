@@ -452,6 +452,14 @@ namespace TvinciImporter.Notification_WCF {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageInterest", ReplyAction="http://tempuri.org/INotificationService/SendMessageInterestResponse")]
         System.Threading.Tasks.Task<bool> SendMessageInterestAsync(string wsUserName, string wsSPassword, long startTime, int notificationInterestMessageId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetMailNotificationsAdapterConfiguration", ReplyAction="http://tempuri.org/INotificationService/SetMailNotificationsAdapterConfigurationR" +
+            "esponse")]
+        ApiObjects.Response.Status SetMailNotificationsAdapterConfiguration(string wsUserName, string wsSPassword, int engagementAdapterId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetMailNotificationsAdapterConfiguration", ReplyAction="http://tempuri.org/INotificationService/SetMailNotificationsAdapterConfigurationR" +
+            "esponse")]
+        System.Threading.Tasks.Task<ApiObjects.Response.Status> SetMailNotificationsAdapterConfigurationAsync(string wsUserName, string wsSPassword, int engagementAdapterId);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -919,6 +927,14 @@ namespace TvinciImporter.Notification_WCF {
         
         public System.Threading.Tasks.Task<bool> SendMessageInterestAsync(string wsUserName, string wsSPassword, long startTime, int notificationInterestMessageId) {
             return base.Channel.SendMessageInterestAsync(wsUserName, wsSPassword, startTime, notificationInterestMessageId);
+        }
+        
+        public ApiObjects.Response.Status SetMailNotificationsAdapterConfiguration(string wsUserName, string wsSPassword, int engagementAdapterId) {
+            return base.Channel.SetMailNotificationsAdapterConfiguration(wsUserName, wsSPassword, engagementAdapterId);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Response.Status> SetMailNotificationsAdapterConfigurationAsync(string wsUserName, string wsSPassword, int engagementAdapterId) {
+            return base.Channel.SetMailNotificationsAdapterConfigurationAsync(wsUserName, wsSPassword, engagementAdapterId);
         }
     }
 }

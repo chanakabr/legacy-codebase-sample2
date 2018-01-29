@@ -1470,7 +1470,7 @@ namespace DAL
             }
 
             return userNotification;
-        }
+        }             
 
         public static bool SetUserNotificationData(int groupId, int userId, UserNotification userNotification, bool unlock = false)
         {
@@ -2548,6 +2548,11 @@ namespace DAL
             }
 
             return id;
+        }
+
+        public static MailNotificationAdapter GetMailNotification(int groupId, int adapterId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
