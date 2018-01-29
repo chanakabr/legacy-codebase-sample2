@@ -120,9 +120,13 @@ public partial class adm_series_reminder_template : System.Web.UI.Page
             dr_action.Initialize("Action", "adm_table_header_nbg", "FormInput", "action", false);
             theRecord.AddRecord(dr_action);
 
-            DataRecordShortTextField dr_url = new DataRecordShortTextField("ltr", true, 60, 256);
-            dr_url.Initialize("URL", "adm_table_header_nbg", "FormInput", "url", false);
-            theRecord.AddRecord(dr_url);
+            DataRecordShortTextField drShortTextField = new DataRecordShortTextField("ltr", true, 60, 256);
+            drShortTextField.Initialize("URL", "adm_table_header_nbg", "FormInput", "url", false);
+            theRecord.AddRecord(drShortTextField);
+
+            drShortTextField = new DataRecordShortTextField("ltr", true, 60, 256);
+            drShortTextField.Initialize("Mail template", "adm_table_header_nbg", "FormInput", "MAIL_TEMPLATE_NAME", false);
+            theRecord.AddRecord(drShortTextField);
 
             sTable = theRecord.GetTableHTML("adm_series_reminder_template.aspx?submited=1");
         }
