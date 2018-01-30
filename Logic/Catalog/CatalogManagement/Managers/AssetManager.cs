@@ -1174,6 +1174,8 @@ namespace Core.Catalog.CatalogManagement
             HashSet<int> freeFileTypes = null;            
             if (assetFileTypes != null && assetFileTypes.Count() > 0)
             {
+                fileTypes = new HashSet<int>();
+                freeFileTypes = new HashSet<int>();
                 foreach (DataRow dr in assetFileTypes)
                 {
                     int fileTypeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID");
