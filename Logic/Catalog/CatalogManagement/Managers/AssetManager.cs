@@ -1064,12 +1064,14 @@ namespace Core.Catalog.CatalogManagement
                     tags = ds.Tables[2].AsEnumerable();
                 }
 
-                EnumerableRowCollection<DataRow> files = new DataTable().AsEnumerable();
-                // files table
+                EnumerableRowCollection<DataRow> fileTypes = new DataTable().AsEnumerable();
+                // file types table
                 if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
                 {
-                    files = ds.Tables[3].AsEnumerable();
+                    fileTypes = ds.Tables[3].AsEnumerable();
                 }
+
+                // images table is returned empty
 
                 EnumerableRowCollection<DataRow> assetUpdateDate = new DataTable().AsEnumerable();
                 // update dates table
@@ -1104,12 +1106,12 @@ namespace Core.Catalog.CatalogManagement
 
                         if (tags.Count() > 0)
                         {
-                            EnumerableRowCollection<DataRow> assettags = (from row in tags
+                            EnumerableRowCollection<DataRow> assetTags = (from row in tags
                                                                           where (Int64)row["ASSET_ID"] == id
                                                                           select row);
-                            if (assettags != null && assettags.Count() > 0)
+                            if (assetTags != null && assetTags.Count() > 0)
                             {
-                                assetDataset.Tables.Add(assettags.CopyToDataTable());
+                                assetDataset.Tables.Add(assetTags.CopyToDataTable());
                             }
                             else
                             {
@@ -1117,22 +1119,11 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
 
-                        if (files.Count() > 0)
-                        {
-                            EnumerableRowCollection<DataRow> assetfiles = (from row in files
-                                                                           where (Int64)row["MEDIA_ID"] == id
-                                                                           select row);
-                            if (assetfiles != null && assetfiles.Count() > 0)
-                            {
-                                assetDataset.Tables.Add(assetfiles.CopyToDataTable());
-                            }
-                            else
-                            {
-                                assetDataset.Tables.Add(ds.Tables[3].Clone());
-                            }
-                        }
+                        // add table for files so CreateMediaAsset will work
+                        assetDataset.Tables.Add(new DataTable());
 
-                        assetDataset.Tables.Add(ds.Tables[4].Clone());
+                        // add table for images so CreateMediaAsset will work
+                        assetDataset.Tables.Add(new DataTable());
 
                         if (assetUpdateDate.Count() > 0)
                         {
@@ -1152,7 +1143,15 @@ namespace Core.Catalog.CatalogManagement
                         MediaAsset mediaAsset = CreateMediaAsset(groupId, id, assetDataset, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                         if (mediaAsset != null)
                         {
-                            Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, catalogGroupCache);
+                            EnumerableRowCollection<DataRow> assetFileTypes = null;
+                            if (fileTypes.Count() > 0)
+                            {
+                                assetFileTypes = (from row in fileTypes
+                                                  where (Int64)row["MEDIA_ID"] == id
+                                                  select row);
+                            }
+
+                            Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache);
                             groupAssetsMap.Add((int)mediaAsset.Id, assets);
                         }
                     }
@@ -1166,26 +1165,33 @@ namespace Core.Catalog.CatalogManagement
             return groupAssetsMap;
         }
 
-        private static Dictionary<int, ApiObjects.SearchObjects.Media> CreateMediasFromMediaAssetAndLanguages(int groupId, MediaAsset mediaAsset, CatalogGroupCache catalogGroupCache)
+        private static Dictionary<int, ApiObjects.SearchObjects.Media> CreateMediasFromMediaAssetAndLanguages(int groupId, MediaAsset mediaAsset, EnumerableRowCollection<DataRow> assetFileTypes,
+                                                                                                                CatalogGroupCache catalogGroupCache)
         {
             Dictionary<int, ApiObjects.SearchObjects.Media> result = new Dictionary<int, ApiObjects.SearchObjects.Media>();
             // File Types + is free
             HashSet<int> fileTypes = null;
-            List<int> freeFileTypes = null;
-            bool isFree = false;
-            if (mediaAsset.Files != null && mediaAsset.Files.Count > 0)
+            HashSet<int> freeFileTypes = null;            
+            if (assetFileTypes != null && assetFileTypes.Count() > 0)
             {
-                //fileTypes = new HashSet<int>();
-                //foreach (AssetFile assetFile in mediaAsset.Files)
-                //{
-                //    if (!fileTypes.Contains(assetFile.Type))
-                //    {
-                //        fileTypes.Add(assetFile.Type);
-                //        bool isFileTypeFree = CheckIfMediaFile(files);
-                //        isFree = CheckIfMediaIsFreeByFiles(files);
-                //    }
-                //}
+                foreach (DataRow dr in assetFileTypes)
+                {
+                    int fileTypeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID");
+                    bool isFree = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_FREE", 0) == 1;
+                    if (fileTypeId > 0 && !fileTypes.Contains(fileTypeId))
+                    {
+                        fileTypes.Add(fileTypeId);
+                    }
+
+                    if (isFree && fileTypeId > 0 && !freeFileTypes.Contains(fileTypeId))
+                    {
+                        freeFileTypes.Add(fileTypeId);
+                    }
+
+
+                }
             }
+
             foreach (LanguageObj language in catalogGroupCache.LanguageMapById.Values)
             {
                 string name = mediaAsset.Name;
@@ -1268,9 +1274,9 @@ namespace Core.Catalog.CatalogManagement
                     EntryId = mediaAsset.EntryId,
                     m_dMeatsValues = metas,
                     m_dTagValues = tags,
-                    m_sMFTypes = fileTypes != null ? string.Join(",", fileTypes) : string.Empty,
-                    freeFileTypes = freeFileTypes,
-                    isFree = isFree
+                    m_sMFTypes = fileTypes != null ? string.Join(";", fileTypes) : string.Empty,
+                    freeFileTypes = freeFileTypes != null ? new List<int>(freeFileTypes) : new List<int>(),
+                    isFree = freeFileTypes != null && freeFileTypes.Count > 0
                 };
 
                 result.Add(language.ID, media);
@@ -1404,22 +1410,25 @@ namespace Core.Catalog.CatalogManagement
             Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> result = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
             try
             {
-                AssetResponse GetAssetResponse = GetAsset(groupId, mediaId, eAssetTypes.MEDIA, false);
-                if (GetAssetResponse != null && GetAssetResponse.Status != null && GetAssetResponse.Status.Code == (int)eResponseStatus.OK)
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    CatalogGroupCache catalogGroupCache;
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetMediaForElasticSearchIndex", groupId);
+                    return result;
+                }
+
+                DataSet ds = CatalogDAL.GetMediaAsset(groupId, mediaId, catalogGroupCache.DefaultLanguage.ID);
+                MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                if (mediaAsset != null)
+                {
+                    EnumerableRowCollection<DataRow> assetFileTypes = null;
+                    if (ds != null && ds.Tables != null && ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
                     {
-                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetMediaForElasticSearchIndex", groupId);
-                        return result;
+                        assetFileTypes = ds.Tables[3].AsEnumerable();
                     }
 
-                    MediaAsset mediaAsset = GetAssetResponse.Asset as MediaAsset;
-                    if (mediaAsset != null)
-                    {
-                        Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, catalogGroupCache);
-                        result.Add((int)mediaAsset.Id, assets);
-                    }
+                    Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache);
+                    result.Add((int)mediaAsset.Id, assets);
                 }
             }
             catch (Exception ex)

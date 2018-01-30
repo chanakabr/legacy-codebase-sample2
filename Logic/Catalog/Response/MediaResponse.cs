@@ -137,7 +137,11 @@ namespace Core.Catalog.Response
             {
                 foreach (AssetFile file in assetFiles)
                 {
-                    result.Add(new FileMedia(file, FileManager.GetMediaFileType(groupId, file.Type)));
+                    MediaFileType mediaFileType = FileManager.GetMediaFileType(groupId, file.Type);
+                    if (mediaFileType != null)
+                    {
+                        result.Add(new FileMedia(file, mediaFileType));
+                    }
                 }
             }
 

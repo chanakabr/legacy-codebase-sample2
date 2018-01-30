@@ -9,6 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -319,6 +320,27 @@ namespace Core.Catalog.CatalogManagement
             return status;
         }
 
+        private static void DoFreeItemIndexUpdateIfNeeded(int groupId, int assetId, DateTime? previousStartDate, DateTime? startDate, DateTime? previousEndDate, DateTime? endDate)
+        {
+            // check if changes in the start date require future index update call, incase updatedStartDate is in more than 2 years we don't update the index (per Ira's request)
+            if (RabbitHelper.IsFutureIndexUpdate(previousStartDate, startDate))
+            {
+                if (!RabbitHelper.InsertFreeItemsIndexUpdate(groupId, ApiObjects.eObjectType.Media, new List<int>() { assetId }, startDate.Value))
+                {
+                    log.ErrorFormat("Failed inserting free items index update for startDate: {0}, mediaID: {1}, groupID: {2}", startDate.Value, assetId, groupId);
+                }
+            }
+
+            // check if changes in the end date require future index update call, incase updatedEndDate is in more than 2 years we don't update the index (per Ira's request)
+            if (RabbitHelper.IsFutureIndexUpdate(previousEndDate, endDate))
+            {
+                if (!RabbitHelper.InsertFreeItemsIndexUpdate(groupId, ApiObjects.eObjectType.Media, new List<int>() { assetId }, endDate.Value))
+                {
+                    log.ErrorFormat("Failed inserting free items index update for endDate: {0}, mediaID: {1}, groupID: {2}", endDate.Value, assetId, groupId);
+                }
+            }
+        }
+
         #endregion
 
         #region Internal Methods
@@ -343,6 +365,18 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        internal static MediaFileType GetMediaFileType(int groupId, int id)
+        {
+            MediaFileType result = null;
+            AssetFileTypeListResponse mediaFileTypesResponse = GetMediaFileTypes(groupId);
+            if (mediaFileTypesResponse != null && mediaFileTypesResponse.Status != null && mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK && mediaFileTypesResponse.Types.Count > 0)
+            {
+                result = mediaFileTypesResponse.Types.Where(x => x.Id == id).Count() == 1 ? mediaFileTypesResponse.Types.Where(x => x.Id == id).First() : null;
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Public Methods
@@ -364,12 +398,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }
-
-        public static MediaFileType GetMediaFileType(int groupId, int id)
-        {
-            return null;
-        }
+        }        
 
         public static MediaFileTypeResponse AddMediaFileType(int groupId, MediaFileType mediaFileTypeToAdd, long userId)
         {
@@ -510,6 +539,9 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after InsertMediaFile", assetFileToAdd.AssetId, groupId);
                     }
 
+                    // free item index update 
+                    DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToAdd.AssetId, null, assetFileToAdd.StartDate, null, assetFileToAdd.EndDate);
+
                     //string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
                     //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     //{
@@ -581,14 +613,14 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataSet ds = CatalogDAL.GetMediaFile(groupId, assetFileToUpdate.Id);
-                result = CreateAssetFileResponseFromDataSet(ds);
+                AssetFileResponse currentAssetFile = CreateAssetFileResponseFromDataSet(ds);
 
-                if (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK)
+                if (currentAssetFile != null && currentAssetFile.Status != null && currentAssetFile.Status.Code != (int)eResponseStatus.OK)
                 {
-                    return result;
+                    return currentAssetFile;
                 }
 
-                if (result.File != null && result.File.AssetId != assetFileToUpdate.AssetId)
+                if (currentAssetFile.File != null && currentAssetFile.File.AssetId != assetFileToUpdate.AssetId)
                 {
                     result.File = null;
                     result.Status = new Status() { Code = (int)eResponseStatus.MediaFileNotBelongToAsset, Message = eResponseStatus.MediaFileNotBelongToAsset.ToString() };
@@ -647,6 +679,10 @@ namespace Core.Catalog.CatalogManagement
                     {
                         log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaFile", assetFileToUpdate.AssetId, groupId);
                     }
+
+                    // free item index update 
+                    DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToUpdate.AssetId, currentAssetFile.File.StartDate, assetFileToUpdate.StartDate,
+                                                    currentAssetFile.File.EndDate, assetFileToUpdate.EndDate);
 
                     //string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
                     //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
