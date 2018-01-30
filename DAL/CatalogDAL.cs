@@ -4901,6 +4901,17 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
+        public static DataSet GetMediaAssetForElasitcSearch(int groupId, long id, long defaultLanguageId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaAssetForElasitcSearch");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@Id", id);
+            sp.AddParameter("@DefaultLanguageId", defaultLanguageId);
+
+            return sp.ExecuteDataSet();
+        }
+
         public static DataSet GetGroupMediaAssets(int groupId, long defaultLanguageId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupMediaAssets");
