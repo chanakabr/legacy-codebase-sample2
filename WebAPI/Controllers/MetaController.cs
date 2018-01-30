@@ -173,10 +173,10 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (meta.MultipleValue.HasValue && meta.MultipleValue.Value && meta.Type != KalturaMetaType.STRING)
+                if (meta.MultipleValue.HasValue && meta.MultipleValue.Value && meta.DataType != Models.Catalog.KalturaMetaDataType.STRING)
                 {
-                    throw new ClientException((int)eResponseStatus.InvalidMutlipleValueForMetaType,
-                                                string.Format("{0} - MultipleValue can only be set to true for KalturaMetaType - STRING", eResponseStatus.InvalidMutlipleValueForMetaType.ToString()));
+                    throw new ClientException((int)eResponseStatus.InvalidMutlipleValueForMetaType,string.Format("{0} - MultipleValue can only be set to true for KalturaMeta.DataType with value STRING",
+                                                                                                                eResponseStatus.InvalidMutlipleValueForMetaType.ToString()));
                 }
 
                 response = ClientsManager.CatalogClient().AddMeta(groupId, meta, userId);
