@@ -1419,7 +1419,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                DataSet ds = CatalogDAL.GetMediaAsset(groupId, mediaId, catalogGroupCache.DefaultLanguage.ID);
+                DataSet ds = CatalogDAL.GetMediaAssetForElasitcSearch(groupId, mediaId, catalogGroupCache.DefaultLanguage.ID);
                 MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                 if (mediaAsset != null)
                 {
