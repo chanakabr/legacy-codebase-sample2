@@ -860,6 +860,7 @@
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Properties\DataSources\AdapterControllers.RecommendationEngineAdapter.AdapterStatus.datasource" />
     <None Include="Properties\DataSources\AdapterControllers.RecommendationEngineAdapter.RecommendationsResult.datasource" />
@@ -936,14 +937,14 @@
     <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AdapterStatus.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service1.wsdl" />
-    <None Include="Service References\MailNotificationsAdapterService\Service3.xsd">
+    <None Include="Service References\MailNotificationsAdapterService\Service.wsdl" />
+    <None Include="Service References\MailNotificationsAdapterService\Service.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service31.xsd">
+    <None Include="Service References\MailNotificationsAdapterService\Service1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service32.xsd">
+    <None Include="Service References\MailNotificationsAdapterService\Service2.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.AdapterStatus.datasource">
@@ -1254,6 +1255,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Service References\MailNotificationsAdapterService\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Service References\MailNotificationsAdapterService\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
@@ -1264,9 +1268,6 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\MailNotificationsAdapterService\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
