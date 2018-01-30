@@ -558,7 +558,7 @@ namespace Core.Notification
 
             try
             {
-                result = UserMessageFlow.InitiatePushAction(nGroupID, userAction, userId, udid != null ? udid : string.Empty, pushToken);
+                result = UserMessageFlow.InitiateNotificationAction(nGroupID, userAction, userId, udid != null ? udid : string.Empty, pushToken);
             }
             catch (Exception ex)
             {

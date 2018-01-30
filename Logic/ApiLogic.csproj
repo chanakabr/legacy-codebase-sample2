@@ -431,6 +431,7 @@
     <Compile Include="Notification\IFactoryImp.cs" />
     <Compile Include="Notification\ImplementorsFactory.cs" />
     <Compile Include="Notification\IRequestImp.cs" />
+    <Compile Include="Notification\MailAnnouncementsHelper.cs" />
     <Compile Include="Notification\MessageBoxServiceWrapper.cs" />
     <Compile Include="Notification\MessageInboxManger.cs" />
     <Compile Include="Notification\Notification.cs" />

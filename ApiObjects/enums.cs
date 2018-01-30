@@ -550,7 +550,11 @@ namespace ApiObjects
         ChangeUsers = 5,
         EnableUserNotifications = 6,
         DisableUserNotifications = 7,
-        DeleteDevice = 8
+        DeleteDevice = 8,
+        EnableUserMailNotifications = 9,
+        DisableUserMailNotifications = 10,
+        UpdateUser = 11,
+        Signup = 12,
     }
 
     public enum eAnnouncementStatus

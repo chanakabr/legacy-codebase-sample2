@@ -79,6 +79,7 @@ namespace Core.Notification
         public static Status UpdateUserNotificationSettings(int groupId, string userIdentifier, ApiObjects.Notification.UserNotificationSettings settings)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
             bool isDocumentExist = true;
             int userId = 0;
             UserNotification userNotificationData = null;
@@ -129,6 +130,18 @@ namespace Core.Notification
                         // remove push registration from all user devices
                         UserMessageFlow.InitiatePushAction(groupId, ApiObjects.eUserMessageAction.DisableUserNotifications, userId, null, null);
                     }
+
+                    if (userSettings.EnableMail == true)
+                    {
+                        // add mail registration
+                        UserMessageFlow.InitiateMailAction(groupId, ApiObjects.eUserMessageAction.EnableUserMailNotifications, userId);
+                    }
+
+                    if (userSettings.EnableMail == false)
+                    {
+                        // remove mail registration
+                        UserMessageFlow.InitiateMailAction(groupId, ApiObjects.eUserMessageAction.DisableUserMailNotifications, userId);
+                    }
                 }
             }
             catch (Exception ex)
@@ -151,6 +164,11 @@ namespace Core.Notification
             if (settings.EnableMail.HasValue)
             {
                 userNotificationData.Settings.EnableMail = settings.EnableMail.Value;
+                if (userNotificationData.Settings.EnableMail.Value)
+                {
+                    Users.User user = Users.User.GetUser(userId, groupId);
+                    userNotificationData.Email = user.m_oBasicData.m_sEmail;
+                }
             }
 
             if (settings.EnablePush.HasValue)
@@ -428,6 +446,17 @@ namespace Core.Notification
             }
 
             return adapterId;
+        }
+
+        public static bool IsUserMailEnabled(UserNotificationSettings userSettings)
+        {
+            if (userSettings != null &&
+                userSettings.EnablePush == true)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
