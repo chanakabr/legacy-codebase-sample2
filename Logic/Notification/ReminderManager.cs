@@ -1231,7 +1231,7 @@ namespace Core.Notification
                 }
                 else
                 {
-                    string subject = reminderTemplate.Subject.Replace("{" + eReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(reminderTemplate.DateFormat)).
+                    string subject = reminderTemplate.MailSubject.Replace("{" + eReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(reminderTemplate.DateFormat)).
                                                              Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
                                                              Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
                                                              Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty);
@@ -1344,7 +1344,7 @@ namespace Core.Notification
                     // MAIL
                     if (NotificationSettings.IsPartnerPushEnabled(partnerId))
                     {
-                        string subject = seriesReminderTemplate.Subject.Replace("{" + eSeriesReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)).
+                        string subject = seriesReminderTemplate.MailSubject.Replace("{" + eSeriesReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)).
                                                                  Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty).
                                                                  Replace("{" + eSeriesReminderPlaceHolders.SeriesName + "}", seriesId).
                                                                  Replace("{" + eSeriesReminderPlaceHolders.EpisodeName + "}", program.m_oProgram.NAME != null ? program.m_oProgram.NAME : string.Empty);
