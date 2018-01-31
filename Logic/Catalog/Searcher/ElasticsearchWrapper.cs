@@ -3051,6 +3051,8 @@ namespace Core.Catalog
                 }
             }
 
+            ESSerializerV2 serializer = new ESSerializerV2();
+
             foreach (var tagToInsert in tagsToInsert)
             {
                 // insert only tags with valid language id
@@ -3075,7 +3077,7 @@ namespace Core.Catalog
                 }
 
                 // Serialize tag and create a bulk request for it
-                string serializedTag = JObject.FromObject(tagToInsert).ToString(Newtonsoft.Json.Formatting.None);
+                string serializedTag = serializer.SerializeTagValueObject(tagToInsert, language);
 
                 string id = string.Format("{0}_{1}", tagToInsert.tagId, tagToInsert.languageId);
                 bool insertResult = m_oESApi.InsertRecord(index, type, id, serializedTag);
