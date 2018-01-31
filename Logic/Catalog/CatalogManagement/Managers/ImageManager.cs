@@ -9,6 +9,8 @@ using Tvinci.Core.DAL;
 using CachingProvider.LayeredCache;
 using ApiObjects;
 using Newtonsoft.Json;
+using System.Net;
+using System.IO;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -205,7 +207,10 @@ namespace Core.Catalog.CatalogManagement
                     Core.Catalog.CatalogManagement.Ratio ratio = new Core.Catalog.CatalogManagement.Ratio()
                     {
                         Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id"),
-                        Name = ODBCWrapper.Utils.GetSafeStr(dr, "ratio"),
+                        Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                        Height = ODBCWrapper.Utils.GetIntSafeVal(dr, "height"),
+                        Width = ODBCWrapper.Utils.GetIntSafeVal(dr, "width"),
+                        AcceptedErrorMarginPrecentage = ODBCWrapper.Utils.GetIntSafeVal(dr, "accepted_error_margin_percentage")
                     };
 
                     response.Add(ratio);
@@ -234,14 +239,13 @@ namespace Core.Catalog.CatalogManagement
             return image;
         }
 
-        // for backward compatibility
-        private static string GetRatioNameById(int groupId, long ratioId)
+        private static Ratio GetRatioById(int groupId, long ratioId)
         {
-            string ratio = string.Empty;
+            Ratio ratio = null;
             List<Ratio> groupRatios = GetImageRatios(groupId);
             if (groupRatios != null && groupRatios.Count > 0)
             {
-                ratio = groupRatios.Where(x => x.Id == ratioId).Select(x => x.Name).FirstOrDefault();
+                ratio = groupRatios.Where(x => x.Id == ratioId).Count() == 1 ? groupRatios.Where(x => x.Id == ratioId).FirstOrDefault() : null;
             }
 
             return ratio;
@@ -268,15 +272,20 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        // for backward compatibility
         internal static string GetRatioName(int groupId, long ratioId)
         {
-            string ratio = string.Empty;
+            string ratioName = string.Empty;
             if (ratioId > 0)
             {
-                ratio = GetRatioNameById(groupId, ratioId);
+                Ratio ratio = GetRatioById(groupId, ratioId);
+                if (ratio != null)
+                {
+                    ratioName = ratio.Name;
+                }
             }
 
-            return ratio;
+            return ratioName;
         }
 
         internal static ImageType GetImageType(int groupId, long imageTypeId)
@@ -561,16 +570,6 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 Image image = imagesResponse.Images[0];
-                //ImageTypeListResponse imageTypes = GetImageTypes(groupId, true, new List<long>() { image.ImageTypeId });
-                //if (imageTypes != null && imageTypes.Status.Code != (int)eResponseStatus.OK)
-                //{
-                //    log.ErrorFormat("Failed to get image type for imageId = {0}, imageTypeId = {1}", image.Id, image.ImageTypeId);
-                //    imageTypes.Status.Message = "Failed to get image type";
-                //    return imageTypes.Status;
-                //}
-
-                //ImageType imageType = imageTypes.ImageTypes[0];
-
                 if (string.IsNullOrEmpty(image.ContentId))
                 {
                     //first setContent
@@ -579,6 +578,37 @@ namespace Core.Catalog.CatalogManagement
                 else
                 {
                     image.Version++;
+                }
+
+                // validate image ratio
+                ImageType imageType = GetImageType(groupId, image.ImageTypeId);
+                if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
+                {
+                    Ratio ratio = GetRatioById(groupId, imageType.RatioId.Value);
+                    if (ratio != null && ratio.AcceptedErrorMarginPrecentage > 0)
+                    {
+                        try
+                        {
+                            using (WebClient webClient = new WebClient())
+                            {
+                                byte[] imageBytes = webClient.DownloadData(url);                                
+                                MemoryStream imageStream = new MemoryStream(imageBytes);
+                                System.Drawing.Image downloadedImage = System.Drawing.Image.FromStream(imageStream);
+                                double downloadedImageRatio = (double)downloadedImage.Height / downloadedImage.Width;
+                                double imageDefinedRatio = (double)ratio.Height / ratio.Width;
+                                double imageRatioDif = Math.Round(Math.Abs(downloadedImageRatio - imageDefinedRatio) * 100);
+                                if (ratio.AcceptedErrorMarginPrecentage < imageRatioDif)
+                                {
+                                    result = new Status((int)eResponseStatus.InvalidRatioForImage, eResponseStatus.InvalidRatioForImage.ToString());
+                                    return result;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error(string.Format("Failed to validate image ratio, groupId: {0}, imageId: {1}, url: {2}", groupId, id, url), ex);
+                        }
+                    }
                 }
 
                 // post image
@@ -612,7 +642,8 @@ namespace Core.Catalog.CatalogManagement
             RatioResponse result = new RatioResponse();
             try
             {
-                DataTable dt = CatalogDAL.InsertGroupImageRatios(groupId, userId, ratio.Name);
+                DataTable dt = CatalogDAL.InsertGroupImageRatios(groupId, userId, ratio.Name, ratio.Height, ratio.Width,
+                                                                    ratio.AcceptedErrorMarginPrecentage);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
@@ -622,7 +653,10 @@ namespace Core.Catalog.CatalogManagement
                         result.Ratio = new Core.Catalog.CatalogManagement.Ratio()
                         {
                             Id = id,
-                            Name = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "RATIO")
+                            Height = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "height"),
+                            Width= ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "width"),
+                            AcceptedErrorMarginPrecentage = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "accepted_error_margin_percentage"),
+                            Name = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME")
                         };
 
                         string invalidationKey = LayeredCacheKeys.GetGroupRatiosInvalidationKey(groupId);
@@ -634,7 +668,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        result.Status = new Status((int)eResponseStatus.RatioAlreadyInUse, "Ratio Already in use");
+                        result.Status = new Status((int)eResponseStatus.RatioAlreadyExist, "Ratio Already Exist");
                         return result;
                     }
                 }

@@ -1357,9 +1357,11 @@ namespace Core.Catalog.CatalogManagement
                     {
                         result.Asset = GetAssetWithNoCache(groupId, id, assetType);
                     }
+
                     if (result.Asset == null)
                     {
                         log.ErrorFormat("Failed getting asset from GetAssetFromCache, for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());
+                        result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     }
                     else
                     {
