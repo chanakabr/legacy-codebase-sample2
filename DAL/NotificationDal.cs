@@ -2554,7 +2554,7 @@ namespace DAL
             return id;
         }
 
-        public static MailNotificationAdapter GetMailNotificationAdapter(int groupId, int adapterId)
+        public static MailNotificationAdapter GetMailNotificationAdapter(int groupId, long adapterId)
         {
             MailNotificationAdapter adapterRes = null;
             try
