@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ApiObjects.Response;
+using KLogMonitor;
+using System;
 using System.Reflection;
 using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using KLogMonitor;
+using TvinciImporter;
 using TVinciShared;
-using ca_ws;
-using CachingProvider.LayeredCache;
 
 public partial class adm_mail_notifications_adapter_new : System.Web.UI.Page
 {
@@ -50,57 +46,28 @@ public partial class adm_mail_notifications_adapter_new : System.Web.UI.Page
                     }
                     else
                     {
-                        Int32 id = DBManipulator.DoTheWork("notifications_connection");
-                        if (id > 0)
+                        adapterId = DBManipulator.DoTheWork("notifications_connection");
+                        if (adapterId > 0)
                         {
-                            //string sIP = "1.1.1.1";
-                            //string sWSUserName = "";
-                            //string sWSPass = "";
+                            int groupId = LoginManager.GetLoginGroupID();
+                            ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                            result = ImporterImpl.SetMailNotificationsAdapterConfiguration(groupId, adapterId);
 
-                            //TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SendDrmAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
-                            //string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
-                            //if (!string.IsNullOrEmpty(sWSURL) && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
-                            //{
-                            //    apiWS.API client = new apiWS.API();
-                            //    client.Url = sWSURL;
-                            //    try
-                            //    {
-                            //        apiWS.DrmAdapterResponse status = client.SendDrmAdapterConfiguration(sWSUserName, sWSPass, id);
-                            //        log.Debug("SendDrmAdapterConfiguration - " + string.Format("mail_notifications adapter id:{0}, status:{1}", id, status.Status != null ? status.Status.Code : 1));
+                            if (result == null || result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                            {
+                                log.ErrorFormat("Error while SetMailNotificationsAdapterConfiguration. Message: {0}", result.Message);
+                            }
 
-                            //        // remove adapter from cache
-                            //        string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-                            //        string[] keys = new string[1] 
-                            //    { 
-                            //        string.Format("{0}_mail_notifications_adapter_{1}", version, id)
-                            //    };
-
-                            //        QueueUtils.UpdateCache(LoginManager.GetLoginGroupID(), CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
-                            //    }
-                            //    catch (Exception ex)
-                            //    {
-                            //        log.Error("Exception - " + string.Format("mail_notifications adapter id :{0}, ex msg:{1}, ex st: {2} ", id, ex.Message, ex.StackTrace), ex);
-                            //    }
-                            //}
-
-                            //// invalidation keys
-                            //string invalidationKey = LayeredCacheKeys.GetDrmAdapterInvalidationKey(LoginManager.GetLoginGroupID(), id);
-                            //if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                            //{
-                            //    log.ErrorFormat("Failed to set invalidation key for group mail_notifications adapter. key = {0}", invalidationKey);
-                            //}
+                            return;
                         }
-                        return;
                     }
                 }
-
-
             }
 
             Int32 nMenuID = 0;
             m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
-            
+
             if (Request.QueryString["mail_notifications_adapter_id"] != null && Request.QueryString["mail_notifications_adapter_id"].ToString() != "")
             {
                 Session["mail_notifications_adapter_id"] = int.Parse(Request.QueryString["mail_notifications_adapter_id"].ToString());
@@ -184,7 +151,7 @@ public partial class adm_mail_notifications_adapter_new : System.Web.UI.Page
         return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 
-    static private bool IsExternalIDExists(string extId, int pgid)
+    static private bool IsExternalIDExists(string extId, int adapterId)
     {
         int groupID = LoginManager.GetLoginGroupID();
         bool res = false;
@@ -196,7 +163,7 @@ public partial class adm_mail_notifications_adapter_new : System.Web.UI.Page
         selectQuery += "and";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("external_identifier", "=", extId);
         selectQuery += "and";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "<>", pgid);
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "<>", adapterId);
         if (selectQuery.Execute("query", true) != null)
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
