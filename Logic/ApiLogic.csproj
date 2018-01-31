@@ -938,6 +938,12 @@
     <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AdapterStatus.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
+    <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AnnouncementListResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AnnouncementResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
     <None Include="Service References\MailNotificationsAdapterService\Service.wsdl" />
     <None Include="Service References\MailNotificationsAdapterService\Service.xsd">
       <SubType>Designer</SubType>
@@ -946,6 +952,12 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\MailNotificationsAdapterService\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\Service4.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.AdapterStatus.datasource">
