@@ -122,25 +122,25 @@ namespace Core.Notification
                     if (userSettings.EnablePush == true)
                     {
                         // add push registration to all user devices
-                        UserMessageFlow.InitiatePushAction(groupId, ApiObjects.eUserMessageAction.EnableUserNotifications, userId, null, null);
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.EnableUserNotifications, userId, null, null);
                     }
 
                     if (userSettings.EnablePush == false)
                     {
                         // remove push registration from all user devices
-                        UserMessageFlow.InitiatePushAction(groupId, ApiObjects.eUserMessageAction.DisableUserNotifications, userId, null, null);
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.DisableUserNotifications, userId, null, null);
                     }
 
                     if (userSettings.EnableMail == true)
                     {
                         // add mail registration
-                        UserMessageFlow.InitiateMailAction(groupId, ApiObjects.eUserMessageAction.EnableUserMailNotifications, userId);
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.EnableUserMailNotifications, userId, null, null);
                     }
 
                     if (userSettings.EnableMail == false)
                     {
                         // remove mail registration
-                        UserMessageFlow.InitiateMailAction(groupId, ApiObjects.eUserMessageAction.DisableUserMailNotifications, userId);
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.DisableUserMailNotifications, userId, null, null);
                     }
                 }
             }

@@ -41,28 +41,48 @@ namespace Core.Notification
         public static bool InitiateNotificationAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken)
         {
             bool result = true;
+            UserNotification userNotificationData = null;
+
+            if (userId > 0)
+            {
+                ApiObjects.Response.Status status = Utils.GetUserNotificationData(groupId, userId, out userNotificationData);
+                if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    return false;
+                }
+
+                if (userNotificationData != null)
+                {
+                    // remove old user reminders
+                    DeleteOldAnnouncements(groupId, userNotificationData);
+                }
+                else
+                {
+                    log.ErrorFormat("Failed to get userNotificationDate, userId = {0}", userId);
+                    return false;
+                }
+            }
 
             if (PUSH_ACTIONS.Contains(userAction))
             {
-                result = InitiatePushAction(groupId, userAction, userId, udid, pushToken);
+                result = InitiatePushAction(groupId, userAction, userId, udid, pushToken, userNotificationData);
             }
 
             if (MAIL_ACTIONS.Contains(userAction))
             {
-                result = result && InitiateMailAction(groupId, userAction, userId);
+                result = result && InitiateMailAction(groupId, userAction, userId, userNotificationData);
             }
 
             return result;
         }
 
-        public static bool InitiatePushAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken)
+        public static bool InitiatePushAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken, UserNotification userNotificationData)
         {
             bool result = false;
             bool docExists = false;
             PushData pushData = null;
             DeviceNotificationData deviceData = null;
-            UserNotification userNotificationData = null;
-
+            
             if (!NotificationSettings.IsPartnerPushEnabled(groupId))
             {
                 log.DebugFormat("partner push is disabled. partner ID: {0}", groupId);
@@ -1158,10 +1178,9 @@ namespace Core.Notification
             return result;
         }
 
-        public static bool InitiateMailAction(int groupId, eUserMessageAction userAction, int userId)
+        public static bool InitiateMailAction(int groupId, eUserMessageAction userAction, int userId, UserNotification userNotificationData)
         {
             bool result = false;
-            UserNotification userNotificationData = null;
 
             if (!NotificationSettings.IsPartnerMailNotificationEnabled(groupId))
             {
@@ -1171,27 +1190,6 @@ namespace Core.Notification
 
             try
             {
-                // get user notification data
-                if (userId > 0)
-                {
-                    ApiObjects.Response.Status status = Utils.GetUserNotificationData(groupId, userId, out userNotificationData);
-                    if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK)
-                    {
-                        return false;
-                    }
-
-                    if (userNotificationData != null)
-                    {
-                        // remove old user reminders
-                        DeleteOldAnnouncements(groupId, userNotificationData);
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Failed to get userNotificationDate, userId = {0}", userId);
-                        return false;
-                    }
-                }
-
                 switch (userAction)
                 {
                     case eUserMessageAction.DeleteUser:
@@ -1256,7 +1254,7 @@ namespace Core.Notification
                     return false;
                 }
 
-                if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData))
+                if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData, userId))
                 {
                     log.ErrorFormat("Failed subscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}", 
                         groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
@@ -1278,7 +1276,7 @@ namespace Core.Notification
                     return false;
                 }
 
-                if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData))
+                if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData, userId))
                 {
                     log.ErrorFormat("Failed unsubscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
                         groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
@@ -1295,6 +1293,22 @@ namespace Core.Notification
             Users.User user = Users.User.GetUser(userId, groupId);
             if (userNotificationData.UserData.Email != user.m_oBasicData.m_sEmail || userNotificationData.UserData.FirstName != user.m_oBasicData.m_sFirstName || userNotificationData.UserData.LastName != user.m_oBasicData.m_sLastName)
             {
+                UserData newuserData = new UserData()
+                {
+                    Email = user.m_oBasicData.m_sEmail,
+                    FirstName = user.m_oBasicData.m_sLastName,
+                    LastName = user.m_oBasicData.m_sLastName
+                };
+
+                List<string> externalIds = new List<string>();
+
+                if (!MailNotificationAdapterClient.UpdateUserData(groupId, userId, userNotificationData.UserData, newuserData, externalIds))
+                {
+                    log.ErrorFormat("Failed Upate User Data user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
+                        groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
+                }
+
+
                 userNotificationData.UserData.Email = user.m_oBasicData.m_sEmail;
                 userNotificationData.UserData.FirstName = user.m_oBasicData.m_sFirstName;
                 userNotificationData.UserData.LastName = user.m_oBasicData.m_sLastName;
@@ -1327,7 +1341,7 @@ namespace Core.Notification
                         return false;
                     }
 
-                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, new List<string>() { mailAnnouncement.MailExternalId }, userNotificationData.UserData))
+                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, new List<string>() { mailAnnouncement.MailExternalId }, userNotificationData.UserData, userId))
                     {
                         log.ErrorFormat("Failed subscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiId: {3}",
                             groupId, userId, userNotificationData.UserData.Email, mailAnnouncement.MailExternalId);

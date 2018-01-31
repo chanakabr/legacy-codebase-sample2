@@ -925,7 +925,7 @@ namespace Core.Notification
                     bool result = false;
                     foreach (var userId in userIds)
                     {
-                        result = UserMessageFlow.InitiatePushAction(nGroupID, eUserMessageAction.DeleteUser, int.Parse(userId), string.Empty, null);
+                        result = UserMessageFlow.InitiateNotificationAction(nGroupID, eUserMessageAction.DeleteUser, int.Parse(userId), string.Empty, null);
                         if (!result)
                         {
                             log.ErrorFormat("Failed to remove notification data for userId = {0}", userId);

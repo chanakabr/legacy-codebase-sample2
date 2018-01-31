@@ -138,7 +138,7 @@ namespace Core.Notification
             return result;
         }
 
-        public static bool SubscribeToAnnouncement(int groupId, List<string> announcementExternalIds, UserData userData)
+        public static bool SubscribeToAnnouncement(int groupId, List<string> announcementExternalIds, UserData userData, int userId)
         {
             bool result = false;
 
@@ -184,7 +184,7 @@ namespace Core.Notification
             return result;
         }
 
-        public static bool UnSubscribeToAnnouncement(int groupId, List<string> announcementExternalIds, UserData userData)
+        public static bool UnSubscribeToAnnouncement(int groupId, List<string> announcementExternalIds, UserData userData, int userId)
         {
             bool result = false;
 
@@ -261,6 +261,38 @@ namespace Core.Notification
                 }
             }
             return messageId;
+        }
+
+        public static bool UpdateUserData(int groupId, int userId, UserData oldUserData, UserData NewUserData, List<string> externalAnnouncementIds)
+        {
+            bool result = false;
+
+            // validate notification URL exists
+            if (string.IsNullOrEmpty("")) // Anat: get adapter URL
+                log.Error("Notification URL wasn't found");
+            else
+            {
+                try
+                {
+                    // Anat
+                    //using (ServiceClient client = new ServiceClient())
+                    //{
+                    //    client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
+
+                    //    messageId = client.PublishToTopic(externalAnnouncementId, subject, message);
+                    //    if (string.IsNullOrEmpty(messageId))
+                    //        log.ErrorFormat("Error while trying to publish announcement. announcement external ID: {0}, message: {1}", externalAnnouncementId, message);
+                    //    else
+                    //        log.DebugFormat("successfully published announcement. announcement external ID: {0}, message: {1}", externalAnnouncementId, message);
+                    //}
+                }
+                catch (Exception ex)
+                {
+                    //log.ErrorFormat("Error while trying to publish announcement. announcement external ID: {0}, mergeVars: {1} ex: {2}", externalAnnouncementId, mergeVars, ex);
+                }
+            }
+
+            return result;
         }
 
         private static MailNotificationAdapter GetMailNotificationAdapter(int groupId)

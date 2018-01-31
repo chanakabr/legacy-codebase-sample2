@@ -409,7 +409,7 @@ namespace Core.Notification
 
             if (!string.IsNullOrEmpty(userNotificationData.UserData.Email) && userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value)
             {
-                MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, new List<string>() { announcements.First().MailExternalId }, userNotificationData.UserData);
+                MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, new List<string>() { announcements.First().MailExternalId }, userNotificationData.UserData, userId);
             }
 
             // iterate through user devices and unfollow series
@@ -553,7 +553,7 @@ namespace Core.Notification
 
                 if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
                 {
-                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, new List<string>() { announcementToFollow.MailExternalId }, userNotificationData.UserData))
+                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, new List<string>() { announcementToFollow.MailExternalId }, userNotificationData.UserData, userId))
                     {
                         log.ErrorFormat("Failed subscribing user to email announcement. group: {0}, userId: {1}, email: {2}", groupId, userId, userNotificationData.UserData.Email);
                     }
