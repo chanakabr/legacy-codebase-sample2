@@ -62,6 +62,8 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
             }
 
+            ratio.Validate();
+
             try
             {
                 response = ClientsManager.CatalogClient().AddRatio(groupId, userId, ratio);

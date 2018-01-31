@@ -5728,6 +5728,22 @@
             Name
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRatio.Height">
+            <summary>
+            Height
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRatio.Width">
+            <summary>
+            Width
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRatio.AcceptedErrorMarginPrecentage">
+            <summary>
+            Accepted error margin precentage of an image uploaded for this ratio
+            0 - no validation, everything accepted
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaRatioListResponse.Ratios">
             <summary>
             A list of ratios

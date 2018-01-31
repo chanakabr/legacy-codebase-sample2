@@ -69,6 +69,9 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.ImageTypeDoesNotExist)]
+        [Throws(eResponseStatus.ImageTypeAlreadyInUse)]
         public KalturaImage Add(KalturaImage image)
         {
             KalturaImage response = null;
@@ -110,6 +113,7 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
+        [Throws(eResponseStatus.ImageDoesNotExist)]
         public bool Delete(long id)
         {
             bool result = false;
@@ -138,6 +142,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.ImageDoesNotExist)]
+        [Throws(eResponseStatus.InvalidRatioForImage)]
         public void SetContent(long id, KalturaContentResource content)
         {
             bool result = false;
