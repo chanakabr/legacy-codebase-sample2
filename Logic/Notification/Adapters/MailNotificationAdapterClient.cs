@@ -138,7 +138,7 @@ namespace Core.Notification
             return result;
         }
 
-        public static bool SubscribeToAnnouncement(int groupId, List<string> announcementExternalIds, string email)
+        public static bool SubscribeToAnnouncement(int groupId, List<string> announcementExternalIds, UserData userData)
         {
             bool result = false;
 
@@ -184,7 +184,7 @@ namespace Core.Notification
             return result;
         }
 
-        public static bool UnSubscribeToAnnouncement(int groupId, List<string> announcementExternalIds, string email)
+        public static bool UnSubscribeToAnnouncement(int groupId, List<string> announcementExternalIds, UserData userData)
         {
             bool result = false;
 

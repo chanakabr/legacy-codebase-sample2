@@ -22,7 +22,7 @@ namespace ApiObjects.Notification
 
         public UserNotificationSettings Settings { get; set; }
 
-        public string Email { get; set; }
+        public UserData UserData { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ulong cas { get; set; }
@@ -36,6 +36,7 @@ namespace ApiObjects.Notification
             this.SeriesReminders = new List<Announcement>();
             this.UserInterests = new List<Announcement>();
             this.Settings = new UserNotificationSettings();
+            this.UserData = new UserData();
         }
     }
 }

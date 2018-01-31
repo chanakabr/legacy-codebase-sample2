@@ -167,7 +167,9 @@ namespace Core.Notification
                 if (userNotificationData.Settings.EnableMail.Value)
                 {
                     Users.User user = Users.User.GetUser(userId, groupId);
-                    userNotificationData.Email = user.m_oBasicData.m_sEmail;
+                    userNotificationData.UserData.Email = user.m_oBasicData.m_sEmail;
+                    userNotificationData.UserData.FirstName = user.m_oBasicData.m_sFirstName;
+                    userNotificationData.UserData.LastName = user.m_oBasicData.m_sLastName;
                 }
             }
 

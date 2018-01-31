@@ -1247,7 +1247,7 @@ namespace Core.Notification
         private static bool SubscribeUserMailNotification(int groupId, int userId, UserNotification userNotificationData)
         {
             bool result = true;
-            if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.Email))
+            if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
             {
                 List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementToSubscribeExternalIds(groupId, userNotificationData);
                 if (externalIds == null || externalIds.Count == 0)
@@ -1256,10 +1256,10 @@ namespace Core.Notification
                     return false;
                 }
 
-                if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, externalIds, userNotificationData.Email))
+                if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData))
                 {
                     log.ErrorFormat("Failed subscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}", 
-                        groupId, userId, userNotificationData.Email, JsonConvert.SerializeObject(externalIds));
+                        groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
                 }
             }
 
@@ -1269,7 +1269,7 @@ namespace Core.Notification
         private static bool UnSubscribeUserMailNotification(int groupId, int userId, UserNotification userNotificationData)
         {
             bool result = true;
-            if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.Email))
+            if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
             {
                 List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementToSubscribeExternalIds(groupId, userNotificationData);
                 if (externalIds == null || externalIds.Count == 0)
@@ -1278,10 +1278,10 @@ namespace Core.Notification
                     return false;
                 }
 
-                if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, externalIds, userNotificationData.Email))
+                if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData))
                 {
                     log.ErrorFormat("Failed unsubscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
-                        groupId, userId, userNotificationData.Email, JsonConvert.SerializeObject(externalIds));
+                        groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
                 }
             }
 
@@ -1293,15 +1293,19 @@ namespace Core.Notification
             bool result = true;
 
             Users.User user = Users.User.GetUser(userId, groupId);
-            if (userNotificationData.Email != user.m_oBasicData.m_sEmail)
+            if (userNotificationData.UserData.Email != user.m_oBasicData.m_sEmail || userNotificationData.UserData.FirstName != user.m_oBasicData.m_sFirstName || userNotificationData.UserData.LastName != user.m_oBasicData.m_sLastName)
             {
-                userNotificationData.Email = user.m_oBasicData.m_sEmail;
+                userNotificationData.UserData.Email = user.m_oBasicData.m_sEmail;
+                userNotificationData.UserData.FirstName = user.m_oBasicData.m_sFirstName;
+                userNotificationData.UserData.LastName = user.m_oBasicData.m_sLastName;
 
                 if (!DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
                 {
                     log.ErrorFormat("error setting user notification data on update user. group: {0}, user id: {1}", groupId, userId);
                     result = false;
                 }
+
+                // Irena: call adapter with update
             }
 
             return result;
@@ -1310,7 +1314,7 @@ namespace Core.Notification
         private static bool HandleUserSignUpForMailNotification(int groupId, int userId, UserNotification userNotificationData)
         {
             bool result = true;
-            if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.Email))
+            if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
             {
                 List<DbAnnouncement> announcements = new List<DbAnnouncement>(); ;
                 NotificationCache.TryGetAnnouncements(groupId, ref announcements);
@@ -1323,10 +1327,10 @@ namespace Core.Notification
                         return false;
                     }
 
-                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, new List<string>() { mailAnnouncement.MailExternalId }, userNotificationData.Email))
+                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, new List<string>() { mailAnnouncement.MailExternalId }, userNotificationData.UserData))
                     {
                         log.ErrorFormat("Failed subscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiId: {3}",
-                            groupId, userId, userNotificationData.Email, mailAnnouncement.MailExternalId);
+                            groupId, userId, userNotificationData.UserData.Email, mailAnnouncement.MailExternalId);
                     }
 
                     userNotificationData.Announcements.Add(new Announcement()
