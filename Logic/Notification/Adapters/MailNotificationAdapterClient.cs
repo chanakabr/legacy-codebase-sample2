@@ -1,4 +1,6 @@
 ﻿using ApiObjects.Notification;
+using ApiObjects.Response;
+using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
 using System;
@@ -35,7 +37,7 @@ namespace Core.Notification
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
                     APILogic.MailNotificationsAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
-                        adapter.Id, adapter.Settings, groupId,  unixTimestamp,
+                        adapter.Id, adapter.Settings, groupId, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     if (adapterResponse != null && adapterResponse.Code == (int)ApiObjects.Response.eResponseStatus.OK)
@@ -62,38 +64,44 @@ namespace Core.Notification
 
         public static string CreateAnnouncement(int groupId, string announcementName)
         {
-            // create Amazon topic name (without special characters + GID)
-            // Anat: make sure its sababa 
             announcementName = string.Format("{0}_{1}", Utils.Base64ForUrlEncode(announcementName), groupId);
 
             string externalMailAnnouncementId = string.Empty;
 
-            long adapterId = NotificationSettings.GetPartnerMailNotificationAdapterId(groupId);
+            MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty("")) // Anat: get the adapter url
-                log.Error("Notification URL wasn't found");
-            else
+            if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                try
-                {
-                    // Anat
-                    //using (ServiceClient client = new ServiceClient())
-                    //{
-                    //    client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
-
-                    //    externalMailAnnouncementId = client.CreateTopic(announcementName);
-                    //    if (string.IsNullOrEmpty(externalMailAnnouncementId))
-                    //        log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}", announcementName);
-                    //    else
-                    //        log.DebugFormat("successfully created announcement. announcement Name: {0}", announcementName);
-                    //}
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}, ex: {1}", announcementName, ex);
-                }
+                log.Error("Notification URL wasn't found");
+                return externalMailAnnouncementId;
             }
+
+            try
+            {
+                //set unixTimestamp
+                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+                //set signature
+                string signature = string.Concat(adapter.Id, adapter.ProviderUrl, adapter.Settings, groupId, unixTimestamp);
+
+                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
+                {
+                    APILogic.MailNotificationsAdapterService.AnnouncementResponse response = client.CreateAnnouncement(adapter.Id, announcementName, unixTimestamp,
+                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+
+                    if (response == null || string.IsNullOrEmpty(response.MailAnnouncementId))
+                        log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}", announcementName);
+                    else
+                        log.DebugFormat("successfully created announcement. announcement Name: {0}", announcementName);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}, ex: {1}", announcementName, ex);
+            }
+
             return externalMailAnnouncementId;
         }
 
@@ -253,6 +261,23 @@ namespace Core.Notification
                 }
             }
             return messageId;
+        }
+
+        private static MailNotificationAdapter GetMailNotificationAdapter(int groupId)
+        {
+            MailNotificationAdapter mailNotificationAdapter = null;
+
+            long adapterId = NotificationSettings.GetPartnerMailNotificationAdapterId(groupId);
+
+            //get adapter
+            mailNotificationAdapter = NotificationDal.GetMailNotificationAdapter(groupId, adapterId);
+
+            if (mailNotificationAdapter == null || mailNotificationAdapter.Id <= 0)
+            {
+                log.ErrorFormat("failed. adapter not exists groupID = {0}", groupId);
+            }
+
+            return mailNotificationAdapter;
         }
     }
 }

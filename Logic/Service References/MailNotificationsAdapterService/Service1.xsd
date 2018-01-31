@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:import schemaLocation="http://localhost:86/MailNotificationsAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
+  <xs:import schemaLocation="http://localhost:86/MailNotificationsAdapter/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/MailNotificationsAdapter.Models" />
   <xs:element name="SetConfiguration">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="adapterId" type="xs:int" />
+        <xs:element minOccurs="0" name="adapterId" type="xs:long" />
         <xs:element minOccurs="0" name="settings" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="partnerId" type="xs:int" />
         <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
@@ -16,6 +17,119 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="SetConfigurationResult" nillable="true" type="q1:AdapterStatus" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Subscribe">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:long" />
+        <xs:element minOccurs="0" name="firstName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="lastName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="mailAddress" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="listId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SubscribeResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="SubscribeResult" nillable="true" type="q2:AdapterStatus" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnSubscribe">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:long" />
+        <xs:element minOccurs="0" name="mailAddress" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="listId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnSubscribeResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="UnSubscribeResult" nillable="true" type="q3:AdapterStatus" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateUser">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:long" />
+        <xs:element minOccurs="0" name="userId" type="xs:long" />
+        <xs:element minOccurs="0" name="oldMailAddress" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="newMailAddress" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="firstName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="lastName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateUserResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="UpdateUserResult" nillable="true" type="q4:AdapterStatus" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Publish">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:long" />
+        <xs:element minOccurs="0" name="listId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="templateId" type="xs:int" />
+        <xs:element minOccurs="0" name="subject" nillable="true" type="xs:string" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="mergeKeyList" nillable="true" type="q5:ArrayOfKeyValue" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PublishResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="PublishResult" nillable="true" type="q6:AdapterStatus" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreateAnnouncement">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:long" />
+        <xs:element minOccurs="0" name="listName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreateAnnouncementResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/MailNotificationsAdapter.Models" minOccurs="0" name="CreateAnnouncementResult" nillable="true" type="q7:AnnouncementResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeleteAnnouncement">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="adapterId" type="xs:long" />
+        <xs:element minOccurs="0" name="listId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeleteAnnouncementResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="DeleteAnnouncementResult" nillable="true" type="q8:AdapterStatus" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

@@ -22,11 +22,12 @@
     <MetadataSource Address="http://localhost:86/MailNotificationsAdapter/Service.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
+    <MetadataFile FileName="Service3.xsd" MetadataType="Schema" ID="294f730b-1593-4fcf-9514-0855bf38b6ff" SourceId="1" SourceUrl="http://localhost:86/MailNotificationsAdapter/Service.svc?xsd=xsd3" />
     <MetadataFile FileName="Service.xsd" MetadataType="Schema" ID="a1ed2dab-bbbd-4236-8cc1-1f4326a43eb0" SourceId="1" SourceUrl="http://localhost:86/MailNotificationsAdapter/Service.svc?xsd=xsd2" />
-    <MetadataFile FileName="Service.disco" MetadataType="Disco" ID="8f592b7e-ed44-4e77-a2a3-83dd134b9fa2" SourceId="1" SourceUrl="http://localhost:86/MailNotificationsAdapter/Service.svc?disco" />
     <MetadataFile FileName="Service.wsdl" MetadataType="Wsdl" ID="792c20b8-2bac-4fda-8b77-df4eba0a5f02" SourceId="1" SourceUrl="http://localhost:86/MailNotificationsAdapter/Service.svc?wsdl" />
-    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="88d76b90-39e3-40dc-8b22-3319eb873003" SourceId="1" SourceUrl="http://localhost:86/MailNotificationsAdapter/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service.disco" MetadataType="Disco" ID="8f592b7e-ed44-4e77-a2a3-83dd134b9fa2" SourceId="1" SourceUrl="http://localhost:86/MailNotificationsAdapter/Service.svc?disco" />
     <MetadataFile FileName="Service2.xsd" MetadataType="Schema" ID="8da18390-d149-4e53-a22e-3457f2a78711" SourceId="1" SourceUrl="http://localhost:86/MailNotificationsAdapter/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="88d76b90-39e3-40dc-8b22-3319eb873003" SourceId="1" SourceUrl="http://localhost:86/MailNotificationsAdapter/Service.svc?xsd=xsd0" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

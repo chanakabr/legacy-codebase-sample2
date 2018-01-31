@@ -2,7 +2,7 @@
 {
     public class MailNotificationAdapter
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; }
         public bool IsActive { get; set; }
         public string AdapterUrl { get; set; }
