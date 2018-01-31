@@ -1308,7 +1308,6 @@ namespace Core.Notification
                         groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
                 }
 
-
                 userNotificationData.UserData.Email = user.m_oBasicData.m_sEmail;
                 userNotificationData.UserData.FirstName = user.m_oBasicData.m_sFirstName;
                 userNotificationData.UserData.LastName = user.m_oBasicData.m_sLastName;
@@ -1318,8 +1317,6 @@ namespace Core.Notification
                     log.ErrorFormat("error setting user notification data on update user. group: {0}, user id: {1}", groupId, userId);
                     result = false;
                 }
-
-                // Irena: call adapter with update
             }
 
             return result;
