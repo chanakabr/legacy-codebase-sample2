@@ -79,18 +79,16 @@ namespace Core.Notification
 
             try
             {
-                //set unixTimestamp
-                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-
-                //set signature
-                string signature = string.Concat(adapter.Id, adapter.ProviderUrl, adapter.Settings, groupId, unixTimestamp);
+                long unixTimestamp;
+                string signature;
+                GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
                     APILogic.MailNotificationsAdapterService.AnnouncementResponse response = client.CreateAnnouncement(adapter.Id, announcementName, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
-                    if (response == null || string.IsNullOrEmpty(response.MailAnnouncementId))
+                    if (response == null || string.IsNullOrEmpty(response.AnnouncementExternalId))
                         log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}", announcementName);
                     else
                         log.DebugFormat("successfully created announcement. announcement Name: {0}", announcementName);
@@ -103,6 +101,15 @@ namespace Core.Notification
             }
 
             return externalMailAnnouncementId;
+        }
+
+        private static void GetClientCallParamters(int groupId, MailNotificationAdapter adapter, out long unixTimestamp, out string signature)
+        {
+            //set unixTimestamp
+            unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+            //set signature
+            signature = string.Concat(adapter.Id, adapter.ProviderUrl, adapter.Settings, groupId, unixTimestamp);
         }
 
         public static bool DeleteAnnouncement(int groupId, string externalAnnouncementId)
