@@ -125,7 +125,11 @@ public partial class adm_series_template : System.Web.UI.Page
             theRecord.AddRecord(drShortTextField);
 
             drShortTextField = new DataRecordShortTextField("ltr", true, 60, 256);
-            drShortTextField.Initialize("Mail template", "adm_table_header_nbg", "FormInput", "MAIL_TEMPLATE_NAME", false);
+            drShortTextField.Initialize("Mail template", "adm_table_header_nbg", "FormInput", "MAIL_TEMPLATE", false);
+            theRecord.AddRecord(drShortTextField);
+
+            drShortTextField = new DataRecordShortTextField("ltr", true, 60, 256);
+            drShortTextField.Initialize("Mail subject", "adm_table_header_nbg", "FormInput", "MAIL_SUBJECT", false);
             theRecord.AddRecord(drShortTextField);
 
             sTable = theRecord.GetTableHTML("adm_series_template.aspx?submited=1");
@@ -222,6 +226,16 @@ public partial class adm_series_template : System.Web.UI.Page
         if (!string.IsNullOrEmpty(nvc["4_val"]))
         {
             followTemplate.URL = nvc["4_val"];
+        }
+
+        if (!string.IsNullOrEmpty(nvc["5_val"]))
+        {
+            template.MailTemplate = nvc["5_val"];
+        }
+
+        if (!string.IsNullOrEmpty(nvc["6_val"]))
+        {
+            template.MailSubject = nvc["6_val"];
         }
 
         return followTemplate;
