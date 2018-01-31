@@ -4387,6 +4387,8 @@ namespace WebAPI.Reflection
                             return "action";
                         case "DateFormat":
                             return "dateFormat";
+                        case "MailSubject":
+                            return "mailSubject";
                         case "MailTemplate":
                             return "mailTemplate";
                         case "Message":

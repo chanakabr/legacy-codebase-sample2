@@ -8536,6 +8536,11 @@
             Mail template name
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.MailSubject">
+            <summary>
+            Mail subject
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.AnnouncementId">
             <summary>
             Announcement Id
