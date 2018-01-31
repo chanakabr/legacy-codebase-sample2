@@ -141,6 +141,7 @@
     <Compile Include="DrmAdapter\DrmAdapter.cs" />
     <Compile Include="MailRequests\DynamicMailRequest.cs" />
     <Compile Include="Notification\MailNotificationAdapter.cs" />
+    <Compile Include="Notification\UserData.cs" />
     <Compile Include="QueueObjects\RenewUnifiedData.cs" />
     <Compile Include="Response\StringResponse.cs" />
     <Compile Include="SearchObjects\SearchAggregationGroupBy.cs" />
