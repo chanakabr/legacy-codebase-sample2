@@ -1231,6 +1231,7 @@ namespace DAL
                 sp.AddParameter("@action", messageTemplate.Action);
                 sp.AddParameter("@url", messageTemplate.URL);
                 sp.AddParameter("@mailTemplate", messageTemplate.MailTemplate);
+                sp.AddParameter("@subject", messageTemplate.MailSubject);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -1292,7 +1293,8 @@ namespace DAL
                 Sound = ODBCWrapper.Utils.GetSafeStr(row, "SOUND"),
                 Action = ODBCWrapper.Utils.GetSafeStr(row, "ACTION"),
                 URL = ODBCWrapper.Utils.GetSafeStr(row, "URL"),
-                MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "Mail_Template"),
+                MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
+                MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
                 TemplateType = Enum.IsDefined(typeof(MessageTemplateType), assetType) ? (MessageTemplateType)assetType : MessageTemplateType.Series
             };
             return result;
