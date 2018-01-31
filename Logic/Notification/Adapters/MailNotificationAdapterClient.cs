@@ -180,78 +180,80 @@ namespace Core.Notification
         {
             bool result = false;
 
-            long adapterId = NotificationSettings.GetPartnerMailNotificationAdapterId(groupId);
+            MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
-                log.Error("Notification URL wasn't found");
-            else
+            if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                try
-                {
-                    //Anat
-                    //using (ServiceClient client = new ServiceClient())
-                    //{
-                    //    client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
+                log.Error("Mail Notification URL wasn't found");
+                return false;
+            }
 
-                    //    // fire request
-                    //    result = client.UnSubscribeToTopic(announcementExternalIds);
+            try
+            {
+                long unixTimestamp;
+                string signature;
+                GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
 
-                    //    // validate response
-                    //    if ((result == null ||
-                    //        result.Count == 0) ||
-                    //        result.Count != announcementExternalIds.Count)
-                    //    {
-                    //        log.ErrorFormat("Error while trying to subscribe to unsubscribe announcements. unsubscribeList: {0}", JsonConvert.SerializeObject(announcementExternalIds));
-                    //    }
-                    //    else
-                    //    {
-                    //        var failedUnsubscriptions = result.Where(x => !x.Success);
-                    //        if (failedUnsubscriptions.Count() > 0)
-                    //            log.ErrorFormat("Some of the unsubscribe request failed. failed subs: {0}", JsonConvert.SerializeObject(failedUnsubscriptions));
-                    //        else
-                    //            log.Debug("Announcement unsubscribe passed");
-                    //    }
-                    //}
-                }
-                catch (Exception ex)
+                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    log.ErrorFormat("Error while trying to unsubscribe to announcement. unsubscribeList: {0}, ex: {1}", JsonConvert.SerializeObject(announcementExternalIds), ex);
+                    APILogic.MailNotificationsAdapterService.AnnouncementListResponse response = client.UnSubscribe(adapter.Id, userData.Email, announcementExternalIds.ToArray(), unixTimestamp,
+                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+
+                    if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK)
+                        log.ErrorFormat("Error while trying to UnSubscribeToAnnouncement. adpaterId: {0}", adapter.Id);
+                    else
+                        log.DebugFormat("successfully UnSubscribeToAnnouncement. adpaterId: {0}", adapter.Id);
                 }
             }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to UnSubscribe to announcement. unsubscribeList: {0}, ex: {1}", JsonConvert.SerializeObject(announcementExternalIds), ex);
+            }
+
             return result;
         }
 
         public static string PublishToAnnouncement(int groupId, string externalAnnouncementId, string subject, List<KeyValuePair<string, string>> mergeVars)
         {
+            //TODO: Irena templateId
+            int templateId = 0;
+
             string messageId = string.Empty;
 
-            long adapterId = NotificationSettings.GetPartnerMailNotificationAdapterId(groupId);
+            MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty("")) // Anat: get adapter URL
-                log.Error("Notification URL wasn't found");
-            else
+            if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                try
-                {
-                    // Anat
-                    //using (ServiceClient client = new ServiceClient())
-                    //{
-                    //    client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
-
-                    //    messageId = client.PublishToTopic(externalAnnouncementId, subject, message);
-                    //    if (string.IsNullOrEmpty(messageId))
-                    //        log.ErrorFormat("Error while trying to publish announcement. announcement external ID: {0}, message: {1}", externalAnnouncementId, message);
-                    //    else
-                    //        log.DebugFormat("successfully published announcement. announcement external ID: {0}, message: {1}", externalAnnouncementId, message);
-                    //}
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Error while trying to publish announcement. announcement external ID: {0}, mergeVars: {1} ex: {2}", externalAnnouncementId, mergeVars, ex);
-                }
+                log.Error("Mail Notification URL wasn't found");
+                return messageId;
             }
+
+            try
+            {
+                long unixTimestamp;
+                string signature;
+                GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
+
+                //using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
+                //{
+                //    //TODO: Irena
+                //    APILogic.MailNotificationsAdapterService.AdapterStatus response = client.Publish(adapter.Id, externalAnnouncementId, templateId,
+                //        subject, mergeVars.ToArray(), unixTimestamp,
+                //        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+
+                //    if (response == null || response.Code != (int)eResponseStatus.OK)
+                //        log.ErrorFormat("Error while trying to PublishToAnnouncement. adpaterId: {0}", adapter.Id);
+                //    else
+                //        log.DebugFormat("successfully PublishToAnnouncement. adpaterId: {0}", adapter.Id);
+                //}
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to PublishToAnnouncement. announcement external ID: {0}, mergeVars: {1} ex: {2}", externalAnnouncementId, mergeVars, ex);
+            }
+
             return messageId;
         }
 
@@ -259,31 +261,37 @@ namespace Core.Notification
         {
             bool result = false;
 
-            // validate notification URL exists
-            if (string.IsNullOrEmpty("")) // Anat: get adapter URL
-                log.Error("Notification URL wasn't found");
-            else
-            {
-                try
-                {
-                    // Anat
-                    //using (ServiceClient client = new ServiceClient())
-                    //{
-                    //    client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
+            MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
 
-                    //    messageId = client.PublishToTopic(externalAnnouncementId, subject, message);
-                    //    if (string.IsNullOrEmpty(messageId))
-                    //        log.ErrorFormat("Error while trying to publish announcement. announcement external ID: {0}, message: {1}", externalAnnouncementId, message);
-                    //    else
-                    //        log.DebugFormat("successfully published announcement. announcement external ID: {0}, message: {1}", externalAnnouncementId, message);
-                    //}
-                }
-                catch (Exception ex)
+            // validate notification URL exists
+            if (string.IsNullOrEmpty(adapter.AdapterUrl))
+            {
+                log.Error("Mail Notification URL wasn't found");
+                return false;
+            }
+            try
+            {
+                long unixTimestamp;
+                string signature;
+                GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
+
+                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    //log.ErrorFormat("Error while trying to publish announcement. announcement external ID: {0}, mergeVars: {1} ex: {2}", externalAnnouncementId, mergeVars, ex);
+                    APILogic.MailNotificationsAdapterService.AdapterStatus response = client.UpdateUser(adapter.Id, userId, oldUserData.Email,
+                        NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, externalAnnouncementIds.ToArray(), unixTimestamp,
+                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+
+                    if (response == null || response.Code != (int)eResponseStatus.OK)
+                        log.ErrorFormat("Error while trying to UpdateUserData. adpeterId : {0}", adapter.Id);
+                    else
+                        log.DebugFormat("successfully UpdateUserData. adpeterId : {0}", adapter.Id);
                 }
             }
-
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to UpdateUserData. adpeterId : {0}. ex: {1}", adapter.Id, ex);
+            }
+            
             return result;
         }
 
