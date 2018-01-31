@@ -17,7 +17,7 @@ namespace WebAPI.Models.ConditionalAccess
     [XmlInclude(typeof(KalturaSubscriptionEntitlement))]
     [XmlInclude(typeof(KalturaPpvEntitlement))]
     public class KalturaEntitlement : KalturaOTTObject
-    {                
+    {
         /// <summary>
         ///Purchase identifier (for subscriptions and collections only)
         /// </summary>
