@@ -5,10 +5,7 @@ using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Notification
 {
@@ -61,7 +58,6 @@ namespace Core.Notification
             return false;
         }
 
-
         public static string CreateAnnouncement(int groupId, string announcementName)
         {
             announcementName = string.Format("{0}_{1}", Utils.Base64ForUrlEncode(announcementName), groupId);
@@ -73,7 +69,7 @@ namespace Core.Notification
             // validate notification URL exists
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                log.Error("Notification URL wasn't found");
+                log.Error("Mail Notification URL wasn't found");
                 return externalMailAnnouncementId;
             }
 
@@ -103,45 +99,41 @@ namespace Core.Notification
             return externalMailAnnouncementId;
         }
 
-        private static void GetClientCallParamters(int groupId, MailNotificationAdapter adapter, out long unixTimestamp, out string signature)
-        {
-            //set unixTimestamp
-            unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-
-            //set signature
-            signature = string.Concat(adapter.Id, adapter.ProviderUrl, adapter.Settings, groupId, unixTimestamp);
-        }
-
         public static bool DeleteAnnouncement(int groupId, string externalAnnouncementId)
         {
             bool result = false;
 
-            long adapterId = NotificationSettings.GetPartnerMailNotificationAdapterId(groupId);
+            MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
-                log.Error("Notification URL wasn't found");
-            else
+            if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                try
-                {
-                    // Anat 
-                    //using (ServiceClient client = new ServiceClient())
-                    //{
-                    //    client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
+                log.Error("mail Notification URL wasn't found");
+                return false;
+            }
 
-                    //    result = client.DeleteTopic(externalAnnouncementId);
-                    //    if (!result)
-                    //        log.ErrorFormat("Error while trying to delete announcement. announcement external ID: {0}", externalAnnouncementId);
-                    //    else
-                    //        log.DebugFormat("successfully deleted announcement. announcement external ID: {0}", externalAnnouncementId);
-                    //}
-                }
-                catch (Exception ex)
+            try
+            {
+                long unixTimestamp;
+                string signature;
+                GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
+
+                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    log.ErrorFormat("Error while trying to delete announcement. announcement external ID: {0}, ex: {1}", externalAnnouncementId, ex);
+                    APILogic.MailNotificationsAdapterService.AdapterStatus response = client.DeleteAnnouncement(adapter.Id, externalAnnouncementId, unixTimestamp,
+                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+
+                    if (response == null || response.Code != (int)eResponseStatus.OK)
+                        log.ErrorFormat("Error while trying to delete announcement. announcement Name: {0}", externalAnnouncementId);
+                    else
+                        log.DebugFormat("successfully delete announcement. announcement Name: {0}", externalAnnouncementId);
                 }
             }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to delete announcement. announcement external ID: {0}, ex: {1}", externalAnnouncementId, ex);
+            }
+
             return result;
         }
 
@@ -149,45 +141,38 @@ namespace Core.Notification
         {
             bool result = false;
 
-            long adapterId = NotificationSettings.GetPartnerMailNotificationAdapterId(groupId);
+            MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty("")) // Anat: get adapter URL
-                log.Error("Notification URL wasn't found");
-            else
+            if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                try
-                {
-                    // Anat
-                    //using (ServiceClient client = new ServiceClient())
-                    //{
-                    //    client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
+                log.Error("Mail Notification URL wasn't found");
+                return false;
+            }
 
-                    //    // fire request
-                    //    result = client.SubscribeToTopic(announcementSubscriptions);
+            try
+            {
+                long unixTimestamp;
+                string signature;
+                GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
 
-                    //    // validate response
-                    //    if ((result == null ||
-                    //        result.Count == 0) ||
-                    //        result.Count != announcementSubscriptions.Count)
-                    //    {
-                    //        log.ErrorFormat("Error while trying to subscribe to announcement. announcementSubscriptions: {0}", JsonConvert.SerializeObject(announcementSubscriptions));
-                    //    }
-                    //    else
-                    //    {
-                    //        var failedSubscriptions = result.Where(x => string.IsNullOrEmpty(x.SubscriptionArnResult));
-                    //        if (failedSubscriptions.Count() > 0)
-                    //            log.ErrorFormat("Some of the subscription failed. failed subs: {0}", JsonConvert.SerializeObject(failedSubscriptions));
-                    //        else
-                    //            log.Debug("Announcement subscription passed");
-                    //    }
-                    //}
-                }
-                catch (Exception ex)
+                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    log.ErrorFormat("Error while trying to subscribe to announcement. announcementSubscriptions: {0}, ex: {1}", JsonConvert.SerializeObject(announcementExternalIds), ex);
+                    APILogic.MailNotificationsAdapterService.AnnouncementListResponse response = client.Subscribe(adapter.Id, userData.FirstName, userData.LastName, userData.Email
+                        , announcementExternalIds.ToArray(), unixTimestamp,
+                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+
+                    if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK)
+                        log.ErrorFormat("Error while trying to SubscribeToAnnouncement. adpaterId: {0}", adapter.Id);
+                    else
+                        log.DebugFormat("successfully SubscribeToAnnouncement. adpaterId: {0}", adapter.Id);
                 }
             }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to subscribe to announcement. announcementSubscriptions: {0}, ex: {1}", JsonConvert.SerializeObject(announcementExternalIds), ex);
+            }
+
             return result;
         }
 
@@ -317,6 +302,15 @@ namespace Core.Notification
             }
 
             return mailNotificationAdapter;
+        }
+
+        private static void GetClientCallParamters(int groupId, MailNotificationAdapter adapter, out long unixTimestamp, out string signature)
+        {
+            //set unixTimestamp
+            unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+            //set signature
+            signature = string.Concat(adapter.Id, adapter.ProviderUrl, adapter.Settings, groupId, unixTimestamp);
         }
     }
 }
