@@ -2584,6 +2584,7 @@ namespace DAL
             {
                 adapterRes = new MailNotificationAdapter()
                 {
+                    Id = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "id"),
                     AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url"),
                     IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active") == 1 ? true : false,
                     Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name"),
