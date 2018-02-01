@@ -1420,8 +1420,8 @@ namespace TVinciShared
         public DataRecordCheckBoxField(bool bEnabled)
             : base()
         {
-            m_bEnabled = bEnabled;
-            m_filedPrivateName = string.Empty;
+            m_bEnabled = bEnabled; 
+            m_filedPrivateName= string.Empty;
         }
         public void setFiledName(string name)
         {
@@ -2700,7 +2700,7 @@ namespace TVinciShared
             {
                 onClickMethod = "OpenPicUploaderBrowserEPG";
             }
-
+            
             sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_browse\" onclick=\"" + onClickMethod + "('" + nID.ToString() + "_val' , 1, '" + m_lastPage + "','" + m_epgIdentifier + "','" + m_channelID + "');\" href=\"javascript:void(0);\"></a>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
@@ -3297,7 +3297,7 @@ namespace TVinciShared
             return sTmp;
         }
     }
-
+    
     public class DataRecordTimeField : BaseDataRecordField
     {
         public DataRecordTimeField()
@@ -3689,10 +3689,10 @@ namespace TVinciShared
                 this.m_sStartValue = this.m_sStartValue.Replace(".", "/");
 
                 if (!string.IsNullOrEmpty(m_timeZone))
-                {
+                {                    
                     DateTime dateTime = ODBCWrapper.Utils.GetDateSafeVal(m_sStartValue, "dd/MM/yyyy H:mm");
                     dateTime = ODBCWrapper.Utils.ConvertFromUtc(dateTime, m_timeZone);
-                    m_sStartValue = dateTime.ToString("dd/MM/yyyy HH:mm");
+                    m_sStartValue = dateTime.ToString("dd/MM/yyyy HH:mm");                    
                 }
                 sStartDate = m_sStartValue.Split(' ')[0].ToString();
                 sStartTime = m_sStartValue.Split(' ')[1].ToString();
@@ -3834,7 +3834,7 @@ namespace TVinciShared
             return sTmp;
         }
     }
-
+    
     /// <summary>
     /// Summary description for DBRecordWebEditor
     /// </summary>
