@@ -641,6 +641,7 @@ namespace TVinciShared
                         }
                     }
                 }
+                index++;
             }
             ODBCWrapper.DataSetSelectQuery selectQuery1 = null;
             TVinciShared.DBManipulator.GetManyToManyContainer(ref coll,
