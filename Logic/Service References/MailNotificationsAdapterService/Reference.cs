@@ -76,7 +76,7 @@ namespace APILogic.MailNotificationsAdapterService {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="AnnouncementListResponse", Namespace="http://schemas.datacontract.org/2004/07/MailNotificationsAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AnnouncementListResponse", Namespace="http://schemas.datacontract.org/2004/07/MailChimpAdapter.Models")]
     [System.SerializableAttribute()]
     public partial class AnnouncementListResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
@@ -198,7 +198,7 @@ namespace APILogic.MailNotificationsAdapterService {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="AnnouncementResponse", Namespace="http://schemas.datacontract.org/2004/07/MailNotificationsAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AnnouncementResponse", Namespace="http://schemas.datacontract.org/2004/07/MailChimpAdapter.Models")]
     [System.SerializableAttribute()]
     public partial class AnnouncementResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost:86/MailNotificationsAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
-  <xs:import schemaLocation="http://localhost:86/MailNotificationsAdapter/Service.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-  <xs:import schemaLocation="http://localhost:86/MailNotificationsAdapter/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/MailNotificationsAdapter.Models" />
+  <xs:import schemaLocation="http://34.249.122.223:90/MailChimpAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
+  <xs:import schemaLocation="http://34.249.122.223:90/MailChimpAdapter/Service.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://34.249.122.223:90/MailChimpAdapter/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/MailChimpAdapter.Models" />
   <xs:element name="SetConfiguration">
     <xs:complexType>
       <xs:sequence>
@@ -37,7 +37,7 @@
   <xs:element name="SubscribeResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/MailNotificationsAdapter.Models" minOccurs="0" name="SubscribeResult" nillable="true" type="q3:AnnouncementListResponse" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/MailChimpAdapter.Models" minOccurs="0" name="SubscribeResult" nillable="true" type="q3:AnnouncementListResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -55,7 +55,7 @@
   <xs:element name="UnSubscribeResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/MailNotificationsAdapter.Models" minOccurs="0" name="UnSubscribeResult" nillable="true" type="q5:AnnouncementListResponse" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/MailChimpAdapter.Models" minOccurs="0" name="UnSubscribeResult" nillable="true" type="q5:AnnouncementListResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -114,7 +114,7 @@
   <xs:element name="CreateAnnouncementResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/MailNotificationsAdapter.Models" minOccurs="0" name="CreateAnnouncementResult" nillable="true" type="q10:AnnouncementResponse" />
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/MailChimpAdapter.Models" minOccurs="0" name="CreateAnnouncementResult" nillable="true" type="q10:AnnouncementResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
