@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://172.31.6.89:8030/Notifications_V4_6/ws_notification_service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-  <xs:import schemaLocation="http://172.31.6.89:8030/Notifications_V4_6/ws_notification_service.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-  <xs:import schemaLocation="http://172.31.6.89:8030/Notifications_V4_6/ws_notification_service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
-  <xs:import schemaLocation="http://172.31.6.89:8030/Notifications_V4_6/ws_notification_service.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:import schemaLocation="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
+  <xs:import schemaLocation="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
   <xs:simpleType name="NotificationTriggerType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Renewal">
@@ -187,6 +187,7 @@
       <xs:element minOccurs="0" name="IsPushNotificationEnabled" nillable="true" type="xs:boolean" />
       <xs:element minOccurs="0" name="IsPushSystemAnnouncementsEnabled" nillable="true" type="xs:boolean" />
       <xs:element minOccurs="0" name="IsRemindersEnabled" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="MailNotificationAdapterId" nillable="true" type="xs:long" />
       <xs:element minOccurs="0" name="MailSenderName" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="MessageTTLDays" nillable="true" type="xs:int" />
       <xs:element minOccurs="0" name="PartnerId" type="xs:int" />
@@ -234,6 +235,7 @@
       <xs:element minOccurs="0" name="AnnouncementId" type="xs:int" />
       <xs:element minOccurs="0" name="Enabled" type="xs:boolean" />
       <xs:element minOccurs="0" name="ImageUrl" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IncludeMail" type="xs:boolean" />
       <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="MessageAnnouncementId" type="xs:int" />
       <xs:element minOccurs="0" name="MessageReference" nillable="true" type="xs:string" />
@@ -281,6 +283,7 @@
       <xs:element minOccurs="0" name="Action" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="DateFormat" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="MailTemplate" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Sound" nillable="true" type="xs:string" />
       <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="TemplateType" type="q10:MessageTemplateType" />
@@ -389,6 +392,7 @@
       <xs:element minOccurs="0" name="FollowReference" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="ID" type="xs:int" />
       <xs:element minOccurs="0" name="LastMessageSentDateSec" type="xs:long" />
+      <xs:element minOccurs="0" name="MailExternalId" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="QueueName" nillable="true" type="xs:string" />
       <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="RecipientsType" type="q18:eAnnouncementRecipientsType" />
@@ -412,6 +416,7 @@
       <xs:element minOccurs="0" name="GroupId" type="xs:int" />
       <xs:element minOccurs="0" name="ID" type="xs:int" />
       <xs:element minOccurs="0" name="IsSent" type="xs:boolean" />
+      <xs:element minOccurs="0" name="MailExternalId" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Phrase" nillable="true" type="xs:string" />

@@ -278,8 +278,32 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Service References\Notification_WCF\notification.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\notification1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\notification2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\notification3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\notification4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\notification5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\notification6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\notification7.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Notification_WCF\NotificationService12.wsdl" />
-    <None Include="Service References\Notification_WCF\NotificationService13.wsdl" />
+    <None Include="Service References\Notification_WCF\NotificationService3.wsdl" />
     <None Include="Service References\Notification_WCF\NotificationService81.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -308,30 +332,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Notification_WCF\NotificationService819.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\ws_notification_service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\ws_notification_service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\ws_notification_service2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\ws_notification_service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\ws_notification_service4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\ws_notification_service5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\ws_notification_service6.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\ws_notification_service7.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\WSCatalog\Service10.xsd">
@@ -617,7 +617,7 @@
     <Content Include="obj\Release\TvinciImporter.csproj.FileListAbsolute.txt" />
     <Content Include="obj\Release\TvinciImporter.dll" />
     <Content Include="obj\Release\TvinciImporter.pdb" />
-    <None Include="Service References\Notification_WCF\ws_notification_service.disco" />
+    <None Include="Service References\Notification_WCF\notification.disco" />
     <None Include="Service References\Notification_WCF\NotificationService12.disco" />
     <None Include="Web References\WS_ConditionalAccess\module.disco" />
     <None Include="Service References\WSCatalog\Service2.disco" />

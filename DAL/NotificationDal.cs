@@ -699,6 +699,9 @@ namespace DAL
             if (!string.IsNullOrEmpty(settings.ChurnMailTemplateName))
                 sp.AddParameter("@churnMailTemplateName", settings.ChurnMailTemplateName);
 
+            if (settings.MailNotificationAdapterId.HasValue)
+                sp.AddParameter("@mailNotificationAdapterId", settings.MailNotificationAdapterId.Value);
+
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -742,7 +745,8 @@ namespace DAL
                         ChurnMailSubject = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "churn_mail_subject"),
                         ChurnMailTemplateName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "churn_mail_template_name"),
                         MailSenderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_sender_name"),
-                        SenderEmail = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "sender_email")
+                        SenderEmail = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "sender_email"),
+                        MailNotificationAdapterId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "MAIL_NOTIFICATION_ADAPTER_ID")
                     });
                 }
             }
@@ -886,7 +890,8 @@ namespace DAL
             return 0;
         }
 
-        public static DataRow Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, long announcement_id = 0, string messageReference = null, string resultMsgId = null, string imageUrl = null)
+        public static DataRow Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId,
+            long announcement_id = 0, string messageReference = null, string resultMsgId = null, string imageUrl = null, bool includeMail = false)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -904,6 +909,7 @@ namespace DAL
             spInsert.AddParameter("@image_url", imageUrl);
             if (announcement_id != 0)
                 spInsert.AddParameter("@announcement_id", announcement_id);
+            spInsert.AddParameter("@includeMail", includeMail);
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
@@ -916,7 +922,8 @@ namespace DAL
             return dt.Rows[0];
         }
 
-        public static DataRow Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, string resultMsgId = null, string imageUrl = null)
+        public static DataRow Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId,
+            string resultMsgId = null, string imageUrl = null, bool includeMail = false)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -930,6 +937,7 @@ namespace DAL
             spInsert.AddParameter("@updater_id", updaterId);
             spInsert.AddParameter("@result_message_id", resultMsgId);
             spInsert.AddParameter("@image_url", imageUrl);
+            spInsert.AddParameter("@includeMail", includeMail);
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
@@ -1010,7 +1018,8 @@ namespace DAL
             return ret;
         }
 
-        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType, string followPhrase = null, string followReference = null)
+        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType,
+            string mailExternalAnnouncementId, string followPhrase = null, string followReference = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -1023,6 +1032,7 @@ namespace DAL
             spInsert.AddParameter("@created_at", DateTime.UtcNow);
             spInsert.AddParameter("@follow_phrase", followPhrase);
             spInsert.AddParameter("@follow_reference", followReference);
+            spInsert.AddParameter("@mail_external_id", mailExternalAnnouncementId);
 
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
@@ -1190,7 +1200,8 @@ namespace DAL
                             AutomaticIssueFollowNotification = automaticIssueFollowNotification,
                             RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All,
                             LastMessageSentDateSec = lastMessageSentDateSec,
-                            QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name")
+                            QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name"),
+                            MailExternalId = ODBCWrapper.Utils.GetSafeStr(row, "mail_external_id"),
                         };
 
                         result.Add(dbAnnouncement);
@@ -1219,6 +1230,8 @@ namespace DAL
                 sp.AddParameter("@sound", messageTemplate.Sound);
                 sp.AddParameter("@action", messageTemplate.Action);
                 sp.AddParameter("@url", messageTemplate.URL);
+                sp.AddParameter("@mailTemplate", messageTemplate.MailTemplate);
+                sp.AddParameter("@subject", messageTemplate.MailSubject);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -1280,6 +1293,8 @@ namespace DAL
                 Sound = ODBCWrapper.Utils.GetSafeStr(row, "SOUND"),
                 Action = ODBCWrapper.Utils.GetSafeStr(row, "ACTION"),
                 URL = ODBCWrapper.Utils.GetSafeStr(row, "URL"),
+                MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
+                MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
                 TemplateType = Enum.IsDefined(typeof(MessageTemplateType), assetType) ? (MessageTemplateType)assetType : MessageTemplateType.Series
             };
             return result;
@@ -2182,6 +2197,7 @@ namespace DAL
                 sp.AddParameter("@externalId", dbReminder.ExternalPushId);
                 sp.AddParameter("@externalResult", dbReminder.ExternalResult);
                 sp.AddParameter("@message", dbReminder.Message);
+                sp.AddParameter("@mailExternalId", dbReminder.MailExternalId);
 
                 reminderId = sp.ExecuteReturnValue<int>();
             }
@@ -2257,6 +2273,7 @@ namespace DAL
                 Reference = ODBCWrapper.Utils.GetIntSafeVal(row, "reference"),
                 ExternalPushId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
                 Message = ODBCWrapper.Utils.GetSafeStr(row, "message"),
+                MailExternalId = ODBCWrapper.Utils.GetSafeStr(row, "mail_external_id"),
 
                 SendTime = sentDateSec
             };
@@ -2302,6 +2319,7 @@ namespace DAL
                 SeriesId = ODBCWrapper.Utils.GetSafeStr(row, "series_id"),
                 SeasonNumber = ODBCWrapper.Utils.GetLongSafeVal(row, "season_number"),
                 EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(row, "epg_channel_id"),
+                MailExternalId = ODBCWrapper.Utils.GetSafeStr(row, "mail_external_id"),
             };
 
             return result;
@@ -2324,6 +2342,7 @@ namespace DAL
                 sp.AddParameter("@seasonNumber", dbReminder.SeasonNumber);
                 sp.AddParameter("@epgChannelId", dbReminder.EpgChannelId);
                 sp.AddParameter("@lastSendDate", dbReminder.LastSendDate);
+                sp.AddParameter("@mailExternalId", dbReminder.MailExternalId);
 
                 reminderId = sp.ExecuteReturnValue<int>();
             }
@@ -2535,6 +2554,49 @@ namespace DAL
             }
 
             return id;
+        }
+
+        public static MailNotificationAdapter GetMailNotificationAdapter(int groupId, long adapterId)
+        {
+            MailNotificationAdapter adapterRes = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MailNotificationAdapter");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@adapterId", adapterId);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterRes = CreateMailNotificationAdapter(ds);
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetMailNotificationAdapter. groupId: {0}. Error {1}", groupId, ex);
+            }
+            return adapterRes;
+        }
+
+        private static MailNotificationAdapter CreateMailNotificationAdapter(DataSet ds)
+        {
+            MailNotificationAdapter adapterRes = null;
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                adapterRes = new MailNotificationAdapter()
+                {
+                    Id = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "id"),
+                    AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url"),
+                    IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active") == 1 ? true : false,
+                    Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name"),
+                    ProviderUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "provider_url"),
+                    Settings = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "settings"),
+                    SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret")
+                };
+            }
+
+            return adapterRes;
         }
     }
 }
