@@ -57,6 +57,7 @@
     <Compile Include="Lists\Members\Member.cs" />
     <Compile Include="Lists\Members\Notes.cs" />
     <Compile Include="Lists\Members\Stat.cs" />
+    <Compile Include="Lists\MergeField.cs" />
     <Compile Include="Lists\Stat.cs" />
     <Compile Include="MailChimpManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

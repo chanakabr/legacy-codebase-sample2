@@ -171,6 +171,9 @@ namespace MailChimp
             }
             return default(T);
         }
+
+
+
         private string GetQueryParams(string payload)
         {
             if (payload == null) { return ""; }
@@ -196,6 +199,7 @@ namespace MailChimp
             }
             return sbQueryString.ToString();
         }
+
         #endregion
 
         #region List
@@ -229,12 +233,12 @@ namespace MailChimp
                 DefaultValueHandling = DefaultValueHandling.Ignore
             });
             var endPoint = string.Format("https://{0}.{1}lists/", dataCenter, Url);
-            return DoRequests<List>(endPoint, Post, payload);
+            return DoRequests1<List>(endPoint, Post, payload);
         }
         public bool DeleteList(string listId)
         {
             var endPoint = string.Format("https://{0}.{1}lists/{2}/", dataCenter, Url, listId);
-            return DoRequests<bool>(endPoint, Delete);
+            return DoRequests2<bool>(endPoint, Delete);
         }
         public CollectionList ReadLists(CollectionListQuery listListsQuery = null)
         {
@@ -370,7 +374,37 @@ namespace MailChimp
             return DoRequests1<Campaign>(endPoint, Post, payload);
         }
 
+        public bool SendCampaign(string campaignId)
+        {
+            var endPoint = string.Format("https://{0}.{1}campaigns/{2}/actions/send", dataCenter, Url, campaignId);
+            return DoRequests2<bool>(endPoint, Post);
+        }
 
+        #endregion
+
+        #region MergeField
+        public MergeField CreateMergeField(string listId, MergeField mergeField)
+        {
+            var payload = JsonConvert.SerializeObject(mergeField, Formatting.None, new JsonSerializerSettings
+            {
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            });
+
+            var endPoint = string.Format("https://{0}.{1}lists/{2}/merge-fields", dataCenter, Url, listId);
+            return DoRequests2<MergeField>(endPoint, Post, payload);
+        }
+
+        public bool DeleteMergeField(string listId, int mergeFieldId)
+        {
+            var endPoint = string.Format("https://{0}.{1}lists/{2}/merge-fields/{3}", dataCenter, Url, listId, mergeFieldId);
+            return DoRequests2<bool>(endPoint, Delete);
+        }
+
+        public CollectionMergeField GetMergeFields(string listId)
+        {
+            var endPoint = string.Format("https://{0}.{1}lists/{2}/merge-fields", dataCenter, Url, listId);
+            return DoRequests2<CollectionMergeField>(endPoint, Get);
+        }
         #endregion
     }
 }

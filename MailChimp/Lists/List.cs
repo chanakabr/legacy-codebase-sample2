@@ -41,6 +41,8 @@ namespace MailChimp.Lists
         public Stat Stats { get; set; }
         [JsonProperty("_links")]
         public List<Link> Links { get; set; }
+        [JsonProperty("merge_fields")]
+        public List<MergeField> MergeFields { get; set; }
     }
     public class ListQuery
     {
