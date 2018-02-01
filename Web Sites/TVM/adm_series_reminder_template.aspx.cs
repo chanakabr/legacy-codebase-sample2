@@ -230,12 +230,12 @@ public partial class adm_series_reminder_template : System.Web.UI.Page
 
         if (!string.IsNullOrEmpty(nvc["5_val"]))
         {
-            template.MailTemplate = nvc["5_val"];
+            followTemplate.MailTemplate = nvc["5_val"];
         }
 
         if (!string.IsNullOrEmpty(nvc["6_val"]))
         {
-            template.MailSubject = nvc["6_val"];
+            followTemplate.MailSubject = nvc["6_val"];
         }
         return followTemplate;
     }
