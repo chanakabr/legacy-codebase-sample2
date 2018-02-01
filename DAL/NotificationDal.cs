@@ -1293,6 +1293,8 @@ namespace DAL
                 Action = ODBCWrapper.Utils.GetSafeStr(row, "ACTION"),
                 URL = ODBCWrapper.Utils.GetSafeStr(row, "URL"),
                 MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "Mail_Template"),
+                Subject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
+
                 TemplateType = Enum.IsDefined(typeof(MessageTemplateType), assetType) ? (MessageTemplateType)assetType : MessageTemplateType.Series
             };
             return result;
