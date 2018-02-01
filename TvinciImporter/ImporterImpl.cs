@@ -5669,8 +5669,9 @@ namespace TvinciImporter
                 }
                 return response.Status;
             }
-            catch
+            catch(Exception exc)
             {
+                log.ErrorFormat("Error while call service.SetMessageTemplate ex:{0}", exc);
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
         }
