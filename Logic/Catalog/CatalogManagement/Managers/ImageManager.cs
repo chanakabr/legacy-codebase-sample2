@@ -507,7 +507,7 @@ namespace Core.Catalog.CatalogManagement
             ImageResponse result = new ImageResponse();
             try
             {
-                if (imageToAdd.ImageObjectId > 0)
+                if (imageToAdd.ImageObjectType == eAssetImageType.Media && imageToAdd.ImageObjectId > 0)
                 {
                     AssetResponse asset = AssetManager.GetAsset(groupId, imageToAdd.ImageObjectId, eAssetTypes.MEDIA);
                     if (asset.Status.Code != (int)eResponseStatus.OK)
@@ -517,6 +517,7 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
                 }
+
                 DataTable dt = CatalogDAL.InsertPic(groupId, userId, imageToAdd.ImageObjectId, imageToAdd.ImageObjectType, imageToAdd.ImageTypeId);
 
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
