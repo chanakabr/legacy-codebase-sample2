@@ -585,7 +585,7 @@ namespace Validator.Managers.Scheme
                     if (type.GetType() == typeof(ApiException.ApiExceptionType))
                     {
                         ApiException.ApiExceptionType exceptionType = type as ApiException.ApiExceptionType;
-                        writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
+                        writer.WriteAttributeString("name", exceptionType.name);
                         writer.WriteAttributeString("code", exceptionType.statusCode.GetHashCode().ToString());
                         writer.WriteAttributeString("message", exceptionType.message);
 
