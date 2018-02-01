@@ -1231,7 +1231,7 @@ namespace DAL
                 sp.AddParameter("@action", messageTemplate.Action);
                 sp.AddParameter("@url", messageTemplate.URL);
                 sp.AddParameter("@mailTemplate", messageTemplate.MailTemplate);
-                sp.AddParameter("@subject", messageTemplate.MailSubject);
+                sp.AddParameter("@mailSubject", messageTemplate.MailSubject);
 
                 DataSet ds = sp.ExecuteDataSet();
 
