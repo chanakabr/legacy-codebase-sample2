@@ -63,5 +63,21 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "url")]
         [XmlElement(ElementName = "url")]
         public string URL { get; set; }
+
+        /// <summary>
+        /// Mail template name
+        /// </summary>
+        [DataMember(Name = "mailTemplate")]
+        [JsonProperty(PropertyName = "mailTemplate")]
+        [XmlElement(ElementName = "mailTemplate")]
+        public string MailTemplate  { get; set; }
+
+        /// <summary>
+        /// Mail subject
+        /// </summary>
+        [DataMember(Name = "mailSubject")]
+        [JsonProperty(PropertyName = "mailSubject")]
+        [XmlElement(ElementName = "mailSubject")]
+        public string MailSubject{ get; set; }
     }
 }

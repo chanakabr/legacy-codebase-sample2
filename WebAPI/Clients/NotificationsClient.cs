@@ -259,7 +259,8 @@ namespace WebAPI.Clients
                 StartTime = announcement.getStartTime(),
                 Status = status,
                 Timezone = announcement.Timezone,
-                ImageUrl = announcement.ImageUrl
+                ImageUrl = announcement.ImageUrl,
+                IncludeMail = announcement.IncludeMail
             };
 
             try
@@ -334,7 +335,8 @@ namespace WebAPI.Clients
                 StartTime = announcement.getStartTime(),
                 Status = status,
                 Timezone = announcement.Timezone,
-                ImageUrl = announcement.ImageUrl
+                ImageUrl = announcement.ImageUrl,
+                IncludeMail = announcement.IncludeMail
             };
 
             try

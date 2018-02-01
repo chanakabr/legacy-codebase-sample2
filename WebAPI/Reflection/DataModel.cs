@@ -29,7 +29,7 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EntitlementId":
-                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
                     };
                     break;
                     
@@ -37,7 +37,7 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EntitlementId":
-                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
                     };
                     break;
                     
@@ -45,7 +45,7 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EntitlementTypeEqual":
-                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
                     };
                     break;
                     
@@ -63,7 +63,7 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EntitlementId":
-                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
                     };
                     break;
                     
@@ -111,7 +111,7 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "EntitlementId":
-                            return DeprecatedAttribute.IsDeprecated("4.7.0.0");
+                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
                     };
                     break;
                     
@@ -2125,6 +2125,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "ImageUrl":
                             return "imageUrl";
+                        case "IncludeMail":
+                            return "includeMail";
                         case "Message":
                             return "message";
                         case "Name":
@@ -4385,6 +4387,10 @@ namespace WebAPI.Reflection
                             return "action";
                         case "DateFormat":
                             return "dateFormat";
+                        case "MailSubject":
+                            return "mailSubject";
+                        case "MailTemplate":
+                            return "mailTemplate";
                         case "Message":
                             return "message";
                         case "MessageType":
@@ -4487,6 +4493,8 @@ namespace WebAPI.Reflection
                             return "churnMailTemplateName";
                         case "InboxEnabled":
                             return "inboxEnabled";
+                        case "MailNotificationAdapterId":
+                            return "mailNotificationAdapterId";
                         case "MailSenderName":
                             return "mailSenderName";
                         case "MessageTTLDays":

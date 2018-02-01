@@ -182,5 +182,9 @@ namespace WS_Notification
 
         [OperationContract]
         bool SendMessageInterest(string wsUserName, string wsSPassword, long startTime, int notificationInterestMessageId);
+        
+        [OperationContract]
+        ApiObjects.Response.Status SetMailNotificationsAdapterConfiguration(string wsUserName, string wsSPassword, int adapterId);
+
     }
 }

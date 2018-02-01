@@ -34,6 +34,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  ;
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
@@ -53,6 +54,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  ;
 
             //NotificationPartnerSettings to KalturaNotificationPartnerSettings
@@ -72,6 +74,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
@@ -90,6 +93,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ChurnMailSubject, opt => opt.MapFrom(src => src.ChurnMailSubject))
                  .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  ;
 
@@ -113,6 +117,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
                  .ForMember(dest => dest.Timezone, opt => opt.MapFrom(src => src.Timezone))
                  .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
+                 .ForMember(dest => dest.IncludeMail, opt => opt.MapFrom(src => src.IncludeMail))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertAnnouncementStatusType(src.Status)));
 
             //MessageTemplate to KalturaMessageTemplate
@@ -122,6 +127,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
                  .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                  .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
+                 .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
+                 .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
                  .ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.TemplateType)));
 
             //KalturaMessageTemplate TO MessageTemplate
@@ -131,6 +138,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                  .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
                  .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
+                 .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
+                 .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
                  .ForMember(dest => dest.TemplateType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.MessageType)));
 
             Mapper.CreateMap<FollowDataBase, KalturaFollowDataTvSeries>()

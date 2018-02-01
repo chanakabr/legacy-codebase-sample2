@@ -8531,6 +8531,16 @@
             URL template for deep linking. Example - /app/location/{mediaId}
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.MailTemplate">
+            <summary>
+            Mail template name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.MailSubject">
+            <summary>
+            Mail subject
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.AnnouncementId">
             <summary>
             Announcement Id
@@ -8689,6 +8699,11 @@
         <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.MailSenderName">
             <summary>
             Mail sender name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.MailNotificationAdapterId">
+            <summary>
+            Mail notification adapter identifier
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse">
@@ -11320,6 +11335,11 @@
         <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.ImageUrl">
             <summary>
             Announcement image URL, relevant for system announcements
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.IncludeMail">
+            <summary>
+            Include Mail
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementRecipientsType">
