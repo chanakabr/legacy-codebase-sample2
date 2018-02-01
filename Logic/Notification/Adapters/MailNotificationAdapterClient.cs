@@ -5,6 +5,7 @@ using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Core.Notification
@@ -159,7 +160,7 @@ namespace Core.Notification
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
                     APILogic.MailNotificationsAdapterService.AnnouncementListResponse response = client.Subscribe(adapter.Id, userData.FirstName, userData.LastName, userData.Email
-                        , announcementExternalIds.ToArray(), unixTimestamp,
+                        , announcementExternalIds, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK)
@@ -197,7 +198,7 @@ namespace Core.Notification
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AnnouncementListResponse response = client.UnSubscribe(adapter.Id, userData.Email, announcementExternalIds.ToArray(), unixTimestamp,
+                    APILogic.MailNotificationsAdapterService.AnnouncementListResponse response = client.UnSubscribe(adapter.Id, userData.Email, announcementExternalIds, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK)
@@ -216,7 +217,6 @@ namespace Core.Notification
 
         public static string PublishToAnnouncement(int groupId, string externalAnnouncementId, string subject, List<KeyValuePair<string, string>> mergeVars)
         {
-            //TODO: Irena templateId
             int templateId = 0;
 
             string messageId = string.Empty;
@@ -236,18 +236,18 @@ namespace Core.Notification
                 string signature;
                 GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
 
-                //using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
-                //{
-                //    //TODO: Irena
-                //    APILogic.MailNotificationsAdapterService.AdapterStatus response = client.Publish(adapter.Id, externalAnnouncementId, templateId,
-                //        subject, mergeVars.ToArray(), unixTimestamp,
-                //        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
+                {
+                    APILogic.MailNotificationsAdapterService.AdapterStatus response = client.Publish(adapter.Id, externalAnnouncementId, templateId, subject, 
+                        mergeVars != null ? mergeVars.Select(mv => new APILogic.MailNotificationsAdapterService.KeyValue() { Key = mv.Key, Value = mv.Value }).ToList() : null, 
+                        unixTimestamp,
+                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
-                //    if (response == null || response.Code != (int)eResponseStatus.OK)
-                //        log.ErrorFormat("Error while trying to PublishToAnnouncement. adpaterId: {0}", adapter.Id);
-                //    else
-                //        log.DebugFormat("successfully PublishToAnnouncement. adpaterId: {0}", adapter.Id);
-                //}
+                    if (response == null || response.Code != (int)eResponseStatus.OK)
+                        log.ErrorFormat("Error while trying to PublishToAnnouncement. adpaterId: {0}", adapter.Id);
+                    else
+                        log.DebugFormat("successfully PublishToAnnouncement. adpaterId: {0}", adapter.Id);
+                }
             }
             catch (Exception ex)
             {
@@ -278,7 +278,7 @@ namespace Core.Notification
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
                     APILogic.MailNotificationsAdapterService.AdapterStatus response = client.UpdateUser(adapter.Id, userId, oldUserData.Email,
-                        NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, externalAnnouncementIds.ToArray(), unixTimestamp,
+                        NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, externalAnnouncementIds, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     if (response == null || response.Code != (int)eResponseStatus.OK)
