@@ -5646,7 +5646,9 @@ namespace TvinciImporter
                     Action = messageTemplate.Action,
                     URL = messageTemplate.URL,
                     Id = messageTemplate.Id,
-                    DateFormat = messageTemplate.DateFormat
+                    DateFormat = messageTemplate.DateFormat,
+                    MailSubject = messageTemplate.MailSubject,
+                    MailTemplate = messageTemplate.MailTemplate
                 };
 
                 response = service.SetMessageTemplate(sWSUserName, sWSPass, wcfMessageTemplate);
@@ -5658,6 +5660,11 @@ namespace TvinciImporter
                         Message = response.MessageTemplate.Message,
                         DateFormat = response.MessageTemplate.DateFormat,
                         TemplateType = response.MessageTemplate.TemplateType,
+                        MailSubject = response.MessageTemplate.MailSubject,
+                        MailTemplate  = response.MessageTemplate.MailTemplate,
+                        Action =   response.MessageTemplate.Action,
+                        Sound = response.MessageTemplate.Sound,
+                        URL = response.MessageTemplate.URL
                     };
                 }
                 return response.Status;
