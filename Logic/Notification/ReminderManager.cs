@@ -1209,12 +1209,6 @@ namespace Core.Notification
                         // update external push result
                         reminder.ExternalResult = resultMsgId;
                         reminder.IsSent = true;
-
-                        // update reminder 
-                        if (DAL.NotificationDal.SetReminder(reminder) == 0)
-                        {
-                            log.ErrorFormat("Failed to update reminder. partner ID: {0}, reminder ID: {1} ", partnerId, reminder.ID);
-                        }
                     }
 
                     // send to push web - rabbit.                
@@ -1248,11 +1242,18 @@ namespace Core.Notification
                         log.ErrorFormat("failed to send remind message to mail adapter. result message id is empty for reminder {0}", reminder.ID);
                     else
                     {
+                        reminder.IsSent = true;
                         log.DebugFormat("Successfully sent reminder to mail. reminder Id: {0}", reminder.ID);
                         // IRA: what about updating the reminders table with is sent and external result?????
                     }
                 }
-            }            
+            }
+
+            // update reminder 
+            if (DAL.NotificationDal.SetReminder(reminder) == 0)
+            {
+                log.ErrorFormat("Failed to update reminder. partner ID: {0}, reminder ID: {1} ", partnerId, reminder.ID);
+            }
         }
 
         private static void SendSeriesMessageReminder(int partnerId, ProgramObj program, DateTime dbReminderSendDate, MessageTemplate seriesReminderTemplate, long reminderId, MediaObj mediaChannel)
