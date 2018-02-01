@@ -507,27 +507,6 @@ namespace TVinciShared
             return sVal;
         }
 
-        static public int GetLanguageId(string code3)
-        {
-            int langId = 0;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select ID from lu_languages where ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(CODE3)))", "=", code3.Trim().ToLower());
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                {
-                    langId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-
-            return langId;
-        }
-
-
         static public void M2MHandling(
             string sMainPointerField,
             string sExtraFieldName,
@@ -544,20 +523,11 @@ namespace TVinciShared
             Int32 nGroupID, Int32 nMediaID)
         {
             System.Collections.Specialized.NameValueCollection coll = new System.Collections.Specialized.NameValueCollection();
-
-            //System.Collections.IEnumerator iter = theStr.m_theTable.Keys.GetEnumerator();
-            string sFinalVal = string.Empty;
-            int index = 0;
-            int mainLangId = 0;
-
-            while (theStr.m_theTable.ContainsKey(index.ToString()))
+            System.Collections.IEnumerator iter = theStr.m_theTable.Keys.GetEnumerator();
+            string sFinalVal = "";
+            while (iter.MoveNext())
             {
-                if (mainLangId == 0)
-                {
-                    mainLangId = GetLanguageId(sMainLang);
-                }
-
-                string sKey = index.ToString();
+                string sKey = iter.Current.ToString();
                 string sValues = GetTransactionStringHolderValue(theStr, sKey, sMainLang);
                 string[] sSpliter = { ";" }; //{ ";", "," };
                 string[] sVals = sValues.Split(sSpliter, StringSplitOptions.RemoveEmptyEntries);
@@ -571,77 +541,40 @@ namespace TVinciShared
                     Int32 nTagID = GetTagID(sVal, nGroupID, nTagTypeID, sAddExtra);
                     if (sVal != "")
                     {
-                        System.Collections.Hashtable theTable = (System.Collections.Hashtable)(theStr.m_theTable[sKey]);
 
-                        List<LanguageString> translations = new List<LanguageString>();
-
-                        foreach (string key in theTable.Keys)
+                        ODBCWrapper.DataSetSelectQuery selectQuery = null;
+                        selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                        selectQuery += "select * from lu_languages where ";
+                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(CODE3)))", "<>", sMainLang.Trim().ToLower());
+                        if (selectQuery.Execute("query", true) != null)
                         {
-                            LanguageString theLangStr = (LanguageString)(theTable[key]);
-                            if (theLangStr.m_sLang.ToLower() != sMainLang.Trim().ToLower())
+                            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                            for (int i = 0; i < nCount; i++)
                             {
-                                translations.Add(theLangStr);
-                            }
-                        }
-
-                        if (translations.Count > 0)
-                        {
-                            Dictionary<string, KeyValuePair<string, int>> tagTranslations = new Dictionary<string, KeyValuePair<string, int>>();
-
-                            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                            selectQuery += "select tt.ID, tt.VALUE, ll.CODE3 from tags_translate tt join lu_languages ll on ll.ID=tt.LANGUAGE_ID where tt.status=1 and";
-                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("tt.TAG_ID", "=", nTagID);
-                            selectQuery += "and";
-                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("tt.LANGUAGE_ID", "<>", mainLangId);
-                            selectQuery += "and";
-                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("tt.GROUP_ID", "=", nGroupID);
-                            selectQuery.SetCachedSec(0);
-                            if (selectQuery.Execute("query", true) != null)
-                            {
-                                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                                for (int i = 0; i < nCount; i++)
-                                {
-                                    int ttId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", i);
-                                    string ttValue = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "VALUE", i);
-                                    string ttLang = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "CODE3", i);
-
-                                    tagTranslations.Add(ttLang, new KeyValuePair<string, int>(ttValue, ttId));
-                                }
-                            }
-                            selectQuery.Finish();
-                            selectQuery = null;
-
-                            foreach (LanguageString ls in translations)
-                            {
-                                if (tagTranslations.ContainsKey(ls.m_sLang))
-                                {
-                                    if (tagTranslations[ls.m_sLang].Key.ToLower() != ls.m_sVal.Trim().ToLower())
-                                    {
-                                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("tags_translate");
-                                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VALUE", "=", ls.m_sVal.Trim());
-                                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
-                                        updateQuery += "where ";
-                                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", tagTranslations[ls.m_sLang].Value);
-                                        updateQuery.Execute();
-                                        updateQuery.Finish();
-                                        updateQuery = null;
-                                    }
-                                }
+                                string sLang = selectQuery.Table("query").DefaultView[i].Row["CODE3"].ToString();
+                                Int32 nLangID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
+                                string sTranslatedVal = GetTransactionStringHolderValue(theStr, sKey, sLang);
+                                Int32 nTagTransID = 0;
+                                if (sTranslatedVal.Trim() != "")
+                                    nTagTransID = TranslateTag(nTagID, nLangID, nGroupID, true);
                                 else
+                                    nTagTransID = TranslateTag(nTagID, nLangID, nGroupID, false);
+                                if (nTagTransID != 0 && sTranslatedVal != "")
                                 {
-                                    ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("tags_translate");
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("tag_ID", "=", tagTranslations[ls.m_sLang].Value);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", GetLanguageId(ls.m_sLang));
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                                    insertQuery.Execute();
-                                    insertQuery.Finish();
-                                    insertQuery = null;
+                                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("tags_translate");
+                                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VALUE", "=", sTranslatedVal.Trim());
+                                    updateQuery += "where ";
+                                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nTagTransID);
+                                    updateQuery.Execute();
+                                    updateQuery.Finish();
+                                    updateQuery = null;
                                 }
                             }
                         }
+                        selectQuery.Finish();
+                        selectQuery = null;
                     }
                 }
-                index++;
             }
             ODBCWrapper.DataSetSelectQuery selectQuery1 = null;
             TVinciShared.DBManipulator.GetManyToManyContainer(ref coll,
@@ -671,47 +604,47 @@ namespace TVinciShared
         public static void UploadIngestToFTP(int ingestID, Dictionary<string, byte[]> files)
         {
             ThreadPool.QueueUserWorkItem(delegate
+            {
+                string ftpUrl = WS_Utils.GetTcmConfigValue("IngestFtpUrl");
+                string ftpUser = WS_Utils.GetTcmConfigValue("IngestFtpUser");
+                string ftpPass = WS_Utils.GetTcmConfigValue("IngestFtpPass");
+
+                byte[] zip = ZipUtils.Compress(files);
+
+                bool shouldRetry = true;
+                int retryCount = 0;
+
+                try
                 {
-                    string ftpUrl = WS_Utils.GetTcmConfigValue("IngestFtpUrl");
-                    string ftpUser = WS_Utils.GetTcmConfigValue("IngestFtpUser");
-                    string ftpPass = WS_Utils.GetTcmConfigValue("IngestFtpPass");
-
-                    byte[] zip = ZipUtils.Compress(files);
-
-                    bool shouldRetry = true;
-                    int retryCount = 0;
-
-                    try
+                    while (shouldRetry && retryCount < 10)
                     {
-                        while (shouldRetry && retryCount < 10)
-                        {
-                            FtpWebRequest request = (FtpWebRequest)FtpWebRequest.Create(string.Format("{0}/Ingest-{1}.zip", ftpUrl, ingestID));
-                            request.Credentials = new NetworkCredential(ftpUser, ftpPass);
-                            request.Method = WebRequestMethods.Ftp.UploadFile;
-                            request.KeepAlive = false;
-                            request.UsePassive = false;
-                            request.UseBinary = true;
-                            request.ContentLength = zip.Length;
-                            request.GetResponse();
-                            Stream requestStream = request.GetRequestStream();
-                            requestStream.Write(zip, 0, zip.Length);
-                            requestStream.Close();
-                            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-                            response.Close();
-                            shouldRetry = false;
-                        }
-                        if (retryCount == 10)
-                        {
-                            log.Error("Failed to upload files to FTP Ingest ID = " + ingestID);
-                        }
+                        FtpWebRequest request = (FtpWebRequest)FtpWebRequest.Create(string.Format("{0}/Ingest-{1}.zip", ftpUrl, ingestID));
+                        request.Credentials = new NetworkCredential(ftpUser, ftpPass);
+                        request.Method = WebRequestMethods.Ftp.UploadFile;
+                        request.KeepAlive = false;
+                        request.UsePassive = false;
+                        request.UseBinary = true;
+                        request.ContentLength = zip.Length;
+                        request.GetResponse();
+                        Stream requestStream = request.GetRequestStream();
+                        requestStream.Write(zip, 0, zip.Length);
+                        requestStream.Close();
+                        FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                        response.Close();
+                        shouldRetry = false;
                     }
-                    catch (Exception ex)
+                    if (retryCount == 10)
                     {
-                        log.Error("", ex);
-                        Thread.Sleep(60000);
-                        retryCount++;
+                        log.Error("Failed to upload files to FTP Ingest ID = " + ingestID);
                     }
-                });
+                }
+                catch (Exception ex)
+                {
+                    log.Error("", ex);
+                    Thread.Sleep(60000);
+                    retryCount++;
+                }
+            });
         }
 
         static public void InsertIngestMediaData(int nIngestID, int nMediaID, string sCoGuid, string sStatus)

@@ -135,7 +135,7 @@ namespace TVinciShared
                 bool isRaw = false;
                 var collIsRaw = coll[nCounter.ToString() + "_raw"];
 
-                if (collIsRaw  != null)
+                if (collIsRaw != null)
                 {
                     bool.TryParse(collIsRaw.ToString(), out isRaw);
                 }
@@ -143,7 +143,7 @@ namespace TVinciShared
                 int duplicate = 1;
                 if (coll[nCounter.ToString() + "_mulFactor"] != null && !string.IsNullOrEmpty(coll[nCounter.ToString() + "_mulFactor"].ToString()))
                 {
-                    duplicate = int.Parse(coll[nCounter.ToString() + "_mulFactor"].ToString());                    
+                    duplicate = int.Parse(coll[nCounter.ToString() + "_mulFactor"].ToString());
                 }
                 string sFieldName = coll[nCounter.ToString() + "_field"].ToString();
                 bool ignore = coll[nCounter.ToString() + "_ignore"] != null ? coll[nCounter.ToString() + "_ignore"].ToLower() == "true" : false;
@@ -215,7 +215,7 @@ namespace TVinciShared
                     if (sType == "int" && sVal != "")
                     {
                         bValid = validateParam("int", sVal, -1, -1);
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", int.Parse(sVal.ToString())*duplicate);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", int.Parse(sVal.ToString()) * duplicate);
                     }
                     if (sType == "int" && sVal == "")
                     {
@@ -943,9 +943,9 @@ namespace TVinciShared
                             }
                         }
 
-                        if (sCollectionTable != "groups" && sCollectionTable != "countries" && sCollectionTable != "lu_countries" && sCollectionTable != "lu_languages" && 
+                        if (sCollectionTable != "groups" && sCollectionTable != "countries" && sCollectionTable != "lu_countries" && sCollectionTable != "lu_languages" &&
                             sCollectionTable != "lu_page_types" && sCollectionTable != "lu_pics_ratios" && sCollectionTable != "lu_pics_epg_ratios" && sCollectionTable.ToLower() != "lu_devicebrands"
-                            && sCollectionTable != "pricing.dbo.lu_currency" )
+                            && sCollectionTable != "pricing.dbo.lu_currency")
                         {
                             selectQuery1 += " and ";
 
@@ -1442,11 +1442,11 @@ namespace TVinciShared
                     sVal = coll[nCounter.ToString() + "_val"].ToString().Trim();
                 string sVal2 = "";
                 string sType = coll[nCounter.ToString() + "_type"].ToString();
-                
+
                 bool isRaw = false;
                 var collIsRaw = coll[nCounter.ToString() + "_raw"];
 
-                if (collIsRaw  != null)
+                if (collIsRaw != null)
                 {
                     bool.TryParse(collIsRaw.ToString(), out isRaw);
                 }
@@ -1734,7 +1734,7 @@ namespace TVinciShared
                                         string[] sPicSizes = lSizes.ToArray();
                                         bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicBaseName, sBasePath, sPicSizes, nGroupID);//send to Rabbit
                                     }
-                                    #endregion                                   
+                                    #endregion
                                 }
                                 else
                                 {
