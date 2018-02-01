@@ -594,8 +594,8 @@ namespace Core.Catalog.CatalogManagement
                                 byte[] imageBytes = webClient.DownloadData(url);                                
                                 MemoryStream imageStream = new MemoryStream(imageBytes);
                                 System.Drawing.Image downloadedImage = System.Drawing.Image.FromStream(imageStream);
-                                double downloadedImageRatio = (double)downloadedImage.Height / downloadedImage.Width;
-                                double imageDefinedRatio = (double)ratio.Height / ratio.Width;
+                                double downloadedImageRatio = (double)downloadedImage.Width / downloadedImage.Height;
+                                double imageDefinedRatio = (double)ratio.Width / ratio.Height;
                                 double imageRatioDif = Math.Round(Math.Abs(downloadedImageRatio - imageDefinedRatio) * 100);
                                 if (ratio.AcceptedErrorMarginPrecentage < imageRatioDif)
                                 {
