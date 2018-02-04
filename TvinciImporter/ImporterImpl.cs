@@ -5413,8 +5413,8 @@ namespace TvinciImporter
 
         #region Notification
 
-        static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, 
-            string imageUrl, bool includeMail, ref int id)
+        static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, 
+            string timezone, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, ref int id)
         {
             AddMessageAnnouncementResponse response = null;
             try
@@ -5439,6 +5439,8 @@ namespace TvinciImporter
                 announcement.Enabled = Enabled;
                 announcement.ImageUrl = imageUrl;
                 announcement.IncludeMail = includeMail;
+                announcement.MailTemplate = mailTemplate;
+                announcement.MailSubject = mailSubject;
                 response = service.AddMessageAnnouncement(sWSUserName, sWSPass, announcement);
                 if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
@@ -5453,7 +5455,7 @@ namespace TvinciImporter
         }
 
         static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date,                 
-            string timezone, string imageUrl, bool includeMail)
+            string timezone, string imageUrl, bool includeMail ,string  mailTemplate, string mailSubject)
         {
             try
             {
@@ -5478,6 +5480,8 @@ namespace TvinciImporter
                 announcement.Enabled = Enabled;
                 announcement.ImageUrl = imageUrl;
                 announcement.IncludeMail = includeMail;
+                announcement.MailTemplate = mailTemplate;
+                announcement.MailSubject = mailSubject;
                 MessageAnnouncementResponse response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, id, announcement);
                 return response.Status;
             }
