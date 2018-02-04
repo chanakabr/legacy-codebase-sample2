@@ -96,6 +96,22 @@ namespace WebAPI.Models.Notifications
         [XmlElement(ElementName = "includeMail")]
         public bool IncludeMail { get; set; }
 
+        /// <summary>
+        /// Mail Template
+        /// </summary>
+        [DataMember(Name = "mailTemplate")]
+        [JsonProperty(PropertyName = "mailTemplate")]
+        [XmlElement(ElementName = "mailTemplate")]
+        public string MailTemplate { get; set; }
+
+        /// <summary>
+        /// Mail Subject
+        /// </summary>
+        [DataMember(Name = "mailSubject")]
+        [JsonProperty(PropertyName = "mailSubject")]
+        [XmlElement(ElementName = "mailSubject")]
+        public string MailSubject { get; set; }
+
         internal long getStartTime()
         {
             return StartTime.HasValue ? (long)StartTime : 0;

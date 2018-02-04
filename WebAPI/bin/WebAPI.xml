@@ -11342,6 +11342,16 @@
             Include Mail
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.MailTemplate">
+            <summary>
+            Mail Template
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.MailSubject">
+            <summary>
+            Mail Subject
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementRecipientsType">
             <summary>
             Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3

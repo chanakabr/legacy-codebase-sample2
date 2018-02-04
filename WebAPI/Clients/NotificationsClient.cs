@@ -260,7 +260,9 @@ namespace WebAPI.Clients
                 Status = status,
                 Timezone = announcement.Timezone,
                 ImageUrl = announcement.ImageUrl,
-                IncludeMail = announcement.IncludeMail
+                IncludeMail = announcement.IncludeMail,
+                MailSubject = announcement.MailSubject,
+                MailTemplate = announcement.MailTemplate
             };
 
             try
@@ -336,7 +338,9 @@ namespace WebAPI.Clients
                 Status = status,
                 Timezone = announcement.Timezone,
                 ImageUrl = announcement.ImageUrl,
-                IncludeMail = announcement.IncludeMail
+                IncludeMail = announcement.IncludeMail,
+                MailSubject = announcement.MailSubject,
+                MailTemplate = announcement.MailTemplate
             };
 
             try
