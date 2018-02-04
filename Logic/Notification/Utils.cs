@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-using System.Globalization;
-using KLogMonitor;
-using System.Reflection;
-using ApiObjects.Response;
+﻿using ApiObjects;
 using ApiObjects.Notification;
-using ApiObjects;
-using System.Data;
-using System.Web;
-using System.Net;
-using System.ServiceModel;
-using System.Threading.Tasks;
-using DAL;
+using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace Core.Notification
 {
@@ -65,17 +61,22 @@ namespace Core.Notification
             if (Enum.IsDefined(typeof(eAnnouncementStatus), dbStatus))
                 status = (eAnnouncementStatus)dbStatus;
 
-            MessageAnnouncement msg = new MessageAnnouncement(ODBCWrapper.Utils.GetSafeStr(row, "name"),
-                                                              ODBCWrapper.Utils.GetSafeStr(row, "message"),
-                                                              (ODBCWrapper.Utils.GetIntSafeVal(row, "is_active") == 0) ? false : true,
-                                                              startTime,
-                                                              timezone,
-                                                              recipients,
-                                                              status,
-                                                              ODBCWrapper.Utils.GetSafeStr(row, "message_reference"),
-                                                              ODBCWrapper.Utils.GetIntSafeVal(row, "announcement_id"),
-                                                              ODBCWrapper.Utils.GetSafeStr(row, "image_url"),
-                                                              (ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false);
+            MessageAnnouncement msg = new MessageAnnouncement()
+            {
+                Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                Message = ODBCWrapper.Utils.GetSafeStr(row, "message"),
+                Enabled = (ODBCWrapper.Utils.GetIntSafeVal(row, "is_active") == 0) ? false : true,
+                StartTime = startTime,
+                Timezone = timezone,
+                Recipients = recipients,
+                Status = status,
+                MessageReference = ODBCWrapper.Utils.GetSafeStr(row, "message_reference"),
+                AnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "announcement_id"),
+                ImageUrl = ODBCWrapper.Utils.GetSafeStr(row, "image_url"),
+                MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
+                MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
+                IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false)
+            };
 
             msg.MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
 
@@ -115,7 +116,7 @@ namespace Core.Notification
 
             // build the filter query for the search
             string ksql = string.Format("(and {0} = '{1}' epg_channel_id = '{2}' {3} start_date > '0')",
-                seriesIdName, seriesId, epgChannelId, seasonNumber.HasValue && seasonNumber.Value != 0  ? string.Format("{0} = '{1}' ", seasonNumberName, seasonNumber) : string.Empty);
+                seriesIdName, seriesId, epgChannelId, seasonNumber.HasValue && seasonNumber.Value != 0 ? string.Format("{0} = '{1}' ", seasonNumberName, seasonNumber) : string.Empty);
 
             // get program ids
             try
@@ -192,7 +193,7 @@ namespace Core.Notification
             {
                 return res;
             }
-            
+
             try
             {
                 Dictionary<string, DbSeriesReminder> seriesReminderMap = null;
@@ -224,12 +225,12 @@ namespace Core.Notification
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("seriesReminderIds"))
-                {                                        
+                {
                     int? groupId = funcParams["groupId"] as int?;
                     List<long> seriesReminderIds = null;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
-                        seriesReminderIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();                        
+                        seriesReminderIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
                     }
                     else
                     {
@@ -242,10 +243,10 @@ namespace Core.Notification
                         List<DbSeriesReminder> seriesReminders = NotificationDal.GetSeriesReminders(groupId.Value, seriesReminderIds);
                         if (seriesReminders != null && seriesReminders.Count > 0)
                         {
-                            tempResult = seriesReminders.ToDictionary(x => long.Parse(x.ID.ToString()), x => x);                            
+                            tempResult = seriesReminders.ToDictionary(x => long.Parse(x.ID.ToString()), x => x);
                         }
 
-                        List<long> missingIds = seriesReminderIds.Where(x => !tempResult.ContainsKey(x)).ToList();                        
+                        List<long> missingIds = seriesReminderIds.Where(x => !tempResult.ContainsKey(x)).ToList();
                         if (missingIds != null)
                         {
                             foreach (long missingId in missingIds)
@@ -257,7 +258,7 @@ namespace Core.Notification
                         result = tempResult.ToDictionary(x => LayeredCacheKeys.GetSeriesRemindersKey(groupId.Value, x.Key), x => x.Value);
                     }
 
-                    res = result.Keys.Count() == seriesReminderIds.Count();                    
+                    res = result.Keys.Count() == seriesReminderIds.Count();
                 }
             }
             catch (Exception ex)
@@ -348,7 +349,7 @@ namespace Core.Notification
                     List<long> reminderIds = null;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
-                        reminderIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();                        
+                        reminderIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
                     }
                     else
                     {

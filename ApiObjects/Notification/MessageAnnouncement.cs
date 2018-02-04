@@ -1,9 +1,4 @@
-﻿using ApiObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
+﻿using System.Runtime.Serialization;
 
 namespace ApiObjects.Notification
 {
@@ -54,25 +49,9 @@ namespace ApiObjects.Notification
 
         public MessageAnnouncement() { }
 
-        public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, 
-            eAnnouncementStatus status = eAnnouncementStatus.NotSent, string messageReference = null, int announcementId = 0, string imageUrl = null, bool includeMail = false)
-        {
-            Name = name;
-            Message = msg;
-            Enabled = enabled;
-            StartTime = startTime;
-            Timezone = timezone;
-            Recipients = recipients;
-            Status = status;
-            AnnouncementId = announcementId;
-            MessageReference = messageReference;
-            ImageUrl = imageUrl;
-            IncludeMail = includeMail;
-        }
-
         public override string ToString()
         {
-            return string.Format("MessageAnnouncement: Name: {0}, Message {1}, StartTime: {2}, TimeZone: {3} Status: {4}, Recipients {5}, Enabled {6}, AnnouncementId: {7}, IncludeMail: {8}",
+            return string.Format("MessageAnnouncement: Name: {0}, Message {1}, StartTime: {2}, TimeZone: {3} Status: {4}, Recipients {5}, Enabled {6}, AnnouncementId: {7}, IncludeMail: {8}, , MailTemplate: {9}, , MailSubject: {10}",
                 Name,
                 Message,
                 StartTime,
@@ -81,7 +60,9 @@ namespace ApiObjects.Notification
                 Recipients,
                 Enabled,
                 AnnouncementId,
-                IncludeMail);
+                IncludeMail,
+                MailTemplate,
+                MailTemplate);
         }
     }
 }
