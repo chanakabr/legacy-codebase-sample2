@@ -295,15 +295,18 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         bool enable = IsMailNotificationEnabled();
 
         DataRecordCheckBoxField drCheckBoxField = new DataRecordCheckBoxField(true);
+        dr_imageUrl.setFiledName("include_email");
         drCheckBoxField.Initialize("Mail Notification", "adm_table_header_nbg", "FormInput", "include_email", false);
         drCheckBoxField.SetDefault(enable?1:0);
         theRecord.AddRecord(drCheckBoxField);
 
         DataRecordShortTextField drShortTextField = new DataRecordShortTextField("ltr", true, 60, 256);
+        drShortTextField.setFiledName("mail_template");
         drShortTextField.Initialize("Mail template", "adm_table_header_nbg", "FormInput", "MAIL_TEMPLATE", false);
         theRecord.AddRecord(drShortTextField);
 
         drShortTextField = new DataRecordShortTextField("ltr", true, 60, 256);
+        drShortTextField.setFiledName("mail_subject");
         drShortTextField.Initialize("Mail subject", "adm_table_header_nbg", "FormInput", "MAIL_SUBJECT", false);
         theRecord.AddRecord(drShortTextField);
 
@@ -479,10 +482,10 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
                             #region case
                             switch (sFieldName)
                             {
-                                case "MAIL_TEMPLATE":
+                                case "mail_template":
                                     mailTemplate = sVal.Replace("\r\n", "<br\\>");
                                     break;
-                                case "MAIL_SUBJECT":
+                                case "mail_subject":
                                     mailSubject = sVal.Replace("\r\n", "<br\\>");
                                     break;
                                 case "include_email":
