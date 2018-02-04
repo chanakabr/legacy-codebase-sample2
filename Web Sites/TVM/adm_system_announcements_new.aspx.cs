@@ -47,18 +47,20 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
                 DateTime date = new DateTime();
                 bool Enabled = false;
                 bool includeMail = false;
+                string mailTemplate = string.Empty;
+                string mailSubject = string.Empty;
 
-                PageFiled(ref Enabled, ref recipients, ref name, ref message, ref date, ref timezone, ref imageUrl, ref includeMail);
+                PageFiled(ref Enabled, ref recipients, ref name, ref message, ref date, ref timezone, ref imageUrl, ref includeMail, ref mailTemplate, ref mailSubject);
 
                 if (id == 0)
                 {
-                    result = ImporterImpl.AddMessageAnnouncement(groupId, Enabled, name, message, recipients, date, timezone, imageUrl, includeMail, ref id);
+                    result = ImporterImpl.AddMessageAnnouncement(groupId, Enabled, name, message, recipients, date, timezone, imageUrl, includeMail, mailTemplate, mailSubject, ref id);
                     Session["message_announcement_id"] = id;
 
                 }
                 else
                 {
-                    result = ImporterImpl.UpdateMessageAnnouncement(groupId, id, Enabled, name, message, recipients, date, timezone, imageUrl, includeMail);
+                    result = ImporterImpl.UpdateMessageAnnouncement(groupId, id, Enabled, name, message, recipients, date, timezone, imageUrl, includeMail, mailTemplate, mailSubject);
                 }
                 if (result == null)
                 {
@@ -292,10 +294,18 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
 
         bool enable = IsMailNotificationEnabled();
 
-        DataRecordCheckBoxField drCheckBoxField = new DataRecordCheckBoxField(enable);
+        DataRecordCheckBoxField drCheckBoxField = new DataRecordCheckBoxField(true);
         drCheckBoxField.Initialize("Mail Notification", "adm_table_header_nbg", "FormInput", "include_email", false);
-        drCheckBoxField.SetDefault(0);
+        drCheckBoxField.SetDefault(enable?1:0);
         theRecord.AddRecord(drCheckBoxField);
+
+        DataRecordShortTextField drShortTextField = new DataRecordShortTextField("ltr", true, 60, 256);
+        drShortTextField.Initialize("Mail template", "adm_table_header_nbg", "FormInput", "MAIL_TEMPLATE", false);
+        theRecord.AddRecord(drShortTextField);
+
+        drShortTextField = new DataRecordShortTextField("ltr", true, 60, 256);
+        drShortTextField.Initialize("Mail subject", "adm_table_header_nbg", "FormInput", "MAIL_SUBJECT", false);
+        theRecord.AddRecord(drShortTextField);
 
         string sTable = theRecord.GetTableHTML("adm_system_announcements_new.aspx?submited=1");
 
@@ -439,7 +449,7 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
             return false;
         }
     }
-    private void PageFiled(ref bool Enabled, ref int recipients, ref string name, ref string message, ref DateTime date, ref string timezone, ref string imageUrl, ref bool includeMail)
+    private void PageFiled(ref bool Enabled, ref int recipients, ref string name, ref string message, ref DateTime date, ref string timezone, ref string imageUrl, ref bool includeMail, ref string mailTemplate, ref string mailSubject)
     {
         System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
         if (coll["table_name"] == null)
@@ -469,6 +479,12 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
                             #region case
                             switch (sFieldName)
                             {
+                                case "MAIL_TEMPLATE":
+                                    mailTemplate = sVal.Replace("\r\n", "<br\\>");
+                                    break;
+                                case "MAIL_SUBJECT":
+                                    mailSubject = sVal.Replace("\r\n", "<br\\>");
+                                    break;
                                 case "include_email":
                                     if (sVal == "1")
                                         includeMail = true;
