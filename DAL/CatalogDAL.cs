@@ -5191,13 +5191,13 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataTable InsertGroupImageRatios(int groupId, long userId, string ratio, int height, int width,
+        public static DataTable InsertGroupImageRatios(int groupId, long userId, string name, int height, int width,
                                                         int acceptedErrorMarginPrecentage)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertGroupImageRatio");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@ratio", ratio);
+            sp.AddParameter("@name", name);
             sp.AddParameter("@height", height);
             sp.AddParameter("@width", width);
             sp.AddParameter("@acceptedErrorMarginPrecentage", acceptedErrorMarginPrecentage);
