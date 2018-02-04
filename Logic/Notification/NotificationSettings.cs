@@ -166,10 +166,18 @@ namespace Core.Notification
                 userNotificationData.Settings.EnableMail = settings.EnableMail.Value;
                 if (userNotificationData.Settings.EnableMail.Value)
                 {
-                    Users.User user = Users.User.GetUser(userId, groupId);
-                    userNotificationData.UserData.Email = user.m_oBasicData.m_sEmail;
-                    userNotificationData.UserData.FirstName = user.m_oBasicData.m_sFirstName;
-                    userNotificationData.UserData.LastName = user.m_oBasicData.m_sLastName;
+
+                    Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
+                    if (response != null && response.m_RespStatus == ApiObjects.ResponseStatus.OK && response.m_user != null)
+                    {
+                        userNotificationData.UserData.Email = response.m_user.m_oBasicData.m_sEmail;
+                        userNotificationData.UserData.FirstName = response.m_user.m_oBasicData.m_sFirstName;
+                        userNotificationData.UserData.LastName = response.m_user.m_oBasicData.m_sLastName;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed to get user data for userId = {0}", userId);
+                    }
                 }
             }
 

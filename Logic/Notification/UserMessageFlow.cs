@@ -1290,32 +1290,39 @@ namespace Core.Notification
         {
             bool result = true;
 
-            Users.User user = Users.User.GetUser(userId, groupId);
-            if (userNotificationData.UserData.Email != user.m_oBasicData.m_sEmail || userNotificationData.UserData.FirstName != user.m_oBasicData.m_sFirstName || userNotificationData.UserData.LastName != user.m_oBasicData.m_sLastName)
+            Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
+            if (response == null || response.m_RespStatus != ApiObjects.ResponseStatus.OK || response.m_user == null)
             {
-                UserData newuserData = new UserData()
+                log.ErrorFormat("Failed to get user data for userId = {0}", userId);
+            }
+            else
+            {
+                if (userNotificationData.UserData.Email != response.m_user.m_oBasicData.m_sEmail || userNotificationData.UserData.FirstName != response.m_user.m_oBasicData.m_sFirstName || userNotificationData.UserData.LastName != response.m_user.m_oBasicData.m_sLastName)
                 {
-                    Email = user.m_oBasicData.m_sEmail,
-                    FirstName = user.m_oBasicData.m_sLastName,
-                    LastName = user.m_oBasicData.m_sLastName
-                };
+                    UserData newuserData = new UserData()
+                    {
+                        Email = response.m_user.m_oBasicData.m_sEmail,
+                        FirstName = response.m_user.m_oBasicData.m_sLastName,
+                        LastName = response.m_user.m_oBasicData.m_sLastName
+                    };
 
-                List<string> externalIds = new List<string>();
+                    List<string> externalIds = new List<string>();
 
-                if (!MailNotificationAdapterClient.UpdateUserData(groupId, userId, userNotificationData.UserData, newuserData, externalIds))
-                {
-                    log.ErrorFormat("Failed Upate User Data user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
-                        groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
-                }
+                    if (!MailNotificationAdapterClient.UpdateUserData(groupId, userId, userNotificationData.UserData, newuserData, externalIds))
+                    {
+                        log.ErrorFormat("Failed Upate User Data user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
+                            groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
+                    }
 
-                userNotificationData.UserData.Email = user.m_oBasicData.m_sEmail;
-                userNotificationData.UserData.FirstName = user.m_oBasicData.m_sFirstName;
-                userNotificationData.UserData.LastName = user.m_oBasicData.m_sLastName;
+                    userNotificationData.UserData.Email = response.m_user.m_oBasicData.m_sEmail;
+                    userNotificationData.UserData.FirstName = response.m_user.m_oBasicData.m_sFirstName;
+                    userNotificationData.UserData.LastName = response.m_user.m_oBasicData.m_sLastName;
 
-                if (!DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
-                {
-                    log.ErrorFormat("error setting user notification data on update user. group: {0}, user id: {1}", groupId, userId);
-                    result = false;
+                    if (!DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+                    {
+                        log.ErrorFormat("error setting user notification data on update user. group: {0}, user id: {1}", groupId, userId);
+                        result = false;
+                    }
                 }
             }
 
