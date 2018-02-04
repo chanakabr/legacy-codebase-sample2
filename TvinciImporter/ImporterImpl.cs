@@ -4394,9 +4394,9 @@ namespace TvinciImporter
 
                 string size = GetItemParameterVal(ref theItem, "file_size");
                 long fileSize = 0;
-                if (!long.TryParse(size, out fileSize))
+                if (!string.IsNullOrEmpty(size) && !long.TryParse(size, out fileSize))
                 {
-                    log.DebugFormat("FileSize: {0} is Empty or not valid. groupId: {1}", size, nGroupID);
+                    log.DebugFormat("FileSize: {0} is not valid", size);
                 }
 
                 // try to parse the files date correctly
