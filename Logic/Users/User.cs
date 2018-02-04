@@ -55,7 +55,7 @@ namespace Core.Users
 
         public static User GetUser(int nUserID, int nGroupID)
         {
-            User user = new User(nUserID, nGroupID);
+            User user = new User(nGroupID, nUserID);
             return user;
         }
 
