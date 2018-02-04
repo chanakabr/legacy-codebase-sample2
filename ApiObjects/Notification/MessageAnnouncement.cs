@@ -46,6 +46,12 @@ namespace ApiObjects.Notification
         [DataMember]
         public bool IncludeMail { get; set; }
 
+        [DataMember]
+        public string MailSubject { get; set; }
+
+        [DataMember]
+        public string MailTemplate { get; set; }
+
         public MessageAnnouncement() { }
 
         public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, 

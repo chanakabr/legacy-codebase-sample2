@@ -191,8 +191,8 @@ namespace Core.Notification
             int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
             DateTime announcementStartTime = ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime);
 
-            DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(id, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null, 
-                announcement.ImageUrl, announcement.IncludeMail);
+            DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(id, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null,
+                announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject);
             announcement = Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
 
             // add a new message to queue when new time updated
@@ -457,7 +457,7 @@ namespace Core.Notification
                                                                       null,
                                                                       0,
                                                                       ODBCWrapper.Utils.GetSafeStr(row, "image_url"),
-                                                                      (ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true: false);
+                                                                      (ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false);
 
                     msg.MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
 
@@ -475,9 +475,9 @@ namespace Core.Notification
             try
             {
                 DateTime announcementStartTime = ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime);
-                DataRow row = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, 
-                    announcement.Enabled, announcementStartTime, announcement.Timezone, 0, announcement.AnnouncementId, announcement.MessageReference, null, 
-                    announcement.ImageUrl, announcement.IncludeMail);
+                DataRow row = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message,
+                    announcement.Enabled, announcementStartTime, announcement.Timezone, 0, announcement.MessageReference, null,
+                    announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.AnnouncementId);
                 return Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
             }
             catch (Exception ex)
