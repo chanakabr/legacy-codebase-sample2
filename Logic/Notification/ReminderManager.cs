@@ -1237,8 +1237,7 @@ namespace Core.Notification
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ChannelName.ToString(), mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
                     };
 
-                    string resultMsgId = MailNotificationAdapterClient.PublishToAnnouncement(partnerId, reminder.ExternalPushId, subject, mergeVars);
-                    if (string.IsNullOrEmpty(resultMsgId))
+                    if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, reminder.ExternalPushId, subject, mergeVars))
                         log.ErrorFormat("failed to send remind message to mail adapter. result message id is empty for reminder {0}", reminder.ID);
                     else
                     {
@@ -1363,8 +1362,7 @@ namespace Core.Notification
                             if (seriesReminder != null && !string.IsNullOrEmpty(seriesReminder.MailExternalId))
                             {
                                 // send to mail adapter
-                                string resultMsgId = MailNotificationAdapterClient.PublishToAnnouncement(partnerId, seriesReminder.ExternalPushId, subject, mergeVars);
-                                if (string.IsNullOrEmpty(resultMsgId))
+                                if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, seriesReminder.ExternalPushId, subject, mergeVars))
                                     log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for series reminder {0}", seriesReminder.ID);
                                 else
                                 {
@@ -1376,10 +1374,10 @@ namespace Core.Notification
                                     }
 
                                     // update series reminder external result
-                                    if (NotificationDal.AddSeriesReminderExternalResult(partnerId, seriesReminder.ID, reminderId, resultMsgId) == 0)
+                                    if (NotificationDal.AddSeriesReminderExternalResult(partnerId, seriesReminder.ID, reminderId, string.Empty) == 0)
                                     {
-                                        log.ErrorFormat("Failed to update series reminder external result. seriesReminder.ID = {0}, reminderId = {1}, resultMsgId = {2}",
-                                            seriesReminder.ID, reminderId, resultMsgId);
+                                        log.ErrorFormat("Failed to update series reminder external result. seriesReminder.ID = {0}, reminderId = {1}",
+                                            seriesReminder.ID, reminderId);
                                     }
                                 }
                             }

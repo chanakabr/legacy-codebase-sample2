@@ -86,9 +86,14 @@ namespace Core.Notification
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     if (response == null || string.IsNullOrEmpty(response.AnnouncementExternalId))
+                    {
                         log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}", announcementName);
+                    }
                     else
+                    {
                         log.DebugFormat("successfully created announcement. announcement Name: {0}", announcementName);
+                        externalMailAnnouncementId = response.AnnouncementExternalId;
+                    }
                 }
 
             }
@@ -125,9 +130,14 @@ namespace Core.Notification
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     if (response == null || response.Code != (int)eResponseStatus.OK)
+                    {
                         log.ErrorFormat("Error while trying to delete announcement. announcement Name: {0}", externalAnnouncementId);
+                    }
                     else
+                    {
                         log.DebugFormat("successfully delete announcement. announcement Name: {0}", externalAnnouncementId);
+                        result = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -164,9 +174,14 @@ namespace Core.Notification
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK)
+                    {
                         log.ErrorFormat("Error while trying to SubscribeToAnnouncement. adpaterId: {0}", adapter.Id);
+                    }
                     else
+                    {
                         log.DebugFormat("successfully SubscribeToAnnouncement. adpaterId: {0}", adapter.Id);
+                        result = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -202,9 +217,14 @@ namespace Core.Notification
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK)
+                    {
                         log.ErrorFormat("Error while trying to UnSubscribeToAnnouncement. adpaterId: {0}", adapter.Id);
+                    }
                     else
+                    {
                         log.DebugFormat("successfully UnSubscribeToAnnouncement. adpaterId: {0}", adapter.Id);
+                        result = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -215,11 +235,11 @@ namespace Core.Notification
             return result;
         }
 
-        public static string PublishToAnnouncement(int groupId, string externalAnnouncementId, string subject, List<KeyValuePair<string, string>> mergeVars)
+        public static bool PublishToAnnouncement(int groupId, string externalAnnouncementId, string subject, List<KeyValuePair<string, string>> mergeVars)
         {
             int templateId = 0;
 
-            string messageId = string.Empty;
+            bool result = false;
 
             MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
 
@@ -227,7 +247,7 @@ namespace Core.Notification
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
                 log.Error("Mail Notification URL wasn't found");
-                return messageId;
+                return result;
             }
 
             try
@@ -244,9 +264,14 @@ namespace Core.Notification
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     if (response == null || response.Code != (int)eResponseStatus.OK)
+                    {
                         log.ErrorFormat("Error while trying to PublishToAnnouncement. adpaterId: {0}", adapter.Id);
+                    }
                     else
+                    {
                         log.DebugFormat("successfully PublishToAnnouncement. adpaterId: {0}", adapter.Id);
+                        result = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -254,7 +279,7 @@ namespace Core.Notification
                 log.ErrorFormat("Error while trying to PublishToAnnouncement. announcement external ID: {0}, mergeVars: {1} ex: {2}", externalAnnouncementId, mergeVars, ex);
             }
 
-            return messageId;
+            return result;
         }
 
         public static bool UpdateUserData(int groupId, int userId, UserData oldUserData, UserData NewUserData, List<string> externalAnnouncementIds)
@@ -282,9 +307,14 @@ namespace Core.Notification
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     if (response == null || response.Code != (int)eResponseStatus.OK)
+                    {
                         log.ErrorFormat("Error while trying to UpdateUserData. adpeterId : {0}", adapter.Id);
+                    }
                     else
+                    {
                         log.DebugFormat("successfully UpdateUserData. adpeterId : {0}", adapter.Id);
+                        result = true;
+                    }
                 }
             }
             catch (Exception ex)
