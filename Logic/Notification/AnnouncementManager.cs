@@ -1,14 +1,15 @@
-﻿using ApiObjects;
+﻿using APILogic.AmazonSnsAdapter;
+using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using Core.Notification.Adapters;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
-using Core.Notification.Adapters;
 using QueueWrapper;
 using QueueWrapper.Queues.QueueObjects;
 using ScheduledTasks;
@@ -17,11 +18,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using TVinciShared;
-using APILogic.AmazonSnsAdapter;
 
 namespace Core.Notification
 {
@@ -447,18 +446,22 @@ namespace Core.Notification
                     if (Enum.IsDefined(typeof(eAnnouncementStatus), dbStatus))
                         status = (eAnnouncementStatus)dbStatus;
 
-                    MessageAnnouncement msg = new MessageAnnouncement(ODBCWrapper.Utils.GetSafeStr(row, "name"),
-                                                                      ODBCWrapper.Utils.GetSafeStr(row, "message"),
-                                                                      (ODBCWrapper.Utils.GetIntSafeVal(row, "is_active") == 0) ? false : true,
-                                                                      startTime,
-                                                                      timezone,
-                                                                      recipients,
-                                                                      status,
-                                                                      null,
-                                                                      0,
-                                                                      ODBCWrapper.Utils.GetSafeStr(row, "image_url"),
-                                                                      (ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false);
+                    MessageAnnouncement msg = new MessageAnnouncement()
+                    {
+                        Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                        Message = ODBCWrapper.Utils.GetSafeStr(row, "message"),
+                        Enabled = (ODBCWrapper.Utils.GetIntSafeVal(row, "is_active") == 0) ? false : true,
+                        StartTime = startTime,
+                        Timezone = timezone,
+                        Recipients = recipients,
+                        Status = status,
+                        ImageUrl = ODBCWrapper.Utils.GetSafeStr(row, "image_url"),
+                        MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
+                        MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
+                        IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false)
 
+                    };
+                   
                     msg.MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
 
                     ret.messageAnnouncements.Add(msg);
