@@ -286,10 +286,10 @@ namespace APILogic.MailNotificationsAdapterService {
         System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AdapterStatus> UpdateUserAsync(long adapterId, long userId, string oldMailAddress, string newMailAddress, string firstName, string lastName, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/Publish", ReplyAction="http://tempuri.org/IService/PublishResponse")]
-        APILogic.MailNotificationsAdapterService.AdapterStatus Publish(long adapterId, string announcementExternalId, int templateId, string subject, System.Collections.Generic.List<APILogic.MailNotificationsAdapterService.KeyValue> mergeKeyList, long timeStamp, string signature);
+        APILogic.MailNotificationsAdapterService.AdapterStatus Publish(long adapterId, string announcementExternalId, string templateId, string subject, System.Collections.Generic.List<APILogic.MailNotificationsAdapterService.KeyValue> mergeKeyList, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/Publish", ReplyAction="http://tempuri.org/IService/PublishResponse")]
-        System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AdapterStatus> PublishAsync(long adapterId, string announcementExternalId, int templateId, string subject, System.Collections.Generic.List<APILogic.MailNotificationsAdapterService.KeyValue> mergeKeyList, long timeStamp, string signature);
+        System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AdapterStatus> PublishAsync(long adapterId, string announcementExternalId, string templateId, string subject, System.Collections.Generic.List<APILogic.MailNotificationsAdapterService.KeyValue> mergeKeyList, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/CreateAnnouncement", ReplyAction="http://tempuri.org/IService/CreateAnnouncementResponse")]
         APILogic.MailNotificationsAdapterService.AnnouncementResponse CreateAnnouncement(long adapterId, string announcementName, long timeStamp, string signature);
@@ -363,11 +363,11 @@ namespace APILogic.MailNotificationsAdapterService {
             return base.Channel.UpdateUserAsync(adapterId, userId, oldMailAddress, newMailAddress, firstName, lastName, announcementExternalIds, timeStamp, signature);
         }
         
-        public APILogic.MailNotificationsAdapterService.AdapterStatus Publish(long adapterId, string announcementExternalId, int templateId, string subject, System.Collections.Generic.List<APILogic.MailNotificationsAdapterService.KeyValue> mergeKeyList, long timeStamp, string signature) {
+        public APILogic.MailNotificationsAdapterService.AdapterStatus Publish(long adapterId, string announcementExternalId, string templateId, string subject, System.Collections.Generic.List<APILogic.MailNotificationsAdapterService.KeyValue> mergeKeyList, long timeStamp, string signature) {
             return base.Channel.Publish(adapterId, announcementExternalId, templateId, subject, mergeKeyList, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AdapterStatus> PublishAsync(long adapterId, string announcementExternalId, int templateId, string subject, System.Collections.Generic.List<APILogic.MailNotificationsAdapterService.KeyValue> mergeKeyList, long timeStamp, string signature) {
+        public System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AdapterStatus> PublishAsync(long adapterId, string announcementExternalId, string templateId, string subject, System.Collections.Generic.List<APILogic.MailNotificationsAdapterService.KeyValue> mergeKeyList, long timeStamp, string signature) {
             return base.Channel.PublishAsync(adapterId, announcementExternalId, templateId, subject, mergeKeyList, timeStamp, signature);
         }
         

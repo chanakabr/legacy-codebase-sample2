@@ -235,10 +235,8 @@ namespace Core.Notification
             return result;
         }
 
-        public static bool PublishToAnnouncement(int groupId, string externalAnnouncementId, string subject, List<KeyValuePair<string, string>> mergeVars)
+        public static bool PublishToAnnouncement(int groupId, string externalAnnouncementId, string subject, List<KeyValuePair<string, string>> mergeVars, string templateId)
         {
-            int templateId = 0;
-
             bool result = false;
 
             MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);

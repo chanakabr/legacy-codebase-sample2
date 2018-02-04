@@ -21,16 +21,16 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://34.249.122.223:90/MailChimpAdapter/Service.svc" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://localhost/MailAdapter/Service.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="Service1.wsdl" MetadataType="Wsdl" ID="06620584-5360-4749-8ee8-57af3a58320a" SourceId="1" SourceUrl="http://34.249.122.223:90/MailChimpAdapter/Service.svc?wsdl" />
-    <MetadataFile FileName="Service5.xsd" MetadataType="Schema" ID="639f2973-a364-4e45-85bd-e266fa8158a6" SourceId="1" SourceUrl="http://34.249.122.223:90/MailChimpAdapter/Service.svc?xsd=xsd3" />
-    <MetadataFile FileName="Service51.xsd" MetadataType="Schema" ID="b8c5af12-da7a-4065-a76a-1dea8923eea6" SourceId="1" SourceUrl="http://34.249.122.223:90/MailChimpAdapter/Service.svc?xsd=xsd2" />
-    <MetadataFile FileName="Service52.xsd" MetadataType="Schema" ID="5b83795a-fca0-43e4-a50a-54302c31b8a3" SourceId="1" SourceUrl="http://34.249.122.223:90/MailChimpAdapter/Service.svc?xsd=xsd1" />
-    <MetadataFile FileName="Service53.xsd" MetadataType="Schema" ID="acc38fcb-44c4-4d1b-9361-f439e353e649" SourceId="1" SourceUrl="http://34.249.122.223:90/MailChimpAdapter/Service.svc?xsd=xsd0" />
-    <MetadataFile FileName="Service1.disco" MetadataType="Disco" ID="af679200-0332-4852-acf8-e82b29e64f19" SourceId="1" SourceUrl="http://34.249.122.223:90/MailChimpAdapter/Service.svc?disco" />
-    <MetadataFile FileName="Service54.xsd" MetadataType="Schema" ID="34dbf2f0-cb50-42fd-acf8-e9dc790e747b" SourceId="1" SourceUrl="http://34.249.122.223:90/MailChimpAdapter/Service.svc?xsd=xsd4" />
+    <MetadataFile FileName="Service.wsdl" MetadataType="Wsdl" ID="164dde04-9418-4f05-b91c-393569c6c3b5" SourceId="1" SourceUrl="http://localhost/MailAdapter/Service.svc?wsdl" />
+    <MetadataFile FileName="Service.xsd" MetadataType="Schema" ID="68c459c9-5a75-4115-b361-f548cbc8b3a5" SourceId="1" SourceUrl="http://localhost/MailAdapter/Service.svc?xsd=xsd4" />
+    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="d06e4707-05d0-46ca-b5fb-56989a133fd7" SourceId="1" SourceUrl="http://localhost/MailAdapter/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service2.xsd" MetadataType="Schema" ID="acc421c5-a6dc-4ba2-bd26-7f8537cbbc18" SourceId="1" SourceUrl="http://localhost/MailAdapter/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service3.xsd" MetadataType="Schema" ID="99f9272b-5545-47f4-a165-54bac71b6d24" SourceId="1" SourceUrl="http://localhost/MailAdapter/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service.disco" MetadataType="Disco" ID="28a55cb2-0758-40b9-a04a-5c083d209fab" SourceId="1" SourceUrl="http://localhost/MailAdapter/Service.svc?disco" />
+    <MetadataFile FileName="Service4.xsd" MetadataType="Schema" ID="564b3f6b-917c-4886-afca-9e71280372a2" SourceId="1" SourceUrl="http://localhost/MailAdapter/Service.svc?xsd=xsd1" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

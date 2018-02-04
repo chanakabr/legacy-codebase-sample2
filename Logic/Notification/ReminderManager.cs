@@ -1237,7 +1237,7 @@ namespace Core.Notification
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ChannelName.ToString(), mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
                     };
 
-                    if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, reminder.ExternalPushId, subject, mergeVars))
+                    if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, reminder.ExternalPushId, subject, mergeVars, reminderTemplate.MailTemplate))
                         log.ErrorFormat("failed to send remind message to mail adapter. result message id is empty for reminder {0}", reminder.ID);
                     else
                     {
@@ -1342,7 +1342,7 @@ namespace Core.Notification
                     }
 
                     // MAIL
-                    if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+                    if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId))
                     {
                         string subject = seriesReminderTemplate.MailSubject.Replace("{" + eSeriesReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)).
                                                                  Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty).
@@ -1362,7 +1362,7 @@ namespace Core.Notification
                             if (seriesReminder != null && !string.IsNullOrEmpty(seriesReminder.MailExternalId))
                             {
                                 // send to mail adapter
-                                if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, seriesReminder.ExternalPushId, subject, mergeVars))
+                                if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, seriesReminder.ExternalPushId, subject, mergeVars, seriesReminderTemplate.MailTemplate))
                                     log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for series reminder {0}", seriesReminder.ID);
                                 else
                                 {

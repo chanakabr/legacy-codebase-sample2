@@ -530,7 +530,8 @@ namespace ApiObjects
         All = 0,
         LoggedIn = 1,
         Guests = 2,
-        Other = 3
+        Other = 3,
+        Mail = 4
     }
 
     public enum eMessageType
