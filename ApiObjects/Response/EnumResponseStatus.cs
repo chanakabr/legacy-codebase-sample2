@@ -346,6 +346,7 @@ namespace ApiObjects.Response
         FutureScheduledEngagementDetected = 8036,
         EngagementTemplateNotFound = 8037,
         EngagementScheduleWithoutAdapter = 8038,
+        MailNotificationAdapterNotExist = 8039,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,

@@ -17,6 +17,7 @@ namespace Core.Notification
         private const int MIN_REMINDERS_PREPADDING_SEC = 0;
         private const string INVALID_MESSAGE_TTL = "Invalid message ttl";
         private const string INVALID_REMINDERS_PREPADDING_SEC = "Invalid pre-padding value";
+        private const string MAIL_NOTIFICATION_ADAPTER_NOT_EXIST = "Mail notification adapter not exist";
 
         public static ApiObjects.Response.Status UpdateNotificationPartnerSettings(int groupID, ApiObjects.Notification.NotificationPartnerSettings settings)
         {
@@ -28,7 +29,7 @@ namespace Core.Notification
                 response = CheckNotificationPartnerSettings(groupID, settings);
 
                 if (response.Code == (int)eResponseStatus.OK)
-                {
+                {                  
                     isSet = DAL.NotificationDal.UpdateNotificationPartnerSettings(groupID, settings);
 
                     if (isSet)
@@ -264,6 +265,17 @@ namespace Core.Notification
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidReminderPrePaddingSec, INVALID_REMINDERS_PREPADDING_SEC);
                     return response;
+                }
+
+                if (settings.MailNotificationAdapterId.HasValue && settings.MailNotificationAdapterId > 0)                   
+                {
+                    // make sure adapter exist
+                    var adapter = NotificationDal.GetMailNotificationAdapter(groupID, settings.MailNotificationAdapterId.Value);
+                    if (adapter == null)
+                    {
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.MailNotificationAdapterNotExist, MAIL_NOTIFICATION_ADAPTER_NOT_EXIST);
+                        return response;
+                    }
                 }
             }
             catch (Exception ex)
