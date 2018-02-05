@@ -132,51 +132,53 @@ namespace APILogic.Notification
                 }
 
                 // validate push is enabled
-                if (!NotificationSettings.IsPartnerPushEnabled(partnerId))
+                if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerMailNotificationEnabled(partnerId))
                 {
-                    log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId);
-                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
-                }
-
-                // register user (devices) to Amazon topic interests
-                response = RegisterUserToInterestNotification(partnerId, userId, interestNotification);
-                if (response == null || response.Code != (int)eResponseStatus.OK)
-                {
-                    log.ErrorFormat("Registering user to notifications failed. User ID: {0}, Partner ID: {1}, User Interest: {2}", userId, partnerId, JsonConvert.SerializeObject(newUserInterest));
-                    return response;
-                }
-
-                // get all notification interest to cancel
-                List<InterestNotification> interestsNotificationToCancel = new List<InterestNotification>();
-                foreach (var interestToCancel in interestsToCancel)
-                {
-                    string notificationKeyValue = GetInterestKeyValueName(interestToCancel.key, interestToCancel.value);
-                    InterestNotification interestNotificationToCancel = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, notificationKeyValue, topicInterest.AssetType);
-                    if (interestNotificationToCancel == null)
-                        log.ErrorFormat("Could not find topic notification to cancel. notificationKeyValue: {0}, type: {1}", notificationKeyValue, topicInterest.AssetType.ToString());
-                    else
-                        interestsNotificationToCancel.Add(interestNotificationToCancel);
-                }
-
-                if (interestsNotificationToCancel.Count != 0)
-                {
-                    // remove user mapping
-                    if (topicInterest.AssetType == eAssetTypes.MEDIA)
-                    {
-                        foreach (var interestNotificationToCancel in interestsNotificationToCancel)
-                        {
-                            if (!InterestDal.RemoveUserInterestMapping(partnerId, userId, interestNotificationToCancel.Id))
-                                log.ErrorFormat("Error un-mapping interest to user. User ID: {0}, interest ID: {1}", userId, interestNotificationToCancel.Id);
-                        }
-                    }
-
-                    // un-register user (devices) to Amazon topic interests
-                    response = UnRegisterUserToInterestNotifications(partnerId, userId, interestsNotificationToCancel);
+                    // register user (devices) to Amazon topic interests
+                    response = RegisterUserToInterestNotification(partnerId, userId, interestNotification);
                     if (response == null || response.Code != (int)eResponseStatus.OK)
                     {
-                        log.ErrorFormat("Unregistering user to notifications failed. User ID: {0}, Partner ID: {1}, User Interest to cancel: {2}", userId, partnerId, JsonConvert.SerializeObject(interestsNotificationToCancel));
+                        log.ErrorFormat("Registering user to notifications failed. User ID: {0}, Partner ID: {1}, User Interest: {2}", userId, partnerId, JsonConvert.SerializeObject(newUserInterest));
                         return response;
                     }
+                   
+                    // get all notification interest to cancel
+                    List<InterestNotification> interestsNotificationToCancel = new List<InterestNotification>();
+                    foreach (var interestToCancel in interestsToCancel)
+                    {
+                        string notificationKeyValue = GetInterestKeyValueName(interestToCancel.key, interestToCancel.value);
+                        InterestNotification interestNotificationToCancel = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, notificationKeyValue, topicInterest.AssetType);
+                        if (interestNotificationToCancel == null)
+                            log.ErrorFormat("Could not find topic notification to cancel. notificationKeyValue: {0}, type: {1}", notificationKeyValue, topicInterest.AssetType.ToString());
+                        else
+                            interestsNotificationToCancel.Add(interestNotificationToCancel);
+                    }
+
+                    if (interestsNotificationToCancel.Count != 0)
+                    {
+                        // remove user mapping
+                        if (topicInterest.AssetType == eAssetTypes.MEDIA)
+                        {
+                            foreach (var interestNotificationToCancel in interestsNotificationToCancel)
+                            {
+                                if (!InterestDal.RemoveUserInterestMapping(partnerId, userId, interestNotificationToCancel.Id))
+                                    log.ErrorFormat("Error un-mapping interest to user. User ID: {0}, interest ID: {1}", userId, interestNotificationToCancel.Id);
+                            }
+                        }
+
+                        // un-register user (devices) to Amazon topic interests
+                        response = UnRegisterUserToInterestNotifications(partnerId, userId, interestsNotificationToCancel);
+                        if (response == null || response.Code != (int)eResponseStatus.OK)
+                        {
+                            log.ErrorFormat("Unregistering user to notifications failed. User ID: {0}, Partner ID: {1}, User Interest to cancel: {2}", userId, partnerId, JsonConvert.SerializeObject(interestsNotificationToCancel));
+                            return response;
+                        }
+                    }
+                }
+                else
+                {
+                    log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false and PartnerMailNotificationEnabled = false. group: {0}, user id: {1}", partnerId, userId);
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
                 }
             }
             catch (Exception ex)
@@ -215,96 +217,113 @@ namespace APILogic.Notification
             else
                 log.DebugFormat("successfully updated user notification data. group: {0}, user id: {1}, user data: {2}", partnerId, userId, JsonConvert.SerializeObject(userNotificationData));
 
-            // update user's devices 
-            if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
+            // push
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId))
             {
-                log.DebugFormat("User doesn't have any notification devices. User notification object: {0}", JsonConvert.SerializeObject(userNotificationData));
-                response = new Status((int)eResponseStatus.OK);
-                return response;
-            }
-
-            foreach (UserDevice device in userNotificationData.devices)
-            {
-                // get device notification data
-                docExists = false;
-                DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
-                if (deviceNotificationData == null)
+                // update user's devices 
+                if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
                 {
-                    log.ErrorFormat("device notification data not found group: {0}, UDID: {1}", partnerId, device.Udid);
-                    continue;
+                    log.DebugFormat("User doesn't have any notification devices. User notification object: {0}", JsonConvert.SerializeObject(userNotificationData));
+                    response = new Status((int)eResponseStatus.OK);
+                    return response;
                 }
 
-                // get push data
-                APILogic.DmsService.PushData pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
-                if (pushData == null)
+                foreach (UserDevice device in userNotificationData.devices)
                 {
-                    log.ErrorFormat("push data not found. group: {0}, UDID: {1}", partnerId, device.Udid);
-                    continue;
-                }
-
-                foreach (var interestNotificationToCancel in interestsNotificationToCancel)
-                {
-                    if (string.IsNullOrEmpty(device.Udid))
+                    // get device notification data
+                    docExists = false;
+                    DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
+                    if (deviceNotificationData == null)
                     {
-                        log.Error("device UDID is empty: " + device.Udid);
+                        log.ErrorFormat("device notification data not found group: {0}, UDID: {1}", partnerId, device.Udid);
                         continue;
                     }
 
-                    try
+                    // get push data
+                    APILogic.DmsService.PushData pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
+                    if (pushData == null)
                     {
-                        // get device interest
-                        var deviceInterest = deviceNotificationData.SubscribedUserInterests.FirstOrDefault(x => x.Id == interestNotificationToCancel.Id);
-                        if (deviceInterest == null)
+                        log.ErrorFormat("push data not found. group: {0}, UDID: {1}", partnerId, device.Udid);
+                        continue;
+                    }
+
+                    foreach (var interestNotificationToCancel in interestsNotificationToCancel)
+                    {
+                        if (string.IsNullOrEmpty(device.Udid))
                         {
-                            log.ErrorFormat("User interest to remove was not found on user device. group: {0}, UDID: {1}, interest to remove: {2}, device notification doc: {3}",
-                                partnerId,
-                                device.Udid,
-                                interestNotificationToCancel.Id,
-                                JsonConvert.SerializeObject(device));
+                            log.Error("device UDID is empty: " + device.Udid);
                             continue;
                         }
 
-                        // add to cancel list
-                        unsubscribeList.Add(new UnSubscribe()
+                        try
                         {
-                            SubscriptionArn = deviceInterest.ExternalId,
-                            ExternalId = interestNotificationToCancel.Id
-                        });
+                            // get device interest
+                            var deviceInterest = deviceNotificationData.SubscribedUserInterests.FirstOrDefault(x => x.Id == interestNotificationToCancel.Id);
+                            if (deviceInterest == null)
+                            {
+                                log.ErrorFormat("User interest to remove was not found on user device. group: {0}, UDID: {1}, interest to remove: {2}, device notification doc: {3}",
+                                    partnerId,
+                                    device.Udid,
+                                    interestNotificationToCancel.Id,
+                                    JsonConvert.SerializeObject(device));
+                                continue;
+                            }
 
-                        deviceNotificationData.SubscribedUserInterests.RemoveAll(x => x.Id == interestNotificationToCancel.Id);
+                            // add to cancel list
+                            unsubscribeList.Add(new UnSubscribe()
+                            {
+                                SubscriptionArn = deviceInterest.ExternalId,
+                                ExternalId = interestNotificationToCancel.Id
+                            });
+
+                            deviceNotificationData.SubscribedUserInterests.RemoveAll(x => x.Id == interestNotificationToCancel.Id);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error("Error in follow", ex);
+                        }
                     }
-                    catch (Exception ex)
+
+                    // update device data
+                    if (!DAL.NotificationDal.SetDeviceNotificationData(partnerId, device.Udid, deviceNotificationData))
                     {
-                        log.Error("Error in follow", ex);
+                        log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}", partnerId, device.Udid);
+                        response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    }
+                    else
+                        log.DebugFormat("Successfully updated device data. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, JsonConvert.SerializeObject(deviceNotificationData));
+                }
+
+                if (unsubscribeList != null && unsubscribeList.Count > 0)
+                {
+                    List<UnSubscribe> unregisterResults = NotificationAdapter.UnSubscribeToAnnouncement(partnerId, unsubscribeList);
+                    if (unregisterResults == null)
+                    {
+                        log.ErrorFormat("Error while trying to unregister devices. unsubscribeList: {0}", JsonConvert.SerializeObject(unsubscribeList));
+                    }
+
+                    foreach (var unregisterResult in unregisterResults)
+                    {
+                        if (unregisterResult.Success)
+                            log.DebugFormat("Successfully unregistered device from interest. user ID: {0}, interest ID", userId, unregisterResult.ExternalId);
+                        else
+                            log.ErrorFormat("Error unregistering device from interest. user ID: {0}, interest ID", userId, unregisterResult.ExternalId);
                     }
                 }
-
-                // update device data
-                if (!DAL.NotificationDal.SetDeviceNotificationData(partnerId, device.Udid, deviceNotificationData))
-                {
-                    log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}", partnerId, device.Udid);
-                    response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                }
-                else
-                    log.DebugFormat("Successfully updated device data. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, JsonConvert.SerializeObject(deviceNotificationData));
             }
 
-            if (unsubscribeList != null && unsubscribeList.Count > 0)
+            // mail
+            if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId) &&
+                   userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
+                   !string.IsNullOrEmpty(userNotificationData.UserData.Email) &&
+                   (unsubscribeList != null && unsubscribeList.Count > 0))
             {
-                List<UnSubscribe> unregisterResults = NotificationAdapter.UnSubscribeToAnnouncement(partnerId, unsubscribeList);
-                if (unregisterResults == null)
+                if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(partnerId, interestsNotificationToCancel.Select(n => n.MailExternalId).ToList(), userNotificationData.UserData, userId))
                 {
-                    log.ErrorFormat("Error while trying to unregister devices. unsubscribeList: {0}", JsonConvert.SerializeObject(unsubscribeList));
-                }
-
-                foreach (var unregisterResult in unregisterResults)
-                {
-                    if (unregisterResult.Success)
-                        log.DebugFormat("Successfully unregistered device from interest. user ID: {0}, interest ID", userId, unregisterResult.ExternalId);
-                    else
-                        log.ErrorFormat("Error unregistering device from interest. user ID: {0}, interest ID", userId, unregisterResult.ExternalId);
+                    log.ErrorFormat("Failed unsubscribing user interest to mail. group: {0}, userId: {1}, email: {2}", partnerId, userId, userNotificationData.UserData.Email);
                 }
             }
+
             response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
             return response;
         }
@@ -314,47 +333,57 @@ namespace APILogic.Notification
             Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
 
             // create Amazon topic 
-            if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId))
             {
-                string externalId = NotificationAdapter.CreateAnnouncement(partnerId, string.Format("Interest_{0}_{1}", interestNotification.AssetType.ToString(), interestNotification.TopicNameValue));
-                if (string.IsNullOrEmpty(externalId))
+                if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
                 {
-                    log.DebugFormat("failed to create announcement groupID = {0}, topicNameValue = {1}", partnerId, interestNotification.TopicNameValue);
-                    return new ApiObjects.Response.Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic");
-                }
+                    string externalId = NotificationAdapter.CreateAnnouncement(partnerId, string.Format("Interest_{0}_{1}", interestNotification.AssetType.ToString(), interestNotification.TopicNameValue));
+                    if (string.IsNullOrEmpty(externalId))
+                    {
+                        log.DebugFormat("failed to create announcement groupID = {0}, topicNameValue = {1}", partnerId, interestNotification.TopicNameValue);
+                        return new ApiObjects.Response.Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic");
+                    }
 
-                // update table with external id
-                interestNotification = InterestDal.UpdateTopicInterestNotification(partnerId, interestNotification.Id, externalId);
-                if (interestNotification == null)
+                    // update table with external id
+                    interestNotification = InterestDal.UpdateTopicInterestNotification(partnerId, interestNotification.Id, externalId);
+                    if (interestNotification == null)
+                    {
+                        log.DebugFormat("failed to update topic interest notification: {0} with externalId: {1}, groupId = {2}", interestNotification.Id, externalId, partnerId);
+                        return new Status((int)eResponseStatus.Error, "Error");
+                    }
+                }
+            }
+
+            // create mail topic
+            if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId))
+            {
+                if (string.IsNullOrEmpty(interestNotification.MailExternalId))
                 {
-                    log.DebugFormat("failed to update topic interest notification: {0} with externalId: {1}, groupId = {2}", interestNotification.Id, externalId, partnerId);
-                    return new Status((int)eResponseStatus.Error, "Error");
+                    string mailExternalId = MailNotificationAdapterClient.CreateAnnouncement(partnerId, string.Format("Interest_{0}_{1}", interestNotification.AssetType.ToString(), interestNotification.TopicNameValue));
+                    if (string.IsNullOrEmpty(mailExternalId))
+                    {
+                        log.DebugFormat("failed to create mail announcement groupID = {0}, topicNameValue = {1}", partnerId, interestNotification.TopicNameValue);
+                        return new ApiObjects.Response.Status((int)eResponseStatus.FailCreateAnnouncement, "fail create mail interest topic");
+                    }
+
+                    // update table with external id
+                    interestNotification = InterestDal.UpdateTopicInterestNotification(partnerId, interestNotification.Id, null, null, null, mailExternalId);
+                    if (interestNotification == null)
+                    {
+                        log.DebugFormat("failed to update topic interest notification: {0} with mailExternalId: {1}, groupId = {2}", interestNotification.Id, mailExternalId, partnerId);
+                        return new Status((int)eResponseStatus.Error, "Error");
+                    }
                 }
             }
 
             // register user to topic
-            bool docExists = false;
-            UserNotification userNotificationData = NotificationDal.GetUserNotificationData(partnerId, userId, ref docExists);
-            if (userNotificationData == null)
+            UserNotification userNotificationData = null;
+            ApiObjects.Response.Status status = Core.Notification.Utils.GetUserNotificationData(partnerId, userId, out userNotificationData);
+            if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK)
             {
-                if (docExists)
-                {
-                    // error while getting user notification data
-                    log.ErrorFormat("error retrieving user announcement data. GID: {0}, UID: {1}", partnerId, userId);
-                    response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    return response;
-                }
-                else
-                {
-                    log.DebugFormat("user announcement data wasn't found - going to create a new one. GID: {0}, UID: {1}", partnerId, userId);
-
-                    // create user notification object
-                    userNotificationData = new UserNotification(userId) { CreateDateSec = TVinciShared.DateUtils.UnixTimeStampNow() };
-
-                    //update user settings according to partner settings configuration                    
-                    userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(partnerId, userId);
-                }
+                return new Status((int)eResponseStatus.Error, "Error");
             }
+
 
             // update user notification object
             long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
@@ -381,83 +410,95 @@ namespace APILogic.Notification
 
 
             // update user's devices 
-            if (userNotificationData.devices != null && userNotificationData.devices.Count > 0)
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId))
             {
-                foreach (UserDevice device in userNotificationData.devices)
+                if (userNotificationData.devices != null && userNotificationData.devices.Count > 0)
                 {
-                    if (string.IsNullOrEmpty(device.Udid))
+                    foreach (UserDevice device in userNotificationData.devices)
                     {
-                        log.Error("device UDID is empty: " + device.Udid);
-                        continue;
-                    }
-
-                    log.DebugFormat("adding user interest to device group: {0}, user: {1}, UDID: {2}, interestNotificationId: {3}", partnerId, userId, device.Udid, interestNotification.Id);
-
-                    // get device notification data
-                    docExists = false;
-                    DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
-                    if (deviceNotificationData == null)
-                    {
-                        log.ErrorFormat("device notification data not found group: {0}, UDID: {1}", partnerId, device.Udid);
-                        continue;
-                    }
-
-                    try
-                    {
-                        // validate device doesn't already have the announcement
-                        var subscribedUserInterests = deviceNotificationData.SubscribedUserInterests.Where(x => x.Id == interestNotification.Id);
-                        if (subscribedUserInterests != null && subscribedUserInterests.Count() > 0)
+                        if (string.IsNullOrEmpty(device.Udid))
                         {
-                            log.ErrorFormat("user already subscribed on userInterests on device. group: {0}, UDID: {1}", partnerId, device.Udid);
+                            log.Error("device UDID is empty: " + device.Udid);
                             continue;
                         }
 
-                        // get push data
-                        APILogic.DmsService.PushData pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
-                        if (pushData == null)
+                        log.DebugFormat("adding user interest to device group: {0}, user: {1}, UDID: {2}, interestNotificationId: {3}", partnerId, userId, device.Udid, interestNotification.Id);
+
+                        // get device notification data
+                        bool docExists = false;
+                        DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
+                        if (deviceNotificationData == null)
                         {
-                            log.ErrorFormat("push data not found. group: {0}, UDID: {1}", partnerId, device.Udid);
+                            log.ErrorFormat("device notification data not found group: {0}, UDID: {1}", partnerId, device.Udid);
                             continue;
                         }
 
-                        // subscribe device to announcement
-                        AnnouncementSubscriptionData subData = new AnnouncementSubscriptionData()
+                        try
                         {
-                            EndPointArn = pushData.ExternalToken, // take from pushdata (with UDID)
-                            Protocol = EnumseDeliveryProtocol.application,
-                            TopicArn = interestNotification.ExternalPushId,
-                            ExternalId = interestNotification.Id
-                        };
+                            // validate device doesn't already have the announcement
+                            var subscribedUserInterests = deviceNotificationData.SubscribedUserInterests.Where(x => x.Id == interestNotification.Id);
+                            if (subscribedUserInterests != null && subscribedUserInterests.Count() > 0)
+                            {
+                                log.ErrorFormat("user already subscribed on userInterests on device. group: {0}, UDID: {1}", partnerId, device.Udid);
+                                continue;
+                            }
 
-                        List<AnnouncementSubscriptionData> subs = new List<AnnouncementSubscriptionData>() { subData };
-                        subs = NotificationAdapter.SubscribeToAnnouncement(partnerId, subs);
-                        if (subs == null || subs.Count == 0 || string.IsNullOrEmpty(subs.First().SubscriptionArnResult))
-                        {
-                            log.ErrorFormat("Error registering device to announcement. group: {0}, UDID: {1}", partnerId, device.Udid);
-                            continue;
+                            // get push data
+                            APILogic.DmsService.PushData pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
+                            if (pushData == null)
+                            {
+                                log.ErrorFormat("push data not found. group: {0}, UDID: {1}", partnerId, device.Udid);
+                                continue;
+                            }
+
+                            // subscribe device to announcement
+                            AnnouncementSubscriptionData subData = new AnnouncementSubscriptionData()
+                            {
+                                EndPointArn = pushData.ExternalToken, // take from pushdata (with UDID)
+                                Protocol = EnumseDeliveryProtocol.application,
+                                TopicArn = interestNotification.ExternalPushId,
+                                ExternalId = interestNotification.Id
+                            };
+
+                            List<AnnouncementSubscriptionData> subs = new List<AnnouncementSubscriptionData>() { subData };
+                            subs = NotificationAdapter.SubscribeToAnnouncement(partnerId, subs);
+                            if (subs == null || subs.Count == 0 || string.IsNullOrEmpty(subs.First().SubscriptionArnResult))
+                            {
+                                log.ErrorFormat("Error registering device to announcement. group: {0}, UDID: {1}", partnerId, device.Udid);
+                                continue;
+                            }
+
+                            // update device notification object
+                            NotificationSubscription sub = new NotificationSubscription()
+                            {
+                                ExternalId = subs.First().SubscriptionArnResult,
+                                Id = interestNotification.Id,
+                                SubscribedAtSec = addedSecs
+                            };
+                            deviceNotificationData.SubscribedUserInterests.Add(sub);
+
+                            if (!DAL.NotificationDal.SetDeviceNotificationData(partnerId, device.Udid, deviceNotificationData))
+                                log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, subData.EndPointArn);
+                            else
+                                log.DebugFormat("Successfully registered device to announcement. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, subData.EndPointArn);
                         }
-
-                        // update device notification object
-                        NotificationSubscription sub = new NotificationSubscription()
+                        catch (Exception ex)
                         {
-                            ExternalId = subs.First().SubscriptionArnResult,
-                            Id = interestNotification.Id,
-                            SubscribedAtSec = addedSecs
-                        };
-                        deviceNotificationData.SubscribedUserInterests.Add(sub);
-
-                        if (!DAL.NotificationDal.SetDeviceNotificationData(partnerId, device.Udid, deviceNotificationData))
-                            log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, subData.EndPointArn);
-                        else
-                            log.DebugFormat("Successfully registered device to announcement. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, subData.EndPointArn);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error("Error in follow", ex);
+                            log.Error("Error in follow", ex);
+                        }
                     }
                 }
             }
-            response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
+
+            if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId) && userNotificationData.Settings.EnableMail.HasValue && 
+                userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
+            {
+                if (!MailNotificationAdapterClient.SubscribeToAnnouncement(partnerId, new List<string>() { interestNotification.MailExternalId }, userNotificationData.UserData, userId))
+                {
+                    log.ErrorFormat("Failed subscribing user user interest to email. group: {0}, userId: {1}, email: {2}", partnerId, userId, userNotificationData.UserData.Email);
+                }
+            }
+                response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
             return response;
         }
 
@@ -603,8 +644,7 @@ namespace APILogic.Notification
                 topicNameValue);
 
             interestNotification = InterestDal.InsertTopicInterestNotification(partnerId, groupTopicInterest.Name, string.Empty, messageTemplateType, topicNameValue,
-                groupTopicInterest.Id,
-                groupTopicInterest.AssetType);
+                groupTopicInterest.Id, groupTopicInterest.AssetType, string.Empty);
 
             if (interestNotification == null)
             {
@@ -825,8 +865,6 @@ namespace APILogic.Notification
                     return response;
                 }
 
-
-
                 response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -869,21 +907,22 @@ namespace APILogic.Notification
                 }
 
                 // validate push is enabled
-                if (!NotificationSettings.IsPartnerPushEnabled(partnerId))
+                if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerMailNotificationEnabled(partnerId))
                 {
-                    log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId);
-                    continue;
+                    // register user / devices topic interests
+                    var response = RegisterUserToInterestNotification(partnerId, userId, interestNotification);
+                    if (response == null || response.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Registering user to notifications failed. User ID: {0}, Partner ID: {1}, User Interest: {2}", userId, partnerId, JsonConvert.SerializeObject(userInterestsForRegisterNotification));
+                        continue;
+                    }
                 }
-
-                // register user (devices) to Amazon topic interests
-                var response = RegisterUserToInterestNotification(partnerId, userId, interestNotification);
-                if (response == null || response.Code != (int)eResponseStatus.OK)
+                else
                 {
-                    log.ErrorFormat("Registering user to notifications failed. User ID: {0}, Partner ID: {1}, User Interest: {2}", userId, partnerId, JsonConvert.SerializeObject(userInterestsForRegisterNotification));
+                    log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false and PartnerMailEnabled = false. group: {0}, user id: {1}", partnerId, userId);
                     continue;
                 }
             }
-
         }
 
         private static List<UserInterest> GetUserInterestsForRegisterNotifications(UserInterest userInterestToRemove, List<UserInterest> userInterestList)
@@ -1539,6 +1578,7 @@ namespace APILogic.Notification
                 }
             }
         }
-    }
 
+
+    }
 }
