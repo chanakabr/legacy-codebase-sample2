@@ -1237,7 +1237,7 @@ namespace Core.Notification
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ChannelName.ToString(), mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
                     };
 
-                    if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, reminder.ExternalPushId, subject, mergeVars, reminderTemplate.MailTemplate))
+                    if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, reminder.MailExternalId, subject, mergeVars, reminderTemplate.MailTemplate))
                         log.ErrorFormat("failed to send remind message to mail adapter. result message id is empty for reminder {0}", reminder.ID);
                     else
                     {
