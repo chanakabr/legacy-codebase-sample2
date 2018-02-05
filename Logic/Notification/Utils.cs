@@ -4,6 +4,7 @@ using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using DAL;
 using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -426,6 +427,12 @@ namespace Core.Notification
                         {
                             log.ErrorFormat("Failed to get user data for userId = {0}", userId);
                         }
+                    }
+
+                    if (!NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+                    {
+                        log.ErrorFormat("Error while trying to create user notification document", JsonConvert.SerializeObject(userNotificationData));
+                        return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     }
                 }
             }
