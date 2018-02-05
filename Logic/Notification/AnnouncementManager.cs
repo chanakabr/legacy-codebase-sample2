@@ -475,7 +475,7 @@ namespace Core.Notification
                         IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false)
 
                     };
-                   
+
                     msg.MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
 
                     ret.messageAnnouncements.Add(msg);
@@ -559,6 +559,11 @@ namespace Core.Notification
         {
             try
             {
+                List<DbAnnouncement> dbAnnouncements = null;
+                NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
+                string announcementName = string.Empty;
+                string externalAnnouncementId = string.Empty;
+
                 // validate system announcements are enabled
                 if (!NotificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
                 {
@@ -566,51 +571,60 @@ namespace Core.Notification
                     return new Status((int)eResponseStatus.FeatureDisabled, "Feature Disabled");
                 }
 
-                // create guest topic
-                string announcementName = "Guest";
-                string externalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
-                if (string.IsNullOrEmpty(externalAnnouncementId))
+                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Guests).FirstOrDefault() == null)
                 {
-                    log.ErrorFormat("CreateSystemAnnouncement failed Create guest announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
-                    return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
+                    // create guest topic
+                    announcementName = "Guest";
+                    externalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
+                    if (string.IsNullOrEmpty(externalAnnouncementId))
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed Create guest announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
+                    }
+
+                    // insert ARN to DB
+                    if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, externalAnnouncementId, (int)eMessageType.Push, (int)eAnnouncementRecipientsType.Guests, string.Empty) == 0)
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed insert guest announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.Error, "fail insert guest announcement to DB");
+                    }
                 }
 
-                // insert ARN to DB
-                if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, externalAnnouncementId, (int)eMessageType.Push, (int)eAnnouncementRecipientsType.Guests, string.Empty) == 0)
+                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn).FirstOrDefault() == null)
                 {
-                    log.ErrorFormat("CreateSystemAnnouncement failed insert guest announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
-                    return new Status((int)eResponseStatus.Error, "fail insert guest announcement to DB");
+                    // create logged-in topic
+                    announcementName = "LoggedIn";
+                    externalAnnouncementId = string.Empty;
+                    externalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
+                    if (string.IsNullOrEmpty(externalAnnouncementId))
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed Create logged in announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create LoggedIn announcement");
+                    }
+
+                    // insert ARN to DB 
+                    if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, externalAnnouncementId, (int)eMessageType.Push, (int)eAnnouncementRecipientsType.LoggedIn, string.Empty) == 0)
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed insert logged in announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.Error, "fail insert Logged in announcement to DB");
+                    }
                 }
 
-                // create logged-in topic
-                announcementName = "LoggedIn";
-                externalAnnouncementId = string.Empty;
-                externalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
-                if (string.IsNullOrEmpty(externalAnnouncementId))
+                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Mail).FirstOrDefault() == null)
                 {
-                    log.ErrorFormat("CreateSystemAnnouncement failed Create logged in announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
-                    return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create LoggedIn announcement");
-                }
+                    announcementName = "Mail";
+                    string mailExternalAnnouncementId = MailNotificationAdapterClient.CreateAnnouncement(groupId, announcementName);
+                    if (string.IsNullOrEmpty(mailExternalAnnouncementId))
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed Create guest mail announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create mail announcement");
+                    }
 
-                // insert ARN to DB 
-                if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, externalAnnouncementId, (int)eMessageType.Push, (int)eAnnouncementRecipientsType.LoggedIn, string.Empty) == 0)
-                {
-                    log.ErrorFormat("CreateSystemAnnouncement failed insert logged in announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
-                    return new Status((int)eResponseStatus.Error, "fail insert Logged in announcement to DB");
-                }
-
-                announcementName = "Mail";
-                string mailExternalAnnouncementId = MailNotificationAdapterClient.CreateAnnouncement(groupId, announcementName);
-                if (string.IsNullOrEmpty(mailExternalAnnouncementId))
-                {
-                    log.ErrorFormat("CreateSystemAnnouncement failed Create guest mail announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
-                    return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
-                }
-
-                if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, string.Empty, (int)eMessageType.Mail, (int)eAnnouncementRecipientsType.Mail, mailExternalAnnouncementId) == 0)
-                {
-                    log.ErrorFormat("CreateSystemAnnouncement failed insert guest announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
-                    return new Status((int)eResponseStatus.Error, "fail insert guest announcement to DB");
+                    if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, string.Empty, (int)eMessageType.Mail, (int)eAnnouncementRecipientsType.Mail, mailExternalAnnouncementId) == 0)
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed insert mail announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.Error, "fail insert mail announcement to DB");
+                    }
                 }
 
                 NotificationCache.Instance().RemoveAnnouncementsFromCache(groupId);
@@ -732,7 +746,7 @@ namespace Core.Notification
                         DbAnnouncement announcementGuest = null;
                         if (announcements != null)
                             announcementGuest = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Guests).FirstOrDefault();
-                        
+
                         if (announcementGuest != null)
                             topicExternalIds.Add(announcementGuest.ExternalId);
                         else
