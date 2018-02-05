@@ -141,7 +141,7 @@ namespace APILogic.Notification
                         log.ErrorFormat("Registering user to notifications failed. User ID: {0}, Partner ID: {1}, User Interest: {2}", userId, partnerId, JsonConvert.SerializeObject(newUserInterest));
                         return response;
                     }
-                   
+
                     // get all notification interest to cancel
                     List<InterestNotification> interestsNotificationToCancel = new List<InterestNotification>();
                     foreach (var interestToCancel in interestsToCancel)
@@ -490,7 +490,7 @@ namespace APILogic.Notification
                 }
             }
 
-            if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId) && userNotificationData.Settings.EnableMail.HasValue && 
+            if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId) && userNotificationData.Settings.EnableMail.HasValue &&
                 userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
             {
                 if (!MailNotificationAdapterClient.SubscribeToAnnouncement(partnerId, new List<string>() { interestNotification.MailExternalId }, userNotificationData.UserData, userId))
@@ -498,7 +498,7 @@ namespace APILogic.Notification
                     log.ErrorFormat("Failed subscribing user user interest to email. group: {0}, userId: {1}, email: {2}", partnerId, userId, userNotificationData.UserData.Email);
                 }
             }
-                response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
+            response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
             return response;
         }
 
@@ -1121,7 +1121,7 @@ namespace APILogic.Notification
             }
 
             // send push messages
-            if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerMailNotificationEnabled(partnerId))
             {
                 // get message templates
                 MessageTemplate template = null;
@@ -1139,50 +1139,81 @@ namespace APILogic.Notification
                     return false;
                 }
 
-                // build message 
-                MessageData messageData = new MessageData()
+                // mail
+                if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId) && !string.IsNullOrEmpty(interestNotification.MailExternalId) && !string.IsNullOrEmpty(template.MailTemplate))
                 {
-                    Category = template.Action,
-                    Sound = template.Sound,
-                    Url = template.URL.Replace("{" + eReminderPlaceHolders.StartDate + "}", interestSendDate.ToString(template.DateFormat)).
-                                                         Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
-                                                         Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
-                                                         Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
-                    Alert = template.Message.Replace("{" + eReminderPlaceHolders.StartDate + "}", interestSendDate.ToString(template.DateFormat)).
-                                                           Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
-                                                           Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
-                                                           Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty)
-                };
+                    string subject = string.IsNullOrEmpty(template.MailSubject)? string.Empty : 
+                        template.MailSubject.Replace("{" + eReminderPlaceHolders.StartDate + "}", interestSendDate.ToString(template.DateFormat)).
+                        Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
+                        Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
+                        Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty);
 
-                // send to Amazon
-                if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
-                {
-                    log.ErrorFormat("External push ID wasn't found. interest message: {0}", JsonConvert.SerializeObject(interestNotificationMessage));
-                    return false;
-                }
-
-                // update message reminder
-                interestNotificationMessage.Message = JsonConvert.SerializeObject(messageData);
-
-                string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, interestNotification.ExternalPushId, string.Empty, messageData);
-                if (string.IsNullOrEmpty(resultMsgId))
-                    log.ErrorFormat("failed to publish interest message to push topic. result message id is empty for reminder {0}", interestNotificationMessage.Id);
-                else
-                {
-                    log.DebugFormat("Successfully sent interest message. interest message Id: {0}", interestNotificationMessage.Id);
-
-                    // update external push result
-                    InterestNotificationMessage updatedInterestNotificationMessage = DAL.InterestDal.UpdateTopicInterestNotificationMessage(partnerId, interestNotificationMessage.Id, null, interestNotificationMessage.Message, true, resultMsgId, currentDate);
-                    if (updatedInterestNotificationMessage == null)
+                    List<KeyValuePair<string, string>> mergeVars = new List<KeyValuePair<string, string>>()
                     {
-                        log.ErrorFormat("Failed to update interest message. partner ID: {0}, reminder ID: {1} ", partnerId, interestNotificationMessage.Id);
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.StartDate.ToString(), interestSendDate.ToString(template.DateFormat)),
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.ProgramId.ToString(), program.m_oProgram.EPG_ID.ToString()),
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.ProgramName.ToString(), program.m_oProgram.NAME),
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.ChannelName.ToString(), mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty)
+                    };
+
+                    if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, interestNotification.MailExternalId, subject, mergeVars, template.MailTemplate))
+                    {
+                        log.ErrorFormat("failed to send interest notification to mail adapter. interestNotificationId = {0}", interestNotification.Id);
+                    }
+                    else
+                    {
+                        log.DebugFormat("Successfully sent interest notification to mail. interestNotificationId: {0}", interestNotification.Id);
+                    }
+                }
+                
+                // push
+                if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+                {
+                    // build message 
+                    MessageData messageData = new MessageData()
+                    {
+                        Category = template.Action,
+                        Sound = template.Sound,
+                        Url = template.URL.Replace("{" + eReminderPlaceHolders.StartDate + "}", interestSendDate.ToString(template.DateFormat)).
+                                                             Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
+                                                             Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
+                                                             Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
+                        Alert = template.Message.Replace("{" + eReminderPlaceHolders.StartDate + "}", interestSendDate.ToString(template.DateFormat)).
+                                                               Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
+                                                               Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
+                                                               Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty)
+                    };
+
+                    // send to Amazon
+                    if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
+                    {
+                        log.ErrorFormat("External push ID wasn't found. interest message: {0}", JsonConvert.SerializeObject(interestNotificationMessage));
+                        return false;
                     }
 
-                    // update interest notification 
-                    InterestNotification updatedInterestNotification = DAL.InterestDal.UpdateTopicInterestNotification(partnerId, interestNotification.Id, null, currentDate);
-                    if (updatedInterestNotification == null)
+                    // update message reminder
+                    interestNotificationMessage.Message = JsonConvert.SerializeObject(messageData);
+
+                    string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, interestNotification.ExternalPushId, string.Empty, messageData);
+                    if (string.IsNullOrEmpty(resultMsgId))
+                        log.ErrorFormat("failed to publish interest message to push topic. result message id is empty for reminder {0}", interestNotificationMessage.Id);
+                    else
                     {
-                        log.ErrorFormat("Failed to update interest notification last send date. partner ID: {0}, reminder ID: {1} ", partnerId, interestNotificationMessage.Id);
+                        log.DebugFormat("Successfully sent interest message. interest message Id: {0}", interestNotificationMessage.Id);
+
+                        // update external push result
+                        InterestNotificationMessage updatedInterestNotificationMessage = DAL.InterestDal.UpdateTopicInterestNotificationMessage(partnerId, interestNotificationMessage.Id, null, interestNotificationMessage.Message, true, resultMsgId, currentDate);
+                        if (updatedInterestNotificationMessage == null)
+                        {
+                            log.ErrorFormat("Failed to update interest message. partner ID: {0}, reminder ID: {1} ", partnerId, interestNotificationMessage.Id);
+                        }
+
+                        // update interest notification 
+                        InterestNotification updatedInterestNotification = DAL.InterestDal.UpdateTopicInterestNotification(partnerId, interestNotification.Id, null, currentDate);
+                        if (updatedInterestNotification == null)
+                        {
+                            log.ErrorFormat("Failed to update interest notification last send date. partner ID: {0}, reminder ID: {1} ", partnerId, interestNotificationMessage.Id);
+                        }
                     }
                 }
 
@@ -1284,6 +1315,34 @@ namespace APILogic.Notification
 
                 // send to push web - rabbit.                
                 //PushToWeb(partnerId, interestNotificationMessage.Id, interestNotification.QueueName, messageData, DateUtils.DateTimeToUnixTimestamp(interestNotificationMessage.SendTime));
+            }
+
+            if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId) && !string.IsNullOrEmpty(interestNotification.MailExternalId) && !string.IsNullOrEmpty(template.MailTemplate))
+            {
+                string subject = string.IsNullOrEmpty(template.MailSubject) ? string.Empty :
+                    template.MailSubject.Replace("{" + eFollowSeriesPlaceHolders.CatalaogStartDate + "}", vodAsset.m_dCatalogStartDate.ToString(template.DateFormat)).
+                    Replace("{" + eFollowSeriesPlaceHolders.MediaId + "}", interestNotificationMessage.ReferenceAssetId.ToString()).
+                    Replace("{" + eFollowSeriesPlaceHolders.MediaName + "}", vodAsset.m_sName).
+                    Replace("{" + eFollowSeriesPlaceHolders.SeriesName + "}", seriesName).
+                    Replace("{" + eFollowSeriesPlaceHolders.StartDate + "}", vodAsset.m_dStartDate.ToString(template.DateFormat));
+
+                List<KeyValuePair<string, string>> mergeVars = new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.CatalaogStartDate.ToString(), vodAsset.m_dCatalogStartDate.ToString(template.DateFormat)),
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.MediaId.ToString(), interestNotificationMessage.ReferenceAssetId.ToString()),
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.MediaName.ToString(), vodAsset.m_sName),
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.SeriesName.ToString(), seriesName),
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.StartDate.ToString(), vodAsset.m_dStartDate.ToString(template.DateFormat)),
+                };
+
+                if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, interestNotification.MailExternalId, subject, mergeVars, template.MailTemplate))
+                {
+                    log.ErrorFormat("failed to send interest notification to mail adapter. interestNotificationId = {0}", interestNotification.Id);
+                }
+                else
+                {
+                    log.DebugFormat("Successfully sent interest notification to mail. interestNotificationId: {0}", interestNotification.Id);
+                }
             }
 
             // send inbox messages
