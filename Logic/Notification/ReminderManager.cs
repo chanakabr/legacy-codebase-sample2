@@ -1362,7 +1362,7 @@ namespace Core.Notification
                             if (seriesReminder != null && !string.IsNullOrEmpty(seriesReminder.MailExternalId))
                             {
                                 // send to mail adapter
-                                if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, seriesReminder.ExternalPushId, subject, mergeVars, seriesReminderTemplate.MailTemplate))
+                                if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, seriesReminder.MailExternalId, subject, mergeVars, seriesReminderTemplate.MailTemplate))
                                     log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for series reminder {0}", seriesReminder.ID);
                                 else
                                 {
