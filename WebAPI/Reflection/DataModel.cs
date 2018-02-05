@@ -4527,6 +4527,8 @@ namespace WebAPI.Reflection
                 case "KalturaNotificationsSettings":
                     switch(property.Name)
                     {
+                        case "MailEnabled":
+                            return "mailEnabled";
                         case "PushFollowEnabled":
                             return "pushFollowEnabled";
                         case "PushNotificationEnabled":

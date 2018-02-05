@@ -8626,6 +8626,11 @@
             Specify if the user will be notified for followed content via push. (requires push_notification_enabled to be enabled)
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsSettings.MailEnabled">
+            <summary>
+            Specify if the user want to receive mail notifications or not
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushNotificationEnabled">
             <summary>
             Push notification capability is enabled for the account

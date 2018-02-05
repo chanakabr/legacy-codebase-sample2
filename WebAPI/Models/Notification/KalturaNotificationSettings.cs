@@ -29,6 +29,14 @@ namespace WebAPI.Models.Notification
         [XmlElement(ElementName = "pushFollowEnabled", IsNullable = true)]
         [OldStandardProperty("push_follow_enabled")]
         public bool? PushFollowEnabled { get; set; }
+
+        /// <summary>
+        /// Specify if the user want to receive mail notifications or not
+        /// </summary>
+        [DataMember(Name = "mailEnabled")]
+        [JsonProperty("mailEnabled")]
+        [XmlElement(ElementName = "mailEnabled", IsNullable = true)]        
+        public bool? MailEnabled { get; set; }
     }
 
     [Obsolete]
