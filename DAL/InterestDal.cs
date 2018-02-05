@@ -125,7 +125,7 @@ namespace DAL
             return userIds;
         }
 
-        public static InterestNotification InsertTopicInterestNotification(int groupId, string name, string externalId, MessageTemplateType TemplateType, string topicNameValue, string topicInterestId, eAssetTypes assetType)
+        public static InterestNotification InsertTopicInterestNotification(int groupId, string name, string externalId, MessageTemplateType TemplateType, string topicNameValue, string topicInterestId, eAssetTypes assetType, string mailExternalId)
         {
             InterestNotification result = null;
             try
@@ -139,6 +139,7 @@ namespace DAL
                 sp.AddParameter("@topic_name_value", topicNameValue);
                 sp.AddParameter("@topic_interest_id", topicInterestId);
                 sp.AddParameter("@asset_type", (int)assetType);
+                sp.AddParameter("@mail_external_id", mailExternalId);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -258,7 +259,7 @@ namespace DAL
             return result;
         }
 
-        public static InterestNotification UpdateTopicInterestNotification(int groupId, int id, string externalId = null, DateTime? lastMessageSentDate = null, string queueName = null)
+        public static InterestNotification UpdateTopicInterestNotification(int groupId, int id, string externalId = null, DateTime? lastMessageSentDate = null, string queueName = null, string mailExternalId = null)
         {
             InterestNotification result = null;
             try
@@ -277,6 +278,11 @@ namespace DAL
 
                 if (!string.IsNullOrEmpty(queueName))
                     sp.AddParameter("@queueName", queueName);
+
+                if (!string.IsNullOrEmpty(externalId))
+                    sp.AddParameter("@mailExternalId", mailExternalId);
+                else
+                    sp.AddParameter("@mailExternalId", DBNull.Value);
 
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
