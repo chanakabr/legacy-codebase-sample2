@@ -1036,7 +1036,7 @@ namespace DAL
             spInsert.AddParameter("@created_at", DateTime.UtcNow);
             spInsert.AddParameter("@follow_phrase", followPhrase);
             spInsert.AddParameter("@follow_reference", followReference);
-            spInsert.AddParameter("@mail_external_id", mailExternalAnnouncementId);
+            spInsert.AddParameter("@mailExternalId", mailExternalAnnouncementId);
 
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
