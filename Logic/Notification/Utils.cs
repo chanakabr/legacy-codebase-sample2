@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Core.Catalog;
 
 namespace Core.Notification
 {
@@ -440,5 +441,40 @@ namespace Core.Notification
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
+        internal static string GetMediaImageUrlByRatio(List<Picture> mediaImages, int ratioId)
+        {
+            string imageUrl = string.Empty;
+            object ratio = null;
+            if (mediaImages != null)
+            {
+                ratio = ODBCWrapper.Utils.GetTableSingleVal("lu_pics_ratios", "RATIO", ratioId, 86400, "MESSAGE_BOX_CONNECTION_STRING");
+
+                if (ratio != null && ratio != DBNull.Value)
+                {
+                    Picture pic = mediaImages.Where(p => p.ratio == ratio.ToString()).FirstOrDefault();
+                    if (pic != null)
+                    {
+                        imageUrl = pic.m_sURL;
+                    }
+                }
+            }
+
+            return imageUrl;
+        }
+
+        internal static string GetProgramImageUrlByRatio(List<ApiObjects.Epg.EpgPicture> mediaImages, int ratioId)
+        {
+            string imageUrl = string.Empty;
+            if (mediaImages != null)
+            {
+                ApiObjects.Epg.EpgPicture pic = mediaImages.Where(p => p.RatioId == ratioId).FirstOrDefault();
+                if (pic != null)
+                {
+                    imageUrl = pic.Url;
+                }
+            }
+
+            return imageUrl;
+        }
     }
 }

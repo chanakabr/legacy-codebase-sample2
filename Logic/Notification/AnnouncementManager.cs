@@ -273,6 +273,8 @@ namespace Core.Notification
             singleQueueName = string.Empty;
             mergeVars = new List<KeyValuePair<string, string>>();
             mailExternalId = string.Empty;
+            List<Picture> mediaImages = null;
+            string imageUrl = string.Empty;
 
             // check if announcement is for series, if not - return true to do nothing. if yes, check no msg was sent for series in the last 24H.
             // get topic push external id's of guests and logged in users
@@ -349,6 +351,8 @@ namespace Core.Notification
                             break;
                         }
                     }
+
+                    mediaImages = mediaObj.m_lPicture;
                 }
             }
 
@@ -395,9 +399,10 @@ namespace Core.Notification
                 msgTemplateResponse.Status.Code == (int)eResponseStatus.OK &&
                 msgTemplateResponse.MessageTemplate != null)
             {
+                imageUrl = Utils.GetMediaImageUrlByRatio(mediaImages, msgTemplateResponse.MessageTemplate.RatioId);
+                
                 category = msgTemplateResponse.MessageTemplate.Action;
                 sound = msgTemplateResponse.MessageTemplate.Sound;
-                //ImageUrl = msgTemplateResponse.MessageTemplate.ImageUrl;
                 url = msgTemplateResponse.MessageTemplate.URL.Replace("{" + eFollowSeriesPlaceHolders.CatalaogStartDate + "}", catalogStartDateStr.ToString(msgTemplateResponse.MessageTemplate.DateFormat)).
                                                             Replace("{" + eFollowSeriesPlaceHolders.MediaId + "}", assetId.ToString()).
                                                             Replace("{" + eFollowSeriesPlaceHolders.MediaName + "}", mediaName).
@@ -419,6 +424,7 @@ namespace Core.Notification
                         new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.MediaName.ToString(), mediaName),
                         new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.SeriesName.ToString(), (seriesNames != null && seriesNames.Length > 0) ? seriesNames[0] : string.Empty),
                         new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.StartDate.ToString(), startDate.ToString(msgTemplateResponse.MessageTemplate.DateFormat)),
+                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.Image.ToString(), imageUrl),
                     };
             }
 

@@ -1225,6 +1225,7 @@ namespace Core.Notification
                 }
                 else
                 {
+                    string imageUrl = Utils.GetProgramImageUrlByRatio(program.m_oProgram.EPG_PICTURES, reminderTemplate.RatioId);
                     string subject = reminderTemplate.MailSubject.Replace("{" + eReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(reminderTemplate.DateFormat)).
                                                              Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
                                                              Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
@@ -1235,6 +1236,7 @@ namespace Core.Notification
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ProgramId.ToString(), program.m_oProgram.EPG_ID.ToString()),
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ProgramName.ToString(), program.m_oProgram.NAME),
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ChannelName.ToString(), mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.Image.ToString(), imageUrl)
                     };
 
                     if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, reminder.MailExternalId, subject, mergeVars, reminderTemplate.MailTemplate))
@@ -1344,6 +1346,7 @@ namespace Core.Notification
                     // MAIL
                     if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId))
                     {
+                        string imageUrl = Utils.GetProgramImageUrlByRatio(program.m_oProgram.EPG_PICTURES, seriesReminderTemplate.RatioId);
                         string subject = seriesReminderTemplate.MailSubject.Replace("{" + eSeriesReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)).
                                                                  Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty).
                                                                  Replace("{" + eSeriesReminderPlaceHolders.SeriesName + "}", seriesId).
@@ -1354,7 +1357,8 @@ namespace Core.Notification
                             new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.StartDate.ToString(), dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)),
                             new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.ChannelName.ToString(), mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
                             new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.SeriesName.ToString(), seriesId),
-                            new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.EpisodeName.ToString(), program.m_oProgram.NAME != null ? program.m_oProgram.NAME : string.Empty)
+                            new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.EpisodeName.ToString(), program.m_oProgram.NAME != null ? program.m_oProgram.NAME : string.Empty),
+                            new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.Image.ToString(), imageUrl)
                         };
 
                         foreach (DbSeriesReminder seriesReminder in seriesReminders)

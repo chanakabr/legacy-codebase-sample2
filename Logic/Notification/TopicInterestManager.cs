@@ -1142,6 +1142,7 @@ namespace APILogic.Notification
                 // mail
                 if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId) && !string.IsNullOrEmpty(interestNotification.MailExternalId) && !string.IsNullOrEmpty(template.MailTemplate))
                 {
+                    string imageUrl = Core.Notification.Utils.GetProgramImageUrlByRatio(program.m_oProgram.EPG_PICTURES, template.RatioId);
                     string subject = string.IsNullOrEmpty(template.MailSubject)? string.Empty : 
                         template.MailSubject.Replace("{" + eReminderPlaceHolders.StartDate + "}", interestSendDate.ToString(template.DateFormat)).
                         Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
@@ -1153,7 +1154,9 @@ namespace APILogic.Notification
                         new KeyValuePair<string, string>(eReminderPlaceHolders.StartDate.ToString(), interestSendDate.ToString(template.DateFormat)),
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ProgramId.ToString(), program.m_oProgram.EPG_ID.ToString()),
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ProgramName.ToString(), program.m_oProgram.NAME),
-                        new KeyValuePair<string, string>(eReminderPlaceHolders.ChannelName.ToString(), mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty)
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.ChannelName.ToString(), mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.Image.ToString(), imageUrl)
+
                     };
 
                     if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, interestNotification.MailExternalId, subject, mergeVars, template.MailTemplate))
@@ -1319,6 +1322,7 @@ namespace APILogic.Notification
 
             if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId) && !string.IsNullOrEmpty(interestNotification.MailExternalId) && !string.IsNullOrEmpty(template.MailTemplate))
             {
+                string imageUrl = Core.Notification.Utils.GetMediaImageUrlByRatio(vodAsset.m_lPicture, template.RatioId);
                 string subject = string.IsNullOrEmpty(template.MailSubject) ? string.Empty :
                     template.MailSubject.Replace("{" + eFollowSeriesPlaceHolders.CatalaogStartDate + "}", vodAsset.m_dCatalogStartDate.ToString(template.DateFormat)).
                     Replace("{" + eFollowSeriesPlaceHolders.MediaId + "}", interestNotificationMessage.ReferenceAssetId.ToString()).
@@ -1333,6 +1337,7 @@ namespace APILogic.Notification
                     new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.MediaName.ToString(), vodAsset.m_sName),
                     new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.SeriesName.ToString(), seriesName),
                     new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.StartDate.ToString(), vodAsset.m_dStartDate.ToString(template.DateFormat)),
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.Image.ToString(), imageUrl)
                 };
 
                 if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, interestNotification.MailExternalId, subject, mergeVars, template.MailTemplate))
