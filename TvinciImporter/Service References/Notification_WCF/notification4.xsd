@@ -20,6 +20,7 @@
       <xs:enumeration value="LoggedIn" />
       <xs:enumeration value="Guests" />
       <xs:enumeration value="Other" />
+      <xs:enumeration value="Mail" />
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eAnnouncementRecipientsType" nillable="true" type="tns:eAnnouncementRecipientsType" />

@@ -1236,6 +1236,7 @@ namespace DAL
                 sp.AddParameter("@url", messageTemplate.URL);
                 sp.AddParameter("@mailTemplate", messageTemplate.MailTemplate);
                 sp.AddParameter("@mailSubject", messageTemplate.MailSubject);
+                sp.AddParameter("@ratioId", messageTemplate.RatioId);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -1299,6 +1300,7 @@ namespace DAL
                 URL = ODBCWrapper.Utils.GetSafeStr(row, "URL"),
                 MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
                 MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
+                RatioId = ODBCWrapper.Utils.GetIntSafeVal(row, "RATIO_ID"),
                 TemplateType = Enum.IsDefined(typeof(MessageTemplateType), assetType) ? (MessageTemplateType)assetType : MessageTemplateType.Series
             };
             return result;

@@ -288,6 +288,7 @@
       <xs:element minOccurs="0" name="MailSubject" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="MailTemplate" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="RatioId" type="xs:int" />
       <xs:element minOccurs="0" name="Sound" nillable="true" type="xs:string" />
       <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="TemplateType" type="q10:MessageTemplateType" />
       <xs:element minOccurs="0" name="URL" nillable="true" type="xs:string" />
