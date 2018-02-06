@@ -79,5 +79,13 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "mailSubject")]
         [XmlElement(ElementName = "mailSubject")]
         public string MailSubject{ get; set; }
+
+        /// <summary>
+        /// Ratio identifier
+        /// </summary>
+        [DataMember(Name = "ratioId")]
+        [JsonProperty(PropertyName = "ratioId")]
+        [XmlElement(ElementName = "ratioId")]
+        public string RatioId { get; set; }
     }
 }

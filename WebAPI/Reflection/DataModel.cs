@@ -4399,6 +4399,8 @@ namespace WebAPI.Reflection
                             return "message";
                         case "MessageType":
                             return "messageType";
+                        case "RatioId":
+                            return "ratioId";
                         case "Sound":
                             return "sound";
                         case "URL":
