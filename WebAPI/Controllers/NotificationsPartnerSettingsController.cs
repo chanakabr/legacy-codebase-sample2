@@ -86,6 +86,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.PushNotificationFalse)]
+        [Throws(eResponseStatus.MailNotificationAdapterNotExist)]
         public bool Update(KalturaNotificationsPartnerSettings settings)
         {
             bool response = false;
