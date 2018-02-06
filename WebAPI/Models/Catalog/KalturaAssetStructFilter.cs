@@ -70,14 +70,14 @@ namespace WebAPI.Models.Catalog
 
         public List<long> GetIdIn()
         {
-            List<long> list = new List<long>();
+            HashSet<long> list = new HashSet<long>();
             if (!string.IsNullOrEmpty(IdIn))
             {
                 string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string stringValue in stringValues)
                 {
                     long value;
-                    if (long.TryParse(stringValue, out value))
+                    if (long.TryParse(stringValue, out value) && !list.Contains(value))
                     {
                         list.Add(value);
                     }
@@ -88,7 +88,7 @@ namespace WebAPI.Models.Catalog
                 }
             }
 
-            return list;
+            return new List<long>(list);
         }        
 
     }
