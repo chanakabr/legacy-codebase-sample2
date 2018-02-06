@@ -12,5 +12,6 @@ namespace ApiObjects.Notification
         public string URL { get; set; }
         public string MailTemplate { get; set; }
         public string MailSubject { get; set; }
+        public int RatioId { get; set; }
     }
 }

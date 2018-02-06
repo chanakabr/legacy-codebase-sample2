@@ -591,7 +591,8 @@ namespace ApiObjects
         SeriesName = 1,
         CatalaogStartDate = 2,
         StartDate = 3,
-        MediaId = 4
+        MediaId = 4,
+        Image = 5
     }
 
     public enum eChurnPlaceHolders
@@ -605,7 +606,8 @@ namespace ApiObjects
         ProgramName = 0,
         ChannelName = 1,
         StartDate = 2,
-        ProgramId = 3
+        ProgramId = 3,
+        Image = 4
     }
 
     public enum eSeriesReminderPlaceHolders
@@ -614,6 +616,7 @@ namespace ApiObjects
         StartDate = 1,
         SeriesName = 2,
         EpisodeName = 3,
+        Image = 4
     }
 
     public enum TstvRecordingStatus

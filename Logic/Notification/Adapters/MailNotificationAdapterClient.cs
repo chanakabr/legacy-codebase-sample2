@@ -61,7 +61,7 @@ namespace Core.Notification
 
         public static string CreateAnnouncement(int groupId, string announcementName)
         {
-            announcementName = string.Format("{0}_{1}", Utils.Base64ForUrlEncode(announcementName), groupId);
+            announcementName = string.Format("{0}_{1}", announcementName, (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds);
 
             string externalMailAnnouncementId = string.Empty;
 
@@ -256,8 +256,8 @@ namespace Core.Notification
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AdapterStatus response = client.Publish(adapter.Id, externalAnnouncementId, templateId, subject, 
-                        mergeVars != null ? mergeVars.Select(mv => new APILogic.MailNotificationsAdapterService.KeyValue() { Key = mv.Key, Value = mv.Value }).ToList() : null, 
+                    APILogic.MailNotificationsAdapterService.AdapterStatus response = client.Publish(adapter.Id, externalAnnouncementId, templateId, subject,
+                        mergeVars != null ? mergeVars.Select(mv => new APILogic.MailNotificationsAdapterService.KeyValue() { Key = mv.Key, Value = mv.Value }).ToList() : null,
                         unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
@@ -319,7 +319,7 @@ namespace Core.Notification
             {
                 log.ErrorFormat("Error while trying to UpdateUserData. adpeterId : {0}. ex: {1}", adapter.Id, ex);
             }
-            
+
             return result;
         }
 
