@@ -3396,7 +3396,7 @@ namespace WebAPI.Clients
             return responseImage;
         }
 
-        internal void SetContent(int groupId, long userId, long id, string url)
+        internal bool SetContent(int groupId, long userId, long id, string url)
         {
             Status response = null;
 
@@ -3422,6 +3422,8 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Code, response.Message);
             }
+
+            return true;
         }
 
 
