@@ -374,7 +374,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                var cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.Id == id).FirstOrDefault();
+                ImageType cachedImageType = imageTypeListResponse.ImageTypes.Where(x => x.Id == id).FirstOrDefault();
                 if (cachedImageType == null)
                 {
                     result.Status = new Status() { Code = (int)eResponseStatus.ImageTypeDoesNotExist, Message = eResponseStatus.ImageTypeDoesNotExist.ToString() };

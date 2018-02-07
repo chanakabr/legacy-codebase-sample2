@@ -34,7 +34,7 @@ namespace Core.Catalog.CatalogManagement
         {
             bool result = true;
 
-            var esSerializer = new ElasticSearch.Common.ESSerializerV2();
+            ElasticSearch.Common.ESSerializerV2 esSerializer = new ElasticSearch.Common.ESSerializerV2();
             ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
 
             GroupManager groupManager = new GroupManager();
@@ -58,7 +58,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         foreach (int languageId in mediaDictionary[assetId].Keys)
                         {
-                            var language = group.GetLanguage(languageId);
+                            LanguageObj language = group.GetLanguage(languageId);
                             string suffix = null;
 
                             if (!language.IsDefault)
@@ -144,7 +144,7 @@ namespace Core.Catalog.CatalogManagement
 
                         if (catalogGroupCache != null)
                         {
-                            var languages = catalogGroupCache.LanguageMapById.Values;
+                            List<LanguageObj> languages = catalogGroupCache.LanguageMapById.Values.ToList();
 
                             ESTerm term = new ESTerm(true)
                             {
@@ -155,7 +155,7 @@ namespace Core.Catalog.CatalogManagement
                             ESQuery query = new ESQuery(term);
                             string queryString = query.ToString();
 
-                            foreach (var lang in languages)
+                            foreach (LanguageObj lang in languages)
                             {
                                 string type = GetTanslationType(MEDIA, lang);
                                 esApi.DeleteDocsByQuery(index, type, ref queryString);
@@ -187,7 +187,7 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                var esSerializer = new ElasticSearch.Common.ESSerializerV2();
+                ElasticSearch.Common.ESSerializerV2 esSerializer = new ElasticSearch.Common.ESSerializerV2();
                 ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
 
                 // get all languages per group
@@ -268,11 +268,11 @@ namespace Core.Catalog.CatalogManagement
                                 }
 
                                 // send request to ES API
-                                var invalidResults = esApi.CreateBulkRequest(bulkRequests);
+                                List<KeyValuePair<string, string>> invalidResults = esApi.CreateBulkRequest(bulkRequests);
 
                                 if (invalidResults != null && invalidResults.Count > 0)
                                 {
-                                    foreach (var invalidResult in invalidResults)
+                                    foreach (KeyValuePair<string, string> invalidResult in invalidResults)
                                     {
                                         log.Error("Error - " + string.Format(
                                             "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
@@ -339,7 +339,7 @@ namespace Core.Catalog.CatalogManagement
                 ESQuery query = new ESQuery(term);
                 string queryString = query.ToString();
 
-                foreach (var lang in languages)
+                foreach (LanguageObj lang in languages)
                 {
                     string type = GetTanslationType(EPG, lang);
                     esApi.DeleteDocsByQuery(alias, type, ref queryString);
@@ -596,7 +596,7 @@ namespace Core.Catalog.CatalogManagement
                     if (translatedMedias.ContainsKey(id) && translatedMedias[id] != null && !string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "update_date")))
                     {
                         DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "update_date");
-                        foreach (var media in translatedMedias[id].Values)
+                        foreach (Media media in translatedMedias[id].Values)
                         {
                             if (media != null)
                                 media.m_sUpdateDate = dt.ToString("yyyyMMddHHmmss");

@@ -506,7 +506,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                var mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToAdd.Type).SingleOrDefault();
+                MediaFileType mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToAdd.Type).SingleOrDefault();
                 if (mediaFileType == null)
                 {
                     result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
@@ -635,7 +635,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                var mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToUpdate.Type).SingleOrDefault();
+                MediaFileType mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToUpdate.Type).SingleOrDefault();
                 if (mediaFileType == null)
                 {
                     result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());

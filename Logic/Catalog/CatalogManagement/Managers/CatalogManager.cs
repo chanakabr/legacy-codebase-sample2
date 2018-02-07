@@ -1303,7 +1303,7 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else if (originalKey.StartsWith("metas."))
                 {
-                    foreach (var meta in metas)
+                    foreach (string meta in metas)
                     {
                         if (meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
                         {
@@ -1400,7 +1400,7 @@ namespace Core.Catalog.CatalogManagement
         /// <returns></returns>
         public static List<ApiObjects.SearchObjects.TagValue> GetAllTagValues(int groupId)
         {
-            var result = new List<ApiObjects.SearchObjects.TagValue>();
+            List<ApiObjects.SearchObjects.TagValue> result = new List<ApiObjects.SearchObjects.TagValue>();
 
             CatalogGroupCache catalogGroupCache;
             if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -1411,7 +1411,7 @@ namespace Core.Catalog.CatalogManagement
 
             int defaultLanguage = catalogGroupCache.DefaultLanguage.ID;
 
-            var tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag).Select(x => x.Value).ToList();
+            List<Topic> tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag).Select(x => x.Value).ToList();
 
             DataSet dataSet = null;
             try
@@ -1516,7 +1516,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (catalogGroupCache.TopicsMapById != null && catalogGroupCache.TopicsMapById.Count > 0)
                 {
-                    var topic = catalogGroupCache.TopicsMapById.ContainsKey(tag.topicId);
+                    bool topic = catalogGroupCache.TopicsMapById.ContainsKey(tag.topicId);
                     if (!topic)
                     {
                         result.Status.Code = (int)eResponseStatus.TopicNotFound;
@@ -1580,7 +1580,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (catalogGroupCache.TopicsMapById != null && catalogGroupCache.TopicsMapById.Count > 0)
                 {
-                    var topic = catalogGroupCache.TopicsMapById.ContainsKey(tagToUpdate.topicId);
+                    bool topic = catalogGroupCache.TopicsMapById.ContainsKey(tagToUpdate.topicId);
                     if (!topic)
                     {
                         result.Status.Code = (int)eResponseStatus.TopicNotFound;
@@ -1724,17 +1724,17 @@ namespace Core.Catalog.CatalogManagement
 
             int totalItemsCount = 0;
             ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-            var tagValues = wrapper.SearchTags(definitions, catalogGroupCache, out totalItemsCount);
+            List<ApiObjects.SearchObjects.TagValue> tagValues = wrapper.SearchTags(definitions, catalogGroupCache, out totalItemsCount);
 
 
             List<TagResponse> tagResponses = new List<TagResponse>();
             HashSet<long> tagIds = new HashSet<long>();
 
-            foreach (var tagValue in tagValues)
+            foreach (ApiObjects.SearchObjects.TagValue tagValue in tagValues)
             {
                 if (!tagIds.Contains(tagValue.tagId))
                 {
-                    var tagResponse = GetTagById(groupId, tagValue.tagId);
+                    TagResponse tagResponse = GetTagById(groupId, tagValue.tagId);
                     tagResponses.Add(tagResponse);
                     tagIds.Add(tagValue.tagId);
                     result.TagValues.AddRange(tagResponse.TagValues);
@@ -1774,7 +1774,8 @@ namespace Core.Catalog.CatalogManagement
 
             int totalItemsCount = 0;
             ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-            var channelIds = wrapper.SearchChannels(definitions, out totalItemsCount);
+            List<int> channelIds = wrapper.SearchChannels(definitions, out totalItemsCount);
+
 
             GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
             var channels = groupManager.GetChannels(channelIds, groupId);
