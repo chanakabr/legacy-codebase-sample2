@@ -85,7 +85,7 @@ public partial class adm_series_reminder_template : System.Web.UI.Page
 
         object groupId = LoginManager.GetLoginGroupID();
 
-        int tableID = GetSeriesTemplateId(ODBCWrapper.Utils.GetIntSafeVal(groupId));
+        int templateId = GetSeriesTemplateId(ODBCWrapper.Utils.GetIntSafeVal(groupId));
         bool isParentGroup = IsParentGroup(ODBCWrapper.Utils.GetIntSafeVal(groupId));
 
         string sTable = string.Empty;
@@ -95,9 +95,9 @@ public partial class adm_series_reminder_template : System.Web.UI.Page
         }
         else
         {
-            if (tableID > 0) // a new record
+            if (templateId > 0) // a new record
             {
-                t = tableID;
+                t = templateId;
             }
 
             string sBack = "adm_series_reminder_template.aspx?search_save=1";
@@ -132,9 +132,40 @@ public partial class adm_series_reminder_template : System.Web.UI.Page
             drShortTextField.Initialize("Mail subject", "adm_table_header_nbg", "FormInput", "MAIL_SUBJECT", false);
             theRecord.AddRecord(drShortTextField);
 
+
+            //EPG ratio
+            DataRecordDropDownField drDropDownField = new DataRecordDropDownField("lu_pics_epg_ratios", "ratio", "id", "", "", 60, false);
+            drDropDownField.Initialize("Image ratio", "adm_table_header_nbg", "FormInput", "RATIO_ID", false);
+            drDropDownField.SetConnectionKey("CONNECTION_STRING");
+            drDropDownField.SetValue(GetCurrentValue("RATIO_ID", "message_templates", templateId, "notifications_connection"));
+            theRecord.AddRecord(drDropDownField);
+
             sTable = theRecord.GetTableHTML("adm_series_reminder_template.aspx?submited=1");
         }
         return sTable;
+    }
+
+    private string GetCurrentValue(string sField, string sTable, int templateId, string connectionString)
+    {
+        string sRet = "";
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select " + sField + " from " + sTable + " where ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", templateId);
+        selectQuery += " and status=1";
+        selectQuery.SetConnectionKey(connectionString);
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                object oRet = selectQuery.Table("query").DefaultView[0].Row[sField];
+                if (oRet != null && oRet != DBNull.Value)
+                    sRet = oRet.ToString();
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+        return sRet;
     }
 
     private int GetSeriesTemplateId(int groupID)
@@ -237,6 +268,15 @@ public partial class adm_series_reminder_template : System.Web.UI.Page
         {
             followTemplate.MailSubject = nvc["6_val"];
         }
+
+        if (!string.IsNullOrEmpty(nvc["7_val"]))
+        {
+            int ratioId = 0;
+            int.TryParse(nvc["7_val"], out ratioId);
+            followTemplate.RatioId = ratioId;
+        }
+
+
         return followTemplate;
     }
 }
