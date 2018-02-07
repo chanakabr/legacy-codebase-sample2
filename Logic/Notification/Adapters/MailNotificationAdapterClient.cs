@@ -3,16 +3,41 @@ using ApiObjects.Response;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
+using Synchronizer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Web;
 
 namespace Core.Notification
 {
     public class MailNotificationAdapterClient
     {
+
+        #region Consts
+
+        private const int STATUS_OK = 0;
+        private const int STATUS_NO_CONFIGURATION_FOUND = 3;
+
+        private const string PARAMETER_GROUP_ID = "group_id";
+        private const string PARAMETER_ADAPTER = "adapter";
+
+        #endregion
+
+        #region Data members
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static CouchbaseSynchronizer configurationSynchronizer;
+
+        #endregion
+
+        static MailNotificationAdapterClient()
+        {
+            configurationSynchronizer = new CouchbaseSynchronizer(100);
+            configurationSynchronizer.SynchronizedAct += configurationSynchronizer_SynchronizedAct;
+        }
 
         public static bool SendConfigurationToAdapter(int groupId, MailNotificationAdapter adapter)
         {
@@ -82,17 +107,50 @@ namespace Core.Notification
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AnnouncementResponse response = client.CreateAnnouncement(adapter.Id, announcementName, unixTimestamp,
+                    APILogic.MailNotificationsAdapterService.AnnouncementResponse adapterResponse = client.CreateAnnouncement(adapter.Id, announcementName, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
-                    if (response == null || string.IsNullOrEmpty(response.AnnouncementExternalId))
+                    if (adapterResponse != null && adapterResponse.Status != null &&
+                        adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
+                    {
+                        #region Send Configuration if not found
+
+                        string key = string.Format("MailNotification_Adapter_Locker_{0}", adapter.Id);
+
+                        // Build dictionary for synchronized action
+                        Dictionary<string, object> parameters = new Dictionary<string, object>()
+                    {
+                        {PARAMETER_ADAPTER, adapter},
+                        {PARAMETER_GROUP_ID, groupId}
+                    };
+
+                        configurationSynchronizer.DoAction(key, parameters);
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                        {
+                            try
+                            {
+                                //call Adapter - after it is configured
+                                adapterResponse = client.CreateAnnouncement(adapter.Id, announcementName, unixTimestamp,
+                                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                            }
+                            catch (Exception ex)
+                            {   
+                                ReportAdapterError(adapter.Id, adapter.AdapterUrl, ex, "CreateAnnouncement");
+                            }
+                        }
+                        
+                        #endregion
+                    }
+
+                    if (adapterResponse == null || string.IsNullOrEmpty(adapterResponse.AnnouncementExternalId))
                     {
                         log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}", announcementName);
                     }
                     else
                     {
                         log.DebugFormat("successfully created announcement. announcement Name: {0}", announcementName);
-                        externalMailAnnouncementId = response.AnnouncementExternalId;
+                        externalMailAnnouncementId = adapterResponse.AnnouncementExternalId;
                     }
                 }
 
@@ -126,10 +184,43 @@ namespace Core.Notification
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AdapterStatus response = client.DeleteAnnouncement(adapter.Id, externalAnnouncementId, unixTimestamp,
+                    APILogic.MailNotificationsAdapterService.AdapterStatus adapterResponse = client.DeleteAnnouncement(adapter.Id, externalAnnouncementId, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
-                    if (response == null || response.Code != (int)eResponseStatus.OK)
+                    if (adapterResponse != null && 
+                        adapterResponse.Code == STATUS_NO_CONFIGURATION_FOUND)
+                    {
+                        #region Send Configuration if not found
+
+                        string key = string.Format("MailNotification_Adapter_Locker_{0}", adapter.Id);
+
+                        // Build dictionary for synchronized action
+                        Dictionary<string, object> parameters = new Dictionary<string, object>()
+                    {
+                        {PARAMETER_ADAPTER, adapter},
+                        {PARAMETER_GROUP_ID, groupId}
+                    };
+
+                        configurationSynchronizer.DoAction(key, parameters);
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                        {
+                            try
+                            {
+                                //call Adapter - after it is configured
+                                adapterResponse = client.DeleteAnnouncement(adapter.Id, externalAnnouncementId, unixTimestamp,
+                                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                            }
+                            catch (Exception ex)
+                            {
+                                ReportAdapterError(adapter.Id, adapter.AdapterUrl, ex, "DeleteAnnouncement");
+                            }
+                        }
+
+                        #endregion
+                    }
+
+                    if (adapterResponse == null || adapterResponse.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Error while trying to delete announcement. announcement Name: {0}", externalAnnouncementId);
                     }
@@ -169,11 +260,44 @@ namespace Core.Notification
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AnnouncementListResponse response = client.Subscribe(adapter.Id, userData.FirstName, userData.LastName, userData.Email
+                    APILogic.MailNotificationsAdapterService.AnnouncementListResponse adapterResponse = client.Subscribe(adapter.Id, userData.FirstName, userData.LastName, userData.Email
                         , announcementExternalIds, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
-                    if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK)
+                    if (adapterResponse != null && adapterResponse.Status != null &&
+                        adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
+                    {
+                        #region Send Configuration if not found
+
+                        string key = string.Format("MailNotification_Adapter_Locker_{0}", adapter.Id);
+
+                        // Build dictionary for synchronized action
+                        Dictionary<string, object> parameters = new Dictionary<string, object>()
+                    {
+                        {PARAMETER_ADAPTER, adapter},
+                        {PARAMETER_GROUP_ID, groupId}
+                    };
+
+                        configurationSynchronizer.DoAction(key, parameters);
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                        {
+                            try
+                            {
+                                //call Adapter - after it is configured
+                                adapterResponse = client.Subscribe(adapter.Id, userData.FirstName, userData.LastName, userData.Email, announcementExternalIds, unixTimestamp,
+                                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                            }
+                            catch (Exception ex)
+                            {
+                                ReportAdapterError(adapter.Id, adapter.AdapterUrl, ex, "Subscribe");
+                            }
+                        }
+
+                        #endregion
+                    }
+
+                    if (adapterResponse == null || adapterResponse.Status == null || adapterResponse.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Error while trying to SubscribeToAnnouncement. adpaterId: {0}", adapter.Id);
                     }
@@ -213,10 +337,43 @@ namespace Core.Notification
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AnnouncementListResponse response = client.UnSubscribe(adapter.Id, userData.Email, announcementExternalIds, unixTimestamp,
+                    APILogic.MailNotificationsAdapterService.AnnouncementListResponse adapterResponse = client.UnSubscribe(adapter.Id, userData.Email, announcementExternalIds, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
-                    if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK)
+                    if (adapterResponse != null && adapterResponse.Status != null &&
+                        adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
+                    {
+                        #region Send Configuration if not found
+
+                        string key = string.Format("MailNotification_Adapter_Locker_{0}", adapter.Id);
+
+                        // Build dictionary for synchronized action
+                        Dictionary<string, object> parameters = new Dictionary<string, object>()
+                    {
+                        {PARAMETER_ADAPTER, adapter},
+                        {PARAMETER_GROUP_ID, groupId}
+                    };
+
+                        configurationSynchronizer.DoAction(key, parameters);
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                        {
+                            try
+                            {
+                                //call Adapter - after it is configured
+                                adapterResponse = client.UnSubscribe(adapter.Id, userData.Email, announcementExternalIds, unixTimestamp,
+                                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                            }
+                            catch (Exception ex)
+                            {
+                                ReportAdapterError(adapter.Id, adapter.AdapterUrl, ex, "UnSubscribe");
+                            }
+                        }
+
+                        #endregion
+                    }
+
+                    if (adapterResponse == null || adapterResponse.Status == null || adapterResponse.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Error while trying to UnSubscribeToAnnouncement. adpaterId: {0}", adapter.Id);
                     }
@@ -256,12 +413,47 @@ namespace Core.Notification
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AdapterStatus response = client.Publish(adapter.Id, externalAnnouncementId, templateId, subject,
+                    APILogic.MailNotificationsAdapterService.AdapterStatus adapterResponse = client.Publish(adapter.Id, externalAnnouncementId, templateId, subject,
                         mergeVars != null ? mergeVars.Select(mv => new APILogic.MailNotificationsAdapterService.KeyValue() { Key = mv.Key, Value = mv.Value }).ToList() : null,
                         unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
-                    if (response == null || response.Code != (int)eResponseStatus.OK)
+                    if (adapterResponse != null &&
+                        adapterResponse.Code == STATUS_NO_CONFIGURATION_FOUND)
+                    {
+                        #region Send Configuration if not found
+
+                        string key = string.Format("MailNotification_Adapter_Locker_{0}", adapter.Id);
+
+                        // Build dictionary for synchronized action
+                        Dictionary<string, object> parameters = new Dictionary<string, object>()
+                    {
+                        {PARAMETER_ADAPTER, adapter},
+                        {PARAMETER_GROUP_ID, groupId}
+                    };
+
+                        configurationSynchronizer.DoAction(key, parameters);
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                        {
+                            try
+                            {
+                                //call Adapter - after it is configured
+                                adapterResponse = client.Publish(adapter.Id, externalAnnouncementId, templateId, subject,
+                                    mergeVars != null ? mergeVars.Select(mv => new APILogic.MailNotificationsAdapterService.KeyValue() { Key = mv.Key, Value = mv.Value }).ToList() : null,
+                                    unixTimestamp,
+                                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                            }
+                            catch (Exception ex)
+                            {
+                                ReportAdapterError(adapter.Id, adapter.AdapterUrl, ex, "Publish");
+                            }
+                        }
+
+                        #endregion
+                    }
+
+                    if (adapterResponse == null || adapterResponse.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Error while trying to PublishToAnnouncement. adpaterId: {0}", adapter.Id);
                     }
@@ -300,11 +492,45 @@ namespace Core.Notification
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AdapterStatus response = client.UpdateUser(adapter.Id, userId, oldUserData.Email,
+                    APILogic.MailNotificationsAdapterService.AdapterStatus adapterResponse = client.UpdateUser(adapter.Id, userId, oldUserData.Email,
                         NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, externalAnnouncementIds, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
-                    if (response == null || response.Code != (int)eResponseStatus.OK)
+                    if (adapterResponse != null &&
+                        adapterResponse.Code == STATUS_NO_CONFIGURATION_FOUND)
+                    {
+                        #region Send Configuration if not found
+
+                        string key = string.Format("MailNotification_Adapter_Locker_{0}", adapter.Id);
+
+                        // Build dictionary for synchronized action
+                        Dictionary<string, object> parameters = new Dictionary<string, object>()
+                    {
+                        {PARAMETER_ADAPTER, adapter},
+                        {PARAMETER_GROUP_ID, groupId}
+                    };
+
+                        configurationSynchronizer.DoAction(key, parameters);
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                        {
+                            try
+                            {
+                                //call Adapter - after it is configured
+                                adapterResponse = client.UpdateUser(adapter.Id, userId, oldUserData.Email,
+                                    NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, externalAnnouncementIds, unixTimestamp,
+                                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                            }
+                            catch (Exception ex)
+                            {
+                                ReportAdapterError(adapter.Id, adapter.AdapterUrl, ex, "UpdateUser");
+                            }
+                        }
+
+                        #endregion
+                    }
+
+                    if (adapterResponse == null || adapterResponse.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Error while trying to UpdateUserData. adpeterId : {0}", adapter.Id);
                     }
@@ -348,5 +574,49 @@ namespace Core.Notification
             //set signature
             signature = string.Concat(adapter.Id, adapter.ProviderUrl, adapter.Settings, groupId, unixTimestamp);
         }
+
+        private static bool configurationSynchronizer_SynchronizedAct(Dictionary<string, object> parameters)
+        {
+            bool result = false;
+
+            if (parameters != null)
+            {
+                int partnerId = 0;
+                MailNotificationAdapter adapter = null;
+
+                if (parameters.ContainsKey(PARAMETER_GROUP_ID))
+                {
+                    partnerId = (int)parameters[PARAMETER_GROUP_ID];
+                }
+
+                if (parameters.ContainsKey(PARAMETER_ADAPTER))
+                {
+                    adapter = (MailNotificationAdapter)parameters[PARAMETER_ADAPTER];
+                }
+
+                // get the right configuration
+                result = SendConfigurationToAdapter(partnerId, adapter);
+            }
+
+            return result;
+        }
+        private static void ReportAdapterError(long adapterId, string url, Exception ex, string action, bool throwException = true)
+        {
+            var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
+            HttpContext.Current.Items[Constants.TOPIC] = "C-DVR adapter";
+
+            log.ErrorFormat("Failed communicating with adapter. Adapter identifier: {0}, Adapter URL: {1}, Adapter Api: {2}. Error: {3}",
+                adapterId,
+                url,
+                action,
+                ex);
+            HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
+
+            if (throwException)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
