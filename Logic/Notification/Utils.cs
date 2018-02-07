@@ -20,7 +20,8 @@ namespace Core.Notification
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private const string USER_TOKEN_SECRET = "MyMailIsSecured";
+        private const int BLOCK_SIZE = 16;
 
 
         static public string GetWSURL(string sKey)
@@ -270,7 +271,7 @@ namespace Core.Notification
 
             return new Tuple<Dictionary<string, DbSeriesReminder>, bool>(result, res);
         }
-
+        
         internal static bool GetSeriesMetaTagsFieldsNamesAndTypes(int groupId, out Tuple<string, FieldTypes> seriesIdName,
             out Tuple<string, FieldTypes> seasonNumberName, out Tuple<string, FieldTypes> episodeNumberName)
         {
@@ -475,6 +476,53 @@ namespace Core.Notification
             }
 
             return imageUrl;
+        }
+
+        internal static bool CreateUserToken(int groupId, int userId, out string token)
+        {
+            token = string.Empty;
+            try
+            {
+                string userIdStr = string.Format("{0}|{1}|{2}", userId.ToString(), groupId, TVinciShared.DateUtils.UnixTimeStampNow());
+                byte[] input = new byte[userIdStr.Length];
+                Array.Copy(Encoding.ASCII.GetBytes(userIdStr), 0, input, 0, input.Length);
+
+                byte[] encrypted = TVinciShared.EncryptUtils.AesEncrypt(USER_TOKEN_SECRET, input, BLOCK_SIZE);
+
+                token = System.Convert.ToBase64String(encrypted);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while trying to create user token userId: {0}", userId), ex);
+                return false;
+            }
+
+            return true;
+        }
+
+        internal static bool ExtractUserIdFromToken(string token, out int userId)
+        {
+            userId = 0;
+            try
+            {
+                byte[] input = System.Convert.FromBase64String(token);
+               
+                byte[] encrypted = TVinciShared.EncryptUtils.TrimRight(TVinciShared.EncryptUtils.AesDecrypt(USER_TOKEN_SECRET, input, BLOCK_SIZE));
+
+                string userIdStr = Encoding.ASCII.GetString(encrypted);
+
+                string[] userIdStrParts = userIdStr.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                if (userIdStrParts.Length == 3)
+                {
+                    return int.TryParse(userIdStrParts[0], out userId) && userId > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while trying to extract userId from token token: {0}", token), ex);
+            }
+
+            return false;
         }
     }
 }

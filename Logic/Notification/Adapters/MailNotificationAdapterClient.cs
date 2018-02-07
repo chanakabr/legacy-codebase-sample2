@@ -258,10 +258,17 @@ namespace Core.Notification
                 string signature;
                 GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
 
+                string token = null;
+                if (!Utils.CreateUserToken(groupId, userId, out token))
+                {
+                    log.ErrorFormat("Failed to create user token for userId: {0}", userId);
+                    return false;
+                }
+
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AnnouncementListResponse adapterResponse = client.Subscribe(adapter.Id, userData.FirstName, userData.LastName, userData.Email
-                        , announcementExternalIds, unixTimestamp,
+                    APILogic.MailNotificationsAdapterService.AnnouncementListResponse adapterResponse = client.Subscribe(adapter.Id, userData.FirstName, userData.LastName, userData.Email,
+                        token, announcementExternalIds, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     if (adapterResponse != null && adapterResponse.Status != null &&
@@ -285,7 +292,7 @@ namespace Core.Notification
                             try
                             {
                                 //call Adapter - after it is configured
-                                adapterResponse = client.Subscribe(adapter.Id, userData.FirstName, userData.LastName, userData.Email, announcementExternalIds, unixTimestamp,
+                                adapterResponse = client.Subscribe(adapter.Id, userData.FirstName, userData.LastName, userData.Email, token, announcementExternalIds, unixTimestamp,
                                     System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
                             }
                             catch (Exception ex)
@@ -484,6 +491,14 @@ namespace Core.Notification
                 log.Error("Mail Notification URL wasn't found");
                 return false;
             }
+
+            string token;
+            if (!Utils.CreateUserToken(groupId, userId, out token))
+            {
+                log.ErrorFormat("Failed to create user token for userId: {0}", userId);
+                return false;
+            }
+
             try
             {
                 long unixTimestamp;
@@ -493,7 +508,7 @@ namespace Core.Notification
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
                     APILogic.MailNotificationsAdapterService.AdapterStatus adapterResponse = client.UpdateUser(adapter.Id, userId, oldUserData.Email,
-                        NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, externalAnnouncementIds, unixTimestamp,
+                        NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, token, externalAnnouncementIds, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     if (adapterResponse != null &&
@@ -518,7 +533,7 @@ namespace Core.Notification
                             {
                                 //call Adapter - after it is configured
                                 adapterResponse = client.UpdateUser(adapter.Id, userId, oldUserData.Email,
-                                    NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, externalAnnouncementIds, unixTimestamp,
+                                    NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, token, externalAnnouncementIds, unixTimestamp,
                                     System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
                             }
                             catch (Exception ex)

@@ -425,6 +425,7 @@ namespace Core.Notification
                         new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.SeriesName.ToString(), (seriesNames != null && seriesNames.Length > 0) ? seriesNames[0] : string.Empty),
                         new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.StartDate.ToString(), startDate.ToString(msgTemplateResponse.MessageTemplate.DateFormat)),
                         new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.Image.ToString(), imageUrl),
+                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.ReferenceId.ToString(), announcement.FollowReference),
                     };
             }
 

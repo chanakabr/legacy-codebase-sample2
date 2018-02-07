@@ -268,10 +268,10 @@ namespace APILogic.MailNotificationsAdapterService {
         System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AdapterStatus> SetConfigurationAsync(long adapterId, string settings, int partnerId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/Subscribe", ReplyAction="http://tempuri.org/IService/SubscribeResponse")]
-        APILogic.MailNotificationsAdapterService.AnnouncementListResponse Subscribe(long adapterId, string firstName, string lastName, string mailAddress, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature);
+        APILogic.MailNotificationsAdapterService.AnnouncementListResponse Subscribe(long adapterId, string firstName, string lastName, string mailAddress, string token, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/Subscribe", ReplyAction="http://tempuri.org/IService/SubscribeResponse")]
-        System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AnnouncementListResponse> SubscribeAsync(long adapterId, string firstName, string lastName, string mailAddress, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature);
+        System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AnnouncementListResponse> SubscribeAsync(long adapterId, string firstName, string lastName, string mailAddress, string token, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/UnSubscribe", ReplyAction="http://tempuri.org/IService/UnSubscribeResponse")]
         APILogic.MailNotificationsAdapterService.AnnouncementListResponse UnSubscribe(long adapterId, string mailAddress, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature);
@@ -280,10 +280,10 @@ namespace APILogic.MailNotificationsAdapterService {
         System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AnnouncementListResponse> UnSubscribeAsync(long adapterId, string mailAddress, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/UpdateUser", ReplyAction="http://tempuri.org/IService/UpdateUserResponse")]
-        APILogic.MailNotificationsAdapterService.AdapterStatus UpdateUser(long adapterId, long userId, string oldMailAddress, string newMailAddress, string firstName, string lastName, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature);
+        APILogic.MailNotificationsAdapterService.AdapterStatus UpdateUser(long adapterId, long userId, string oldMailAddress, string newMailAddress, string firstName, string lastName, string token, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/UpdateUser", ReplyAction="http://tempuri.org/IService/UpdateUserResponse")]
-        System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AdapterStatus> UpdateUserAsync(long adapterId, long userId, string oldMailAddress, string newMailAddress, string firstName, string lastName, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature);
+        System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AdapterStatus> UpdateUserAsync(long adapterId, long userId, string oldMailAddress, string newMailAddress, string firstName, string lastName, string token, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/Publish", ReplyAction="http://tempuri.org/IService/PublishResponse")]
         APILogic.MailNotificationsAdapterService.AdapterStatus Publish(long adapterId, string announcementExternalId, string templateId, string subject, System.Collections.Generic.List<APILogic.MailNotificationsAdapterService.KeyValue> mergeKeyList, long timeStamp, string signature);
@@ -339,12 +339,12 @@ namespace APILogic.MailNotificationsAdapterService {
             return base.Channel.SetConfigurationAsync(adapterId, settings, partnerId, timeStamp, signature);
         }
         
-        public APILogic.MailNotificationsAdapterService.AnnouncementListResponse Subscribe(long adapterId, string firstName, string lastName, string mailAddress, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature) {
-            return base.Channel.Subscribe(adapterId, firstName, lastName, mailAddress, announcementExternalIds, timeStamp, signature);
+        public APILogic.MailNotificationsAdapterService.AnnouncementListResponse Subscribe(long adapterId, string firstName, string lastName, string mailAddress, string token, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature) {
+            return base.Channel.Subscribe(adapterId, firstName, lastName, mailAddress, token, announcementExternalIds, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AnnouncementListResponse> SubscribeAsync(long adapterId, string firstName, string lastName, string mailAddress, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature) {
-            return base.Channel.SubscribeAsync(adapterId, firstName, lastName, mailAddress, announcementExternalIds, timeStamp, signature);
+        public System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AnnouncementListResponse> SubscribeAsync(long adapterId, string firstName, string lastName, string mailAddress, string token, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature) {
+            return base.Channel.SubscribeAsync(adapterId, firstName, lastName, mailAddress, token, announcementExternalIds, timeStamp, signature);
         }
         
         public APILogic.MailNotificationsAdapterService.AnnouncementListResponse UnSubscribe(long adapterId, string mailAddress, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature) {
@@ -355,12 +355,12 @@ namespace APILogic.MailNotificationsAdapterService {
             return base.Channel.UnSubscribeAsync(adapterId, mailAddress, announcementExternalIds, timeStamp, signature);
         }
         
-        public APILogic.MailNotificationsAdapterService.AdapterStatus UpdateUser(long adapterId, long userId, string oldMailAddress, string newMailAddress, string firstName, string lastName, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature) {
-            return base.Channel.UpdateUser(adapterId, userId, oldMailAddress, newMailAddress, firstName, lastName, announcementExternalIds, timeStamp, signature);
+        public APILogic.MailNotificationsAdapterService.AdapterStatus UpdateUser(long adapterId, long userId, string oldMailAddress, string newMailAddress, string firstName, string lastName, string token, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature) {
+            return base.Channel.UpdateUser(adapterId, userId, oldMailAddress, newMailAddress, firstName, lastName, token, announcementExternalIds, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AdapterStatus> UpdateUserAsync(long adapterId, long userId, string oldMailAddress, string newMailAddress, string firstName, string lastName, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature) {
-            return base.Channel.UpdateUserAsync(adapterId, userId, oldMailAddress, newMailAddress, firstName, lastName, announcementExternalIds, timeStamp, signature);
+        public System.Threading.Tasks.Task<APILogic.MailNotificationsAdapterService.AdapterStatus> UpdateUserAsync(long adapterId, long userId, string oldMailAddress, string newMailAddress, string firstName, string lastName, string token, System.Collections.Generic.List<string> announcementExternalIds, long timeStamp, string signature) {
+            return base.Channel.UpdateUserAsync(adapterId, userId, oldMailAddress, newMailAddress, firstName, lastName, token, announcementExternalIds, timeStamp, signature);
         }
         
         public APILogic.MailNotificationsAdapterService.AdapterStatus Publish(long adapterId, string announcementExternalId, string templateId, string subject, System.Collections.Generic.List<APILogic.MailNotificationsAdapterService.KeyValue> mergeKeyList, long timeStamp, string signature) {

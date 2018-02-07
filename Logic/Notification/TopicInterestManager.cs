@@ -1155,7 +1155,8 @@ namespace APILogic.Notification
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ProgramId.ToString(), program.m_oProgram.EPG_ID.ToString()),
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ProgramName.ToString(), program.m_oProgram.NAME),
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ChannelName.ToString(), mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
-                        new KeyValuePair<string, string>(eReminderPlaceHolders.Image.ToString(), imageUrl)
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.Image.ToString(), imageUrl),
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.ReferenceId.ToString(), interestNotification.Id.ToString())
 
                     };
 
@@ -1337,7 +1338,8 @@ namespace APILogic.Notification
                     new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.MediaName.ToString(), vodAsset.m_sName),
                     new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.SeriesName.ToString(), seriesName),
                     new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.StartDate.ToString(), vodAsset.m_dStartDate.ToString(template.DateFormat)),
-                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.Image.ToString(), imageUrl)
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.Image.ToString(), imageUrl),
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.ReferenceId.ToString(), interestNotification.Id.ToString())
                 };
 
                 if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, interestNotification.MailExternalId, subject, mergeVars, template.MailTemplate))

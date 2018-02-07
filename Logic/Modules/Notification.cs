@@ -1200,5 +1200,22 @@ namespace Core.Notification
                 return false;
             }
         }
+
+        public static IntResponse GetUserIdByToken(int groupId, string token)
+        {
+            IntResponse response = new IntResponse()
+            {
+                Status = new Status((int)eResponseStatus.InvalidToken, "Invalid token")
+            };
+
+            int userId = 0;
+            if (Utils.ExtractUserIdFromToken(token, out userId))
+            {
+                response.Value = userId;
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
     }
 }

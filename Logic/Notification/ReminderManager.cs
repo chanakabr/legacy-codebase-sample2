@@ -1236,7 +1236,7 @@ namespace Core.Notification
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ProgramId.ToString(), program.m_oProgram.EPG_ID.ToString()),
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ProgramName.ToString(), program.m_oProgram.NAME),
                         new KeyValuePair<string, string>(eReminderPlaceHolders.ChannelName.ToString(), mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
-                        new KeyValuePair<string, string>(eReminderPlaceHolders.Image.ToString(), imageUrl)
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.Image.ToString(), imageUrl),
                     };
 
                     if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, reminder.MailExternalId, subject, mergeVars, reminderTemplate.MailTemplate))
@@ -1358,7 +1358,8 @@ namespace Core.Notification
                             new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.ChannelName.ToString(), mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
                             new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.SeriesName.ToString(), seriesId),
                             new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.EpisodeName.ToString(), program.m_oProgram.NAME != null ? program.m_oProgram.NAME : string.Empty),
-                            new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.Image.ToString(), imageUrl)
+                            new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.Image.ToString(), imageUrl),
+                            new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.ReferenceId.ToString(), reminderId.ToString()),
                         };
 
                         foreach (DbSeriesReminder seriesReminder in seriesReminders)
