@@ -101,7 +101,7 @@ namespace TVinciShared
             }
         }
 
-        private static byte[] TrimRight(byte[] arr)
+        public static byte[] TrimRight(byte[] arr)
         {
             bool isFound = false;
             return arr.Reverse().SkipWhile(x =>
@@ -158,5 +158,76 @@ namespace TVinciShared
             return BitConverter.ToString(encrypted).Replace("-", "").ToLower();
         }
 
+        public static byte[] AesDecrypt(string secretForSigning, byte[] text, int blockSize)
+        {
+            // Key
+            byte[] hashedKey = HashSHA1(secretForSigning);
+            byte[] keyBytes = new byte[blockSize];
+            Array.Copy(hashedKey, 0, keyBytes, 0, blockSize);
+
+            //IV
+            byte[] ivBytes = new byte[blockSize];
+
+            // Text
+            int textSize = ((text.Length + blockSize - 1) / blockSize) * blockSize;
+            byte[] textAsBytes = new byte[textSize];
+            Array.Copy(text, 0, textAsBytes, 0, text.Length);
+
+            // Decrypt
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = keyBytes;
+                aesAlg.IV = ivBytes;
+                aesAlg.Mode = CipherMode.CBC;
+                aesAlg.Padding = PaddingMode.None;
+
+                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cst = new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
+                    {
+                        cst.Write(text, 0, text.Length);
+                        return ms.ToArray();
+                    }
+                }
+            }
+        }
+
+        public static byte[] AesEncrypt(string secretForSigning, byte[] text, int blockSize)
+        {
+            // Key
+            byte[] hashedKey = HashSHA1(secretForSigning);
+            byte[] keyBytes = new byte[blockSize];
+            Array.Copy(hashedKey, 0, keyBytes, 0, blockSize);
+
+            //IV
+            byte[] ivBytes = new byte[blockSize];
+
+            // Text
+            int textSize = ((text.Length + blockSize - 1) / blockSize) * blockSize;
+            byte[] textAsBytes = new byte[textSize];
+            Array.Copy(text, 0, textAsBytes, 0, text.Length);
+
+            // Encrypt
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = keyBytes;
+                aesAlg.IV = ivBytes;
+                aesAlg.Mode = CipherMode.CBC;
+                aesAlg.Padding = PaddingMode.None;
+
+                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cst = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                    {
+                        cst.Write(textAsBytes, 0, textSize);
+                        return ms.ToArray();
+                    }
+                }
+            }
+        }
     }
 }
