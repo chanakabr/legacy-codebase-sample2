@@ -170,5 +170,31 @@ namespace WebAPI.Controllers
 
             return true;
         }
+
+        /// <summary>
+        /// Delete a user's tv series follow.
+        /// </summary>
+        /// <param name="assetId">Asset identifier</param>
+        /// <param name="token">User's token identifier</param>
+        /// <param name="partnerId">Partner identifier</param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        [Route("deleteWithToken"), HttpPost]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.InvalidToken)]
+        public void DeleteWithToken(int assetId, string token, int partnerId)
+        {
+            try
+            {
+                int userId = ClientsManager.NotificationClient().GetUserIdByToken(partnerId, token);
+
+                ClientsManager.NotificationClient().DeleteUserTvSeriesFollow(partnerId, userId.ToString(), assetId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
     }
 }

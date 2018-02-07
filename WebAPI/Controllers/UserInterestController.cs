@@ -84,7 +84,7 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
+        
         /// <summary>
         /// Returns all Engagement for partner
         /// </summary>
@@ -116,6 +116,32 @@ namespace WebAPI.Controllers
             };
 
             return response;
+        }
+
+        /// <summary>
+        /// Delete new user interest for partner user
+        /// </summary>
+        /// <param name="id">User interest identifier</param>
+        /// <param name="token">User's token identifier</param>
+        /// <param name="partnerId">Partner identifier</param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        [Route("deleteWithToken"), HttpPost]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.InvalidToken)]
+        public void DeleteWithToken(string id, string token, int partnerId)
+        {
+            try
+            {
+                int userId = ClientsManager.NotificationClient().GetUserIdByToken(partnerId, token);
+
+                ClientsManager.UsersClient().DeleteUserInterest(partnerId, userId.ToString(), id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
         }
     }
 }
