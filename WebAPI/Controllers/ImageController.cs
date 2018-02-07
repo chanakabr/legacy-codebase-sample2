@@ -144,9 +144,8 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.ImageDoesNotExist)]
         [Throws(eResponseStatus.InvalidRatioForImage)]
-        public bool SetContent(long id, KalturaContentResource content)
-        {
-            bool result = false;
+        public void SetContent(long id, KalturaContentResource content)
+        {            
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
@@ -155,7 +154,7 @@ namespace WebAPI.Controllers
                 if (content is KalturaUrlResource)
                 {
                     KalturaUrlResource urlContent = (KalturaUrlResource)content;
-                    result = ClientsManager.CatalogClient().SetContent(groupId, userId, id, urlContent.Url);
+                    ClientsManager.CatalogClient().SetContent(groupId, userId, id, urlContent.Url);
                 }
                 else
                 {
@@ -165,9 +164,7 @@ namespace WebAPI.Controllers
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
-            }
-
-            return result;
+            }           
         }
 
     }

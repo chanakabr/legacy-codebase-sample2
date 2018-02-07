@@ -204,7 +204,11 @@ namespace WebAPI.Utils
                         List<object> list = new List<object>();
                         foreach (object item in (dynamic)result)
                         {
-                            if (item.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
+                            if (item == null)
+                            {
+                                list.Add(item);
+                            }
+                            else if (item.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
                             {
                                 list.Add(item);
                             }
