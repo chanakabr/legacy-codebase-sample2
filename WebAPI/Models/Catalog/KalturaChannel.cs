@@ -13,7 +13,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Channel details
     /// </summary>
-    public abstract class KalturaChannel : KalturaOTTObject
+    public class KalturaChannel : KalturaOTTObject
     {
 
         private const string GENESIS_VERSION = "4.6.0.0";

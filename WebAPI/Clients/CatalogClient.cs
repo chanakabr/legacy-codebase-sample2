@@ -454,6 +454,7 @@ namespace WebAPI.Clients
             {
                 case "KalturaMediaAsset":
                     result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
+                    result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Invalid assetType");
@@ -540,6 +541,7 @@ namespace WebAPI.Clients
             {
                 case "KalturaMediaAsset":
                     result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
+                    result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Invalid assetType");

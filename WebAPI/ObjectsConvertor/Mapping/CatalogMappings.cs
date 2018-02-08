@@ -62,8 +62,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AltCdnCode, opt => opt.MapFrom(src => src.m_sAltUrl))
                  .ForMember(dest => dest.PPVModules, opt => opt.MapFrom(src => BuildPPVModulesList(src.PPVModules)))
                  .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.ProductCode))
-                 .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
-                 ;
+                 .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize));
 
             //BuzzScore
             Mapper.CreateMap<BuzzWeightedAverScore, KalturaBuzzScore>()
@@ -478,7 +477,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.MediaType.m_nTypeID))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.Metas)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.Tags)))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
+                // goes to ConvertImageListToKalturaMediaImageList instead
+                .ForMember(dest => dest.Images, opt => opt.Ignore())
                 .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.Files))
                 .ForMember(dest => dest.TypeDescription, opt => opt.MapFrom(src => src.MediaType.m_sTypeName))
                 .ForMember(dest => dest.DeviceRuleId, opt => opt.MapFrom(src => src.DeviceRuleId))
@@ -648,8 +648,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.StreamingSuplierId, opt => opt.MapFrom(src => src.StreamingSuplierId))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.TypeId))
-                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
-                 ;
+                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status));
 
             #endregion
         }
@@ -1075,6 +1074,42 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return assetType;
+        }
+
+        public static List<KalturaMediaImage> ConvertImageListToKalturaMediaImageList(int groupId, List<Image> images)
+        {
+            List<KalturaMediaImage> result = new List<KalturaMediaImage>();
+            if (images != null && images.Count > 0)
+            {
+                foreach (Image image in images)
+                {
+                    KalturaMediaImage convertedImage = ConvertImageToKalturaImage(groupId, image);
+                    if (convertedImage != null)
+                    {
+                        result.Add(convertedImage);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static KalturaMediaImage ConvertImageToKalturaImage(int groupId, Image image)
+        {
+            KalturaMediaImage result = null;
+            if (groupId > 0 && image != null)
+            {
+                result = new KalturaMediaImage()
+                {
+                    Id = image.ContentId,
+                    IsDefault = image.IsDefault,
+                    Url = image.Url,
+                    Version = image.Version,
+                    Ratio = ImageManager.GetRatioNameByImageTypeId(groupId, image.ImageTypeId)
+                };
+            }
+
+            return result;
         }
 
         #endregion
