@@ -13,29 +13,34 @@ namespace Core.Social.SocialFeed.SocialFeedJsonTemplates
         {
             List<SocialFeedItem> retVal = new List<SocialFeedItem>();
 
-            foreach (Post post in data.Where(p => p.message != null))
+            if (data != null)
             {
+                var posts = data.Where(p => p.message != null);
 
-                retVal.Add(new SocialFeedItem()
+                if (posts != null)
                 {
-                    Body = post.message,
-                    CreatorName = post.from.name,
-                    CreateDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(post.created_time),
-                    CreatorImageUrl = string.Format(@"http://graph.facebook.com/{0}/picture?type=square", post.from.id),
-                    FeedItemLink = post.link ?? post.picture,
-                    PopularityCounter = post.likes != null ? post.likes.summary.total_count : 0,
-                    Comments = post.comments != null ? post.comments.data.Select(comment => new SocialFeedItemComment()
+                    foreach (Post post in posts)
                     {
-                        Body = comment.message,
-                        CreateDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(comment.created_time),
-                        CreatorImageUrl = string.Format(@"http://graph.facebook.com/{0}/picture?type=square", comment.from.id),
-                        CreatorName = comment.from.name,
-                        PopularityCounter = comment.like_count
+                        retVal.Add(new SocialFeedItem()
+                        {
+                            Body = post.message,
+                            CreatorName = post.from.name,
+                            CreateDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(post.created_time),
+                            CreatorImageUrl = string.Format(@"http://graph.facebook.com/{0}/picture?type=square", post.from.id),
+                            FeedItemLink = post.link ?? post.picture,
+                            PopularityCounter = post.likes != null ? post.likes.summary.total_count : 0,
+                            Comments = post.comments != null ? post.comments.data.Select(comment => new SocialFeedItemComment()
+                            {
+                                Body = comment.message,
+                                CreateDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(comment.created_time),
+                                CreatorImageUrl = comment.from != null ? string.Format(@"http://graph.facebook.com/{0}/picture?type=square", comment.from.id) : null,
+                                CreatorName = comment.from != null ? comment.from.name : null,
+                                PopularityCounter = comment.like_count
 
-                    }).ToList() : null,
-                });
-
-
+                            }).ToList() : null,
+                        });
+                    }
+                }
             }
 
             return retVal;
