@@ -908,6 +908,12 @@ namespace Core.Notification
                             else
                             {
                                 log.DebugFormat("Successfully sent follow announcement to mail. announcementId: {0}", announcementId);
+
+                                // update follow external result
+                                if (NotificationDal.AddMailExternalResult(groupId, announcementId, MailMessageType.Follow, string.Empty, true) == 0)
+                                {
+                                    log.ErrorFormat("Failed to add mail external result for follow announcement. announcementId = {0}", announcementId);
+                                }
                             }
                         }
                     }
@@ -988,6 +994,12 @@ namespace Core.Notification
                 else
                 {
                     log.DebugFormat("Successfully sent system announcement to mail. announcementId: {0}", mailAnnouncement.ID);
+
+                    // update system external result
+                    if (NotificationDal.AddMailExternalResult(groupId, mailAnnouncement.ID, MailMessageType.SystemAnnouncement, string.Empty, true) == 0)
+                    {
+                        log.ErrorFormat("Failed to add mail external result for system announcement. announcementId = {0}", mailAnnouncement.ID);
+                    }
                 }
             }
         }

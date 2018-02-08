@@ -1167,6 +1167,12 @@ namespace APILogic.Notification
                     else
                     {
                         log.DebugFormat("Successfully sent interest notification to mail. interestNotificationId: {0}", interestNotification.Id);
+                        
+                        // update external result
+                        if (NotificationDal.AddMailExternalResult(partnerId, interestNotification.Id, MailMessageType.Interest, string.Empty, true) == 0)
+                        {
+                            log.ErrorFormat("Failed to add mail external result for system announcement. interestNotificationId = {0}", interestNotification.Id);
+                        }
                     }
                 }
                 
@@ -1349,6 +1355,12 @@ namespace APILogic.Notification
                 else
                 {
                     log.DebugFormat("Successfully sent interest notification to mail. interestNotificationId: {0}", interestNotification.Id);
+
+                    // update interest external result
+                    if (NotificationDal.AddMailExternalResult(partnerId, interestNotification.Id, MailMessageType.Interest, string.Empty, true) == 0)
+                    {
+                        log.ErrorFormat("Failed to add mail external result for interest announcement. interestNotificationId = {0}", interestNotification.Id);
+                    }
                 }
             }
 

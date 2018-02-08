@@ -989,4 +989,13 @@ namespace ApiObjects
         Disable = 0,
         Delete = 1
     }
+
+    public enum MailMessageType
+    {
+        SystemAnnouncement = 0,
+        Follow = 1,
+        Reminder = 2,
+        SeriesReminder = 3,
+        Interest = 4
+    }
 }

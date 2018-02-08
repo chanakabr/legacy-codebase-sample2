@@ -1245,7 +1245,12 @@ namespace Core.Notification
                     {
                         reminder.IsSent = true;
                         log.DebugFormat("Successfully sent reminder to mail. reminder Id: {0}", reminder.ID);
-                        // IRA: what about updating the reminders table with is sent and external result?????
+                        
+                        // update series reminder external result
+                        if (NotificationDal.AddMailExternalResult(partnerId, reminder.ID, MailMessageType.Reminder, string.Empty, true) == 0)
+                        {
+                            log.ErrorFormat("Failed to add mail external result for reminder. reminderId = {0}", reminder.ID);
+                        }
                     }
                 }
             }
@@ -1379,9 +1384,9 @@ namespace Core.Notification
                                     }
 
                                     // update series reminder external result
-                                    if (NotificationDal.AddSeriesReminderExternalResult(partnerId, seriesReminder.ID, reminderId, string.Empty) == 0)
+                                    if (NotificationDal.AddMailExternalResult(partnerId, seriesReminder.ID, MailMessageType.SeriesReminder, string.Empty, true) == 0)
                                     {
-                                        log.ErrorFormat("Failed to update series reminder external result. seriesReminder.ID = {0}, reminderId = {1}",
+                                        log.ErrorFormat("Failed to add mail external result for series reminder. seriesReminder.ID = {0}, reminderId = {1}",
                                             seriesReminder.ID, reminderId);
                                     }
                                 }
