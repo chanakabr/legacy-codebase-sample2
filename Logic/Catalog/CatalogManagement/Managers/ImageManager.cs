@@ -283,7 +283,46 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return ratioName;
-        }
+        }        
+
+        private static Tuple<List<Image>, bool> GetGroupDefaultImages(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<Image> groupDefaultImages = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        List<ImageType> imageTypes = GetGroupImageTypes(groupId.Value);
+                        if (imageTypes != null)
+                        {
+                            List<long> imageTypesWithDefaultPic = imageTypes.Where(x => x.DefaultImageId.HasValue && x.DefaultImageId.Value > 0).Select(x => x.DefaultImageId.Value).ToList();
+                            if (imageTypesWithDefaultPic != null && imageTypesWithDefaultPic.Count > 0)
+                            {
+                                groupDefaultImages = new List<Image>();
+                                ImageListResponse defaultImagesResponse = GetImagesByIds(groupId.Value, imageTypesWithDefaultPic, true);
+                                if (defaultImagesResponse != null && defaultImagesResponse.Status != null && defaultImagesResponse.Status.Code == (int)eResponseStatus.OK)
+                                {
+                                    groupDefaultImages.AddRange(defaultImagesResponse.Images);
+                                }
+                            }
+                        }                                                
+
+                        res = groupDefaultImages != null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupDefaultImages failed params : {0}", funcParams != null ? string.Join(";",
+                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
+            }
+
+            return new Tuple<List<Image>, bool>(groupDefaultImages, res);
+        }        
 
         #endregion
 
@@ -308,6 +347,24 @@ namespace Core.Catalog.CatalogManagement
             response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             return response;
+        }
+
+        internal static List<Image> GetGroupDefaultImages(int groupId)
+        {
+            List<Image> result = null;
+            string key = LayeredCacheKeys.GetGroupDefaultImagesKey(groupId);
+
+            // try to get from cache  
+            bool cacheResult = LayeredCache.Instance.Get<List<Image>>(key, ref result, GetGroupDefaultImages, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GET_GROUP_DEFAULT_IMAGES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupDefaultImagesInvalidationKey(groupId) });
+
+            if (!cacheResult)
+            {
+                log.Error(string.Format("GetGroupDefaultImages - Failed get data from cache groupId = {0}", groupId));
+                result = null;
+            }
+
+            return result;
         }
 
         #endregion
@@ -516,26 +573,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }
-
-        public static List<Image> GetGroupDefaultImages(int groupId)
-        {
-            List<Image> result = new List<Image>();            
-            List<ImageType> imageTypes = GetGroupImageTypes(groupId);
-            if (imageTypes != null)
-            {
-                List<long> imageTypesWithDefaultPic = imageTypes.Where(x => x.DefaultImageId.HasValue && x.DefaultImageId.Value > 0).Select(x => x.DefaultImageId.Value).ToList();
-                if (imageTypesWithDefaultPic != null && imageTypesWithDefaultPic.Count > 0)
-                {
-                    ImageListResponse defaultImagesResponse = GetImagesByIds(groupId, imageTypesWithDefaultPic, true);
-                    if (defaultImagesResponse != null && defaultImagesResponse.Status != null && defaultImagesResponse.Status.Code == (int)eResponseStatus.OK)
-                    {
-                        result.AddRange(defaultImagesResponse.Images);
-                    }
-                }
-            }
-
-            return result;
         }
 
         public static ImageResponse AddImage(int groupId, Image imageToAdd, long userId)
