@@ -304,6 +304,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("GroupImageTypes_groupId_{0}", groupId);
         }
 
+        public static string GetGroupDefaultImagesKey(int groupId)
+        {
+            return string.Format("GroupDefaultImages_groupId_{0}", groupId);
+        }
+
         public static string GetGroupRatiosKey(int groupId)
         {
             return string.Format("GroupRatios_groupId_{0}", groupId);
@@ -510,6 +515,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupImageTypesInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_GroupImageTypes_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupDefaultImagesInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_GroupDefaultImages_groupId_{0}", groupId);
         }
 
         public static string GetGroupRatiosInvalidationKey(int groupId)
