@@ -5161,21 +5161,13 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataTable GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType, bool? isDefault = null)
+        public static DataTable GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPicsByAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@assetId", imageObjectId);
             sp.AddParameter("@assetImageType", (int)imageObjectType);
-            if (isDefault.HasValue)
-            {
-                sp.AddParameter("@isDefault", isDefault.Value ? 1 : 0);
-            }
-            else
-            {
-                sp.AddParameter("@isDefault", -1);
-            }
 
             return sp.Execute();
         }
