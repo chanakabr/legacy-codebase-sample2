@@ -2603,6 +2603,30 @@ namespace DAL
 
             return adapterRes;
         }
+
+        public static int AddMailExternalResult(int groupId, long messageId, MailMessageType messageType, string externalResult, bool status)
+        {
+            int id = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddMailExternalResult");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@messageId", messageId);
+                sp.AddParameter("@messageType", (int)messageType);
+                sp.AddParameter("@externalResult", externalResult);
+                sp.AddParameter("@status", status ? 1 : 0);
+
+                id = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error at AddMailExternalResult. groupId: {0}, messageId: {1}, messageType: {2}, externalResult: {3}. status {4}",
+                    groupId, messageId, messageType, externalResult, status), ex);
+            }
+
+            return id;
+        }
     }
 }
 
