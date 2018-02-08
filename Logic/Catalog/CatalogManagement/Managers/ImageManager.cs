@@ -418,6 +418,16 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("Failed to set invalidation key on DeleteImageType key = {0}", invalidationKey);
                     }
 
+                    ImageType imageType = imageTypeListResponse.ImageTypes.First();
+                    if (imageType != null && imageType.DefaultImageId.HasValue && imageType.DefaultImageId.Value > 0)
+                    {
+                        string defaultGroupImagesInvalidationKey = LayeredCacheKeys.GetGroupDefaultImagesInvalidationKey(groupId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(defaultGroupImagesInvalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on DeleteImageType key = {0}", defaultGroupImagesInvalidationKey);
+                        }
+                    }
+
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
@@ -460,11 +470,19 @@ namespace Core.Catalog.CatalogManagement
                 if (ds != null)
                 {
                     result = CreateImageTypeResponseFromDataSet(ds);
-
                     string invalidationKey = LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on UpdateImageType key = {0}", invalidationKey);
+                    }
+
+                    if (result != null && result.ImageType != null && result.ImageType.DefaultImageId.HasValue && result.ImageType.DefaultImageId.Value > 0)
+                    {
+                        string defaultGroupImagesInvalidationKey = LayeredCacheKeys.GetGroupDefaultImagesInvalidationKey(groupId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(defaultGroupImagesInvalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on UpdateImageType key = {0}", defaultGroupImagesInvalidationKey);
+                        }
                     }
                 }
             }
@@ -541,6 +559,15 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeletePic(groupId, id, userId))
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    Image image = imagesResponse.Images.First();
+                    if (image != null && image.IsDefault.HasValue && image.IsDefault.Value)
+                    {
+                        string invalidationKey = LayeredCacheKeys.GetGroupDefaultImagesInvalidationKey(groupId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on DeleteImage key = {0}", invalidationKey);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
