@@ -126,44 +126,8 @@ namespace Core.Catalog.Response
             m_lTags = new List<Tags>(mediaAsset.Tags);
             GeoblockRule = mediaAsset.GeoBlockRuleId.HasValue ? Core.Catalog.CatalogLogic.GetGeoBlockRuleName(groupId, mediaAsset.GeoBlockRuleId.Value) : null;
             DeviceRule = mediaAsset.DeviceRuleId.HasValue ? Core.Catalog.CatalogLogic.GetDeviceRuleName(groupId, mediaAsset.DeviceRuleId.Value) : null;
-            m_lFiles = ConvertFiles(mediaAsset.Files, groupId);
-            m_lPicture = ConvertImagesToPictures(mediaAsset.Images, groupId);
-        }
-
-        private List<FileMedia> ConvertFiles(List<AssetFile> assetFiles, int groupId)
-        {
-            List<FileMedia> result = new List<FileMedia>();
-            if (assetFiles != null && assetFiles.Count > 0)
-            {
-                foreach (AssetFile file in assetFiles)
-                {
-                    MediaFileType mediaFileType = FileManager.GetMediaFileType(groupId, file.Type);
-                    if (mediaFileType != null)
-                    {
-                        result.Add(new FileMedia(file, mediaFileType));
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        private List<Picture> ConvertImagesToPictures(List<Image> assetImages, int groupId)
-        {
-            List<Picture> pictures = new List<Picture>();
-            if (assetImages != null && assetImages.Count > 0)
-            {
-                foreach (Image image in assetImages)
-                {
-                    ImageType imageType = ImageManager.GetImageType(groupId, image.ImageTypeId);
-                    if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
-                    {
-                        pictures.Add(new Picture(image, imageType.Name, ImageManager.GetRatioName(groupId, imageType.RatioId.Value)));
-                    }
-                }
-            }
-
-            return pictures;
+            m_lFiles = FileManager.ConvertFiles(mediaAsset.Files, groupId);
+            m_lPicture = ImageManager.ConvertImagesToPictures(mediaAsset.Images, groupId);
         }
     }
 

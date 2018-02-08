@@ -134,7 +134,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             // Images table
-            List<Image> images = null;
+            List<Image> images = new List<Image>();
             if (ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
             {
                 ImageListResponse imageResponse = ImageManager.CreateImageListResponseFromDataTable(groupId, ds.Tables[4]);
@@ -147,6 +147,9 @@ namespace Core.Catalog.CatalogManagement
                 // get only active images
                 images = imageResponse.Images.Where(x => x.Status == eTableStatus.OK).Count() > 0 ? imageResponse.Images.Where(x => x.Status == eTableStatus.OK).ToList() : new List<Image>();
             }
+
+            List<Image> groupDefaultImages = ImageManager.GetGroupDefaultImages(groupId);
+            images.AddRange(groupDefaultImages);
 
             // new tags or update dates
             if (ds.Tables.Count >= 6 && ds.Tables[5] != null && ds.Tables[5].Rows != null && ds.Tables[5].Rows.Count > 0)

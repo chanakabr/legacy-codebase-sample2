@@ -341,6 +341,18 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
+        private static MediaFileType GetMediaFileType(int groupId, int id)
+        {
+            MediaFileType result = null;
+            AssetFileTypeListResponse mediaFileTypesResponse = GetMediaFileTypes(groupId);
+            if (mediaFileTypesResponse != null && mediaFileTypesResponse.Status != null && mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK && mediaFileTypesResponse.Types.Count > 0)
+            {
+                result = mediaFileTypesResponse.Types.Where(x => x.Id == id).Count() == 1 ? mediaFileTypesResponse.Types.Where(x => x.Id == id).First() : null;
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Internal Methods
@@ -363,18 +375,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }
-
-        internal static MediaFileType GetMediaFileType(int groupId, int id)
-        {
-            MediaFileType result = null;
-            AssetFileTypeListResponse mediaFileTypesResponse = GetMediaFileTypes(groupId);
-            if (mediaFileTypesResponse != null && mediaFileTypesResponse.Status != null && mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK && mediaFileTypesResponse.Types.Count > 0)
-            {
-                result = mediaFileTypesResponse.Types.Where(x => x.Id == id).Count() == 1 ? mediaFileTypesResponse.Types.Where(x => x.Id == id).First() : null;
-            }
-
-            return result;
         }
 
         #endregion
@@ -727,6 +727,24 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
+        }
+
+        public static List<FileMedia> ConvertFiles(List<AssetFile> assetFiles, int groupId)
+        {
+            List<FileMedia> result = new List<FileMedia>();
+            if (assetFiles != null && assetFiles.Count > 0)
+            {
+                foreach (AssetFile file in assetFiles)
+                {
+                    MediaFileType mediaFileType = FileManager.GetMediaFileType(groupId, file.Type);
+                    if (mediaFileType != null)
+                    {
+                        result.Add(new FileMedia(file, mediaFileType));
+                    }
+                }
+            }
+
+            return result;
         }
 
         #endregion

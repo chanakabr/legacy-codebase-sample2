@@ -220,21 +220,27 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }        
 
-        private static Image CreateImageFromDataRow(int groupId, DataRow row)
+        private static Image CreateImageFromDataRow(int groupId, DataRow row, long id = 0)
         {
-            Image image = new Image()
+            Image image = null;
+            long imageId = id == 0 ? ODBCWrapper.Utils.GetLongSafeVal(row, "ID") : id;
+            if (imageId > 0)
             {
-                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
-                ContentId = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL"),
-                ImageObjectId = ODBCWrapper.Utils.GetLongSafeVal(row, "ASSET_ID"),
-                ImageObjectType = (eAssetImageType)ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_IMAGE_TYPE"),
-                Status = (eTableStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
-                Version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION"),
-                ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"),
-                IsDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_DEFAULT", 0) > 0 ? true : false
-            };
+                image = new Image()
+                {
+                    Id = imageId,
+                    ContentId = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL"),
+                    ImageObjectId = ODBCWrapper.Utils.GetLongSafeVal(row, "ASSET_ID"),
+                    ImageObjectType = (eAssetImageType)ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_IMAGE_TYPE"),
+                    Status = (eTableStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
+                    Version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION"),
+                    ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"),
+                    IsDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_DEFAULT", 0) > 0 ? true : false
+                };
 
-            image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
+                image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
+            }
+            
 
             return image;
         }
@@ -251,29 +257,20 @@ namespace Core.Catalog.CatalogManagement
             return ratio;
         }
 
-        #endregion
-
-        #region Internal
-
-        internal static ImageListResponse CreateImageListResponseFromDataTable(int groupId, DataTable dt)
+        private static ImageType GetImageType(int groupId, long imageTypeId)
         {
-            ImageListResponse response = new ImageListResponse();
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            ImageType imageType = null;
+            ImageTypeListResponse imageTypeResponse = GetImageTypes(groupId, true, new List<long>() { imageTypeId });
+            if (imageTypeResponse != null && imageTypeResponse.Status != null && imageTypeResponse.Status.Code == (int)eResponseStatus.OK && imageTypeResponse.ImageTypes.Count == 1)
             {
-                response.Images = new List<Image>();
-
-                foreach (DataRow row in dt.Rows)
-                {
-                    response.Images.Add(CreateImageFromDataRow(groupId, row));
-                }
+                imageType = imageTypeResponse.ImageTypes[0];
             }
-            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-            return response;
+            return imageType;
         }
 
         // for backward compatibility
-        internal static string GetRatioName(int groupId, long ratioId)
+        private static string GetRatioName(int groupId, long ratioId)
         {
             string ratioName = string.Empty;
             if (ratioId > 0)
@@ -288,16 +285,29 @@ namespace Core.Catalog.CatalogManagement
             return ratioName;
         }
 
-        internal static ImageType GetImageType(int groupId, long imageTypeId)
-        {
-            ImageType imageType = null;
-            ImageTypeListResponse imageTypeResponse = GetImageTypes(groupId, true, new List<long>() { imageTypeId });
-            if (imageTypeResponse != null && imageTypeResponse.Status != null && imageTypeResponse.Status.Code == (int)eResponseStatus.OK && imageTypeResponse.ImageTypes.Count == 1)
-            {
-                imageType = imageTypeResponse.ImageTypes[0];
-            }
+        #endregion
 
-            return imageType;
+        #region Internal
+
+        internal static ImageListResponse CreateImageListResponseFromDataTable(int groupId, DataTable dt)
+        {
+            ImageListResponse response = new ImageListResponse();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                response.Images = new List<Image>();
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    Image image = CreateImageFromDataRow(groupId, row);
+                    if (image != null)
+                    {
+                        response.Images.Add(image);
+                    }
+                }
+            }
+            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            return response;
         }
 
         #endregion
@@ -497,9 +507,35 @@ namespace Core.Catalog.CatalogManagement
         {
             ImageListResponse response = new ImageListResponse();
 
-            DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectId, imageObjectType, isDefault);
+            DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectId, imageObjectType);
             response = CreateImageListResponseFromDataTable(groupId, dt);
+            if (isDefault.HasValue && isDefault.Value)
+            {
+                List<Image> groupDefualtImages = GetGroupDefaultImages(groupId);
+                response.Images.AddRange(groupDefualtImages);
+            }
+
             return response;
+        }
+
+        public static List<Image> GetGroupDefaultImages(int groupId)
+        {
+            List<Image> result = new List<Image>();            
+            List<ImageType> imageTypes = GetGroupImageTypes(groupId);
+            if (imageTypes != null)
+            {
+                List<long> imageTypesWithDefaultPic = imageTypes.Where(x => x.DefaultImageId.HasValue && x.DefaultImageId.Value > 0).Select(x => x.DefaultImageId.Value).ToList();
+                if (imageTypesWithDefaultPic != null && imageTypesWithDefaultPic.Count > 0)
+                {
+                    ImageListResponse defaultImagesResponse = GetImagesByIds(groupId, imageTypesWithDefaultPic, true);
+                    if (defaultImagesResponse != null && defaultImagesResponse.Status != null && defaultImagesResponse.Status.Code == (int)eResponseStatus.OK)
+                    {
+                        result.AddRange(defaultImagesResponse.Images);
+                    }
+                }
+            }
+
+            return result;
         }
 
         public static ImageResponse AddImage(int groupId, Image imageToAdd, long userId)
@@ -525,7 +561,7 @@ namespace Core.Catalog.CatalogManagement
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
                     if (id > 0)
                     {
-                        result.Image = CreateImageFromDataRow(groupId, dt.Rows[0]);
+                        result.Image = CreateImageFromDataRow(groupId, dt.Rows[0], id);
 
                         if (result.Image != null)
                         {
@@ -677,6 +713,37 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed AddRatio for groupId: {0} and ratio: {1}", groupId, JsonConvert.SerializeObject(ratio)), ex);
+            }
+
+            return result;
+        }
+
+        public static List<Picture> ConvertImagesToPictures(List<Image> assetImages, int groupId)
+        {
+            List<Picture> pictures = new List<Picture>();
+            if (assetImages != null && assetImages.Count > 0)
+            {
+                foreach (Image image in assetImages)
+                {
+                    ImageType imageType = ImageManager.GetImageType(groupId, image.ImageTypeId);
+                    if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
+                    {
+                        pictures.Add(new Picture(image, imageType.Name, ImageManager.GetRatioName(groupId, imageType.RatioId.Value)));
+                    }
+                }
+            }
+
+            return pictures;
+        }
+
+        // for backward compatibility
+        public static string GetRatioNameByImageTypeId(int groupId, long imageTypeId)
+        {
+            string result = string.Empty;
+            ImageType imageType = ImageManager.GetImageType(groupId, imageTypeId);
+            if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
+            {
+                result = ImageManager.GetRatioName(groupId, imageType.RatioId.Value);
             }
 
             return result;
