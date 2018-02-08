@@ -23,8 +23,8 @@ public partial class adm_series_template : System.Web.UI.Page
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
         Int32 nMenuID = 0;
-        //m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
-        //m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, true);
+        m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
+        m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, true);
 
         if (!IsPostBack)
         {
