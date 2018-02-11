@@ -478,6 +478,7 @@ namespace DAL
                 QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name"),
                 TopicInterestId = ODBCWrapper.Utils.GetSafeStr(row, "topic_interest_id"),
                 TopicNameValue = ODBCWrapper.Utils.GetSafeStr(row, "topic_name_value"),
+                MailExternalId = ODBCWrapper.Utils.GetSafeStr(row, "mail_external_id"),
                 TemplateType = Enum.IsDefined(typeof(MessageTemplateType), templateType) ? (MessageTemplateType)templateType : MessageTemplateType.None,
                 AssetType = Enum.IsDefined(typeof(eAssetTypes), assetType) ? (eAssetTypes)assetType : eAssetTypes.UNKNOWN
             };
