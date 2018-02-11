@@ -86,7 +86,7 @@ namespace Core.Notification
 
         public static string CreateAnnouncement(int groupId, string announcementName)
         {
-            announcementName = string.Format("{0}_{1}", announcementName, (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds);
+            announcementName = string.Format("{0}_{1}", announcementName, (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds);
 
             string externalMailAnnouncementId = string.Empty;
 
