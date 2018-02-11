@@ -2408,7 +2408,7 @@ namespace Core.Billing
             int paymentNumber = 1, long startDateSeconds = 0, long endDateSeconds = 0, bool autoRenewing = false)
         {
             string logString = string.Format("{0}: productId: {1}, productType: {2}, billingGuid: {3}, contentId: {4}, paymentGatewayId: {5}, householdID: {6}, userId: {7}, customData: {8}, billingTransactionStatus: {9}",
-                    "CreateTransaction",                               // {0}
+                    "SaveTransaction",                                 // {0}
                     productId,                                         // {1}             
                     productType.ToString(),                            // {2}
                     billingGuid != null ? billingGuid : string.Empty,  // {3}
