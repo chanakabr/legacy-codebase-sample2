@@ -279,7 +279,7 @@ namespace DAL
                 if (!string.IsNullOrEmpty(queueName))
                     sp.AddParameter("@queueName", queueName);
 
-                if (!string.IsNullOrEmpty(externalId))
+                if (!string.IsNullOrEmpty(mailExternalId))
                     sp.AddParameter("@mailExternalId", mailExternalId);
                 else
                     sp.AddParameter("@mailExternalId", DBNull.Value);
