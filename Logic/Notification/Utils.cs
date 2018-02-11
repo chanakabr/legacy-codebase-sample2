@@ -448,7 +448,7 @@ namespace Core.Notification
             object ratio = null;
             if (mediaImages != null)
             {
-                ratio = ODBCWrapper.Utils.GetTableSingleVal("lu_pics_ratios", "RATIO", ratioId, 86400, "MESSAGE_BOX_CONNECTION_STRING");
+                ratio = ODBCWrapper.Utils.GetTableSingleVal("lu_pics_ratios", "RATIO", ratioId, 86400, "MAIN_CONNECTION_STRING");
 
                 if (ratio != null && ratio != DBNull.Value)
                 {
