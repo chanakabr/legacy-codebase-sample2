@@ -194,13 +194,11 @@ namespace DAL
                 sp.AddIDListParameter<long>("@notificationInterestIds", interestNotificationIds, "id");
 
                 DataSet ds = sp.ExecuteDataSet();
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    if (ds.Tables[0].Rows.Count > 0)
-                    {
-                        foreach (DataRow row in ds.Tables[0].Rows)
-                            result.Add(CreateInterestNotification(row));
-                    }
+                    result = new List<InterestNotification>();
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                        result.Add(CreateInterestNotification(row));
                 }
             }
             catch (Exception ex)
