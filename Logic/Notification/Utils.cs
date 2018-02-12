@@ -466,12 +466,20 @@ namespace Core.Notification
         internal static string GetProgramImageUrlByRatio(List<ApiObjects.Epg.EpgPicture> mediaImages, int ratioId)
         {
             string imageUrl = string.Empty;
+            object ratio = null;
             if (mediaImages != null)
             {
-                ApiObjects.Epg.EpgPicture pic = mediaImages.Where(p => p.RatioId == ratioId).FirstOrDefault();
-                if (pic != null)
+                ratio = ODBCWrapper.Utils.GetTableSingleVal("lu_epg_pics_ratios", "RATIO", ratioId, 86400, "MAIN_CONNECTION_STRING");
+                log.DebugFormat("found ratio");
+                if (ratio != null && ratio != DBNull.Value)
                 {
-                    imageUrl = pic.Url;
+                    log.DebugFormat("ratio = {0}", ratio.ToString());
+
+                    ApiObjects.Epg.EpgPicture pic = mediaImages.Where(p => p.Ratio == ratio.ToString()).FirstOrDefault();
+                    if (pic != null)
+                    {
+                        imageUrl = pic.Url;
+                    }
                 }
             }
 

@@ -1247,7 +1247,7 @@ namespace Core.Notification
             bool result = true;
             if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
             {
-                List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementToSubscribeExternalIds(groupId, userNotificationData);
+                List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementExternalIdsForUser(groupId, userNotificationData);
                 if (externalIds == null || externalIds.Count == 0)
                 {
                     log.ErrorFormat("Failed to get user announcements external Ids to subscribe. group: {0}, userId = {1}", groupId, userId);
@@ -1269,7 +1269,7 @@ namespace Core.Notification
             bool result = true;
             if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
             {
-                List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementToSubscribeExternalIds(groupId, userNotificationData);
+                List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementExternalIdsForUser(groupId, userNotificationData);
                 if (externalIds == null || externalIds.Count == 0)
                 {
                     log.ErrorFormat("Failed to get user announcements external Ids to unsubscribe. group: {0}, userId = {1}", groupId, userId);
@@ -1306,11 +1306,11 @@ namespace Core.Notification
                         LastName = response.m_user.m_oBasicData.m_sLastName
                     };
 
-                    List<string> externalIds = new List<string>();
+                    List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementExternalIdsForUser(groupId, userNotificationData);
 
                     if (!MailNotificationAdapterClient.UpdateUserData(groupId, userId, userNotificationData.UserData, newuserData, externalIds))
                     {
-                        log.ErrorFormat("Failed Upate User Data user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
+                        log.ErrorFormat("Failed to update User Data user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
                             groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
                     }
 

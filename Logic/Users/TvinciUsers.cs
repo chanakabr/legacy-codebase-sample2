@@ -1218,10 +1218,7 @@ namespace Core.Users
                 }
 
                 // add notifications event if email was changed
-                if (oBasicData.m_sEmail != u.m_oBasicData.m_sEmail)
-                {
-                    Utils.AddInitiateNotificationActionToQueue(m_nGroupID, eUserMessageAction.UpdateUser, nUserID, string.Empty);
-                }
+                Utils.AddInitiateNotificationActionToQueue(m_nGroupID, eUserMessageAction.UpdateUser, nUserID, string.Empty);
 
                 resp.Initialize(ResponseStatus.OK, u);
             }

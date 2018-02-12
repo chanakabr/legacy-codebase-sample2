@@ -23,7 +23,7 @@ namespace Core.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
-        public static List<string> GetAllAnnouncementToSubscribeExternalIds(int groupId, UserNotification userNotificationData)
+        public static List<string> GetAllAnnouncementExternalIdsForUser(int groupId, UserNotification userNotificationData)
         {
             List<string> result = new List<string>();
 
@@ -43,7 +43,30 @@ namespace Core.Notification
             // Get list of series reminders to subscribe (EPG)
             result.AddRange(GetUserSeriesRemindersExternalIds(groupId, userNotificationData));
 
-            // Get list of series interests to subscribe - TODO
+            // Get list of series interests to subscribe
+            result.AddRange(GetUserInterestsExternalIds(groupId, userNotificationData));
+
+            return result;
+        }
+
+        private static List<string> GetUserInterestsExternalIds(int groupId, UserNotification userNotificationData)
+        {
+            List<string> result = new List<string>();
+
+            // get notification list from user object
+            List<long> interestIds = new List<long>();
+            if (userNotificationData != null && userNotificationData.UserInterests != null)
+                interestIds = userNotificationData.UserInterests.Select(x => x.AnnouncementId).ToList();
+            else
+                log.DebugFormat("User doesn't have any interests. groupId: {0}, userId: {1}", groupId, userNotificationData.UserId);
+
+            // get reminders from DB
+            var reminders = InterestDal.GetTopicInterestNotificationsByGroupId(groupId, interestIds);
+
+            if (reminders == null || reminders.Count() == 0)
+                log.ErrorFormat("Failed to fetch user interests from DB. groupId: {0}, userId: {1}", groupId, userNotificationData.UserId);
+            else
+                result = reminders.Select(r => r.MailExternalId).ToList();
 
             return result;
         }
@@ -60,7 +83,7 @@ namespace Core.Notification
                 log.DebugFormat("User doesn't follow anything. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
 
             // get announcements
-            List<DbAnnouncement> announcements = new List<DbAnnouncement>(); ;
+            List<DbAnnouncement> announcements = new List<DbAnnouncement>();
             NotificationCache.TryGetAnnouncements(groupId, ref announcements);
             if (announcements != null)
                 announcements = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.All || notificationIds.Contains(x.ID)).ToList();
