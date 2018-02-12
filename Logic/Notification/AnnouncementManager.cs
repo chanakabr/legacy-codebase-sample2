@@ -898,7 +898,7 @@ namespace Core.Notification
                             string template = msgTemplateResponse.MessageTemplate.MailTemplate;
                             foreach (var mergeVar in mergeVars)
                             {
-                                subject = subject.Replace(mergeVar.Key, mergeVar.Value);
+                                subject = subject.Replace("{" + mergeVar.Key + "}", mergeVar.Value);
                             }
 
                             if (!MailNotificationAdapterClient.PublishToAnnouncement(groupId, mailExternalId, subject, mergeVars, template))
