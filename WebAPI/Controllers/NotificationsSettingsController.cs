@@ -142,12 +142,12 @@ namespace WebAPI.Controllers
         /// <remarks>        
         /// </remarks>
         /// <returns>The notification settings that apply for the user</returns>
-        /// 
-        [Route("update"), HttpPost]
+        [Route("updateWithToken"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.InvalidToken)]
-        public bool Update(KalturaNotificationsSettings settings, string token, int partnerId)
+        public bool UpdateWithToken(KalturaNotificationsSettings settings, string token, int partnerId)
         {
             bool response = false;
 

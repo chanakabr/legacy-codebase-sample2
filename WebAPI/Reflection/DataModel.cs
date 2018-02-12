@@ -6655,6 +6655,15 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "FollowTvSeriesController":
+                    switch(action.Name)
+                    {
+                        case "DeleteWithToken":
+                            return;
+                            
+                    }
+                    break;
+                    
                 case "HouseholdDeviceController":
                     switch(action.Name)
                     {
@@ -6666,6 +6675,15 @@ namespace WebAPI.Reflection
                     
                 case "MultiRequestController":
                     return;
+                    
+                case "NotificationsSettingsController":
+                    switch(action.Name)
+                    {
+                        case "UpdateWithToken":
+                            return;
+                            
+                    }
+                    break;
                     
                 case "OttUserController":
                     switch(action.Name)
@@ -6714,6 +6732,15 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "ReminderController":
+                    switch(action.Name)
+                    {
+                        case "DeleteWithToken":
+                            return;
+                            
+                    }
+                    break;
+                    
                 case "ServiceController":
                     return;
                     
@@ -6736,6 +6763,15 @@ namespace WebAPI.Reflection
                             return;
                             
                         case "Ping":
+                            return;
+                            
+                    }
+                    break;
+                    
+                case "UserInterestController":
+                    switch(action.Name)
+                    {
+                        case "DeleteWithToken":
                             return;
                             
                     }
