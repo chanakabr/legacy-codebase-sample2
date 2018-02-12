@@ -1351,7 +1351,6 @@ namespace Core.Notification
                     // MAIL
                     if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId))
                     {
-                        log.DebugFormat("Starting sending mail for series reminder");
                         string imageUrl = Utils.GetProgramImageUrlByRatio(program.m_oProgram.EPG_PICTURES, seriesReminderTemplate.RatioId);
                         string subject = seriesReminderTemplate.MailSubject.Replace("{" + eSeriesReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)).
                                                                  Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty).

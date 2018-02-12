@@ -469,12 +469,9 @@ namespace Core.Notification
             object ratio = null;
             if (mediaImages != null)
             {
-                ratio = ODBCWrapper.Utils.GetTableSingleVal("lu_epg_pics_ratios", "RATIO", ratioId, 86400, "MAIN_CONNECTION_STRING");
-                log.DebugFormat("found ratio");
+                ratio = ODBCWrapper.Utils.GetTableSingleVal("lu_pics_epg_ratios", "RATIO", ratioId, 86400, "MAIN_CONNECTION_STRING");
                 if (ratio != null && ratio != DBNull.Value)
                 {
-                    log.DebugFormat("ratio = {0}", ratio.ToString());
-
                     ApiObjects.Epg.EpgPicture pic = mediaImages.Where(p => p.Ratio == ratio.ToString()).FirstOrDefault();
                     if (pic != null)
                     {
