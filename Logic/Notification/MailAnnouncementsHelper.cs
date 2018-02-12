@@ -126,7 +126,7 @@ namespace Core.Notification
             // get notification list from user object
             List<long> remindersIds = new List<long>();
             if (userNotificationData != null && userNotificationData.SeriesReminders != null)
-                remindersIds = userNotificationData.Reminders.Select(x => x.AnnouncementId).ToList();
+                remindersIds = userNotificationData.SeriesReminders.Select(x => x.AnnouncementId).ToList();
             else
                 log.DebugFormat("User doesn't have any series reminders. groupId: {0}, userId: {1}", groupId, userNotificationData.UserId);
 
