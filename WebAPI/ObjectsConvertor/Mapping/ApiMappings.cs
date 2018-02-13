@@ -315,10 +315,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.Ksql))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToInt32(src.IsActive)))
-               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertAssetOrderToOrderObj(src.Order)))
-                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ApiMappings.ConvertAssetGroupByToGroupBy(src.GroupBy)))
-
-               ;
+               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertAssetOrderToOrderObj(src.Order.Value)))
+                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ApiMappings.ConvertAssetGroupByToGroupBy(src.GroupBy)));
 
             Mapper.CreateMap<KSQLChannel, KalturaDynamicChannel>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
@@ -329,8 +327,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.FilterQuery))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.IsActive)))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderObjToAssetOrder(src.Order)))
-               .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ApiMappings.ConvertGroupByToAssetGroupBy(src.GroupBy)))
-               ;
+               .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ApiMappings.ConvertGroupByToAssetGroupBy(src.GroupBy)));
 
             #endregion
 

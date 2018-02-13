@@ -17,6 +17,8 @@ namespace WebAPI.Models.Catalog
     {
 
         private const string GENESIS_VERSION = "4.6.0.0";
+        public const string DYNAMIC_CHANNEL = "KalturaDynamicChannel";
+        public const string MANUAL_CHANNEL = "KalturaManualChannel";
 
         /// <summary>
         /// Unique identifier for the channel
@@ -113,14 +115,14 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "order")]
         [JsonProperty("order")]
-        [XmlElement(ElementName = "order")]
+        [XmlElement(ElementName = "order", IsNullable = true)]
         [Deprecated(GENESIS_VERSION)]
-        public KalturaAssetOrderBy Order
+        public KalturaAssetOrderBy? Order
         {
             get;
             set;
         }
-
+        
         /// <summary>
         /// Channel group by
         /// </summary>
@@ -132,6 +134,19 @@ namespace WebAPI.Models.Catalog
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Channel order by
+        /// </summary>
+        [DataMember(Name = "orderBy")]
+        [JsonProperty("orderBy")]
+        [XmlElement(ElementName = "orderBy", IsNullable = true)]
+        public KalturaChannelOrder OrderBy { get; set; }
+
+        internal void Validate()
+        {
+            OrderBy.Validate(objectType);
         }
 
     }

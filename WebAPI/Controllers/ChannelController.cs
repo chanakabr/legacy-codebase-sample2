@@ -107,13 +107,26 @@ namespace WebAPI.Controllers
         public KalturaChannel Add(KalturaChannel channel)
         {
             KalturaChannel response = null;
-
+            long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                // call client
-                response = ClientsManager.ApiClient().InsertKSQLChannel(groupId, channel);
+                if (channel.OrderBy == null)
+                {
+                    channel.OrderBy = new KalturaChannelOrder() { orderBy = KalturaChannelOrderBy.CREATE_DATE_DESC };
+                }
+
+                // KalturaDynamicChannel
+                if (channel.objectType == KalturaChannel.DYNAMIC_CHANNEL)
+                {
+                    response = ClientsManager.ApiClient().InsertKSQLChannel(groupId, channel, userId);
+                }
+                // KalturaManualChannel
+                else
+                {
+                    response = ClientsManager.ApiClient().InsertManualChannel(groupId, channel, userId);
+                }
             }
             catch (ClientException ex)
             {
@@ -142,14 +155,14 @@ namespace WebAPI.Controllers
         public KalturaChannel Update(int channelId, KalturaChannel channel)
         {
             KalturaChannel response = null;
-
+            long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
             channel.Id = channelId;
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetKSQLChannel(groupId, channel);
+                response = ClientsManager.ApiClient().SetKSQLChannel(groupId, channel, userId);
             }
             catch (ClientException ex)
             {
@@ -177,13 +190,13 @@ namespace WebAPI.Controllers
         public KalturaChannelProfile AddOldStandard(KalturaChannelProfile channel)
         {
             KalturaChannelProfile response = null;
-
+            long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().InsertKSQLChannelProfile(groupId, channel);
+                response = ClientsManager.ApiClient().InsertKSQLChannelProfile(groupId, channel, userId);
             }
             catch (ClientException ex)
             {
@@ -213,13 +226,13 @@ namespace WebAPI.Controllers
         public KalturaChannelProfile UpdateOldStandard(KalturaChannelProfile channel)
         {
             KalturaChannelProfile response = null;
-
+            long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetKSQLChannelProfile(groupId, channel);
+                response = ClientsManager.ApiClient().SetKSQLChannelProfile(groupId, channel, userId);
             }
             catch (ClientException ex)
             {

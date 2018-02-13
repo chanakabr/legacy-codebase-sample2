@@ -48,18 +48,6 @@ namespace WebAPI.Models.Catalog
         public List<KalturaIntegerValue> AssetTypes { get; set; }
 
         /// <summary>
-        /// Channel order
-        /// </summary>
-        [DataMember(Name = "order")]
-        [JsonProperty("order")]
-        [XmlElement(ElementName = "order")]
-        public KalturaAssetOrderBy Order
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Channel group by
         /// </summary>
         [DataMember(Name = "groupBy")]

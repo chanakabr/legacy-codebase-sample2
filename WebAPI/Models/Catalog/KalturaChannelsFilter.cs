@@ -12,7 +12,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaChannelsFilter : KalturaFilter<KalturaChannelOrderBy>
+    public class KalturaChannelsFilter : KalturaFilter<KalturaChannelsOrderBy>
     {
         /// <summary>
         /// Exact channel name to filter by
@@ -30,7 +30,6 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "nameStartsWith")]
         public string NameStartsWith { get; set; }
 
-
         internal void Validate()
         {
             if (!string.IsNullOrEmpty(NameEqual) && !string.IsNullOrEmpty(NameStartsWith))
@@ -39,13 +38,13 @@ namespace WebAPI.Models.Catalog
             }
         }
 
-        public override KalturaChannelOrderBy GetDefaultOrderByValue()
+        public override KalturaChannelsOrderBy GetDefaultOrderByValue()
         {
-            return KalturaChannelOrderBy.NONE;
+            return KalturaChannelsOrderBy.NONE;
         }
     }
 
-    public enum KalturaChannelOrderBy
+    public enum KalturaChannelsOrderBy
     {
         NONE,
         NAME_ASC,

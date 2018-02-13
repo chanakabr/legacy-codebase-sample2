@@ -70,6 +70,8 @@ namespace WebAPI.Reflection
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "MediaTypes":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "Order":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                     };
                     break;
                     
@@ -3061,6 +3063,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "Order":
                             return "order";
+                        case "OrderBy":
+                            return "orderBy";
                         case "SystemName":
                             return "systemName";
                     }
@@ -3095,6 +3099,14 @@ namespace WebAPI.Reflection
                     {
                         case "Channels":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaChannelOrder":
+                    switch(property.Name)
+                    {
+                        case "DynamicOrderBy":
+                            return "dynamicOrderBy";
                     }
                     break;
                     
@@ -3625,8 +3637,6 @@ namespace WebAPI.Reflection
                             return "groupBy";
                         case "Ksql":
                             return "kSql";
-                        case "Order":
-                            return "order";
                     }
                     break;
                     
@@ -4749,8 +4759,6 @@ namespace WebAPI.Reflection
                 case "KalturaManualChannel":
                     switch(property.Name)
                     {
-                        case "DynamicOrderBy":
-                            return "dynamicOrderBy";
                         case "MediaIds":
                             return "mediaIds";
                     }

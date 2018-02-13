@@ -172,9 +172,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.m_nIsActive))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
-                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.searchGroupBy)))
+                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.searchGroupBy)));
 
-                ;
+            //Channel (Catalog) to KalturaDynamicChannel
+            Mapper.CreateMap<Channel, WebAPI.Models.Catalog.KalturaDynamicChannel>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.m_sName))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sName)))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sDescription)))
+                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
+                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.filterQuery))                
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.m_nIsActive))
+                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertToKalturaChannelOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
+                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.searchGroupBy)));
+
+            //Channel (Catalog) to KalturaDynamicChannel
+            Mapper.CreateMap<Channel, WebAPI.Models.Catalog.KalturaManualChannel>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.m_sName))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sName)))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sDescription)))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.m_nIsActive))
+                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertToKalturaChannelOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
+                .ForMember(dest => dest.MediaIds, opt => opt.MapFrom(src => src.m_lManualMedias != null ? string.Join(",", src.m_lManualMedias.OrderBy(x => x.m_nOrderNum).Select(x => x.m_sMediaId)) : string.Empty));
 
             //CategoryResponse to Category
             Mapper.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()
@@ -1610,6 +1630,81 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         break;
                     }
                 case OrderBy.META:                
+                case OrderBy.RECOMMENDATION:
+                case OrderBy.RANDOM:
+                case OrderBy.LIKE_COUNTER:
+                case OrderBy.NONE:
+                case OrderBy.ID:
+                default:
+                    break;
+            }
+
+            return result;
+        }
+
+        public static KalturaChannelOrder ConvertToKalturaChannelOrder(OrderBy OrderBy, OrderDir OrderDir)
+        {
+            KalturaChannelOrder result = new KalturaChannelOrder();
+
+            switch (OrderBy)
+            {
+                case OrderBy.VIEWS:
+                    {
+                        result.orderBy = KalturaChannelOrderBy.VIEWS_DESC;
+                        break;
+                    }
+                case OrderBy.RATING:
+                    {
+                        result.orderBy = KalturaChannelOrderBy.RATINGS_DESC;
+                        break;
+                    }
+                case OrderBy.VOTES_COUNT:
+                    {
+                        result.orderBy = KalturaChannelOrderBy.VOTES_DESC;
+                        break;
+                    }
+                case OrderBy.START_DATE:
+                    {
+                        if (OrderDir == OrderDir.DESC)
+                        {
+                            result.orderBy = KalturaChannelOrderBy.START_DATE_DESC;
+                        }
+                        else
+                        {
+                            result.orderBy = KalturaChannelOrderBy.START_DATE_ASC;
+                        }
+                        break;
+                    }
+                case OrderBy.CREATE_DATE:
+                    {
+                        if (OrderDir == OrderDir.DESC)
+                        {
+                            result.orderBy = KalturaChannelOrderBy.CREATE_DATE_DESC;
+                        }
+                        else
+                        {
+                            result.orderBy = KalturaChannelOrderBy.CREATE_DATE_ASC;
+                        }
+                        break;
+                    }
+                case OrderBy.NAME:
+                    {
+                        if (OrderDir == OrderDir.ASC)
+                        {
+                            result.orderBy = KalturaChannelOrderBy.NAME_ASC;
+                        }
+                        else
+                        {
+                            result.orderBy = KalturaChannelOrderBy.NAME_DESC;
+                        }
+                        break;
+                    }
+                case OrderBy.RELATED:
+                    {
+                        result.orderBy = KalturaChannelOrderBy.RELEVANCY_DESC;
+                        break;
+                    }
+                case OrderBy.META:
                 case OrderBy.RECOMMENDATION:
                 case OrderBy.RANDOM:
                 case OrderBy.LIKE_COUNTER:

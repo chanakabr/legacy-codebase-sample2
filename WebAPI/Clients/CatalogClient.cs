@@ -1412,8 +1412,8 @@ namespace WebAPI.Clients
                 channelId, pageIndex, pageSize, groupId, siteGuid, language, orderBy);
 
             // fire request
-            ChannelResponse channelResponse = new ChannelResponse();
-            if (!CatalogUtils.GetBaseResponse<ChannelResponse>(request, out channelResponse, true, key.ToString()))
+            Core.Catalog.Response.ChannelResponse channelResponse = new Core.Catalog.Response.ChannelResponse();
+            if (!CatalogUtils.GetBaseResponse<Core.Catalog.Response.ChannelResponse>(request, out channelResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -3742,10 +3742,10 @@ namespace WebAPI.Clients
         }
 
         internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, int pageIndex, int pageSize,
-            KalturaChannelOrderBy channelOrderBy)
+            KalturaChannelsOrderBy channelOrderBy)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
-            ChannelsResponse response = null;
+            Core.Catalog.CatalogManagement.ChannelListResponse response = null;
 
             List<GroupsCacheManager.Channel> channels = null;
             ChannelOrderBy orderBy = ChannelOrderBy.Id;
@@ -3753,31 +3753,31 @@ namespace WebAPI.Clients
 
             switch (channelOrderBy)
             {
-                case KalturaChannelOrderBy.NONE:
+                case KalturaChannelsOrderBy.NONE:
                     {
                         orderBy = ChannelOrderBy.Id;
                         orderDirection = OrderDir.DESC;
                         break;
                     }
-                case KalturaChannelOrderBy.NAME_ASC:
+                case KalturaChannelsOrderBy.NAME_ASC:
                     {
                         orderBy = ChannelOrderBy.Name;
                         orderDirection = OrderDir.ASC;
                         break;
                     }
-                case KalturaChannelOrderBy.NAME_DESC:
+                case KalturaChannelsOrderBy.NAME_DESC:
                     {
                         orderBy = ChannelOrderBy.Name;
                         orderDirection = OrderDir.DESC;
                         break;
                     }
-                case KalturaChannelOrderBy.CREATE_DATE_ASC:
+                case KalturaChannelsOrderBy.CREATE_DATE_ASC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
                         orderDirection = OrderDir.ASC;
                         break;
                     }
-                case KalturaChannelOrderBy.CREATE_DATE_DESC:
+                case KalturaChannelsOrderBy.CREATE_DATE_DESC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
                         orderDirection = OrderDir.DESC;
@@ -3791,7 +3791,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.CatalogManager.SearchChannels(groupId, isExcatValue, value, pageIndex, pageSize, orderBy, orderDirection);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, pageIndex, pageSize, orderBy, orderDirection);
                 }
             }
             catch (Exception ex)
@@ -3814,9 +3814,21 @@ namespace WebAPI.Clients
 
             if (response.Channels != null && response.Channels.Count > 0)
             {
-                result.TotalCount = response.TotalItems;
+                result.Channels = new List<KalturaChannel>();                
                 // convert channels
-                result.Channels = Mapper.Map<List<KalturaChannel>>(response.Channels);
+                List<KalturaDynamicChannel> dynamicChannels = Mapper.Map<List<KalturaDynamicChannel>>(response.Channels.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL).ToList());
+                List<KalturaManualChannel> manualChannels = Mapper.Map<List<KalturaManualChannel>>(response.Channels.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual).ToList());
+                if (dynamicChannels != null)
+                {
+                    result.Channels.AddRange(dynamicChannels);
+                }
+
+                if (manualChannels != null && manualChannels.Count > 0)
+                {
+                    result.Channels.AddRange(manualChannels);
+                }
+
+                result.TotalCount = result.Channels.Count;
             }
 
             return result;

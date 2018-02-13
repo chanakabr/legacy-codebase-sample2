@@ -246,6 +246,7 @@
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Models\API\KalturaDRMProfile.cs" />
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaChannelOrder.cs" />
     <Compile Include="Models\Catalog\KalturaChannelsFilter.cs" />
     <Compile Include="Models\Catalog\KalturaDynamicChannel.cs" />
     <Compile Include="Models\Catalog\KalturaManualChannel.cs" />

@@ -20,15 +20,6 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "mediaIds", IsNullable = true)]
         public string MediaIds { get; set; }
 
-        /// <summary>
-        /// dynamicOrderBy - order by Meta
-        /// </summary>
-        [DataMember(Name = "dynamicOrderBy")]
-        [JsonProperty("dynamicOrderBy")]
-        [XmlElement(ElementName = "dynamicOrderBy", IsNullable = true)]
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public KalturaDynamicOrderBy DynamicOrderBy { get; set; }
-
         public bool ValidateMediaIds()
         {
             if (!string.IsNullOrEmpty(MediaIds))

@@ -2646,8 +2646,9 @@ namespace WebAPI.Clients
             return success;
         }
 
-        #region KSQL Channel
-        internal KalturaChannel InsertKSQLChannel(int groupId, KalturaChannel channel)
+        #region KalturaDynamicChannel And KalturaManualChannel
+
+        internal KalturaChannel InsertKSQLChannel(int groupId, KalturaChannel channel, long userId)
         {
             KSQLChannelResponse response = null;
             KalturaChannel profile = null;
@@ -2657,7 +2658,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
-                    response = Core.Api.Module.InsertKSQLChannel(groupId, request);
+                    response = Core.Api.Module.InsertKSQLChannel(groupId, request, userId);
                 }
             }
             catch (Exception ex)
@@ -2680,7 +2681,40 @@ namespace WebAPI.Clients
             return profile;
         }
 
-        internal KalturaChannel SetKSQLChannel(int groupId, KalturaChannel channel)
+        internal KalturaChannel InsertManualChannel(int groupId, KalturaChannel manualChannel, long userId)
+        {
+            KalturaChannel result = null;
+            Core.Catalog.CatalogManagement.ChannelResponse response = null;
+
+            try
+            {                 
+                GroupsCacheManager.Channel channelToAdd = AutoMapper.Mapper.Map<GroupsCacheManager.Channel>(manualChannel);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ChannelManager.AddManualChannel(groupId, channelToAdd, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = AutoMapper.Mapper.Map<KalturaManualChannel>(response.Channel);
+            return result;
+        }
+
+        internal KalturaChannel SetKSQLChannel(int groupId, KalturaChannel channel, long userId)
         {
             KSQLChannelResponse response = null;
             KalturaChannel profile = null;
@@ -2692,7 +2726,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
-                    response = Core.Api.Module.SetKSQLChannel(groupId, request);
+                    response = Core.Api.Module.SetKSQLChannel(groupId, request, userId);
                 }
             }
             catch (Exception ex)
@@ -2716,7 +2750,7 @@ namespace WebAPI.Clients
         }
 
         [Obsolete]
-        internal KalturaChannelProfile InsertKSQLChannelProfile(int groupId, KalturaChannelProfile channel)
+        internal KalturaChannelProfile InsertKSQLChannelProfile(int groupId, KalturaChannelProfile channel, long userId)
         {
             KSQLChannelResponse response = null;
             KalturaChannelProfile profile = null;
@@ -2728,7 +2762,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
-                    response = Core.Api.Module.InsertKSQLChannel(groupId, request);
+                    response = Core.Api.Module.InsertKSQLChannel(groupId, request, userId);
                 }
             }
             catch (Exception ex)
@@ -2752,7 +2786,7 @@ namespace WebAPI.Clients
         }
 
         [Obsolete]
-        internal KalturaChannelProfile SetKSQLChannelProfile(int groupId, KalturaChannelProfile channel)
+        internal KalturaChannelProfile SetKSQLChannelProfile(int groupId, KalturaChannelProfile channel, long userId)
         {
             KSQLChannelResponse response = null;
             KalturaChannelProfile profile = null;
@@ -2764,7 +2798,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
-                    response = Core.Api.Module.SetKSQLChannel(groupId, request);
+                    response = Core.Api.Module.SetKSQLChannel(groupId, request, userId);
                 }
             }
             catch (Exception ex)
@@ -2851,6 +2885,7 @@ namespace WebAPI.Clients
 
             return profile;
         }
+
         #endregion
 
         internal bool CleanUserHistory(int groupId, string userId, List<Models.Catalog.KalturaSlimAsset> assetsList)
