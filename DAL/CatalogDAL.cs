@@ -3956,29 +3956,31 @@ namespace Tvinci.Core.DAL
         /// <param name="groupID"></param>
         /// <param name="channelId"></param>
         /// <returns></returns>
-        public static bool DeleteKSQLChannel(int groupID, int channelId)
+        public static bool DeleteChannel(int groupID, int channelId)
         {
-            bool result = false;
+            // TODO - Lior : create procedure
+            throw new NotImplementedException();
+            //bool result = false;
 
-            try
-            {
-                UpdateQuery updateQuery = new UpdateQuery("CHANNELS");
+            //try
+            //{
+            //    UpdateQuery updateQuery = new UpdateQuery("CHANNELS");
 
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 2);
-                updateQuery += " WHERE ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", channelId);
-                updateQuery += " and ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 2);
+            //    updateQuery += " WHERE ";
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", channelId);
+            //    updateQuery += " and ";
+            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
 
-                result = updateQuery.Execute();
-                updateQuery.Finish();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed deleting KSQL Channel {0}", channelId, ex);
-            }
+            //    result = updateQuery.Execute();
+            //    updateQuery.Finish();
+            //}
+            //catch (Exception ex)
+            //{
+            //    log.ErrorFormat("Failed deleting KSQL Channel {0}", channelId, ex);
+            //}
 
-            return result;
+            //return result;
         }
 
         public static List<KSQLChannel> GetKSQLChannels(int groupID)
