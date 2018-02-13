@@ -88,6 +88,11 @@ namespace GroupsCacheManager
         [DataMember]
         public SearchAggregationGroupBy searchGroupBy;
 
+        [DataMember]
+        public DateTime? CreateDate { get; set; }
+        [DataMember]
+        public DateTime? UpdateDate { get; set; }
+
         #endregion
 
         #region CTOR
