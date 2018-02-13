@@ -1506,11 +1506,9 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 CatalogGroupCache catalogGroupCache;
-                TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
-
-                if (catalogGroupCache == null)
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddTag", groupId);
                     return result;
                 }
 
@@ -1570,11 +1568,9 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 CatalogGroupCache catalogGroupCache;
-                TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
-
-                if (catalogGroupCache == null)
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateTag", groupId);
                     return result;
                 }
 
@@ -1631,13 +1627,10 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeleteTag(groupId, tagId, userId))
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
                     CatalogGroupCache catalogGroupCache;
-                    TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
-
-                    if (catalogGroupCache == null)
+                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
-                        log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteTag", groupId);
                         return result;
                     }
 
@@ -1688,18 +1681,14 @@ namespace Core.Catalog.CatalogManagement
         public static TagResponse SearchTags(int groupId, bool isExcatValue, string searchValue, int topicId, int searchLanguageId, int pageIndex, int pageSize)
         {
             TagResponse result = new TagResponse();
-
             CatalogGroupCache catalogGroupCache;
-            TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
-
-            if (catalogGroupCache == null)
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
-                log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling SearchTags", groupId);
                 return result;
             }
 
             LanguageObj searchLanguage = null;
-
             if (searchLanguageId != 0)
             {
                 catalogGroupCache.LanguageMapById.TryGetValue(searchLanguageId, out searchLanguage);
@@ -1747,45 +1736,6 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static ChannelsResponse SearchChannels(int groupId, bool isExcatValue, string searchValue, int pageIndex, int pageSize,
-            ApiObjects.SearchObjects.ChannelOrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection)
-        {
-            ChannelsResponse result = new ChannelsResponse();
-
-            CatalogGroupCache catalogGroupCache;
-            TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache);
-
-            if (catalogGroupCache == null)
-            {
-                log.ErrorFormat("no catalog group cache for groupId {0}", groupId);
-                return result;
-            }
-
-            ApiObjects.SearchObjects.ChannelSearchDefinitions definitions = new ApiObjects.SearchObjects.ChannelSearchDefinitions()
-            {
-                GroupId = groupId,
-                PageIndex = pageIndex,
-                PageSize = pageSize,
-                AutocompleteSearchValue = isExcatValue ? string.Empty : searchValue,
-                ExactSearchValue = isExcatValue ? searchValue : string.Empty,
-                OrderBy = orderBy,
-                OrderDirection = orderDirection
-            };
-
-            int totalItemsCount = 0;
-            ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-            List<int> channelIds = wrapper.SearchChannels(definitions, out totalItemsCount);
-
-
-            GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-            var channels = groupManager.GetChannels(channelIds, groupId);
-
-            result.Channels = channels;
-            result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            result.TotalItems = totalItemsCount;
-
-            return result;
-        }
         #endregion
     }
 }

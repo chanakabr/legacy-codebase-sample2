@@ -57,7 +57,7 @@ namespace APILogic.CRUD
         #endregion
         #region CRUD
 
-        public static KSQLChannelResponse Insert(int groupID, KSQLChannel channel)
+        public static KSQLChannelResponse Insert(int groupID, KSQLChannel channel, long userId = 700)
         {
             KSQLChannelResponse response = new KSQLChannelResponse();
 
@@ -135,7 +135,7 @@ namespace APILogic.CRUD
                     metas = group.m_oMetasValuesByGroupId[groupID];
                 }
 
-                response.Channel = CatalogDAL.InsertKSQLChannel(groupID, channel, metas);
+                response.Channel = CatalogDAL.InsertKSQLChannel(groupID, channel, metas, userId);
 
                 if (response.Channel != null && response.Channel.ID > 0)
                 {
@@ -211,7 +211,7 @@ namespace APILogic.CRUD
             return response;
         }
 
-        public static KSQLChannelResponse Set(int groupID, KSQLChannel channel)
+        public static KSQLChannelResponse Set(int groupID, KSQLChannel channel, long userId = 700)
         {
             KSQLChannelResponse response = new KSQLChannelResponse();
 
@@ -299,7 +299,7 @@ namespace APILogic.CRUD
                     metas = group.m_oMetasValuesByGroupId[groupID];
                 }
 
-                response.Channel = CatalogDAL.UpdateKSQLChannel(groupID, channel, metas);
+                response.Channel = CatalogDAL.UpdateKSQLChannel(groupID, channel, metas, userId);
 
                 if (response.Channel != null && response.Channel.ID > 0)
                 {

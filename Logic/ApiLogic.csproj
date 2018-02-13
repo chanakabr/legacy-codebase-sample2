@@ -192,6 +192,7 @@
     <Compile Include="Catalog\Cache\ParentalRulesTagsCache.cs" />
     <Compile Include="Catalog\CatalogLogic.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\AssetManager.cs" />
+    <Compile Include="Catalog\CatalogManagement\Managers\ChannelManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Managers\FileManager.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\Asset.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\AssetFile.cs" />
@@ -214,7 +215,7 @@
     <Compile Include="Catalog\CatalogManagement\Objects\LinearMediaAsset.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\MediaAsset.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\ImageTypeResponse.cs" />
-    <Compile Include="Catalog\CatalogManagement\Objects\ChannelsResponse.cs" />
+    <Compile Include="Catalog\CatalogManagement\Objects\ChannelResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\TagResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\ChannelListResponse.cs" />
     <Compile Include="Catalog\CatalogManagement\Objects\TopicListResponse.cs" />

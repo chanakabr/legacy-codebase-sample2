@@ -10,7 +10,8 @@ namespace Core.Catalog.CatalogManagement
 
         public AssetFileResponse()
         {
-            Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());            
+            Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            File = null;
         }
     }
 }

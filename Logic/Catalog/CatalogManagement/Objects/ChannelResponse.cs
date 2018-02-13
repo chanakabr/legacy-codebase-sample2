@@ -4,19 +4,16 @@ using System.Collections.Generic;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class ChannelsResponse
+    public class ChannelResponse
     {
         public ApiObjects.Response.Status Status { get; set; }
 
-        public List<Channel> Channels { get; set; }
+        public Channel Channel { get; set; }        
 
-        public int TotalItems { get; set; }
-
-        public ChannelsResponse()
+        public ChannelResponse()
         {
             Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            Channels = new List<Channel>();
-            TotalItems = 0;
+            Channel = null;
         }
     }
 }

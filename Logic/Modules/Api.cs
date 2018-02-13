@@ -1472,9 +1472,9 @@ namespace Core.Api
         }
 
         #region KSQL Channel
-        public static KSQLChannelResponse InsertKSQLChannel(int groupId, KSQLChannel channel)
+        public static KSQLChannelResponse InsertKSQLChannel(int groupId, KSQLChannel channel, long userId)
         {
-            return APILogic.CRUD.KSQLChannelsManager.Insert(groupId, channel);
+            return APILogic.CRUD.KSQLChannelsManager.Insert(groupId, channel, userId);
         }
 
         public static ApiObjects.Response.Status DeleteKSQLChannel(int groupId, int channelId)
@@ -1482,9 +1482,9 @@ namespace Core.Api
             return APILogic.CRUD.KSQLChannelsManager.Delete(groupId, channelId);
         }
 
-        public static KSQLChannelResponse SetKSQLChannel(int groupId, KSQLChannel channel)
+        public static KSQLChannelResponse SetKSQLChannel(int groupId, KSQLChannel channel, long userId)
         {
-            return APILogic.CRUD.KSQLChannelsManager.Set(groupId, channel);
+            return APILogic.CRUD.KSQLChannelsManager.Set(groupId, channel, userId);
         }
 
         public static KSQLChannelResponse GetKSQLChannel(int groupId, int channelId)

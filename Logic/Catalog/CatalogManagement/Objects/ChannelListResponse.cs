@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using GroupsCacheManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +13,12 @@ namespace Core.Catalog.CatalogManagement
 
         public Status Status { get; set; }
 
-        //public List<?> Channels { get; set; }
+        public List<Channel> Channels { get; set; }
 
         public ChannelListResponse()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            //Channels = new List<?>();
+            Channels = new List<Channel>();
         }
 
     }

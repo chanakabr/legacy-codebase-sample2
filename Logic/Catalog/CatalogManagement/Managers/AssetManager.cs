@@ -649,6 +649,7 @@ namespace Core.Catalog.CatalogManagement
                 if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetWithNoCache", groupId);
+                    return result;
                 }
 
                 switch (assetType)

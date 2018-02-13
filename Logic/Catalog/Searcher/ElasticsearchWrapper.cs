@@ -3096,10 +3096,9 @@ namespace Core.Catalog
 
         #region Channels
 
-        public List<int> SearchChannels(ChannelSearchDefinitions definitions, out int totalItems)
+        public List<int> SearchChannels(ChannelSearchDefinitions definitions)
         {
-            List<int> result = new List<int>();
-            totalItems = 0;
+            List<int> result = new List<int>();            
 
             #region Build filtered query
 
@@ -3188,7 +3187,7 @@ namespace Core.Catalog
             if (jsonObj != null)
             {
                 JToken tempToken;
-                totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+                int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
 
                 if (totalItems > 0)
                 {
@@ -3199,9 +3198,7 @@ namespace Core.Catalog
 
                         string id = ((tempToken = source.SelectToken("channel_id")) == null ? string.Empty : (string)tempToken);
                         int channelId = 0;
-                        int.TryParse(id, out channelId);
-
-                        if (channelId > 0)
+                        if (int.TryParse(id, out channelId) && channelId > 0)
                         {
                             result.Add(channelId);
                         }
