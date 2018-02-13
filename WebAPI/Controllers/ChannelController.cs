@@ -75,13 +75,13 @@ namespace WebAPI.Controllers
         public bool Delete(int channelId)
         {
             bool response = false;
-
+            long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().DeleteKSQLChannel(groupId, channelId);
+                response = ClientsManager.CatalogClient().DeleteChannel(groupId, channelId, userId);
             }
             catch (ClientException ex)
             {

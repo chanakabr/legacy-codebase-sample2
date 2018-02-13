@@ -3853,7 +3853,7 @@ namespace WebAPI.Clients
                         request = Mapper.Map<KSQLChannel>(channel);
                     }
 
-                    response = Core.Api.Module.InsertKSQLChannel(groupId, request, userId);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.AddDynamicChannel(groupId, request, userId);
                 }
             }
             catch (Exception ex)
@@ -3964,7 +3964,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
-                    response = Core.Api.Module.InsertKSQLChannel(groupId, request, userId);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.AddDynamicChannel(groupId, request, userId);
                 }
             }
             catch (Exception ex)
@@ -4023,7 +4023,7 @@ namespace WebAPI.Clients
             return profile;
         }
 
-        internal bool DeleteKSQLChannel(int groupId, int channelId)
+        internal bool DeleteChannel(int groupId, int channelId, long userId)
         {
             Status response = null;
 
@@ -4031,7 +4031,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.DeleteKSQLChannel(groupId, channelId);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.DeleteChannel(groupId, channelId, userId);
                 }
             }
             catch (Exception ex)
