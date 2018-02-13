@@ -34,10 +34,10 @@ namespace APILogic.CRUD
 
         public const int EPG_ASSET_TYPE = -26;
 
-        protected const string ID_REQUIRED = "KSQL Channel Identifier is required for this operation";
-        protected const string KSQL_CHANNEL_NOT_EXIST = "KSQL Channel with given ID does not exist";
-        protected const string NO_KSQL_CHANNEL_TO_INSERT = "No KSQL Channel was given to insert";
-        protected const string NAME_REQUIRED = "KSQL Channel must have a name";
+        public const string ID_REQUIRED = "Channel Identifier is required for this operation";
+        public const string CHANNEL_NOT_EXIST = "Channel with given ID does not exist";
+        public const string NO_KSQL_CHANNEL_TO_INSERT = "No KSQL Channel was given to insert";
+        public const string NAME_REQUIRED = "KSQL Channel must have a name";
 
         #endregion
 
@@ -59,158 +59,21 @@ namespace APILogic.CRUD
 
         public static KSQLChannelResponse Insert(int groupId, KSQLChannel channel, long userId = 700)
         {
-            KSQLChannelResponse response = new KSQLChannelResponse();
-
-            try
-            {
-                if (channel == null)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoObjectToInsert, NO_KSQL_CHANNEL_TO_INSERT);
-                    return response;
-                }
-
-                if (string.IsNullOrEmpty(channel.Name))
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
-                    return response;
-                }
-
-                // Validate filter query by parsing it
-                if (!string.IsNullOrEmpty(channel.FilterQuery))
-                {
-                    ApiObjects.SearchObjects.BooleanPhraseNode temporaryNode = null;
-                    var parseStatus = ApiObjects.SearchObjects.BooleanPhraseNode.ParseSearchExpression(channel.FilterQuery, ref temporaryNode);
-
-                    if (parseStatus == null)
-                    {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.SyntaxError, "Failed parsing filter query");
-                        return response;
-                    }
-                    else if (parseStatus.Code != (int)eResponseStatus.OK)
-                    {
-                        response.Status = new ApiObjects.Response.Status(parseStatus.Code, parseStatus.Message);
-                        return response;
-                    }
-
-                    channel.filterTree = temporaryNode;
-                }
-
-                // Validate asset types
-                if (channel.AssetTypes != null)
-                {
-                    Dictionary<int, string> mediaTypesIdToName;
-                    Dictionary<string, int> mediaTypesNameToId;
-                    Dictionary<int, int> mediaTypeParents;
-                    List<int> linearMediaTypes;
-
-                    CatalogDAL.GetMediaTypes(groupId,
-                        out mediaTypesIdToName,
-                        out mediaTypesNameToId,
-                        out mediaTypeParents,
-                        out linearMediaTypes);
-
-                    HashSet<int> groupMediaTypes = new HashSet<int>(mediaTypesIdToName.Keys);
-
-                    var channelsMediaTypes = channel.AssetTypes.Where(type => type != EPG_ASSET_TYPE);
-
-                    foreach (int assetType in channelsMediaTypes)
-                    {
-                        if (!groupMediaTypes.Contains(assetType))
-                        {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidMediaType,
-                                string.Format("KSQL Channel media type {0} does not belong to group", assetType));
-                            return response;
-                        }
-                    }
-                }
-
-                channel.GroupID = groupId;
-                Dictionary<string, string> metas = null;
-                bool doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
-                if (!doesGroupUsesTemplates)
-                {
-                    Group group = GroupsCache.Instance().GetGroup(groupId);
-                    if (group != null && group.m_oMetasValuesByGroupId.ContainsKey(groupId))
-                    {
-                        metas = group.m_oMetasValuesByGroupId[groupId];
-                    }
-                }
-
-                response.Channel = InsertKSQLChannel(groupId, channel, metas, doesGroupUsesTemplates, userId);
-
-                if (response.Channel != null && response.Channel.ID > 0)
-                {
-                    UpdateCatalog(groupId, response.Channel.ID);
-
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new KSQL channel insert");
-                }
-                else
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to insert new KSQL channel");
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed groupID={0}", groupId), ex);
-            }
-
-            return response;
+            return Core.Catalog.CatalogManagement.ChannelManager.AddDynamicChannel(groupId, channel, userId);
         }
 
-        private static void UpdateCatalog(int groupID, int channelId, eAction action = eAction.Update)
+        public static ApiObjects.Response.Status Delete(int groupId, int channelId, long userId = 700)
         {
-            bool updateChannelResult = Core.Catalog.Module.UpdateChannelIndex(new List<int> { channelId }, groupID, action);
-
-            log.DebugFormat("KSQL Channels Manager - WS_Catalog UpdateChannel index result is {0}", updateChannelResult);
+            return Core.Catalog.CatalogManagement.ChannelManager.DeleteChannel(groupId, channelId, userId);
         }
 
-        public static ApiObjects.Response.Status Delete(int groupID, int channelId)
+        public static void UpdateCatalog(int groupID, int channelId, eAction action = eAction.Update)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            try
+            if (!Core.Catalog.Module.UpdateChannelIndex(new List<int> { channelId }, groupID, action))
             {
-                if (channelId == 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.IdentifierRequired, ID_REQUIRED);
-                    return response;
-                }
-
-                //check if channel exists
-                KSQLChannel originalChannel = CatalogDAL.GetKSQLChannelById(groupID, channelId, null);
-                if (originalChannel == null || channelId <= 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, KSQL_CHANNEL_NOT_EXIST);
-                    return response;
-                }
-
-                bool isSet = CatalogDAL.DeleteKSQLChannel(groupID, channelId);
-
-                if (isSet)
-                {
-                    UpdateCatalog(groupID, channelId, eAction.Delete);
-
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "KSQL channel deleted");
-                }
-                else
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, KSQL_CHANNEL_NOT_EXIST);
-                }
-
-                string[] keys = new string[1] 
-                { 
-                    BuildChannelCacheKey(groupID, channelId)
-                };
-
-                TVinciShared.QueueUtils.UpdateCache(groupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
+                log.ErrorFormat("Failed updating channel index for channelId: {0}", channelId);
             }
-            catch (Exception ex)
-            {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed groupID={0}, channelId={1}", groupID, channelId), ex);
-            }
-            return response;
-        }
+        }        
 
         public static KSQLChannelResponse Set(int groupID, KSQLChannel channel, long userId = 700)
         {
@@ -284,7 +147,7 @@ namespace APILogic.CRUD
 
                 if (original == null || original.ID <= 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, KSQL_CHANNEL_NOT_EXIST);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, CHANNEL_NOT_EXIST);
                     return response;
                 }
 
@@ -377,7 +240,7 @@ namespace APILogic.CRUD
                 response.Channel = CatalogDAL.GetKSQLChannelById(groupID, channelId, metas);
                 if (response.Channel == null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, KSQL_CHANNEL_NOT_EXIST);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, CHANNEL_NOT_EXIST);
                 }
                 else
                 {
@@ -398,28 +261,9 @@ namespace APILogic.CRUD
 
         #region Private Methods
 
-        private static string BuildChannelCacheKey(int groupId, int channelId)
+        public static string BuildChannelCacheKey(int groupId, int channelId)
         {
             return string.Format("{2}_group_{0}_channel_{1}", groupId, channelId, version);
-        }
-
-        private static KSQLChannel InsertKSQLChannel(int groupId, KSQLChannel channel, Dictionary<string, string> metas, bool doesGroupUsesTemplates, long userId)
-        {
-            KSQLChannel result = null;
-            DataSet ds = CatalogDAL.InsertKsqlChannel(groupId, channel, userId);
-            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
-            {
-                DataTable assetTypes = null;
-
-                if (ds.Tables.Count > 1)
-                {
-                    assetTypes = ds.Tables[1];
-                }
-
-                result = CatalogDAL.CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas, doesGroupUsesTemplates);
-            }
-
-            return result;
         }
 
         public static KSQLChannel UpdateKSQLChannel(int groupID, KSQLChannel channel, Dictionary<string, string> metas, long userId)
