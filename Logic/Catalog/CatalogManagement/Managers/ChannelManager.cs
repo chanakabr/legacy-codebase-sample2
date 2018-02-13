@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Tvinci.Core.DAL;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -19,7 +20,7 @@ namespace Core.Catalog.CatalogManagement
 
         #region Private Methods
 
-        private static Channel CreateChannelByDataRow(int groupId, DataTable mediaTypesTable, DataRow rowData, CatalogGroupCache catalogGroupCache)
+        private static Channel CreateChannelByDataRow(int groupId, DataTable mediaTypesTable, DataRow rowData)
         {
             Channel channel = new Channel();
             if (channel.m_lChannelTags == null)
@@ -36,6 +37,8 @@ namespace Core.Catalog.CatalogManagement
             channel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
             channel.m_sName = ODBCWrapper.Utils.ExtractString(rowData, "name");
             channel.m_sDescription = ODBCWrapper.Utils.ExtractString(rowData, "description");
+            channel.CreateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(rowData, "CREATE_DATE");
+            channel.UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(rowData, "UPDATE_DATE");
 
             ChannelType channelType = ChannelType.None;
             if (Enum.IsDefined(typeof(ChannelType), channel.m_nChannelTypeID))
@@ -81,7 +84,7 @@ namespace Core.Catalog.CatalogManagement
             string orderByValue = ODBCWrapper.Utils.GetSafeStr(rowData, "ORDER_BY_VALUE");
 
             // initiate orderBy object 
-            UpdateOrderByObjec(orderBy, ref channel, catalogGroupCache, orderByValue);
+            UpdateOrderByObject(orderBy, ref channel, orderByValue);
 
             int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
             channel.m_OrderObject.m_eOrderDir =
@@ -151,55 +154,19 @@ namespace Core.Catalog.CatalogManagement
                     }
             }
 
-            // TODO: Lior
-            //if (group.m_oMetasValuesByGroupId.ContainsKey(channel.m_nGroupID))
-            //{
-            //    UpdateOrderByObject(ref channel, group.m_oMetasValuesByGroupId[channel.m_nGroupID]);
-            //}
-
             return channel;
         }
 
-        private static void UpdateOrderByObjec(int nOrderBy, ref Channel oChannel, CatalogGroupCache catalogGroupCache, string orderByValue)
+        private static void UpdateOrderByObject(int nOrderBy, ref Channel oChannel, string orderByValue)
         {
             if (!string.IsNullOrEmpty(orderByValue))
             {
                 oChannel.m_OrderObject.m_sOrderValue = orderByValue;
                 oChannel.m_OrderObject.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.META;
             }
-            else if (nOrderBy >= 1 && nOrderBy <= 30)// all META_STR/META_DOUBLE values
-            {
-                int nMetaEnum = (nOrderBy);
-                string enumName = Enum.GetName(typeof(ApiObjects.Catalog.MetasEnum), nMetaEnum);
-                //if (group.m_oMetasValuesByGroupId[oChannel.m_nGroupID].ContainsKey(enumName))
-                //{
-                //    oChannel.m_OrderObject.m_sOrderValue = group.m_oMetasValuesByGroupId[oChannel.m_nGroupID][enumName];
-                //    oChannel.m_OrderObject.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.META;
-                //}
-            }
             else
             {
                 oChannel.m_OrderObject.m_eOrderBy = (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), nOrderBy);
-            }
-        }
-
-        private static void UpdateOrderByObject(ref Channel oChannel, Dictionary<string, string> oMetasValues)
-        {
-            if (oChannel.m_OrderObject != null)
-            {
-                string sMetaValue = string.Empty;
-                if (oChannel.m_OrderObject.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META)
-                {
-                    oMetasValues.TryGetValue(oChannel.m_OrderObject.m_eOrderBy.ToString(), out sMetaValue);
-                    if (!string.IsNullOrEmpty(sMetaValue))
-                    {
-                        OrderObj oNewOrderObj = new OrderObj();
-                        oNewOrderObj.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.META;
-                        oNewOrderObj.m_sOrderValue = sMetaValue;
-                        oNewOrderObj.m_eOrderDir = oChannel.m_OrderObject.m_eOrderDir;
-                        oChannel.m_OrderObject = oNewOrderObj;
-                    }
-                }
             }
         }
 
@@ -256,7 +223,7 @@ namespace Core.Catalog.CatalogManagement
         private static List<Channel> GetChannels(int groupId, List<int> channelIds)
         {
             List<Channel> channels = null;
-            DataSet dataSet = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(channelIds);
+            DataSet dataSet = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(channelIds, true);
             DataTable channelsData = dataSet.Tables[0];
             DataTable mediaTypesTable = null;
 
@@ -266,19 +233,12 @@ namespace Core.Catalog.CatalogManagement
                 mediaTypesTable = dataSet.Tables[1];
             }
 
-            CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-            {
-                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetChannels", groupId);
-                return channels;
-            }
-
             if (channelsData != null && channelsData.Rows != null && channelsData.Rows.Count > 0)
             {
                 channels = new List<Channel>();
                 foreach (DataRow rowData in channelsData.Rows)
                 {
-                    Channel channel = CreateChannelByDataRow(groupId, mediaTypesTable, rowData, catalogGroupCache);
+                    Channel channel = CreateChannelByDataRow(groupId, mediaTypesTable, rowData);
 
                     if (channel != null)
                     {
@@ -292,7 +252,55 @@ namespace Core.Catalog.CatalogManagement
 
         #endregion
 
+        #region Internal Methods
+
+        internal static Channel GetChannelById(int groupId, int channelId)
+        {
+            Channel channel = null;
+            List<Channel> channels = GetChannels(groupId, new List<int>() { channelId });
+            if (channels != null && channels.Count == 1)
+            {
+                channel = channels.First();
+            }
+
+            return channel;
+        }
+
+        #endregion
+
         #region Public Methods
+
+        public static List<Channel> GetGroupChannels(int groupId)
+        {
+            List<Channel> groupChannels = null;
+            try
+            {
+                DataSet ds = CatalogDAL.GetGroupChannels(groupId);
+                if (ds == null || ds.Tables == null || ds.Tables.Count < 1 || ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count == 0)
+                {
+                    log.WarnFormat("GetGroupChannels didn't find any channels");
+                    return null;
+                }
+
+                DataTable channelsTable = ds.Tables[0];
+                DataTable mediaTypesTable = ds.Tables.Count > 1 && ds.Tables[1] != null ? ds.Tables[1] : null;           
+                groupChannels = new List<Channel>();
+                foreach (DataRow dr in channelsTable.Rows)
+                {
+                    Channel channel = CreateChannelByDataRow(groupId, mediaTypesTable, dr);
+                    if (channel != null)
+                    {
+                        groupChannels.Add(channel);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupChannels for groupId: {0}", groupId), ex);
+            }
+
+            return groupChannels;
+        }
 
         public static ChannelListResponse SearchChannels(int groupId, bool isExcatValue, string searchValue, int pageIndex, int pageSize,
             ApiObjects.SearchObjects.ChannelOrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection)

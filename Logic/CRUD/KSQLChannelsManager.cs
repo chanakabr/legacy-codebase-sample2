@@ -57,7 +57,7 @@ namespace APILogic.CRUD
         #endregion
         #region CRUD
 
-        public static KSQLChannelResponse Insert(int groupID, KSQLChannel channel, long userId = 700)
+        public static KSQLChannelResponse Insert(int groupId, KSQLChannel channel, long userId = 700)
         {
             KSQLChannelResponse response = new KSQLChannelResponse();
 
@@ -103,7 +103,7 @@ namespace APILogic.CRUD
                     Dictionary<int, int> mediaTypeParents;
                     List<int> linearMediaTypes;
 
-                    CatalogDAL.GetMediaTypes(groupID,
+                    CatalogDAL.GetMediaTypes(groupId,
                         out mediaTypesIdToName,
                         out mediaTypesNameToId,
                         out mediaTypeParents,
@@ -124,22 +124,23 @@ namespace APILogic.CRUD
                     }
                 }
 
-                channel.GroupID = groupID;
-
-                Group group = GroupsCache.Instance().GetGroup(groupID);
-                
+                channel.GroupID = groupId;
                 Dictionary<string, string> metas = null;
-
-                if (group != null && group.m_oMetasValuesByGroupId.ContainsKey(groupID))
+                bool doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+                if (!doesGroupUsesTemplates)
                 {
-                    metas = group.m_oMetasValuesByGroupId[groupID];
+                    Group group = GroupsCache.Instance().GetGroup(groupId);
+                    if (group != null && group.m_oMetasValuesByGroupId.ContainsKey(groupId))
+                    {
+                        metas = group.m_oMetasValuesByGroupId[groupId];
+                    }
                 }
 
-                response.Channel = CatalogDAL.InsertKSQLChannel(groupID, channel, metas, userId);
+                response.Channel = InsertKSQLChannel(groupId, channel, metas, doesGroupUsesTemplates, userId);
 
                 if (response.Channel != null && response.Channel.ID > 0)
                 {
-                    UpdateCatalog(groupID, response.Channel.ID);
+                    UpdateCatalog(groupId, response.Channel.ID);
 
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new KSQL channel insert");
                 }
@@ -151,7 +152,7 @@ namespace APILogic.CRUD
             catch (Exception ex)
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed groupID={0}", groupID), ex);
+                log.Error(string.Format("Failed groupID={0}", groupId), ex);
             }
 
             return response;
@@ -299,7 +300,7 @@ namespace APILogic.CRUD
                     metas = group.m_oMetasValuesByGroupId[groupID];
                 }
 
-                response.Channel = CatalogDAL.UpdateKSQLChannel(groupID, channel, metas, userId);
+                response.Channel = UpdateKSQLChannel(groupID, channel, metas, userId);
 
                 if (response.Channel != null && response.Channel.ID > 0)
                 {
@@ -400,6 +401,64 @@ namespace APILogic.CRUD
         private static string BuildChannelCacheKey(int groupId, int channelId)
         {
             return string.Format("{2}_group_{0}_channel_{1}", groupId, channelId, version);
+        }
+
+        private static KSQLChannel InsertKSQLChannel(int groupId, KSQLChannel channel, Dictionary<string, string> metas, bool doesGroupUsesTemplates, long userId)
+        {
+            KSQLChannel result = null;
+            DataSet ds = CatalogDAL.InsertKsqlChannel(groupId, channel, userId);
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            {
+                DataTable assetTypes = null;
+
+                if (ds.Tables.Count > 1)
+                {
+                    assetTypes = ds.Tables[1];
+                }
+
+                result = CatalogDAL.CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas, doesGroupUsesTemplates);
+            }
+
+            return result;
+        }
+
+        public static KSQLChannel UpdateKSQLChannel(int groupID, KSQLChannel channel, Dictionary<string, string> metas, long userId)
+        {
+            KSQLChannel result = null;
+
+            if (channel != null && channel.ID > 0)
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_KSQLChannel");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@channelId", channel.ID);
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@name", channel.Name);
+                sp.AddParameter("@isActive", channel.IsActive);
+                sp.AddParameter("@UpdaterID", userId);
+                sp.AddParameter("@description", channel.Description);
+                sp.AddParameter("@Filter", channel.FilterQuery);
+                sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
+                sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
+                sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
+                sp.AddParameter("@groupBy", channel.GroupBy);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    DataTable assetTypes = null;
+
+                    if (ds.Tables.Count > 1)
+                    {
+                        assetTypes = ds.Tables[1];
+                    }
+
+                    result = CatalogDAL.CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas);
+                }
+            }
+
+            return result;
+
         }
 
         #endregion

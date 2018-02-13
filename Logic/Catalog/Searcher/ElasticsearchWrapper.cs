@@ -3211,15 +3211,25 @@ namespace Core.Catalog
             return result;
         }
 
-        public ApiObjects.Response.Status UpdateChannelIndex(int groupId, int channelId)
+        public ApiObjects.Response.Status UpdateChannelIndex(int groupId, int channelId, bool doesGroupUsesTemplates)
         {
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status() { Code = 1 };            
+            Channel channel = null;
+            if (doesGroupUsesTemplates)
+            {
+                channel = ChannelManager.GetChannelById(groupId, channelId);
+            }
+            else
+            {
+                var groupManager = new GroupManager();
+                var group = groupManager.GetGroup(groupId);
+                channel = groupManager.GetChannel(channelId, ref group);
+            }
 
-            var groupManager = new GroupManager();
-            var group = groupManager.GetGroup(groupId);
-            var channel = groupManager.GetChannel(channelId, ref group);
-
-            status = UpdateChannelIndex(groupId, channel);
+            if (channel != null)
+            {
+                status = UpdateChannelIndex(groupId, channel);
+            }
 
             return status;
         }

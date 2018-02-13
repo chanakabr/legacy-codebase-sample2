@@ -2896,27 +2896,32 @@ namespace Core.Catalog
 
             if (ids != null && ids.Count > 0)
             {
-                GroupManager groupManager = new GroupManager();
-
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int parentGroupId = catalogCache.GetParentGroup(groupId);
-
-                Group group = groupManager.GetGroup(parentGroupId);
-
-                if (group != null)
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);                
+                Group group = null;
+                int groupIdForCelery = groupId;
+                if (!doesGroupUsesTemplates)
                 {
-                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
+                    GroupManager groupManager = new GroupManager();
+                    CatalogCache catalogCache = CatalogCache.Instance();
+                    int parentGroupId = catalogCache.GetParentGroup(groupId);
+                    group = groupManager.GetGroup(parentGroupId);
+                    groupIdForCelery = group.m_nParentGroupID;
+                }
+
+                if (doesGroupUsesTemplates || group != null)
+                {
+                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery,
                         ids, updatedObjectType, action, DateTime.UtcNow);
 
                     var queue = new CatalogQueue();
 
-                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
+                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
 
                     // backward compatibility
                     var legacyQueue = new CatalogQueue(true);
-                    ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, updatedObjectType, action);
+                    ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupIdForCelery, updatedObjectType, action);
 
-                    legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
+                    legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
                 }
 
                 // Update channel index directly
@@ -2935,7 +2940,7 @@ namespace Core.Catalog
                     {
                         foreach (long id in ids)
                         {
-                            wrapper.UpdateChannelIndex(groupId, (int)id);
+                            wrapper.UpdateChannelIndex(groupId, (int)id, doesGroupUsesTemplates);
                         }
                     }
                 }
