@@ -53,9 +53,10 @@ namespace ElasticSearchHandler.IndexBuilders
             {
                 maxResults = 100000;
             }
-            
+
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
             // Check if group supports Templates
-            if (CatalogManager.DoesGroupUsesTemplates(groupId))
+            if (doesGroupUsesTemplates)
             {
                 CatalogGroupCache catalogGroupCache;
 
@@ -152,12 +153,19 @@ namespace ElasticSearchHandler.IndexBuilders
                 #endregion
 
                 #region Populate Index
+                List<Channel> allChannels = null;
+                if (doesGroupUsesTemplates)
+                {
+                    allChannels = ChannelManager.GetGroupChannels(groupId);
+                }
+                else
+                {
+                    GroupManager groupManager = new GroupManager();
+                    groupManager.RemoveGroup(groupId);
+                    Group group = groupManager.GetGroup(groupId);
 
-                GroupManager groupManager = new GroupManager();
-                groupManager.RemoveGroup(groupId);
-                Group group = groupManager.GetGroup(groupId);
-
-                List<Channel> allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
+                    allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
+                }
 
                 if (allChannels != null)
                 {
