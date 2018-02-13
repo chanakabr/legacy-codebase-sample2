@@ -4091,7 +4091,7 @@ namespace Tvinci.Core.DAL
             return channel;
         }
 
-        public static KSQLChannel InsertKSQLChannel(int groupID, KSQLChannel channel, Dictionary<string, string> metas)
+        public static KSQLChannel InsertKSQLChannel(int groupID, KSQLChannel channel, Dictionary<string, string> metas, long userId)
         {
             KSQLChannel result = null;
 
@@ -4101,6 +4101,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@name", channel.Name);
             sp.AddParameter("@isActive", channel.IsActive);
             sp.AddParameter("@status", 1);
+            sp.AddParameter("@UpdaterID", userId);
             sp.AddParameter("@description", channel.Description);
             sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
             sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
@@ -4134,7 +4135,7 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static KSQLChannel UpdateKSQLChannel(int groupID, KSQLChannel channel, Dictionary<string, string> metas)
+        public static KSQLChannel UpdateKSQLChannel(int groupID, KSQLChannel channel, Dictionary<string, string> metas, long userId)
         {
             KSQLChannel result = null;
 
@@ -4146,6 +4147,7 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@groupId", groupID);
                 sp.AddParameter("@name", channel.Name);
                 sp.AddParameter("@isActive", channel.IsActive);
+                sp.AddParameter("@UpdaterID", userId);
                 sp.AddParameter("@description", channel.Description);
                 sp.AddParameter("@Filter", channel.FilterQuery);
                 sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
