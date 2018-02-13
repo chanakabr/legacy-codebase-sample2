@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -19,6 +20,7 @@ namespace WebAPI.Models.Catalog
         private const string GENESIS_VERSION = "4.6.0.0";
         public const string DYNAMIC_CHANNEL = "KalturaDynamicChannel";
         public const string MANUAL_CHANNEL = "KalturaManualChannel";
+        public const string CHANNEL = "KalturaChannel";
 
         /// <summary>
         /// Unique identifier for the channel
@@ -144,9 +146,66 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "orderBy", IsNullable = true)]
         public KalturaChannelOrder OrderBy { get; set; }
 
+        /// <summary>
+        /// Specifies when was the Channel was created. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Specifies when was the Channel last updated. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
         internal void Validate()
         {
+            if (string.IsNullOrEmpty(SystemName))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
+            }
+
+            if (Name != null && Name.Values != null && Name.Values.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+            }
+
+            Name.Validate("multilingualName");
+
+            if (Description != null && Description.Values != null && Description.Values.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
+            }
+
+            if (Description != null)
+            {
+                Description.Validate("multilingualDescription");
+            }
+
             OrderBy.Validate(objectType);
+        }
+
+        public int[] getAssetTypes()
+        {
+            if (AssetTypes == null && MediaTypes != null)
+                AssetTypes = MediaTypes;
+
+            if (AssetTypes == null)
+                return new int[0];
+
+            int[] assetTypes = new int[AssetTypes.Count];
+            for (int i = 0; i < AssetTypes.Count; i++)
+            {
+                assetTypes[i] = AssetTypes[i].value;
+            }
+
+            return assetTypes;
         }
 
     }

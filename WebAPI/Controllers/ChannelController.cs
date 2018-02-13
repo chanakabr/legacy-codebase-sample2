@@ -81,7 +81,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().DeleteKSQLChannel(groupId, channelId);
+                response = ClientsManager.CatalogClient().DeleteKSQLChannel(groupId, channelId);
             }
             catch (ClientException ex)
             {
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Insert new channel for partner. Currently supports only KSQL channel
+        /// Insert new channel for partner. Supports KalturaDynamicChannel or KalturaManualChannel
         /// </summary>
         /// <remarks>
         /// Possible status codes:     
@@ -104,29 +104,47 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.ChannelMetaOrderByIsInvalid)]
+        [Throws(eResponseStatus.ChannelNameAlreadyInUse)]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
         public KalturaChannel Add(KalturaChannel channel)
         {
             KalturaChannel response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
 
-            try
+            if (channel.objectType != KalturaChannel.CHANNEL)
             {
                 if (channel.OrderBy == null)
                 {
                     channel.OrderBy = new KalturaChannelOrder() { orderBy = KalturaChannelOrderBy.CREATE_DATE_DESC };
                 }
 
-                // KalturaDynamicChannel
-                if (channel.objectType == KalturaChannel.DYNAMIC_CHANNEL)
+                // Validate channel
+                channel.Validate();
+            }
+
+            try
+            {
+                // KalturaChannel (backward compatability)
+                if (channel.objectType == KalturaChannel.CHANNEL)
                 {
-                    response = ClientsManager.ApiClient().InsertKSQLChannel(groupId, channel, userId);
+                    response = ClientsManager.CatalogClient().InsertKSQLChannel(groupId, channel, userId, false);
                 }
-                // KalturaManualChannel
                 else
-                {
-                    response = ClientsManager.ApiClient().InsertManualChannel(groupId, channel, userId);
+                {                
+                    // KalturaManualChannel
+                    if (channel.objectType == KalturaChannel.MANUAL_CHANNEL)
+                    {
+                        response = ClientsManager.CatalogClient().InsertManualChannel(groupId, channel, userId);
+                    }
+                    // KalturaDynamicChannel                
+                    else if (channel.objectType == KalturaChannel.DYNAMIC_CHANNEL)
+                    {
+                        response = ClientsManager.CatalogClient().InsertKSQLChannel(groupId, channel, userId, true);
+                    }
                 }
+
             }
             catch (ClientException ex)
             {
@@ -137,7 +155,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update channel details. Currently supports only KSQL channel
+        /// Update channel details. Supports KalturaDynamicChannel or KalturaManualChannel
         /// </summary>
         /// <remarks>
         /// Possible status codes:
@@ -162,7 +180,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetKSQLChannel(groupId, channel, userId);
+                response = ClientsManager.CatalogClient().SetKSQLChannel(groupId, channel, userId);
             }
             catch (ClientException ex)
             {
@@ -196,7 +214,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().InsertKSQLChannelProfile(groupId, channel, userId);
+                response = ClientsManager.CatalogClient().InsertKSQLChannelProfile(groupId, channel, userId);
             }
             catch (ClientException ex)
             {
@@ -232,7 +250,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetKSQLChannelProfile(groupId, channel, userId);
+                response = ClientsManager.CatalogClient().SetKSQLChannelProfile(groupId, channel, userId);
             }
             catch (ClientException ex)
             {

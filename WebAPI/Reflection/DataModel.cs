@@ -3045,6 +3045,8 @@ namespace WebAPI.Reflection
                     {
                         case "AssetTypes":
                             return "assetTypes";
+                        case "CreateDate":
+                            return "createDate";
                         case "Description":
                             return "description";
                         case "FilterExpression":
@@ -3067,6 +3069,8 @@ namespace WebAPI.Reflection
                             return "orderBy";
                         case "SystemName":
                             return "systemName";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     
