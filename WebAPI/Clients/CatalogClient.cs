@@ -3830,7 +3830,7 @@ namespace WebAPI.Clients
                     result.Channels.AddRange(manualChannels);
                 }
 
-                result.TotalCount = result.Channels.Count;
+                result.TotalCount = response.TotalItems;
             }
 
             return result;
