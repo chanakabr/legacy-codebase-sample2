@@ -315,8 +315,7 @@ namespace APILogic.Notification
             // mail
             if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId) &&
                    userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
-                   !string.IsNullOrEmpty(userNotificationData.UserData.Email) &&
-                   (unsubscribeList != null && unsubscribeList.Count > 0))
+                   !string.IsNullOrEmpty(userNotificationData.UserData.Email))
             {
                 if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(partnerId, interestsNotificationToCancel.Select(n => n.MailExternalId).ToList(), userNotificationData.UserData, userId))
                 {
