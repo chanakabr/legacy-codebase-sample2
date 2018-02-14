@@ -647,7 +647,6 @@ namespace WebAPI.Clients
         {
             Status response = null;
 
-
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -667,7 +666,7 @@ namespace WebAPI.Clients
 
             FollowDataTvSeries followData = new FollowDataTvSeries();
             followData.AssetId = assetId;
-            followData.Title = mediaInfoResponse.Objects[0].Name.ToString();
+            followData.Title = !string.IsNullOrEmpty(mediaInfoResponse.Objects[0].Name) ? mediaInfoResponse.Objects[0].Name.ToString() : string.Empty;
 
             try
             {
