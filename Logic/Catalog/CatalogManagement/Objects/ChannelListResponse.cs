@@ -11,12 +11,14 @@ namespace Core.Catalog.CatalogManagement
     public class ChannelListResponse
     {
 
+        public int TotalItems { get; set; }
         public Status Status { get; set; }
 
         public List<Channel> Channels { get; set; }
 
         public ChannelListResponse()
         {
+            TotalItems = 0;
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             Channels = new List<Channel>();
         }

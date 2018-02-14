@@ -405,8 +405,10 @@ namespace Core.Catalog.CatalogManagement
                 };
 
                 ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                List<int> channelIds = wrapper.SearchChannels(definitions);
+                int totalItems = 0;
+                List<int> channelIds = wrapper.SearchChannels(definitions, ref totalItems);
                 result.Channels = ChannelManager.GetChannels(groupId, channelIds);
+                result.TotalItems = totalItems;
                 result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -576,7 +578,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static ApiObjects.Response.Status DeleteChannel(int groupId, int channelId, long userId)
+        public static Status DeleteChannel(int groupId, int channelId, long userId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try

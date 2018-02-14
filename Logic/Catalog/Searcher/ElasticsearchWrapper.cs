@@ -3096,7 +3096,7 @@ namespace Core.Catalog
 
         #region Channels
 
-        public List<int> SearchChannels(ChannelSearchDefinitions definitions)
+        public List<int> SearchChannels(ChannelSearchDefinitions definitions, ref int totalItems)
         {
             List<int> result = new List<int>();            
 
@@ -3187,7 +3187,7 @@ namespace Core.Catalog
             if (jsonObj != null)
             {
                 JToken tempToken;
-                int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+                totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
 
                 if (totalItems > 0)
                 {
