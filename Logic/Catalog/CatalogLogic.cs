@@ -6298,6 +6298,12 @@ namespace Core.Catalog
                 groupManager.GetGroupAndChannel(channelId, parentGroupID, ref group, ref channel);
             }
 
+            // continue with inactive channels only for operators
+            if (!request.IsOperatorSearch && channel.m_nIsActive != 1)
+            {
+                channel = null;
+            }
+
             if (channel == null)
             {
                 return new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, string.Format("Channel with identifier {1} does not exist for group {0}", parentGroupID, channelId));
