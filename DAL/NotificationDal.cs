@@ -2627,6 +2627,74 @@ namespace DAL
 
             return id;
         }
+
+        public static SMSNotificationData GetUserSMSNotificationData(int groupId, int userId, ref bool isDocumentExist, bool withLock = false)
+        {
+            SMSNotificationData userSMSNotification = null;
+            CouchbaseManager.eResultStatus status = eResultStatus.ERROR;
+            ulong cas = 0;
+            isDocumentExist = true;
+
+            try
+            {
+                bool result = false;
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    if (withLock)
+                        userSMSNotification = cbManager.Get<SMSNotificationData>(GetSMSDataKey(groupId, userId), true, out cas, out status);
+                    else
+                        userSMSNotification = cbManager.Get<SMSNotificationData>(GetSMSDataKey(groupId, userId), out status);
+
+                    if (userSMSNotification == null)
+                    {
+                        if (status == eResultStatus.KEY_NOT_EXIST)
+                        {
+                            // key doesn't exist - don't try again
+                            log.DebugFormat("user sms data wasn't found. key: {0}", GetSMSDataKey(groupId, userId));
+                            isDocumentExist = false;
+                            break;
+                        }
+                        else
+                        {
+                            numOfTries++;
+                            log.ErrorFormat("Error while getting user sms data. number of tries: {0}/{1}. key: {2}",
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES,
+                                GetSMSDataKey(groupId, userId));
+
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                    else
+                    {
+                        result = true;
+                        userSMSNotification.cas = cas;
+
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully received user sms data. number of tries: {0}/{1}. key {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            GetSMSDataKey(groupId, userId));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get user sms notification. key: {0}, ex: {1}", GetSMSDataKey(groupId, userId), ex);
+            }
+
+            return userSMSNotification;
+        }
+
+        private static string GetSMSDataKey(int groupId, int userId)
+        {
+            return string.Format("device_data_{0}_{1}", groupId, userId);
+        }
     }
 }
 
