@@ -556,6 +556,8 @@ namespace ApiObjects
         DisableUserMailNotifications = 10,
         UpdateUser = 11,
         Signup = 12,
+        EnableUserSMSNotifications = 13,
+        DisableUserSMSNotifications = 14,
     }
 
     public enum eAnnouncementStatus

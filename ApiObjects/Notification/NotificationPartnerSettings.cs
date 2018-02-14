@@ -21,6 +21,7 @@ namespace ApiObjects.Notification
         public string SenderEmail { get; set; }
         public string MailSenderName { get; set; }
         public long? MailNotificationAdapterId { get; set; }
+        public bool? IsSMSEnabled { get; set; }
 
         public NotificationPartnerSettings()
         {

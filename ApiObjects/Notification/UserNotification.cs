@@ -24,6 +24,8 @@ namespace ApiObjects.Notification
 
         public UserData UserData { get; set; }
 
+        public string SMSNumber { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ulong cas { get; set; }
 

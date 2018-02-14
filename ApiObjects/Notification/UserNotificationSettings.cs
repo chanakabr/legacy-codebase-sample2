@@ -14,6 +14,8 @@ namespace ApiObjects.Notification
 
         public bool? EnableMail { get; set; }
 
+        public bool? EnableSMS { get; set; }
+
         public UserFollowSettings FollowSettings { get; set; }
 
         public UserNotificationSettings()

@@ -38,6 +38,15 @@ namespace Core.Notification
             eUserMessageAction.Signup
         };
 
+        private static readonly List<eUserMessageAction> SMS_ACTIONS = new List<eUserMessageAction>() {
+            eUserMessageAction.DeleteUser,
+            eUserMessageAction.EnableUserNotifications,
+            eUserMessageAction.DisableUserNotifications,
+            eUserMessageAction.Signup,
+            eUserMessageAction.DisableUserSMSNotifications,
+            eUserMessageAction.EnableUserSMSNotifications
+        };
+
         public static bool InitiateNotificationAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken)
         {
             bool result = true;
@@ -71,6 +80,11 @@ namespace Core.Notification
             if (MAIL_ACTIONS.Contains(userAction))
             {
                 result = result && InitiateMailAction(groupId, userAction, userId, userNotificationData);
+            }
+
+            if (SMS_ACTIONS.Contains(userAction))
+            {
+                result = result && InitiateSMSAction(groupId, userAction, userId, userNotificationData);
             }
 
             return result;
@@ -1330,6 +1344,197 @@ namespace Core.Notification
         }
 
         private static bool HandleUserSignUpForMailNotification(int groupId, int userId, UserNotification userNotificationData)
+        {
+            bool result = true;
+            if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
+            {
+                List<DbAnnouncement> announcements = new List<DbAnnouncement>(); ;
+                NotificationCache.TryGetAnnouncements(groupId, ref announcements);
+                if (announcements != null)
+                {
+                    DbAnnouncement mailAnnouncement = announcements.Where(a => a.Name.ToLower() == "mail").FirstOrDefault();
+                    if (mailAnnouncement == null)
+                    {
+                        log.ErrorFormat("Failed to get mail announcement.");
+                        return false;
+                    }
+
+                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, new List<string>() { mailAnnouncement.MailExternalId }, userNotificationData.UserData, userId))
+                    {
+                        log.ErrorFormat("Failed subscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiId: {3}",
+                            groupId, userId, userNotificationData.UserData.Email, mailAnnouncement.MailExternalId);
+                    }
+
+                    userNotificationData.Announcements.Add(new Announcement()
+                    {
+                        AddedDateSec = DateUtils.UnixTimeStampNow(),
+                        AnnouncementId = mailAnnouncement.ID,
+                        AnnouncementName = mailAnnouncement.Name
+                    });
+
+                    if (!DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+                    {
+                        log.ErrorFormat("error setting user notification data on update user. group: {0}, user id: {1}", groupId, userId);
+                        result = false;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static bool InitiateSMSAction(int groupId, eUserMessageAction userAction, int userId, UserNotification userNotificationData)
+        {
+            bool result = false;
+
+            if (!NotificationSettings.IsPartnerSMSNotificationEnabled(groupId))
+            {
+                log.DebugFormat("partner mail notifications is disabled. partner ID: {0}", groupId);
+                return true;
+            }
+
+            try
+            {
+                switch (userAction)
+                {
+                    case eUserMessageAction.DeleteUser:
+                        result = UnSubscribeUserSMSNotification(groupId, userId, userNotificationData);
+                        if (result)
+                            log.Debug("Successfully performed delete User");
+                        else
+                            log.Error("Error occurred while trying to perform Delete User");
+                        break;
+
+                    case eUserMessageAction.EnableUserMailNotifications:
+                        result = SubscribeUserMailNotification(groupId, userId, userNotificationData);
+                        if (result)
+                            log.Debug("Successfully enabled user mail notifications");
+                        else
+                            log.Error("Error enabling user mail notifications");
+                        break;
+
+                    case eUserMessageAction.DisableUserNotifications:
+                        result = UnSubscribeUserMailNotification(groupId, userId, userNotificationData);
+                        if (result)
+                            log.Debug("Successfully disabled user mail notifications");
+                        else
+                            log.Error("Error disabling user mail notifications");
+                        break;
+                    case eUserMessageAction.UpdateUser:
+                        result = HandleUpdateUserForMailNotification(groupId, userId, userNotificationData);
+                        if (result)
+                            log.Debug("Successfully updated user data for mail notifications");
+                        else
+                            log.Error("Error occurred while trying to update user data for mail notifications");
+                        break;
+                    case eUserMessageAction.Signup:
+                        result = HandleUserSignUpForMailNotification(groupId, userId, userNotificationData);
+                        if (result)
+                            log.Debug("Successfully enabled user mail notifications");
+                        else
+                            log.Error("Error enabling user mail notifications");
+                        break;
+                    default:
+                        log.ErrorFormat("Unidentified mail notification action requested. action: {0}", userAction);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Notification Error", ex);
+            }
+
+            return result;
+        }
+
+        private static bool SubscribeUserSMSNotification(int groupId, int userId, UserNotification userNotificationData)
+        {
+            bool result = true;
+            if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
+            {
+                List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementExternalIdsForUser(groupId, userNotificationData);
+                if (externalIds == null || externalIds.Count == 0)
+                {
+                    log.ErrorFormat("Failed to get user announcements external Ids to subscribe. group: {0}, userId = {1}", groupId, userId);
+                    return false;
+                }
+
+                if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData, userId))
+                {
+                    log.ErrorFormat("Failed subscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
+                        groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
+                }
+            }
+
+            return result;
+        }
+
+        private static bool UnSubscribeUserSMSNotification(int groupId, int userId, UserNotification userNotificationData)
+        {
+            bool result = true;
+            if (userNotificationData.Settings.EnableSMS.HasValue && userNotificationData.Settings.EnableSMS.Value && !string.IsNullOrEmpty(userNotificationData.SMSNumber))
+            {
+                List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementExternalIdsForUser(groupId, userNotificationData);
+                if (externalIds == null || externalIds.Count == 0)
+                {
+                    log.ErrorFormat("Failed to get user announcements external Ids to unsubscribe. group: {0}, userId = {1}", groupId, userId);
+                    return false;
+                }
+
+                if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData, userId))
+                {
+                    log.ErrorFormat("Failed unsubscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
+                        groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
+                }
+            }
+
+            return result;
+        }
+
+        private static bool HandleUpdateUserForSMSNotification(int groupId, int userId, UserNotification userNotificationData)
+        {
+            bool result = true;
+
+            Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
+            if (response == null || response.m_RespStatus != ApiObjects.ResponseStatus.OK || response.m_user == null)
+            {
+                log.ErrorFormat("Failed to get user data for userId = {0}", userId);
+            }
+            else
+            {
+                if (userNotificationData.UserData.Email != response.m_user.m_oBasicData.m_sEmail || userNotificationData.UserData.FirstName != response.m_user.m_oBasicData.m_sFirstName || userNotificationData.UserData.LastName != response.m_user.m_oBasicData.m_sLastName)
+                {
+                    UserData newuserData = new UserData()
+                    {
+                        Email = response.m_user.m_oBasicData.m_sEmail,
+                        FirstName = response.m_user.m_oBasicData.m_sLastName,
+                        LastName = response.m_user.m_oBasicData.m_sLastName
+                    };
+
+                    List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementExternalIdsForUser(groupId, userNotificationData);
+
+                    if (!MailNotificationAdapterClient.UpdateUserData(groupId, userId, userNotificationData.UserData, newuserData, externalIds))
+                    {
+                        log.ErrorFormat("Failed to update User Data user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
+                            groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
+                    }
+
+                    userNotificationData.UserData.Email = response.m_user.m_oBasicData.m_sEmail;
+                    userNotificationData.UserData.FirstName = response.m_user.m_oBasicData.m_sFirstName;
+                    userNotificationData.UserData.LastName = response.m_user.m_oBasicData.m_sLastName;
+
+                    if (!DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+                    {
+                        log.ErrorFormat("error setting user notification data on update user. group: {0}, user id: {1}", groupId, userId);
+                        result = false;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static bool HandleUserSignUpForSMSNotification(int groupId, int userId, UserNotification userNotificationData)
         {
             bool result = true;
             if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))

@@ -416,14 +416,24 @@ namespace Core.Notification
 
                     userNotificationData.Settings.EnableMail = NotificationSettings.IsPartnerMailNotificationEnabled(groupId);
 
-                    if (userNotificationData.Settings.EnableMail.Value)
+                    userNotificationData.Settings.EnableSMS = NotificationSettings.IsPartnerSMSNotificationEnabled(groupId);
+
+                    if (userNotificationData.Settings.EnableMail.Value || userNotificationData.Settings.EnableSMS.Value)
                     {
                         Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
                         if (response != null && response.m_RespStatus == ApiObjects.ResponseStatus.OK && response.m_user != null)
                         {
-                            userNotificationData.UserData.Email = response.m_user.m_oBasicData.m_sEmail;
-                            userNotificationData.UserData.FirstName = response.m_user.m_oBasicData.m_sFirstName;
-                            userNotificationData.UserData.LastName = response.m_user.m_oBasicData.m_sLastName;
+                            if (userNotificationData.Settings.EnableMail.Value)
+                            {
+                                userNotificationData.UserData.Email = response.m_user.m_oBasicData.m_sEmail;
+                                userNotificationData.UserData.FirstName = response.m_user.m_oBasicData.m_sFirstName;
+                                userNotificationData.UserData.LastName = response.m_user.m_oBasicData.m_sLastName;
+                            }
+
+                            if (userNotificationData.Settings.EnableSMS.Value)
+                            {
+                                userNotificationData.SMSNumber = response.m_user.m_oBasicData.m_sPhone;
+                            }
                         }
                         else
                         {
@@ -528,6 +538,30 @@ namespace Core.Notification
             }
 
             return false;
+        }
+
+        public static Status GetUserSMSNotificationData(int groupId, int userId, UserNotification userNotification, out SMSNotificationData userSMSNotificationData)
+        {
+            bool docExists = false;
+            userSMSNotificationData = DAL.NotificationDal.GetUserSMSNotificationData(groupId, userId, ref docExists);
+            if (userSMSNotificationData == null)
+            {
+                if (docExists)
+                {
+                    // error while getting user notification data
+                    log.ErrorFormat("error retrieving user notification data. GID: {0}, USERID: {1}", groupId, userId);
+                    return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+                else
+                {
+                    log.DebugFormat("user sms data wasn't found - going to create a new one. GID: {0}, USERID: {1}", groupId, userId);
+
+                    // create user notification object
+                    userSMSNotificationData = new SMSNotificationData(userId, userNotification.SMSNumber) { UpdatedAt = TVinciShared.DateUtils.UnixTimeStampNow() };
+                }
+            }
+
+            return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
     }
 }

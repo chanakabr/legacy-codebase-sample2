@@ -480,5 +480,14 @@ namespace Core.Notification
 
             return false;
         }
+
+        public static bool IsPartnerSMSNotificationEnabled(int groupId)
+        {
+            var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+            return (partnerSettingsResponse != null &&
+                partnerSettingsResponse.settings != null &&
+                partnerSettingsResponse.settings.IsSMSEnabled.HasValue &&
+                partnerSettingsResponse.settings.IsSMSEnabled.Value);
+        }
     }
 }
