@@ -33,7 +33,7 @@ namespace Core.Notification
         private static readonly List<eUserMessageAction> MAIL_ACTIONS = new List<eUserMessageAction>() {
             eUserMessageAction.DeleteUser,
             eUserMessageAction.EnableUserMailNotifications,
-            eUserMessageAction.DisableUserNotifications,
+            eUserMessageAction.DisableUserMailNotifications,
             eUserMessageAction.UpdateUser,
             eUserMessageAction.Signup
         };
