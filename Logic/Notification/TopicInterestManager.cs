@@ -224,76 +224,75 @@ namespace APILogic.Notification
                 if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
                 {
                     log.DebugFormat("User doesn't have any notification devices. User notification object: {0}", JsonConvert.SerializeObject(userNotificationData));
-                    response = new Status((int)eResponseStatus.OK);
-                    return response;
                 }
-
-                foreach (UserDevice device in userNotificationData.devices)
+                else
                 {
-                    // get device notification data
-                    docExists = false;
-                    DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
-                    if (deviceNotificationData == null)
+                    foreach (UserDevice device in userNotificationData.devices)
                     {
-                        log.ErrorFormat("device notification data not found group: {0}, UDID: {1}", partnerId, device.Udid);
-                        continue;
-                    }
-
-                    // get push data
-                    APILogic.DmsService.PushData pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
-                    if (pushData == null)
-                    {
-                        log.ErrorFormat("push data not found. group: {0}, UDID: {1}", partnerId, device.Udid);
-                        continue;
-                    }
-
-                    foreach (var interestNotificationToCancel in interestsNotificationToCancel)
-                    {
-                        if (string.IsNullOrEmpty(device.Udid))
+                        // get device notification data
+                        docExists = false;
+                        DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
+                        if (deviceNotificationData == null)
                         {
-                            log.Error("device UDID is empty: " + device.Udid);
+                            log.ErrorFormat("device notification data not found group: {0}, UDID: {1}", partnerId, device.Udid);
                             continue;
                         }
 
-                        try
+                        // get push data
+                        APILogic.DmsService.PushData pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
+                        if (pushData == null)
                         {
-                            // get device interest
-                            var deviceInterest = deviceNotificationData.SubscribedUserInterests.FirstOrDefault(x => x.Id == interestNotificationToCancel.Id);
-                            if (deviceInterest == null)
+                            log.ErrorFormat("push data not found. group: {0}, UDID: {1}", partnerId, device.Udid);
+                            continue;
+                        }
+
+                        foreach (var interestNotificationToCancel in interestsNotificationToCancel)
+                        {
+                            if (string.IsNullOrEmpty(device.Udid))
                             {
-                                log.ErrorFormat("User interest to remove was not found on user device. group: {0}, UDID: {1}, interest to remove: {2}, device notification doc: {3}",
-                                    partnerId,
-                                    device.Udid,
-                                    interestNotificationToCancel.Id,
-                                    JsonConvert.SerializeObject(device));
+                                log.Error("device UDID is empty: " + device.Udid);
                                 continue;
                             }
 
-                            // add to cancel list
-                            unsubscribeList.Add(new UnSubscribe()
+                            try
                             {
-                                SubscriptionArn = deviceInterest.ExternalId,
-                                ExternalId = interestNotificationToCancel.Id
-                            });
+                                // get device interest
+                                var deviceInterest = deviceNotificationData.SubscribedUserInterests.FirstOrDefault(x => x.Id == interestNotificationToCancel.Id);
+                                if (deviceInterest == null)
+                                {
+                                    log.ErrorFormat("User interest to remove was not found on user device. group: {0}, UDID: {1}, interest to remove: {2}, device notification doc: {3}",
+                                        partnerId,
+                                        device.Udid,
+                                        interestNotificationToCancel.Id,
+                                        JsonConvert.SerializeObject(device));
+                                    continue;
+                                }
 
-                            deviceNotificationData.SubscribedUserInterests.RemoveAll(x => x.Id == interestNotificationToCancel.Id);
+                                // add to cancel list
+                                unsubscribeList.Add(new UnSubscribe()
+                                {
+                                    SubscriptionArn = deviceInterest.ExternalId,
+                                    ExternalId = interestNotificationToCancel.Id
+                                });
+
+                                deviceNotificationData.SubscribedUserInterests.RemoveAll(x => x.Id == interestNotificationToCancel.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error("Error in follow", ex);
+                            }
                         }
-                        catch (Exception ex)
+
+                        // update device data
+                        if (!DAL.NotificationDal.SetDeviceNotificationData(partnerId, device.Udid, deviceNotificationData))
                         {
-                            log.Error("Error in follow", ex);
+                            log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}", partnerId, device.Udid);
+                            response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         }
+                        else
+                            log.DebugFormat("Successfully updated device data. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, JsonConvert.SerializeObject(deviceNotificationData));
                     }
-
-                    // update device data
-                    if (!DAL.NotificationDal.SetDeviceNotificationData(partnerId, device.Udid, deviceNotificationData))
-                    {
-                        log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}", partnerId, device.Udid);
-                        response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    }
-                    else
-                        log.DebugFormat("Successfully updated device data. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, JsonConvert.SerializeObject(deviceNotificationData));
                 }
-
                 if (unsubscribeList != null && unsubscribeList.Count > 0)
                 {
                     List<UnSubscribe> unregisterResults = NotificationAdapter.UnSubscribeToAnnouncement(partnerId, unsubscribeList);
