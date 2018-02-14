@@ -3950,39 +3950,6 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        /// <summary>
-        /// Performs an update query that deletes a given KSQL channel
-        /// </summary>
-        /// <param name="groupID"></param>
-        /// <param name="channelId"></param>
-        /// <returns></returns>
-        public static bool DeleteChannel(int groupID, int channelId)
-        {
-            // TODO - Lior : create procedure
-            throw new NotImplementedException();
-            //bool result = false;
-
-            //try
-            //{
-            //    UpdateQuery updateQuery = new UpdateQuery("CHANNELS");
-
-            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 2);
-            //    updateQuery += " WHERE ";
-            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", channelId);
-            //    updateQuery += " and ";
-            //    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-
-            //    result = updateQuery.Execute();
-            //    updateQuery.Finish();
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.ErrorFormat("Failed deleting KSQL Channel {0}", channelId, ex);
-            //}
-
-            //return result;
-        }
-
         public static List<KSQLChannel> GetKSQLChannels(int groupID)
         {
             throw new NotImplementedException();
@@ -5314,6 +5281,18 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@AssetTypesValuesInd", assetTypesValuesInd);
 
             return sp.ExecuteDataSet();
+        }
+
+        public static bool DeleteChannel(int groupId, int channelId, int channelType, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@Id", channelId);
+            sp.AddParameter("@ChannelType", channelType);
+            sp.AddParameter("@UpdaterId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         #endregion

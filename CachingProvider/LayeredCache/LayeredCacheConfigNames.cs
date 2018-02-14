@@ -60,6 +60,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_RATIOS_CACHE_CONFIG_NAME = "GetRatios";
         public const string GET_MEDIA_FILE_TYPES_CONFIG_NAME = "GetMediaFileTypess";
         public const string GET_GROUP_DEFAULT_IMAGES_CACHE_CONFIG_NAME = "GetGroupDefaultImages";
+        public const string GET_CHANNELS_CACHE_CONFIG_NAME = "GetChannels";
 
         #endregion
 

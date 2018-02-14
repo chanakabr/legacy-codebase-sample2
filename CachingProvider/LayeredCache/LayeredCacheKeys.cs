@@ -313,9 +313,30 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("GroupRatios_groupId_{0}", groupId);
         }
+
         public static string GetGroupMediaFileTypesKey(int groupId)
         {
             return string.Format("GroupMediaFileTypes_groupId_{0}", groupId);
+        }
+
+        public static string GetChannelKey(int groupId, int channelId)
+        {
+            return string.Format("Channel_groupId_{0}_Id_{1}", groupId, channelId);
+        }
+
+        public static Dictionary<string, string> GetChannelsKeysMap(int groupId, List<int> channelIds)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (channelIds != null && channelIds.Count > 0)
+            {
+                channelIds = channelIds.Distinct().ToList();
+                foreach (int id in channelIds)
+                {
+                    result.Add(GetChannelKey(groupId, id), id.ToString());
+                }
+            }
+
+            return result;
         }
 
         #endregion
@@ -532,17 +553,37 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_GroupMediaFileTypes_groupId_{0}", groupId);
         }
 
+        public static string GetChannelInvalidationKey(int groupId, int channelId)
+        {
+            return string.Format("invalidationKey_Channel_groupId_{0}_Id_{1}", groupId, channelId);
+        }
+
+        public static Dictionary<string, List<string>> GetChannelsInvalidationKeysMap(int groupId, List<int> channelIds)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (channelIds != null && channelIds.Count > 0)
+            {
+                channelIds = channelIds.Distinct().ToList();
+                foreach (int id in channelIds)
+                {
+                    result.Add(GetChannelKey(groupId, id), new List<string>() { GetChannelInvalidationKey(groupId, id) });
+                }
+            }
+
+            return result;
+        }
+
         #region Domains
 
         public static string GetHouseholdInvalidationKey(long householdId)
         {
             return string.Format("invalidationKey_domain_{0}", householdId);
         }
+
         public static string GetHouseholdUserInalidationKey(long householId, string siteGuid)
         {
             return string.Format("invalidationKey_domain_{0}_user_{1}", householId, siteGuid);
         }
-
 
         public static string GetRoleIdInvalidationKey(int roleId)
         {
