@@ -724,19 +724,20 @@ namespace Core.Catalog.CatalogManagement
 
         private static List<Asset> GetMediaAssetsFromCache(int groupId, List<long> ids)
         {
-            List<Asset> result = new List<Asset>();
-            try
-            {
-                if (ids != null && ids.Count > 0)
-                {
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetMediaAssetsFromCache with groupId: {0}, assets: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
-            }
+            throw new NotImplementedException();
+            //List<Asset> result = new List<Asset>();
+            //try
+            //{
+            //    if (ids != null && ids.Count > 0)
+            //    {
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    log.Error(string.Format("Failed GetMediaAssetsFromCache with groupId: {0}, assets: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
+            //}
 
-            return result;
+            //return result;
         }
 
         private static List<Asset> GetEpgAssetsFromCache(int groupId, List<long> ids)

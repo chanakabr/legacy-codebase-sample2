@@ -1282,7 +1282,6 @@ namespace Core.Catalog
             {
                 HashSet<string> allMetas = new HashSet<string>();
                 HashSet<string> allTags = new HashSet<string>();
-
                 if (definitions.shouldSearchMedia)
                 {
                     foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)

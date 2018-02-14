@@ -6270,24 +6270,33 @@ namespace Core.Catalog
             aggregationsResult = null;
 
             ApiObjects.Response.Status status = null;
-
-            Group group = null;
             GroupsCacheManager.Channel channel = null;
-
-            // Get group and channel objects from cache/DB
-            GroupManager groupManager = new GroupsCacheManager.GroupManager();
-            CatalogCache catalogCache = CatalogCache.Instance();
-
-            int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-
-            if (string.IsNullOrEmpty(request.internalChannelID))
-            {
-                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Channel ID was not provided");
-            }
-
             int channelId = int.Parse(request.internalChannelID);
+            int parentGroupID = request.m_nGroupID;
+            Group group = null;
+            CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+            if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+            {
+                channel = CatalogManagement.ChannelManager.GetChannelById(request.m_nGroupID, channelId);
+                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetInternalChannelAssets", request.m_nGroupID);
+                    return new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed to get catalogGroupCache");
+                }
+            }
+            else
+            {                
+                // Get group and channel objects from cache/DB
+                GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                CatalogCache catalogCache = CatalogCache.Instance();
+                parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+                if (string.IsNullOrEmpty(request.internalChannelID))
+                {
+                    return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Channel ID was not provided");
+                }
 
-            groupManager.GetGroupAndChannel(channelId, parentGroupID, ref group, ref channel);
+                groupManager.GetGroupAndChannel(channelId, parentGroupID, ref group, ref channel);
+            }
 
             if (channel == null)
             {
@@ -6295,7 +6304,7 @@ namespace Core.Catalog
             }
 
             // Build search object
-            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group, parentGroupID);
+            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group, parentGroupID, catalogGroupCache);
 
             int pageIndex = 0;
             int pageSize = 0;
@@ -6333,7 +6342,7 @@ namespace Core.Catalog
 
             if (ChannelRequest.IsSlidingWindow(channel))
             {
-                assetIDs = ChannelRequest.OrderMediaBySlidingWindow(group.m_nParentGroupID, channel.m_OrderObject.m_eOrderBy,
+                assetIDs = ChannelRequest.OrderMediaBySlidingWindow(parentGroupID, channel.m_OrderObject.m_eOrderBy,
                     channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, pageSize,
                     pageIndex, assetIDs, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
 
@@ -6763,7 +6772,7 @@ namespace Core.Catalog
         /// <param name="group"></param>
         public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group, int groupId)
         {
-            if (group != null && filterTree != null)
+            if (filterTree != null)
             {
                 Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
 
@@ -7192,8 +7201,7 @@ namespace Core.Catalog
                     else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
                         leaf.shouldLowercase = false;
-
-                        
+                                                
                         if (searchKeyLowered == STATUS)
                         {
                             // We will allow KSQL to contain "status" field only for operators.
@@ -7329,19 +7337,25 @@ namespace Core.Catalog
             }
         }
 
-        public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group, int groupId)
+        public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group, int groupId,
+                                                                                CatalogManagement.CatalogGroupCache catalogGroupCache = null)
         {           
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
             #region Basic
 
             definitions.groupId = channel.m_nGroupID;
-            definitions.indexGroupId = group.m_nParentGroupID;
+            definitions.indexGroupId = catalogGroupCache != null ? groupId : group.m_nParentGroupID;
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
 
             definitions.shouldAddIsActiveTerm = request.m_oFilter != null ? request.m_oFilter.m_bOnlyActiveMedia : true;
+            definitions.isOperatorSearch = request.IsOperatorSearch;
+            if (definitions.isOperatorSearch)
+            {
+                definitions.shouldAddIsActiveTerm = false;
+            }
 
             #endregion
 
@@ -7363,12 +7377,12 @@ namespace Core.Catalog
 
             definitions.mediaTypes = channel.m_nMediaType.ToList();
 
-            if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
+            if (group != null && group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
             {
                 definitions.permittedWatchRules = string.Join(" ", group.m_sPermittedWatchRules);
             }
 
-            definitions.langauge = group.GetGroupDefaultLanguage();
+            definitions.langauge = catalogGroupCache != null ? catalogGroupCache.DefaultLanguage : group.GetGroupDefaultLanguage();
 
             #endregion
 
@@ -7449,7 +7463,15 @@ namespace Core.Catalog
                     definitions.shouldSearchMedia = true;
                 }
 
-                HashSet<int> mediaTypes = new HashSet<int>(group.GetMediaTypes());
+                HashSet<int> mediaTypes = null;
+                if (catalogGroupCache != null)
+                {
+                    mediaTypes = new HashSet<int>(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x));
+                }
+                else
+                {
+                    mediaTypes = new HashSet<int>(group.GetMediaTypes());
+                }
 
                 // Validate that the media types in the "assetTypes" list exist in the group's list of media types
                 foreach (var mediaType in definitions.mediaTypes)

@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
+using CachingProvider.LayeredCache;
 using GroupsCacheManager;
 using KLogMonitor;
 using System;
@@ -224,31 +225,95 @@ namespace Core.Catalog.CatalogManagement
         private static List<Channel> GetChannels(int groupId, List<int> channelIds)
         {
             List<Channel> channels = null;
-            DataSet dataSet = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(channelIds, true);
-            DataTable channelsData = dataSet.Tables[0];
-            DataTable mediaTypesTable = null;
-
-            // If there is a table of media types
-            if (dataSet.Tables.Count > 1 && dataSet.Tables[1] != null && dataSet.Tables[1].Rows != null && dataSet.Tables[1].Rows.Count > 0)
+            try
             {
-                mediaTypesTable = dataSet.Tables[1];
-            }
-
-            if (channelsData != null && channelsData.Rows != null && channelsData.Rows.Count > 0)
-            {
-                channels = new List<Channel>();
-                foreach (DataRow rowData in channelsData.Rows)
+                if (channelIds == null || channelIds.Count == 0)
                 {
-                    Channel channel = CreateChannelByDataRow(groupId, mediaTypesTable, rowData);
-
-                    if (channel != null)
-                    {
-                        channels.Add(channel);
-                    }
+                    return channels;
                 }
+
+                Dictionary<string, Channel> channelMap = null;
+                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetChannelsKeysMap(groupId, channelIds);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetChannelsInvalidationKeysMap(groupId, channelIds);
+
+                if (!LayeredCache.Instance.GetValues<Channel>(keyToOriginalValueMap, ref channelMap, GetChannels, new Dictionary<string, object>() { { "groupId", groupId }, { "channelIds", channelIds } },
+                    groupId, LayeredCacheConfigNames.GET_CHANNELS_CACHE_CONFIG_NAME, invalidationKeysMap))
+                {
+                    log.ErrorFormat("Failed getting Channels from LayeredCache, groupId: {0}, channelIds", groupId, string.Join(",", channelIds));
+                }
+                else if (channelMap != null)
+                {
+                    channels = channelMap.Values.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetChannels for groupId: {0}, channelIds: {1}", groupId, string.Join(",", channelIds)), ex);
             }
 
             return channels;
+        }
+
+        private static Tuple<Dictionary<string, Channel>, bool> GetChannels(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, Channel> result = new Dictionary<string, Channel>();
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("channelIds") && funcParams.ContainsKey("groupId"))
+                {
+                    string key = string.Empty;
+                    List<int> channelIds;
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                    {
+                        channelIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => int.Parse(x)).ToList();
+                    }
+                    else
+                    {
+                        channelIds = funcParams["channelIds"] != null ? funcParams["channelIds"] as List<int> : null;
+                    }
+
+                    List<Channel> channels = new List<Channel>();
+                    if (channelIds != null && groupId.HasValue)
+                    {
+                        DataSet dataSet = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(channelIds, true);
+                        DataTable channelsData = dataSet.Tables[0];
+                        DataTable mediaTypesTable = null;
+
+                        // If there is a table of media types
+                        if (dataSet.Tables.Count > 1 && dataSet.Tables[1] != null && dataSet.Tables[1].Rows != null && dataSet.Tables[1].Rows.Count > 0)
+                        {
+                            mediaTypesTable = dataSet.Tables[1];
+                        }
+
+                        if (channelsData != null && channelsData.Rows != null && channelsData.Rows.Count > 0)
+                        {
+                            foreach (DataRow rowData in channelsData.Rows)
+                            {
+                                Channel channel = CreateChannelByDataRow(groupId.Value, mediaTypesTable, rowData);
+
+                                if (channel != null)
+                                {
+                                    channels.Add(channel);
+                                }
+                            }
+                        }
+                    }
+
+                    res = channels.Count() == channelIds.Count();
+                    if (res)
+                    {
+                        result = channels.ToDictionary(x => LayeredCacheKeys.GetChannelKey(groupId.Value, x.m_nChannelID), x => x);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetChannels failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, Channel>, bool>(result, res);
         }
 
         private static KSQLChannel InsertKSQLChannel(int groupId, KSQLChannel channel, Dictionary<string, string> metas, bool doesGroupUsesTemplates, long userId)
@@ -530,7 +595,7 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }                
 
-                if (CatalogDAL.DeleteChannel(groupId, channelId))
+                if (CatalogDAL.DeleteChannel(groupId, channelId, channel.m_nChannelTypeID, userId))
                 {
                     APILogic.CRUD.KSQLChannelsManager.UpdateCatalog(groupId, channelId, eAction.Delete);
 

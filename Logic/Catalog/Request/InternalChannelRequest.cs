@@ -23,7 +23,9 @@ namespace Core.Catalog.Request
         public ApiObjects.SearchObjects.OrderObj order;
         [DataMember]
         public bool m_bIgnoreDeviceRuleID;
-        
+        [DataMember]
+        public bool IsOperatorSearch;
+
         #endregion
 
         #region Ctor
@@ -58,7 +60,6 @@ namespace Core.Catalog.Request
             {
                 request.m_dServerTime = DateTime.UtcNow;
             }
-
 
             return CatalogLogic.GetInternalChannelAssets(internalRequest, out totalItems, out searchResults, out aggregationsResult);
 
