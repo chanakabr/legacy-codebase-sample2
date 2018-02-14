@@ -5509,6 +5509,11 @@
             Channel order by
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelOrder.SlidingWindowPeriod">
+            <summary>
+            Sliding window period in minutes
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.NameEqual">
             <summary>
             Exact channel name to filter by

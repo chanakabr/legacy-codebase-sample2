@@ -248,13 +248,19 @@ namespace WebAPI.Controllers
                 // Returns assets that belong to a channel
                 else if (filter is KalturaChannelFilter)
                 {
+                    bool isOperatorSearch = false;
+                    List<long> userRoles = RolesManager.GetRoleIds(ks);
+                    if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
+                    {
+                        isOperatorSearch = true;
+                    }
+
                     KalturaChannelFilter channelFilter = (KalturaChannelFilter)filter;
                     if (pager == null)
                         pager = new KalturaFilterPager();
 
-                    response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(),
-                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy, 
-                        responseProfile);
+                    response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy,
+                                                                                channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy, responseProfile, isOperatorSearch);
                 }
                 else if (filter is KalturaBundleFilter)
                 {

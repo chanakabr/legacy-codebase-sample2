@@ -2481,7 +2481,8 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
-            KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null, KalturaBaseResponseProfile responseProfile = null)
+                                                            KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
+                                                            KalturaBaseResponseProfile responseProfile = null, bool isOperatorSearch = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2522,7 +2523,8 @@ namespace WebAPI.Clients
                 internalChannelID = id.ToString(),
                 filterQuery = filterQuery,
                 m_dServerTime = getServerTime(),
-                m_bIgnoreDeviceRuleID = false
+                m_bIgnoreDeviceRuleID = false,
+                IsOperatorSearch = isOperatorSearch
             };
 
             // build failover cache key

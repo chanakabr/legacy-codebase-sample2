@@ -202,7 +202,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.FilterExpression))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value ? 1 : 0 : 0))
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.Order.Value)))
-                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertAssetGroupByToGroupBy(src.GroupBy)));
+               .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertAssetGroupByToGroupBy(src.GroupBy)));
 
             //KSQLChannel to KalturaChannel
             Mapper.CreateMap<KSQLChannel, KalturaChannel>()
@@ -213,7 +213,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterQuery))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.IsActive)))
-                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.Order)))
+               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.Order)))
                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertGroupByToAssetGroupBy(src.GroupBy)));
 
             //KalturaDynamicChannel to KSQLChannel
@@ -225,7 +225,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.Ksql))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value ? 1 : 0 : 0))
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
-                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertAssetGroupByToGroupBy(src.GroupBy)));
+               .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertAssetGroupByToGroupBy(src.GroupBy)));
 
             //KSQLChannel to KalturaDynamicChannel
             Mapper.CreateMap<KSQLChannel, KalturaDynamicChannel>()
@@ -236,7 +236,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))                         
                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.FilterQuery))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.IsActive)))
-                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.Order)))
+               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.Order)))
                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertGroupByToAssetGroupBy(src.GroupBy)));
 
             //Channel (Catalog) to KalturaDynamicChannel
@@ -1317,7 +1317,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         break;
                     case KalturaChannelOrderBy.VIEWS_DESC:
                         result.m_eOrderBy = OrderBy.VIEWS;
-                        result.m_eOrderDir = OrderDir.DESC;
+                        result.m_eOrderDir = OrderDir.DESC;                        
                         break;
                     case KalturaChannelOrderBy.RATINGS_DESC:
                         result.m_eOrderBy = OrderBy.RATING;
@@ -1355,6 +1355,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         result.m_eOrderBy = OrderBy.ID;
                         result.m_eOrderDir = OrderDir.ASC;
                         break;
+                }
+
+                if (order.SlidingWindowPeriod.HasValue)
+                {
+                    result.m_bIsSlidingWindowField = true;
+                    result.isSlidingWindowFromRestApi = true;
+                    result.lu_min_period_id = order.SlidingWindowPeriod.Value;
                 }
             }
 

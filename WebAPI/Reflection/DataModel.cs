@@ -3111,6 +3111,8 @@ namespace WebAPI.Reflection
                     {
                         case "DynamicOrderBy":
                             return "dynamicOrderBy";
+                        case "SlidingWindowPeriod":
+                            return "slidingWindowPeriod";
                     }
                     break;
                     
