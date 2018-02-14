@@ -418,6 +418,7 @@
     <Compile Include="Notification\BaseImplementor.cs" />
     <Compile Include="Notification\BaseNotification.cs" />
     <Compile Include="Notification\BroadcastImplementor.cs" />
+    <Compile Include="Notification\SMSAnnouncementsHelper.cs" />
     <Compile Include="Notification\Datatable.cs" />
     <Compile Include="Notification\DeviceNotification.cs" />
     <Compile Include="Notification\ElisaEmailNotification.cs" />

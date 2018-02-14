@@ -489,5 +489,11 @@ namespace Core.Notification
                 partnerSettingsResponse.settings.IsSMSEnabled.HasValue &&
                 partnerSettingsResponse.settings.IsSMSEnabled.Value);
         }
+
+        public static bool IsUserSMSEnabled(UserNotificationSettings userSettings)
+        {
+            return (userSettings != null &&
+                userSettings.EnableSMS == true);
+        }
     }
 }
