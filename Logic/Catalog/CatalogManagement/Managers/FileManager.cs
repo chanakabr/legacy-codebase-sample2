@@ -259,7 +259,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId)
         {
-            List<AssetFile> files = null;
+            List<AssetFile> files = new List<AssetFile>();
             DataSet ds = CatalogDAL.GetMediaFilesByAssetIds(groupId, new List<long>() { assetId });
             if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
             {
