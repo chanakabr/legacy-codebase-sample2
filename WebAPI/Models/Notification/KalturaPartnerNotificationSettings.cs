@@ -149,6 +149,14 @@ namespace WebAPI.Models.Notification
         [JsonProperty("mailNotificationAdapterId")]
         [XmlElement(ElementName = "mailNotificationAdapterId", IsNullable = true)]
         public long? MailNotificationAdapterId { get; set; }
+
+        /// <summary>
+        /// SMS capability is enabled for the account
+        /// </summary>
+        [DataMember(Name = "smsEnabled")]
+        [JsonProperty("smsEnabled")]
+        [XmlElement(ElementName = "smsEnabled", IsNullable = true)]
+        public bool? SmsEnabled { get; set; }
     }
 
     [Obsolete]

@@ -31,12 +31,20 @@ namespace WebAPI.Models.Notification
         public bool? PushFollowEnabled { get; set; }
 
         /// <summary>
-        /// Specify if the user want to receive mail notifications or not
+        /// Specify if the user wants to receive mail notifications or not
         /// </summary>
         [DataMember(Name = "mailEnabled")]
         [JsonProperty("mailEnabled")]
         [XmlElement(ElementName = "mailEnabled", IsNullable = true)]        
         public bool? MailEnabled { get; set; }
+
+        /// <summary>
+        /// Specify if the user wants to receive SMS notifications or not
+        /// </summary>
+        [DataMember(Name = "smsEnabled")]
+        [JsonProperty("smsEnabled")]
+        [XmlElement(ElementName = "smsEnabled", IsNullable = true)]
+        public bool? SmsEnabled { get; set; }
     }
 
     [Obsolete]

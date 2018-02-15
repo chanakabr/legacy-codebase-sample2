@@ -35,6 +35,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
                  ;
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
@@ -55,6 +56,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
+                 .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
                  ;
 
             //NotificationPartnerSettings to KalturaNotificationPartnerSettings
@@ -75,6 +77,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
@@ -95,12 +98,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
                  ;
 
             Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
                  .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnablePush))
-                 .ForMember(dest => dest.MailEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnableMail));
+                 .ForMember(dest => dest.MailEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnableMail))
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnableSMS));
 
             Mapper.CreateMap<bool?, UserFollowSettings>()
                .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src));
@@ -108,7 +113,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<KalturaNotificationsSettings, UserNotificationSettings>()
                  .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src.PushNotificationEnabled))
                  .ForMember(dest => dest.FollowSettings, opt => opt.MapFrom(src => src.PushFollowEnabled))
-                 .ForMember(dest => dest.EnableMail, opt => opt.MapFrom(src => src.MailEnabled));
+                 .ForMember(dest => dest.EnableMail, opt => opt.MapFrom(src => src.MailEnabled))
+                 .ForMember(dest => dest.EnableSMS, opt => opt.MapFrom(src => src.SmsEnabled));
 
             Mapper.CreateMap<MessageAnnouncement, KalturaAnnouncement>()
                  .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
