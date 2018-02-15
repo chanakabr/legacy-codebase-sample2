@@ -45,12 +45,11 @@ namespace ApiObjects.Notification
     //  KEY: sms_data_<GID>_<UserId>
     public class SmsNotificationData : NotificationData
     {
-        public SmsNotificationData(int userId, string number) : base(userId)
+        public SmsNotificationData(int userId) : base(userId)
         {
-            this.Number = number;
+         
         }
 
-        public string Number { get; set; }
         public string SMSExternalToken { get; set; }
     }
 

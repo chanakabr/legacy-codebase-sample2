@@ -432,7 +432,7 @@ namespace Core.Notification
 
                             if (userNotificationData.Settings.EnableSMS.Value)
                             {
-                                userNotificationData.SMSNumber = response.m_user.m_oBasicData.m_sPhone;
+                                userNotificationData.UserData.PhoneNumber = response.m_user.m_oBasicData.m_sPhone;
                             }
                         }
                         else
@@ -540,10 +540,10 @@ namespace Core.Notification
             return false;
         }
 
-        public static Status GetUserSMSNotificationData(int groupId, int userId, UserNotification userNotification, out SmsNotificationData userSMSNotificationData)
+        public static Status GetUserSmsNotificationData(int groupId, int userId, UserNotification userNotification, out SmsNotificationData userSMSNotificationData)
         {
             bool docExists = false;
-            userSMSNotificationData = DAL.NotificationDal.GetUserSMSNotificationData(groupId, userId, ref docExists);
+            userSMSNotificationData = DAL.NotificationDal.GetUserSmsNotificationData(groupId, userId, ref docExists);
             if (userSMSNotificationData == null)
             {
                 if (docExists)
@@ -557,7 +557,7 @@ namespace Core.Notification
                     log.DebugFormat("user sms data wasn't found - going to create a new one. GID: {0}, USERID: {1}", groupId, userId);
 
                     // create user notification object
-                    userSMSNotificationData = new SmsNotificationData(userId, userNotification.SMSNumber) { UpdatedAt = TVinciShared.DateUtils.UnixTimeStampNow() };
+                    userSMSNotificationData = new SmsNotificationData(userId) { UpdatedAt = TVinciShared.DateUtils.UnixTimeStampNow() };
                 }
             }
 

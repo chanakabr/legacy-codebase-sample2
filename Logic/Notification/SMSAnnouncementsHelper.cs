@@ -19,7 +19,7 @@ using APILogic.DmsService;
 
 namespace Core.Notification
 {
-    public class SMSAnnouncementsHelper
+    public class SmsAnnouncementsHelper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -67,67 +67,62 @@ namespace Core.Notification
         }
 
         /// <summary>
-        /// initialize the cancel subscription list taken from the device object
+        /// initialize the cancel subscription list taken from the SMS object
         /// </summary>
         /// <param name="deviceData"></param>
         /// <returns></returns>
-        public static List<UnSubscribe> InitAllAnnouncementToUnSubscribeForAdapter(DeviceNotificationData deviceData)
+        public static List<UnSubscribe> InitAllAnnouncementToUnSubscribeForAdapter(SmsNotificationData smsNotficationData)
         {
-            List<UnSubscribe> result = null;
+            List<UnSubscribe> result = new List<UnSubscribe>();
 
-            if (deviceData == null)
-                log.Debug("user device data is empty");
-            else
+            // prepare unsubscribe guest/login announcement object
+            if (!string.IsNullOrEmpty(smsNotficationData.SubscriptionExternalIdentifier))
+                result.Add(new UnSubscribe() { SubscriptionArn = smsNotficationData.SubscriptionExternalIdentifier });
+
+            // prepare announcement subscription to cancel list
+            if (smsNotficationData.SubscribedAnnouncements != null)
             {
-                // prepare unsubscribe guest/login announcement object
-                result = new List<UnSubscribe>();
-                if (!string.IsNullOrEmpty(deviceData.SubscriptionExternalIdentifier))
-                    result.Add(new UnSubscribe() { SubscriptionArn = deviceData.SubscriptionExternalIdentifier });
-
-                // prepare announcement subscription to cancel list
-                if (deviceData.SubscribedAnnouncements != null)
+                UnSubscribe subscriptionToRemove;
+                foreach (var subscription in smsNotficationData.SubscribedAnnouncements)
                 {
-                    UnSubscribe subscriptionToRemove;
-                    foreach (var subscription in deviceData.SubscribedAnnouncements)
-                    {
-                        subscriptionToRemove = new UnSubscribe() { SubscriptionArn = subscription.ExternalId, ExternalId = subscription.Id };
-                        result.Add(subscriptionToRemove);
-                    }
-                }
-
-                // prepare reminder subscription to cancel list
-                if (deviceData.SubscribedReminders != null)
-                {
-                    UnSubscribe subscriptionToRemove;
-                    foreach (var reminderSubscription in deviceData.SubscribedReminders)
-                    {
-                        subscriptionToRemove = new UnSubscribe() { SubscriptionArn = reminderSubscription.ExternalId, ExternalId = reminderSubscription.Id };
-                        result.Add(subscriptionToRemove);
-                    }
-                }
-
-                // prepare series reminder subscription to cancel list
-                if (deviceData.SubscribedSeriesReminders != null)
-                {
-                    UnSubscribe subscriptionToRemove;
-                    foreach (var reminderSubscription in deviceData.SubscribedSeriesReminders)
-                    {
-                        subscriptionToRemove = new UnSubscribe() { SubscriptionArn = reminderSubscription.ExternalId, ExternalId = reminderSubscription.Id };
-                        result.Add(subscriptionToRemove);
-                    }
-                }
-
-                // prepare interests subscription to cancel list
-                if (deviceData.SubscribedUserInterests != null)
-                {
-                    UnSubscribe subscriptionToRemove;
-                    foreach (var interestSubscription in deviceData.SubscribedUserInterests)
-                    {
-                        subscriptionToRemove = new UnSubscribe() { SubscriptionArn = interestSubscription.ExternalId, ExternalId = interestSubscription.Id };
-                        result.Add(subscriptionToRemove);
-                    }
+                    subscriptionToRemove = new UnSubscribe() { SubscriptionArn = subscription.ExternalId, ExternalId = subscription.Id };
+                    result.Add(subscriptionToRemove);
                 }
             }
+
+            // prepare reminder subscription to cancel list
+            if (smsNotficationData.SubscribedReminders != null)
+            {
+                UnSubscribe subscriptionToRemove;
+                foreach (var reminderSubscription in smsNotficationData.SubscribedReminders)
+                {
+                    subscriptionToRemove = new UnSubscribe() { SubscriptionArn = reminderSubscription.ExternalId, ExternalId = reminderSubscription.Id };
+                    result.Add(subscriptionToRemove);
+                }
+            }
+
+            // prepare series reminder subscription to cancel list
+            if (smsNotficationData.SubscribedSeriesReminders != null)
+            {
+                UnSubscribe subscriptionToRemove;
+                foreach (var reminderSubscription in smsNotficationData.SubscribedSeriesReminders)
+                {
+                    subscriptionToRemove = new UnSubscribe() { SubscriptionArn = reminderSubscription.ExternalId, ExternalId = reminderSubscription.Id };
+                    result.Add(subscriptionToRemove);
+                }
+            }
+
+            // prepare interests subscription to cancel list
+            if (smsNotficationData.SubscribedUserInterests != null)
+            {
+                UnSubscribe subscriptionToRemove;
+                foreach (var interestSubscription in smsNotficationData.SubscribedUserInterests)
+                {
+                    subscriptionToRemove = new UnSubscribe() { SubscriptionArn = interestSubscription.ExternalId, ExternalId = interestSubscription.Id };
+                    result.Add(subscriptionToRemove);
+                }
+            }
+
 
             return result;
         }
