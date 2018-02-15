@@ -30,7 +30,7 @@ namespace Core.Notification
         /// <param name="userNotificationData"></param>
         /// <param name="pushExternalToken"></param>
         /// <returns></returns>
-        public static List<AnnouncementSubscriptionData> InitAllAnnouncementToSubscribeForAdapter(int groupId, UserNotification userNotificationData, SMSNotificationData SMSData, string pushExternalToken, out long loginAnnouncementId)
+        public static List<AnnouncementSubscriptionData> InitAllAnnouncementToSubscribeForAdapter(int groupId, UserNotification userNotificationData, SmsNotificationData SMSData, string pushExternalToken, out long loginAnnouncementId)
         {
             List<AnnouncementSubscriptionData> result = new List<AnnouncementSubscriptionData>();
             loginAnnouncementId = 0;
