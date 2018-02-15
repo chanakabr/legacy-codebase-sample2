@@ -3836,7 +3836,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannel InsertKSQLChannel(int groupId, KalturaChannel channel, long userId, bool isDynamicChannel)
+        internal KalturaChannel InsertKSQLChannel(int groupId, KalturaChannel channel, long userId)
         {
             KSQLChannelResponse response = null;
             KalturaChannel result = null;
@@ -3845,17 +3845,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    KSQLChannel request;
-                    if (isDynamicChannel)
-                    {
-                        request = Mapper.Map<KSQLChannel>((KalturaDynamicChannel)channel);
-                    }
-                    else
-                    {
-                        request = Mapper.Map<KSQLChannel>(channel);
-                    }
-
-                    response = Core.Catalog.CatalogManagement.ChannelManager.AddDynamicChannel(groupId, request, userId);
+                    KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
+                    response = APILogic.CRUD.KSQLChannelsManager.Insert(groupId, request);                 
                 }
             }
             catch (Exception ex)
@@ -3874,14 +3865,40 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            if (isDynamicChannel)
+            result = Mapper.Map<KalturaChannel>(response.Channel);
+            return result;
+        }
+
+        internal KalturaChannel InsertDynamicChannel(int groupId, KalturaChannel channel, long userId)
+        {
+            Core.Catalog.CatalogManagement.ChannelResponse response = null;
+            KalturaChannel result = null;
+
+            try
             {
-                result = Mapper.Map<KalturaDynamicChannel>(response.Channel);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    KSQLChannel request = Mapper.Map<KSQLChannel>((KalturaDynamicChannel)channel);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.AddDynamicChannel(groupId, request, userId);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                result = Mapper.Map<KalturaChannel>(response.Channel);
+                log.ErrorFormat("Error while InsertDynamicChannel.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
             }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<KalturaDynamicChannel>(response.Channel);
             return result;
         }
 
@@ -3966,7 +3983,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
-                    response = Core.Catalog.CatalogManagement.ChannelManager.AddDynamicChannel(groupId, request, userId);
+                    response = APILogic.CRUD.KSQLChannelsManager.Insert(groupId, request);
                 }
             }
             catch (Exception ex)

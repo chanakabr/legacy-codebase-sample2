@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.ChannelMetaOrderByIsInvalid)]
-        [Throws(eResponseStatus.ChannelNameAlreadyInUse)]
+        [Throws(eResponseStatus.ChannelSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.AssetDoesNotExist)]
         public KalturaChannel Add(KalturaChannel channel)
         {
@@ -129,7 +129,7 @@ namespace WebAPI.Controllers
                 // KalturaChannel (backward compatability)
                 if (channel.objectType == KalturaChannel.CHANNEL)
                 {
-                    response = ClientsManager.CatalogClient().InsertKSQLChannel(groupId, channel, userId, false);
+                    response = ClientsManager.CatalogClient().InsertKSQLChannel(groupId, channel, userId);
                 }
                 else
                 {                
@@ -141,7 +141,7 @@ namespace WebAPI.Controllers
                     // KalturaDynamicChannel                
                     else if (channel.objectType == KalturaChannel.DYNAMIC_CHANNEL)
                     {
-                        response = ClientsManager.CatalogClient().InsertKSQLChannel(groupId, channel, userId, true);
+                        response = ClientsManager.CatalogClient().InsertDynamicChannel(groupId, channel, userId);
                     }
                 }
 

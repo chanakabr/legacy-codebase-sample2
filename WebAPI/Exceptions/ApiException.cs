@@ -175,7 +175,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType COUNTRY_NOT_FOUND = new ClientExceptionType(eResponseStatus.CountryNotFound, "Country Not Found", "Unable to find the country code specified");
 
         public static ClientExceptionType ASSET_STRUCT_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.AssetStructNameAlreadyInUse, "Name Already Used", "The asset struct name is already in use");
-        public static ClientExceptionType ASSET_STRUCT_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.AssetStructSystemNameAlreadyInUse, "System Name Already Used", "The asset struct system name is already in use");        
+        public static ClientExceptionType ASSET_STRUCT_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.AssetStructSystemNameAlreadyInUse, "System Name Already Used", "The asset struct system name is already in use");
         public static ClientExceptionType META_IDS_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MetaIdsDoesNotExist, "Invalid Meta Id", "One or more of the specified meta ids does not exist");
         public static ClientExceptionType ASSET_STRUCT_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetStructDoesNotExist, "Invalid Asset Struct Id", "The specified asset strcut id does not exist");
         public static ClientExceptionType CAN_NOT_CHANGE_PREDEFINED_ASSET_STRUCT_SYSTEM_NAME = new ClientExceptionType(eResponseStatus.CanNotChangePredefinedAssetStructSystemName, "System Name Can Not Be Changed",
@@ -200,7 +200,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ASSET_FILE_TYPE_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.MediaFileTypeNameAlreadyInUse, "The Media File Type Name Is Already In Use");
         public static ClientExceptionType Media_FILE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MediaFileTypeDoesNotExist, "The Asset File Type Does Not Exist");
         public static ClientExceptionType CAN_NOT_REMOVE_BASIC_META_IDS = new ClientExceptionType(eResponseStatus.CanNotRemoveBasicMetaIds, "Can Not Remove Basic Meta Ids from Asset");
-        public static ClientExceptionType RATIo_ALREADY_EXIST = new ClientExceptionType(eResponseStatus.RatioAlreadyExist, "Ratio Already Exist");
+        public static ClientExceptionType RATIO_ALREADY_EXIST = new ClientExceptionType(eResponseStatus.RatioAlreadyExist, "Ratio Already Exist");
 
         public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");        
         public static ApiExceptionType INVALID_VALUE_FOR_FEATURE = new ApiExceptionType(StatusCode.InvalidValueForFeature, "Invalid value for feature: @feature@. feature can only contain alphanumeric values and/or underscore up until 64 characters", "feature");
@@ -209,6 +209,8 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS = new ApiExceptionType(StatusCode.GlobalLanguageParameterMustBeAsterisk, "Global language parameter must be asterisk for write actions of multilingualName");
         public static ApiExceptionType MULTI_VALUE_NOT_SENT_FOR_META_DATA_TYPE_STRING = new ApiExceptionType(StatusCode.MultiValueWasNotSentForMetaDataTypeString, "multipleValue property must have a value when KalturaMetaDataType equals STRING");
         public static ApiExceptionType TAG_TRANSLATION_NOT_ALLOWED = new ApiExceptionType(StatusCode.TagTranslationNotAllowed, "Tag translations are not allowed using asset contoller, please use tag controller");
+
+        public static ClientExceptionType CHANNEL_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.ChannelSystemNameAlreadyInUse, "System Name Already Used", "The channel system name is already in use");
 
         // Api 5000 - 5999
         public static ClientExceptionType NO_PIN_DEFINED = new ClientExceptionType(eResponseStatus.NoPinDefined, "No Pin Defined", "No parental PIN was defined for this user/household");
