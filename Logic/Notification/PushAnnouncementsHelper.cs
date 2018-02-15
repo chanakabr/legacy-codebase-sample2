@@ -71,7 +71,7 @@ namespace Core.Notification
         /// </summary>
         /// <param name="deviceData"></param>
         /// <returns></returns>
-        public static List<UnSubscribe> InitAllAnnouncementToUnSubscribeForAdapter(DeviceNotificationData deviceData)
+        public static List<UnSubscribe> InitAllAnnouncementToUnSubscribeForAdapter(NotificationData deviceData)
         {
             List<UnSubscribe> result = null;
 

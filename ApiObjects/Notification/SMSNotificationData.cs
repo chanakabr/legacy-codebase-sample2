@@ -7,13 +7,19 @@ using Newtonsoft.Json;
 
 namespace ApiObjects.Notification
 {
-    //  KEY: sms_data_<GID>_<UserId>
-    public class SMSNotificationData
+    public abstract class NotificationData
     {
-        public SMSNotificationData(int userId, string number)
+        public NotificationData()
+        {
+            this.SubscribedAnnouncements = new List<NotificationSubscription>();
+            this.SubscribedReminders = new List<NotificationSubscription>();
+            this.SubscribedSeriesReminders = new List<NotificationSubscription>();
+            this.SubscribedUserInterests = new List<NotificationSubscription>();
+        }
+
+        public NotificationData(int userId)
         {
             this.UserId = userId;
-            this.Number = number;
             this.SubscribedAnnouncements = new List<NotificationSubscription>();
             this.SubscribedReminders = new List<NotificationSubscription>();
             this.SubscribedSeriesReminders = new List<NotificationSubscription>();
@@ -21,7 +27,6 @@ namespace ApiObjects.Notification
         }
 
         public int UserId { get; set; }
-        public string Number { get; set; }
         public long UpdatedAt { get; set; }
         public string SubscriptionExternalIdentifier { get; set; }
 
@@ -36,4 +41,17 @@ namespace ApiObjects.Notification
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ulong cas { get; set; }
     }
+
+    //  KEY: sms_data_<GID>_<UserId>
+    public class SmsNotificationData : NotificationData
+    {
+        public SmsNotificationData(int userId, string number) : base(userId)
+        {
+            this.Number = number;
+        }
+
+        public string Number { get; set; }
+        public string SMSExternalToken { get; set; }
+    }
+
 }

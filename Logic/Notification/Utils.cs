@@ -540,7 +540,7 @@ namespace Core.Notification
             return false;
         }
 
-        public static Status GetUserSMSNotificationData(int groupId, int userId, UserNotification userNotification, out SMSNotificationData userSMSNotificationData)
+        public static Status GetUserSMSNotificationData(int groupId, int userId, UserNotification userNotification, out SmsNotificationData userSMSNotificationData)
         {
             bool docExists = false;
             userSMSNotificationData = DAL.NotificationDal.GetUserSMSNotificationData(groupId, userId, ref docExists);
@@ -557,7 +557,7 @@ namespace Core.Notification
                     log.DebugFormat("user sms data wasn't found - going to create a new one. GID: {0}, USERID: {1}", groupId, userId);
 
                     // create user notification object
-                    userSMSNotificationData = new SMSNotificationData(userId, userNotification.SMSNumber) { UpdatedAt = TVinciShared.DateUtils.UnixTimeStampNow() };
+                    userSMSNotificationData = new SmsNotificationData(userId, userNotification.SMSNumber) { UpdatedAt = TVinciShared.DateUtils.UnixTimeStampNow() };
                 }
             }
 
