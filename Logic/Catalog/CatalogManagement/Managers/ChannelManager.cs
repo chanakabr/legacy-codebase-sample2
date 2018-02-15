@@ -22,7 +22,50 @@ namespace Core.Catalog.CatalogManagement
 
         #region Private Methods
 
-        private static Channel CreateChannelByDataRow(int groupId, DataTable mediaTypesTable, DataRow rowData)
+        private static List<Channel> GetChannelListFromDs(int groupId, DataSet ds)
+        {
+            List<Channel> channels = new List<Channel>();
+            if (ds == null || ds.Tables == null || ds.Tables.Count < 5 || ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count == 0)
+            {
+                log.WarnFormat("GetGroupChannels didn't find any channels");
+                return null;
+            }
+
+            DataTable channelsTable = ds.Tables[0];
+            EnumerableRowCollection<DataRow> nameTranslations = ds.Tables[1] != null && ds.Tables[1].Rows != null ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
+            EnumerableRowCollection<DataRow> descriptionTranslations = ds.Tables[2] != null && ds.Tables[2].Rows != null ? ds.Tables[2].AsEnumerable() : new DataTable().AsEnumerable();
+            EnumerableRowCollection<DataRow> mediaTypes = ds.Tables[3] != null && ds.Tables[3].Rows != null ? ds.Tables[3].AsEnumerable() : new DataTable().AsEnumerable();
+            EnumerableRowCollection<DataRow> channelsMedias = ds.Tables[4] != null && ds.Tables[4].Rows != null ? ds.Tables[4].AsEnumerable() : new DataTable().AsEnumerable();
+            foreach (DataRow dr in channelsTable.Rows)
+            {
+                int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
+                if (id > 0)
+                {
+                    List<DataRow> channelNameTranslations = (from row in nameTranslations
+                                                             where (Int64)row["CHANNEL_ID"] == id
+                                                             select row).ToList();
+                    List<DataRow> channelDescriptionTranslations = (from row in descriptionTranslations
+                                                                    where (Int64)row["CHANNEL_ID"] == id
+                                                                    select row).ToList();
+                    List<DataRow> channelmediaTypes = (from row in mediaTypes
+                                                       where (Int64)row["CHANNEL_ID"] == id
+                                                       select row).ToList();
+                    List<DataRow> medias = (from row in channelsMedias
+                                            where (Int64)row["CHANNEL_ID"] == id
+                                            select row).ToList();
+                    Channel channel = CreateChannel(groupId, id, dr, channelNameTranslations, channelDescriptionTranslations, channelmediaTypes, medias);
+                    if (channel != null)
+                    {
+                        channels.Add(channel);
+                    }
+                }
+            }
+
+            return channels;
+        }
+
+        private static Channel CreateChannel(int groupId, int id, DataRow dr, List<DataRow> nameTranslations, List<DataRow> descriptionTranslations,
+                                            List<DataRow> mediaTypes, List<DataRow> channelMedias)
         {
             Channel channel = new Channel();
             if (channel.m_lChannelTags == null)
@@ -31,16 +74,47 @@ namespace Core.Catalog.CatalogManagement
             }
 
             channel.m_lManualMedias = new List<GroupsCacheManager.ManualMedia>();
-            channel.m_nChannelID = ODBCWrapper.Utils.GetIntSafeVal(rowData["Id"]);
+            channel.m_nChannelID = id;
             channel.m_nGroupID = groupId;
             channel.m_nParentGroupID = groupId;
-            channel.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(rowData["is_active"]);
-            channel.m_nStatus = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
-            channel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
-            channel.m_sName = ODBCWrapper.Utils.ExtractString(rowData, "name");
-            channel.m_sDescription = ODBCWrapper.Utils.ExtractString(rowData, "description");
-            channel.CreateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(rowData, "CREATE_DATE");
-            channel.UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(rowData, "UPDATE_DATE");
+            channel.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr["is_active"]);
+            channel.m_nStatus = ODBCWrapper.Utils.GetIntSafeVal(dr["status"]);
+            channel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(dr["channel_type"]);
+            channel.m_sName = ODBCWrapper.Utils.ExtractString(dr, "name");
+            channel.m_sDescription = ODBCWrapper.Utils.ExtractString(dr, "description");
+            channel.SystemName = ODBCWrapper.Utils.ExtractString(dr, "SYSTEM_NAME");
+            channel.CreateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
+            channel.UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+
+            #region translated names
+
+            channel.NamesInOtherLanguages = new List<LanguageContainer>();
+            if (nameTranslations != null && nameTranslations.Count > 0)
+            {                
+                foreach (DataRow nameDr in nameTranslations)
+                {
+                    string code3 = ODBCWrapper.Utils.GetSafeStr(nameDr, "CODE3");
+                    string translation = ODBCWrapper.Utils.GetSafeStr(nameDr, "TRANSLATION");
+                    channel.NamesInOtherLanguages.Add(new LanguageContainer(code3, translation, false));
+                }
+            }
+
+            #endregion
+
+            #region translated descriptions
+
+            channel.DescriptionInOtherLanguages = new List<LanguageContainer>();
+            if (descriptionTranslations != null && descriptionTranslations.Count > 0)
+            {
+                foreach (DataRow descDr in descriptionTranslations)
+                {
+                    string code3 = ODBCWrapper.Utils.GetSafeStr(descDr, "CODE3");
+                    string translation = ODBCWrapper.Utils.GetSafeStr(descDr, "TRANSLATION");
+                    channel.DescriptionInOtherLanguages.Add(new LanguageContainer(code3, translation, false));
+                }
+            }
+
+            #endregion
 
             ChannelType channelType = ChannelType.None;
             if (Enum.IsDefined(typeof(ChannelType), channel.m_nChannelTypeID))
@@ -50,13 +124,11 @@ namespace Core.Catalog.CatalogManagement
 
             #region Media Types
 
-            int mediaType = ODBCWrapper.Utils.GetIntSafeVal(rowData["MEDIA_TYPE_ID"]);
+            int mediaType = ODBCWrapper.Utils.GetIntSafeVal(dr["MEDIA_TYPE_ID"]);
             channel.m_nMediaType = new List<int>();
 
-            if (mediaTypesTable != null)
+            if (mediaTypes != null)
             {
-                List<DataRow> mediaTypes = mediaTypesTable.Select("CHANNEL_ID = " + channel.m_nChannelID).ToList();
-
                 foreach (DataRow drMediaType in mediaTypes)
                 {
                     channel.m_nMediaType.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
@@ -81,24 +153,24 @@ namespace Core.Catalog.CatalogManagement
             #region Order
 
             channel.m_OrderObject = new ApiObjects.SearchObjects.OrderObj();
-            int orderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
+            int orderBy = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_type"]);
             // get order by value 
-            string orderByValue = ODBCWrapper.Utils.GetSafeStr(rowData, "ORDER_BY_VALUE");
+            string orderByValue = ODBCWrapper.Utils.GetSafeStr(dr, "ORDER_BY_VALUE");
 
             // initiate orderBy object 
             UpdateOrderByObject(orderBy, ref channel, orderByValue);
 
-            int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
+            int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(dr["order_by_dir"]) - 1;
             channel.m_OrderObject.m_eOrderDir =
                 (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), orderDirection);
-            channel.m_OrderObject.m_bIsSlidingWindowField = ODBCWrapper.Utils.GetIntSafeVal(rowData["IsSlidingWindow"]) == 1;
-            channel.m_OrderObject.lu_min_period_id = ODBCWrapper.Utils.GetIntSafeVal(rowData["SlidingWindowPeriod"]);
+            channel.m_OrderObject.m_bIsSlidingWindowField = ODBCWrapper.Utils.GetIntSafeVal(dr["IsSlidingWindow"]) == 1;
+            channel.m_OrderObject.lu_min_period_id = ODBCWrapper.Utils.GetIntSafeVal(dr["SlidingWindowPeriod"]);
 
             #endregion
 
             #region Is And
 
-            int isAnd = ODBCWrapper.Utils.GetIntSafeVal(rowData["IS_AND"]);
+            int isAnd = ODBCWrapper.Utils.GetIntSafeVal(dr["IS_AND"]);
 
             log.Debug("Channel " + channel.m_nChannelID + " active: " + channel.m_nIsActive + " and status: " + channel.m_nStatus);
 
@@ -116,13 +188,20 @@ namespace Core.Catalog.CatalogManagement
                 case ChannelType.Manual:
                     {
                         #region Manual
-
-                        List<GroupsCacheManager.ManualMedia> lManualMedias;
-                        channel.m_lChannelTags = GetMediasForManualChannel(channel.m_nChannelID, out lManualMedias);
-
-                        if (lManualMedias != null)
+                        if (channelMedias != null)
                         {
-                            channel.m_lManualMedias = lManualMedias.ToList();
+                            List<GroupsCacheManager.ManualMedia> manualMedias = new List<GroupsCacheManager.ManualMedia>();
+                            foreach (DataRow mediaRow in channelMedias)
+                            {
+                                string mediaId = ODBCWrapper.Utils.GetSafeStr(mediaRow, "MEDIA_ID");
+                                int orderNum = ODBCWrapper.Utils.GetIntSafeVal(mediaRow, "ORDER_NUM");
+                                manualMedias.Add(new GroupsCacheManager.ManualMedia(mediaId, orderNum));
+                            }
+
+                            if (manualMedias != null)
+                            {
+                                channel.m_lManualMedias = manualMedias.OrderBy(x => x.m_nOrderNum).ToList();
+                            }
                         }
 
                         break;
@@ -131,8 +210,8 @@ namespace Core.Catalog.CatalogManagement
                     }
                 case ChannelType.KSQL:
                     {
-                        channel.filterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_FILTER");
-                        string groupBy = ODBCWrapper.Utils.ExtractString(rowData, "GROUP_BY");
+                        channel.filterQuery = ODBCWrapper.Utils.ExtractString(dr, "KSQL_FILTER");
+                        string groupBy = ODBCWrapper.Utils.ExtractString(dr, "GROUP_BY");
                         if (!string.IsNullOrEmpty(groupBy))
                         {
                             channel.searchGroupBy = new SearchAggregationGroupBy()
@@ -277,28 +356,8 @@ namespace Core.Catalog.CatalogManagement
                     List<Channel> channels = new List<Channel>();
                     if (channelIds != null && groupId.HasValue)
                     {
-                        DataSet dataSet = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(channelIds, true);
-                        DataTable channelsData = dataSet.Tables[0];
-                        DataTable mediaTypesTable = null;
-
-                        // If there is a table of media types
-                        if (dataSet.Tables.Count > 1 && dataSet.Tables[1] != null && dataSet.Tables[1].Rows != null && dataSet.Tables[1].Rows.Count > 0)
-                        {
-                            mediaTypesTable = dataSet.Tables[1];
-                        }
-
-                        if (channelsData != null && channelsData.Rows != null && channelsData.Rows.Count > 0)
-                        {
-                            foreach (DataRow rowData in channelsData.Rows)
-                            {
-                                Channel channel = CreateChannelByDataRow(groupId.Value, mediaTypesTable, rowData);
-
-                                if (channel != null)
-                                {
-                                    channels.Add(channel);
-                                }
-                            }
-                        }
+                        DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, true);
+                        channels = GetChannelListFromDs(groupId.Value, ds);
                     }
 
                     res = channels.Count() == channelIds.Count();
@@ -316,23 +375,42 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, Channel>, bool>(result, res);
         }
 
-        private static KSQLChannel InsertKSQLChannel(int groupId, KSQLChannel channel, Dictionary<string, string> metas, bool doesGroupUsesTemplates, long userId)
+        private static Channel InsertKSQLChannel(int groupId, KSQLChannel ksqlChannel, Dictionary<string, string> metas, bool doesGroupUsesTemplates, long userId)
         {
-            KSQLChannel result = null;
-            DataSet ds = CatalogDAL.InsertKsqlChannel(groupId, channel, userId);
-            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            Channel channel = null;
+            List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
+            if (ksqlChannel.NamesInOtherLanguages != null && ksqlChannel.NamesInOtherLanguages.Count > 0)
             {
-                DataTable assetTypes = null;
-
-                if (ds.Tables.Count > 1)
+                foreach (LanguageContainer language in ksqlChannel.NamesInOtherLanguages)
                 {
-                    assetTypes = ds.Tables[1];
+                    languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
                 }
-
-                result = CatalogDAL.CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas, doesGroupUsesTemplates);
             }
 
-            return result;
+            List<KeyValuePair<string, string>> languageCodeToDescription = new List<KeyValuePair<string, string>>();
+            if (ksqlChannel.NamesInOtherLanguages != null && ksqlChannel.NamesInOtherLanguages.Count > 0)
+            {
+                foreach (LanguageContainer language in ksqlChannel.NamesInOtherLanguages)
+                {
+                    languageCodeToDescription.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                }
+            }
+
+            DataSet ds = CatalogDAL.InsertDynamicChannel(groupId, ksqlChannel, languageCodeToName, languageCodeToDescription, userId);
+            if (ds != null && ds.Tables.Count > 3 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            {
+                DataRow dr = ds.Tables[0].Rows[0];
+                List<DataRow> nameTranslations = ds.Tables[1] != null && ds.Tables[1].Rows != null ? ds.Tables[1].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                List<DataRow> descriptionTranslations = ds.Tables[2] != null && ds.Tables[2].Rows != null ? ds.Tables[2].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                List<DataRow> mediaTypes = ds.Tables[3] != null && ds.Tables[3].Rows != null ? ds.Tables[3].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
+                if (id > 0)
+                {
+                    channel = CreateChannel(groupId, id, dr, nameTranslations, descriptionTranslations, mediaTypes, null);
+                }
+            }
+
+            return channel;
         }
 
         #endregion
@@ -361,23 +439,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataSet ds = CatalogDAL.GetGroupChannels(groupId);
-                if (ds == null || ds.Tables == null || ds.Tables.Count < 1 || ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count == 0)
-                {
-                    log.WarnFormat("GetGroupChannels didn't find any channels");
-                    return null;
-                }
-
-                DataTable channelsTable = ds.Tables[0];
-                DataTable mediaTypesTable = ds.Tables.Count > 1 && ds.Tables[1] != null ? ds.Tables[1] : null;           
-                groupChannels = new List<Channel>();
-                foreach (DataRow dr in channelsTable.Rows)
-                {
-                    Channel channel = CreateChannelByDataRow(groupId, mediaTypesTable, dr);
-                    if (channel != null)
-                    {
-                        groupChannels.Add(channel);
-                    }
-                }
+                groupChannels = GetChannelListFromDs(groupId, ds);
             }
             catch (Exception ex)
             {
@@ -424,12 +486,10 @@ namespace Core.Catalog.CatalogManagement
             ChannelResponse result = new ChannelResponse();
             try
             {
-                // validate channel name not in use
-                ChannelListResponse SearchChannelsResponse = SearchChannels(groupId, true, channelToAdd.m_sName, 0, 5, ChannelOrderBy.Id, OrderDir.ASC);
-                if (SearchChannelsResponse != null && SearchChannelsResponse.Status != null && SearchChannelsResponse.Status.Code == (int)eResponseStatus.OK
-                    && SearchChannelsResponse.Channels != null && SearchChannelsResponse.Channels.Count > 0)
+                // validate channel system name not in use
+                if (!CatalogDAL.ValidateChannelSystemName(groupId, channelToAdd.SystemName))
                 {
-                    result.Status = new Status((int)eResponseStatus.ChannelNameAlreadyInUse, eResponseStatus.ChannelNameAlreadyInUse.ToString());
+                    result.Status = new Status((int)eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
                     return result;
                 }
 
@@ -477,15 +537,21 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static KSQLChannelResponse AddDynamicChannel(int groupId, KSQLChannel channel, long userId = 700)
+        public static ChannelResponse AddDynamicChannel(int groupId, KSQLChannel channel, long userId = 700)
         {
-            KSQLChannelResponse response = new KSQLChannelResponse();
+            ChannelResponse response = new ChannelResponse();
 
             try
             {
                 if (channel == null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoObjectToInsert, APILogic.CRUD.KSQLChannelsManager.NO_KSQL_CHANNEL_TO_INSERT);
+                    return response;
+                }
+
+                if (!CatalogDAL.ValidateChannelSystemName(groupId, channel.SystemName))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
                     return response;
                 }
 
@@ -558,9 +624,9 @@ namespace Core.Catalog.CatalogManagement
 
                 response.Channel = InsertKSQLChannel(groupId, channel, metas, doesGroupUsesTemplates, userId);
 
-                if (response.Channel != null && response.Channel.ID > 0)
+                if (response.Channel != null && response.Channel.m_nChannelID > 0)
                 {
-                    APILogic.CRUD.KSQLChannelsManager.UpdateCatalog(groupId, response.Channel.ID);
+                    APILogic.CRUD.KSQLChannelsManager.UpdateCatalog(groupId, response.Channel.m_nChannelID);
 
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new KSQL channel insert");
                 }
@@ -600,6 +666,19 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeleteChannel(groupId, channelId, channel.m_nChannelTypeID, userId))
                 {
                     APILogic.CRUD.KSQLChannelsManager.UpdateCatalog(groupId, channelId, eAction.Delete);
+                    // invalidate channel
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
+                    {
+                        log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after deleting channel",
+                                            channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
+                    }
+
+                    string[] keys = new string[1]
+                    {
+                    APILogic.CRUD.KSQLChannelsManager.BuildChannelCacheKey(groupId, channelId)
+                    };
+
+                    TVinciShared.QueueUtils.UpdateCache(groupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
 
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "KSQL channel deleted");
                 }
@@ -607,13 +686,6 @@ namespace Core.Catalog.CatalogManagement
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, APILogic.CRUD.KSQLChannelsManager.CHANNEL_NOT_EXIST);
                 }
-
-                string[] keys = new string[1]
-                {
-                    APILogic.CRUD.KSQLChannelsManager.BuildChannelCacheKey(groupId, channelId)
-                };
-
-                TVinciShared.QueueUtils.UpdateCache(groupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
             }
             catch (Exception ex)
             {

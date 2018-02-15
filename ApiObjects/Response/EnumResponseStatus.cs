@@ -233,7 +233,7 @@ namespace ApiObjects.Response
         MediaFileAltExternalIdMustBeUnique = 4057,
         ExternaldAndAltExternalIdMustBeUnique = 4058,
         InvalidRatioForImage = 4059,
-        ChannelNameAlreadyInUse = 4060,
+        ChannelSystemNameAlreadyInUse = 4060,
         ChannelMetaOrderByIsInvalid = 4061,
 
         // Api 5000 - 5999

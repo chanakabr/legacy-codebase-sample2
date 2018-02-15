@@ -57,9 +57,104 @@ namespace APILogic.CRUD
         #endregion
         #region CRUD
 
-        public static KSQLChannelResponse Insert(int groupId, KSQLChannel channel, long userId = 700)
+        public static KSQLChannelResponse Insert(int groupID, KSQLChannel channel)
         {
-            return Core.Catalog.CatalogManagement.ChannelManager.AddDynamicChannel(groupId, channel, userId);
+            KSQLChannelResponse response = new KSQLChannelResponse();
+
+            try
+            {
+                if (channel == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoObjectToInsert, NO_KSQL_CHANNEL_TO_INSERT);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(channel.Name))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+                // Validate filter query by parsing it
+                if (!string.IsNullOrEmpty(channel.FilterQuery))
+                {
+                    ApiObjects.SearchObjects.BooleanPhraseNode temporaryNode = null;
+                    var parseStatus = ApiObjects.SearchObjects.BooleanPhraseNode.ParseSearchExpression(channel.FilterQuery, ref temporaryNode);
+
+                    if (parseStatus == null)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.SyntaxError, "Failed parsing filter query");
+                        return response;
+                    }
+                    else if (parseStatus.Code != (int)eResponseStatus.OK)
+                    {
+                        response.Status = new ApiObjects.Response.Status(parseStatus.Code, parseStatus.Message);
+                        return response;
+                    }
+
+                    channel.filterTree = temporaryNode;
+                }
+
+                // Validate asset types
+                if (channel.AssetTypes != null)
+                {
+                    Dictionary<int, string> mediaTypesIdToName;
+                    Dictionary<string, int> mediaTypesNameToId;
+                    Dictionary<int, int> mediaTypeParents;
+                    List<int> linearMediaTypes;
+
+                    CatalogDAL.GetMediaTypes(groupID,
+                        out mediaTypesIdToName,
+                        out mediaTypesNameToId,
+                        out mediaTypeParents,
+                        out linearMediaTypes);
+
+                    HashSet<int> groupMediaTypes = new HashSet<int>(mediaTypesIdToName.Keys);
+
+                    var channelsMediaTypes = channel.AssetTypes.Where(type => type != EPG_ASSET_TYPE);
+
+                    foreach (int assetType in channelsMediaTypes)
+                    {
+                        if (!groupMediaTypes.Contains(assetType))
+                        {
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidMediaType,
+                                string.Format("KSQL Channel media type {0} does not belong to group", assetType));
+                            return response;
+                        }
+                    }
+                }
+
+                channel.GroupID = groupID;
+
+                Group group = GroupsCache.Instance().GetGroup(groupID);
+
+                Dictionary<string, string> metas = null;
+
+                if (group != null && group.m_oMetasValuesByGroupId.ContainsKey(groupID))
+                {
+                    metas = group.m_oMetasValuesByGroupId[groupID];
+                }
+
+                response.Channel = CatalogDAL.InsertKSQLChannel(groupID, channel, metas);
+
+                if (response.Channel != null && response.Channel.ID > 0)
+                {
+                    UpdateCatalog(groupID, response.Channel.ID);
+
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new KSQL channel insert");
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to insert new KSQL channel");
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}", groupID), ex);
+            }
+
+            return response;
         }
 
         public static ApiObjects.Response.Status Delete(int groupId, int channelId, long userId = 700)
