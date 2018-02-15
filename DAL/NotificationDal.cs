@@ -702,6 +702,9 @@ namespace DAL
             if (settings.MailNotificationAdapterId.HasValue)
                 sp.AddParameter("@mailNotificationAdapterId", settings.MailNotificationAdapterId.Value);
 
+            if (settings.IsSMSEnabled.HasValue)
+                sp.AddParameter("@isSmsEnabled", settings.IsSMSEnabled.Value);
+
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -746,7 +749,8 @@ namespace DAL
                         ChurnMailTemplateName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "churn_mail_template_name"),
                         MailSenderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_sender_name"),
                         SenderEmail = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "sender_email"),
-                        MailNotificationAdapterId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "MAIL_NOTIFICATION_ADAPTER_ID")
+                        MailNotificationAdapterId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "MAIL_NOTIFICATION_ADAPTER_ID"),
+                        IsSMSEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_sms_enable") == 1 ? true : false,
                     });
                 }
             }
@@ -2628,9 +2632,9 @@ namespace DAL
             return id;
         }
 
-        public static SmsNotificationData GetUserSMSNotificationData(int groupId, int userId, ref bool isDocumentExist, bool withLock = false)
+        public static SmsNotificationData GetUserSmsNotificationData(int groupId, int userId, ref bool isDocumentExist, bool withLock = false)
         {
-            SmsNotificationData userSMSNotification = null;
+            SmsNotificationData userSmsNotification = null;
             CouchbaseManager.eResultStatus status = eResultStatus.ERROR;
             ulong cas = 0;
             isDocumentExist = true;
@@ -2642,16 +2646,16 @@ namespace DAL
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
                     if (withLock)
-                        userSMSNotification = cbManager.Get<SmsNotificationData>(GetSMSDataKey(groupId, userId), true, out cas, out status);
+                        userSmsNotification = cbManager.Get<SmsNotificationData>(GetSmsDataKey(groupId, userId), true, out cas, out status);
                     else
-                        userSMSNotification = cbManager.Get<SmsNotificationData>(GetSMSDataKey(groupId, userId), out status);
+                        userSmsNotification = cbManager.Get<SmsNotificationData>(GetSmsDataKey(groupId, userId), out status);
 
-                    if (userSMSNotification == null)
+                    if (userSmsNotification == null)
                     {
                         if (status == eResultStatus.KEY_NOT_EXIST)
                         {
                             // key doesn't exist - don't try again
-                            log.DebugFormat("user sms data wasn't found. key: {0}", GetSMSDataKey(groupId, userId));
+                            log.DebugFormat("user sms data wasn't found. key: {0}", GetSmsDataKey(groupId, userId));
                             isDocumentExist = false;
                             break;
                         }
@@ -2661,7 +2665,7 @@ namespace DAL
                             log.ErrorFormat("Error while getting user sms data. number of tries: {0}/{1}. key: {2}",
                                 numOfTries,
                                 NUM_OF_INSERT_TRIES,
-                                GetSMSDataKey(groupId, userId));
+                                GetSmsDataKey(groupId, userId));
 
                             Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
                         }
@@ -2669,7 +2673,7 @@ namespace DAL
                     else
                     {
                         result = true;
-                        userSMSNotification.cas = cas;
+                        userSmsNotification.cas = cas;
 
                         // log success on retry
                         if (numOfTries > 0)
@@ -2678,25 +2682,25 @@ namespace DAL
                             log.DebugFormat("successfully received user sms data. number of tries: {0}/{1}. key {2}",
                             numOfTries,
                             NUM_OF_INSERT_TRIES,
-                            GetSMSDataKey(groupId, userId));
+                            GetSmsDataKey(groupId, userId));
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to get user sms notification. key: {0}, ex: {1}", GetSMSDataKey(groupId, userId), ex);
+                log.ErrorFormat("Error while trying to get user sms notification. key: {0}, ex: {1}", GetSmsDataKey(groupId, userId), ex);
             }
 
-            return userSMSNotification;
+            return userSmsNotification;
         }
 
-        private static string GetSMSDataKey(int groupId, int userId)
+        private static string GetSmsDataKey(int groupId, int userId)
         {
             return string.Format("device_data_{0}_{1}", groupId, userId);
         }
 
-        public static bool SetUserSMSNotificationData(int groupId, int userId, SmsNotificationData newSMSNotificationData, bool unlock = false)
+        public static bool SetUserSmsNotificationData(int groupId, int userId, SmsNotificationData newSMSNotificationData, bool unlock = false)
         {
             bool result = false;
             try
@@ -2706,9 +2710,9 @@ namespace DAL
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
                     if (unlock)
-                        result = cbManager.Set(GetSMSDataKey(groupId, userId), newSMSNotificationData, true, out outCas, 0, newSMSNotificationData.cas);
+                        result = cbManager.Set(GetSmsDataKey(groupId, userId), newSMSNotificationData, true, out outCas, 0, newSMSNotificationData.cas);
                     else
-                        result = cbManager.Set(GetSMSDataKey(groupId, userId), newSMSNotificationData);
+                        result = cbManager.Set(GetSmsDataKey(groupId, userId), newSMSNotificationData);
 
                     if (!result)
                     {
@@ -2741,6 +2745,23 @@ namespace DAL
             {
                 log.ErrorFormat("Error while trying to set sms notification. GID: {0}, UserId: {1}, ex: {2}", groupId, userId, ex);
             }
+            return result;
+        }
+
+        public static bool RemoveSmsNotificationData(int groupId, int userId, ulong cas = 0)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Remove(GetSmsDataKey(groupId, userId), cas);
+                if (!result)
+                    log.ErrorFormat("Error while removing SMS notification data. groupId: {0}, userId: {1}.", groupId, userId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while removing SMS notification data. groupId: {0}, userId: {1}, ex: {2}", groupId, userId, ex);
+            }
+
             return result;
         }
     }
