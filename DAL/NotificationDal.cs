@@ -2628,9 +2628,9 @@ namespace DAL
             return id;
         }
 
-        public static SMSNotificationData GetUserSMSNotificationData(int groupId, int userId, ref bool isDocumentExist, bool withLock = false)
+        public static SmsNotificationData GetUserSMSNotificationData(int groupId, int userId, ref bool isDocumentExist, bool withLock = false)
         {
-            SMSNotificationData userSMSNotification = null;
+            SmsNotificationData userSMSNotification = null;
             CouchbaseManager.eResultStatus status = eResultStatus.ERROR;
             ulong cas = 0;
             isDocumentExist = true;
@@ -2642,9 +2642,9 @@ namespace DAL
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
                     if (withLock)
-                        userSMSNotification = cbManager.Get<SMSNotificationData>(GetSMSDataKey(groupId, userId), true, out cas, out status);
+                        userSMSNotification = cbManager.Get<SmsNotificationData>(GetSMSDataKey(groupId, userId), true, out cas, out status);
                     else
-                        userSMSNotification = cbManager.Get<SMSNotificationData>(GetSMSDataKey(groupId, userId), out status);
+                        userSMSNotification = cbManager.Get<SmsNotificationData>(GetSMSDataKey(groupId, userId), out status);
 
                     if (userSMSNotification == null)
                     {
@@ -2694,6 +2694,54 @@ namespace DAL
         private static string GetSMSDataKey(int groupId, int userId)
         {
             return string.Format("device_data_{0}_{1}", groupId, userId);
+        }
+
+        public static bool SetUserSMSNotificationData(int groupId, int userId, SmsNotificationData newSMSNotificationData, bool unlock = false)
+        {
+            bool result = false;
+            try
+            {
+                ulong outCas = 0;
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    if (unlock)
+                        result = cbManager.Set(GetSMSDataKey(groupId, userId), newSMSNotificationData, true, out outCas, 0, newSMSNotificationData.cas);
+                    else
+                        result = cbManager.Set(GetSMSDataKey(groupId, userId), newSMSNotificationData);
+
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while trying to set sms notification number of tries: {0}/{1}. GID: {2}, UserId: {3}, data: {4}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            groupId,
+                            userId,
+                            JsonConvert.SerializeObject(newSMSNotificationData));
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        newSMSNotificationData.cas = 0;
+
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully set sms notification. number of tries: {0}/{1}. object {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            JsonConvert.SerializeObject(newSMSNotificationData));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to set sms notification. GID: {0}, UserId: {1}, ex: {2}", groupId, userId, ex);
+            }
+            return result;
         }
     }
 }
