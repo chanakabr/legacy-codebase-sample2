@@ -73,6 +73,11 @@ namespace APILogic.CRUD
             {
                 log.ErrorFormat("Failed updating channel index for channelId: {0}", channelId);
             }
+            else
+            {
+                // if update didn't fail, sleep for 0.5 seconds because of the ES internal delay
+                System.Threading.Thread.Sleep(500);
+            }
         }        
 
         public static KSQLChannelResponse Set(int groupID, KSQLChannel channel, long userId = 700)
