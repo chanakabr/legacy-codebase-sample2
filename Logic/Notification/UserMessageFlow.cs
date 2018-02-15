@@ -40,9 +40,8 @@ namespace Core.Notification
 
         private static readonly List<eUserMessageAction> SMS_ACTIONS = new List<eUserMessageAction>() {
             eUserMessageAction.DeleteUser,
-            eUserMessageAction.EnableUserNotifications,
-            eUserMessageAction.DisableUserNotifications,
             eUserMessageAction.Signup,
+            eUserMessageAction.UpdateUser,
             eUserMessageAction.DisableUserSMSNotifications,
             eUserMessageAction.EnableUserSMSNotifications
         };
@@ -1405,7 +1404,7 @@ namespace Core.Notification
                             log.Error("Error occurred while trying to perform Delete User");
                         break;
 
-                    case eUserMessageAction.EnableUserMailNotifications:
+                    case eUserMessageAction.EnableUserSMSNotifications:
                         result = SubscribeUserMailNotification(groupId, userId, userNotificationData);
                         if (result)
                             log.Debug("Successfully enabled user mail notifications");
@@ -1414,21 +1413,21 @@ namespace Core.Notification
                         break;
 
                     case eUserMessageAction.DisableUserNotifications:
-                        result = UnSubscribeUserMailNotification(groupId, userId, userNotificationData);
+                        result = UnSubscribeUserSMSNotification(groupId, userId, userNotificationData);
                         if (result)
                             log.Debug("Successfully disabled user mail notifications");
                         else
                             log.Error("Error disabling user mail notifications");
                         break;
                     case eUserMessageAction.UpdateUser:
-                        result = HandleUpdateUserForMailNotification(groupId, userId, userNotificationData);
+                        result = HandleUpdateUserForSMSNotification(groupId, userId, userNotificationData);
                         if (result)
                             log.Debug("Successfully updated user data for mail notifications");
                         else
                             log.Error("Error occurred while trying to update user data for mail notifications");
                         break;
                     case eUserMessageAction.Signup:
-                        result = HandleUserSignUpForMailNotification(groupId, userId, userNotificationData);
+                        result = HandleUserSignUpForSMSNotification(groupId, userId, userNotificationData);
                         if (result)
                             log.Debug("Successfully enabled user mail notifications");
                         else
@@ -1499,29 +1498,21 @@ namespace Core.Notification
             if (response == null || response.m_RespStatus != ApiObjects.ResponseStatus.OK || response.m_user == null)
             {
                 log.ErrorFormat("Failed to get user data for userId = {0}", userId);
+                result = false;
             }
             else
             {
-                if (userNotificationData.UserData.Email != response.m_user.m_oBasicData.m_sEmail || userNotificationData.UserData.FirstName != response.m_user.m_oBasicData.m_sFirstName || userNotificationData.UserData.LastName != response.m_user.m_oBasicData.m_sLastName)
+                if (userNotificationData.SMSNumber != response.m_user.m_oBasicData.m_sPhone)
                 {
-                    UserData newuserData = new UserData()
-                    {
-                        Email = response.m_user.m_oBasicData.m_sEmail,
-                        FirstName = response.m_user.m_oBasicData.m_sLastName,
-                        LastName = response.m_user.m_oBasicData.m_sLastName
-                    };
+                    List<string> externalIds = SMSAnnouncementsHelper.GetAllAnnouncementExternalIdsForUser(groupId, userNotificationData);
 
-                    List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementExternalIdsForUser(groupId, userNotificationData);
-
-                    if (!MailNotificationAdapterClient.UpdateUserData(groupId, userId, userNotificationData.UserData, newuserData, externalIds))
+                    if (!NotificationAdapter.UpdateUserData(groupId, userId, userNotificationData.UserData, newuserData, externalIds))
                     {
                         log.ErrorFormat("Failed to update User Data user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
                             groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
                     }
 
-                    userNotificationData.UserData.Email = response.m_user.m_oBasicData.m_sEmail;
-                    userNotificationData.UserData.FirstName = response.m_user.m_oBasicData.m_sFirstName;
-                    userNotificationData.UserData.LastName = response.m_user.m_oBasicData.m_sLastName;
+                    userNotificationData.SMSNumber = response.m_user.m_oBasicData.m_sPhone;
 
                     if (!DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
                     {
@@ -1536,42 +1527,106 @@ namespace Core.Notification
 
         private static bool HandleUserSignUpForSMSNotification(int groupId, int userId, UserNotification userNotificationData)
         {
-            bool result = true;
-            if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
+            // validate user ID
+            if (userId == 0)
             {
-                List<DbAnnouncement> announcements = new List<DbAnnouncement>(); ;
-                NotificationCache.TryGetAnnouncements(groupId, ref announcements);
-                if (announcements != null)
+                log.Error("User ID wasn't not receive. cannot perform identified set push/login flow.");
+                return false;
+            }
+
+            // validate push data
+            if (pushData == null)
+            {
+                log.ErrorFormat("Error while trying to register device to notification. device is not registered.");
+                return false;
+            }
+
+            DeviceAppRegistration deviceRegistration = null;
+            if (performRegistration)
+            {
+                // --> register device
+                deviceRegistration = PushAnnouncementsHelper.InitDeviceRegistrationForAdapter(pushData);
+                if (deviceRegistration == null)
                 {
-                    DbAnnouncement mailAnnouncement = announcements.Where(a => a.Name.ToLower() == "mail").FirstOrDefault();
-                    if (mailAnnouncement == null)
-                    {
-                        log.ErrorFormat("Failed to get mail announcement.");
-                        return false;
-                    }
-
-                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, new List<string>() { mailAnnouncement.MailExternalId }, userNotificationData.UserData, userId))
-                    {
-                        log.ErrorFormat("Failed subscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiId: {3}",
-                            groupId, userId, userNotificationData.UserData.Email, mailAnnouncement.MailExternalId);
-                    }
-
-                    userNotificationData.Announcements.Add(new Announcement()
-                    {
-                        AddedDateSec = DateUtils.UnixTimeStampNow(),
-                        AnnouncementId = mailAnnouncement.ID,
-                        AnnouncementName = mailAnnouncement.Name
-                    });
-
-                    if (!DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
-                    {
-                        log.ErrorFormat("error setting user notification data on update user. group: {0}, user id: {1}", groupId, userId);
-                        result = false;
-                    }
+                    log.ErrorFormat("Error while trying to prepare push registration object in identify push data flow. push data: {0}",
+                        JsonConvert.SerializeObject(pushData));
+                    return false;
                 }
             }
 
-            return result;
+            // --> subscribe to announcements
+            long loginAnnouncementId = 0;
+            List<AnnouncementSubscriptionData> announcementToSubscribe = PushAnnouncementsHelper.InitAllAnnouncementToSubscribeForAdapter(groupId, userNotificationData, deviceData, pushData.ExternalToken, out loginAnnouncementId);
+            if (announcementToSubscribe == null ||
+                announcementToSubscribe.Count == 0 ||
+                loginAnnouncementId == 0)
+            {
+                log.Error("Error retrieving login announcement to subscribe");
+                return false;
+            }
+
+            // --> cancel previous announcements
+            List<UnSubscribe> announcementToUnsubscribe = PushAnnouncementsHelper.InitAllAnnouncementToUnSubscribeForAdapter(deviceData);
+
+            // get old user ID if exists to remove 
+            int oldUserIdToRemove = 0;
+            if (deviceData != null &&
+                deviceData.UserId != 0 &&
+                deviceData.UserId != userId)
+            {
+                oldUserIdToRemove = deviceData.UserId;
+            }
+
+            // execute action
+            DeviceAppRegistrationAnnouncementResult adapterResult = NotificationAdapter.RegisterDeviceToApplicationAndAnnouncement(groupId, deviceRegistration, announcementToSubscribe, announcementToUnsubscribe);
+
+            if (adapterResult == null)
+            {
+                log.Error("Error while trying to register device + subscribe to notification + unsubscribe notification");
+                return false;
+            }
+
+            // update device notification data
+            if (!UpdateDeviceDataAccordingToAdapterResult(groupId, userId, pushData, deviceData, announcementToUnsubscribe, announcementToSubscribe, adapterResult, loginAnnouncementId, true))
+            {
+                log.ErrorFormat("Error updating device notification data. data: {0}",
+                    deviceData != null ? JsonConvert.SerializeObject(deviceData) : string.Empty);
+            }
+            else
+            {
+                log.DebugFormat("Successfully updated device notification data. data: {0}",
+                    deviceData != null ? JsonConvert.SerializeObject(deviceData) : string.Empty);
+            }
+
+            // update user notification data
+            if (!UpdateUserDataAccordingToAdapterResult(groupId, userId, pushData, userNotificationData, true, oldUserIdToRemove))
+            {
+                log.ErrorFormat("Error while trying to updated user notification data on login flow. data: {0}",
+                    userNotificationData != null ? JsonConvert.SerializeObject(userNotificationData) : string.Empty);
+            }
+            else
+            {
+                log.DebugFormat("Successfully updated user notification data. data: {0}",
+                    userNotificationData != null ? JsonConvert.SerializeObject(userNotificationData) : string.Empty);
+            }
+
+            if (performRegistration)
+            {
+                // update device push registration data
+                if (string.IsNullOrEmpty(adapterResult.EndPointArn))
+                {
+                    log.ErrorFormat("Error while trying to register device. deviceRegistration: {0}", deviceRegistration);
+                    return false;
+                }
+
+                if (!DmsAdapter.SetPushData(groupId, new SetPushData() { Udid = pushData.Udid, Token = pushData.Token, ExternalToken = adapterResult.EndPointArn }))
+                {
+                    log.ErrorFormat("Error while trying update DMS push data");
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

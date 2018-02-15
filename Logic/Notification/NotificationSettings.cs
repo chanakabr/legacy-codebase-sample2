@@ -143,6 +143,18 @@ namespace Core.Notification
                         // remove mail registration
                         UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.DisableUserMailNotifications, userId, null, null);
                     }
+
+                    if (userSettings.EnableSMS == true)
+                    {
+                        // add SMS registration
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.EnableUserSMSNotifications, userId, null, null);
+                    }
+
+                    if (userSettings.EnableSMS == false)
+                    {
+                        // remove SMS registration
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.DisableUserSMSNotifications, userId, null, null);
+                    }
                 }
             }
             catch (Exception ex)
