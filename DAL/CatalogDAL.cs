@@ -5255,15 +5255,112 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-        public static DataSet InsertKsqlChannel(int groupId, KSQLChannel channel, long userId)
+        public static DataSet GetChannelsByIds(int groupId, List<int> channelIds, bool getAlsoInactive)
         {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetChannelsByIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter<int>("@ChannelIds", channelIds, "Id");
+            sp.AddParameter("@AlsoInactive", getAlsoInactive ? 1 : 0);
+
+            DataSet ds = sp.ExecuteDataSet();
+            return ds;
+        }
+
+        private static KSQLChannel CreateKSQLChannelByDataRow(DataTable assetTypesTable, DataRow rowData, Dictionary<string, string> metas = null)
+        {
+            KSQLChannel channel = new KSQLChannel();
+            channel.AssetTypes = new List<int>();
+
+            channel.ID = ODBCWrapper.Utils.GetIntSafeVal(rowData["Id"]);
+
+            int channelGroupId = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);
+            int isActive = ODBCWrapper.Utils.GetIntSafeVal(rowData["is_active"]);
+            int status = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
+            int channelType = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
+
+            // If the channel is in correct status
+            if ((status == 1) && (channelType == 4))
+            {
+                channel.IsActive = isActive;
+                channel.Status = status;
+                channel.GroupID = channelGroupId;
+                channel.Name = ODBCWrapper.Utils.ExtractString(rowData, "name");
+                channel.Description = ODBCWrapper.Utils.ExtractString(rowData, "description");
+
+                #region Asset Types
+
+                if (assetTypesTable != null)
+                {
+                    List<DataRow> mediaTypes = assetTypesTable.Select("CHANNEL_ID = " + channel.ID).ToList();
+
+                    foreach (DataRow drMediaType in mediaTypes)
+                    {
+                        channel.AssetTypes.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
+                    }
+                }
+
+                #endregion
+
+                #region Order
+
+                channel.Order = new OrderObj();
+
+                int orderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
+                int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
+
+                // all META_STR/META_DOUBLE values
+                if (orderBy >= 1 && orderBy <= 30)
+                {
+                    // get the specific value of the meta
+                    int nMetaEnum = (orderBy);
+                    string enumName = Enum.GetName(typeof(MetasEnum), nMetaEnum);
+
+                    if (metas != null && metas.ContainsKey(enumName))
+                    {
+                        channel.Order.m_sOrderValue = metas[enumName];
+                        channel.Order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.META;
+                    }
+                }
+                else
+                {
+                    channel.Order.m_eOrderBy =
+                        (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), orderBy);
+                }
+
+                channel.Order.m_eOrderDir = (OrderDir)orderDirection;
+
+                #endregion
+
+                channel.FilterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_FILTER");
+                channel.GroupBy = ODBCWrapper.Utils.ExtractString(rowData, "GROUP_BY");
+
+                BooleanPhraseNode node = null;
+                var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.FilterQuery, ref node);
+
+                if (parseStatus.Code != 0)
+                {
+                    log.WarnFormat("KSQL channel {0} has invalid KSQL expression: {1}", channel.ID, channel.FilterQuery);
+                }
+            }
+            else
+            {
+                channel = null;
+            }
+
+            return channel;
+        }
+
+        public static KSQLChannel InsertKSQLChannel(int groupID, KSQLChannel channel, Dictionary<string, string> metas)
+        {
+            KSQLChannel result = null;
+
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_KSQLChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@groupId", groupID);
             sp.AddParameter("@name", channel.Name);
             sp.AddParameter("@isActive", channel.IsActive);
             sp.AddParameter("@status", 1);
-            sp.AddParameter("@UpdaterID", userId);
             sp.AddParameter("@description", channel.Description);
             sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
             sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
@@ -5280,7 +5377,64 @@ namespace Tvinci.Core.DAL
 
             sp.AddParameter("@AssetTypesValuesInd", assetTypesValuesInd);
 
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            {
+                DataTable assetTypes = null;
+
+                if (ds.Tables.Count > 1)
+                {
+                    assetTypes = ds.Tables[1];
+                }
+
+                result = CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas);
+            }
+
+            return result;
+        }
+
+        public static DataSet InsertDynamicChannel(int groupId, KSQLChannel channel, List<KeyValuePair<string, string>> namesInOtherLanguages,
+                                            List<KeyValuePair<string, string>> descriptionsInOtherLanguages, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertDynamicChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@name", channel.Name);
+            sp.AddParameter("@NamesInOtherLanguagesExist", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
+            sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
+            sp.AddParameter("@isActive", channel.IsActive);
+            sp.AddParameter("@status", 1);
+            sp.AddParameter("@UpdaterID", userId);
+            sp.AddParameter("@description", channel.Description);
+            sp.AddParameter("@DescriptionsInOtherLanguagesExist", descriptionsInOtherLanguages != null && descriptionsInOtherLanguages.Count > 0);
+            sp.AddKeyValueListParameter<string, string>("@DescriptionsInOtherLanguages", descriptionsInOtherLanguages, "key", "value");
+            sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
+            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
+            sp.AddParameter("@Filter", channel.FilterQuery);
+            sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
+            sp.AddParameter("@groupBy", channel.GroupBy);
+
+            int assetTypesValuesInd = 0;
+
+            if (channel.AssetTypes != null && channel.AssetTypes.Count > 0)
+            {
+                assetTypesValuesInd = 1;
+            }
+
+            sp.AddParameter("@AssetTypesValuesInd", assetTypesValuesInd);
+
             return sp.ExecuteDataSet();
+        }
+
+        public static bool ValidateChannelSystemName(int groupId, string systemName)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("ValidateChannelSystemName");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@SystemName", systemName);
+
+            return sp.ExecuteReturnValue<int>() == 0;
         }
 
         public static bool DeleteChannel(int groupId, int channelId, int channelType, long userId)

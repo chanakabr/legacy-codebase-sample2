@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using Newtonsoft.Json;
 using ApiObjects.SearchObjects;
+using ApiObjects;
 
 namespace GroupsCacheManager
 {
@@ -44,7 +45,13 @@ namespace GroupsCacheManager
         [DataMember]
         public string m_sName { get; set; }
         [DataMember]
+        public List<LanguageContainer> NamesInOtherLanguages { get; set; }
+        [DataMember]
+        public string SystemName { get; set; }
+        [DataMember]
         public string m_sDescription { get; set; }
+        [DataMember]
+        public List<LanguageContainer> DescriptionInOtherLanguages { get; set; }
         [DataMember]
         public List<string> m_sMedias { get; set; }
         [DataMember]
