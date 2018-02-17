@@ -5394,12 +5394,12 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static DataSet InsertDynamicChannel(int groupId, KSQLChannel channel, List<KeyValuePair<string, string>> namesInOtherLanguages,
-                                            List<KeyValuePair<string, string>> descriptionsInOtherLanguages, long userId)
+        public static DataSet InsertDynamicChannel(KSQLChannel channel, List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertDynamicChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@groupId", channel.GroupID);
+            sp.AddParameter("@SystemName", channel.SystemName);
             sp.AddParameter("@name", channel.Name);
             sp.AddParameter("@NamesInOtherLanguagesExist", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
             sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
