@@ -224,7 +224,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.getAssetTypes()))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description.GetDefaultLanugageValue()))
-               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description.GetNoneDefaultLanugageContainer()))
+               .ForMember(dest => dest.DescriptionInOtherLanguages, opt => opt.MapFrom(src => src.Description.GetNoneDefaultLanugageContainer()))
                .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.Ksql))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value ? 1 : 0 : 0))
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
