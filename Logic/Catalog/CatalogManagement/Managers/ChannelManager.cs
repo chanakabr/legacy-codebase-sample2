@@ -22,7 +22,7 @@ namespace Core.Catalog.CatalogManagement
 
         #region Private Methods
 
-        private static List<Channel> GetChannelListFromDs(int groupId, DataSet ds)
+        private static List<Channel> GetChannelListFromDs(DataSet ds)
         {
             List<Channel> channels = new List<Channel>();
             if (ds == null || ds.Tables == null || ds.Tables.Count < 5 || ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count == 0)
@@ -53,7 +53,7 @@ namespace Core.Catalog.CatalogManagement
                     List<DataRow> medias = (from row in channelsMedias
                                             where (Int64)row["CHANNEL_ID"] == id
                                             select row).ToList();
-                    Channel channel = CreateChannel(groupId, id, dr, channelNameTranslations, channelDescriptionTranslations, channelmediaTypes, medias);
+                    Channel channel = CreateChannel(id, dr, channelNameTranslations, channelDescriptionTranslations, channelmediaTypes, medias);
                     if (channel != null)
                     {
                         channels.Add(channel);
@@ -64,8 +64,7 @@ namespace Core.Catalog.CatalogManagement
             return channels;
         }
 
-        private static Channel CreateChannel(int groupId, int id, DataRow dr, List<DataRow> nameTranslations, List<DataRow> descriptionTranslations,
-                                            List<DataRow> mediaTypes, List<DataRow> channelMedias)
+        private static Channel CreateChannel(int id, DataRow dr, List<DataRow> nameTranslations, List<DataRow> descriptionTranslations, List<DataRow> mediaTypes, List<DataRow> channelMedias)
         {
             Channel channel = new Channel();
             if (channel.m_lChannelTags == null)
@@ -75,8 +74,8 @@ namespace Core.Catalog.CatalogManagement
 
             channel.m_lManualMedias = new List<GroupsCacheManager.ManualMedia>();
             channel.m_nChannelID = id;
-            channel.m_nGroupID = groupId;
-            channel.m_nParentGroupID = groupId;
+            channel.m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID");
+            channel.m_nParentGroupID = channel.m_nGroupID;
             channel.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr["is_active"]);
             channel.m_nStatus = ODBCWrapper.Utils.GetIntSafeVal(dr["status"]);
             channel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(dr["channel_type"]);
@@ -357,7 +356,7 @@ namespace Core.Catalog.CatalogManagement
                     if (channelIds != null && groupId.HasValue)
                     {
                         DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, true);
-                        channels = GetChannelListFromDs(groupId.Value, ds);
+                        channels = GetChannelListFromDs(ds);
                     }
 
                     res = channels.Count() == channelIds.Count();
@@ -375,28 +374,28 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, Channel>, bool>(result, res);
         }
 
-        private static Channel InsertKSQLChannel(int groupId, KSQLChannel ksqlChannel, Dictionary<string, string> metas, bool doesGroupUsesTemplates, long userId)
+        private static Channel InsertDynamicChannel(KSQLChannel dynamicChannel, long userId)
         {
             Channel channel = null;
             List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
-            if (ksqlChannel.NamesInOtherLanguages != null && ksqlChannel.NamesInOtherLanguages.Count > 0)
+            if (dynamicChannel.NamesInOtherLanguages != null && dynamicChannel.NamesInOtherLanguages.Count > 0)
             {
-                foreach (LanguageContainer language in ksqlChannel.NamesInOtherLanguages)
+                foreach (LanguageContainer language in dynamicChannel.NamesInOtherLanguages)
                 {
                     languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
                 }
             }
 
             List<KeyValuePair<string, string>> languageCodeToDescription = new List<KeyValuePair<string, string>>();
-            if (ksqlChannel.NamesInOtherLanguages != null && ksqlChannel.NamesInOtherLanguages.Count > 0)
+            if (dynamicChannel.DescriptionInOtherLanguages != null && dynamicChannel.DescriptionInOtherLanguages.Count > 0)
             {
-                foreach (LanguageContainer language in ksqlChannel.NamesInOtherLanguages)
+                foreach (LanguageContainer language in dynamicChannel.DescriptionInOtherLanguages)
                 {
                     languageCodeToDescription.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
                 }
             }
 
-            DataSet ds = CatalogDAL.InsertDynamicChannel(groupId, ksqlChannel, languageCodeToName, languageCodeToDescription, userId);
+            DataSet ds = CatalogDAL.InsertDynamicChannel(dynamicChannel, languageCodeToName, languageCodeToDescription, userId);
             if (ds != null && ds.Tables.Count > 3 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
             {
                 DataRow dr = ds.Tables[0].Rows[0];
@@ -406,7 +405,7 @@ namespace Core.Catalog.CatalogManagement
                 int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
                 if (id > 0)
                 {
-                    channel = CreateChannel(groupId, id, dr, nameTranslations, descriptionTranslations, mediaTypes, null);
+                    channel = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, null);
                 }
             }
 
@@ -439,7 +438,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataSet ds = CatalogDAL.GetGroupChannels(groupId);
-                groupChannels = GetChannelListFromDs(groupId, ds);
+                groupChannels = GetChannelListFromDs(ds);
             }
             catch (Exception ex)
             {
@@ -582,47 +581,23 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // Validate asset types
-                if (channel.AssetTypes != null)
+                if (channel.AssetTypes != null && channel.AssetTypes.Count > 0)
                 {
-                    Dictionary<int, string> mediaTypesIdToName;
-                    Dictionary<string, int> mediaTypesNameToId;
-                    Dictionary<int, int> mediaTypeParents;
-                    List<int> linearMediaTypes;
-
-                    CatalogDAL.GetMediaTypes(groupId,
-                        out mediaTypesIdToName,
-                        out mediaTypesNameToId,
-                        out mediaTypeParents,
-                        out linearMediaTypes);
-
-                    HashSet<int> groupMediaTypes = new HashSet<int>(mediaTypesIdToName.Keys);
-
-                    var channelsMediaTypes = channel.AssetTypes.Where(type => type != APILogic.CRUD.KSQLChannelsManager.EPG_ASSET_TYPE);
-
-                    foreach (int assetType in channelsMediaTypes)
+                    CatalogGroupCache catalogGroupCache;
+                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
-                        if (!groupMediaTypes.Contains(assetType))
-                        {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidMediaType,
-                                string.Format("KSQL Channel media type {0} does not belong to group", assetType));
-                            return response;
-                        }
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddDynamicChannel", groupId);
+                        return response;
                     }
+
+                    List<int> noneGroupAssetTypes = channel.AssetTypes.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
+                    response.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
+                                    eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
+                    return response;
                 }
 
                 channel.GroupID = groupId;
-                Dictionary<string, string> metas = null;
-                bool doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
-                if (!doesGroupUsesTemplates)
-                {
-                    Group group = GroupsCache.Instance().GetGroup(groupId);
-                    if (group != null && group.m_oMetasValuesByGroupId.ContainsKey(groupId))
-                    {
-                        metas = group.m_oMetasValuesByGroupId[groupId];
-                    }
-                }
-
-                response.Channel = InsertKSQLChannel(groupId, channel, metas, doesGroupUsesTemplates, userId);
+                response.Channel = InsertDynamicChannel(channel, userId);
 
                 if (response.Channel != null && response.Channel.m_nChannelID > 0)
                 {
