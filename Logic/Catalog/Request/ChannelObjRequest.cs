@@ -35,16 +35,21 @@ namespace Core.Catalog.Request
         public override BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             ChannelObjRequest request = (ChannelObjRequest)oBaseRequest;
-            ChannelObjResponse response = new ChannelObjResponse();
-            Group group = null;
+            ChannelObjResponse response = new ChannelObjResponse();            
             Channel channel = null;
 
-            GroupManager groupManager = new GroupManager();
-
-            CatalogCache catalogCache = CatalogCache.Instance();            
-            int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-
-            groupManager.GetGroupAndChannel(request.ChannelId, nParentGroupID, ref group, ref channel);
+            if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+            {
+                channel = CatalogManagement.ChannelManager.GetChannelById(request.m_nGroupID, request.ChannelId);
+            }
+            else
+            {
+                Group group = null;
+                GroupManager groupManager = new GroupManager();
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+                groupManager.GetGroupAndChannel(request.ChannelId, nParentGroupID, ref group, ref channel);
+            }
 
             if (channel != null)
             {
