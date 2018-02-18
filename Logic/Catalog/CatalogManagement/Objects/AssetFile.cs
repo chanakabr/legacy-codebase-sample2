@@ -12,9 +12,9 @@ namespace Core.Catalog.CatalogManagement
         public string ExternalId { get; set; }
         public string AltExternalId { get; set; }
         public string ExternalStoreId { get; set; }                
-        public long StreamingSuplierId { get; set; }
+        public long StreamingSupplierId { get; set; }
         public string AltStreamingCode { get; set; }
-        public long AltStreamingSuplierId { get; set; }
+        public long AltStreamingSupplierId { get; set; }
         public string AdditionalData { get; set; }
         public long BillingType { get; set; }
         public int OrderNum { get; set; }

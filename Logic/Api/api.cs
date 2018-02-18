@@ -8638,8 +8638,13 @@ namespace Core.Api
 
                 bool isSet = DAL.ApiDAL.DeleteCDNAdapter(groupID, adapterId);
                 if (isSet)
-                {
+                {                    
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    string invalidationKey = LayeredCacheKeys.GetCDNAdapterInvalidationKey(groupID, adapterId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                    }
                 }
                 else
                 {
