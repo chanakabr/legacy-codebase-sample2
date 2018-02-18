@@ -7291,7 +7291,7 @@
             Alternative streaming code
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltStreamingSuplierId">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltStreamingSupplierId">
             <summary>
             Alternative streaming supplier identifier
             </summary>
@@ -7331,9 +7331,9 @@
             OutputProtecationLevel
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.StreamingSuplierId">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.StreamingSupplierId">
             <summary>
-            StreamingSuplierId
+            StreamingSupplierId
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Status">

@@ -34,6 +34,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MediaFileExternalIdMustBeUnique)]
         [Throws(eResponseStatus.MediaFileAltExternalIdMustBeUnique)]
         [Throws(eResponseStatus.ExternaldAndAltExternalIdMustBeUnique)]
+        [Throws(eResponseStatus.StreamingSupplierDoesNotExist)]
+        [Throws(eResponseStatus.DefaultStreamingSupplierNotConfigurd)]
         public KalturaMediaFile Add(KalturaMediaFile mediaFile)
         {
             KalturaMediaFile response = null;

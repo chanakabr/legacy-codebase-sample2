@@ -4811,8 +4811,8 @@ namespace WebAPI.Reflection
                             return "altExternalId";
                         case "AltStreamingCode":
                             return "altStreamingCode";
-                        case "AltStreamingSuplierId":
-                            return "altStreamingSuplierId";
+                        case "AltStreamingSupplierId":
+                            return "altStreamingSupplierId";
                         case "AssetId":
                             return "assetId";
                         case "BillingType":
@@ -4853,8 +4853,8 @@ namespace WebAPI.Reflection
                             return "startDate";
                         case "Status":
                             return "status";
-                        case "StreamingSuplierId":
-                            return "streamingSuplierId";
+                        case "StreamingSupplierId":
+                            return "streamingSupplierId";
                         case "Type":
                             return "type";
                         case "TypeId":

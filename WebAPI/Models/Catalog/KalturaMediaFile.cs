@@ -187,10 +187,10 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Alternative streaming supplier identifier
         /// </summary>
-        [DataMember(Name = "altStreamingSuplierId")]
-        [JsonProperty(PropertyName = "altStreamingSuplierId")]
-        [XmlElement(ElementName = "altStreamingSuplierId")]
-        public long AltStreamingSuplierId { get; set; }
+        [DataMember(Name = "altStreamingSupplierId")]
+        [JsonProperty(PropertyName = "altStreamingSupplierId")]
+        [XmlElement(ElementName = "altStreamingSupplierId")]
+        public long AltStreamingSupplierId { get; set; }
 
         /// <summary>
         /// EndDate
@@ -249,12 +249,13 @@ namespace WebAPI.Models.Catalog
         public string OutputProtecationLevel { get; set; }
 
         /// <summary>
-        /// StreamingSuplierId
+        /// StreamingSupplierId
         /// </summary>
-        [DataMember(Name = "streamingSuplierId")]
-        [JsonProperty(PropertyName = "streamingSuplierId")]
-        [XmlElement(ElementName = "streamingSuplierId")]
-        public string StreamingSuplierId { get; set; }
+        [DataMember(Name = "streamingSupplierId")]
+        [JsonProperty(PropertyName = "streamingSupplierId")]
+        [XmlElement(ElementName = "streamingSupplierId")]
+        [SchemeProperty(MinLong = 0)]
+        public long StreamingSupplierId { get; set; }
 
         /// <summary>
         ///  The media file status
