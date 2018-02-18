@@ -1502,28 +1502,6 @@ namespace Core.Notification
             return result;
         }
 
-        private static bool SubscribeUserSmsNotification(int groupId, int userId, UserNotification userNotificationData)
-        {
-            bool result = true;
-            if (userNotificationData.Settings.EnableSms.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
-            {
-                List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementExternalIdsForUser(groupId, userNotificationData);
-                if (externalIds == null || externalIds.Count == 0)
-                {
-                    log.ErrorFormat("Failed to get user announcements external Ids to subscribe. group: {0}, userId = {1}", groupId, userId);
-                    return false;
-                }
-
-                if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData, userId))
-                {
-                    log.ErrorFormat("Failed subscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
-                        groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
-                }
-            }
-
-            return result;
-        }
-
         private static bool HandleUpdateUserForSmsNotification(int groupId, int userId, UserNotification userNotificationData)
         {
             bool result = true;
@@ -1538,20 +1516,26 @@ namespace Core.Notification
             {
                 if (userNotificationData.UserData.PhoneNumber != response.m_user.m_oBasicData.m_sPhone)
                 {
-                    List<UnSubscribe> unsubscribeList = SmsAnnouncementsHelper.InitAllAnnouncementToUnSubscribeForAdapter(userNotificationData);
-
-                    if (!NotificationAdapter.UnSubscribeToAnnouncement(groupId, unsubscribeList))
-                    {
-                        log.ErrorFormat("Failed to update User Data user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
-                            groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(unsubscribeList));
-                    }
-
                     userNotificationData.UserData.PhoneNumber = response.m_user.m_oBasicData.m_sPhone;
 
-                    if (!DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+                    if (!NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
                     {
-                        log.ErrorFormat("error setting user notification data on update user. group: {0}, user id: {1}", groupId, userId);
-                        result = false;
+                        log.ErrorFormat("Error while trying to update user notification data. GID: {0}, UID: {1}", groupId, userId);
+                        return false;
+                    }
+
+                    SmsNotificationData userSmsNotificationData = null;
+                    ApiObjects.Response.Status status = Utils.GetUserSmsNotificationData(groupId, userId, userNotificationData, out userSmsNotificationData);
+                    if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK || userSmsNotificationData == null)
+                    {
+                        log.DebugFormat("Failed to get user SMS notification data. userId = {0}", userId);
+                        return false;
+                    }
+
+                    if (!UnsubscribeSmsAnnouncements(groupId, userId, userSmsNotificationData))
+                    {
+                        log.DebugFormat("Failed to unsubscribe user SMS notifications. userId = {0}", userId);
+                        return false;
                     }
                 }
             }
@@ -1561,89 +1545,60 @@ namespace Core.Notification
 
         private static bool HandleUserSignUpForSmsNotification(int groupId, int userId, UserNotification userNotificationData)
         {
-            DeviceAppRegistration deviceRegistration = null;
-            if (performRegistration)
+            if (!string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
             {
-                // --> register device
-                deviceRegistration = PushAnnouncementsHelper.InitDeviceRegistrationForAdapter(pushData);
-                if (deviceRegistration == null)
+                SmsNotificationData userSmsNotificationData = null;
+                ApiObjects.Response.Status status = Utils.GetUserSmsNotificationData(groupId, userId, userNotificationData, out userSmsNotificationData);
+                if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK || userSmsNotificationData == null)
                 {
-                    log.ErrorFormat("Error while trying to prepare push registration object in identify push data flow. push data: {0}",
-                        JsonConvert.SerializeObject(pushData));
+                    log.DebugFormat("Failed to get user SMS notification data. userId = {0}", userId);
+                    return false;
+                }
+
+                if (!SubscribeSmsAnnouncements(groupId, userId, userNotificationData, userSmsNotificationData))
+                {
+                    log.DebugFormat("Failed to subscribe user SMS notifications. userId = {0}", userId);
                     return false;
                 }
             }
 
-            // --> subscribe to announcements
+            return true;
+        }
+
+        private static bool SubscribeSmsAnnouncements(int groupId, int userId, UserNotification userNotificationData, SmsNotificationData userSmsNotificationData)
+        {
             long loginAnnouncementId = 0;
-            List<AnnouncementSubscriptionData> announcementToSubscribe = SmsAnnouncementsHelper.InitAllAnnouncementToSubscribeForAdapter(groupId, userNotificationData, smsNotificationData, out loginAnnouncementId);
-            if (announcementToSubscribe == null ||
-                announcementToSubscribe.Count == 0 ||
+            List<AnnouncementSubscriptionData> subscribeList = SmsAnnouncementsHelper.InitAllAnnouncementToSubscribeForAdapter(groupId, userNotificationData, userSmsNotificationData, out loginAnnouncementId);
+            if (subscribeList == null ||
+                subscribeList.Count == 0 ||
                 loginAnnouncementId == 0)
             {
                 log.Error("Error retrieving login announcement to subscribe");
                 return false;
             }
 
-            // --> cancel previous announcements
-            List<UnSubscribe> announcementToUnsubscribe = PushAnnouncementsHelper.InitAllAnnouncementToUnSubscribeForAdapter(deviceData);
-
-            // get old user ID if exists to remove 
-            int oldUserIdToRemove = 0;
-            if (deviceData != null &&
-                deviceData.UserId != 0 &&
-                deviceData.UserId != userId)
-            {
-                oldUserIdToRemove = deviceData.UserId;
-            }
-
             // execute action
-            DeviceAppRegistrationAnnouncementResult adapterResult = NotificationAdapter.RegisterDeviceToApplicationAndAnnouncement(groupId, deviceRegistration, announcementToSubscribe, announcementToUnsubscribe);
-
-            if (adapterResult == null)
+            List<AnnouncementSubscriptionData> subscribeListResult = NotificationAdapter.SubscribeToAnnouncement(groupId, subscribeList);
+            if (subscribeListResult == null || subscribeListResult.Count == 0 || string.IsNullOrEmpty(subscribeListResult.First().SubscriptionArnResult))
             {
-                log.Error("Error while trying to register device + subscribe to notification + unsubscribe notification");
+                log.ErrorFormat("error subscribing to Amazon for SMS. group: {0}, userId: {1}", groupId, userId);
                 return false;
             }
-
-            // update device notification data
-            if (!UpdateDeviceDataAccordingToAdapterResult(groupId, userId, pushData, deviceData, announcementToUnsubscribe, announcementToSubscribe, adapterResult, loginAnnouncementId, true))
+            else
             {
-                log.ErrorFormat("Error updating device notification data. data: {0}",
-                    deviceData != null ? JsonConvert.SerializeObject(deviceData) : string.Empty);
+                log.DebugFormat("Successfully subscribed to Amazon for SMS. group: {0}, userId: {1}", groupId, userId);
+            }
+
+            // update sms notification data
+            if (!UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, subscribeList))
+            {
+                log.ErrorFormat("Error updating SMS notification data. data: {0}",
+                    userSmsNotificationData != null ? JsonConvert.SerializeObject(userSmsNotificationData) : string.Empty);
             }
             else
             {
-                log.DebugFormat("Successfully updated device notification data. data: {0}",
-                    deviceData != null ? JsonConvert.SerializeObject(deviceData) : string.Empty);
-            }
-
-            // update user notification data
-            if (!UpdateUserDataAccordingToAdapterResult(groupId, userId, pushData, userNotificationData, true, oldUserIdToRemove))
-            {
-                log.ErrorFormat("Error while trying to updated user notification data on login flow. data: {0}",
-                    userNotificationData != null ? JsonConvert.SerializeObject(userNotificationData) : string.Empty);
-            }
-            else
-            {
-                log.DebugFormat("Successfully updated user notification data. data: {0}",
-                    userNotificationData != null ? JsonConvert.SerializeObject(userNotificationData) : string.Empty);
-            }
-
-            if (performRegistration)
-            {
-                // update device push registration data
-                if (string.IsNullOrEmpty(adapterResult.EndPointArn))
-                {
-                    log.ErrorFormat("Error while trying to register device. deviceRegistration: {0}", deviceRegistration);
-                    return false;
-                }
-
-                if (!DmsAdapter.SetPushData(groupId, new SetPushData() { Udid = pushData.Udid, Token = pushData.Token, ExternalToken = adapterResult.EndPointArn }))
-                {
-                    log.ErrorFormat("Error while trying update DMS push data");
-                    return false;
-                }
+                log.DebugFormat("Successfully updated SMS notification data. data: {0}",
+                    userSmsNotificationData != null ? JsonConvert.SerializeObject(userSmsNotificationData) : string.Empty);
             }
 
             return true;
@@ -1717,15 +1672,26 @@ namespace Core.Notification
             }
 
             // get sms notification data
-            bool docExists = false;
-            SmsNotificationData smsData = DAL.NotificationDal.GetUserSmsNotificationData(groupId, userNotificationData.UserId, ref docExists);
-            if (smsData == null)
+            SmsNotificationData userSmsNotificationData = null;
+            ApiObjects.Response.Status status = Utils.GetUserSmsNotificationData(groupId, userId, userNotificationData, out userSmsNotificationData);
+            if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK || userSmsNotificationData == null)
             {
-                log.DebugFormat("user sms notification data is empty {0}", userId);
+                log.DebugFormat("Failed to get user SMS notification data. userId = {0}", userId);
                 return false;
             }
 
-            List<UnSubscribe> announcementToUnsubscribe = SmsAnnouncementsHelper.InitAllAnnouncementToUnSubscribeForAdapter(smsData);
+            if (!UnsubscribeSmsAnnouncements(groupId, userId, userSmsNotificationData))
+            {
+                log.DebugFormat("Failed to unsubscribe user SMS notifications. userId = {0}", userId);
+                return false;
+            }
+
+            return result;
+        }
+
+        private static bool UnsubscribeSmsAnnouncements(int groupId, int userId, SmsNotificationData userSmsNotificationData)
+        {
+            List<UnSubscribe> announcementToUnsubscribe = SmsAnnouncementsHelper.InitAllAnnouncementToUnSubscribeForAdapter(userSmsNotificationData);
             List<UnSubscribe> announcementToUnsubscribeResult = null;
 
             if (announcementToUnsubscribe.Count > 0)
@@ -1739,7 +1705,6 @@ namespace Core.Notification
                 else
                 {
                     log.DebugFormat("Successfully unsubscribed reminders for device from Amazon. group: {0}, userId: {1}", groupId, userId);
-                    result = true;
                 }
             }
             else
@@ -1748,18 +1713,18 @@ namespace Core.Notification
             }
 
             // update SMS notification data
-            if (UpdateSmsDataAccordingToAdapterResult(groupId, userId, smsData, announcementToUnsubscribe, announcementToUnsubscribeResult))
+            if (UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, announcementToUnsubscribe, announcementToUnsubscribeResult))
             {
                 log.ErrorFormat("Error updating SMS notification data. Disable all notifications flow. data: {0}",
-                    smsData != null ? JsonConvert.SerializeObject(smsData) : string.Empty);
+                    userSmsNotificationData != null ? JsonConvert.SerializeObject(userSmsNotificationData) : string.Empty);
             }
             else
             {
                 log.DebugFormat("Successfully updated SMS notification data. Disable all notifications flow. data: {0}",
-                    smsData != null ? JsonConvert.SerializeObject(smsData) : string.Empty);
+                    userSmsNotificationData != null ? JsonConvert.SerializeObject(userSmsNotificationData) : string.Empty);
             }
 
-            return result;
+            return true;
         }
 
         private static bool EnableUserSmsNotification(int groupId, int userId, UserNotification userNotificationData)
@@ -1778,41 +1743,10 @@ namespace Core.Notification
                 return false;
             }
 
-
-
-            // --> subscribe to announcements
-            long loginAnnouncementId = 0;
-            List<AnnouncementSubscriptionData> subscribeList = SmsAnnouncementsHelper.InitAllAnnouncementToSubscribeForAdapter(groupId, userNotificationData, userSmsNotificationData, out loginAnnouncementId);
-            if (subscribeList == null ||
-                subscribeList.Count == 0 ||
-                loginAnnouncementId == 0)
+            if (!SubscribeSmsAnnouncements(groupId, userId, userNotificationData, userSmsNotificationData))
             {
-                log.Error("Error retrieving login announcement to subscribe");
+                log.DebugFormat("Failed to subscribe user SMS notifications. userId = {0}", userId);
                 return false;
-            }
-
-            // execute action
-            List<AnnouncementSubscriptionData> subscribeListResult = NotificationAdapter.SubscribeToAnnouncement(groupId, subscribeList);
-            if (subscribeListResult == null || subscribeListResult.Count == 0 || string.IsNullOrEmpty(subscribeListResult.First().SubscriptionArnResult))
-            {
-                log.ErrorFormat("error subscribing to Amazon for SMS. group: {0}, userId: {1}", groupId, userId);
-                return false;
-            }
-            else
-            {
-                log.DebugFormat("Successfully subscribed to Amazon for SMS. group: {0}, userId: {1}", groupId, userId);
-            }
-
-            // update device notification data
-            if (!UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, subscribeList))
-            {
-                log.ErrorFormat("Error updating SMS notification data. data: {0}",
-                    userSmsNotificationData != null ? JsonConvert.SerializeObject(userSmsNotificationData) : string.Empty);
-            }
-            else
-            {
-                log.DebugFormat("Successfully updated SMS notification data. data: {0}",
-                    userSmsNotificationData != null ? JsonConvert.SerializeObject(userSmsNotificationData) : string.Empty);
             }
 
             return true;
