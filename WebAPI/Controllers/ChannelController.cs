@@ -23,14 +23,41 @@ namespace WebAPI.Controllers
     public class ChannelController : ApiController
     {
         /// <summary>
-        /// Returns channel info        
+        /// Returns channel        
         /// </summary>
         /// <param name="id">Channel Identifier</param>
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [SchemeArgument("id", MinInteger = 1)]
+        [Throws(eResponseStatus.ChannelDoesNotExist)]
         public KalturaChannel Get(int id)
+        {
+            KalturaChannel response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            try
+            {                                                
+                response = ClientsManager.CatalogClient().GetChannel(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns channel info        
+        /// </summary>
+        /// <param name="id">Channel Identifier</param>
+        /// <remarks></remarks>        
+        [Route("getOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [OldStandardAction("get")]
+        [Obsolete]
+        [SchemeArgument("id", MinInteger = 1)]
+        public KalturaChannel GetOldStandard(int id)
         {
             KalturaChannel response = null;
 

@@ -3798,7 +3798,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling API service. exception: {1}", ex);
+                log.ErrorFormat("Exception received while calling SearchChannels. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3836,6 +3836,48 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaChannel GetChannel(int groupId, int channelId)
+        {
+            Core.Catalog.CatalogManagement.ChannelResponse response = null;
+            KalturaChannel result = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannel(groupId, channelId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while calling GetChannel. groupId: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            // DynamicChannel
+            if (response.Channel.m_nChannelTypeID == 4)
+            {
+                result = Mapper.Map<KalturaDynamicChannel>(response.Channel);
+            }
+            // Should only be manual channel
+            else
+            {
+                result = Mapper.Map<KalturaManualChannel>(response.Channel);
+            }
+
+            return result;
+        }
+
         internal KalturaChannel InsertKSQLChannel(int groupId, KalturaChannel channel, long userId)
         {
             KSQLChannelResponse response = null;
@@ -3851,7 +3893,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while InsertKSQLChannel.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while calling InsertKSQLChannel. groupId: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3884,7 +3926,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while InsertDynamicChannel.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while calling InsertDynamicChannel. groupId: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

@@ -2952,10 +2952,17 @@
         </member>
         <member name="M:WebAPI.Controllers.ChannelController.Get(System.Int32)">
             <summary>
-            Returns channel info        
+            Returns channel        
             </summary>
             <param name="id">Channel Identifier</param>
             <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ChannelController.GetOldStandard(System.Int32)">
+            <summary>
+            Returns channel info        
+            </summary>
+            <param name="id">Channel Identifier</param>
+            <remarks></remarks>        
         </member>
         <member name="M:WebAPI.Controllers.ChannelController.Delete(System.Int32)">
             <summary>

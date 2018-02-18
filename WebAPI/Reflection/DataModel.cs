@@ -2042,6 +2042,7 @@ namespace WebAPI.Reflection
                 case "ChannelController":
                     ret = new Dictionary<string, string>() { 
                         {"addOldStandard", "add"},
+                        {"getOldStandard", "get"},
                         {"updateOldStandard", "update"},
                     };
                     break;
