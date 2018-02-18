@@ -531,7 +531,8 @@ namespace ApiObjects
         LoggedIn = 1,
         Guests = 2,
         Other = 3,
-        Mail = 4
+        Mail = 4,
+        Sms = 5
     }
 
     public enum eMessageType
@@ -556,8 +557,8 @@ namespace ApiObjects
         DisableUserMailNotifications = 10,
         UpdateUser = 11,
         Signup = 12,
-        EnableUserSMSNotifications = 13,
-        DisableUserSMSNotifications = 14,
+        EnableUserSmsNotifications = 13,
+        DisableUserSmsNotifications = 14,
     }
 
     public enum eAnnouncementStatus

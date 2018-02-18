@@ -14,7 +14,7 @@ namespace ApiObjects.Notification
 
         public bool? EnableMail { get; set; }
 
-        public bool? EnableSMS { get; set; }
+        public bool? EnableSms { get; set; }
 
         public UserFollowSettings FollowSettings { get; set; }
 
@@ -23,6 +23,7 @@ namespace ApiObjects.Notification
             EnableInbox = true;
             EnableMail = true;
             EnablePush = true;
+            EnableSms = true;
             FollowSettings = new UserFollowSettings();
         }
     }

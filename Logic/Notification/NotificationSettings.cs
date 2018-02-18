@@ -144,16 +144,16 @@ namespace Core.Notification
                         UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.DisableUserMailNotifications, userId, null, null);
                     }
 
-                    if (userSettings.EnableSMS == true)
+                    if (userSettings.EnableSms == true)
                     {
                         // add SMS registration
-                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.EnableUserSMSNotifications, userId, null, null);
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.EnableUserSmsNotifications, userId, null, null);
                     }
 
-                    if (userSettings.EnableSMS == false)
+                    if (userSettings.EnableSms == false)
                     {
                         // remove SMS registration
-                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.DisableUserSMSNotifications, userId, null, null);
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.DisableUserSmsNotifications, userId, null, null);
                     }
                 }
             }
@@ -493,7 +493,7 @@ namespace Core.Notification
             return false;
         }
 
-        public static bool IsPartnerSMSNotificationEnabled(int groupId)
+        public static bool IsPartnerSmsNotificationEnabled(int groupId)
         {
             var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
             return (partnerSettingsResponse != null &&
@@ -502,10 +502,10 @@ namespace Core.Notification
                 partnerSettingsResponse.settings.IsSMSEnabled.Value);
         }
 
-        public static bool IsUserSMSEnabled(UserNotificationSettings userSettings)
+        public static bool IsUserSmsEnabled(UserNotificationSettings userSettings)
         {
             return (userSettings != null &&
-                userSettings.EnableSMS == true);
+                userSettings.EnableSms == true);
         }
     }
 }

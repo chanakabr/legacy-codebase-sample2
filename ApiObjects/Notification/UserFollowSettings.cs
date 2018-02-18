@@ -7,13 +7,13 @@ namespace ApiObjects.Notification
 
         public bool? EnableMail { get; set; }
 
-        public bool? EnableSMS { get; set; }
+        public bool? EnableSms { get; set; }
 
         public UserFollowSettings()
         {
             EnablePush = true;            
             EnableMail = true;
-            EnableSMS = true;
+            EnableSms = true;
         }
     }
 }

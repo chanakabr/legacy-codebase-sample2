@@ -42,8 +42,8 @@ namespace Core.Notification
             eUserMessageAction.DeleteUser,
             eUserMessageAction.Signup,
             eUserMessageAction.UpdateUser,
-            eUserMessageAction.DisableUserSMSNotifications,
-            eUserMessageAction.EnableUserSMSNotifications
+            eUserMessageAction.DisableUserSmsNotifications,
+            eUserMessageAction.EnableUserSmsNotifications
         };
 
         public static bool InitiateNotificationAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken)
@@ -1407,14 +1407,14 @@ namespace Core.Notification
                 NotificationCache.TryGetAnnouncements(groupId, ref announcements);
                 if (announcements != null)
                 {
-                    DbAnnouncement mailAnnouncement = announcements.Where(a => a.Name.ToLower() == "mail").FirstOrDefault();
+                    DbAnnouncement mailAnnouncement = announcements.Where(a => a.RecipientsType == eAnnouncementRecipientsType.Mail).FirstOrDefault();
                     if (mailAnnouncement == null)
                     {
                         log.ErrorFormat("Failed to get mail announcement.");
                         return false;
                     }
 
-                    if (!NotificationAdapter.SubscribeToAnnouncement(groupId, new List<string>() { mailAnnouncement.MailExternalId }, userNotificationData.UserData, userId))
+                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(groupId, new List<string>() { mailAnnouncement.MailExternalId }, userNotificationData.UserData, userId))
                     {
                         log.ErrorFormat("Failed subscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiId: {3}",
                             groupId, userId, userNotificationData.UserData.Email, mailAnnouncement.MailExternalId);
@@ -1442,7 +1442,7 @@ namespace Core.Notification
         {
             bool result = false;
 
-            if (!NotificationSettings.IsPartnerSMSNotificationEnabled(groupId))
+            if (!NotificationSettings.IsPartnerSmsNotificationEnabled(groupId))
             {
                 log.DebugFormat("partner mail notifications is disabled. partner ID: {0}", groupId);
                 return true;
@@ -1460,7 +1460,7 @@ namespace Core.Notification
                             log.Error("Error occurred while trying to perform Delete User");
                         break;
 
-                    case eUserMessageAction.EnableUserSMSNotifications:
+                    case eUserMessageAction.EnableUserSmsNotifications:
                         result = EnableUserSmsNotification(groupId, userId, userNotificationData);
                         if (result)
                             log.Debug("Successfully enabled user mail notifications");
@@ -1505,7 +1505,7 @@ namespace Core.Notification
         private static bool SubscribeUserSmsNotification(int groupId, int userId, UserNotification userNotificationData)
         {
             bool result = true;
-            if (userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
+            if (userNotificationData.Settings.EnableSms.HasValue && userNotificationData.Settings.EnableMail.Value && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
             {
                 List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementExternalIdsForUser(groupId, userNotificationData);
                 if (externalIds == null || externalIds.Count == 0)
@@ -1708,12 +1708,9 @@ namespace Core.Notification
                 log.DebugFormat("No messages were found to unsubscribe. group: {0}, userId: {1}", groupId, userId);
             }
 
-            // remove device data
+            // remove sms data
             NotificationDal.RemoveSmsNotificationData(groupId, userId, smsData.cas);
-
-            // remove user data
-            NotificationDal.RemoveUserNotificationData(groupId, userId, userNotificationData.cas);
-
+            
             return result;
         }
 

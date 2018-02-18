@@ -416,9 +416,9 @@ namespace Core.Notification
 
                     userNotificationData.Settings.EnableMail = NotificationSettings.IsPartnerMailNotificationEnabled(groupId);
 
-                    userNotificationData.Settings.EnableSMS = NotificationSettings.IsPartnerSMSNotificationEnabled(groupId);
+                    userNotificationData.Settings.EnableSms = NotificationSettings.IsPartnerSmsNotificationEnabled(groupId);
 
-                    if (userNotificationData.Settings.EnableMail.Value || userNotificationData.Settings.EnableSMS.Value)
+                    if (userNotificationData.Settings.EnableMail.Value || userNotificationData.Settings.EnableSms.Value)
                     {
                         Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
                         if (response != null && response.m_RespStatus == ApiObjects.ResponseStatus.OK && response.m_user != null)
@@ -430,7 +430,7 @@ namespace Core.Notification
                                 userNotificationData.UserData.LastName = response.m_user.m_oBasicData.m_sLastName;
                             }
 
-                            if (userNotificationData.Settings.EnableSMS.Value)
+                            if (userNotificationData.Settings.EnableSms.Value)
                             {
                                 userNotificationData.UserData.PhoneNumber = response.m_user.m_oBasicData.m_sPhone;
                             }
