@@ -647,8 +647,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 if (currentAssetFile.File != null && currentAssetFile.File.AssetId != assetFileToUpdate.AssetId)
-                {
-                    result.File = null;
+                {                 
                     result.Status = new Status() { Code = (int)eResponseStatus.MediaFileNotBelongToAsset, Message = eResponseStatus.MediaFileNotBelongToAsset.ToString() };
                     return result;
                 }
@@ -671,12 +670,12 @@ namespace Core.Catalog.CatalogManagement
                 // ExternalId and AltExternalId cannot be the same value
                 if (string.IsNullOrEmpty(assetFileToUpdate.ExternalId))
                 {
-                    assetFileToUpdate.ExternalId = result.File.ExternalId;
+                    assetFileToUpdate.ExternalId = currentAssetFile.File.ExternalId;
                 }
 
-                if (string.IsNullOrEmpty(assetFileToUpdate.AltExternalId) && !string.IsNullOrEmpty(result.File.AltExternalId))
+                if (string.IsNullOrEmpty(assetFileToUpdate.AltExternalId) && !string.IsNullOrEmpty(currentAssetFile.File.AltExternalId))
                 {
-                    assetFileToUpdate.AltExternalId = result.File.AltExternalId;
+                    assetFileToUpdate.AltExternalId = currentAssetFile.File.AltExternalId;
                 }
 
                 // validate ExternalId and AltExternalId  are unique 
