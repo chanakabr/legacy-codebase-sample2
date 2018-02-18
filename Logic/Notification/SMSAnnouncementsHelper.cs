@@ -71,9 +71,10 @@ namespace Core.Notification
         /// </summary>
         /// <param name="deviceData"></param>
         /// <returns></returns>
-        public static List<UnSubscribe> InitAllAnnouncementToUnSubscribeForAdapter(NotificationData notficationData)
+        public static List<UnSubscribe> InitAllAnnouncementToUnSubscribeForAdapter(NotificationData notficationData, out long smsAnnouncementsId)
         {
             List<UnSubscribe> result = new List<UnSubscribe>();
+            smsAnnouncementsId = 0;
 
             // prepare unsubscribe Sms announcement object
             if (!string.IsNullOrEmpty(notficationData.SubscriptionExternalIdentifier))
@@ -122,7 +123,6 @@ namespace Core.Notification
                     result.Add(subscriptionToRemove);
                 }
             }
-
 
             return result;
         }

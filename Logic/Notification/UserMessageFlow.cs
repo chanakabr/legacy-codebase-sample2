@@ -1504,13 +1504,11 @@ namespace Core.Notification
 
         private static bool HandleUpdateUserForSmsNotification(int groupId, int userId, UserNotification userNotificationData)
         {
-            bool result = true;
-
             Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
             if (response == null || response.m_RespStatus != ApiObjects.ResponseStatus.OK || response.m_user == null)
             {
                 log.ErrorFormat("Failed to get user data for userId = {0}", userId);
-                result = false;
+                return false;
             }
             else
             {
@@ -1523,7 +1521,7 @@ namespace Core.Notification
                         log.ErrorFormat("Error while trying to update user notification data. GID: {0}, UID: {1}", groupId, userId);
                         return false;
                     }
-
+                    
                     SmsNotificationData userSmsNotificationData = null;
                     ApiObjects.Response.Status status = Utils.GetUserSmsNotificationData(groupId, userId, userNotificationData, out userSmsNotificationData);
                     if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK || userSmsNotificationData == null)
@@ -1537,10 +1535,22 @@ namespace Core.Notification
                         log.DebugFormat("Failed to unsubscribe user SMS notifications. userId = {0}", userId);
                         return false;
                     }
+
+                    if (!string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
+                    {
+                        log.DebugFormat("user does not have phone number for SMS", groupId, userId);
+                        return true;
+                    }
+
+                    if (!SubscribeSmsAnnouncements(groupId, userId, userNotificationData, userSmsNotificationData))
+                    {
+                        log.DebugFormat("Failed to subscribe user SMS notifications. userId = {0}", userId);
+                        return false;
+                    }
                 }
             }
 
-            return result;
+            return true;
         }
 
         private static bool HandleUserSignUpForSmsNotification(int groupId, int userId, UserNotification userNotificationData)
@@ -1629,7 +1639,8 @@ namespace Core.Notification
                 return true;
             }
 
-            List<UnSubscribe> unsubscibeList = SmsAnnouncementsHelper.InitAllAnnouncementToUnSubscribeForAdapter(smsData);
+            long smsAnnouncementsId = 0;
+            List<UnSubscribe> unsubscibeList = SmsAnnouncementsHelper.InitAllAnnouncementToUnSubscribeForAdapter(smsData, out smsAnnouncementsId);
 
             if (unsubscibeList.Count > 0)
             {
@@ -1691,7 +1702,8 @@ namespace Core.Notification
 
         private static bool UnsubscribeSmsAnnouncements(int groupId, int userId, SmsNotificationData userSmsNotificationData)
         {
-            List<UnSubscribe> announcementToUnsubscribe = SmsAnnouncementsHelper.InitAllAnnouncementToUnSubscribeForAdapter(userSmsNotificationData);
+            long smsAnnouncementsId = 0;
+            List<UnSubscribe> announcementToUnsubscribe = SmsAnnouncementsHelper.InitAllAnnouncementToUnSubscribeForAdapter(userSmsNotificationData, out smsAnnouncementsId);
             List<UnSubscribe> announcementToUnsubscribeResult = null;
 
             if (announcementToUnsubscribe.Count > 0)
@@ -1713,7 +1725,7 @@ namespace Core.Notification
             }
 
             // update SMS notification data
-            if (UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, announcementToUnsubscribe, announcementToUnsubscribeResult))
+            if (UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, announcementToUnsubscribe, announcementToUnsubscribeResult, smsAnnouncementsId))
             {
                 log.ErrorFormat("Error updating SMS notification data. Disable all notifications flow. data: {0}",
                     userSmsNotificationData != null ? JsonConvert.SerializeObject(userSmsNotificationData) : string.Empty);
@@ -1735,6 +1747,12 @@ namespace Core.Notification
                 return false;
             }
 
+            if (!string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
+            {
+                log.DebugFormat("user does not have phone number for SMS", groupId, userId);
+                return false;
+            }
+
             SmsNotificationData userSmsNotificationData = null;
             ApiObjects.Response.Status status = Utils.GetUserSmsNotificationData(groupId, userId, userNotificationData, out userSmsNotificationData);
             if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK || userSmsNotificationData == null)
@@ -1752,7 +1770,7 @@ namespace Core.Notification
             return true;
         }
 
-        private static bool UpdateSmsDataAccordingToAdapterResult(int groupId, int userId, SmsNotificationData smsNotificationData, List<UnSubscribe> announcementToUnsubscribe, List<UnSubscribe> adapterResult)
+        private static bool UpdateSmsDataAccordingToAdapterResult(int groupId, int userId, SmsNotificationData smsNotificationData, List<UnSubscribe> announcementToUnsubscribe, List<UnSubscribe> adapterResult, long smsAnnouncementId)
         {
             // update device document 
             if (smsNotificationData == null)
