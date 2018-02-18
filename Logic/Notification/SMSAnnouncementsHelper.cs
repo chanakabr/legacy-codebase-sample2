@@ -30,7 +30,7 @@ namespace Core.Notification
         /// <param name="userNotificationData"></param>
         /// <param name="pushExternalToken"></param>
         /// <returns></returns>
-        public static List<AnnouncementSubscriptionData> InitAllAnnouncementToSubscribeForAdapter(int groupId, UserNotification userNotificationData, SmsNotificationData SmsData, string pushExternalToken, out long smsAnnouncementId)
+        public static List<AnnouncementSubscriptionData> InitAllAnnouncementToSubscribeForAdapter(int groupId, UserNotification userNotificationData, SmsNotificationData smsData, out long smsAnnouncementId)
         {
             List<AnnouncementSubscriptionData> result = new List<AnnouncementSubscriptionData>();
             smsAnnouncementId = 0;
@@ -43,23 +43,23 @@ namespace Core.Notification
             }
 
             // Get list of announcements to subscribe (VOD)
-            List<AnnouncementSubscriptionData> temp = PrepareUserAnnouncementsSubscriptions(groupId, userNotificationData, SmsData, pushExternalToken, out smsAnnouncementId);
+            List<AnnouncementSubscriptionData> temp = PrepareUserAnnouncementsSubscriptions(groupId, userNotificationData, smsData, out smsAnnouncementId);
             if (temp != null)
                 result.AddRange(temp);
             temp = null;
 
             // Get list of reminders to subscribe (EGP)
-            temp = PrepareUserRemindersSubscriptions(groupId, userNotificationData, SmsData, pushExternalToken);
+            temp = PrepareUserRemindersSubscriptions(groupId, userNotificationData, smsData);
             result.AddRange(temp);
             temp = null;
 
             // Get list of series reminders to subscribe (EPG)
-            temp = PrepareUserSeriesRemindersSubscriptions(groupId, userNotificationData, SmsData, pushExternalToken);
+            temp = PrepareUserSeriesRemindersSubscriptions(groupId, userNotificationData, smsData);
             result.AddRange(temp);
             temp = null;
 
             // Get list of series interests to subscribe 
-            temp = PrepareUserInterestSubscriptions(groupId, userNotificationData, SmsData, pushExternalToken);
+            temp = PrepareUserInterestSubscriptions(groupId, userNotificationData, smsData);
             result.AddRange(temp);
             temp = null;
 
@@ -127,7 +127,8 @@ namespace Core.Notification
             return result;
         }
 
-        public static List<AnnouncementSubscriptionData> PrepareUserAnnouncementsSubscriptions(int groupId, UserNotification userNotificationData, NotificationData notificationData, string externalToken, out long smsAnnouncementId)
+        public static List<AnnouncementSubscriptionData> PrepareUserAnnouncementsSubscriptions(int groupId, UserNotification userNotificationData, NotificationData notificationData, 
+            out long smsAnnouncementId)
         {
             List<AnnouncementSubscriptionData> result = new List<AnnouncementSubscriptionData>();
             smsAnnouncementId = 0;
@@ -175,7 +176,7 @@ namespace Core.Notification
                     {
                         Protocol = EnumseDeliveryProtocol.application,
                         TopicArn = topicArn,
-                        EndPointArn = externalToken,
+                        EndPointArn = userNotificationData.UserData.PhoneNumber,
                         ExternalId = ann.ID
                     };
 
@@ -212,7 +213,7 @@ namespace Core.Notification
             return result;
         }
 
-        public static List<AnnouncementSubscriptionData> PrepareUserRemindersSubscriptions(int groupId, UserNotification userNotificationData, NotificationData notificationData, string externalToken)
+        public static List<AnnouncementSubscriptionData> PrepareUserRemindersSubscriptions(int groupId, UserNotification userNotificationData, NotificationData notificationData)
         {
             List<AnnouncementSubscriptionData> result = new List<AnnouncementSubscriptionData>();
 
@@ -258,7 +259,7 @@ namespace Core.Notification
                 {
                     Protocol = EnumseDeliveryProtocol.application,
                     TopicArn = topicArn,
-                    EndPointArn = externalToken,
+                    EndPointArn = userNotificationData.UserData.PhoneNumber,
                     ExternalId = reminder.ID
                 };
 
@@ -286,7 +287,7 @@ namespace Core.Notification
             return result;
         }
 
-        public static List<AnnouncementSubscriptionData> PrepareUserSeriesRemindersSubscriptions(int groupId, UserNotification userNotificationData, NotificationData notificationData, string externalToken)
+        public static List<AnnouncementSubscriptionData> PrepareUserSeriesRemindersSubscriptions(int groupId, UserNotification userNotificationData, NotificationData notificationData)
         {
             List<AnnouncementSubscriptionData> result = new List<AnnouncementSubscriptionData>();
 
@@ -332,7 +333,7 @@ namespace Core.Notification
                 {
                     Protocol = EnumseDeliveryProtocol.application,
                     TopicArn = topicArn,
-                    EndPointArn = externalToken,
+                    EndPointArn = userNotificationData.UserData.PhoneNumber,
                     ExternalId = reminder.ID
                 };
 
@@ -359,7 +360,7 @@ namespace Core.Notification
             return result;
         }
 
-        public static List<AnnouncementSubscriptionData> PrepareUserInterestSubscriptions(int groupId, UserNotification userNotificationData, NotificationData notificationData, string externalToken)
+        public static List<AnnouncementSubscriptionData> PrepareUserInterestSubscriptions(int groupId, UserNotification userNotificationData, NotificationData notificationData)
         {
             List<AnnouncementSubscriptionData> result = new List<AnnouncementSubscriptionData>();
 
@@ -405,7 +406,7 @@ namespace Core.Notification
                 {
                     Protocol = EnumseDeliveryProtocol.application,
                     TopicArn = topicArn,
-                    EndPointArn = externalToken,
+                    EndPointArn = userNotificationData.UserData.PhoneNumber,
                     ExternalId = interestNotification.Id
                 };
 
