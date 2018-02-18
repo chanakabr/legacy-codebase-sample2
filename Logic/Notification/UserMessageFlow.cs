@@ -1567,11 +1567,11 @@ namespace Core.Notification
 
         private static bool SubscribeSmsAnnouncements(int groupId, int userId, UserNotification userNotificationData, SmsNotificationData userSmsNotificationData)
         {
-            long loginAnnouncementId = 0;
-            List<AnnouncementSubscriptionData> subscribeList = SmsAnnouncementsHelper.InitAllAnnouncementToSubscribeForAdapter(groupId, userNotificationData, userSmsNotificationData, out loginAnnouncementId);
+            long smsAnnouncementId = 0;
+            List<AnnouncementSubscriptionData> subscribeList = SmsAnnouncementsHelper.InitAllAnnouncementToSubscribeForAdapter(groupId, userNotificationData, userSmsNotificationData, out smsAnnouncementId);
             if (subscribeList == null ||
                 subscribeList.Count == 0 ||
-                loginAnnouncementId == 0)
+                smsAnnouncementId == 0)
             {
                 log.Error("Error retrieving login announcement to subscribe");
                 return false;
@@ -1606,18 +1606,18 @@ namespace Core.Notification
 
         private static bool HandleSmsDeleteUser(int groupId, int userId, UserNotification userNotificationData)
         {
-            bool result = true;
+            bool result = false;
 
             if (userNotificationData == null)
             {
                 log.DebugFormat("user notification data is empty {0}", userId);
-                return false;
+                return true;
             }
 
             if (userNotificationData.UserData == null || string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
             {
                 log.DebugFormat("user notification sms data is empty {0}", userId);
-                return false;
+                return true;
             }
 
             // get sms notification data
@@ -1626,7 +1626,7 @@ namespace Core.Notification
             if (smsData == null)
             {
                 log.DebugFormat("user sms notification data is empty {0}", userId);
-                return false;
+                return true;
             }
 
             List<UnSubscribe> unsubscibeList = SmsAnnouncementsHelper.InitAllAnnouncementToUnSubscribeForAdapter(smsData);
