@@ -315,8 +315,14 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 filter.Validate();
 
-                // call client      
-                if (!string.IsNullOrEmpty(filter.NameEqual))
+
+                if (filter.IdEqual > 0)
+                {
+                    // get by id
+                    KalturaChannel channel = ClientsManager.CatalogClient().GetChannel(groupId, filter.IdEqual);
+                    response = new KalturaChannelListResponse() { TotalCount = 1, Channels = new List<KalturaChannel>() { channel } };
+                }                
+                else if (!string.IsNullOrEmpty(filter.NameEqual))
                 {
                     //search using ChannelEqual
                     response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.NameEqual, pager.getPageIndex(), pager.getPageSize(),

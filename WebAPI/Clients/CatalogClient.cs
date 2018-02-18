@@ -3743,8 +3743,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, int pageIndex, int pageSize,
-            KalturaChannelsOrderBy channelOrderBy)
+        internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
             Core.Catalog.CatalogManagement.ChannelListResponse response = null;

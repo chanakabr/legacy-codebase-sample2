@@ -3140,6 +3140,8 @@ namespace WebAPI.Reflection
                 case "KalturaChannelsFilter":
                     switch(property.Name)
                     {
+                        case "IdEqual":
+                            return "idEqual";
                         case "NameEqual":
                             return "nameEqual";
                         case "NameStartsWith":
