@@ -94,9 +94,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("groupCdnSettings_groupId_{0}", groupId);
         }
 
-        public static string GetCDNAdapterKey(int groupId, int defaultAdapterId)
+        public static string GetCDNAdapterKey(int groupId, int adapterId)
         {
-            return string.Format("cdnDefaultAdapter_groupId_{0}_adapterId_{1}", groupId, defaultAdapterId);
+            return string.Format("cdnAdapter_groupId_{0}_adapterId_{1}", groupId, adapterId);
         }
 
         public static string GetDrmAdapterKey(int groupId, int defaultAdapterId)
@@ -571,6 +571,11 @@ namespace CachingProvider.LayeredCache
             }
 
             return result;
+        }
+
+        public static string GetCDNAdapterInvalidationKey(int groupId, int adapterId)
+        {
+            return string.Format("InvalidationKey_cdnAdapter_groupId_{0}_adapterId_{1}", groupId, adapterId);
         }
 
         #region Domains

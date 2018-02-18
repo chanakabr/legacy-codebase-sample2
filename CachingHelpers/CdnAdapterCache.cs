@@ -54,7 +54,7 @@ namespace CachingHelpers
             CDNAdapter adapter = null;
             string key = LayeredCacheKeys.GetCDNAdapterKey(groupId, adapterId);
             bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref adapter, Utils.GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterId } },
-                groupId, LayeredCacheConfigNames.CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
+                groupId, LayeredCacheConfigNames.CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetCDNAdapterInvalidationKey(groupId, adapterId) });
 
             if (!cacheResult || adapter == null)
             {
