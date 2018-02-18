@@ -530,58 +530,58 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddManualChannel for groupId: {0} and channelName: {1}", groupId, channelToAdd.m_sName), ex);
+                log.Error(string.Format("Failed AddManualChannel for groupId: {0} and channel SystemName: {1}", groupId, channelToAdd.SystemName), ex);
             }
 
             return result;
         }
 
-        public static ChannelResponse AddDynamicChannel(int groupId, KSQLChannel channel, long userId = 700)
+        public static ChannelResponse AddDynamicChannel(int groupId, KSQLChannel channelToAdd, long userId = 700)
         {
             ChannelResponse response = new ChannelResponse();
 
             try
             {
-                if (channel == null)
+                if (channelToAdd == null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoObjectToInsert, APILogic.CRUD.KSQLChannelsManager.NO_KSQL_CHANNEL_TO_INSERT);
+                    response.Status = new Status((int)eResponseStatus.NoObjectToInsert, APILogic.CRUD.KSQLChannelsManager.NO_KSQL_CHANNEL_TO_INSERT);
                     return response;
                 }
 
-                if (!CatalogDAL.ValidateChannelSystemName(groupId, channel.SystemName))
+                if (!CatalogDAL.ValidateChannelSystemName(groupId, channelToAdd.SystemName))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
+                    response.Status = new Status((int)eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(channel.Name))
+                if (string.IsNullOrEmpty(channelToAdd.Name))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, APILogic.CRUD.KSQLChannelsManager.NAME_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.NameRequired, APILogic.CRUD.KSQLChannelsManager.NAME_REQUIRED);
                     return response;
                 }
 
                 // Validate filter query by parsing it
-                if (!string.IsNullOrEmpty(channel.FilterQuery))
+                if (!string.IsNullOrEmpty(channelToAdd.FilterQuery))
                 {
                     ApiObjects.SearchObjects.BooleanPhraseNode temporaryNode = null;
-                    var parseStatus = ApiObjects.SearchObjects.BooleanPhraseNode.ParseSearchExpression(channel.FilterQuery, ref temporaryNode);
+                    var parseStatus = ApiObjects.SearchObjects.BooleanPhraseNode.ParseSearchExpression(channelToAdd.FilterQuery, ref temporaryNode);
 
                     if (parseStatus == null)
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.SyntaxError, "Failed parsing filter query");
+                        response.Status = new Status((int)eResponseStatus.SyntaxError, "Failed parsing filter query");
                         return response;
                     }
                     else if (parseStatus.Code != (int)eResponseStatus.OK)
                     {
-                        response.Status = new ApiObjects.Response.Status(parseStatus.Code, parseStatus.Message);
+                        response.Status = new Status(parseStatus.Code, parseStatus.Message);
                         return response;
                     }
 
-                    channel.filterTree = temporaryNode;
+                    channelToAdd.filterTree = temporaryNode;
                 }
 
                 // Validate asset types
-                if (channel.AssetTypes != null && channel.AssetTypes.Count > 0)
+                if (channelToAdd.AssetTypes != null && channelToAdd.AssetTypes.Count > 0)
                 {
                     CatalogGroupCache catalogGroupCache;
                     if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -590,30 +590,53 @@ namespace Core.Catalog.CatalogManagement
                         return response;
                     }
 
-                    List<int> noneGroupAssetTypes = channel.AssetTypes.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
+                    List<int> noneGroupAssetTypes = channelToAdd.AssetTypes.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
                     response.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
                                     eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
                     return response;
                 }
 
-                channel.GroupID = groupId;
-                response.Channel = InsertDynamicChannel(channel, userId);
+                channelToAdd.GroupID = groupId;
+                response.Channel = InsertDynamicChannel(channelToAdd, userId);
 
                 if (response.Channel != null && response.Channel.m_nChannelID > 0)
                 {
                     APILogic.CRUD.KSQLChannelsManager.UpdateCatalog(groupId, response.Channel.m_nChannelID);
 
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new KSQL channel insert");
+                    response.Status = new Status((int)eResponseStatus.OK, "new KSQL channel insert");
                 }
                 else
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to insert new KSQL channel");
+                    response.Status = new Status((int)eResponseStatus.Error, "fail to insert new KSQL channel");
                 }
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed groupID={0}", groupId), ex);
+                log.Error(string.Format("Failed AddDynamicChannel for groupId: {0} and channel SystemName: {1}", groupId, channelToAdd.SystemName), ex);
+            }
+
+            return response;
+        }
+
+        public static ChannelResponse GetChannel(int groupId, int channelId)
+        {
+            ChannelResponse response = new ChannelResponse();
+
+            try
+            {
+                response.Channel = GetChannelById(groupId, channelId);
+                if (response.Channel != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    response.Status = new Status((int)eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
+                }                
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetChannel for groupId: {0} and channelId: {1}", groupId, channelId), ex);
             }
 
             return response;

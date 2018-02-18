@@ -237,6 +237,7 @@ namespace ApiObjects.Response
         ChannelMetaOrderByIsInvalid = 4061,
         StreamingSupplierDoesNotExist = 4062,
         DefaultStreamingSupplierNotConfigurd = 4063,
+        ChannelDoesNotExist = 4064,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,
