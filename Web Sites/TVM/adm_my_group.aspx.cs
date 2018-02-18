@@ -369,6 +369,11 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_npvr_quota.Initialize("NPVR Quota", "adm_table_header_nbg", "FormInput", "npvr_quota_in_seconds", false);
         theRecord.AddRecord(dr_npvr_quota);
 
+        dropDownField = new DataRecordDropDownField("", "name", "id", "", null, 60, false);
+        dropDownField.SetSelectsDT(GetEnumTable<ApiObjects.AlcatelLucentNPVRVersion>());
+        dropDownField.Initialize("NPVR version", "adm_table_header_nbg", "FormInput", "npvr_version", false);
+        theRecord.AddRecord(dropDownField);
+
         DataRecordDropDownField dr_currency = new DataRecordDropDownField("pricing.dbo.lu_currency", "name", "id", "", null, 60, true);        
         dr_currency.Initialize("Default Currency", "adm_table_header_nbg", "FormInput", "CURRENCY_ID", false);
         theRecord.AddRecord(dr_currency);
