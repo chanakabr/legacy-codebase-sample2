@@ -49,12 +49,19 @@ namespace CachingHelpers
 
         #region Public Methods
 
-        public CDNAdapter GetCdnAdapter(int groupId, int adapterId)
+        public CDNAdapter GetCdnAdapter(int groupId, int adapterId, bool doesGroupUsesTemplates = false)
         {
             CDNAdapter adapter = null;
             string key = LayeredCacheKeys.GetCDNAdapterKey(groupId, adapterId);
-            bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref adapter, Utils.GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterId } },
-                groupId, LayeredCacheConfigNames.CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetCDNAdapterInvalidationKey(groupId, adapterId) });
+            Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "adapterId", adapterId } };
+            // add groupId if group uses templates
+            if (doesGroupUsesTemplates)
+            {
+                funcParams.Add("groupId", groupId);
+            }
+
+            bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref adapter, Utils.GetCdnAdapter, funcParams, groupId, LayeredCacheConfigNames.CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME,
+                                                                        new List<string>() { LayeredCacheKeys.GetCDNAdapterInvalidationKey(groupId, adapterId) });
 
             if (!cacheResult || adapter == null)
             {

@@ -3820,7 +3820,7 @@ namespace DAL
             return res;
         }
 
-        public static CDNAdapter GetCDNAdapter(int adapterId, bool shouldGetOnlyActive = true)
+        public static CDNAdapter GetCDNAdapter(int adapterId, bool shouldGetOnlyActive = true, int groupId = 0)
         {
             CDNAdapter adapterResponse = null;
             try
@@ -3833,8 +3833,12 @@ namespace DAL
                     sp.AddParameter("@shouldGetOnlyActive", 0);
                 }
 
-                DataSet ds = sp.ExecuteDataSet();
+                if (groupId > 0)
+                {
+                    sp.AddParameter("@groupId", groupId);
+                }
 
+                DataSet ds = sp.ExecuteDataSet();
                 adapterResponse = CreateCDNAdapter(ds);
 
             }

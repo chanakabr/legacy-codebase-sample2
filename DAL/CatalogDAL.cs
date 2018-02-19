@@ -5091,33 +5091,33 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long altStreamingSuplierId, long assetId,
-            long billingType, double duration, DateTime endDate, string externalId, string externalStoreId, long fileSize, bool isDefaultLanguage,
-            string language, int orderNum, int outputProtecationLevel, DateTime startDate, string url, long streamingSuplierId, long type, string altExternalId, bool? isActive)
+        public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId,
+            long billingType, double? duration, DateTime endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage,
+            string language, int? orderNum, int outputProtecationLevel, DateTime startDate, string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@updaterId", userId);
             sp.AddParameter("@assetId", assetId);
-            sp.AddParameter("@type", type);
+            sp.AddParameter("@type", type.Value);
             sp.AddParameter("@url", url);
-            sp.AddParameter("@streamingSuplierId", streamingSuplierId);
+            sp.AddParameter("@streamingSuplierId", streamingSuplierId.HasValue ? streamingSuplierId.Value : 0);
             sp.AddParameter("@altStreamingCode", altStreamingCode);
-            sp.AddParameter("@altStreamingSuplierId", altStreamingSuplierId);
+            sp.AddParameter("@altStreamingSuplierId", altStreamingSuplierId.HasValue ? altStreamingSuplierId.Value : 0);
             sp.AddParameter("@additionalData", additionalData);
             sp.AddParameter("@billingType", billingType);
-            sp.AddParameter("@orderNum", orderNum);
-            sp.AddParameter("@duration", duration);
+            sp.AddParameter("@orderNum", orderNum.HasValue ? orderNum.Value : 0);
+            sp.AddParameter("@duration", duration.HasValue ? duration.Value : 0);
             sp.AddParameter("@externalId", externalId);
             sp.AddParameter("@externalStoreId", externalStoreId);
             sp.AddParameter("@language", language);
-            sp.AddParameter("@isDefaultLanguage", isDefaultLanguage ? 1 : 0);
+            sp.AddParameter("@isDefaultLanguage", isDefaultLanguage.HasValue && isDefaultLanguage.Value ? 1 : 0);
             sp.AddParameter("@outputProtecationLevel", outputProtecationLevel);
             sp.AddParameter("@startDate", startDate);
             sp.AddParameter("@endDate", endDate);
             sp.AddParameter("@altCoGuid", altExternalId);
-            sp.AddParameter("@fileSize", fileSize);
+            sp.AddParameter("@fileSize", fileSize.HasValue ? fileSize.Value : 0);
             sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);
 
             return sp.ExecuteDataSet();
@@ -5144,9 +5144,9 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateMediaFile(int groupId, long id, long userId, string additionalData, string altStreamingCode, long altStreamingSuplierId, long assetId, long billingType,
-            double duration, DateTime endDate, string externalId, string externalStoreId, long fileSize, bool isDefaultLanguage, string language, int orderNum, int outputProtecationLevel, DateTime startDate,
-            string url, long streamingSuplierId, int type, string altExternalId, bool? isActive)
+        public static DataSet UpdateMediaFile(int groupId, long id, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId, long billingType,
+            long? duration, DateTime endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage, string language, int? orderNum, int outputProtecationLevel, DateTime startDate,
+            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5165,7 +5165,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@externalId", externalId);
             sp.AddParameter("@externalStoreId", externalStoreId);
             sp.AddParameter("@language", language);
-            sp.AddParameter("@isDefaultLanguage", isDefaultLanguage ? 1 : 0);
+            sp.AddParameter("@isDefaultLanguage", isDefaultLanguage);
             sp.AddParameter("@outputProtecationLevel", outputProtecationLevel);
             sp.AddParameter("@startDate", startDate);
             sp.AddParameter("@endDate", endDate);
@@ -5241,6 +5241,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@groupId", groupId);           
             sp.AddParameter("@externalId", externalId);
             sp.AddParameter("@altExternalId", altExternalId);
+            sp.AddParameter("@altExternalIdExists", string.IsNullOrEmpty(altExternalId) ? 0 : 1);
 
             return sp.ExecuteDataSet();
         }

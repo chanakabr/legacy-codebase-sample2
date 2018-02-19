@@ -44,7 +44,13 @@ namespace CachingHelpers
                     {
                         int? adapterId;
                         adapterId = funcParams["adapterId"] as int?;
-                        result = DAL.ApiDAL.GetCDNAdapter(adapterId.Value, shouldGetOnlyActive);
+                        int? groupId = null;
+                        if (funcParams.ContainsKey("groupId"))
+                        {
+                            groupId = funcParams["groupId"] as int?;
+                        }
+
+                        result = DAL.ApiDAL.GetCDNAdapter(adapterId.Value, shouldGetOnlyActive, groupId.HasValue ? groupId.Value : 0);
                         res = true;
                     }
                 }
