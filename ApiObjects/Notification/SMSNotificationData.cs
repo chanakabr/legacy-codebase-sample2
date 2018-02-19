@@ -49,8 +49,6 @@ namespace ApiObjects.Notification
         {
          
         }
-
-        public string SMSExternalToken { get; set; }
     }
 
 }

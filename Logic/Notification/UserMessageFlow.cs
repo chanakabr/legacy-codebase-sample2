@@ -1749,7 +1749,7 @@ namespace Core.Notification
                 return false;
             }
 
-            if (!string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
+            if (string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
             {
                 log.DebugFormat("user does not have phone number for SMS", groupId, userId);
                 return false;

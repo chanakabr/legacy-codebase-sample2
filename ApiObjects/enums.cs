@@ -539,7 +539,8 @@ namespace ApiObjects
     {
         Push = 0,
         Mail = 1,
-        Inbox = 2
+        Inbox = 2,
+        Sms = 3
     }
 
     public enum eUserMessageAction

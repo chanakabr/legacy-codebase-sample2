@@ -623,7 +623,7 @@ namespace Core.Notification
                     string mailExternalAnnouncementId = MailNotificationAdapterClient.CreateAnnouncement(groupId, announcementName);
                     if (string.IsNullOrEmpty(mailExternalAnnouncementId))
                     {
-                        log.ErrorFormat("CreateSystemAnnouncement failed Create guest mail announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        log.ErrorFormat("CreateSystemAnnouncement failed Create mail announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
                         return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create mail announcement");
                     }
 
@@ -631,6 +631,24 @@ namespace Core.Notification
                     {
                         log.ErrorFormat("CreateSystemAnnouncement failed insert mail announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
                         return new Status((int)eResponseStatus.Error, "fail insert mail announcement to DB");
+                    }
+                }
+
+                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Sms).FirstOrDefault() == null)
+                {
+                    announcementName = "Sms";
+                    string smsExternalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
+                    if (string.IsNullOrEmpty(smsExternalAnnouncementId))
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed Create SMS announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create SMS announcement");
+                    }
+
+                    if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, smsExternalAnnouncementId, (int)eMessageType.Sms, 
+                        (int)eAnnouncementRecipientsType.Sms, string.Empty) == 0)
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed insert SMS announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.Error, "fail insert SMS announcement to DB");
                     }
                 }
 

@@ -174,7 +174,7 @@ namespace Core.Notification
                     // create subscription announcement
                     announcement = new AnnouncementSubscriptionData()
                     {
-                        Protocol = EnumseDeliveryProtocol.application,
+                        Protocol = EnumseDeliveryProtocol.sms,
                         TopicArn = topicArn,
                         EndPointArn = userNotificationData.UserData.PhoneNumber,
                         ExternalId = ann.ID
@@ -257,7 +257,7 @@ namespace Core.Notification
                 // create subscription announcement
                 reminderAnnouncement = new AnnouncementSubscriptionData()
                 {
-                    Protocol = EnumseDeliveryProtocol.application,
+                    Protocol = EnumseDeliveryProtocol.sms,
                     TopicArn = topicArn,
                     EndPointArn = userNotificationData.UserData.PhoneNumber,
                     ExternalId = reminder.ID
@@ -331,7 +331,7 @@ namespace Core.Notification
                 // create subscription announcement
                 reminderAnnouncement = new AnnouncementSubscriptionData()
                 {
-                    Protocol = EnumseDeliveryProtocol.application,
+                    Protocol = EnumseDeliveryProtocol.sms,
                     TopicArn = topicArn,
                     EndPointArn = userNotificationData.UserData.PhoneNumber,
                     ExternalId = reminder.ID
@@ -404,7 +404,7 @@ namespace Core.Notification
                 // create subscription announcement
                 interestAnnouncement = new AnnouncementSubscriptionData()
                 {
-                    Protocol = EnumseDeliveryProtocol.application,
+                    Protocol = EnumseDeliveryProtocol.sms,
                     TopicArn = topicArn,
                     EndPointArn = userNotificationData.UserData.PhoneNumber,
                     ExternalId = interestNotification.Id
