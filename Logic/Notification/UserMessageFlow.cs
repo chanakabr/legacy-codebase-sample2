@@ -1578,7 +1578,8 @@ namespace Core.Notification
         private static bool SubscribeSmsAnnouncements(int groupId, int userId, UserNotification userNotificationData, SmsNotificationData userSmsNotificationData)
         {
             long smsAnnouncementId = 0;
-            List<AnnouncementSubscriptionData> subscribeList = SmsAnnouncementsHelper.InitAllAnnouncementToSubscribeForAdapter(groupId, userNotificationData, userSmsNotificationData, out smsAnnouncementId);
+            List<AnnouncementSubscriptionData> subscribeList = SmsAnnouncementsHelper.InitAllAnnouncementToSubscribeForAdapter(groupId, 
+                userNotificationData, userSmsNotificationData, out smsAnnouncementId);
             if (subscribeList == null ||
                 subscribeList.Count == 0 ||
                 smsAnnouncementId == 0)
@@ -1600,7 +1601,7 @@ namespace Core.Notification
             }
 
             // update sms notification data
-            if (!UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, subscribeList))
+            if (!UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, null, null, subscribeList, subscribeListResult, smsAnnouncementId))
             {
                 log.ErrorFormat("Error updating SMS notification data. data: {0}",
                     userSmsNotificationData != null ? JsonConvert.SerializeObject(userSmsNotificationData) : string.Empty);
@@ -1725,7 +1726,8 @@ namespace Core.Notification
             }
 
             // update SMS notification data
-            if (UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, announcementToUnsubscribe, announcementToUnsubscribeResult, smsAnnouncementsId))
+            if (UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, announcementToUnsubscribe, 
+                announcementToUnsubscribeResult, null, null, smsAnnouncementsId))
             {
                 log.ErrorFormat("Error updating SMS notification data. Disable all notifications flow. data: {0}",
                     userSmsNotificationData != null ? JsonConvert.SerializeObject(userSmsNotificationData) : string.Empty);
@@ -1770,9 +1772,13 @@ namespace Core.Notification
             return true;
         }
 
-        private static bool UpdateSmsDataAccordingToAdapterResult(int groupId, int userId, SmsNotificationData smsNotificationData, List<UnSubscribe> announcementToUnsubscribe, List<UnSubscribe> adapterResult, long smsAnnouncementId)
+        private static bool UpdateSmsDataAccordingToAdapterResult(int groupId, int userId, SmsNotificationData smsNotificationData, 
+            List<UnSubscribe> announcementToUnsubscribe, List<UnSubscribe> unSubscribrAdapterResult,
+            List<AnnouncementSubscriptionData> announcementToSubscribe, List<AnnouncementSubscriptionData> subscribrAdapterResult, 
+            long smsAnnouncementId)
         {
-            // update device document 
+   
+            // update SMS document 
             if (smsNotificationData == null)
             {
                 smsNotificationData = new SmsNotificationData(userId)
@@ -1793,20 +1799,20 @@ namespace Core.Notification
             if (announcementToUnsubscribe != null)
             {
                 if (announcementToUnsubscribe.Count > 0 &&
-                    (adapterResult == null ||
-                    adapterResult.Count == 0))
+                    (unSubscribrAdapterResult == null ||
+                    unSubscribrAdapterResult.Count == 0))
                 {
-                    log.ErrorFormat("Error while trying to unsubscribe user SMS announcements. PID: {0}, UID: {1}", groupId, userId);
+                    log.ErrorFormat("Error while trying to unsubscribe user announcements. smsNotificationData: {0}", smsNotificationData);
                 }
                 else
                 {
                     bool canceledSystemAnnouncement = false;
-                    foreach (UnSubscribe cancelSubResult in adapterResult)
+                    foreach (UnSubscribe cancelSubResult in unSubscribrAdapterResult)
                     {
                         // check if cancel passed
-                        if (!cancelSubResult.Success)
+                        if (cancelSubResult == null || !cancelSubResult.Success)
                         {
-                            log.ErrorFormat("Error canceling subscription. cancelSubResult: {0}", JsonConvert.SerializeObject(cancelSubResult));
+                            log.ErrorFormat("Error canceling subscription. cancelSubResult: {0}", cancelSubResult != null ? JsonConvert.SerializeObject(cancelSubResult) : string.Empty);
                             continue;
                         }
 
@@ -1821,16 +1827,18 @@ namespace Core.Notification
                         // remove subscription from device list
                         if (smsNotificationData.SubscribedAnnouncements.Count > 0)
                         {
-                            var removedSub = smsNotificationData.SubscribedAnnouncements.FirstOrDefault(x => x.ExternalId == cancelSubResult.SubscriptionArn);
-                            if (removedSub != null)
-                                smsNotificationData.SubscribedAnnouncements.Remove(removedSub);
-                            else
-                            {
-                                // remove reminder from device list
-                                var removedReminder = smsNotificationData.SubscribedReminders.FirstOrDefault(x => x.ExternalId == cancelSubResult.SubscriptionArn);
-                                if (removedReminder != null)
-                                    smsNotificationData.SubscribedReminders.Remove(removedReminder);
-                            }
+                            var found = smsNotificationData.SubscribedAnnouncements.FirstOrDefault(x => x.ExternalId == cancelSubResult.SubscriptionArn);
+                            if (found != null)
+                                smsNotificationData.SubscribedAnnouncements.Remove(found);
+                        }
+
+                        // remove subscription from device list
+                        if (smsNotificationData.SubscribedReminders.Count > 0)
+                        {
+                            // remove reminder from device list
+                            var removedReminder = smsNotificationData.SubscribedReminders.FirstOrDefault(x => x.ExternalId == cancelSubResult.SubscriptionArn);
+                            if (removedReminder != null)
+                                smsNotificationData.SubscribedReminders.Remove(removedReminder);
                         }
                     }
 
@@ -1839,9 +1847,74 @@ namespace Core.Notification
                 }
             }
 
+            // add new subscriptions
+            if (announcementToSubscribe != null)
+            {
+                if (announcementToSubscribe.Count > 0 &&
+                    (subscribrAdapterResult == null ||
+                    subscribrAdapterResult.Count == 0))
+                {
+                    log.ErrorFormat("Error while trying to unsubscribe user announcements in identified set push/login flow. smsNotificationData: {0}", smsNotificationData);
+                }
+                else
+                {
+                    bool smsAnnouncementUpdated = false;
+
+                    // update device announcements
+                    foreach (var subscription in subscribrAdapterResult)
+                    {
+                        if (subscription == null || string.IsNullOrEmpty(subscription.SubscriptionArnResult))
+                        {
+                            log.ErrorFormat("Error subscribing announcement. announcement: {0}", subscription != null ? JsonConvert.SerializeObject(subscription) : string.Empty);
+                            continue;
+                        }
+
+                        // add device announcements except login announcements 
+                        if (subscription.ExternalId != smsAnnouncementId)
+                        {
+                            // add result to follow announcements (if its a follow push announcement)
+                            List<DbAnnouncement> notifications = null;
+                            NotificationCache.TryGetAnnouncements(groupId, ref notifications);
+                            if (notifications != null && notifications.FirstOrDefault(x => x.ID == subscription.ExternalId) != null)
+                            {
+                                smsNotificationData.SubscribedAnnouncements.Add(new NotificationSubscription()
+                                {
+                                    SubscribedAtSec = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                                    ExternalId = subscription.SubscriptionArnResult,
+                                    Id = subscription.ExternalId
+                                });
+                            }
+                            else
+                            {
+                                // add result to reminders (if its a reminder push announcement)
+                                var reminders = NotificationDal.GetReminders(groupId, subscription.ExternalId);
+                                if (reminders != null && reminders.Count > 0)
+                                {
+                                    smsNotificationData.SubscribedReminders.Add(new NotificationSubscription()
+                                    {
+                                        SubscribedAtSec = DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow),
+                                        ExternalId = subscription.SubscriptionArnResult,
+                                        Id = subscription.ExternalId
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // update system announcement
+                            smsNotificationData.SubscriptionExternalIdentifier = subscription.SubscriptionArnResult;
+                            smsAnnouncementUpdated = true;
+                        }
+                    }
+
+                    if (!smsAnnouncementUpdated)
+                        log.Error("subscribe to login failed");
+                }
+            }
+
             if (!NotificationDal.SetUserSmsNotificationData(groupId, userId, smsNotificationData))
             {
-                log.ErrorFormat("Error while trying to update device data. GID: {0}, UID: {1}", groupId, userId);
+                log.ErrorFormat("Error while trying to update SMS data. GID: {0}, UID: {1}", groupId, userId);
                 return false;
             }
             else
