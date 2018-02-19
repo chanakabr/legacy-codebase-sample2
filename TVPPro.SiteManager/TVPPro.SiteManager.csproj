@@ -166,7 +166,6 @@
     <Compile Include="Controls\RichGalleryControl.cs" />
     <Compile Include="DataEntities\dsCategory.cs">
       <DependentUpon>dsCategory.xsd</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
     <Compile Include="DataEntities\dsCategory.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -180,7 +179,6 @@
     </Compile>
     <Compile Include="DataEntities\dsComments.cs">
       <DependentUpon>dsComments.xsd</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
     <Compile Include="DataEntities\dsComments.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -199,7 +197,6 @@
     </Compile>
     <Compile Include="DataEntities\dsItemInfo.cs">
       <DependentUpon>dsItemInfo.xsd</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
     <Compile Include="DataEntities\dsItemInfo.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -233,7 +230,6 @@
     </Compile>
     <Compile Include="DataEntities\dsPageData.cs">
       <DependentUpon>dsPageData.xsd</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
     <Compile Include="DataEntities\dsPageData.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -242,7 +238,6 @@
     </Compile>
     <Compile Include="DataEntities\dsProfiles.cs">
       <DependentUpon>dsProfiles.xsd</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
     <Compile Include="DataEntities\dsProfiles.Designer.cs">
       <AutoGen>True</AutoGen>
