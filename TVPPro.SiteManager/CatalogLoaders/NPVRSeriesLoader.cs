@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using KLogMonitor;
+using System;
 using System.Reflection;
 using System.Text;
-using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
@@ -16,27 +14,30 @@ namespace TVPPro.SiteManager.CatalogLoaders
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public RecordedEPGOrderObj RecordedEPGOrderObj { get; set; }
-        
-        public string SeriesId { get; set; } 
+
+        public string SeriesId { get; set; }
 
         public int SeasonNumber { get; set; }
+
+        public int? Version{ get; set; }
 
 
         #region ctr
 
-        public NPVRSeriesLoader(int groupID, string userIP, string siteGuid, int pageSize, int pageIndex, 
-            RecordedEPGOrderObj recordedEPGOrderObj, string seriesId, int seasonNumber)
+        public NPVRSeriesLoader(int groupID, string userIP, string siteGuid, int pageSize, int pageIndex,
+            RecordedEPGOrderObj recordedEPGOrderObj, string seriesId, int seasonNumber, int? version)
             : base(groupID, userIP, pageSize, pageIndex)
         {
             RecordedEPGOrderObj = recordedEPGOrderObj;
             SiteGuid = siteGuid;
             SeriesId = seriesId;
             SeasonNumber = seasonNumber;
+            Version = version;
 
         }
 
-        public NPVRSeriesLoader(string userName, string userIP, string siteGuid, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj, string seriesId, int seasonNumber)
-            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, siteGuid, pageSize, pageIndex, recordedEPGOrderObj, seriesId, seasonNumber)
+        public NPVRSeriesLoader(string userName, string userIP, string siteGuid, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj, string seriesId, int seasonNumber, int? version)
+            : this(PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, siteGuid, pageSize, pageIndex, recordedEPGOrderObj, seriesId, seasonNumber, version)
         {
         }
 
@@ -49,7 +50,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_sSiteGuid = SiteGuid,
                 m_oOrderObj = RecordedEPGOrderObj,
                 seriesID = SeriesId,
-                seasonNumber = SeasonNumber
+                seasonNumber = SeasonNumber,
+                version = Version
             };
         }
 

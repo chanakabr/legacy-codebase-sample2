@@ -1,13 +1,11 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using KLogMonitor;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
-using TVPPro.SiteManager.Manager;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
@@ -23,13 +21,13 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public DateTime StartDate { get; set; }
         public RecordedEPGOrderObj RecordedEPGOrderObj { get; set; }
         public List<string> SeriesIDs { get; set; }
+        public int? Version { get; set; }
 
-       
         #region ctr
 
         public NPVRRetrieveLoader(int groupID, string userIP, string siteGuid, int pageSize, int pageIndex,
-            NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, List<string> seriesIDs, DateTime startDate, 
-            RecordedEPGOrderObj recordedEPGOrderObj)
+            NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, List<string> seriesIDs, DateTime startDate,
+            RecordedEPGOrderObj recordedEPGOrderObj, int? version)
             : base(groupID, userIP, pageSize, pageIndex)
         {
             NPVRSearchBy = searchBy;
@@ -40,7 +38,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
             StartDate = startDate;
             RecordedEPGOrderObj = recordedEPGOrderObj;
             SiteGuid = siteGuid;
-            SeriesIDs = seriesIDs;           
+            SeriesIDs = seriesIDs;
+            Version = version;
         }
 
 
@@ -59,7 +58,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_oOrderObj = RecordedEPGOrderObj,
                 m_sSiteGuid = SiteGuid,
                 m_lSeriesIDs = SeriesIDs,
-               
+                version = Version
             };
         }
 
