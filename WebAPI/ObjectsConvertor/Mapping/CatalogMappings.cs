@@ -236,7 +236,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionInOtherLanguages, src.Description)))
-               .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))                         
+               .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))
                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.FilterQuery))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.IsActive)))
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.Order)))
@@ -249,12 +249,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.m_sName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionInOtherLanguages, src.m_sDescription)))
                 .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
-                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.filterQuery))                
+                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.filterQuery))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.m_nIsActive)))
                 .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertToKalturaChannelOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
                 .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.searchGroupBy)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
+
+            //KalturaDynamicChannel to Channel (Catalog)  
+            Mapper.CreateMap<WebAPI.Models.Catalog.KalturaDynamicChannel, Channel>()
+                .ForMember(dest => dest.m_nChannelID, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+                .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.m_nMediaType, opt => opt.MapFrom(src => src.AssetTypes))
+                .ForMember(dest => dest.filterQuery, opt => opt.MapFrom(src => src.Ksql))
+                .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => Convert.ToInt32(src.IsActive)))
+                .ForMember(dest => dest.m_eOrderBy, opt => opt.MapFrom(src => ConvertToOrderBy(src.OrderBy)))
+                .ForMember(dest => dest.m_eOrderDir, opt => opt.MapFrom(src => ConvertToOrderDir(src.OrderBy)))
+                .ForMember(dest => dest.searchGroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.GroupBy)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)));
 
             //Channel (Catalog) to KalturaManualChannel
             Mapper.CreateMap<Channel, WebAPI.Models.Catalog.KalturaManualChannel>()
@@ -267,6 +282,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.MediaIds, opt => opt.MapFrom(src => src.m_lManualMedias != null ? string.Join(",", src.m_lManualMedias.OrderBy(x => x.m_nOrderNum).Select(x => x.m_sMediaId)) : string.Empty))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
+
+            //KalturaManualChannel to Channel (Catalog)
+            Mapper.CreateMap<WebAPI.Models.Catalog.KalturaManualChannel, Channel>()
+                .ForMember(dest => dest.m_nChannelID, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+                .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => Convert.ToInt32(src.IsActive)))
+                .ForMember(dest => dest.m_eOrderBy, opt => opt.MapFrom(src => ConvertToOrderBy(src.OrderBy)))
+                .ForMember(dest => dest.m_eOrderDir, opt => opt.MapFrom(src => ConvertToOrderDir(src.OrderBy)))
+                .ForMember(dest => dest.m_lManualMedias, opt => opt.MapFrom(src => ConvertToManualMedias(src.MediaIds)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)));
 
             //CategoryResponse to Category
             Mapper.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()
@@ -522,7 +550,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
               .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertToMetaType(src.DataType, src.MultipleValue)))              
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertToMetaType(src.DataType, src.MultipleValue)))
               .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))
@@ -703,7 +731,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                  .ForMember(dest => dest.BillingType, opt => opt.MapFrom(src => src.BillingType))
                  .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.EndDate)))                 
+                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.EndDate)))
                  .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                  .ForMember(dest => dest.ExternalStoreId, opt => opt.MapFrom(src => src.ExternalStoreId))
                  .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
@@ -711,7 +739,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IsDefaultLanguage, opt => opt.MapFrom(src => src.IsDefaultLanguage))
                  .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Language))
                  .ForMember(dest => dest.OrderNum, opt => opt.MapFrom(src => src.OrderNum))
-                 .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.OutputProtecationLevel))                                  
+                 .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.OutputProtecationLevel))
                  .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.StartDate)))
                  .ForMember(dest => dest.StreamingSupplierId, opt => opt.MapFrom(src => src.StreamingSupplierId))
                  .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.Type))
@@ -727,7 +755,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AltStreamingSupplierId, opt => opt.MapFrom(src => src.AltStreamingSupplierId))
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                  .ForMember(dest => dest.BillingType, opt => opt.MapFrom(src => src.BillingType))
-                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))                 
+                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
                  .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.EndDate)))
                  .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                  .ForMember(dest => dest.ExternalStoreId, opt => opt.MapFrom(src => src.ExternalStoreId))
@@ -735,7 +763,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IsDefaultLanguage, opt => opt.MapFrom(src => src.IsDefaultLanguage))
                  .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Language))
                  .ForMember(dest => dest.OrderNum, opt => opt.MapFrom(src => src.OrderNum))
-                 .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.OutputProtecationLevel))                 
+                 .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.OutputProtecationLevel))
                  .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.StartDate)))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.StreamingSupplierId, opt => opt.MapFrom(src => src.StreamingSupplierId))
@@ -743,6 +771,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status));
 
             #endregion
+        }
+
+        private static List<Core.Catalog.ManualMedia> ConvertToManualMedias(string mediaIdString)
+        {
+            List<Core.Catalog.ManualMedia> manualMedias = new List<Core.Catalog.ManualMedia>();
+            Core.Catalog.ManualMedia manualMedia = null;
+
+            if (!string.IsNullOrEmpty(mediaIdString))
+            {
+                var mediaIds = mediaIdString.Split(',');
+                for (int orderNum = 0; orderNum < mediaIds.Length; orderNum++)
+                {
+                    manualMedia = new Core.Catalog.ManualMedia(mediaIds[orderNum], orderNum);
+                    manualMedias.Add(manualMedia);
+                }
+            }
+
+            return manualMedias;
         }
 
 
@@ -1320,7 +1366,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         break;
                     case KalturaChannelOrderBy.VIEWS_DESC:
                         result.m_eOrderBy = OrderBy.VIEWS;
-                        result.m_eOrderDir = OrderDir.DESC;                        
+                        result.m_eOrderDir = OrderDir.DESC;
                         break;
                     case KalturaChannelOrderBy.RATINGS_DESC:
                         result.m_eOrderBy = OrderBy.RATING;
@@ -1446,6 +1492,75 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
+        public static OrderBy ConvertToOrderBy(KalturaChannelOrder kalturaChannelOrder)
+        {
+            OrderBy orderBy = OrderBy.NONE;
+
+            switch (kalturaChannelOrder.orderBy.Value)
+            {
+                case KalturaChannelOrderBy.RELEVANCY_DESC:
+                    orderBy = OrderBy.RELATED;
+                    break;
+                case KalturaChannelOrderBy.NAME_ASC:
+                case KalturaChannelOrderBy.NAME_DESC:
+                    orderBy = OrderBy.NAME;
+                    break;
+                case KalturaChannelOrderBy.VIEWS_DESC:
+                    orderBy = OrderBy.VIEWS;
+                    break;
+                case KalturaChannelOrderBy.RATINGS_DESC:
+                    orderBy = OrderBy.RATING;
+                    break;
+                case KalturaChannelOrderBy.VOTES_DESC:
+                    orderBy = OrderBy.VOTES_COUNT;
+                    break;
+                case KalturaChannelOrderBy.START_DATE_DESC:
+                case KalturaChannelOrderBy.START_DATE_ASC:
+                    orderBy = OrderBy.START_DATE;
+                    break;
+                case KalturaChannelOrderBy.LIKES_DESC:
+                    break;
+                case KalturaChannelOrderBy.CREATE_DATE_ASC:
+                case KalturaChannelOrderBy.CREATE_DATE_DESC:
+                    orderBy = OrderBy.CREATE_DATE;
+                    break;
+                case KalturaChannelOrderBy.ORDER_NUM:
+                default:
+                    break;
+            }
+
+            return orderBy;
+        }
+
+        public static OrderDir ConvertToOrderDir(KalturaChannelOrder kalturaChannelOrder)
+        {
+            OrderDir orderDir = OrderDir.NONE;
+
+            switch (kalturaChannelOrder.orderBy.Value)
+            {
+                case KalturaChannelOrderBy.NAME_DESC:
+                case KalturaChannelOrderBy.RELEVANCY_DESC:
+                case KalturaChannelOrderBy.VIEWS_DESC:
+                case KalturaChannelOrderBy.RATINGS_DESC:
+                case KalturaChannelOrderBy.VOTES_DESC:
+                case KalturaChannelOrderBy.LIKES_DESC:
+                case KalturaChannelOrderBy.START_DATE_DESC:
+                case KalturaChannelOrderBy.CREATE_DATE_DESC:
+                    orderDir = OrderDir.DESC;
+                    break;
+                case KalturaChannelOrderBy.NAME_ASC:
+                case KalturaChannelOrderBy.START_DATE_ASC:
+                case KalturaChannelOrderBy.CREATE_DATE_ASC:
+                    orderDir = OrderDir.ASC;
+                    break;
+                case KalturaChannelOrderBy.ORDER_NUM:
+                default:
+                    break;
+            }
+
+            return orderDir;
+        }
+
         #endregion
 
         private static KalturaAssetGroupBy ConvertToGroupBy(SearchAggregationGroupBy searchAggregationGroupBy)
@@ -1472,6 +1587,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return kalturaAssetGroupBy;
         }
+        private static SearchAggregationGroupBy ConvertToGroupBy(KalturaAssetGroupBy kalturaAssetGroupBy)
+        {
+            SearchAggregationGroupBy searchAggregationGroupBy = new SearchAggregationGroupBy();
+            if (kalturaAssetGroupBy != null)
+            {
+                searchAggregationGroupBy.groupBy = new List<string>();
+                searchAggregationGroupBy.groupBy.Add(kalturaAssetGroupBy.GetValue());
+                searchAggregationGroupBy.distinctGroup = kalturaAssetGroupBy.GetValue();
+                searchAggregationGroupBy.topHitsCount = 1;
+            }
+            return searchAggregationGroupBy;
+        }
+
 
         //eAssetTypes to KalturaAssetType
         public static KalturaAssetType ConvertAssetType(eAssetTypes assetType)
@@ -1943,7 +2071,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         result = KalturaAssetOrderBy.RELEVANCY_DESC;
                         break;
                     }
-                case OrderBy.META:                
+                case OrderBy.META:
                 case OrderBy.RECOMMENDATION:
                 case OrderBy.RANDOM:
                 case OrderBy.LIKE_COUNTER:
@@ -1954,7 +2082,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
-        }        
+        }
 
         public static KalturaScheduledRecordingAssetType ConvertScheduledRecordingAssetType(ScheduledRecordingAssetType scheduledRecordingAssetType)
         {
