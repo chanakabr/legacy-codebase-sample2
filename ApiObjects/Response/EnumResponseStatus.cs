@@ -235,9 +235,10 @@ namespace ApiObjects.Response
         InvalidRatioForImage = 4059,
         ChannelSystemNameAlreadyInUse = 4060,
         ChannelMetaOrderByIsInvalid = 4061,
-        StreamingSupplierDoesNotExist = 4062,
-        DefaultStreamingSupplierNotConfigurd = 4063,
+        CdnAdapterProfileDoesNotExist = 4062,
+        DefaultCdnAdapterProfileNotConfigurd = 4063,
         ChannelDoesNotExist = 4064,
+        MediaFileWithThisTypeAlreadyExistForAsset = 4065,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

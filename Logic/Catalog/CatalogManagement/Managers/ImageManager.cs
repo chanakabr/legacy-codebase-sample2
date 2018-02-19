@@ -322,7 +322,32 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return new Tuple<List<Image>, bool>(groupDefaultImages, res);
-        }        
+        }
+
+        private static eAssetTypes ConverteAssetImageTypeToeAssetTypes(eAssetImageType assetImageType)
+        {
+            eAssetTypes result = eAssetTypes.UNKNOWN;
+            switch (assetImageType)
+            {
+                case eAssetImageType.Media:
+                    result = eAssetTypes.MEDIA;
+                    break;
+                case eAssetImageType.Channel:
+                    break;
+                case eAssetImageType.Category:
+                    break;
+                case eAssetImageType.DefaultPic:
+                    break;
+                case eAssetImageType.LogoPic:
+                    break;
+                case eAssetImageType.ImageType:
+                    break;
+                default:
+                    break;
+            }
+
+            return result;
+        }
 
         #endregion
 
@@ -618,8 +643,14 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataTable dt = CatalogDAL.InsertPic(groupId, userId, imageToAdd.ImageObjectId, imageToAdd.ImageObjectType, imageToAdd.ImageTypeId);
+                ImageType imageType = GetImageType(groupId, imageToAdd.ImageTypeId);
+                if (imageType == null)
+                {
+                    result.Status = new Status((int)eResponseStatus.ImageTypeDoesNotExist, eResponseStatus.ImageTypeDoesNotExist.ToString());
+                    return result;
+                }
 
+                DataTable dt = CatalogDAL.InsertPic(groupId, userId, imageToAdd.ImageObjectId, imageToAdd.ImageObjectType, imageToAdd.ImageTypeId);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
@@ -682,8 +713,13 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate image ratio
-                ImageType imageType = GetImageType(groupId, image.ImageTypeId);
-                if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
+                ImageType imageType = GetImageType(groupId, image.ImageTypeId);                
+                if (imageType == null)
+                {
+                    result = new Status((int)eResponseStatus.ImageTypeDoesNotExist, eResponseStatus.ImageTypeDoesNotExist.ToString());
+                    return result;
+                }                
+                else if (imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
                 {
                     Ratio ratio = GetRatioById(groupId, imageType.RatioId.Value);
                     if (ratio != null && ratio.AcceptedErrorMarginPrecentage > 0)
@@ -728,6 +764,14 @@ namespace Core.Catalog.CatalogManagement
                     log.DebugFormat("POST to image server successfully sent. imageId = {0}, contentId = {1}", image.Id, image.ContentId);
                     TVinciShared.ImageUtils.UpdateImageState(groupId, image.Id, image.Version, eMediaType.VOD, eTableStatus.OK, (int)userId, image.ContentId);
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    eAssetTypes assetType = ConverteAssetImageTypeToeAssetTypes(image.ImageObjectType);
+                    // invalidate asset
+                    if (assetType != eAssetTypes.UNKNOWN && !LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id)))
+                    {
+                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after SetContent", id, assetType.ToString(),
+                                        LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id));
+                    }
                 }
             }
             catch (Exception ex)

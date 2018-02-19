@@ -219,7 +219,7 @@ namespace Core.Catalog.CatalogManagement
                 AdditionalData = ODBCWrapper.Utils.GetSafeStr(dr, "ADDITIONAL_DATA"),
                 AltExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_CO_GUID"),
                 AltStreamingCode = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_STREAMING_CODE"),
-                AltStreamingSupplierId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ALT_STREAMING_SUPLIER_ID"),
+                AlternativeCdnAdapaterProfileId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ALT_STREAMING_SUPLIER_ID"),
                 AssetId = ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID"),
                 BillingType = ODBCWrapper.Utils.GetLongSafeVal(dr, "BILLING_TYPE_ID"),
                 Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "DURATION"),
@@ -233,7 +233,7 @@ namespace Core.Catalog.CatalogManagement
                 OrderNum = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER_NUM"),
                 OutputProtecationLevel = ODBCWrapper.Utils.GetIntSafeVal(dr, "OUTPUT_PROTECTION_LEVEL"),
                 StartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE"),
-                StreamingSupplierId = ODBCWrapper.Utils.GetLongSafeVal(dr, "STREAMING_SUPLIER_ID"),
+                CdnAdapaterProfileId = ODBCWrapper.Utils.GetLongSafeVal(dr, "STREAMING_SUPLIER_ID"),
                 Type = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID"),
                 Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1
@@ -348,6 +348,26 @@ namespace Core.Catalog.CatalogManagement
             if (mediaFileTypesResponse != null && mediaFileTypesResponse.Status != null && mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK && mediaFileTypesResponse.Types.Count > 0)
             {
                 result = mediaFileTypesResponse.Types.Where(x => x.Id == id).Count() == 1 ? mediaFileTypesResponse.Types.Where(x => x.Id == id).First() : null;
+            }
+
+            return result;
+        }
+
+        private static Status ValidateCdnAdapterProfileIds(int groupId, long? cdnAdapterProfileId, long? altcdnAdapterProfileId)
+        {
+            Status result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            // validate CdnAdapterProfileId if exists (0 = default adapter) or set StreamingSuplierId to default cdn adapter
+            if (cdnAdapterProfileId.HasValue && cdnAdapterProfileId.Value > 0 && CachingHelpers.CdnAdapterCache.Instance.GetCdnAdapter(groupId, (int)cdnAdapterProfileId.Value, true) == null)
+            {
+                result = new Status((int)eResponseStatus.CdnAdapterProfileDoesNotExist, eResponseStatus.CdnAdapterProfileDoesNotExist.ToString());
+                return result;
+            }
+
+            // validate AltStreamingSupplierId if exists (0 = default adapter)
+            if (altcdnAdapterProfileId.HasValue && altcdnAdapterProfileId.Value > 0 && CachingHelpers.CdnAdapterCache.Instance.GetCdnAdapter(groupId, (int)altcdnAdapterProfileId.Value, true) == null)
+            {
+                result = new Status((int)eResponseStatus.CdnAdapterProfileDoesNotExist, "AltStreamingCdnAdapterProfileDoesNotExist");
+                return result;
             }
 
             return result;
@@ -513,47 +533,48 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                // validate StreamingSuplierId if exists (0 = default adapter) or set StreamingSuplierId to default cdn adapter
-                if (assetFileToAdd.StreamingSupplierId > 0 && CachingHelpers.CdnAdapterCache.Instance.GetCdnAdapter(groupId, (int)assetFileToAdd.StreamingSupplierId) == null)
+                // validate media doesn't already have a file with this type
+                List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToAdd.AssetId);
+                if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.Type == assetFileToAdd.Type).Count() > 0)
                 {
-                    result.Status = new Status((int)eResponseStatus.StreamingSupplierDoesNotExist, eResponseStatus.StreamingSupplierDoesNotExist.ToString());
+                    result.Status = new Status((int)eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
                     return result;
                 }
-                else if (assetFileToAdd.StreamingSupplierId == 0)
-                {
-                    ApiObjects.CDNAdapter.CDNAdapterResponse GroupDefaultCdnAdapter = Core.Api.api.GetGroupDefaultCdnAdapter(groupId, eAssetTypes.MEDIA);
-                    if (GroupDefaultCdnAdapter == null || GroupDefaultCdnAdapter.Status == null || GroupDefaultCdnAdapter.Status.Code != (int)eResponseStatus.OK
-                        || GroupDefaultCdnAdapter.Adapter == null || GroupDefaultCdnAdapter.Adapter.ID <= 0)
-                    {
-                        result.Status = new Status((int)eResponseStatus.DefaultStreamingSupplierNotConfigurd, eResponseStatus.DefaultStreamingSupplierNotConfigurd.ToString());
-                        return result;
-                    }
-
-                    assetFileToAdd.StreamingSupplierId = GroupDefaultCdnAdapter.Adapter.ID;
-                }
-
-                // validate AltStreamingSupplierId if exists (0 = default adapter)
-                if (assetFileToAdd.AltStreamingSupplierId > 0 && CachingHelpers.CdnAdapterCache.Instance.GetCdnAdapter(groupId, (int)assetFileToAdd.AltStreamingSupplierId) == null)
-                {
-                    result.Status = new Status((int)eResponseStatus.StreamingSupplierDoesNotExist, "AltStreamingSupplierDoesNotExist");
-                    return result;
-                }                
 
                 // validate ExternalId and AltExternalId  are unique 
-                    result.Status = ValidateMediaFileExternalIdUniqueness(groupId, assetFileToAdd);
+                result.Status = ValidateMediaFileExternalIdUniqueness(groupId, assetFileToAdd);
                 if (result.Status.Code != (int)eResponseStatus.OK)
                 {
                     return result;
                 }
 
+                // validate CdnAdapaterProfileId (0 or null for setting group default adapter) \ AlternativeCdnAdapaterProfileId     
+                Status validateCdnReponse = ValidateCdnAdapterProfileIds(groupId, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.AlternativeCdnAdapaterProfileId);
+                if (validateCdnReponse.Code != (int)eResponseStatus.OK)
+                {
+                    result.Status = validateCdnReponse;
+                    return result;
+                }
+                else if (!assetFileToAdd.CdnAdapaterProfileId.HasValue || assetFileToAdd.CdnAdapaterProfileId.Value == 0)
+                {
+                    ApiObjects.CDNAdapter.CDNAdapterResponse GroupDefaultCdnAdapter = Core.Api.api.GetGroupDefaultCdnAdapter(groupId, eAssetTypes.MEDIA);
+                    if (GroupDefaultCdnAdapter == null || GroupDefaultCdnAdapter.Status == null || GroupDefaultCdnAdapter.Status.Code != (int)eResponseStatus.OK
+                        || GroupDefaultCdnAdapter.Adapter == null || GroupDefaultCdnAdapter.Adapter.ID <= 0)
+                    {
+                        result.Status = new Status((int)eResponseStatus.DefaultCdnAdapterProfileNotConfigurd, eResponseStatus.DefaultCdnAdapterProfileNotConfigurd.ToString());
+                        return result;
+                    }
+
+                    assetFileToAdd.CdnAdapaterProfileId = GroupDefaultCdnAdapter.Adapter.ID;
+                }
 
                 DateTime startDate = assetFileToAdd.StartDate.HasValue ? assetFileToAdd.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToAdd.EndDate.HasValue ? assetFileToAdd.EndDate.Value : startDate;
 
-                DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AltStreamingSupplierId, assetFileToAdd.AssetId,
+                DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AlternativeCdnAdapaterProfileId, assetFileToAdd.AssetId,
                                                         assetFileToAdd.BillingType, assetFileToAdd.Duration, endDate, assetFileToAdd.ExternalId, assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize,
                                                         assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, assetFileToAdd.OutputProtecationLevel, startDate,
-                                                        assetFileToAdd.Url, assetFileToAdd.StreamingSupplierId, assetFileToAdd.Type, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive);
+                                                        assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.Type, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive);
                 result = CreateAssetFileResponseFromDataSet(ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
@@ -667,6 +688,17 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                // validate media doesn't already have a file with this type
+                if (assetFileToUpdate.Type.HasValue)
+                {
+                    List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToUpdate.AssetId);
+                    if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.Type == assetFileToUpdate.Type).Count() > 0)
+                    {
+                        result.Status = new Status((int)eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
+                        return result;
+                    }
+                }
+
                 // ExternalId and AltExternalId cannot be the same value
                 if (string.IsNullOrEmpty(assetFileToUpdate.ExternalId))
                 {
@@ -685,13 +717,21 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                // validate CdnAdapaterProfileId + AlternativeCdnAdapaterProfileId
+                Status validateCdnReponse = ValidateCdnAdapterProfileIds(groupId, assetFileToUpdate.CdnAdapaterProfileId, assetFileToUpdate.AlternativeCdnAdapaterProfileId);
+                if (validateCdnReponse.Code != (int)eResponseStatus.OK)
+                {
+                    result.Status = validateCdnReponse;
+                    return result;
+                }
+
                 DateTime startDate = assetFileToUpdate.StartDate.HasValue ? assetFileToUpdate.StartDate.Value : DateTime.UtcNow;
                 DateTime endDate = assetFileToUpdate.EndDate.HasValue ? assetFileToUpdate.EndDate.Value : startDate;
 
-                ds = CatalogDAL.UpdateMediaFile(groupId, assetFileToUpdate.Id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, assetFileToUpdate.AltStreamingSupplierId,
+                ds = CatalogDAL.UpdateMediaFile(groupId, assetFileToUpdate.Id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, assetFileToUpdate.AlternativeCdnAdapaterProfileId,
                                                 assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, assetFileToUpdate.Duration, endDate, assetFileToUpdate.ExternalId,
                                                 assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language,
-                                                assetFileToUpdate.OrderNum, assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.StreamingSupplierId,
+                                                assetFileToUpdate.OrderNum, assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId,
                                                 assetFileToUpdate.Type, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive);
 
                 result = CreateAssetFileResponseFromDataSet(ds);
@@ -761,7 +801,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (AssetFile file in assetFiles)
                 {
-                    MediaFileType mediaFileType = FileManager.GetMediaFileType(groupId, file.Type);
+                    MediaFileType mediaFileType = FileManager.GetMediaFileType(groupId, file.Type.Value);
                     if (mediaFileType != null)
                     {
                         result.Add(new FileMedia(file, mediaFileType));

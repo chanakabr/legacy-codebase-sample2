@@ -121,18 +121,18 @@ namespace Core.Catalog
         {
             this.m_nFileId = (int)assetFile.Id;
             this.m_nMediaID = (int)assetFile.AssetId;                        
-            this.m_nDuration = assetFile.Duration;            
+            this.m_nDuration = assetFile.Duration.HasValue ? Convert.ToDouble(assetFile.Duration.Value) : 0;            
             this.HandlingType = HANDLING_TYPE;
             this.m_sUrl = assetFile.Url;
             this.m_sAltUrl = assetFile.AltStreamingCode;
             this.m_sBillingType = assetFile.BillingType.ToString();
-            this.m_nCdnID = (int)assetFile.StreamingSupplierId;
-            this.m_nAltCdnID = (int)assetFile.AltStreamingSupplierId;            
+            this.m_nCdnID = (int)assetFile.CdnAdapaterProfileId;
+            this.m_nAltCdnID = (int)assetFile.AlternativeCdnAdapaterProfileId;            
             this.m_sCoGUID = assetFile.ExternalId;
             this.m_sAltCoGUID = assetFile.AltExternalId;
             this.m_sLanguage = assetFile.Language;
-            this.m_nIsDefaultLanguage = assetFile.IsDefaultLanguage ? 1 : 0;
-            this.FileSize = assetFile.FileSize;
+            this.m_nIsDefaultLanguage = assetFile.IsDefaultLanguage.HasValue && assetFile.IsDefaultLanguage.Value ? 1 : 0;
+            this.FileSize = assetFile.FileSize.HasValue ? assetFile.FileSize.Value : 0;
             this.Quality = fileType.Quality.ToString();
             this.m_sFileFormat = fileType.Description;
         }
