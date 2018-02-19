@@ -35,7 +35,8 @@ namespace CouchbaseManager
         EPG_MARKS = 13,
         MEDIA_HITS = 14,
         MEMCACHED = 15,
-        OTT_APPS = 16
+        OTT_APPS = 16,
+        NGINX = 17
     }
 
     public enum eResultStatus
@@ -482,6 +483,7 @@ namespace CouchbaseManager
             try
             {
                 var bucket = ClusterHelper.GetBucket(bucketName);
+                
                 IOperationResult insertResult = null;
                 expiration = FixExpirationTime(expiration);
 
