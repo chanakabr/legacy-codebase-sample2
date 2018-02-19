@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ApiObjects.ConditionalAccess;
+using KLogMonitor;
+using System;
 using System.Reflection;
 using System.Text;
-using KLogMonitor;
-using ApiObjects.ConditionalAccess;
 
 namespace Core.ConditionalAccess
 {
@@ -20,6 +18,7 @@ namespace Core.ConditionalAccess
         public long domainID;
         public string udid;
         public string assetID; // may be either ALU Series ID or Tvinci EPG ID.
+        public int? Version { get; set; }
 
         public NPVRResponse Execute()
         {

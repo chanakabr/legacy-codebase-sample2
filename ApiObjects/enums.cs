@@ -998,4 +998,10 @@ namespace ApiObjects
         SeriesReminder = 3,
         Interest = 4
     }
+
+    public enum AlcatelLucentNPVRVersion
+    {
+        V1_0 = 1,
+        V2_0 = 2
+    }
 }

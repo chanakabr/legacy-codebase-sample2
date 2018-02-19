@@ -163,7 +163,7 @@ namespace Core.Catalog.Request
                 NPVR.INPVRProvider npvrProvider;
 
                 // First check if group has old NPVR implementation
-                bool result = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider);
+                bool result = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null);
 
                 if (result)
                 {

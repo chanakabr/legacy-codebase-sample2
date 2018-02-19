@@ -1,10 +1,5 @@
 ﻿using ApiObjects.ConditionalAccess;
-using Core.ConditionalAccess;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.ConditionalAccess
 {
@@ -24,7 +19,7 @@ namespace Core.ConditionalAccess
 
         protected override NPVRResponse ExecuteFlow(BaseConditionalAccess cas)
         {
-            return cas.RecordSeriesBySeriesId(siteGuid, SeriesId, SeasonNumber, SeasonSeed, EpisodeSeed, ChannelId, LookupCriteria);
+            return cas.RecordSeriesBySeriesId(siteGuid, SeriesId, SeasonNumber, SeasonSeed, EpisodeSeed, ChannelId, LookupCriteria, Version);
         }
     }
 }

@@ -48,7 +48,10 @@ namespace Core.Catalog.Request
 
         //[DataMember]
         //public string type;
-        
+
+        [DataMember]
+        public int? version { get; set; } 
+
         protected override void CheckRequestValidness()
         {
             switch (m_eNPVRSearchBy)
@@ -80,7 +83,7 @@ namespace Core.Catalog.Request
                     m_oOrderObj = new RecordedEPGOrderObj();
                 }
                 INPVRProvider npvr;
-                if (!NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
+                if (!NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr, version))
                 {
                     throw new ArgumentException(String.Concat("GroupID: ", m_nGroupID, " has no NPVR configured."));
                 }
