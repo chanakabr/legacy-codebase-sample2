@@ -703,6 +703,7 @@ namespace Core.Notification
             List<string> topicExternalIds = new List<string>();
             List<string> queueNames = new List<string>();
             bool includeMail = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "INCLUDE_EMAIL") == 1;
+            bool includeSms = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "INCLUDE_SMS") == 1;
             string mailTemplate = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "MAIL_TEMPLATE");
             string mailSubject = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "MAIL_SUBJECT");
 
@@ -754,6 +755,12 @@ namespace Core.Notification
                         PublishMailSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, mailTemplate, mailSubject);
                     }
 
+                    if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
+                    {
+                        PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
+                            ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+                    }
+
                     // add the Q name to list to be sent to later
                     DbAnnouncement loggedInAnnouncement = null;
                     if (announcements != null)
@@ -787,7 +794,13 @@ namespace Core.Notification
                         PublishMailSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, mailTemplate, mailSubject);
                     }
 
-                    break;
+                    if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
+                    {
+                        PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, 
+                            ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+                    }
+
+                        break;
 
                 case eAnnouncementRecipientsType.LoggedIn:
 
@@ -832,7 +845,12 @@ namespace Core.Notification
                         PublishMailSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, mailTemplate, mailSubject);
                     }
 
-                    // add the Q name to list to be sent to later
+                    if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
+                    {
+                        PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
+                            ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+                    }
+
                     // add the Q name to list to be sent to later
                     DbAnnouncement loggedInAnn = null;
                     if (announcements != null)
@@ -994,6 +1012,36 @@ namespace Core.Notification
             DAL.NotificationDal.Update_MessageAnnouncementSent(messageId, groupId, (int)eAnnouncementStatus.Sent);
             DAL.NotificationDal.Update_MessageAnnouncementResultMessageId(messageId, groupId, resultMsgIds);
             return true;
+        }
+
+        private static void PublishSmsSystemAnnouncement(int groupId, DataRow messageAnnouncementDataRow, List<DbAnnouncement> announcements,
+            string alert, string url, string sound, string category, string imageUrl)
+        {
+            DbAnnouncement smsAnnouncement = null;
+
+            if (announcements != null)
+                smsAnnouncement = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Sms).FirstOrDefault();
+
+            if (smsAnnouncement != null)
+            {
+                string resultMsgId = NotificationAdapter.PublishToAnnouncement(groupId, smsAnnouncement.MailExternalId, string.Empty,
+                    new MessageData()
+                    {
+                        Alert = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
+                        Url = url,
+                        Sound = sound,
+                        Category = category,
+                        ImageUrl = imageUrl
+                    });
+                if (string.IsNullOrEmpty(resultMsgId))
+                {
+                    log.ErrorFormat("failed to send SMS system announcement to adapter. annoucementId = {0}", smsAnnouncement.ID);
+                }
+                else
+                {
+                    log.DebugFormat("Successfully sent SMS system announcement. announcementId: {0}", smsAnnouncement.ID);
+                }
+            }
         }
 
         private static void PublishMailSystemAnnouncement(int groupId, DataRow messageAnnouncementDataRow, List<DbAnnouncement> announcements, string template, string subject)

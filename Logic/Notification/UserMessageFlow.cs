@@ -86,6 +86,15 @@ namespace Core.Notification
                 result = result && InitiateSmsAction(groupId, userAction, userId, userNotificationData);
             }
 
+            if (userAction == eUserMessageAction.DeleteUser)
+            {
+                // remove user data
+                if (!NotificationDal.RemoveUserNotificationData(groupId, userId, userNotificationData.cas))
+                    log.ErrorFormat("Error while trying to remove user notification data. GID: {0}, UID: {1}", groupId, userId);
+                else
+                    log.DebugFormat("Successfully removed user notification data. GID: {0}, UID: {1}", groupId, userId);
+            }
+
             return result;
         }
 
@@ -560,13 +569,6 @@ namespace Core.Notification
                         log.DebugFormat("Successfully removed device notification data. GID: {0}, UDID: {1}", groupId, udid);
                 }
             }
-
-            // remove user data
-            if (!NotificationDal.RemoveUserNotificationData(groupId, userId, userNotificationData.cas))
-                log.ErrorFormat("Error while trying to remove user notification data. GID: {0}, UID: {1}", groupId, userId);
-            else
-                log.DebugFormat("Successfully removed user notification data. GID: {0}, UID: {1}", groupId, userId);
-
             return result;
         }
 
