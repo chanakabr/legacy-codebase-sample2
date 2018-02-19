@@ -3558,7 +3558,7 @@ namespace TVPApiServices
         [PrivateMethod]
         public List<RecordedEPGChannelProgrammeObject> GetRecordings(InitializationObject initObj, int pageSize, int pageIndex,
             NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, 
-            List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj)
+            List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj, int? version)
         {
             List<RecordedEPGChannelProgrammeObject> res = null;
 
@@ -3574,7 +3574,7 @@ namespace TVPApiServices
                         m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
                     };
                     res = new NPVRRetrieveLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, searchBy, 
-                        epgChannelID, recordingStatus, recordingIDs, programIDs, seriesIDs, startDate, catalogOrderObj)
+                        epgChannelID, recordingStatus, recordingIDs, programIDs, seriesIDs, startDate, catalogOrderObj, version)
                     {
                         Platform = initObj.Platform.ToString()
                     }.Execute() as List<RecordedEPGChannelProgrammeObject>;
@@ -3594,7 +3594,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Retrieves Recordings of Series for User")]
         [PrivateMethod]
         public List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj,
-            string seriesId, int seasonNumber)
+            string seriesId, int seasonNumber, int? version)
         {
             List<RecordedSeriesObject> res = null;
 
@@ -3610,7 +3610,7 @@ namespace TVPApiServices
                         m_eOrderBy = recordedEPGOrderObj.m_eOrderBy,
                         m_eOrderDir = recordedEPGOrderObj.m_eOrderDir,
                     };
-                    res = new NPVRSeriesLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, catalogOrderObj, seriesId, seasonNumber)
+                    res = new NPVRSeriesLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, pageSize, pageIndex, catalogOrderObj, seriesId, seasonNumber, version)
                     {
                         Platform = initObj.Platform.ToString()
                     }.Execute() as List<RecordedSeriesObject>;

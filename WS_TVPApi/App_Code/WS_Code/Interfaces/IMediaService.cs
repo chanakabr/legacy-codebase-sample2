@@ -256,7 +256,7 @@ namespace TVPApiServices
         List<EPGChannelProgrammeObject> SearchEPGByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int pageSize, int pageIndex);
 
         [OperationContract]
-        List<Media> GetBundleMedia(InitializationObject initObj, eBundleType bundleType, int bundleId, 
+        List<Media> GetBundleMedia(InitializationObject initObj, eBundleType bundleType, int bundleId,
             Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
 
         [OperationContract]
@@ -272,16 +272,16 @@ namespace TVPApiServices
         string GetMediaLicenseLinkWithIP(InitializationObject initObj, int mediaFileID, string baseLink, string clientIP);
 
         [OperationContract]
-        List<RecordedEPGChannelProgrammeObject> GetRecordings(InitializationObject initObj, int pageSize, int pageIndex, 
-            NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs, 
-            List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj);
+        List<RecordedEPGChannelProgrammeObject> GetRecordings(InitializationObject initObj, int pageSize, int pageIndex,
+            NPVRSearchBy searchBy, int epgChannelID, RecordingStatus recordingStatus, List<string> recordingIDs, List<int> programIDs,
+            List<string> seriesIDs, DateTime startDate, RecordedEPGOrderObj recordedEPGOrderObj, int? version);
 
         [OperationContract]
-        List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, 
-            RecordedEPGOrderObj recordedEPGOrderObj, string seriesId, int seasonNumber);
+        List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex,
+            RecordedEPGOrderObj recordedEPGOrderObj, string seriesId, int seasonNumber, int? version);
 
         [OperationContract]
-        TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj, 
+        TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj,
             List<int> filter_types, string filter, string order_by, List<string> with, int page_index, int? page_size, string request_id);
 
         [OperationContract]

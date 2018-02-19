@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Text;
 using TVPApi;
-using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using TVPApiModule.Objects;
-using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects.Responses;
+using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 
 namespace TVPApiServices
 {
@@ -105,34 +99,35 @@ namespace TVPApiServices
         TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink);
 
         [OperationContract]
-        RecordResponse RecordAsset(InitializationObject initObj, string epgId);
+        RecordResponse RecordAsset(InitializationObject initObj, string epgId, int? version);
 
         [OperationContract]
-        NPVRResponse CancelAssetRecording(InitializationObject initObj, string recordingId);
+        NPVRResponse CancelAssetRecording(InitializationObject initObj, string recordingId, int? version);
 
         [OperationContract]
-        NPVRResponse DeleteAssetRecording(InitializationObject initObj, string recordingId);
+        NPVRResponse DeleteAssetRecording(InitializationObject initObj, string recordingId, int? version);
 
         [OperationContract]
-        QuotaResponse GetNPVRQuota(InitializationObject initObj);
+        QuotaResponse GetNPVRQuota(InitializationObject initObj, int? version);
 
         //[OperationContract]
         //NPVRResponse RecordSeriesByName(InitializationObject initObj, string assetId);
 
         [OperationContract]
-        NPVRResponse RecordSeriesByProgramId(InitializationObject initObj, string assetId);
+        NPVRResponse RecordSeriesByProgramId(InitializationObject initObj, string assetId, int? version);
 
         [OperationContract]
-        NPVRResponse DeleteSeriesRecording(InitializationObject initObj, string seriesRecordingId);
+        NPVRResponse DeleteSeriesRecording(InitializationObject initObj, string seriesRecordingId, int? version);
 
         [OperationContract]
-        NPVRResponse CancelSeriesRecording(InitializationObject initObj, string seriesRecordingId);
+        NPVRResponse CancelSeriesRecording(InitializationObject initObj, string seriesRecordingId, int? version);
 
         [OperationContract]
-        NPVRResponse SetAssetProtectionStatus(InitializationObject initObj, string recordingId, bool isProtect);
+        NPVRResponse SetAssetProtectionStatus(InitializationObject initObj, string recordingId, bool isProtect, int? version);
 
         [OperationContract]
-        LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink, string referrer, string couponCode);
+        LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink,
+            string referrer, string couponCode, int? version);
 
         [OperationContract]
         ClientResponseStatus CancelServiceNow(InitializationObject initObj, int domainID, int serviceID, eTransactionType serviceType, bool forceCancel);
@@ -155,5 +150,16 @@ namespace TVPApiServices
 
         [OperationContract]
         ClientResponseStatus GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, string product_type, bool history);
+
+        [OperationContract]
+        NPVRResponse RecordingWatchStatus(InitializationObject initObj, int recordingId, int alreadyWatched, int? version);
+
+        [OperationContract]
+        NPVRResponse RecordSeriesBySeriesId(InitializationObject initObj, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId,
+            List<string> lookupCriteria, int? version);
+
+        [OperationContract]
+        NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string bySeriesId, string bySeasonNumber, string byChannelId,
+            List<string> byStatus, int? version);
     }
 }

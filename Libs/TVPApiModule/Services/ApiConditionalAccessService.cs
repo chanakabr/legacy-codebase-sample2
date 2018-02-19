@@ -1,14 +1,12 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using TVPApi;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using TVPPro.Configuration.Site;
-using TVPPro.SiteManager.Helper;
-using TVPApiModule.Objects.Responses;
-using KLogMonitor;
 using System.Reflection;
+using TVPApi;
+using TVPApiModule.Objects.Responses;
+using TVPPro.SiteManager.Helper;
+using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 
 namespace TVPApiModule.Services
 {
@@ -1174,7 +1172,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public RecordResponse RecordAsset(string siteGuid, long domainId, string udid, string epgId)
+        public RecordResponse RecordAsset(string siteGuid, long domainId, string udid, string epgId, int? version)
         {
             RecordResponse res = null;
 
@@ -1187,7 +1185,8 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid,
                     udid = udid,
                     wsPassword = m_wsPassword,
-                    wsUsername = m_wsUserName
+                    wsUsername = m_wsUserName,
+                    Version = version
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1203,7 +1202,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public NPVRResponse CancelAssetRecording(string siteGuid, long domainId, string udid, string recordingId)
+        public NPVRResponse CancelAssetRecording(string siteGuid, long domainId, string udid, string recordingId, int? version)
         {
             NPVRResponse res = null;
 
@@ -1216,7 +1215,8 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid,
                     udid = udid,
                     wsPassword = m_wsPassword,
-                    wsUsername = m_wsUserName
+                    wsUsername = m_wsUserName,
+                    Version = version
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1232,7 +1232,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public NPVRResponse DeleteAssetRecording(string siteGuid, long domainId, string udid, string recordingId)
+        public NPVRResponse DeleteAssetRecording(string siteGuid, long domainId, string udid, string recordingId, int? version)
         {
             NPVRResponse res = null;
 
@@ -1245,7 +1245,8 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid,
                     udid = udid,
                     wsPassword = m_wsPassword,
-                    wsUsername = m_wsUserName
+                    wsUsername = m_wsUserName,
+                    Version = version
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1261,7 +1262,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public QuotaResponse GetNPVRQuota(string siteGuid, long domainId, string udid)
+        public QuotaResponse GetNPVRQuota(string siteGuid, long domainId, string udid, int? version)
         {
             QuotaResponse res = null;
 
@@ -1273,7 +1274,8 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid,
                     udid = udid,
                     wsPassword = m_wsPassword,
-                    wsUsername = m_wsUserName
+                    wsUsername = m_wsUserName,
+                    Version = version
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1318,7 +1320,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public NPVRResponse RecordSeriesByProgramId(string siteGuid, long domainId, string udid, string assetId)
+        public NPVRResponse RecordSeriesByProgramId(string siteGuid, long domainId, string udid, string assetId, int? version)
         {
             NPVRResponse res = null;
 
@@ -1331,7 +1333,8 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid,
                     udid = udid,
                     wsPassword = m_wsPassword,
-                    wsUsername = m_wsUserName
+                    wsUsername = m_wsUserName,
+                    Version = version
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1346,9 +1349,9 @@ namespace TVPApiModule.Services
             }
             return res;
         }
-        
 
-        public NPVRResponse DeleteSeriesRecording(string siteGuid, long domainId, string udid, string seriesRecordingId)
+
+        public NPVRResponse DeleteSeriesRecording(string siteGuid, long domainId, string udid, string seriesRecordingId, int? version)
         {
             NPVRResponse res = null;
 
@@ -1361,7 +1364,8 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid,
                     udid = udid,
                     wsPassword = m_wsPassword,
-                    wsUsername = m_wsUserName
+                    wsUsername = m_wsUserName,
+                    Version = version
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1377,15 +1381,15 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public NPVRResponse DeleteRecordingsBy(string siteGuid, long domainId, string udid, string seriesId, string seasonNumber, string channelId, 
-            List<NPVRRecordingStatus> status)
+        public NPVRResponse DeleteRecordingsBy(string siteGuid, long domainId, string udid, string seriesId, string seasonNumber, string channelId,
+            List<NPVRRecordingStatus> status, int? version)
         {
             NPVRResponse res = null;
 
             try
             {
                 DeleteSeriesRecordingByNPVRCommand commend = new DeleteSeriesRecordingByNPVRCommand()
-                {   
+                {
                     domainID = domainId,
                     siteGuid = siteGuid,
                     udid = udid,
@@ -1394,7 +1398,8 @@ namespace TVPApiModule.Services
                     ChannelId = channelId,
                     SeriesId = seriesId,
                     SeasonNumber = seasonNumber,
-                    Status = status.ToArray()
+                    Status = status.ToArray(),
+                    Version = version
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1405,20 +1410,22 @@ namespace TVPApiModule.Services
             catch (Exception ex)
             {
                 logger.ErrorFormat("DeleteRecordingsBy: Error calling webservice protocol : GetNPVRResponse with DeleteSeriesRecordingByNPVRCommand, Error Message: {0}, " +
-                    " Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, seriesId: {4}, seasonNumber: {5}, channelId: {6}, status: {7}",
-                    ex.Message, siteGuid, domainId, udid, seriesId, seasonNumber, channelId, status != null ? string.Join(",", status.Select(x=>x.ToString())) : string.Empty);
+                    " Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, seriesId: {4}, seasonNumber: {5}, channelId: {6}, status: {7}, version: {8}",
+                    ex.Message, siteGuid, domainId, udid, seriesId, seasonNumber, channelId, status != null ? string.Join(",", status.Select(x => x.ToString())) : string.Empty, 
+                    version.HasValue? version.Value.ToString(): string.Empty);
             }
             return res;
         }
 
-        public NPVRResponse RecordSeriesBySeriesId(string siteGuid, long domainId, string udid, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId, List<string> lookupCriteria)
+        public NPVRResponse RecordSeriesBySeriesId(string siteGuid, long domainId, string udid, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed,
+            int channelId, List<string> lookupCriteria, int? version)
         {
             NPVRResponse res = null;
 
             try
             {
                 RecordSeriesBySeriesIdNPVRCommand commend = new RecordSeriesBySeriesIdNPVRCommand()
-                {                   
+                {
                     domainID = domainId,
                     siteGuid = siteGuid,
                     udid = udid,
@@ -1430,6 +1437,7 @@ namespace TVPApiModule.Services
                     EpisodeSeed = episodeSeed,
                     ChannelId = channelId,
                     LookupCriteria = lookupCriteria.ToArray(),
+                    Version = version
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1441,12 +1449,12 @@ namespace TVPApiModule.Services
             {
                 logger.ErrorFormat("RecordSeriesBySeriesId: Error calling webservice protocol : GetNPVRResponse with RecordSeriesBySeriesIdNPVRCommand, Error Message: {0}, " +
                     " Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, seriesId: {4}, seasonNumber: {5}, seasonSeed: {6}, episodeSeed: {7}, channelId: {8},lookupCriteria:{9} ",
-                    ex.Message, siteGuid, domainId, udid, seriesId, seasonNumber, seasonSeed, episodeSeed, channelId, lookupCriteria!= null ? string.Join(",", lookupCriteria): string.Empty);
+                    ex.Message, siteGuid, domainId, udid, seriesId, seasonNumber, seasonSeed, episodeSeed, channelId, lookupCriteria != null ? string.Join(",", lookupCriteria) : string.Empty);
             }
             return res;
         }
 
-        public NPVRResponse CancelSeriesRecording(string siteGuid, long domainId, string udid, string seriesRecordingId)
+        public NPVRResponse CancelSeriesRecording(string siteGuid, long domainId, string udid, string seriesRecordingId, int? version)
         {
             NPVRResponse res = null;
 
@@ -1459,7 +1467,8 @@ namespace TVPApiModule.Services
                     siteGuid = siteGuid,
                     udid = udid,
                     wsPassword = m_wsPassword,
-                    wsUsername = m_wsUserName
+                    wsUsername = m_wsUserName,
+                    Version = version
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1475,7 +1484,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public NPVRResponse SetAssetProtectionStatus(string siteGuid, long domainId, string udid, string recordingId, bool isProtect)
+        public NPVRResponse SetAssetProtectionStatus(string siteGuid, long domainId, string udid, string recordingId, bool isProtect, int? version)
         {
             NPVRResponse res = null;
 
@@ -1489,7 +1498,8 @@ namespace TVPApiModule.Services
                     udid = udid,
                     isProtect = isProtect,
                     wsPassword = m_wsPassword,
-                    wsUsername = m_wsUserName
+                    wsUsername = m_wsUserName,
+                    Version = version
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1505,7 +1515,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public NPVRResponse RecordingWatchStatus(string siteGuid, long domainId, string udid, string recordingId, int alreadyWatched)
+        public NPVRResponse RecordingWatchStatus(string siteGuid, long domainId, string udid, string recordingId, int alreadyWatched, int? version)
         {
             NPVRResponse res = null;
 
@@ -1519,7 +1529,8 @@ namespace TVPApiModule.Services
                     udid = udid,
                     alreadyWatched = alreadyWatched,
                     wsPassword = m_wsPassword,
-                    wsUsername = m_wsUserName
+                    wsUsername = m_wsUserName,
+                    Version = version
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1536,7 +1547,8 @@ namespace TVPApiModule.Services
         }
 
         public LicensedLinkNPVRResponse GetNPVRLicensedLink(string siteGuid, long domainId, string udid,
-            string recordingId, DateTime startTime, int mediaFileID, string basicLink, string userIP, string referrer, string countryCode, string languageCode, string couponCode)
+            string recordingId, DateTime startTime, int mediaFileID, string basicLink, string userIP, string referrer, string countryCode, string languageCode,
+            string couponCode, int? version)
         {
             LicensedLinkNPVRResponse res = null;
 
@@ -1558,7 +1570,8 @@ namespace TVPApiModule.Services
                     couponCode = couponCode,
                     format = 3,
                     wsPassword = m_wsPassword,
-                    wsUsername = m_wsUserName
+                    wsUsername = m_wsUserName,
+                    Version = version
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
