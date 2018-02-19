@@ -24,7 +24,10 @@ namespace Core.Catalog.Request
 
         [DataMember]
         public int seasonNumber;
-        
+
+        [DataMember]
+        public int? version; 
+
         public override BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             NPVRSeriesResponse res = new NPVRSeriesResponse();
@@ -33,9 +36,9 @@ namespace Core.Catalog.Request
             {
                 CheckRequestValidness();
                 CheckSignature(this);
-                
+
                 INPVRProvider npvr;
-                if (!NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
+                if (!NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr, version))
                 {
                     throw new ArgumentException(String.Concat("Group: ", m_nGroupID, " does not have NPVR implementation."));
                 }

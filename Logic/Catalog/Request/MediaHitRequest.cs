@@ -57,7 +57,7 @@ namespace Core.Catalog.Request
                 if (oBaseRequest != null)
                 {
                     oMediaHitRequest = oBaseRequest as MediaHitRequest;
-                    
+
                     if (oMediaHitRequest.m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.MEDIA) // Media
                     {
                         oMediaHitResponse = ProcessMediaHitRequest(oMediaHitRequest);
@@ -125,7 +125,7 @@ namespace Core.Catalog.Request
             if (m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.NPVR)
             {
                 NPVR.INPVRProvider npvr;
-                bool result = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr);
+                bool result = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr, null);
                 if (result)
                 {
                     recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
@@ -152,7 +152,7 @@ namespace Core.Catalog.Request
             {
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
                 {
-                    CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, playTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, 
+                    CatalogLogic.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, playTime, m_oMediaPlayRequestData.m_sUDID, fileDuration,
                         MediaPlayResponse.HIT.ToString(), (int)eAssetTypes.NPVR, 0, ApiObjects.ePlayType.NPVR, false, false, recordingId);
                 }
 
@@ -252,7 +252,7 @@ namespace Core.Catalog.Request
                 {
                     playCycleKey = CatalogDAL.GetOrInsert_PlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
                 }
-                
+
                 tasks.Add(Task.Run(() => CatalogLogic.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
                                                                             nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
                                                                             m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,

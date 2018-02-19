@@ -1103,7 +1103,7 @@ namespace Core.Users
 
             //BEO-4478
             if (m_DomainStatus == DomainStatus.DomainSuspended)
-            {   
+            {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
                     && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADDBYPIN.ToString())))
                 {
@@ -2744,7 +2744,7 @@ namespace Core.Users
                                 {
                                     assetMediaMarks = domainMediaMarks.Where(
                                         currentMark => !currentMark.UDID.Equals(udid) &&
-                                        currentMark.MediaConcurrencyRuleIds != null && 
+                                        currentMark.MediaConcurrencyRuleIds != null &&
                                         currentMark.MediaConcurrencyRuleIds.Contains(ruleId) &&
                                         currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
                                     break;
@@ -3020,7 +3020,7 @@ namespace Core.Users
             }
 
             INPVRProvider npvr;
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr) && npvr.SynchronizeNpvrWithDomain && Utils.IsServiceAllowed(m_nGroupID, m_nDomainID, eService.NPVR))
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr, null) && npvr.SynchronizeNpvrWithDomain && Utils.IsServiceAllowed(m_nGroupID, m_nDomainID, eService.NPVR))
             {
                 try
                 {
@@ -3122,7 +3122,7 @@ namespace Core.Users
                 }
 
                 INPVRProvider npvr;
-                if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr) && npvr.SynchronizeNpvrWithDomain)
+                if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr, null) && npvr.SynchronizeNpvrWithDomain)
                 {
                     if (npvr != null)
                     {
@@ -3213,7 +3213,7 @@ namespace Core.Users
         private void InvalidateDomainUser(string userId)
         {
             List<string> invalidationKeys = new List<string>()
-                { 
+                {
                     LayeredCacheKeys.GetHouseholdUserInalidationKey(this.m_nDomainID, userId)
                 };
 
