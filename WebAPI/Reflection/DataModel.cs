@@ -3113,7 +3113,7 @@ namespace WebAPI.Reflection
                         case "DynamicOrderBy":
                             return "dynamicOrderBy";
                         case "SlidingWindowPeriod":
-                            return "slidingWindowPeriod";
+                            return "period";
                     }
                     break;
                     
@@ -4810,16 +4810,18 @@ namespace WebAPI.Reflection
                             return "additionalData";
                         case "AltCdnCode":
                             return "altCdnCode";
+                        case "AlternativeCdnAdapaterProfileId":
+                            return "alternativecdnAdapaterProfileId ";
                         case "AltExternalId":
                             return "altExternalId";
                         case "AltStreamingCode":
                             return "altStreamingCode";
-                        case "AltStreamingSupplierId":
-                            return "altStreamingSupplierId";
                         case "AssetId":
                             return "assetId";
                         case "BillingType":
                             return "billingType";
+                        case "CdnAdapaterProfileId":
+                            return "cdnAdapaterProfileId";
                         case "CdnCode":
                             return "cdnCode";
                         case "CdnName":
@@ -4856,8 +4858,6 @@ namespace WebAPI.Reflection
                             return "startDate";
                         case "Status":
                             return "status";
-                        case "StreamingSupplierId":
-                            return "streamingSupplierId";
                         case "Type":
                             return "type";
                         case "TypeId":

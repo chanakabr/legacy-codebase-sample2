@@ -414,21 +414,25 @@ namespace WebAPI.Clients
         {
             KalturaAsset result = null;
             AssetResponse response = null;
+            Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
 
             try
             {
                 eAssetTypes assetType = eAssetTypes.UNKNOWN;
                 Asset assetToAdd = null;
-                switch (asset.objectType)
+                kalturaMediaAssetType = typeof(KalturaMediaAsset);
+                // in case asset is media
+                if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
                 {
-                    case "KalturaMediaAsset":
-                        assetToAdd = AutoMapper.Mapper.Map<MediaAsset>(asset);
-                        assetType = eAssetTypes.MEDIA;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Invalid assetType");
-                        break;
+                    assetToAdd = AutoMapper.Mapper.Map<MediaAsset>(asset);
+                    assetType = eAssetTypes.MEDIA;
                 }
+                // add here else if for epg\recording when needed
+                else
+                {
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");                        
+                }
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.AssetManager.AddAsset(groupId, assetType, assetToAdd, userId);
@@ -449,16 +453,17 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-
-            switch (asset.objectType)
+            
+            // in case asset is media
+            if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                case "KalturaMediaAsset":
-                    result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
-                    result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
-                    break;
+                result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
+            }
+            // add here else if for epg\recording when needed
+            else
+            {
+                throw new ClientException((int)StatusCode.Error, "Invalid assetType");
             }
 
             return result;
@@ -500,20 +505,21 @@ namespace WebAPI.Clients
         {
             KalturaAsset result = null;
             AssetResponse response = null;
-
+            Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
             try
             {
                 eAssetTypes assetType = eAssetTypes.UNKNOWN;
-                Asset assetToUpdate = null;
-                switch (asset.objectType)
+                Asset assetToUpdate = null;                
+                // in case asset is media
+                if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
                 {
-                    case "KalturaMediaAsset":
-                        assetToUpdate = AutoMapper.Mapper.Map<MediaAsset>(asset as KalturaMediaAsset);
-                        assetType = eAssetTypes.MEDIA;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Invalid assetType");
-                        break;
+                    assetToUpdate = AutoMapper.Mapper.Map<MediaAsset>(asset as KalturaMediaAsset);
+                    assetType = eAssetTypes.MEDIA;
+                }
+                // add here else if for epg\recording when needed
+                else
+                {
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
                 }
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -537,15 +543,16 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            switch (asset.objectType)
+            // in case asset is media
+            if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                case "KalturaMediaAsset":
-                    result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
-                    result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
-                    break;
+                result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
+            }
+            // add here else if for epg\recording when needed
+            else
+            {
+                throw new ClientException((int)StatusCode.Error, "Invalid assetType");
             }
 
             return result;

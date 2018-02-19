@@ -37,34 +37,36 @@ namespace WebAPI.Models.Catalog
         public KalturaChannelOrderBy? orderBy { get; set; }
 
         /// <summary>
-        /// Sliding window period in minutes
+        /// Sliding window period in minutes, used only when ordering by LIKES_DESC / VOTES_DESC / RATINGS_DESC / VIEWS_DESC
         /// </summary>
-        [DataMember(Name = "slidingWindowPeriod")]
-        [JsonProperty(PropertyName = "slidingWindowPeriod")]
-        [XmlElement(ElementName = "slidingWindowPeriod", IsNullable = true)]
+        [DataMember(Name = "period")]
+        [JsonProperty(PropertyName = "period")]
+        [XmlElement(ElementName = "period", IsNullable = true)]
         [SchemeProperty(MinLong = 1)]
         public int? SlidingWindowPeriod { get; set; }
 
-        internal void Validate(string objectType)
+        internal void Validate(Type type)
         {
             if (DynamicOrderBy != null && orderBy.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaChannelOrder.dynamicOrderBy", "KalturaChannelOrder.orderBy");
-            }
+            }            
 
-            if (objectType == KalturaChannel.DYNAMIC_CHANNEL && orderBy.HasValue && orderBy.Value == KalturaChannelOrderBy.ORDER_NUM)
+            Type dynamicChannelType = typeof(KalturaDynamicChannel);
+            if (dynamicChannelType.IsAssignableFrom(type) && orderBy.HasValue && orderBy.Value == KalturaChannelOrderBy.ORDER_NUM)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "KalturaChannelOrder.orderBy", "objectType");
             }
 
-            if (objectType == KalturaChannel.MANUAL_CHANNEL && orderBy.HasValue && orderBy.Value == KalturaChannelOrderBy.RELEVANCY_DESC)
+            Type manualChannelType = typeof(KalturaManualChannel);
+            if (manualChannelType.IsAssignableFrom(type) && orderBy.HasValue && orderBy.Value == KalturaChannelOrderBy.RELEVANCY_DESC)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "KalturaChannelOrder.orderBy", "objectType");
             }
 
             if (SlidingWindowPeriod.HasValue && orderBy.HasValue && !SLIDING_WINDOW_ORDER_BY_OPTIONS.Contains((int)orderBy.Value))            
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "KalturaChannelOrder.slidingWindowPeriod", "KalturaChannelOrder.orderBy");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "KalturaChannelOrder.period", "KalturaChannelOrder.orderBy");
             }
         }
 

@@ -65,7 +65,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "duration")]
         [JsonProperty(PropertyName = "duration")]
-        [XmlElement(ElementName = "duration")]
+        [XmlElement(ElementName = "duration", IsNullable = true)]
         public long? Duration { get; set; }
 
         /// <summary>
@@ -165,8 +165,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "fileSize")]
         [JsonProperty(PropertyName = "fileSize")]
-        [XmlElement(ElementName = "fileSize")]        
-        public long FileSize { get; set; }
+        [XmlElement(ElementName = "fileSize", IsNullable = true)]        
+        public long? FileSize { get; set; }
 
         /// <summary>
         /// Additional Data
@@ -185,12 +185,12 @@ namespace WebAPI.Models.Catalog
         public string AltStreamingCode { get; set; }
 
         /// <summary>
-        /// Alternative streaming supplier identifier
+        /// Alternative cdn adapter profile identifier
         /// </summary>
-        [DataMember(Name = "altStreamingSupplierId")]
-        [JsonProperty(PropertyName = "altStreamingSupplierId")]
-        [XmlElement(ElementName = "altStreamingSupplierId")]
-        public long AltStreamingSupplierId { get; set; }
+        [DataMember(Name = "alternativecdnAdapaterProfileId ")]
+        [JsonProperty(PropertyName = "alternativecdnAdapaterProfileId")]
+        [XmlElement(ElementName = "alternativecdnAdapaterProfileId", IsNullable = true)]
+        public long? AlternativeCdnAdapaterProfileId { get; set; }
 
         /// <summary>
         /// EndDate
@@ -214,15 +214,15 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "externalStoreId")]
         [JsonProperty(PropertyName = "externalStoreId")]
         [XmlElement(ElementName = "externalStoreId")]
-        public long ExternalStoreId { get; set; }
+        public string ExternalStoreId { get; set; }
 
         /// <summary>
         /// IsDefaultLanguage
         /// </summary>
         [DataMember(Name = "isDefaultLanguage")]
         [JsonProperty(PropertyName = "isDefaultLanguage")]
-        [XmlElement(ElementName = "isDefaultLanguage")]        
-        public bool IsDefaultLanguage { get; set; }
+        [XmlElement(ElementName = "isDefaultLanguage", IsNullable = true)]        
+        public bool? IsDefaultLanguage { get; set; }
 
         /// <summary>
         /// Language
@@ -237,8 +237,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "orderNum")]
         [JsonProperty(PropertyName = "orderNum")]
-        [XmlElement(ElementName = "orderNum")]
-        public int OrderNum { get; set; }
+        [XmlElement(ElementName = "orderNum", IsNullable = true)]
+        public int? OrderNum { get; set; }
 
         /// <summary>
         /// OutputProtecationLevel
@@ -249,13 +249,13 @@ namespace WebAPI.Models.Catalog
         public string OutputProtecationLevel { get; set; }
 
         /// <summary>
-        /// StreamingSupplierId
+        /// cdn adapter profile identifier
         /// </summary>
-        [DataMember(Name = "streamingSupplierId")]
-        [JsonProperty(PropertyName = "streamingSupplierId")]
-        [XmlElement(ElementName = "streamingSupplierId")]
+        [DataMember(Name = "cdnAdapaterProfileId")]
+        [JsonProperty(PropertyName = "cdnAdapaterProfileId")]
+        [XmlElement(ElementName = "cdnAdapaterProfileId", IsNullable = true)]
         [SchemeProperty(MinLong = 0)]
-        public long StreamingSupplierId { get; set; }
+        public long? CdnAdapaterProfileId { get; set; }
 
         /// <summary>
         ///  The media file status

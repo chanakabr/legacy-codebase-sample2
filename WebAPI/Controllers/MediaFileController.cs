@@ -34,8 +34,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MediaFileExternalIdMustBeUnique)]
         [Throws(eResponseStatus.MediaFileAltExternalIdMustBeUnique)]
         [Throws(eResponseStatus.ExternaldAndAltExternalIdMustBeUnique)]
-        [Throws(eResponseStatus.StreamingSupplierDoesNotExist)]
-        [Throws(eResponseStatus.DefaultStreamingSupplierNotConfigurd)]
+        [Throws(eResponseStatus.CdnAdapterProfileDoesNotExist)]
+        [Throws(eResponseStatus.DefaultCdnAdapterProfileNotConfigurd)]
+        [Throws(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset)]
         public KalturaMediaFile Add(KalturaMediaFile mediaFile)
         {
             KalturaMediaFile response = null;
@@ -111,6 +112,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MediaFileExternalIdMustBeUnique)]
         [Throws(eResponseStatus.MediaFileAltExternalIdMustBeUnique)]
         [Throws(eResponseStatus.ExternaldAndAltExternalIdMustBeUnique)]
+        [Throws(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset)]
         [SchemeArgument("id", MinLong = 1)]
         public KalturaMediaFile Update(long id, KalturaMediaFile mediaFile)
         {

@@ -18,9 +18,6 @@ namespace WebAPI.Models.Catalog
     {
 
         private const string GENESIS_VERSION = "4.6.0.0";
-        public const string DYNAMIC_CHANNEL = "KalturaDynamicChannel";
-        public const string MANUAL_CHANNEL = "KalturaManualChannel";
-        public const string CHANNEL = "KalturaChannel";
 
         /// <summary>
         /// Unique identifier for the channel
@@ -188,7 +185,7 @@ namespace WebAPI.Models.Catalog
                 Description.Validate("multilingualDescription");
             }
 
-            OrderBy.Validate(objectType);
+            OrderBy.Validate(this.GetType());
         }
 
         public int[] getAssetTypes()

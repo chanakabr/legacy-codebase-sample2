@@ -139,8 +139,10 @@ namespace WebAPI.Controllers
             KalturaChannel response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
-
-            if (channel.objectType != KalturaChannel.CHANNEL)
+            Type manualChannelType = typeof(KalturaManualChannel);
+            Type dynamicChannelType = typeof(KalturaDynamicChannel);
+            Type channelType = typeof(KalturaChannel);
+            if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
             {
                 if (channel.OrderBy == null)
                 {
@@ -152,24 +154,21 @@ namespace WebAPI.Controllers
             }
 
             try
-            {
+            {                
+                // KalturaManualChannel                                
+                if (manualChannelType.IsAssignableFrom(channel.GetType()))
+                {
+                    response = ClientsManager.CatalogClient().InsertManualChannel(groupId, channel, userId);
+                }
+                // KalturaDynamicChannel                
+                else if (dynamicChannelType.IsAssignableFrom(channel.GetType()))
+                {
+                    response = ClientsManager.CatalogClient().InsertDynamicChannel(groupId, channel, userId);
+                }
                 // KalturaChannel (backward compatability)
-                if (channel.objectType == KalturaChannel.CHANNEL)
+                else if (dynamicChannelType.IsAssignableFrom(channel.GetType()))
                 {
                     response = ClientsManager.CatalogClient().InsertKSQLChannel(groupId, channel, userId);
-                }
-                else
-                {                
-                    // KalturaManualChannel
-                    if (channel.objectType == KalturaChannel.MANUAL_CHANNEL)
-                    {
-                        response = ClientsManager.CatalogClient().InsertManualChannel(groupId, channel, userId);
-                    }
-                    // KalturaDynamicChannel                
-                    else if (channel.objectType == KalturaChannel.DYNAMIC_CHANNEL)
-                    {
-                        response = ClientsManager.CatalogClient().InsertDynamicChannel(groupId, channel, userId);
-                    }
                 }
 
             }
