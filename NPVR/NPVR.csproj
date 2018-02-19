@@ -62,7 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AlcatelLucentNPVR1.cs" />
+    <Compile Include="AlcatelLucentNPVRV1.cs" />
     <Compile Include="AlcatelLucentNPVRV2.cs" />
     <Compile Include="AlcatelLucentResponses\CreateAccountResponseJSON.cs" />
     <Compile Include="AlcatelLucentResponses\EntryJSON.cs" />
