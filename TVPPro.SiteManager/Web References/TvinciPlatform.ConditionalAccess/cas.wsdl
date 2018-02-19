@@ -29,6 +29,18 @@
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Args" type="tns:ArrayOfKeyValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfKeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="KeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetUserEntitlements">
@@ -69,6 +81,7 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="entitelments" type="tns:ArrayOfEntitlement" />
+          <s:element minOccurs="1" maxOccurs="1" name="totalItems" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfEntitlement">
@@ -101,6 +114,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="ScheduledSubscriptionId" nillable="true" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="IsSuspended" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="mediaID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="UnifiedPaymentId" type="s:long" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="ePaymentMethod">
@@ -547,17 +561,6 @@
             </s:sequence>
           </s:extension>
         </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ArrayOfKeyValuePair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="KeyValuePair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
-        </s:sequence>
       </s:complexType>
       <s:simpleType name="SubscriptionType">
         <s:restriction base="s:string">
@@ -3939,6 +3942,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:long" />
           <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="assetID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Version" nillable="true" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="RecordNPVRAlreadyWatchedCommand">
@@ -8263,10 +8267,10 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost/rest_api/ws_cas_module.asmx" />
+      <soap:address location="http://localhost/tvpapi_rest/WS_Modules/cas.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/rest_api/ws_cas_module.asmx" />
+      <soap12:address location="http://localhost/tvpapi_rest/WS_Modules/cas.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
