@@ -4521,6 +4521,8 @@ namespace WebAPI.Reflection
                             return "reminderOffsetSec";
                         case "SenderEmail":
                             return "senderEmail";
+                        case "SmsEnabled":
+                            return "smsEnabled";
                         case "TopicExpirationDurationDays":
                             return "topicExpirationDurationDays";
                     }
@@ -4535,6 +4537,8 @@ namespace WebAPI.Reflection
                             return "pushFollowEnabled";
                         case "PushNotificationEnabled":
                             return "pushNotificationEnabled";
+                        case "SmsEnabled":
+                            return "smsEnabled";
                     }
                     break;
                     
