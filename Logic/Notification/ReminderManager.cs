@@ -222,6 +222,8 @@ namespace Core.Notification
                     }
                 }
 
+                HandleAddSmsReminder(dbReminder.GroupId, userId, dbReminder, userNotificationData, addedSecs, false);
+
                 // update user devices
                 if (userNotificationData.devices != null &&
                    userNotificationData.devices.Count > 0 &&
@@ -418,6 +420,8 @@ namespace Core.Notification
                         log.ErrorFormat("Failed subscribing user series reminder to email announcement. group: {0}, userId: {1}, email: {2}", dbSeriesReminder.GroupId, userId, userNotificationData.UserData.Email);
                     }
                 }
+
+                HandleAddSmsReminder(dbSeriesReminder.GroupId, userId, dbSeriesReminder, userNotificationData, addedSecs, true);
 
                 // update user devices
                 if (userNotificationData.devices != null &&
@@ -820,6 +824,8 @@ namespace Core.Notification
                 }
             }
 
+            HandleRemoveSmsReminder(groupId, userId, reminderId, false);
+
             // iterate through user devices and remove reminders
             if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
                 log.DebugFormat("User doesn't have any devices. no reminders were removed. PID: {0}, UID: {1}, reminderId: {2}", groupId, userId, reminderId);
@@ -923,6 +929,8 @@ namespace Core.Notification
                     log.ErrorFormat("Series reminder not found. group: {0}, reminderId: {1}", groupId, reminderId);
                 }
             }
+
+            HandleRemoveSmsReminder(groupId, userId, reminderId, true);
 
             // iterate through user devices and remove reminders
             if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
@@ -1131,7 +1139,8 @@ namespace Core.Notification
             }
 
             // send push / mail messages
-            if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerMailNotificationEnabled(partnerId))
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerMailNotificationEnabled(partnerId)
+                || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
             {
                 // get message templates
                 MessageTemplate reminderTemplate = null;
@@ -1174,7 +1183,7 @@ namespace Core.Notification
         private static void SendSingleMessageReminder(int partnerId, DbReminder reminder, ProgramObj program, MediaObj mediaChannel, DateTime dbReminderSendDate, MessageTemplate reminderTemplate)
         {
             // push - send to Amazon
-            if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
             {
                 if (string.IsNullOrEmpty(reminder.ExternalPushId))
                 {
@@ -1296,7 +1305,7 @@ namespace Core.Notification
                     log.DebugFormat("found series reminders for the program");
 
                     // PUSH
-                    if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+                    if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
                     {
                         MessageData seriesMessageData = new MessageData()
                         {
@@ -1976,6 +1985,136 @@ namespace Core.Notification
                 response.NotificationId = seriesReminderId;
             }
             return response;
+        }
+
+        private static void HandleAddSmsReminder(int groupId, int userId, DbReminder reminder, UserNotification userNotificationData, long addedSecs, bool isSeries)
+        {
+            if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) &&
+                userNotificationData.Settings.EnableSms.HasValue &&
+                userNotificationData.Settings.EnableSms.Value &&
+                !string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
+            {
+                try
+                {
+                    SmsNotificationData userSmsNotificationData = DAL.NotificationDal.GetUserSmsNotificationData(groupId, userNotificationData.UserId);
+                    if (userSmsNotificationData == null)
+                    {
+                        log.DebugFormat("user sms notification data is empty {0}", userId);
+                        return;
+                    }
+
+                    IEnumerable<NotificationSubscription> subscribedReminders = null;
+                    if (isSeries)
+                    {
+                        subscribedReminders = userSmsNotificationData.SubscribedSeriesReminders.Where(r => r.Id == reminder.ID);
+                    }
+                    else
+                    {
+                        subscribedReminders = userSmsNotificationData.SubscribedReminders.Where(r => r.Id == reminder.ID);
+                    }
+
+                    if (subscribedReminders != null && subscribedReminders.Count() > 0)
+                    {
+                        log.ErrorFormat("user already has a reminder on SMS. userId: {0}", userId);
+                        return;
+                    }
+
+                    AnnouncementSubscriptionData subData = new AnnouncementSubscriptionData()
+                    {
+                        EndPointArn = userNotificationData.UserData.PhoneNumber,
+                        Protocol = EnumseDeliveryProtocol.sms,
+                        TopicArn = reminder.ExternalPushId,
+                        ExternalId = reminder.ID
+                    };
+
+                    List<AnnouncementSubscriptionData> subs = new List<AnnouncementSubscriptionData>() { subData };
+                    subs = NotificationAdapter.SubscribeToAnnouncement(groupId, subs);
+                    if (subs == null || subs.Count == 0 || string.IsNullOrEmpty(subs.First().SubscriptionArnResult))
+                    {
+                        log.ErrorFormat("Error registering SMS for reminder. userId: {0}, PhoneNumber: {1}", userId, userNotificationData.UserData.PhoneNumber);
+                        return;
+                    }
+
+                    // update SMS notification object
+                    NotificationSubscription sub = new NotificationSubscription()
+                    {
+                        ExternalId = subs.First().SubscriptionArnResult,
+                        Id = reminder.ID,
+                        SubscribedAtSec = addedSecs
+                    };
+
+                    if (isSeries)
+                    {
+                        userSmsNotificationData.SubscribedSeriesReminders.Add(sub);
+                    }
+                    else
+                    {
+                        userSmsNotificationData.SubscribedReminders.Add(sub);
+                    }
+
+                    if (!DAL.NotificationDal.SetUserSmsNotificationData(groupId, userId, userSmsNotificationData))
+                    {
+                        log.ErrorFormat("error setting SMS notification data for reminder. group: {0}, userId: {1}, topic: {2}", groupId, userId, subData.EndPointArn);
+                    }
+                    else
+                    {
+                        log.DebugFormat("Successfully updated SMS data for reminder. group: {0}, userId: {1}, topic: {2}", groupId, userId, subData.EndPointArn);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error in adding reminder for SMS", ex);
+                }
+            }
+        }
+
+        private static void HandleRemoveSmsReminder(int groupId, int userId, long reminderId, bool isSeries)
+        {
+            SmsNotificationData smsNotificationData = NotificationDal.GetUserSmsNotificationData(groupId, userId);
+            if (smsNotificationData != null)
+            {
+
+                IEnumerable<NotificationSubscription> subscribedReminders = null;
+                if (isSeries)
+                    subscribedReminders = smsNotificationData.SubscribedSeriesReminders.Where(x => x.Id == reminderId);
+                else
+                    subscribedReminders = smsNotificationData.SubscribedReminders.Where(x => x.Id == reminderId);
+
+                if (subscribedReminders == null || subscribedReminders.Count() == 0)
+                {
+                    log.DebugFormat("SMS notification data had no subscription for reminder. group: {0}, userId: {1}, reminderId = {2}", groupId, userId, reminderId);
+                    return;
+                }
+
+                // unsubscribe sms 
+                List<UnSubscribe> unsubscibeList = new List<UnSubscribe>()
+                    {
+                        new UnSubscribe()
+                        {
+                            SubscriptionArn = subscribedReminders.First().ExternalId
+                        }
+                    };
+
+                unsubscibeList = NotificationAdapter.UnSubscribeToAnnouncement(groupId, unsubscibeList);
+                if (unsubscibeList == null ||
+                    unsubscibeList.Count == 0 ||
+                    !unsubscibeList.First().Success)
+                {
+                    log.ErrorFormat("error removing reminder from SMS subscription. group: {0}, userId: {1}, reminderId = {2}", groupId, userId, reminderId);
+                }
+                else
+                {
+                    if (isSeries)
+                        smsNotificationData.SubscribedSeriesReminders.Remove(subscribedReminders.First());
+                    else
+                        smsNotificationData.SubscribedReminders.Remove(subscribedReminders.First());
+
+                    if (!DAL.NotificationDal.SetUserSmsNotificationData(groupId, userId, smsNotificationData))
+                        log.ErrorFormat("error updating SMS data. group: {0}, userId: {1}", groupId, userId);
+                    else
+                        log.DebugFormat("Successfully updated SMS data. group: {0}, userId: {1}", groupId, userId);
+                }
+            }
         }
     }
 }

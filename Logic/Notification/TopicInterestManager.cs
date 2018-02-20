@@ -132,7 +132,8 @@ namespace APILogic.Notification
                 }
 
                 // validate push is enabled
-                if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerMailNotificationEnabled(partnerId))
+                if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerMailNotificationEnabled(partnerId)
+                    || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
                 {
                     // register user (devices) to Amazon topic interests
                     response = RegisterUserToInterestNotification(partnerId, userId, interestNotification);
@@ -322,6 +323,53 @@ namespace APILogic.Notification
                 }
             }
 
+            //SMS
+            if (NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId) &&
+                !string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
+            {
+                SmsNotificationData smsNotificationData = NotificationDal.GetUserSmsNotificationData(partnerId, userId);
+                if (smsNotificationData != null)
+                {
+                    List<UnSubscribe> unsubscibeList = new List<UnSubscribe>();
+
+                    foreach (var interestNotificationToCancel in interestsNotificationToCancel)
+                    {
+                        var subscribedInterests = smsNotificationData.SubscribedAnnouncements.Where(x => x.Id == interestNotificationToCancel.Id);
+                        if (subscribedInterests == null || subscribedInterests.Count() == 0)
+                        {
+                            log.DebugFormat("SMS notification data had no subscription to interest. group: {0}, userId: {1}", partnerId, userId);
+                            continue;
+                        }
+
+                        // unsubscribe sms 
+                        unsubscibeList.Add(new UnSubscribe() { SubscriptionArn = subscribedInterests.First().ExternalId });
+                    }
+
+                    unsubscibeList = NotificationAdapter.UnSubscribeToAnnouncement(partnerId, unsubscibeList);
+                    if (unsubscibeList == null || unsubscibeList.Count == 0)
+                    {
+                        log.ErrorFormat("error removing user interest from SMS subscription. group: {0}, userId: {1}", partnerId, userId);
+                    }
+                    else
+                    {
+                        foreach (var unsubscibe in unsubscibeList)
+                        {
+                            if (unsubscibe.Success)
+                            {
+                                if (smsNotificationData.SubscribedUserInterests.Remove(smsNotificationData.SubscribedUserInterests.Where(i => i.Id == unsubscibe.ExternalId).FirstOrDefault()))
+                                    log.DebugFormat("Successfully unregistered SMS from interest. user ID: {0}, interest ID", userId, unsubscibe.ExternalId);
+                                else
+                                    log.ErrorFormat("Failed to remove SMS from interest. user ID: {0}, interest ID", userId, unsubscibe.ExternalId);
+                            }
+                            else
+                                log.ErrorFormat("Error unregistering device from interest. user ID: {0}, interest ID", userId, unsubscibe.ExternalId);
+                        }
+
+                        DAL.NotificationDal.SetUserSmsNotificationData(partnerId, userId, smsNotificationData);
+                    }
+                }
+            }
+            
             response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
             return response;
         }
@@ -331,7 +379,7 @@ namespace APILogic.Notification
             Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
 
             // create Amazon topic 
-            if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
             {
                 if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
                 {
@@ -381,7 +429,6 @@ namespace APILogic.Notification
             {
                 return new Status((int)eResponseStatus.Error, "Error");
             }
-
 
             // update user notification object
             long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
@@ -493,10 +540,64 @@ namespace APILogic.Notification
             {
                 if (!MailNotificationAdapterClient.SubscribeToAnnouncement(partnerId, new List<string>() { interestNotification.MailExternalId }, userNotificationData.UserData, userId))
                 {
-                    log.ErrorFormat("Failed subscribing user user interest to email. group: {0}, userId: {1}, email: {2}", partnerId, userId, userNotificationData.UserData.Email);
+                    log.ErrorFormat("Failed subscribing user interest to email. group: {0}, userId: {1}, email: {2}", partnerId, userId, userNotificationData.UserData.Email);
                 }
             }
-            response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
+
+            if (NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId) &&
+                userNotificationData.Settings.EnableSms.HasValue &&
+                userNotificationData.Settings.EnableSms.Value &&
+                !string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
+            {
+                SmsNotificationData userSmsNotificationData = DAL.NotificationDal.GetUserSmsNotificationData(partnerId, userNotificationData.UserId);
+                if (userSmsNotificationData != null)
+                {
+                    var subscribedInterests = userSmsNotificationData.SubscribedAnnouncements.Where(x => x.Id == interestNotification.Id);
+                    if (subscribedInterests != null && subscribedInterests.Count() > 0)
+                    {
+                        log.ErrorFormat("user already following interest on SMS. userId: {0}", userId);
+                    }
+                    else
+                    {
+                        AnnouncementSubscriptionData subData = new AnnouncementSubscriptionData()
+                        {
+                            EndPointArn = userNotificationData.UserData.PhoneNumber,
+                            Protocol = EnumseDeliveryProtocol.sms,
+                            TopicArn = interestNotification.ExternalPushId,
+                            ExternalId = interestNotification.Id
+                        };
+
+                        List<AnnouncementSubscriptionData> subs = new List<AnnouncementSubscriptionData>() { subData };
+                        subs = NotificationAdapter.SubscribeToAnnouncement(partnerId, subs);
+                        if (subs == null || subs.Count == 0 || string.IsNullOrEmpty(subs.First().SubscriptionArnResult))
+                        {
+                            log.ErrorFormat("Error registering SMS for interest. userId: {0}, PhoneNumber: {1}", userId, userNotificationData.UserData.PhoneNumber);
+                        }
+                        else
+                        {
+                            // update notification object
+                            NotificationSubscription sub = new NotificationSubscription()
+                            {
+                                ExternalId = subs.First().SubscriptionArnResult,
+                                Id = interestNotification.Id,
+                                SubscribedAtSec = addedSecs
+                            };
+                            userSmsNotificationData.SubscribedAnnouncements.Add(sub);
+
+                            if (!DAL.NotificationDal.SetUserSmsNotificationData(partnerId, userId, userSmsNotificationData))
+                            {
+                                log.ErrorFormat("error setting sms notification data. group: {0}, userId: {1}, topic: {2}", partnerId, userId, subData.EndPointArn);
+                            }
+                            else
+                            {
+                                log.DebugFormat("Successfully updated SMS notification data. group: {0}, userId: {1}, topic: {2}", partnerId, userId, subData.EndPointArn);
+                            }
+                        }
+                    }
+                }
+            }
+
+        response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
             return response;
         }
 
@@ -1174,8 +1275,8 @@ namespace APILogic.Notification
                     }
                 }
                 
-                // push
-                if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+                // push & SMS
+                if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
                 {
                     // build message 
                     MessageData messageData = new MessageData()
@@ -1290,7 +1391,7 @@ namespace APILogic.Notification
             };
 
             // send push messages
-            if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
             {
                 // send to Amazon
                 if (string.IsNullOrEmpty(interestNotification.ExternalPushId))

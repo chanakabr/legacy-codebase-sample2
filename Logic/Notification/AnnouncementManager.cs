@@ -960,7 +960,7 @@ namespace Core.Notification
             string resultMsgIds = "";
 
             // send push messages
-            if (NotificationSettings.IsPartnerPushEnabled(groupId))
+            if (NotificationSettings.IsPartnerPushEnabled(groupId) || NotificationSettings.IsPartnerSmsNotificationEnabled(groupId))
             {
                 // send to Amazon
                 if (topicExternalIds != null && topicExternalIds.Count > 0)

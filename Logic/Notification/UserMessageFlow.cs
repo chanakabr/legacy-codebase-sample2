@@ -1537,6 +1537,7 @@ namespace Core.Notification
                     if (!string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
                     {
                         log.DebugFormat("user does not have phone number for SMS", groupId, userId);
+                        NotificationDal.RemoveSmsNotificationData(groupId, userId);
                         return true;
                     }
 
