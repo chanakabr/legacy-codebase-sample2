@@ -126,6 +126,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Timezone, opt => opt.MapFrom(src => src.Timezone))
                  .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
                  .ForMember(dest => dest.IncludeMail, opt => opt.MapFrom(src => src.IncludeMail))
+                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms))
                  .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
                  .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertAnnouncementStatusType(src.Status)));

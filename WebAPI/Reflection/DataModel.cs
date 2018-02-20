@@ -2127,6 +2127,8 @@ namespace WebAPI.Reflection
                             return "imageUrl";
                         case "IncludeMail":
                             return "includeMail";
+                        case "IncludeSms":
+                            return "includeSms";
                         case "MailSubject":
                             return "mailSubject";
                         case "MailTemplate":

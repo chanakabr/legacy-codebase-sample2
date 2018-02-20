@@ -112,6 +112,14 @@ namespace WebAPI.Models.Notifications
         [XmlElement(ElementName = "mailSubject")]
         public string MailSubject { get; set; }
 
+        /// <summary>
+        /// Include SMS
+        /// </summary>
+        [DataMember(Name = "includeSms")]
+        [JsonProperty(PropertyName = "includeSms")]
+        [XmlElement(ElementName = "includeSms")]
+        public bool IncludeSms { get; set; }
+
         internal long getStartTime()
         {
             return StartTime.HasValue ? (long)StartTime : 0;
