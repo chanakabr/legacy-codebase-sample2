@@ -895,7 +895,8 @@ namespace DAL
         }
 
         public static DataRow Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, 
-            int updaterId, string messageReference , string resultMsgId , string imageUrl, bool includeMail, string mailTemplate, string mailSubject, long announcement_id = 0)
+            int updaterId, string messageReference , string resultMsgId , string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSMS,
+            long announcement_id = 0)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -916,6 +917,7 @@ namespace DAL
             spInsert.AddParameter("@includeMail", includeMail);
             spInsert.AddParameter("@mailTemplate", mailTemplate);
             spInsert.AddParameter("@mailSubject", mailSubject);
+            spInsert.AddParameter("@includeSMS", includeSMS);
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)

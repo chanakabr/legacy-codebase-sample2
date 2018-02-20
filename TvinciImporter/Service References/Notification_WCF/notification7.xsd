@@ -187,6 +187,7 @@
       <xs:element minOccurs="0" name="IsPushNotificationEnabled" nillable="true" type="xs:boolean" />
       <xs:element minOccurs="0" name="IsPushSystemAnnouncementsEnabled" nillable="true" type="xs:boolean" />
       <xs:element minOccurs="0" name="IsRemindersEnabled" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsSMSEnabled" nillable="true" type="xs:boolean" />
       <xs:element minOccurs="0" name="MailNotificationAdapterId" nillable="true" type="xs:long" />
       <xs:element minOccurs="0" name="MailSenderName" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="MessageTTLDays" nillable="true" type="xs:int" />
@@ -212,6 +213,7 @@
       <xs:element minOccurs="0" name="EnableInbox" nillable="true" type="xs:boolean" />
       <xs:element minOccurs="0" name="EnableMail" nillable="true" type="xs:boolean" />
       <xs:element minOccurs="0" name="EnablePush" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="EnableSms" nillable="true" type="xs:boolean" />
       <xs:element minOccurs="0" name="FollowSettings" nillable="true" type="tns:UserFollowSettings" />
     </xs:sequence>
   </xs:complexType>
@@ -220,6 +222,7 @@
     <xs:sequence>
       <xs:element minOccurs="0" name="EnableMail" nillable="true" type="xs:boolean" />
       <xs:element minOccurs="0" name="EnablePush" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="EnableSms" nillable="true" type="xs:boolean" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="UserFollowSettings" nillable="true" type="tns:UserFollowSettings" />
@@ -236,6 +239,7 @@
       <xs:element minOccurs="0" name="Enabled" type="xs:boolean" />
       <xs:element minOccurs="0" name="ImageUrl" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="IncludeMail" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IncludeSMS" type="xs:boolean" />
       <xs:element minOccurs="0" name="MailSubject" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="MailTemplate" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />

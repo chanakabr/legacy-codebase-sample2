@@ -21,6 +21,7 @@
       <xs:enumeration value="Guests" />
       <xs:enumeration value="Other" />
       <xs:enumeration value="Mail" />
+      <xs:enumeration value="Sms" />
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eAnnouncementRecipientsType" nillable="true" type="tns:eAnnouncementRecipientsType" />
@@ -48,6 +49,8 @@
       <xs:enumeration value="DisableUserMailNotifications" />
       <xs:enumeration value="UpdateUser" />
       <xs:enumeration value="Signup" />
+      <xs:enumeration value="EnableUserSmsNotifications" />
+      <xs:enumeration value="DisableUserSmsNotifications" />
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eUserMessageAction" nillable="true" type="tns:eUserMessageAction" />
