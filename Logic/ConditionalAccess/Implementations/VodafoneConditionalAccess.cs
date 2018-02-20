@@ -83,7 +83,7 @@ namespace Core.ConditionalAccess
                             {
                                 NPVRRecordResponse response = null;
 
-                                NPVRRecordObj recordObj = new NPVRRecordObj(channelId.ToString(), domainID.ToString(), seriesId, seasonSeed, seasonNumber, lookupCriteria);
+                                NPVRRecordObj recordObj = new NPVRRecordObj(channelId.ToString(), domainID.ToString(), seriesId, seasonSeed, seasonNumber, episodeSeed, lookupCriteria);
 
                                 response = npvr.RecordSeries(recordObj);
 
