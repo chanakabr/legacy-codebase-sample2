@@ -187,7 +187,7 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Alternative cdn adapter profile identifier
         /// </summary>
-        [DataMember(Name = "alternativecdnAdapaterProfileId ")]
+        [DataMember(Name = "alternativecdnAdapaterProfileId")]
         [JsonProperty(PropertyName = "alternativecdnAdapaterProfileId")]
         [XmlElement(ElementName = "alternativecdnAdapaterProfileId", IsNullable = true)]
         public long? AlternativeCdnAdapaterProfileId { get; set; }

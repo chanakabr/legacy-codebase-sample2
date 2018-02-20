@@ -320,21 +320,24 @@ namespace WebAPI.Controllers
                 {
                     case KalturaAssetReferenceType.media:
                         {
-                            int mediaId;
-                            if (!int.TryParse(id, out mediaId))
+                            long mediaId;
+                            if (!long.TryParse(id, out mediaId))
                             {
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
-                            var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                                0, 1, new List<int>() { mediaId }, KalturaAssetOrderBy.START_DATE_DESC);
 
-                            // if no response - return not found status 
-                            if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
-                            {
-                                throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
-                            }
+                            response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType);
 
-                            response = mediaRes.Objects.First();
+                            //var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                            //    0, 1, new List<int>() { mediaId }, KalturaAssetOrderBy.START_DATE_DESC);
+
+                            //// if no response - return not found status 
+                            //if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
+                            //{
+                            //    throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
+                            //}
+
+                            //response = mediaRes.Objects.First();
                         }
                         break;
                     case KalturaAssetReferenceType.epg_internal:

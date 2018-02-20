@@ -4811,7 +4811,7 @@ namespace WebAPI.Reflection
                         case "AltCdnCode":
                             return "altCdnCode";
                         case "AlternativeCdnAdapaterProfileId":
-                            return "alternativecdnAdapaterProfileId ";
+                            return "alternativecdnAdapaterProfileId";
                         case "AltExternalId":
                             return "altExternalId";
                         case "AltStreamingCode":

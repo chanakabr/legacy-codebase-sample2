@@ -457,8 +457,8 @@ namespace WebAPI.Clients
             // in case asset is media
             if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
-                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
+                result = Mapper.Map<Asset, KalturaMediaAsset>(response.Asset,
+                                                                opt => opt.AfterMap((src, dest) => dest.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, src.Images)));
             }
             // add here else if for epg\recording when needed
             else
@@ -499,6 +499,54 @@ namespace WebAPI.Clients
             }
 
             return true;
+        }
+
+        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType)
+        {
+            KalturaAsset result = null;
+            AssetResponse response = null;
+            eAssetTypes assetType = eAssetTypes.UNKNOWN;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
+                    response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, id, assetType);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            switch (assetType)
+            {
+                case eAssetTypes.MEDIA:
+                    result = Mapper.Map<Asset, KalturaMediaAsset>(response.Asset,
+                                                                    opt => opt.AfterMap((src, dest) => dest.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, src.Images)));
+                    break;
+                case eAssetTypes.EPG:
+                    break;
+                case eAssetTypes.NPVR:
+                    break;
+                case eAssetTypes.UNKNOWN:                    
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+                    break;
+            }   
+
+            return result;
         }
 
         public KalturaAsset UpdateAsset(int groupId, long id, KalturaAsset asset, long userId)
@@ -546,8 +594,8 @@ namespace WebAPI.Clients
             // in case asset is media
             if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = AutoMapper.Mapper.Map<KalturaMediaAsset>(response.Asset);
-                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
+                result = Mapper.Map<Asset, KalturaMediaAsset>(response.Asset,
+                                                                opt => opt.AfterMap((src, dest) => dest.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, src.Images)));
             }
             // add here else if for epg\recording when needed
             else
@@ -797,25 +845,102 @@ namespace WebAPI.Clients
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
                 searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
             {
-                // build the assetsBaseDataList from the hit array 
-                result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, CacheDuration, managementData, responseProfile);
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assetsToRetrieve = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
+                    foreach (Catalog.Response.AggregationResult aggregationResult in searchResponse.aggregationResults[0].results)
+                    {
+                        if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
+                        {
+                            long assetId;                            
+                            if (long.TryParse(aggregationResult.topHits[0].AssetId, out assetId) && assetId > 0)
+                            {
+                                assetsToRetrieve.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(aggregationResult.topHits[0].AssetType, assetId));
+                            }                            
+                        }
+                    }
+
+                    List<Asset> assets =  AssetManager.GetAssets(groupId, assetsToRetrieve);
+                    if (assets != null)
+                    {
+                        result.Objects = new List<KalturaAsset>();
+                        // convert assets
+                        foreach (MediaAsset mediaAssetToConvert in assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
+                        {
+                            result.Objects.Add(Mapper.Map<MediaAsset, KalturaMediaAsset>(mediaAssetToConvert,
+                                                opt => opt.AfterMap((src, dest) => dest.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, src.Images))));
+
+                        }
+
+                        //TODO : add support when needed for EPG\Recording
+                        //List<KalturaProgramAsset> programAssets = null;
+                        //List<KalturaRecordingAsset> recordingAssets = null;
+                        //if (programAssets != null && programAssets.Count > 0)
+                        //{
+                        //    result.Objects.AddRange(programAssets);
+                        //}
+
+                        //if (recordingAssets != null && recordingAssets.Count > 0)
+                        //{
+                        //    result.Objects.AddRange(recordingAssets);
+                        //}        
+                    }
+                }
+                else
+                {
+                    // build the assetsBaseDataList from the hit array 
+                    result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, CacheDuration, managementData, responseProfile);                    
+                }
+
                 result.TotalCount = searchResponse.aggregationResults[0].totalItems;
             }
             else if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
             {
-                // get base objects list
-                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assetsToRetrieve = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
+                    foreach (UnifiedSearchResult searchResult in searchResponse.searchResults)
+                    {
+                        long assetId;
+                        if (long.TryParse(searchResult.AssetId, out assetId) && assetId > 0)
+                        {
+                            assetsToRetrieve.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(searchResult.AssetType, assetId));
+                        }
+                    }
 
-                /*if (group== new type of group)
-                {
-                if (assetType==media)
-                {
-                }            
+                    List<Asset> assets = AssetManager.GetAssets(groupId, assetsToRetrieve);
+                    if (assets != null)
+                    {
+                        result.Objects = new List<KalturaAsset>();
+                        // convert assets
+                        foreach (MediaAsset mediaAssetToConvert in assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
+                        {
+                            result.Objects.Add(Mapper.Map<MediaAsset, KalturaMediaAsset>(mediaAssetToConvert,
+                                                opt => opt.AfterMap((src, dest) => dest.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, src.Images))));
+
+                        }
+
+                        //TODO : add support when needed for EPG\Recording
+                        //List<KalturaProgramAsset> programAssets = null;
+                        //List<KalturaRecordingAsset> recordingAssets = null;
+                        //if (programAssets != null && programAssets.Count > 0)
+                        //{
+                        //    result.Objects.AddRange(programAssets);
+                        //}
+
+                        //if (recordingAssets != null && recordingAssets.Count > 0)
+                        //{
+                        //    result.Objects.AddRange(recordingAssets);
+                        //}                        
+                    }
                 }
-                // get assets from catalog/cache                
                 else
-                */
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, managementData);
+                {
+                    // get base objects list
+                    List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+                    result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, managementData);                    
+                }
+
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
 
