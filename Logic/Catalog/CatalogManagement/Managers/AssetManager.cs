@@ -227,6 +227,145 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static List<MediaAsset> CreateMediaAssets(int groupId, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
+        {
+            List<MediaAsset> result = null;
+            try
+            {
+                if (ds == null || ds.Tables == null || ds.Tables.Count < 6)
+                {
+                    log.WarnFormat("CreateMediaAssets didn't receive dataset with 6 or more tables");
+                    return null;
+                }
+
+                // Basic details table
+                if (ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count <= 0)
+                {
+                    log.WarnFormat("CreateMediaAssets - basic details table is not valid");
+                    return null;
+                }
+
+                result = new List<MediaAsset>();
+                EnumerableRowCollection<DataRow> metas = new DataTable().AsEnumerable();
+                // metas table
+                if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                {
+                    metas = ds.Tables[1].AsEnumerable();
+                }
+
+                EnumerableRowCollection<DataRow> tags = new DataTable().AsEnumerable();
+                // tags table
+                if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
+                {
+                    tags = ds.Tables[2].AsEnumerable();
+                }
+
+                EnumerableRowCollection<DataRow> files = new DataTable().AsEnumerable();
+                // files table
+                if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+                {
+                    files = ds.Tables[3].AsEnumerable();
+                }
+
+                EnumerableRowCollection<DataRow> images = new DataTable().AsEnumerable();
+                // images table
+                if (ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
+                {
+                    images = ds.Tables[4].AsEnumerable();
+                }
+
+                EnumerableRowCollection<DataRow> assetUpdateDate = new DataTable().AsEnumerable();
+                // update dates table
+                if (ds.Tables[5] != null && ds.Tables[5].Rows != null && ds.Tables[5].Rows.Count > 0)
+                {
+                    assetUpdateDate = ds.Tables[5].AsEnumerable();
+                }
+                                
+                foreach (DataRow basicDataRow in ds.Tables[0].Rows)
+                {
+                    int id = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "ID", 0);
+                    if (id > 0)
+                    {
+                        DataSet assetDataset = new DataSet();
+                        DataTable basicDataTable = ds.Tables[0].Clone();
+                        basicDataTable.ImportRow(basicDataRow);
+                        assetDataset.Tables.Add(basicDataTable);
+                        EnumerableRowCollection<DataRow> assetMetas = (from row in metas
+                                                                       where (Int64)row["ASSET_ID"] == id
+                                                                       select row);
+                        if (assetMetas != null && assetMetas.Count() > 0)
+                        {
+                            assetDataset.Tables.Add(assetMetas.CopyToDataTable());
+                        }
+                        else
+                        {
+                            assetDataset.Tables.Add(ds.Tables[1].Clone());
+                        }
+
+                        EnumerableRowCollection<DataRow> assetTags = (from row in tags
+                                                                      where (Int64)row["ASSET_ID"] == id
+                                                                      select row);
+                        if (assetTags != null && assetTags.Count() > 0)
+                        {
+                            assetDataset.Tables.Add(assetTags.CopyToDataTable());
+                        }
+                        else
+                        {
+                            assetDataset.Tables.Add(ds.Tables[2].Clone());
+                        }
+
+                        EnumerableRowCollection<DataRow> assetFiles = (from row in files
+                                                                       where (Int64)row["MEDIA_ID"] == id
+                                                                       select row);
+                        if (assetFiles != null && assetFiles.Count() > 0)
+                        {
+                            assetDataset.Tables.Add(assetFiles.CopyToDataTable());
+                        }
+                        else
+                        {
+                            assetDataset.Tables.Add(ds.Tables[3].Clone());
+                        }
+
+                        EnumerableRowCollection<DataRow> assetImages = (from row in images
+                                                                        where (Int64)row["ASSET_ID"] == id
+                                                                        select row);
+                        if (assetImages != null && assetImages.Count() > 0)
+                        {
+                            assetDataset.Tables.Add(assetImages.CopyToDataTable());
+                        }
+                        else
+                        {
+                            assetDataset.Tables.Add(ds.Tables[4].Clone());
+                        }
+
+                        EnumerableRowCollection<DataRow> assetUpdateDateRow = (from row in assetUpdateDate
+                                                                               where (Int64)row["ID"] == id
+                                                                               select row);
+                        if (assetUpdateDateRow != null && assetUpdateDateRow.Count() > 0)
+                        {
+                            assetDataset.Tables.Add(assetUpdateDateRow.CopyToDataTable());
+                        }
+                        else
+                        {
+                            assetDataset.Tables.Add(ds.Tables[5].Clone());
+                        }
+
+                        MediaAsset mediaAsset = CreateMediaAsset(groupId, id, assetDataset, defaultLanguage, groupLanguages);
+                        if (mediaAsset != null)
+                        {
+                            result.Add(mediaAsset);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed CreateMediaAssets for groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
         private static Status ValidateMediaAssetForInsert(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc,
                                                             ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate)
         {
@@ -640,7 +779,7 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
-        private static Asset GetAssetWithNoCache(int groupId, long id, eAssetTypes assetType)
+        private static Asset GetAssetFromDb(int groupId, long id, eAssetTypes assetType)
         {
             Asset result = null;
             try
@@ -648,7 +787,7 @@ namespace Core.Catalog.CatalogManagement
                 CatalogGroupCache catalogGroupCache;
                 if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetWithNoCache", groupId);
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetFromDb", groupId);
                     return result;
                 }
 
@@ -669,7 +808,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetAssetWithNoCache for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString()), ex);
+                log.Error(string.Format("Failed GetAssetFromDb for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString()), ex);
             }
 
             return result;
@@ -688,7 +827,7 @@ namespace Core.Catalog.CatalogManagement
                     eAssetTypes assetType;
                     if (groupId.HasValue && groupId.Value > 0 && id.HasValue && id.Value > 0 && Enum.TryParse<eAssetTypes>(funcParams["assetType"].ToString(), out assetType))
                     {
-                        asset = GetAssetWithNoCache(groupId.Value, id.Value, assetType);
+                        asset = GetAssetFromDb(groupId.Value, id.Value, assetType);
                         res = asset != null;
                     }
                 }
@@ -700,6 +839,70 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return new Tuple<Asset, bool>(asset, res);
+        }
+
+        private static Tuple<Dictionary<string, Asset>, bool> GetAssets(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, Asset> result = new Dictionary<string, Asset>();
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("ids") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("assetType"))
+                {
+                    string key = string.Empty;
+                    List<long> ids;
+                    int? groupId = funcParams["groupId"] as int?;
+                    eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                    {
+                        ids = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
+                    }
+                    else
+                    {
+                        ids = funcParams["ids"] != null ? funcParams["ids"] as List<long> : null;
+                    }
+
+                    List<Asset> assets = new List<Asset>();
+                    if (ids != null && groupId.HasValue && assetType.HasValue)
+                    {
+                        switch (assetType.Value)
+                        {
+                            case eAssetTypes.MEDIA:
+                                CatalogGroupCache catalogGroupCache;
+                                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
+                                {
+                                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssets", groupId);                                    
+                                }
+                                else
+                                {
+                                    DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.DefaultLanguage.ID);
+                                    assets.AddRange(CreateMediaAssets(groupId.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList()));
+                                }
+                                break;
+                            case eAssetTypes.EPG:
+                                break;
+                            case eAssetTypes.NPVR:
+                                break;
+                            case eAssetTypes.UNKNOWN:                                
+                            default:
+                                break;
+                        }
+
+                        res = assets.Count() == ids.Count();
+                    }
+
+                    if (res)
+                    {
+                        result = assets.ToDictionary(x => LayeredCacheKeys.GetAssetKey(assetType.Value.ToString(), x.Id), x => x);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAssets failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, Asset>, bool>(result, res);
         }
 
         private static Asset GetAssetFromCache(int groupId, long id, eAssetTypes assetType)
@@ -722,22 +925,37 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static List<Asset> GetMediaAssetsFromCache(int groupId, List<long> ids)
+        private static List<MediaAsset> GetMediaAssetsFromCache(int groupId, List<long> ids)
         {
-            throw new NotImplementedException();
-            //List<Asset> result = new List<Asset>();
-            //try
-            //{
-            //    if (ids != null && ids.Count > 0)
-            //    {
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.Error(string.Format("Failed GetMediaAssetsFromCache with groupId: {0}, assets: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
-            //}
+            List<MediaAsset> mediaAssets = null;
+            try
+            {
+                if (ids == null || ids.Count == 0)
+                {
+                    return mediaAssets;
+                }
 
-            //return result;
+                eAssetTypes assetType = eAssetTypes.MEDIA;
+                Dictionary<string, Asset> assetMap = null;
+                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), ids);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), ids);
+
+                if (!LayeredCache.Instance.GetValues<Asset>(keyToOriginalValueMap, ref assetMap, GetAssets, new Dictionary<string, object>() { { "groupId", groupId }, { "assetType", assetType },
+                    { "ids", ids } }, groupId, LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME, invalidationKeysMap))
+                {
+                    log.ErrorFormat("Failed getting GetMediaAssetsFromCache from LayeredCache, groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty, assetType.ToString());
+                }
+                else if (assetMap != null)
+                {
+                    mediaAssets = assetMap.Values.Select(x => x as MediaAsset).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetMediaAssetsFromCache with groupId: {0}, assets: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
+            }
+
+            return mediaAssets;
         }
 
         private static List<Asset> GetEpgAssetsFromCache(int groupId, List<long> ids)
@@ -763,7 +981,16 @@ namespace Core.Catalog.CatalogManagement
                     List<long> npvrIds = assets.Where(x => x.Key == eAssetTypes.NPVR).Select(x => x.Value).ToList();
                     if (mediaIds != null && mediaIds.Count > 0)
                     {
-                        result.AddRange(GetMediaAssetsFromCache(groupId, mediaIds));
+                        List<MediaAsset> mediaAssets = GetMediaAssetsFromCache(groupId, mediaIds);
+                        if (mediaAssets == null || mediaAssets.Count != mediaIds.Count)
+                        {
+                            List<long> missingMediaIds = mediaAssets == null ? mediaIds : mediaIds.Except(mediaAssets.Select(x => x.Id)).ToList();
+                            log.WarnFormat("GetMediaAssetsFromCache didn't find the following mediaIds: {0}", string.Join(",", missingMediaIds));
+                        }
+                        else if (mediaAssets != null)
+                        {
+                            result.AddRange(GetMediaAssetsFromCache(groupId, mediaIds));
+                        }
                     }
 
                     if (epgIds != null && epgIds.Count > 0)
@@ -1329,9 +1556,8 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAsset", groupId);
                         return result;
                     }
-
-                    DataSet ds = CatalogDAL.GetMediaAsset(groupId, id, catalogGroupCache.DefaultLanguage.ID);
-                    MediaAsset mediaAsset = CreateMediaAsset(groupId, id, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                    
+                    MediaAsset mediaAsset = GetAssetFromDb(groupId, id, eAssetTypes.MEDIA) as MediaAsset;
                     if (mediaAsset != null)
                     {
                         result = new MediaObj(groupId, mediaAsset);
@@ -1345,24 +1571,15 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
-        // TODO - Lior talk to Ira about the issue with asset being null (or none castable to media asset) on local cache 
-        public static AssetResponse GetAsset(int groupId, long id, eAssetTypes assetType, bool shouldGoToCache = true)
+        
+        public static AssetResponse GetAsset(int groupId, long id, eAssetTypes assetType)
         {
             AssetResponse result = new AssetResponse();
             try
             {
                 if (id > 0 && assetType != eAssetTypes.UNKNOWN)
                 {
-                    if (shouldGoToCache)
-                    {
-                        result.Asset = GetAssetFromCache(groupId, id, assetType);
-                    }
-                    else
-                    {
-                        result.Asset = GetAssetWithNoCache(groupId, id, assetType);
-                    }
-
+                    result.Asset = GetAssetFromCache(groupId, id, assetType);
                     if (result.Asset == null)
                     {
                         log.ErrorFormat("Failed getting asset from GetAssetFromCache, for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());
@@ -1382,21 +1599,19 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static AssetListResponse GetAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets)
+        public static List<Asset> GetAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets)
         {
-            AssetListResponse result = new AssetListResponse();
+            List<Asset> result = null;
             try
             {
                 if (assets != null && assets.Count > 0)
                 {
-                    result.Assets = GetAssetsFromCache(groupId, assets);
-                    if (result.Assets == null || result.Assets.Count != assets.Count)
+                    result= GetAssetsFromCache(groupId, assets);
+                    if (result == null || result.Count != assets.Count)
                     {
                         log.ErrorFormat("Failed getting assets from GetAssetsFromCache, for groupId: {0}, assets: {1}", groupId,
                                         assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.Key, x.Value)).ToList()) : string.Empty);
                     }
-
-                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
@@ -1528,8 +1743,8 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate that asset exist
-                AssetResponse assetResponse = GetAsset(groupId, id, assetType, false);
-                if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
+                Asset asset = GetAssetFromDb(groupId, id, assetType);
+                if (asset == null)
                 {
                     result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
                     return result;
@@ -1543,7 +1758,7 @@ namespace Core.Catalog.CatalogManagement
                         break;
                     case eAssetTypes.MEDIA:
                         MediaAsset mediaAssetToUpdate = assetToUpdate as MediaAsset;
-                        MediaAsset currentAsset = assetResponse.Asset as MediaAsset;
+                        MediaAsset currentAsset = asset as MediaAsset;
                         mediaAssetToUpdate.Id = id;
                         if (currentAsset != null && mediaAssetToUpdate != null)
                         {
@@ -1578,10 +1793,10 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // validate that asset exist
-                AssetResponse assetResponse = GetAsset(groupId, id, assetType, false);
-                if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
+                Asset asset = GetAssetFromDb(groupId, id, assetType);
+                if (asset == null)
                 {
-                    result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
+                    result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
                     return result;
                 }
 
@@ -1635,10 +1850,10 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // validate that asset exist
-                AssetResponse assetResponse = GetAsset(groupId, id, assetType, false);
-                if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
+                Asset asset = GetAssetFromDb(groupId, id, assetType);
+                if (asset == null)
                 {
-                    result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
+                    result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
                     return result;
                 }
 
@@ -1667,12 +1882,12 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.MEDIA:
                         dbAssetType = 0;
                         // validate topicsIds exist on asset
-                        MediaAsset asset = assetResponse.Asset as MediaAsset;
-                        if (asset != null)
+                        MediaAsset mediaAsset = asset as MediaAsset;
+                        if (mediaAsset != null)
                         {
-                            List<long> existingTopicsIds = asset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
+                            List<long> existingTopicsIds = mediaAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
                                                                       .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList();
-                            existingTopicsIds.AddRange(asset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
+                            existingTopicsIds.AddRange(mediaAsset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemName.ContainsKey(x.m_oTagMeta.m_sName))
                                                                       .Select(x => catalogGroupCache.TopicsMapBySystemName[x.m_oTagMeta.m_sName].Id).ToList());
                             List<long> noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToList();
                             if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)

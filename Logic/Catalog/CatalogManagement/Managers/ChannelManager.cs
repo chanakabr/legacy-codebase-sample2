@@ -357,9 +357,9 @@ namespace Core.Catalog.CatalogManagement
                     {
                         DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, true);
                         channels = GetChannelListFromDs(ds);
-                    }
+                        res = channels.Count() == channelIds.Count();
+                    }                    
 
-                    res = channels.Count() == channelIds.Count();
                     if (res)
                     {
                         result = channels.ToDictionary(x => LayeredCacheKeys.GetChannelKey(groupId.Value, x.m_nChannelID), x => x);
@@ -507,11 +507,10 @@ namespace Core.Catalog.CatalogManagement
 
                     if (assets.Count > 0)
                     {
-                        AssetListResponse assetListResponse = AssetManager.GetAssets(groupId, assets);
-                        if (assetListResponse != null && assetListResponse.Status != null && assetListResponse.Status.Code == (int)eResponseStatus.OK
-                            && assetListResponse.Assets != null && assetListResponse.Assets.Count > 0 && assetListResponse.Assets.Count != channelToAdd.m_lManualMedias.Count)
+                        List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets);
+                        if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToAdd.m_lManualMedias.Count)
                         {
-                            List<long> missingAssetIds = assets.Select(x => x.Value).Except(assetListResponse.Assets.Select(x => x.Id)).ToList();
+                            List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
                             result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
                                             eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
                             return result;

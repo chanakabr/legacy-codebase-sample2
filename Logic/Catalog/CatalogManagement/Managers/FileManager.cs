@@ -511,7 +511,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // validate that asset exist
-                AssetResponse assetResponse = AssetManager.GetAsset(groupId, assetFileToAdd.AssetId, assetType, false);
+                AssetResponse assetResponse = AssetManager.GetAsset(groupId, assetFileToAdd.AssetId, assetType);
                 if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
