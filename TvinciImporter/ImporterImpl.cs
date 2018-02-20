@@ -5414,7 +5414,7 @@ namespace TvinciImporter
         #region Notification
 
         static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, 
-            string timezone, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, ref int id)
+            string timezone, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSMS, ref int id)
         {
             AddMessageAnnouncementResponse response = null;
             try
@@ -5441,6 +5441,7 @@ namespace TvinciImporter
                 announcement.IncludeMail = includeMail;
                 announcement.MailTemplate = mailTemplate;
                 announcement.MailSubject = mailSubject;
+                announcement.IncludeSMS = includeSMS;
                 response = service.AddMessageAnnouncement(sWSUserName, sWSPass, announcement);
                 if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
@@ -5455,7 +5456,7 @@ namespace TvinciImporter
         }
 
         static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date,                 
-            string timezone, string imageUrl, bool includeMail ,string  mailTemplate, string mailSubject)
+            string timezone, string imageUrl, bool includeMail ,string  mailTemplate, string mailSubject, bool includeSMS)
         {
             try
             {
@@ -5482,6 +5483,8 @@ namespace TvinciImporter
                 announcement.IncludeMail = includeMail;
                 announcement.MailTemplate = mailTemplate;
                 announcement.MailSubject = mailSubject;
+                announcement.MailSubject = mailSubject;
+                announcement.IncludeSMS = includeSMS;
                 MessageAnnouncementResponse response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, id, announcement);
                 return response.Status;
             }
