@@ -751,7 +751,11 @@ namespace NPVR
                         urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_NUMBER, args.SeasonNumber.ToString()));
                     }
 
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_EPISODE_SEED, args.EpisodeSeed.ToString()));
+                    if (args.EpisodeSeed > 0)
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_EPISODE_SEED, args.EpisodeSeed.ToString()));
+                    }
+
                     urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
 
                     if (args.LookupCriteria != null && args.LookupCriteria.Count > 0)

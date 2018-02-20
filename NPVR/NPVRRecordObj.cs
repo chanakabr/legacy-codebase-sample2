@@ -19,7 +19,7 @@ namespace NPVR
         public List<string> LookupCriteria { get; set; }
 
 
-        public NPVRRecordObj(string channelId, string domainID, string seriesId, int seasonSeed, int seasonNumber, List<string> lookupCriteria)
+        public NPVRRecordObj(string channelId, string domainID, string seriesId, int seasonSeed, int seasonNumber, int episodeSeed, List<string> lookupCriteria)
         {
             EpgChannelID = channelId;
             EntityID = domainID;
@@ -32,6 +32,7 @@ namespace NPVR
             {
                 SeasonNumber = seasonNumber;
             }
+            EpisodeSeed = episodeSeed;
             LookupCriteria = lookupCriteria;
         }
 
