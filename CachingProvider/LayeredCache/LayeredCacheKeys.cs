@@ -339,6 +339,21 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+        public static Dictionary<string, string> GetAssetsKeyMap(string assetType, List<long> assetIds)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (assetIds != null && assetIds.Count > 0)
+            {
+                assetIds = assetIds.Distinct().ToList();
+                foreach (long id in assetIds)
+                {
+                    result.Add(GetAssetKey(assetType, id), id.ToString());
+                }
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -576,6 +591,21 @@ namespace CachingProvider.LayeredCache
         public static string GetCDNAdapterInvalidationKey(int groupId, int adapterId)
         {
             return string.Format("InvalidationKey_cdnAdapter_groupId_{0}_adapterId_{1}", groupId, adapterId);
+        }
+
+        public static Dictionary<string, List<string>> GetAssetsInvalidationKeysMap(string assetType, List<long> ids)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (ids != null && ids.Count > 0)
+            {
+                ids = ids.Distinct().ToList();
+                foreach (long id in ids)
+                {
+                    result.Add(GetAssetKey(assetType, id), new List<string>() { GetAssetInvalidationKey(assetType, id) });
+                }
+            }
+
+            return result;
         }
 
         #region Domains
