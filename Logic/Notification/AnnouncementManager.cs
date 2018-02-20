@@ -480,7 +480,7 @@ namespace Core.Notification
                         MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
                         MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
                         IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false),
-                        IncludeSMS = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false)
+                        IncludeSms = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false)
 
                     };
 
@@ -502,7 +502,7 @@ namespace Core.Notification
                 DateTime announcementStartTime = ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime);
                 DataRow row = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message,
                     announcement.Enabled, announcementStartTime, announcement.Timezone, 0, announcement.MessageReference, null,
-                    announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeSMS, announcement.AnnouncementId);
+                    announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeSms, announcement.AnnouncementId);
                 return Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
             }
             catch (Exception ex)

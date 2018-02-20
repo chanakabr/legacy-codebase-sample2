@@ -48,7 +48,7 @@ namespace ApiObjects.Notification
         public string MailTemplate { get; set; }
 
         [DataMember]
-        public bool IncludeSMS{ get; set; }
+        public bool IncludeSms{ get; set; }
 
         public MessageAnnouncement() { }
 
