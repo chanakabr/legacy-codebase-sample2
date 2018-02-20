@@ -5441,7 +5441,7 @@ namespace TvinciImporter
                 announcement.IncludeMail = includeMail;
                 announcement.MailTemplate = mailTemplate;
                 announcement.MailSubject = mailSubject;
-                announcement.IncludeSMS = includeSMS;
+                announcement.IncludeSms = includeSMS;
                 response = service.AddMessageAnnouncement(sWSUserName, sWSPass, announcement);
                 if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
@@ -5456,7 +5456,7 @@ namespace TvinciImporter
         }
 
         static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date,                 
-            string timezone, string imageUrl, bool includeMail ,string  mailTemplate, string mailSubject, bool includeSMS)
+            string timezone, string imageUrl, bool includeMail ,string  mailTemplate, string mailSubject, bool includeSms)
         {
             try
             {
@@ -5484,7 +5484,7 @@ namespace TvinciImporter
                 announcement.MailTemplate = mailTemplate;
                 announcement.MailSubject = mailSubject;
                 announcement.MailSubject = mailSubject;
-                announcement.IncludeSMS = includeSMS;
+                announcement.IncludeSms = includeSms;
                 MessageAnnouncementResponse response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, id, announcement);
                 return response.Status;
             }
