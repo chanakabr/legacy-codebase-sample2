@@ -49,18 +49,19 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
                 bool includeMail = false;
                 string mailTemplate = string.Empty;
                 string mailSubject = string.Empty;
+                bool includeSMS = false;
 
-                PageFiled(ref Enabled, ref recipients, ref name, ref message, ref date, ref timezone, ref imageUrl, ref includeMail, ref mailTemplate, ref mailSubject);
+                PageFiled(ref Enabled, ref recipients, ref name, ref message, ref date, ref timezone, ref imageUrl, ref includeMail, ref mailTemplate, ref mailSubject, ref includeSMS);
 
                 if (id == 0)
                 {
-                    result = ImporterImpl.AddMessageAnnouncement(groupId, Enabled, name, message, recipients, date, timezone, imageUrl, includeMail, mailTemplate, mailSubject, ref id);
+                    result = ImporterImpl.AddMessageAnnouncement(groupId, Enabled, name, message, recipients, date, timezone, imageUrl, includeMail, mailTemplate, mailSubject, includeSMS, ref id);
                     Session["message_announcement_id"] = id;
 
                 }
                 else
                 {
-                    result = ImporterImpl.UpdateMessageAnnouncement(groupId, id, Enabled, name, message, recipients, date, timezone, imageUrl, includeMail, mailTemplate, mailSubject);
+                    result = ImporterImpl.UpdateMessageAnnouncement(groupId, id, Enabled, name, message, recipients, date, timezone, imageUrl, includeMail, mailTemplate, mailSubject, includeSMS);
                 }
                 if (result == null)
                 {
@@ -295,9 +296,9 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         bool enable = IsMailNotificationEnabled();
 
         DataRecordCheckBoxField drCheckBoxField = new DataRecordCheckBoxField(true);
-        dr_imageUrl.setFiledName("include_email");
+        drCheckBoxField.setFiledName("include_email");
         drCheckBoxField.Initialize("Mail Notification", "adm_table_header_nbg", "FormInput", "include_email", false);
-        drCheckBoxField.SetDefault(enable?1:0);
+        drCheckBoxField.SetDefault(enable ? 1 : 0);
         theRecord.AddRecord(drCheckBoxField);
 
         DataRecordShortTextField drShortTextField = new DataRecordShortTextField("ltr", true, 60, 256);
@@ -309,6 +310,13 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         drShortTextField.setFiledName("mail_subject");
         drShortTextField.Initialize("Mail subject", "adm_table_header_nbg", "FormInput", "MAIL_SUBJECT", false);
         theRecord.AddRecord(drShortTextField);
+
+        enable = IsSMSNotificationEnabled();
+        drCheckBoxField = new DataRecordCheckBoxField(true);
+        drCheckBoxField.setFiledName("include_sms");
+        drCheckBoxField.Initialize("SMS", "adm_table_header_nbg", "FormInput", "INCLUDE_SMS", false);
+        drCheckBoxField.SetDefault(enable ? 1 : 0);
+        theRecord.AddRecord(drCheckBoxField);
 
         string sTable = theRecord.GetTableHTML("adm_system_announcements_new.aspx?submited=1");
 
@@ -338,10 +346,38 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            log.Error("", ex);            
+            log.Error("", ex);
         }
         return mailNotificationEnabled;
     }
+
+    private bool IsSMSNotificationEnabled()
+    {
+        bool enabled = false;
+        try
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("notifications_connection");
+            selectQuery += "select IS_SMS_ENABLE from notification_settings where status=1 and is_active =1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", LoginManager.GetLoginGroupID());
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    enabled = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row, "IS_SMS_ENABLE") == 1 ? true : false;
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+        catch (Exception ex)
+        {
+            log.Error("", ex);
+        }
+        return enabled;
+    }
+
 
     private System.Data.DataTable GetReceipentType()
     {
@@ -452,7 +488,8 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
             return false;
         }
     }
-    private void PageFiled(ref bool Enabled, ref int recipients, ref string name, ref string message, ref DateTime date, ref string timezone, ref string imageUrl, ref bool includeMail, ref string mailTemplate, ref string mailSubject)
+    private void PageFiled(ref bool Enabled, ref int recipients, ref string name, ref string message, ref DateTime date, ref string timezone, ref string imageUrl,
+        ref bool includeMail, ref string mailTemplate, ref string mailSubject, ref bool includeSMS)
     {
         System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
         if (coll["table_name"] == null)
@@ -482,6 +519,12 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
                             #region case
                             switch (sFieldName)
                             {
+                                case "include_sms":
+                                    if (sVal == "on")
+                                        includeSMS = true;
+                                    else
+                                        includeSMS = false;
+                                    break;
                                 case "mail_template":
                                     mailTemplate = sVal.Replace("\r\n", "<br\\>");
                                     break;
@@ -489,7 +532,7 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
                                     mailSubject = sVal.Replace("\r\n", "<br\\>");
                                     break;
                                 case "include_email":
-                                    if (sVal == "1")
+                                    if (sVal == "on")
                                         includeMail = true;
                                     else
                                         includeMail = false;
