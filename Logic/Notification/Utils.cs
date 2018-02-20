@@ -78,7 +78,8 @@ namespace Core.Notification
                 ImageUrl = ODBCWrapper.Utils.GetSafeStr(row, "image_url"),
                 MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
                 MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
-                IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false)
+                IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false),
+                IncludeSMS = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false)
             };
 
             msg.MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id");

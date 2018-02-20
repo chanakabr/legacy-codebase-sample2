@@ -47,6 +47,9 @@ namespace ApiObjects.Notification
         [DataMember]
         public string MailTemplate { get; set; }
 
+        [DataMember]
+        public bool IncludeSMS{ get; set; }
+
         public MessageAnnouncement() { }
 
         public override string ToString()
