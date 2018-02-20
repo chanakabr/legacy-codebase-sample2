@@ -682,7 +682,7 @@ namespace NPVR
                 if (IsRecordAssetInputValid(args))
                 {
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "2.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
