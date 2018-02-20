@@ -2632,6 +2632,12 @@ namespace DAL
             return id;
         }
 
+        public static SmsNotificationData GetUserSmsNotificationData(int groupId, int userId)
+        {
+            bool isDocumentExist = false;
+            return GetUserSmsNotificationData(groupId, userId, ref isDocumentExist);
+        }
+
         public static SmsNotificationData GetUserSmsNotificationData(int groupId, int userId, ref bool isDocumentExist, bool withLock = false)
         {
             SmsNotificationData userSmsNotification = null;
