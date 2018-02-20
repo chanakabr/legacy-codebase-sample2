@@ -460,11 +460,9 @@ namespace Core.Notification
                 }
 
                 // get sms notification data
-                bool docExists = false;
-                SmsNotificationData smsData = DAL.NotificationDal.GetUserSmsNotificationData(groupId, userNotificationData.UserId, ref docExists);
+                SmsNotificationData smsData = DAL.NotificationDal.GetUserSmsNotificationData(groupId, userNotificationData.UserId);
                 if (smsData != null)
                 {
-
                     // remove reminders 
                     int numOfSMSRemindersToRemove = 0;
                     if (numOfRemindersToRemove > 0)
@@ -1632,8 +1630,7 @@ namespace Core.Notification
             }
 
             // get sms notification data
-            bool docExists = false;
-            SmsNotificationData smsData = DAL.NotificationDal.GetUserSmsNotificationData(groupId, userNotificationData.UserId, ref docExists);
+            SmsNotificationData smsData = DAL.NotificationDal.GetUserSmsNotificationData(groupId, userNotificationData.UserId);
             if (smsData == null)
             {
                 log.DebugFormat("user sms notification data is empty {0}", userId);
