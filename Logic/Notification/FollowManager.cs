@@ -412,11 +412,33 @@ namespace Core.Notification
                 MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, new List<string>() { announcements.First().MailExternalId }, userNotificationData.UserData, userId);
             }
 
-            // iterate through user devices and unfollow series
+            HandleUnfollowSms(groupId, userId, announcementId);
+
+            HandleUnfollowPush(groupId, userId, userNotificationData, announcementId);
+
+            // remove announcement from user announcement list
+            Announcement announcement = userNotificationData.Announcements.Where(x => x.AnnouncementId == announcementId).First();
+            if (!userNotificationData.Announcements.Remove(announcement) ||
+                !NotificationDal.RemoveUserFollowNotification(groupId, userId, announcement.AnnouncementId) ||
+                !DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+            {
+                log.DebugFormat("an error while trying to remove announcement. GID: {0}, UID: {1}, announcementId: {2}", groupId, userId, announcementId);
+                statusResult = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                return statusResult;
+            }
+            else
+                log.DebugFormat("Successfully removed announcement from user announcements object group: {0}, UID: {1}", groupId, userId);
+
+            return statusResult;
+        }
+
+        private static void HandleUnfollowPush(int groupId, int userId, UserNotification userNotificationData, long announcementId)
+        {
             if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
                 log.DebugFormat("User doesn't have any devices. PID: {0}, UID: {1}", groupId, userId);
             else
             {
+                bool docExists = false;
                 foreach (UserDevice device in userNotificationData.devices)
                 {
                     string udid = device.Udid;
@@ -427,7 +449,6 @@ namespace Core.Notification
                     }
 
                     // get device data
-                    docExists = false;
                     DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(groupId, udid, ref docExists);
                     if (deviceNotificationData == null)
                     {
@@ -466,21 +487,41 @@ namespace Core.Notification
                         log.DebugFormat("Successfully unsubscribed device from announcement group: {0}, UID: {1}, UDID: {2}", groupId, userId, device.Udid);
                 }
             }
+        }
 
-            // remove announcement from user announcement list
-            Announcement announcement = userNotificationData.Announcements.Where(x => x.AnnouncementId == announcementId).First();
-            if (!userNotificationData.Announcements.Remove(announcement) ||
-                !NotificationDal.RemoveUserFollowNotification(groupId, userId, announcement.AnnouncementId) ||
-                !DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+        private static void HandleUnfollowSms(int groupId, int userId, long announcementId)
+        {
+            SmsNotificationData smsNotificationData = NotificationDal.GetUserSmsNotificationData(groupId, userId);
+            if (smsNotificationData != null)
             {
-                log.DebugFormat("an error while trying to remove announcement. GID: {0}, UID: {1}, announcementId: {2}", groupId, userId, announcementId);
-                statusResult = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                return statusResult;
-            }
-            else
-                log.DebugFormat("Successfully removed announcement from user announcements object group: {0}, UID: {1}", groupId, userId);
+                var subscribedAnnouncements = smsNotificationData.SubscribedAnnouncements.Where(x => x.Id == announcementId);
+                if (subscribedAnnouncements == null || subscribedAnnouncements.Count() == 0)
+                {
+                    log.DebugFormat("sms notification data had no subscription to announcement. group: {0}, userId: {1}", groupId, userId);
+                    return;
+                }
 
-            return statusResult;
+                // unsubscribe sms 
+                List<UnSubscribe> unsubscibeList = new List<UnSubscribe>() 
+                    { 
+                        new UnSubscribe() 
+                        { 
+                            SubscriptionArn = subscribedAnnouncements.First().ExternalId 
+                        } 
+                    };
+
+                unsubscibeList = NotificationAdapter.UnSubscribeToAnnouncement(groupId, unsubscibeList);
+                if (unsubscibeList == null ||
+                    unsubscibeList.Count == 0 ||
+                    !unsubscibeList.First().Success
+                    || !smsNotificationData.SubscribedAnnouncements.Remove(subscribedAnnouncements.First())
+                    || !DAL.NotificationDal.SetUserSmsNotificationData(groupId, userId, smsNotificationData))
+                {
+                    log.ErrorFormat("error removing announcement from sms subscribed. group: {0}, userId: {1}", groupId, userId);
+                }
+                else
+                    log.DebugFormat("Successfully unsubscribed device from announcement group: {0}, userId: {1}", groupId, userId);
+            }
         }
 
         public static FollowResponse Follow(int groupId, int userId, FollowDataBase followData)
