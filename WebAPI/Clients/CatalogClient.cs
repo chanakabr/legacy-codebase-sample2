@@ -3748,7 +3748,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // Asset type should always eAssetTypes.MEDIA
-                    response = Core.Catalog.CatalogManagement.FileManager.InsertMediaFile(groupId, userId, assetFileToAdd, eAssetTypes.MEDIA);
+                    response = Core.Catalog.CatalogManagement.FileManager.InsertMediaFile(groupId, userId, assetFileToAdd);
                 }
             }
             catch (Exception ex)
