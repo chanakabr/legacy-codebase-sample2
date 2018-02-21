@@ -892,26 +892,6 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, MediaAsset>, bool>(result, res);
         }
 
-        private static Asset GetAssetFromCache(int groupId, long id, eAssetTypes assetType)
-        {
-            Asset result = null;
-            try
-            {
-                string key = LayeredCacheKeys.GetAssetKey(assetType.ToString(), id);
-                if (!LayeredCache.Instance.Get<Asset>(key, ref result, GetAsset, new Dictionary<string, object>() { { "groupId", groupId }, { "id", id }, { "assetType", assetType.ToString() } }, groupId,
-                    LayeredCacheConfigNames.GET_ASSET_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id) }))
-                {
-                    log.ErrorFormat("Failed getting Asset from LayeredCache, groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetAssetFromCache with groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString()), ex);
-            }
-
-            return result;
-        }
-
         private static List<MediaAsset> GetMediaAssetsFromCache(int groupId, List<long> ids)
         {
             List<MediaAsset> mediaAssets = null;
@@ -1566,14 +1546,15 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (id > 0 && assetType != eAssetTypes.UNKNOWN)
                 {
-                    result.Asset = GetAssetFromCache(groupId, id, assetType);
-                    if (result.Asset == null)
+                    List<Asset> assets = GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(assetType, id) });
+                    if (assets == null || assets.Count != 1 || assets[0] == null)
                     {
                         log.ErrorFormat("Failed getting asset from GetAssetFromCache, for groupId: {0}, id: {1}, assetType: {2}", groupId, id, assetType.ToString());
                         result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     }
                     else
                     {
+                        result.Asset = assets[0];
                         result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
