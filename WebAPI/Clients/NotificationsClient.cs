@@ -262,7 +262,8 @@ namespace WebAPI.Clients
                 ImageUrl = announcement.ImageUrl,
                 IncludeMail = announcement.IncludeMail,
                 MailSubject = announcement.MailSubject,
-                MailTemplate = announcement.MailTemplate
+                MailTemplate = announcement.MailTemplate,
+                IncludeSms = announcement.IncludeSms
             };
 
             try
