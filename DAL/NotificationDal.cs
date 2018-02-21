@@ -2705,7 +2705,7 @@ namespace DAL
 
         private static string GetSmsDataKey(int groupId, int userId)
         {
-            return string.Format("device_data_{0}_{1}", groupId, userId);
+            return string.Format("sms_data_{0}_{1}", groupId, userId);
         }
 
         public static bool SetUserSmsNotificationData(int groupId, int userId, SmsNotificationData newSMSNotificationData, bool unlock = false)
