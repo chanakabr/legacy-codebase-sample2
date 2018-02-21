@@ -457,8 +457,8 @@ namespace WebAPI.Clients
             // in case asset is media
             if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = Mapper.Map<Asset, KalturaMediaAsset>(response.Asset,
-                                                                opt => opt.AfterMap((src, dest) => dest.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, src.Images)));
+                result = Mapper.Map<KalturaMediaAsset>(response.Asset);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
             }
             // add here else if for epg\recording when needed
             else
@@ -533,8 +533,8 @@ namespace WebAPI.Clients
             switch (assetType)
             {
                 case eAssetTypes.MEDIA:
-                    result = Mapper.Map<Asset, KalturaMediaAsset>(response.Asset,
-                                                                    opt => opt.AfterMap((src, dest) => dest.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, src.Images)));
+                    result = Mapper.Map<KalturaMediaAsset>(response.Asset);
+                    result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
                     break;
                 case eAssetTypes.EPG:
                     break;
@@ -594,8 +594,8 @@ namespace WebAPI.Clients
             // in case asset is media
             if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = Mapper.Map<Asset, KalturaMediaAsset>(response.Asset,
-                                                                opt => opt.AfterMap((src, dest) => dest.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, src.Images)));
+                result = Mapper.Map<KalturaMediaAsset>(response.Asset);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
             }
             // add here else if for epg\recording when needed
             else
@@ -867,8 +867,9 @@ namespace WebAPI.Clients
                         // convert assets
                         foreach (MediaAsset mediaAssetToConvert in assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
                         {
-                            result.Objects.Add(Mapper.Map<MediaAsset, KalturaMediaAsset>(mediaAssetToConvert,
-                                                opt => opt.AfterMap((src, dest) => dest.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, src.Images))));
+                            KalturaMediaAsset kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);
+                            kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images);
+                            result.Objects.Add(kalturaMediaAsset);
 
                         }
 
@@ -915,8 +916,9 @@ namespace WebAPI.Clients
                         // convert assets
                         foreach (MediaAsset mediaAssetToConvert in assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
                         {
-                            result.Objects.Add(Mapper.Map<MediaAsset, KalturaMediaAsset>(mediaAssetToConvert,
-                                                opt => opt.AfterMap((src, dest) => dest.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, src.Images))));
+                            KalturaMediaAsset kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);
+                            kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images);
+                            result.Objects.Add(kalturaMediaAsset);
 
                         }
 
