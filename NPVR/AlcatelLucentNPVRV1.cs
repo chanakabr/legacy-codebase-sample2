@@ -111,8 +111,12 @@ namespace NPVR
         {
             string baseUrl = TVinciShared.WS_Utils.GetTcmGenericValue<string>(String.Concat("ALU_BASE_URL_", groupID));
             bool isAddSlash = !baseUrl.EndsWith("/");
-            return String.Concat(baseUrl, isAddSlash ? "/" : string.Empty, ALU_GENERIC_BODY, endPoint, method, "?",
+            string url = String.Concat(baseUrl, isAddSlash ? "/" : string.Empty, ALU_GENERIC_BODY, endPoint, method, "?",
                 TVinciShared.WS_Utils.BuildDelimiterSeperatedString(urlParams, "&", false, false));
+
+            log.DebugFormat("BuildRestCommand url: {0}", url);
+
+            return url;
         }
 
         private void GetCreateAccountResponse(string responseJson, NPVRParamsObj args, NPVRUserActionResponse response)
