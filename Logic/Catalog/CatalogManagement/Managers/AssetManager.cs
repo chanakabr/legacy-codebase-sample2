@@ -841,18 +841,17 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Asset, bool>(asset, res);
         }
 
-        private static Tuple<Dictionary<string, Asset>, bool> GetAssets(Dictionary<string, object> funcParams)
+        private static Tuple<Dictionary<string, MediaAsset>, bool> GetMediaAssets(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            Dictionary<string, Asset> result = new Dictionary<string, Asset>();
+            Dictionary<string, MediaAsset> result = new Dictionary<string, MediaAsset>();
             try
             {
-                if (funcParams != null && funcParams.ContainsKey("ids") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("assetType"))
+                if (funcParams != null && funcParams.ContainsKey("ids") && funcParams.ContainsKey("groupId"))
                 {
                     string key = string.Empty;
                     List<long> ids;
                     int? groupId = funcParams["groupId"] as int?;
-                    eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
                         ids = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
@@ -862,30 +861,18 @@ namespace Core.Catalog.CatalogManagement
                         ids = funcParams["ids"] != null ? funcParams["ids"] as List<long> : null;
                     }
 
-                    List<Asset> assets = new List<Asset>();
-                    if (ids != null && groupId.HasValue && assetType.HasValue)
+                    List<MediaAsset> assets = new List<MediaAsset>();
+                    if (ids != null && groupId.HasValue)
                     {
-                        switch (assetType.Value)
+                        CatalogGroupCache catalogGroupCache;
+                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
                         {
-                            case eAssetTypes.MEDIA:
-                                CatalogGroupCache catalogGroupCache;
-                                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
-                                {
-                                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssets", groupId);                                    
-                                }
-                                else
-                                {
-                                    DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.DefaultLanguage.ID);
-                                    assets.AddRange(CreateMediaAssets(groupId.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList()));
-                                }
-                                break;
-                            case eAssetTypes.EPG:
-                                break;
-                            case eAssetTypes.NPVR:
-                                break;
-                            case eAssetTypes.UNKNOWN:                                
-                            default:
-                                break;
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetMediaAssets", groupId);
+                        }
+                        else
+                        {
+                            DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.DefaultLanguage.ID);
+                            assets.AddRange(CreateMediaAssets(groupId.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList()));
                         }
 
                         res = assets.Count() == ids.Count();
@@ -893,16 +880,16 @@ namespace Core.Catalog.CatalogManagement
 
                     if (res)
                     {
-                        result = assets.ToDictionary(x => LayeredCacheKeys.GetAssetKey(assetType.Value.ToString(), x.Id), x => x);
+                        result = assets.ToDictionary(x => LayeredCacheKeys.GetAssetKey(eAssetTypes.MEDIA.ToString(), x.Id), x => x);
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetAssets failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Error(string.Format("GetMediaAssets failed params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<Dictionary<string, Asset>, bool>(result, res);
+            return new Tuple<Dictionary<string, MediaAsset>, bool>(result, res);
         }
 
         private static Asset GetAssetFromCache(int groupId, long id, eAssetTypes assetType)
@@ -936,23 +923,23 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 eAssetTypes assetType = eAssetTypes.MEDIA;
-                Dictionary<string, Asset> assetMap = null;
+                Dictionary<string, MediaAsset> mediaAssetMap = null;
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), ids);
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), ids);
 
-                if (!LayeredCache.Instance.GetValues<Asset>(keyToOriginalValueMap, ref assetMap, GetAssets, new Dictionary<string, object>() { { "groupId", groupId }, { "assetType", assetType },
-                    { "ids", ids } }, groupId, LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME, invalidationKeysMap))
+                if (!LayeredCache.Instance.GetValues<MediaAsset>(keyToOriginalValueMap, ref mediaAssetMap, GetMediaAssets, new Dictionary<string, object>() { { "groupId", groupId }, { "ids", ids } },
+                                                                    groupId, LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME, invalidationKeysMap))
                 {
                     log.ErrorFormat("Failed getting GetMediaAssetsFromCache from LayeredCache, groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty, assetType.ToString());
                 }
-                else if (assetMap != null)
+                else if (mediaAssetMap != null)
                 {
-                    mediaAssets = assetMap.Values.Select(x => x as MediaAsset).ToList();
+                    mediaAssets = mediaAssetMap.Values.Select(x => x as MediaAsset).ToList();
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetMediaAssetsFromCache with groupId: {0}, assets: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
+                log.Error(string.Format("Failed GetMediaAssetsFromCache with groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
             }
 
             return mediaAssets;
@@ -989,7 +976,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else if (mediaAssets != null)
                         {
-                            result.AddRange(GetMediaAssetsFromCache(groupId, mediaIds));
+                            result.AddRange(mediaAssets);
                         }
                     }
 
