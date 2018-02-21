@@ -1630,6 +1630,14 @@
             <param name="userId">User identifications</param>        
             <param name="pushMessage">Message push data</param>     
         </member>
+        <member name="M:WebAPI.Controllers.NotificationController.SendSms(System.String)">
+            <summary>
+            Sends SMS notification to user
+            </summary>
+            <remarks>
+            </remarks>
+            <param name="message">Message to send</param>     
+        </member>
         <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Get">
             <summary>
             Retrieve the partner notification settings.       

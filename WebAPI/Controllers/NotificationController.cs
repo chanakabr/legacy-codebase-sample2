@@ -151,5 +151,39 @@ namespace WebAPI.Controllers
             }
             return response;
         }
+
+        /// <summary>
+        /// Sends SMS notification to user
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="message">Message to send</param>     
+        [Route("sendSms"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public bool SendSms(string message)
+        {
+            bool response = false;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                int userId = int.Parse(KS.GetFromRequest().UserId);
+
+                if (string.IsNullOrEmpty(message))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "message");
+
+                if (System.Text.ASCIIEncoding.Unicode.GetByteCount(message) > 2000)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_MAX_LENGTH_CROSSED, "message", 2000);
+
+                // call client                
+                response = ClientsManager.NotificationClient().SendSms(groupId, userId, message);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
     }
 }

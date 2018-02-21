@@ -288,7 +288,7 @@ namespace WebAPI.Clients
             KalturaAnnouncement result = Mapper.Map<KalturaAnnouncement>(response.Announcement);
             return result;
         }
-
+        
         internal KalturaAnnouncement UpdateAnnouncement(int groupId, int announcementId, Models.Notifications.KalturaAnnouncement announcement)
         {
             MessageAnnouncementResponse response = null;
@@ -2002,6 +2002,31 @@ namespace WebAPI.Clients
             }
 
             return response.Value;
+        }
+
+        internal bool SendSms(int groupId, int userId, string message)
+        {
+            Status response = new Status();
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.SendUserSms(groupId, userId, message);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while sending push to user.  groupID: {0}, userId: {1}, message: {2}, exception: {3}", groupId, userId, message, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+
+            if (response.Code != (int)StatusCode.OK)
+                throw new ClientException((int)response.Code, response.Message);
+
+            return true;
         }
     }
 }
