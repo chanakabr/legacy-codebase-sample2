@@ -505,13 +505,13 @@ namespace Core.Catalog.CatalogManagement
 
         }
 
-        public static AssetFileResponse InsertMediaFile(int groupId, long userId, AssetFile assetFileToAdd, eAssetTypes assetType)
+        public static AssetFileResponse InsertMediaFile(int groupId, long userId, AssetFile assetFileToAdd)
         {
             AssetFileResponse result = new AssetFileResponse();
             try
             {
                 // validate that asset exist
-                AssetResponse assetResponse = AssetManager.GetAsset(groupId, assetFileToAdd.AssetId, assetType);
+                AssetResponse assetResponse = AssetManager.GetAsset(groupId, assetFileToAdd.AssetId, eAssetTypes.MEDIA);
                 if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
@@ -586,17 +586,16 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after InsertMediaFile", assetFileToAdd.AssetId, groupId);
                     }
 
+                    // invalidate asset
+                    string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.MEDIA.ToString(), assetFileToAdd.AssetId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to invalidate asset with id: {0}, mediaFileId: {1}, invalidationKey: {2} after InsertMediaFile",
+                                            assetFileToAdd.AssetId, assetFileToAdd.Id, invalidationKey);
+                    }
+
                     // free item index update 
                     DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToAdd.AssetId, null, assetFileToAdd.StartDate, null, assetFileToAdd.EndDate);
-
-                    //string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
-                    //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                    //{
-                    //    log.ErrorFormat("Failed to set invalidation key on AddAssetFileType key = {0}", invalidationKey);
-                    //}
-
-                    // TODO
-                    // InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFile);
                 }
             }
             catch (Exception ex)
@@ -692,7 +691,7 @@ namespace Core.Catalog.CatalogManagement
                 if (assetFileToUpdate.Type.HasValue)
                 {
                     List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToUpdate.AssetId);
-                    if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.Type == assetFileToUpdate.Type).Count() > 0)
+                    if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.Type == assetFileToUpdate.Type && x.Id != assetFileToUpdate.Id).Count() > 0)
                     {
                         result.Status = new Status((int)eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
                         return result;
@@ -745,18 +744,17 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaFile", assetFileToUpdate.AssetId, groupId);
                     }
 
+                    // invalidate asset
+                    string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.MEDIA.ToString(), assetFileToUpdate.AssetId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to invalidate asset with id: {0}, mediaFileId: {1}, invalidationKey: {2} after UpdateMediaFile",
+                                            assetFileToUpdate.AssetId, assetFileToUpdate.Id, invalidationKey);
+                    }
+
                     // free item index update 
                     DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToUpdate.AssetId, currentAssetFile.File.StartDate, assetFileToUpdate.StartDate,
                                                     currentAssetFile.File.EndDate, assetFileToUpdate.EndDate);
-
-                    //string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
-                    //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                    //{
-                    //    log.ErrorFormat("Failed to set invalidation key on AddAssetFileType key = {0}", invalidationKey);
-                    //}
-
-                    // TODO
-                    // InvalidateCatalogGroupCache(groupId, result.Status, true, result.AssetFile);
                 }
             }
             catch (Exception ex)
