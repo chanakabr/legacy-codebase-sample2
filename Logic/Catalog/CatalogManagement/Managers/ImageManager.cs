@@ -767,10 +767,11 @@ namespace Core.Catalog.CatalogManagement
 
                     eAssetTypes assetType = ConverteAssetImageTypeToeAssetTypes(image.ImageObjectType);
                     // invalidate asset
-                    if (assetType != eAssetTypes.UNKNOWN && !LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id)))
+                    string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), image.ImageObjectId);
+                    if (assetType != eAssetTypes.UNKNOWN && !LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
-                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after SetContent", id, assetType.ToString(),
-                                        LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id));
+                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after SetContent",
+                                            image.ImageObjectId, assetType.ToString(), invalidationKey);
                     }
                 }
             }

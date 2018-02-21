@@ -814,33 +814,6 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static Tuple<Asset, bool> GetAsset(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            Asset asset = null;
-            try
-            {
-                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("id") && funcParams.ContainsKey("assetType"))
-                {
-                    int? groupId = funcParams["groupId"] as int?;
-                    long? id = funcParams["id"] as long?;
-                    eAssetTypes assetType;
-                    if (groupId.HasValue && groupId.Value > 0 && id.HasValue && id.Value > 0 && Enum.TryParse<eAssetTypes>(funcParams["assetType"].ToString(), out assetType))
-                    {
-                        asset = GetAssetFromDb(groupId.Value, id.Value, assetType);
-                        res = asset != null;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetAsset failed params : {0}", funcParams != null ? string.Join(";",
-                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
-            }
-
-            return new Tuple<Asset, bool>(asset, res);
-        }
-
         private static Tuple<Dictionary<string, MediaAsset>, bool> GetMediaAssets(Dictionary<string, object> funcParams)
         {
             bool res = false;
@@ -1741,9 +1714,10 @@ namespace Core.Catalog.CatalogManagement
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
                     // invalidate asset
-                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id)))
+                    string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
-                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after updating asset", id, assetType.ToString(), LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id));
+                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after updating asset", id, assetType.ToString(), invalidationKey);
                     }
                 }
             }
@@ -1798,9 +1772,10 @@ namespace Core.Catalog.CatalogManagement
                 if (result.Code == (int)eResponseStatus.OK)
                 {
                     // invalidate asset
-                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id)))
+                    string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
-                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after deleting asset", id, assetType.ToString(), LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id));
+                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after deleting asset", id, assetType.ToString(), invalidationKey);
                     }
                 }
             }
@@ -1908,9 +1883,10 @@ namespace Core.Catalog.CatalogManagement
                 if (result.Code == (int)eResponseStatus.OK)
                 {
                     // invalidate asset
-                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id)))
+                    string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
-                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after removing topics from asset", id, assetType.ToString(), LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id));
+                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after removing topics from asset", id, assetType.ToString(), invalidationKey);
                     }
                 }
             }
