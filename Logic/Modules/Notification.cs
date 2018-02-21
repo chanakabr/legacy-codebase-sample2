@@ -1217,5 +1217,23 @@ namespace Core.Notification
 
             return response;
         }
+
+        public static Status SendUserSms(int groupId, int userId, string message)
+        {
+            Status result = new Status() { Code = (int)eResponseStatus.Error };
+            try
+            {
+                result = EngagementManager.SendSmsToUser(groupId, userId, message);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while trying to send SMS. group ID: {0}, user ID: {1}, message: {2}, Ex: {3}",
+                    groupId,
+                    userId,
+                    message,
+                    ex);
+            }
+            return result;
+        }
     }
 }

@@ -1025,7 +1025,7 @@ namespace Core.Notification
 
             if (smsAnnouncement != null)
             {
-                string resultMsgId = NotificationAdapter.PublishToAnnouncement(groupId, smsAnnouncement.MailExternalId, string.Empty,
+                string resultMsgId = NotificationAdapter.PublishToAnnouncement(groupId, smsAnnouncement.ExternalId, string.Empty,
                     new MessageData()
                     {
                         Alert = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),

@@ -977,7 +977,7 @@ namespace Core.Notification
 
             return true;
         }
-
+        
         private static MessageTemplate GetMessageTemplate(int partnerId, eEngagementType eEngagementType)
         {
             MessageTemplate engagementTemplate = null;
@@ -1414,5 +1414,87 @@ namespace Core.Notification
 
             return true;
         }
+
+        internal static Status SendSmsToUser(int groupId, int userId, string message)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            // get maximum allowed push 
+            int allowedPushMsg = TCMClient.Settings.Instance.GetValue<int>("push_message.num_of_msg_per_seconds");
+            if (allowedPushMsg == 0)
+                allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
+
+            int counter = 0;
+
+            // check if user document exists
+            if (NotificationDal.IsUserPushDocExists(groupId, userId))
+                counter = (int)NotificationDal.IncreasePushCounter(groupId, userId, false);
+            else
+                counter = (int)NotificationDal.IncreasePushCounter(groupId, userId, true);
+
+            // validate did not reach maximum of allowed user push messages
+            if (counter > allowedPushMsg)
+            {
+                log.ErrorFormat("Cannot send user SMS notification. maximum number of SMS allowed per hour: {0}, partner ID: {1}, user ID: {2}", allowedPushMsg, groupId, userId);
+                result = new Status((int)eResponseStatus.Error, MAX_NUMBER_OF_PUSH_MSG_EXCEEDED);
+                return result;
+            }
+
+            // get user notification data
+            bool docExists = false;
+            UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
+            if (userNotificationData == null)
+            {
+                log.ErrorFormat("Error retrieving User notification data. partnerId: {0}, UserId: {1}, message: {2}", groupId, userId, message);
+                return result;
+            }
+
+            // get sms data
+            SmsNotificationData smsData = NotificationDal.GetUserSmsNotificationData(groupId, userId);
+            if (smsData == null)
+            {
+                log.DebugFormat("user SMS data wasn't found. GID: {0}, userId: {2}", groupId, userId);
+                return result;
+            }
+
+            List<EndPointData> usersEndPointDatas = new List<EndPointData>();
+
+            // prepare SMS
+            usersEndPointDatas.Add(new EndPointData()
+            {
+                EndPointArn = userNotificationData.UserData.PhoneNumber,
+                ExtraData = userId.ToString()
+            });
+            
+            // prepare SMS 
+            WSEndPointPublishData publishData = new WSEndPointPublishData();
+            publishData.EndPoints = usersEndPointDatas;
+            publishData.Message = new MessageData()
+            {
+                Alert = message
+            };
+
+            // send SMS
+            List<WSEndPointPublishDataResult> smsPublishResults = NotificationAdapter.PublishToEndPoint(groupId, publishData);
+            if (smsPublishResults == null)
+            {
+                log.ErrorFormat("Error at PublishToEndPoint. GID: {0}, user ID: {1}, message: {2}", groupId, userId, message);
+                result = new Status() { Code = (int)eResponseStatus.Error };
+                return result;
+            }
+
+            // log SMS results
+            foreach (var smsPublishResult in smsPublishResults)
+            {
+                if (string.IsNullOrEmpty(smsPublishResult.ResultMessageId))
+                    log.ErrorFormat("Error occur at PublishToEndPoint. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", groupId, userId, smsPublishResult.EndPointArn, message);
+                else
+                    log.DebugFormat("Successfully sent push message. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", groupId, userId, smsPublishResult.EndPointArn, message);
+            }
+
+            result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            return result;
+        }
+
     }
 }
