@@ -141,7 +141,7 @@ namespace Core.Notification
                     if (userSettings.EnableMail == false)
                     {
                         // remove mail registration
-                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.DisableUserSmsNotifications, userId, null, null);
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.DisableUserMailNotifications, userId, null, null);
                     }
 
                     if (userSettings.EnableSms == true)
