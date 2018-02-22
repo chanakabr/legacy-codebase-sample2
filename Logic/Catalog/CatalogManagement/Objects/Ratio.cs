@@ -8,7 +8,7 @@ namespace Core.Catalog.CatalogManagement
         public string Name { get; set; }
         public int Height { get; set; }
         public int Width { get; set; }
-        public int AcceptedErrorMarginPrecentage { get; set; }
+        public int PrecisionPrecentage { get; set; }
     }
 
     public class RatioResponse

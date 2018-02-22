@@ -210,7 +210,7 @@ namespace Core.Catalog.CatalogManagement
                         Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
                         Height = ODBCWrapper.Utils.GetIntSafeVal(dr, "height"),
                         Width = ODBCWrapper.Utils.GetIntSafeVal(dr, "width"),
-                        AcceptedErrorMarginPrecentage = ODBCWrapper.Utils.GetIntSafeVal(dr, "accepted_error_margin_percentage")
+                        PrecisionPrecentage = ODBCWrapper.Utils.GetIntSafeVal(dr, "precision_percentage")
                     };
 
                     response.Add(ratio);
@@ -722,7 +722,7 @@ namespace Core.Catalog.CatalogManagement
                 else if (imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
                 {
                     Ratio ratio = GetRatioById(groupId, imageType.RatioId.Value);
-                    if (ratio != null && ratio.AcceptedErrorMarginPrecentage > 0)
+                    if (ratio != null && ratio.PrecisionPrecentage > 0)
                     {
                         try
                         {
@@ -733,8 +733,8 @@ namespace Core.Catalog.CatalogManagement
                                 System.Drawing.Image downloadedImage = System.Drawing.Image.FromStream(imageStream);
                                 double downloadedImageRatio = (double)downloadedImage.Width / downloadedImage.Height;
                                 double imageDefinedRatio = (double)ratio.Width / ratio.Height;
-                                double imageRatioDif = Math.Round(Math.Abs(downloadedImageRatio - imageDefinedRatio) * 100);
-                                if (ratio.AcceptedErrorMarginPrecentage < imageRatioDif)
+                                double imageRatioPrecisionPrecentage = Math.Round((1 - Math.Abs((downloadedImageRatio - imageDefinedRatio) / imageDefinedRatio)) * 100);
+                                if (ratio.PrecisionPrecentage > imageRatioPrecisionPrecentage)
                                 {
                                     result = new Status((int)eResponseStatus.InvalidRatioForImage, eResponseStatus.InvalidRatioForImage.ToString());
                                     return result;
@@ -789,7 +789,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataTable dt = CatalogDAL.InsertGroupImageRatios(groupId, userId, ratio.Name, ratio.Height, ratio.Width,
-                                                                    ratio.AcceptedErrorMarginPrecentage);
+                                                                    ratio.PrecisionPrecentage);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
@@ -801,7 +801,7 @@ namespace Core.Catalog.CatalogManagement
                             Id = id,
                             Height = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "height"),
                             Width= ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "width"),
-                            AcceptedErrorMarginPrecentage = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "accepted_error_margin_percentage"),
+                            PrecisionPrecentage = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "precision_percentage"),
                             Name = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME")
                         };
 
