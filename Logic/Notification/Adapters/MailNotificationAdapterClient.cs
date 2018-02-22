@@ -14,7 +14,6 @@ namespace Core.Notification
 {
     public class MailNotificationAdapterClient
     {
-
         #region Consts
 
         private const int STATUS_OK = 0;
@@ -55,7 +54,7 @@ namespace Core.Notification
                 long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
                 //set signature
-                string signature = string.Concat(adapter.Id, adapter.ProviderUrl, adapter.Settings, groupId, unixTimestamp);
+                string signature = string.Concat(adapter.Id, adapter.Settings, groupId, unixTimestamp);
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
@@ -103,9 +102,11 @@ namespace Core.Notification
 
             try
             {
-                long unixTimestamp;
-                string signature;
-                GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
+                //set unixTimestamp
+                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+                //set signature
+                string signature = string.Concat(adapter.Id, announcementName, unixTimestamp);
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
@@ -137,11 +138,11 @@ namespace Core.Notification
                                     System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
                             }
                             catch (Exception ex)
-                            {   
+                            {
                                 ReportAdapterError(adapter.Id, adapter.AdapterUrl, ex, "CreateAnnouncement");
                             }
                         }
-                        
+
                         #endregion
                     }
 
@@ -183,16 +184,18 @@ namespace Core.Notification
 
             try
             {
-                long unixTimestamp;
-                string signature;
-                GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
+                //set unixTimestamp
+                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+                //set signature
+                string signature = string.Concat(adapter.Id, externalAnnouncementId, unixTimestamp);
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
                     APILogic.MailNotificationsAdapterService.AdapterStatus adapterResponse = client.DeleteAnnouncement(adapter.Id, externalAnnouncementId, unixTimestamp,
                         System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
-                    if (adapterResponse != null && 
+                    if (adapterResponse != null &&
                         adapterResponse.Code == STATUS_NO_CONFIGURATION_FOUND)
                     {
                         #region Send Configuration if not found
@@ -254,7 +257,7 @@ namespace Core.Notification
                 return false;
 
             // validate notification URL exists
-                if (string.IsNullOrEmpty(adapter.AdapterUrl))
+            if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
                 log.Error("Mail Notification URL wasn't found");
                 return false;
@@ -262,16 +265,19 @@ namespace Core.Notification
 
             try
             {
-                long unixTimestamp;
-                string signature;
-                GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
-
                 string token = null;
                 if (!Utils.CreateUserToken(groupId, userId, out token))
                 {
                     log.ErrorFormat("Failed to create user token for userId: {0}", userId);
                     return false;
                 }
+
+                //set unixTimestamp
+                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+                //set signature
+                string signature = string.Concat(adapter.Id, userData.FirstName, userData.LastName, userData.Email, token,
+                    announcementExternalIds != null ? string.Join("", announcementExternalIds) : string.Empty, unixTimestamp);
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
@@ -349,9 +355,12 @@ namespace Core.Notification
 
             try
             {
-                long unixTimestamp;
-                string signature;
-                GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
+                //set unixTimestamp
+                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+                //set signature
+                string signature = string.Concat(adapter.Id, userData.Email, announcementExternalIds != null ? string.Join("", announcementExternalIds) : string.Empty, unixTimestamp);
+
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
@@ -428,9 +437,13 @@ namespace Core.Notification
 
             try
             {
-                long unixTimestamp;
-                string signature;
-                GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
+                //set unixTimestamp
+                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+                //set signature
+                string signature = string.Concat(adapter.Id, externalAnnouncementId, templateId, subject,
+                    mergeVars != null ? string.Concat(mergeVars.Select(kv => string.Concat(kv.Key, kv.Value))) : string.Empty,
+                    unixTimestamp);
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
@@ -518,9 +531,13 @@ namespace Core.Notification
 
             try
             {
-                long unixTimestamp;
-                string signature;
-                GetClientCallParamters(groupId, adapter, out unixTimestamp, out signature);
+                //set unixTimestamp
+                long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+                //set signature
+                string signature = string.Concat(adapter.Id, userId, oldUserData.Email, NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, token,
+                     externalAnnouncementIds != null ? string.Join("", externalAnnouncementIds) : string.Empty, unixTimestamp);
+
 
                 using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
                 {
@@ -597,15 +614,6 @@ namespace Core.Notification
             }
 
             return mailNotificationAdapter;
-        }
-
-        private static void GetClientCallParamters(int groupId, MailNotificationAdapter adapter, out long unixTimestamp, out string signature)
-        {
-            //set unixTimestamp
-            unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-
-            //set signature
-            signature = string.Concat(adapter.Id, adapter.ProviderUrl, adapter.Settings, groupId, unixTimestamp);
         }
 
         private static bool configurationSynchronizer_SynchronizedAct(Dictionary<string, object> parameters)
