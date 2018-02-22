@@ -12,7 +12,7 @@ namespace ApiObjects.Notification
     {
         public DeviceNotificationData(string udid) : base()
         {
-            this.Udid = Udid;
+            this.Udid = udid;
         }
 
         public string Udid { get; set; }
