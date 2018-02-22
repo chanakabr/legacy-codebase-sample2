@@ -91,6 +91,8 @@ namespace Core.Notification
             string externalMailAnnouncementId = string.Empty;
 
             MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
+            if (adapter == null)
+                return null;
 
             // validate notification URL exists
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
@@ -169,6 +171,9 @@ namespace Core.Notification
 
             MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
 
+            if (adapter == null)
+                return false;
+
             // validate notification URL exists
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
@@ -245,8 +250,11 @@ namespace Core.Notification
 
             MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
 
+            if (adapter == null)
+                return false;
+
             // validate notification URL exists
-            if (string.IsNullOrEmpty(adapter.AdapterUrl))
+                if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
                 log.Error("Mail Notification URL wasn't found");
                 return false;
@@ -329,6 +337,9 @@ namespace Core.Notification
 
             MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
 
+            if (adapter == null)
+                return false;
+
             // validate notification URL exists
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
@@ -404,6 +415,9 @@ namespace Core.Notification
             bool result = false;
 
             MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
+
+            if (adapter == null)
+                return false;
 
             // validate notification URL exists
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
@@ -484,6 +498,9 @@ namespace Core.Notification
             bool result = false;
 
             MailNotificationAdapter adapter = GetMailNotificationAdapter(groupId);
+
+            if (adapter == null)
+                return false;
 
             // validate notification URL exists
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
@@ -576,6 +593,7 @@ namespace Core.Notification
             if (mailNotificationAdapter == null || mailNotificationAdapter.Id <= 0)
             {
                 log.ErrorFormat("failed. adapter not exists groupID = {0}", groupId);
+                return null;
             }
 
             return mailNotificationAdapter;
