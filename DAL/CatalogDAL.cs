@@ -5088,7 +5088,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataTable InsertGroupImageRatios(int groupId, long userId, string name, int height, int width,
-                                                        int acceptedErrorMarginPrecentage)
+                                                        int precisionPercentage)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertGroupImageRatio");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5096,7 +5096,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@name", name);
             sp.AddParameter("@height", height);
             sp.AddParameter("@width", width);
-            sp.AddParameter("@acceptedErrorMarginPrecentage", acceptedErrorMarginPrecentage);
+            sp.AddParameter("@precision_percentage", precisionPercentage);
             sp.AddParameter("@updaterId", userId);
 
             return sp.Execute();
