@@ -5974,14 +5974,14 @@ namespace WebAPI.Reflection
                 case "KalturaRatio":
                     switch(property.Name)
                     {
-                        case "AcceptedErrorMarginPrecentage":
-                            return "acceptedErrorMarginPrecentage";
                         case "Height":
                             return "height";
                         case "Id":
                             return "id";
                         case "Name":
                             return "name";
+                        case "PrecisionPrecentage":
+                            return "precisionPrecentage";
                         case "Width":
                             return "width";
                     }

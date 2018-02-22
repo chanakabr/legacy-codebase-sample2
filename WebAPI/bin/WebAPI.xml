@@ -5760,7 +5760,7 @@
             Width
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaRatio.AcceptedErrorMarginPrecentage">
+        <member name="P:WebAPI.Models.Catalog.KalturaRatio.PrecisionPrecentage">
             <summary>
             Accepted error margin precentage of an image uploaded for this ratio
             0 - no validation, everything accepted

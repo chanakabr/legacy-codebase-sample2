@@ -684,14 +684,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height))
               .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.Width))
-              .ForMember(dest => dest.AcceptedErrorMarginPrecentage, opt => opt.MapFrom(src => src.AcceptedErrorMarginPrecentage));
+              .ForMember(dest => dest.PrecisionPrecentage, opt => opt.MapFrom(src => src.PrecisionPrecentage));
 
             Mapper.CreateMap<KalturaRatio, Core.Catalog.CatalogManagement.Ratio>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height))
               .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.Width))
-              .ForMember(dest => dest.AcceptedErrorMarginPrecentage, opt => opt.MapFrom(src => src.AcceptedErrorMarginPrecentage));
+              .ForMember(dest => dest.PrecisionPrecentage, opt => opt.MapFrom(src => src.PrecisionPrecentage));
 
             #endregion
 

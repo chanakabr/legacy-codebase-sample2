@@ -50,11 +50,11 @@ namespace WebAPI.Models.Catalog
         /// Accepted error margin precentage of an image uploaded for this ratio
         /// 0 - no validation, everything accepted
         /// </summary>
-        [DataMember(Name = "acceptedErrorMarginPrecentage")]
-        [JsonProperty(PropertyName = "acceptedErrorMarginPrecentage")]
-        [XmlElement(ElementName = "acceptedErrorMarginPrecentage")]
+        [DataMember(Name = "precisionPrecentage")]
+        [JsonProperty(PropertyName = "precisionPrecentage")]
+        [XmlElement(ElementName = "precisionPrecentage")]
         [SchemeProperty(MinInteger = 0, MaxInteger = 100)]
-        public int AcceptedErrorMarginPrecentage { get; set; }
+        public int PrecisionPrecentage { get; set; }
 
         internal void Validate()
         {
@@ -68,14 +68,14 @@ namespace WebAPI.Models.Catalog
                 throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "ratio.width", 1);
             }
 
-            if (AcceptedErrorMarginPrecentage < 0)
+            if (PrecisionPrecentage < 0)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "ratio.acceptedErrorMarginPrecentage", 0);
+                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "ratio.precisionPrecentage", 0);
             }
 
-            if (AcceptedErrorMarginPrecentage > 100)
+            if (PrecisionPrecentage > 100)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_VALUE_CROSSED, "ratio.acceptedErrorMarginPrecentage", 100);
+                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_VALUE_CROSSED, "ratio.precisionPrecentage", 100);
             }
         }
     }
