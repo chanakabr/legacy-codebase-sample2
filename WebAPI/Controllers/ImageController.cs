@@ -70,6 +70,7 @@ namespace WebAPI.Controllers
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.ChannelDoesNotExist)]
         [Throws(eResponseStatus.ImageTypeDoesNotExist)]
         [Throws(eResponseStatus.ImageTypeAlreadyInUse)]
         public KalturaImage Add(KalturaImage image)
