@@ -5406,8 +5406,8 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int isActive, int orderBy, int orderByDir, string filterQuery, List<int> assetTypes, string groupBy, List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages,
-                                            List<KeyValuePair<int, int>> mediaIdsToOrderNum, long userId)
+        public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int isActive, int orderBy, int orderByDir, string orderByValue, string filterQuery, List<int> assetTypes, string groupBy, List<KeyValuePair<string, string>> namesInOtherLanguages,
+                                            List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<int, int>> mediaIdsToOrderNum, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5417,6 +5417,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@isActive", isActive);
             sp.AddParameter("@orderBy", orderBy);
             sp.AddParameter("@orderDirection", orderByDir + 1);
+            sp.AddParameter("@orderByValue", orderByValue);
             sp.AddParameter("@Filter", filterQuery);
             sp.AddParameter("@groupBy", groupBy);
             sp.AddIDListParameter<int>("@AssetTypes", assetTypes, "Id");
