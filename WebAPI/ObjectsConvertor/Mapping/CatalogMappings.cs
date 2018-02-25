@@ -1333,9 +1333,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 result.m_eOrderBy = OrderBy.META;
                 result.m_eOrderDir = order.DynamicOrderBy.OrderBy.HasValue ? order.DynamicOrderBy.OrderBy.Value == KalturaMetaTagOrderBy.META_ASC ? OrderDir.ASC : OrderDir.DESC : OrderDir.ASC;
+                result.m_sOrderValue = order.DynamicOrderBy.Name;
             }
             else
             {
+                result.m_sOrderValue = null;
                 switch (order.orderBy)
                 {
                     case KalturaChannelOrderBy.NAME_ASC:
