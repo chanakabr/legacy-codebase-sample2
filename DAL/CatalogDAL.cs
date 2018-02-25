@@ -5406,35 +5406,29 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static DataSet InsertDynamicChannel(KSQLChannel channel, List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages, long userId)
+        public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int isActive, int orderBy, int orderByDir, string filterQuery, List<int> assetTypes, string groupBy, List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages,
+                                            List<KeyValuePair<int, int>> mediaIdsToOrderNum, long userId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertDynamicChannel");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@groupId", channel.GroupID);
-            sp.AddParameter("@SystemName", channel.SystemName);
-            sp.AddParameter("@name", channel.Name);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@name", name);
+            sp.AddParameter("@description", description);
+            sp.AddParameter("@isActive", isActive);
+            sp.AddParameter("@orderBy", orderBy);
+            sp.AddParameter("@orderDirection", orderByDir + 1);
+            sp.AddParameter("@Filter", filterQuery);
+            sp.AddParameter("@groupBy", groupBy);
+            sp.AddIDListParameter<int>("@AssetTypes", assetTypes, "Id");
+            sp.AddParameter("@AssetTypesValuesInd", assetTypes != null && assetTypes.Count > 0 ? 1 : 0);
+            sp.AddParameter("@SystemName", systemName);
             sp.AddParameter("@NamesInOtherLanguagesExist", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
             sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
-            sp.AddParameter("@isActive", channel.IsActive);
-            sp.AddParameter("@status", 1);
-            sp.AddParameter("@UpdaterID", userId);
-            sp.AddParameter("@description", channel.Description);
             sp.AddParameter("@DescriptionsInOtherLanguagesExist", descriptionsInOtherLanguages != null && descriptionsInOtherLanguages.Count > 0);
             sp.AddKeyValueListParameter<string, string>("@DescriptionsInOtherLanguages", descriptionsInOtherLanguages, "key", "value");
-            sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
-            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
-            sp.AddParameter("@Filter", channel.FilterQuery);
-            sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
-            sp.AddParameter("@groupBy", channel.GroupBy);
-
-            int assetTypesValuesInd = 0;
-
-            if (channel.AssetTypes != null && channel.AssetTypes.Count > 0)
-            {
-                assetTypesValuesInd = 1;
-            }
-
-            sp.AddParameter("@AssetTypesValuesInd", assetTypesValuesInd);
+            sp.AddParameter("@MediaIdsToOrderNumExist", mediaIdsToOrderNum != null && mediaIdsToOrderNum.Count > 0 ? 1 : 0);
+            sp.AddKeyValueListParameter<int, int>("@MediaIdsToOrderNum", mediaIdsToOrderNum, "key", "value");
+            sp.AddParameter("@UpdaterID", userId);
 
             return sp.ExecuteDataSet();
         }
