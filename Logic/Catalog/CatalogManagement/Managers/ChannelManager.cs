@@ -487,7 +487,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // Validate asset types
-                if (channelToAdd.m_nMediaType != null && channelToAdd.m_nMediaType.Count > 0)
+                if (channelToAdd.m_nChannelTypeID == (int)ChannelType.KSQL && channelToAdd.m_nMediaType != null && channelToAdd.m_nMediaType.Count > 0)
                 {
                     CatalogGroupCache catalogGroupCache;
                     if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -550,8 +550,8 @@ namespace Core.Catalog.CatalogManagement
 
                 string groupBy = channelToAdd.searchGroupBy != null && channelToAdd.searchGroupBy.groupBy != null && channelToAdd.searchGroupBy.groupBy.Count == 1 ? channelToAdd.searchGroupBy.groupBy.First() : null;
                 DataSet ds = CatalogDAL.InsertChannel(groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription, channelToAdd.m_nIsActive, (int)channelToAdd.m_OrderObject.m_eOrderBy,
-                                                        (int)channelToAdd.m_OrderObject.m_eOrderDir, channelToAdd.m_OrderObject.m_sOrderValue, channelToAdd.filterQuery, channelToAdd.m_nMediaType, groupBy,
-                                                        languageCodeToName, languageCodeToDescription, new List<KeyValuePair<int, int>>(), userId);
+                                                        (int)channelToAdd.m_OrderObject.m_eOrderDir, channelToAdd.m_OrderObject.m_sOrderValue, channelToAdd.m_nChannelTypeID, channelToAdd.filterQuery,
+                                                        channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription, new List<KeyValuePair<int, int>>(), userId);
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
                     DataRow dr = ds.Tables[0].Rows[0];
@@ -580,6 +580,150 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed AddChannel for groupId: {0} and channel SystemName: {1}", groupId, channelToAdd.SystemName), ex);
+            }
+
+            return response;
+        }
+
+        public static ChannelResponse UpdateChannel(int groupId, int channelId, Channel channelToUpdate, long userId)
+        {
+            ChannelResponse response = new ChannelResponse();
+
+            try
+            {
+                if (channelToUpdate == null)
+                {
+                    response.Status = new Status((int)eResponseStatus.NoObjectToInsert, APILogic.CRUD.KSQLChannelsManager.NO_KSQL_CHANNEL_TO_INSERT);
+                    return response;
+                }
+
+                Channel currentChannel = GetChannelById(groupId, channelId);
+                if (currentChannel == null || currentChannel.m_nChannelTypeID != channelToUpdate.m_nChannelTypeID)
+                {
+                    response.Status = new Status((int)eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
+                    return response;
+                }
+
+                if (!string.IsNullOrEmpty(channelToUpdate.SystemName) &&  !CatalogDAL.ValidateChannelSystemName(groupId, channelToUpdate.SystemName))
+                {
+                    response.Status = new Status((int)eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
+                    return response;
+                }
+
+                // Validate filter query by parsing it for KSQL channel only
+                if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.KSQL && !string.IsNullOrEmpty(channelToUpdate.filterQuery))
+                {
+                    ApiObjects.SearchObjects.BooleanPhraseNode temporaryNode = null;
+                    var parseStatus = ApiObjects.SearchObjects.BooleanPhraseNode.ParseSearchExpression(channelToUpdate.filterQuery, ref temporaryNode);
+
+                    if (parseStatus == null)
+                    {
+                        response.Status = new Status((int)eResponseStatus.SyntaxError, "Failed parsing filter query");
+                        return response;
+                    }
+                    else if (parseStatus.Code != (int)eResponseStatus.OK)
+                    {
+                        response.Status = new Status(parseStatus.Code, parseStatus.Message);
+                        return response;
+                    }
+
+                    channelToUpdate.filterTree = temporaryNode;
+                }
+
+                // Validate asset types
+                if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.KSQL && channelToUpdate.m_nMediaType != null && channelToUpdate.m_nMediaType.Count > 0)
+                {
+                    CatalogGroupCache catalogGroupCache;
+                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddChannel", groupId);
+                        return response;
+                    }
+
+                    List<int> noneGroupAssetTypes = channelToUpdate.m_nMediaType.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
+                    response.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
+                                    eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
+                    return response;
+                }
+
+                List<int> channelMedias = null;
+                // validate medias exist for manual channel only
+                if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.Manual && channelToUpdate.m_lManualMedias != null && channelToUpdate.m_lManualMedias.Count > 0)
+                {
+                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
+                    foreach (string manualMediaId in channelToUpdate.m_lManualMedias.Select(x => x.m_sMediaId))
+                    {
+                        long mediaId;
+                        if (long.TryParse(manualMediaId, out mediaId) && mediaId > 0)
+                        {
+                            assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
+                            channelMedias.Add((int)mediaId);
+                        }
+                    }
+
+                    if (assets.Count > 0)
+                    {
+                        List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets);
+                        if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToUpdate.m_lManualMedias.Count)
+                        {
+                            List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
+                            response.Status = new Status((int)eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
+                                            eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
+                            return response;
+                        }
+                    }
+                }
+
+                List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
+                if (channelToUpdate.NamesInOtherLanguages != null && channelToUpdate.NamesInOtherLanguages.Count > 0)
+                {
+                    foreach (LanguageContainer language in channelToUpdate.NamesInOtherLanguages)
+                    {
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                List<KeyValuePair<string, string>> languageCodeToDescription = new List<KeyValuePair<string, string>>();
+                if (channelToUpdate.DescriptionInOtherLanguages != null && channelToUpdate.DescriptionInOtherLanguages.Count > 0)
+                {
+                    foreach (LanguageContainer language in channelToUpdate.DescriptionInOtherLanguages)
+                    {
+                        languageCodeToDescription.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                string groupBy = channelToUpdate.searchGroupBy != null && channelToUpdate.searchGroupBy.groupBy != null && channelToUpdate.searchGroupBy.groupBy.Count == 1 ? channelToUpdate.searchGroupBy.groupBy.First() : null;
+                DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, (int)channelToUpdate.m_OrderObject.m_eOrderBy,
+                                                        (int)channelToUpdate.m_OrderObject.m_eOrderDir, channelToUpdate.m_OrderObject.m_sOrderValue, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy,
+                                                        languageCodeToName, languageCodeToDescription, new List<KeyValuePair<int, int>>(), userId);
+                if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    DataRow dr = ds.Tables[0].Rows[0];
+                    List<DataRow> nameTranslations = ds.Tables[1] != null && ds.Tables[1].Rows != null ? ds.Tables[1].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                    List<DataRow> descriptionTranslations = ds.Tables[2] != null && ds.Tables[2].Rows != null ? ds.Tables[2].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                    List<DataRow> mediaTypes = ds.Tables[3] != null && ds.Tables[3].Rows != null ? ds.Tables[3].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                    List<DataRow> mediaIds = ds.Tables[4] != null && ds.Tables[4].Rows != null ? ds.Tables[4].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                    int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
+                    if (id > 0)
+                    {
+                        response.Channel = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
+                    }
+                }
+
+                if (response.Channel != null && response.Channel.m_nChannelID > 0)
+                {
+                    APILogic.CRUD.KSQLChannelsManager.UpdateCatalog(groupId, response.Channel.m_nChannelID);
+
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateChannel for groupId: {0} and channel Id: {1}", groupId, channelId), ex);
             }
 
             return response;
