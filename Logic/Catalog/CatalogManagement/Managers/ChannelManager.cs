@@ -713,6 +713,12 @@ namespace Core.Catalog.CatalogManagement
                 if (response.Channel != null && response.Channel.m_nChannelID > 0)
                 {
                     APILogic.CRUD.KSQLChannelsManager.UpdateCatalog(groupId, response.Channel.m_nChannelID);
+                    // invalidate channel
+                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
+                    {
+                        log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after update channel",
+                                            channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
+                    }
 
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -765,14 +771,14 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 //check if channel exists
-                Channel channel = GetChannelById(groupId, channelId);                
-                if (channel == null || channelId <= 0)
+                ChannelResponse channelResponse = GetChannel(groupId, channelId);                
+                if (channelResponse.Status.Code != (int)eResponseStatus.OK)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, APILogic.CRUD.KSQLChannelsManager.CHANNEL_NOT_EXIST);
+                    response = channelResponse.Status;
                     return response;
                 }                
 
-                if (CatalogDAL.DeleteChannel(groupId, channelId, channel.m_nChannelTypeID, userId))
+                if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Channel.m_nChannelTypeID, userId))
                 {
                     APILogic.CRUD.KSQLChannelsManager.UpdateCatalog(groupId, channelId, eAction.Delete);
                     // invalidate channel

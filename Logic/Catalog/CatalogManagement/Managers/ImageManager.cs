@@ -637,8 +637,19 @@ namespace Core.Catalog.CatalogManagement
                     AssetResponse asset = AssetManager.GetAsset(groupId, imageToAdd.ImageObjectId, eAssetTypes.MEDIA);
                     if (asset.Status.Code != (int)eResponseStatus.OK)
                     {
-                        log.ErrorFormat("Asset not found. assetId = {0}, assetType = {2}", imageToAdd.ImageObjectId, imageToAdd.ImageObjectType);
+                        log.ErrorFormat("Asset not found. assetId = {0}, assetType = {1}", imageToAdd.ImageObjectId, imageToAdd.ImageObjectType);
                         result.Status = new Status(asset.Status.Code, "Asset not found");
+                        return result;
+                    }
+                }
+
+                if (imageToAdd.ImageObjectType == eAssetImageType.Channel && imageToAdd.ImageObjectId > 0)
+                {
+                    ChannelResponse channel = ChannelManager.GetChannel(groupId, (int)imageToAdd.ImageObjectId);
+                    if (channel.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Channel not found. channelId = {0}", imageToAdd.ImageObjectId);
+                        result.Status = new Status(channel.Status.Code, "Channel not found");
                         return result;
                     }
                 }
@@ -766,12 +777,24 @@ namespace Core.Catalog.CatalogManagement
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                     eAssetTypes assetType = ConverteAssetImageTypeToeAssetTypes(image.ImageObjectType);
-                    // invalidate asset
-                    string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), image.ImageObjectId);
-                    if (assetType != eAssetTypes.UNKNOWN && !LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    if (assetType != eAssetTypes.UNKNOWN)
                     {
-                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after SetContent",
-                                            image.ImageObjectId, assetType.ToString(), invalidationKey);
+                        // invalidate asset
+                        string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), image.ImageObjectId);
+                        if (assetType != eAssetTypes.UNKNOWN && !LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after SetContent",
+                                                image.ImageObjectId, assetType.ToString(), invalidationKey);
+                        }
+                    }
+                    else if (image.ImageObjectType == eAssetImageType.Channel)
+                    {
+                        // invalidate channel
+                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)image.ImageObjectId)))
+                        {
+                            log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after SetContent",
+                                                image.ImageObjectId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)image.ImageObjectId));
+                        }
                     }
                 }
             }
