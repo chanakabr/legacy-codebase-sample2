@@ -1662,6 +1662,9 @@ namespace DAL
             if (settings.EnablePush.HasValue)
                 userNotification.Settings.EnablePush = settings.EnablePush.Value;
 
+            if (settings.EnableSms.HasValue)
+                userNotification.Settings.EnableSms = settings.EnableSms.Value;
+
             if (settings.FollowSettings != null)
             {
                 if (settings.FollowSettings.EnableMail.HasValue)
