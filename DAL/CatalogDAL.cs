@@ -5406,12 +5406,42 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int isActive, int orderBy, int orderByDir, string orderByValue, string filterQuery, List<int> assetTypes, string groupBy, List<KeyValuePair<string, string>> namesInOtherLanguages,
-                                            List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<int, int>> mediaIdsToOrderNum, long userId)
+        public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int isActive, int orderBy, int orderByDir, string orderByValue, int channelType, string filterQuery, List<int> assetTypes, string groupBy,
+                                            List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<int, int>> mediaIdsToOrderNum, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@name", name);
+            sp.AddParameter("@description", description);
+            sp.AddParameter("@isActive", isActive);
+            sp.AddParameter("@orderBy", orderBy);
+            sp.AddParameter("@orderDirection", orderByDir + 1);
+            sp.AddParameter("@orderByValue", orderByValue);
+            sp.AddParameter("@channelType", channelType);
+            sp.AddParameter("@Filter", filterQuery);
+            sp.AddParameter("@groupBy", groupBy);
+            sp.AddIDListParameter<int>("@AssetTypes", assetTypes, "Id");
+            sp.AddParameter("@AssetTypesValuesInd", assetTypes != null && assetTypes.Count > 0 ? 1 : 0);
+            sp.AddParameter("@SystemName", systemName);
+            sp.AddParameter("@ShouldUpdateOtherNames", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
+            sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
+            sp.AddParameter("@ShouldUpdateOtherDescriptions", descriptionsInOtherLanguages != null && descriptionsInOtherLanguages.Count > 0);
+            sp.AddKeyValueListParameter<string, string>("@DescriptionsInOtherLanguages", descriptionsInOtherLanguages, "key", "value");
+            sp.AddParameter("@MediaIdsToOrderNumExist", mediaIdsToOrderNum != null && mediaIdsToOrderNum.Count > 0 ? 1 : 0);
+            sp.AddKeyValueListParameter<int, int>("@MediaIdsToOrderNum", mediaIdsToOrderNum, "key", "value");
+            sp.AddParameter("@UpdaterID", userId);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet UpdateChannel(int groupId, int id, string systemName, string name, string description, int isActive, int orderBy, int orderByDir, string orderByValue, string filterQuery, List<int> assetTypes, string groupBy,
+            List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<int, int>> mediaIdsToOrderNum, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
             sp.AddParameter("@name", name);
             sp.AddParameter("@description", description);
             sp.AddParameter("@isActive", isActive);
