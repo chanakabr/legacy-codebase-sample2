@@ -30,7 +30,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "kSql")]
         [JsonProperty("kSql")]
-        [XmlElement(ElementName = "kSql")]        
+        [XmlElement(ElementName = "kSql", IsNullable = true)]
         public string Ksql
         {
             get;
@@ -52,7 +52,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "groupBy")]
         [JsonProperty("groupBy")]
-        [XmlElement(ElementName = "groupBy")]
+        [XmlElement(ElementName = "groupBy", IsNullable = true)]
         public KalturaAssetGroupBy GroupBy
         {
             get;

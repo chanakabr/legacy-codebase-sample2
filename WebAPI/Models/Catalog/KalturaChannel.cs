@@ -59,6 +59,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "images")]
         [XmlArray(ElementName = "images", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(ReadOnly = true)]
         public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
@@ -102,7 +103,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
-        [XmlElement(ElementName = "isActive")]
+        [XmlElement(ElementName = "isActive", IsNullable = true)]
         public bool? IsActive
         {
             get;
@@ -127,7 +128,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "groupBy")]
         [JsonProperty("groupBy")]
-        [XmlElement(ElementName = "groupBy")]
+        [XmlElement(ElementName = "groupBy", IsNullable = true)]
         [Deprecated(GENESIS_VERSION)]
         public KalturaAssetGroupBy GroupBy
         {
@@ -161,7 +162,7 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
-        internal void Validate()
+        internal void ValidateForInsert()
         {
             if (string.IsNullOrEmpty(SystemName))
             {
@@ -186,6 +187,43 @@ namespace WebAPI.Models.Catalog
             }
 
             OrderBy.Validate(this.GetType());
+        }
+
+        internal void ValidateForUpdate()
+        {
+            if (SystemName != null && SystemName == string.Empty)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
+            }
+
+            if (Name != null)
+            {
+                if ((Name.Values == null || Name.Values.Count == 0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+                }
+                else
+                {
+                    Name.Validate("multilingualName");
+                }
+            }
+
+            if (Description != null)
+            {
+                if ((Description.Values == null || Description.Values.Count == 0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
+                }
+                else
+                {
+                    Description.Validate("multilingualName");
+                }
+            }
+
+            if (OrderBy != null)
+            {
+                OrderBy.Validate(this.GetType());
+            }
         }
 
         public int[] getAssetTypes()

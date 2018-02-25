@@ -150,7 +150,7 @@ namespace WebAPI.Controllers
                 }
 
                 // Validate channel
-                channel.Validate();
+                channel.ValidateForInsert();
             }
 
             try
@@ -196,12 +196,29 @@ namespace WebAPI.Controllers
             KalturaChannel response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
             int groupId = KS.GetFromRequest().GroupId;
-            channel.Id = channelId;
+            Type manualChannelType = typeof(KalturaManualChannel);
+            Type dynamicChannelType = typeof(KalturaDynamicChannel);
+            Type channelType = typeof(KalturaChannel);
+            if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
+            {
+                // Validate channel
+                channel.ValidateForUpdate();
+            }
 
             try
             {
-                // call client
-                response = ClientsManager.CatalogClient().SetKSQLChannel(groupId, channel, userId);
+                // KalturaManualChannel or KalturaDynamicChannel                             
+                if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
+                {
+                    response = ClientsManager.CatalogClient().UpdateChannel(groupId, channelId, channel, userId);
+                }
+                // KalturaChannel (backward compatability)
+                else if (dynamicChannelType.IsAssignableFrom(channel.GetType()))
+                {
+                    channel.Id = channelId;
+                    response = ClientsManager.CatalogClient().SetKSQLChannel(groupId, channel, userId);
+                }
+
             }
             catch (ClientException ex)
             {

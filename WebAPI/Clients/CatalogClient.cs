@@ -4087,6 +4087,49 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaChannel UpdateChannel(int groupId, int  id, KalturaChannel channel, long userId)
+        {
+            KalturaChannel result = null;
+            Core.Catalog.CatalogManagement.ChannelResponse response = null;
+
+            try
+            {
+                GroupsCacheManager.Channel channelToUpdate = AutoMapper.Mapper.Map<GroupsCacheManager.Channel>(channel);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ChannelManager.UpdateChannel(groupId, id, channelToUpdate, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling catalog service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // DynamicChannel
+            if (response.Channel.m_nChannelTypeID == 4)
+            {
+                result = Mapper.Map<KalturaDynamicChannel>(response.Channel);
+            }
+            // Should only be manual channel
+            else
+            {
+                result = Mapper.Map<KalturaManualChannel>(response.Channel);
+            }
+
+            return result;
+        }
+
         internal KalturaChannel SetKSQLChannel(int groupId, KalturaChannel channel, long userId)
         {
             KSQLChannelResponse response = null;
