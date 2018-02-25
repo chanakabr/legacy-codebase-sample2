@@ -4044,50 +4044,17 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannel InsertDynamicChannel(int groupId, KalturaChannel channel, long userId)
-        {
-            Core.Catalog.CatalogManagement.ChannelResponse response = null;
-            KalturaChannel result = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    KSQLChannel request = Mapper.Map<KSQLChannel>((KalturaDynamicChannel)channel);
-                    response = Core.Catalog.CatalogManagement.ChannelManager.AddDynamicChannel(groupId, request, userId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while calling InsertDynamicChannel. groupId: {0}, exception: {1}", groupId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
-            }
-
-            result = Mapper.Map<KalturaDynamicChannel>(response.Channel);
-            return result;
-        }
-
-        internal KalturaChannel InsertManualChannel(int groupId, KalturaChannel manualChannel, long userId)
+        internal KalturaChannel InsertChannel(int groupId, KalturaChannel channel, long userId)
         {
             KalturaChannel result = null;
             Core.Catalog.CatalogManagement.ChannelResponse response = null;
 
             try
             {
-                GroupsCacheManager.Channel channelToAdd = AutoMapper.Mapper.Map<GroupsCacheManager.Channel>(manualChannel);
+                GroupsCacheManager.Channel channelToAdd = AutoMapper.Mapper.Map<GroupsCacheManager.Channel>(channel);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.AddManualChannel(groupId, channelToAdd, userId);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.AddChannel(groupId, channelToAdd, userId);
                 }
             }
             catch (Exception ex)
@@ -4106,7 +4073,17 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = AutoMapper.Mapper.Map<KalturaManualChannel>(response.Channel);
+            // DynamicChannel
+            if (response.Channel.m_nChannelTypeID == 4)
+            {
+                result = Mapper.Map<KalturaDynamicChannel>(response.Channel);
+            }
+            // Should only be manual channel
+            else
+            {
+                result = Mapper.Map<KalturaManualChannel>(response.Channel);
+            }
+
             return result;
         }
 

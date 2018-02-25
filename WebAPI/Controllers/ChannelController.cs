@@ -154,16 +154,11 @@ namespace WebAPI.Controllers
             }
 
             try
-            {                
-                // KalturaManualChannel                                
-                if (manualChannelType.IsAssignableFrom(channel.GetType()))
+            {
+                // KalturaManualChannel or KalturaDynamicChannel                             
+                if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
                 {
-                    response = ClientsManager.CatalogClient().InsertManualChannel(groupId, channel, userId);
-                }
-                // KalturaDynamicChannel                
-                else if (dynamicChannelType.IsAssignableFrom(channel.GetType()))
-                {
-                    response = ClientsManager.CatalogClient().InsertDynamicChannel(groupId, channel, userId);
+                    response = ClientsManager.CatalogClient().InsertChannel(groupId, channel, userId);
                 }
                 // KalturaChannel (backward compatability)
                 else if (dynamicChannelType.IsAssignableFrom(channel.GetType()))

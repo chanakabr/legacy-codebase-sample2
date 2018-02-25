@@ -216,32 +216,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.Order)))
                .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertGroupByToAssetGroupBy(src.GroupBy)));
 
-            //KalturaDynamicChannel to KSQLChannel
-            Mapper.CreateMap<KalturaDynamicChannel, KSQLChannel>()
-               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
-               .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
-               .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.getAssetTypes()))
-               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description.GetDefaultLanugageValue()))
-               .ForMember(dest => dest.DescriptionInOtherLanguages, opt => opt.MapFrom(src => src.Description.GetNoneDefaultLanugageContainer()))
-               .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.Ksql))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value ? 1 : 0 : 0))
-               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
-               .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertAssetGroupByToGroupBy(src.GroupBy)));
-
-            //KSQLChannel to KalturaDynamicChannel
-            Mapper.CreateMap<KSQLChannel, KalturaDynamicChannel>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
-               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionInOtherLanguages, src.Description)))
-               .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))
-               .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.FilterQuery))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.IsActive)))
-               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.Order)))
-               .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertGroupByToAssetGroupBy(src.GroupBy)));
-
             //Channel (Catalog) to KalturaDynamicChannel
             Mapper.CreateMap<Channel, WebAPI.Models.Catalog.KalturaDynamicChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
@@ -258,18 +232,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //KalturaDynamicChannel to Channel (Catalog)  
             Mapper.CreateMap<WebAPI.Models.Catalog.KalturaDynamicChannel, Channel>()
-                .ForMember(dest => dest.m_nChannelID, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-                .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.m_nMediaType, opt => opt.MapFrom(src => src.AssetTypes))
-                .ForMember(dest => dest.filterQuery, opt => opt.MapFrom(src => src.Ksql))
-                .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => Convert.ToInt32(src.IsActive)))
-                .ForMember(dest => dest.m_eOrderBy, opt => opt.MapFrom(src => ConvertToOrderBy(src.OrderBy)))
-                .ForMember(dest => dest.m_eOrderDir, opt => opt.MapFrom(src => ConvertToOrderDir(src.OrderBy)))
-                .ForMember(dest => dest.searchGroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.GroupBy)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)));
+               .ForMember(dest => dest.m_nChannelID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+               .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
+               .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
+               .ForMember(dest => dest.m_nMediaType, opt => opt.MapFrom(src => src.getAssetTypes()))
+               .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description.GetDefaultLanugageValue()))
+               .ForMember(dest => dest.DescriptionInOtherLanguages, opt => opt.MapFrom(src => src.Description.GetNoneDefaultLanugageContainer()))
+               .ForMember(dest => dest.filterQuery, opt => opt.MapFrom(src => src.Ksql))
+               .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value ? 1 : 0 : 0))
+               .ForMember(dest => dest.m_OrderObject, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
+               .ForMember(dest => dest.searchGroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.GroupBy)))
+               .ForMember(dest => dest.m_eOrderBy, opt => opt.Ignore())
+               .ForMember(dest => dest.m_eOrderDir, opt => opt.Ignore())
+               .ForMember(dest => dest.CreateDate, opt => opt.Ignore())
+               .ForMember(dest => dest.UpdateDate, opt => opt.Ignore());
 
             //Channel (Catalog) to KalturaManualChannel
             Mapper.CreateMap<Channel, WebAPI.Models.Catalog.KalturaManualChannel>()
@@ -285,16 +262,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //KalturaManualChannel to Channel (Catalog)
             Mapper.CreateMap<WebAPI.Models.Catalog.KalturaManualChannel, Channel>()
-                .ForMember(dest => dest.m_nChannelID, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
-                .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => Convert.ToInt32(src.IsActive)))
-                .ForMember(dest => dest.m_eOrderBy, opt => opt.MapFrom(src => ConvertToOrderBy(src.OrderBy)))
-                .ForMember(dest => dest.m_eOrderDir, opt => opt.MapFrom(src => ConvertToOrderDir(src.OrderBy)))
-                .ForMember(dest => dest.m_lManualMedias, opt => opt.MapFrom(src => ConvertToManualMedias(src.MediaIds)))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)));
+               .ForMember(dest => dest.m_nChannelID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+               .ForMember(dest => dest.m_sName, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
+               .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
+               .ForMember(dest => dest.m_nMediaType, opt => opt.MapFrom(src => src.getAssetTypes()))
+               .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description.GetDefaultLanugageValue()))
+               .ForMember(dest => dest.DescriptionInOtherLanguages, opt => opt.MapFrom(src => src.Description.GetNoneDefaultLanugageContainer()))
+               .ForMember(dest => dest.m_lManualMedias, opt => opt.MapFrom(src => ConvertToManualMedias(src.MediaIds)))
+               .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value ? 1 : 0 : 0))
+               .ForMember(dest => dest.m_OrderObject, opt => opt.MapFrom(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
+               .ForMember(dest => dest.searchGroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.GroupBy)))
+               .ForMember(dest => dest.m_eOrderBy, opt => opt.Ignore())
+               .ForMember(dest => dest.m_eOrderDir, opt => opt.Ignore())
+               .ForMember(dest => dest.CreateDate, opt => opt.Ignore())
+               .ForMember(dest => dest.UpdateDate, opt => opt.Ignore());
 
             //CategoryResponse to Category
             Mapper.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()
