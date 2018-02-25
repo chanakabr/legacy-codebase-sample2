@@ -105,12 +105,6 @@ namespace Core.Notification
             PushData pushData = null;
             DeviceNotificationData deviceData = null;
 
-            if (!NotificationSettings.IsPartnerPushEnabled(groupId))
-            {
-                log.DebugFormat("partner push is disabled. partner ID: {0}", groupId);
-                return true;
-            }
-
             try
             {
                 // get user notification data
@@ -1251,12 +1245,6 @@ namespace Core.Notification
         {
             bool result = false;
 
-            if (!NotificationSettings.IsPartnerMailNotificationEnabled(groupId))
-            {
-                log.DebugFormat("partner mail notifications is disabled. partner ID: {0}", groupId);
-                return true;
-            }
-
             try
             {
                 switch (userAction)
@@ -1439,12 +1427,6 @@ namespace Core.Notification
         public static bool InitiateSmsAction(int groupId, eUserMessageAction userAction, int userId, UserNotification userNotificationData)
         {
             bool result = false;
-
-            if (!NotificationSettings.IsPartnerSmsNotificationEnabled(groupId))
-            {
-                log.DebugFormat("partner mail notifications is disabled. partner ID: {0}", groupId);
-                return true;
-            }
 
             try
             {
