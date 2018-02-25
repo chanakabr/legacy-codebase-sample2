@@ -372,45 +372,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return new Tuple<Dictionary<string, Channel>, bool>(result, res);
-        }
-
-        private static Channel InsertDynamicChannel(KSQLChannel dynamicChannel, long userId)
-        {
-            Channel channel = null;
-            List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
-            if (dynamicChannel.NamesInOtherLanguages != null && dynamicChannel.NamesInOtherLanguages.Count > 0)
-            {
-                foreach (LanguageContainer language in dynamicChannel.NamesInOtherLanguages)
-                {
-                    languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
-                }
-            }
-
-            List<KeyValuePair<string, string>> languageCodeToDescription = new List<KeyValuePair<string, string>>();
-            if (dynamicChannel.DescriptionInOtherLanguages != null && dynamicChannel.DescriptionInOtherLanguages.Count > 0)
-            {
-                foreach (LanguageContainer language in dynamicChannel.DescriptionInOtherLanguages)
-                {
-                    languageCodeToDescription.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
-                }
-            }
-
-            DataSet ds = CatalogDAL.InsertDynamicChannel(dynamicChannel, languageCodeToName, languageCodeToDescription, userId);
-            if (ds != null && ds.Tables.Count > 3 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
-            {
-                DataRow dr = ds.Tables[0].Rows[0];
-                List<DataRow> nameTranslations = ds.Tables[1] != null && ds.Tables[1].Rows != null ? ds.Tables[1].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
-                List<DataRow> descriptionTranslations = ds.Tables[2] != null && ds.Tables[2].Rows != null ? ds.Tables[2].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
-                List<DataRow> mediaTypes = ds.Tables[3] != null && ds.Tables[3].Rows != null ? ds.Tables[3].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
-                int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
-                if (id > 0)
-                {
-                    channel = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, null);
-                }
-            }
-
-            return channel;
-        }
+        }        
 
         #endregion
 
@@ -480,62 +442,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }        
 
-        public static ChannelResponse AddManualChannel(int groupId, Channel channelToAdd, long userId)
-        {
-            ChannelResponse result = new ChannelResponse();
-            try
-            {
-                // validate channel system name not in use
-                if (!CatalogDAL.ValidateChannelSystemName(groupId, channelToAdd.SystemName))
-                {
-                    result.Status = new Status((int)eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
-                    return result;
-                }
-
-                // validate medias exist
-                if (channelToAdd.m_lManualMedias != null && channelToAdd.m_lManualMedias.Count > 0)
-                {
-                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();                    
-                    foreach (string manualMediaId in channelToAdd.m_lManualMedias.Select(x => x.m_sMediaId))
-                    {
-                        long mediaId;
-                        if (long.TryParse(manualMediaId, out mediaId) && mediaId > 0)
-                        {
-                            assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
-                        }
-                    }
-
-                    if (assets.Count > 0)
-                    {
-                        List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets);
-                        if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToAdd.m_lManualMedias.Count)
-                        {
-                            List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
-                            result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
-                                            eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
-                            return result;
-                        }
-                    }                                  
-                }
-
-                if (channelToAdd.m_OrderObject.m_eOrderBy == OrderBy.META)
-                {
-                    if (string.IsNullOrEmpty(channelToAdd.m_OrderObject.m_sOrderValue) || !CatalogManager.CheckMetaExsits(groupId, channelToAdd.m_OrderObject.m_sOrderValue))
-                    {
-                        result.Status = new Status((int)eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
-                        return result;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed AddManualChannel for groupId: {0} and channel SystemName: {1}", groupId, channelToAdd.SystemName), ex);
-            }
-
-            return result;
-        }
-
-        public static ChannelResponse AddDynamicChannel(int groupId, KSQLChannel channelToAdd, long userId = 700)
+        public static ChannelResponse AddChannel(int groupId, Channel channelToAdd, long userId)
         {
             ChannelResponse response = new ChannelResponse();
 
@@ -553,17 +460,17 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(channelToAdd.Name))
+                if (string.IsNullOrEmpty(channelToAdd.m_sName))
                 {
                     response.Status = new Status((int)eResponseStatus.NameRequired, APILogic.CRUD.KSQLChannelsManager.NAME_REQUIRED);
                     return response;
                 }
 
-                // Validate filter query by parsing it
-                if (!string.IsNullOrEmpty(channelToAdd.FilterQuery))
+                // Validate filter query by parsing it for KSQL channel only
+                if (channelToAdd.m_nChannelTypeID == (int)ChannelType.KSQL && !string.IsNullOrEmpty(channelToAdd.filterQuery))
                 {
                     ApiObjects.SearchObjects.BooleanPhraseNode temporaryNode = null;
-                    var parseStatus = ApiObjects.SearchObjects.BooleanPhraseNode.ParseSearchExpression(channelToAdd.FilterQuery, ref temporaryNode);
+                    var parseStatus = ApiObjects.SearchObjects.BooleanPhraseNode.ParseSearchExpression(channelToAdd.filterQuery, ref temporaryNode);
 
                     if (parseStatus == null)
                     {
@@ -580,38 +487,99 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // Validate asset types
-                if (channelToAdd.AssetTypes != null && channelToAdd.AssetTypes.Count > 0)
+                if (channelToAdd.m_nMediaType != null && channelToAdd.m_nMediaType.Count > 0)
                 {
                     CatalogGroupCache catalogGroupCache;
                     if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
-                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddDynamicChannel", groupId);
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddChannel", groupId);
                         return response;
                     }
 
-                    List<int> noneGroupAssetTypes = channelToAdd.AssetTypes.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
+                    List<int> noneGroupAssetTypes = channelToAdd.m_nMediaType.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
                     response.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
                                     eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
                     return response;
                 }
 
-                channelToAdd.GroupID = groupId;
-                response.Channel = InsertDynamicChannel(channelToAdd, userId);
+                List<int> channelMedias = null;
+                // validate medias exist for manual channel only
+                if (channelToAdd.m_nChannelTypeID == (int)ChannelType.Manual && channelToAdd.m_lManualMedias != null && channelToAdd.m_lManualMedias.Count > 0)
+                {
+                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
+                    foreach (string manualMediaId in channelToAdd.m_lManualMedias.Select(x => x.m_sMediaId))
+                    {
+                        long mediaId;
+                        if (long.TryParse(manualMediaId, out mediaId) && mediaId > 0)
+                        {
+                            assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
+                            channelMedias.Add((int)mediaId);
+                        }
+                    }
+
+                    if (assets.Count > 0)
+                    {
+                        List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets);
+                        if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToAdd.m_lManualMedias.Count)
+                        {
+                            List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
+                            response.Status = new Status((int)eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
+                                            eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
+                            return response;
+                        }
+                    }                    
+                }
+
+                List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
+                if (channelToAdd.NamesInOtherLanguages != null && channelToAdd.NamesInOtherLanguages.Count > 0)
+                {
+                    foreach (LanguageContainer language in channelToAdd.NamesInOtherLanguages)
+                    {
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                List<KeyValuePair<string, string>> languageCodeToDescription = new List<KeyValuePair<string, string>>();
+                if (channelToAdd.DescriptionInOtherLanguages != null && channelToAdd.DescriptionInOtherLanguages.Count > 0)
+                {
+                    foreach (LanguageContainer language in channelToAdd.DescriptionInOtherLanguages)
+                    {
+                        languageCodeToDescription.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                    }
+                }
+
+                string groupBy = channelToAdd.searchGroupBy != null && channelToAdd.searchGroupBy.groupBy != null && channelToAdd.searchGroupBy.groupBy.Count == 1 ? channelToAdd.searchGroupBy.groupBy.First() : string.Empty;
+                DataSet ds = CatalogDAL.InsertChannel(groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription, channelToAdd.m_nIsActive, (int)channelToAdd.m_eOrderBy,
+                                                        (int)channelToAdd.m_eOrderDir, channelToAdd.filterQuery, channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
+                                                        new List<KeyValuePair<int, int>>(), userId);
+                if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    DataRow dr = ds.Tables[0].Rows[0];
+                    List<DataRow> nameTranslations = ds.Tables[1] != null && ds.Tables[1].Rows != null ? ds.Tables[1].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                    List<DataRow> descriptionTranslations = ds.Tables[2] != null && ds.Tables[2].Rows != null ? ds.Tables[2].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                    List<DataRow> mediaTypes = ds.Tables[3] != null && ds.Tables[3].Rows != null ? ds.Tables[3].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                    List<DataRow> mediaIds = ds.Tables[4] != null && ds.Tables[4].Rows != null ? ds.Tables[4].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                    int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
+                    if (id > 0)
+                    {
+                        response.Channel = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
+                    }
+                }                
 
                 if (response.Channel != null && response.Channel.m_nChannelID > 0)
                 {
                     APILogic.CRUD.KSQLChannelsManager.UpdateCatalog(groupId, response.Channel.m_nChannelID);
 
-                    response.Status = new Status((int)eResponseStatus.OK, "new KSQL channel insert");
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
                 else
                 {
-                    response.Status = new Status((int)eResponseStatus.Error, "fail to insert new KSQL channel");
+                    response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddDynamicChannel for groupId: {0} and channel SystemName: {1}", groupId, channelToAdd.SystemName), ex);
+                log.Error(string.Format("Failed AddChannel for groupId: {0} and channel SystemName: {1}", groupId, channelToAdd.SystemName), ex);
             }
 
             return response;
