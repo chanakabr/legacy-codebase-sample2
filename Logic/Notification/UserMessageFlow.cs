@@ -1820,6 +1820,11 @@ namespace Core.Notification
                             if (removedReminder != null)
                                 smsNotificationData.SubscribedReminders.Remove(removedReminder);
                         }
+
+                        if (cancelSubResult.ExternalId == smsAnnouncementId && cancelSubResult.Success)
+                        {
+                            smsNotificationData.SubscriptionExternalIdentifier = string.Empty;
+                        }
                     }
 
                     if (!canceledSystemAnnouncement)
@@ -1840,7 +1845,7 @@ namespace Core.Notification
                 {
                     bool smsAnnouncementUpdated = false;
 
-                    // update device announcements
+                    // update SMS announcements
                     foreach (var subscription in subscribrAdapterResult)
                     {
                         if (subscription == null || string.IsNullOrEmpty(subscription.SubscriptionArnResult))
@@ -1849,7 +1854,7 @@ namespace Core.Notification
                             continue;
                         }
 
-                        // add device announcements except login announcements 
+                        // add SMS announcements except login announcements 
                         if (subscription.ExternalId != smsAnnouncementId)
                         {
                             // add result to follow announcements (if its a follow push announcement)
