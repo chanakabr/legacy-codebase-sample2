@@ -46,11 +46,9 @@ namespace Core.Catalog.Request
                 CheckSignature(request);
 
                 List<int> channels = null;
-                List<string> invalidationKeys = new List<string>()
-                {
-                    LayeredCacheKeys.GetGroupChannelsInvalidationKey(request.m_nGroupID),
-                    LayeredCacheKeys.GetMediaInvalidationKey(request.m_nGroupID, request.m_nMediaID)
-                };
+                List<string> invalidationKeys = new List<string>() { LayeredCacheKeys.GetGroupChannelsInvalidationKey(request.m_nGroupID) };
+                invalidationKeys.AddRange(LayeredCacheKeys.GetAssetMultipleInvalidationKeys(request.m_nGroupID, ApiObjects.eAssetTypes.MEDIA.ToString(), request.m_nMediaID));
+
 
                 string key = LayeredCacheKeys.GetChannelsContainingMediaKey(request.m_nMediaID);
 

@@ -774,8 +774,7 @@ namespace Core.Catalog
         /// <param name="result"></param>
         /// <returns></returns>
         internal static List<Picture> GetAllPic(int groupId, int assetId, DataTable dtPic, ref bool result, int assetGroupId)
-        {
-            // TODO - LIOR handle code to ignore the groupId? + useTemplates = true?
+        {            
             result = true;
             List<Picture> lPicObject = new List<Picture>();
             Picture picObj;

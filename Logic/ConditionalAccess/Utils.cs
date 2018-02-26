@@ -6797,9 +6797,12 @@ namespace Core.ConditionalAccess
 
             try
             {
+                long parsedAssetId = 0;
+                long.TryParse(assetId, out parsedAssetId);
                 bool cacheResult = LayeredCache.Instance.Get<Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status>>(key, ref tupleResult, GetMediaIdForAssetFromCache,
                 new Dictionary<string, object>() { { "assetId", assetId }, { "groupId", groupId }, { "assetType", assetType }, { "userId", userId }, { "domain", domain }, { "udid", udid } },
-                groupId, LayeredCacheConfigNames.MEDIA_IF_FOR_ASSET_LAYERED_CACHE_CONFIG_NAME);
+                groupId, LayeredCacheConfigNames.MEDIA_ID_FOR_ASSET_LAYERED_CACHE_CONFIG_NAME,
+                parsedAssetId > 0 ? LayeredCacheKeys.GetAssetMultipleInvalidationKeys(groupId, assetType.ToString(), parsedAssetId) : new List<string>());
 
                 if (cacheResult && tupleResult != null)
                 {
@@ -7251,9 +7254,9 @@ namespace Core.ConditionalAccess
                 }
 
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "mapper", mapper } };
-                res = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams,
-                                                                    groupId, LayeredCacheConfigNames.GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME, GetDomainEntitlementInvalidationKeys(domainId));
-
+                res = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams, groupId,
+                                                                    LayeredCacheConfigNames.GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME,
+                                                                    LayeredCacheKeys.GetDomainEntitlementInvalidationKeys(domainId));
                 if (res && domainEntitlements != null)
                 {
                     // remove expired PPV's
@@ -7367,20 +7370,6 @@ namespace Core.ConditionalAccess
             }
 
             return res && domainEntitlements != null;
-        }
-
-        private static List<string> GetDomainEntitlementInvalidationKeys(int domainId)
-        {
-            return new List<string>()
-            {
-                LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(domainId),
-                LayeredCacheKeys.GetCancelTransactionInvalidationKey(domainId),
-                LayeredCacheKeys.GetPurchaseInvalidationKey(domainId),
-                LayeredCacheKeys.GetGrantEntitlementInvalidationKey(domainId),
-                LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainId),
-                LayeredCacheKeys.GetRenewInvalidationKey(domainId),
-                LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(domainId)
-            };
         }
 
         private static Tuple<DomainEntitlements, bool> InitializeDomainEntitlements(Dictionary<string, object> funcParams)
