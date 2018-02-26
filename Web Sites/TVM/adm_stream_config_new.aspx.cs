@@ -58,7 +58,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
                             string sIP = "1.1.1.1";
                             string sWSUserName = "";
                             string sWSPass = "";
-                            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "", "api", sIP, ref sWSUserName, ref sWSPass);
+                            TVinciShared.WS_Utils.GetWSUNPass(DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID()), "", "api", sIP, ref sWSUserName, ref sWSPass);
                             apiWS.API api = new apiWS.API();
                             string sWSURL = WS_Utils.GetTcmConfigValue("api_ws");
                             if (sWSURL != "")
@@ -75,7 +75,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
                                     string.Format("{0}_cdn_adapter_{1}", version, nID)
                                 };
 
-                                QueueUtils.UpdateCache(LoginManager.GetLoginGroupID(), CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
+                                QueueUtils.UpdateCache(DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID()), CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
                             }
                             catch (Exception ex)
                             {
