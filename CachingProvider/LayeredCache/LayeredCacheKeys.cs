@@ -540,7 +540,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetAssetInvalidationKey(string assetType, long id)
         {
-            return string.Format("invalidationKeyAsset_type_{0}_id_{1}", assetType, id);
+            return string.Format("invalidationKey_Asset_type_{0}_id_{1}", assetType, id);
         }
 
         public static string GetMediaConcurrencyRulesDeviceLimitationModuleInvalidationKey(int groupId, int dlmId)
@@ -638,8 +638,36 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKey_user_{0}", siteGuid);
         }
-        
+
         #endregion
+
+        #endregion
+
+        #region Invalidation keys functions
+
+        public static List<string> GetDomainEntitlementInvalidationKeys(int domainId)
+        {
+            return new List<string>()
+            {
+                GetCancelSubscriptionInvalidationKey(domainId),
+                GetCancelTransactionInvalidationKey(domainId),
+                GetPurchaseInvalidationKey(domainId),
+                GetGrantEntitlementInvalidationKey(domainId),
+                GetCancelServiceNowInvalidationKey(domainId),
+                GetRenewInvalidationKey(domainId),
+                GetCancelSubscriptionRenewalInvalidationKey(domainId)
+            };
+        }
+
+        // call this when changes on asset may affect your cache
+        public static List<string> GetAssetMultipleInvalidationKeys(int groupId, string assetType, long id)
+        {
+            return new List<string>()
+            {
+                GetAssetInvalidationKey(assetType, id),
+                GetMediaInvalidationKey(groupId, id)
+            };
+        }
 
         #endregion
 
