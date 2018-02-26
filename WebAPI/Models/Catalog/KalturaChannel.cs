@@ -60,6 +60,7 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "images", IsNullable = true)]
         [XmlArrayItem("item")]
         [SchemeProperty(ReadOnly = true)]
+        [Deprecated(GENESIS_VERSION)]
         public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>

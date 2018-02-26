@@ -1053,8 +1053,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 Tags tagToAdd = new Tags() { m_oTagMeta = new TagMeta(tag.Key, ApiObjects.MetaType.Tag.ToString()) };
                 tagToAdd.m_lValues = tag.Value.Objects != null ? tag.Value.Objects.Select(x => x.value.GetDefaultLanugageValue()).ToList() : new List<string>();
-                // TODO - Lior not needed anymore since we don't support adding\updating tag translation per asset
-                //tagToAdd.Values = tag.Value.Objects != null ? tag.Value.Objects.Select(x => x.value.GetNoneDefaultLanugageContainer().ToArray()).ToList() : new List<LanguageContainer[]>();
                 tags.Add(tagToAdd);
             }
 

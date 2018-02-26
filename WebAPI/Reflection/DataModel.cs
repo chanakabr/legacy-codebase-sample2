@@ -48,6 +48,8 @@ namespace WebAPI.Reflection
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "GroupBy":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "Images":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "MediaTypes":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "Order":
@@ -67,6 +69,8 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "FilterExpression":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "Images":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "MediaTypes":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
@@ -119,6 +123,8 @@ namespace WebAPI.Reflection
                         case "FilterExpression":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "GroupBy":
+                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
+                        case "Images":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "MediaTypes":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
