@@ -1448,7 +1448,7 @@ namespace Core.Notification
                             log.Error("Error enabling user mail notifications");
                         break;
 
-                    case eUserMessageAction.DisableUserNotifications:
+                    case eUserMessageAction.DisableUserSmsNotifications:
                         result = DisableUserSmsNotifications(groupId, userId, userNotificationData);
                         if (result)
                             log.Debug("Successfully disabled user mail notifications");

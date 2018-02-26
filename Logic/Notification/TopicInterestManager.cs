@@ -582,7 +582,7 @@ namespace APILogic.Notification
                                 Id = interestNotification.Id,
                                 SubscribedAtSec = addedSecs
                             };
-                            userSmsNotificationData.SubscribedAnnouncements.Add(sub);
+                            userSmsNotificationData.SubscribedUserInterests.Add(sub);
 
                             if (!DAL.NotificationDal.SetUserSmsNotificationData(partnerId, userId, userSmsNotificationData))
                             {
