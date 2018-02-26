@@ -1564,6 +1564,36 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public static List<Asset> GetOrderedAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets)
+        {
+            List<Asset> result = null;            
+            try
+            {
+                List<Asset> unOrderedAssets = GetAssets(groupId, assets);
+                if (unOrderedAssets == null || unOrderedAssets.Count != assets.Count)
+                {
+                    log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
+                                    assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.Key, x.Value)).ToList()) : string.Empty);
+                    return result;
+                }
+
+                string keyFormat = "{0}_{1}"; // mapped asset key format
+                Dictionary<string, Asset> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
+                result = new List<Asset>();
+                foreach (KeyValuePair<eAssetTypes, long> pair in assets)
+                {
+                    result.Add(mappedAssets[string.Format(keyFormat, pair.Key.ToString(), pair.Value)]);
+                }                
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetOrderedAssets for groupId: {0}, assets: {1}", groupId,
+                                        assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.Key, x.Value)).ToList()) : string.Empty), ex);
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Returns dictionary of [assetId, [language, media]]
         /// </summary>
