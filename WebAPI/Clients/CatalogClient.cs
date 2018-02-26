@@ -860,7 +860,7 @@ namespace WebAPI.Clients
                         }
                     }
 
-                    List<Asset> assets =  AssetManager.GetAssets(groupId, assetsToRetrieve);
+                    List<Asset> assets =  AssetManager.GetOrderedAssets(groupId, assetsToRetrieve);
                     if (assets != null)
                     {
                         result.Objects = new List<KalturaAsset>();
@@ -909,7 +909,7 @@ namespace WebAPI.Clients
                         }
                     }
 
-                    List<Asset> assets = AssetManager.GetAssets(groupId, assetsToRetrieve);
+                    List<Asset> assets = AssetManager.GetOrderedAssets(groupId, assetsToRetrieve);
                     if (assets != null)
                     {
                         result.Objects = new List<KalturaAsset>();
