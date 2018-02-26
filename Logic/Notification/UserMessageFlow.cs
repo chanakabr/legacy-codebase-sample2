@@ -105,46 +105,10 @@ namespace Core.Notification
             PushData pushData = null;
             DeviceNotificationData deviceData = null;
 
+            log.Debug("Starting push action handle");
+
             try
             {
-                // get user notification data
-                if (userId > 0)
-                {
-                    docExists = false;
-                    userNotificationData = NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
-                    if (userNotificationData == null)
-                    {
-                        if (docExists)
-                        {
-                            // error while getting user notification data
-                            log.ErrorFormat("error retrieving user announcement data. GID: {0}, UID: {1}", groupId, userId);
-                            return false;
-                        }
-                        else
-                        {
-                            log.DebugFormat("user announcement data wasn't found - going to create a new one. GID: {0}, UID: {1}", groupId, userId);
-
-                            // create user notification object
-                            userNotificationData = new UserNotification(userId) { CreateDateSec = DateUtils.UnixTimeStampNow() };
-
-                            //update user settings according to partner settings configuration                    
-                            userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(groupId, userId);
-
-                            // update user notification data
-                            if (!NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
-                            {
-                                log.ErrorFormat("Error while trying to create user notification document", JsonConvert.SerializeObject(userNotificationData));
-                                return false;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // remove old user reminders
-                        DeleteOldAnnouncements(groupId, userNotificationData);
-                    }
-                }
-
                 // get push data
                 if (!string.IsNullOrEmpty(udid))
                 {
@@ -1245,6 +1209,8 @@ namespace Core.Notification
         {
             bool result = false;
 
+            log.Debug("Starting mail action handle");
+
             try
             {
                 switch (userAction)
@@ -1325,17 +1291,12 @@ namespace Core.Notification
         {
             bool result = true;
             List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementExternalIdsForUser(groupId, userNotificationData);
-            if (externalIds == null || externalIds.Count == 0)
-            {
-                log.ErrorFormat("Failed to get user announcements external Ids to unsubscribe. group: {0}, userId = {1}", groupId, userId);
-                return false;
-            }
 
-            if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData, userId))
+            if (externalIds != null && externalIds.Count > 0 && !MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData, userId))
             {
                 log.ErrorFormat("Failed unsubscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
                     groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
-                return false;
+                result = false;
             }
 
             return result;
@@ -1427,6 +1388,8 @@ namespace Core.Notification
         public static bool InitiateSmsAction(int groupId, eUserMessageAction userAction, int userId, UserNotification userNotificationData)
         {
             bool result = false;
+
+            log.Debug("Starting SMS action handle");
 
             try
             {

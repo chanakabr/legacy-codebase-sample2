@@ -482,17 +482,6 @@ namespace Core.Notification
             return adapterId;
         }
 
-        public static bool IsUserMailEnabled(UserNotificationSettings userSettings)
-        {
-            if (userSettings != null &&
-                userSettings.EnablePush == true)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
         public static bool IsPartnerSmsNotificationEnabled(int groupId)
         {
             var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);

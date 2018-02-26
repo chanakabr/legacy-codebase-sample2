@@ -28,9 +28,9 @@ namespace Core.Notification
             List<string> result = new List<string>();
 
             // validate user enabled push notifications
-            if (!NotificationSettings.IsUserMailEnabled(userNotificationData.Settings))
+            if (userNotificationData.Settings.EnableMail == false || string.IsNullOrEmpty(userNotificationData.UserData.Email))
             {
-                log.ErrorFormat("User mail notification is disabled. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
+                log.DebugFormat("User mail notification is disabled. PID: {0}, UserId: {1}", groupId, userNotificationData.UserId);
                 return result;
             }
 
