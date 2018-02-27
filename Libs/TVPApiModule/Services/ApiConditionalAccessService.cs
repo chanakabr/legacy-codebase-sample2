@@ -1548,7 +1548,7 @@ namespace TVPApiModule.Services
 
         public LicensedLinkNPVRResponse GetNPVRLicensedLink(string siteGuid, long domainId, string udid,
             string recordingId, DateTime startTime, int mediaFileID, string basicLink, string userIP, string referrer, string countryCode, string languageCode,
-            string couponCode, int? version)
+            string couponCode)
         {
             LicensedLinkNPVRResponse res = null;
 
@@ -1570,8 +1570,7 @@ namespace TVPApiModule.Services
                     couponCode = couponCode,
                     format = 3,
                     wsPassword = m_wsPassword,
-                    wsUsername = m_wsUserName,
-                    Version = version
+                    wsUsername = m_wsUserName
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
