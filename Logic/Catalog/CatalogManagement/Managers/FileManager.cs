@@ -188,7 +188,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static AssetFileResponse CreateAssetFileResponseFromDataSet(DataSet ds)
+        private static AssetFileResponse CreateAssetFileResponseFromDataSet(int groupId, DataSet ds)
         {
             AssetFileResponse response = new AssetFileResponse() { Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -196,7 +196,7 @@ namespace Core.Catalog.CatalogManagement
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
-                    response.File = CreateAssetFile(dt.Rows[0]);
+                    response.File = CreateAssetFile(groupId, dt.Rows[0]);
                     if (response.File != null)
                     {
                         response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -212,9 +212,18 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }        
 
-        private static AssetFile CreateAssetFile(DataRow dr)
+        private static AssetFile CreateAssetFile(int groupId, DataRow dr)
         {
-            return new AssetFile()
+            string typeName = string.Empty;
+            int typeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID");
+            MediaFileType fileType = GetMediaFileType(groupId, typeId);
+            // backward compatability for older vesions that use FileMedia object instead of AssetFile object
+            if (fileType != null && !string.IsNullOrEmpty(fileType.Name))
+            {
+                typeName = fileType.Name;
+            }
+
+            return new AssetFile(typeName)
             {
                 AdditionalData = ODBCWrapper.Utils.GetSafeStr(dr, "ADDITIONAL_DATA"),
                 AltExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_CO_GUID"),
@@ -234,7 +243,7 @@ namespace Core.Catalog.CatalogManagement
                 OutputProtecationLevel = ODBCWrapper.Utils.GetIntSafeVal(dr, "OUTPUT_PROTECTION_LEVEL"),
                 StartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE"),
                 CdnAdapaterProfileId = ODBCWrapper.Utils.GetLongSafeVal(dr, "STREAMING_SUPLIER_ID"),
-                Type = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID"),
+                TypeId = typeId,
                 Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1
             };
@@ -246,7 +255,7 @@ namespace Core.Catalog.CatalogManagement
             AssetFileResponse result = new AssetFileResponse();
 
             DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
-            result = CreateAssetFileResponseFromDataSet(ds);
+            result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
             if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
             {
@@ -263,7 +272,7 @@ namespace Core.Catalog.CatalogManagement
             DataSet ds = CatalogDAL.GetMediaFilesByAssetIds(groupId, new List<long>() { assetId });
             if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
             {
-                files = CreateAssetFileListResponseFromDataTable(ds.Tables[0]);
+                files = CreateAssetFileListResponseFromDataTable(groupId, ds.Tables[0]);
             }
 
             return files;
@@ -377,7 +386,7 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
-        internal static List<AssetFile> CreateAssetFileListResponseFromDataTable(DataTable dt)
+        internal static List<AssetFile> CreateAssetFileListResponseFromDataTable(int groupId, DataTable dt)
         {
             List<AssetFile> response = new List<AssetFile>();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -385,7 +394,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        AssetFile assetFile = CreateAssetFile(dr);
+                        AssetFile assetFile = CreateAssetFile(groupId, dr);
                         if (assetFile != null)
                         {
                             response.Add(assetFile);
@@ -526,7 +535,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                MediaFileType mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToAdd.Type).SingleOrDefault();
+                MediaFileType mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToAdd.TypeId).SingleOrDefault();
                 if (mediaFileType == null)
                 {
                     result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
@@ -535,7 +544,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // validate media doesn't already have a file with this type
                 List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToAdd.AssetId);
-                if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.Type == assetFileToAdd.Type).Count() > 0)
+                if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.TypeId == assetFileToAdd.TypeId).Count() > 0)
                 {
                     result.Status = new Status((int)eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
                     return result;
@@ -574,8 +583,8 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AlternativeCdnAdapaterProfileId, assetFileToAdd.AssetId,
                                                         assetFileToAdd.BillingType, assetFileToAdd.Duration, endDate, assetFileToAdd.ExternalId, assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize,
                                                         assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, assetFileToAdd.OutputProtecationLevel, startDate,
-                                                        assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.Type, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive);
-                result = CreateAssetFileResponseFromDataSet(ds);
+                                                        assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive);
+                result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
@@ -614,7 +623,7 @@ namespace Core.Catalog.CatalogManagement
             {
 
                 DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
-                assetFileResponse = CreateAssetFileResponseFromDataSet(ds);
+                assetFileResponse = CreateAssetFileResponseFromDataSet(groupId, ds);
 
                 if (assetFileResponse != null && assetFileResponse.Status != null && assetFileResponse.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -659,7 +668,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataSet ds = CatalogDAL.GetMediaFile(groupId, assetFileToUpdate.Id);
-                AssetFileResponse currentAssetFile = CreateAssetFileResponseFromDataSet(ds);
+                AssetFileResponse currentAssetFile = CreateAssetFileResponseFromDataSet(groupId, ds);
 
                 if (currentAssetFile != null && currentAssetFile.Status != null && currentAssetFile.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -680,7 +689,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                MediaFileType mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToUpdate.Type).SingleOrDefault();
+                MediaFileType mediaFileType = mediaFileTypes.Where(x => x.Id == assetFileToUpdate.TypeId).SingleOrDefault();
                 if (mediaFileType == null)
                 {
                     result.Status = new Status((int)eResponseStatus.MediaFileTypeDoesNotExist, eResponseStatus.MediaFileTypeDoesNotExist.ToString());
@@ -688,10 +697,10 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate media doesn't already have a file with this type
-                if (assetFileToUpdate.Type.HasValue)
+                if (assetFileToUpdate.TypeId.HasValue)
                 {
                     List<AssetFile> assetFiles = GetAssetFilesByAssetId(groupId, assetFileToUpdate.AssetId);
-                    if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.Type == assetFileToUpdate.Type && x.Id != assetFileToUpdate.Id).Count() > 0)
+                    if (assetFiles != null && assetFiles.Count > 0 && assetFiles.Where(x => x.TypeId == assetFileToUpdate.TypeId && x.Id != assetFileToUpdate.Id).Count() > 0)
                     {
                         result.Status = new Status((int)eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset.ToString());
                         return result;
@@ -731,9 +740,9 @@ namespace Core.Catalog.CatalogManagement
                                                 assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, assetFileToUpdate.Duration, endDate, assetFileToUpdate.ExternalId,
                                                 assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language,
                                                 assetFileToUpdate.OrderNum, assetFileToUpdate.OutputProtecationLevel, startDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId,
-                                                assetFileToUpdate.Type, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive);
+                                                assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive);
 
-                result = CreateAssetFileResponseFromDataSet(ds);
+                result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
@@ -799,7 +808,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (AssetFile file in assetFiles)
                 {
-                    MediaFileType mediaFileType = FileManager.GetMediaFileType(groupId, file.Type.Value);
+                    MediaFileType mediaFileType = FileManager.GetMediaFileType(groupId, file.TypeId.Value);
                     if (mediaFileType != null)
                     {
                         result.Add(new FileMedia(file, mediaFileType));

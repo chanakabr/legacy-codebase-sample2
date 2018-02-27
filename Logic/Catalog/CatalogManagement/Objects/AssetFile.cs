@@ -6,7 +6,7 @@ namespace Core.Catalog.CatalogManagement
     {
         public long Id { get; set; }
         public long AssetId { get; set; }
-        public int? Type { get; set; }
+        public int? TypeId { get; set; }
         public string Url { get; set; }
         public long? Duration { get; set; }
         public string ExternalId { get; set; }
@@ -25,5 +25,22 @@ namespace Core.Catalog.CatalogManagement
         public DateTime? EndDate { get; set; }
         public long? FileSize { get; set; }
         public bool? IsActive { get; set; }
+
+        private string type;
+
+        public AssetFile()
+        {
+            type = string.Empty;
+        }
+
+        public AssetFile(string typeName)
+        {
+            type = typeName;
+        }
+
+        public string GetTypeName()
+        {
+            return type;
+        }
     }
 }

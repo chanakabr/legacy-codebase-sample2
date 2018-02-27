@@ -134,7 +134,7 @@ namespace Core.Catalog
             this.m_nIsDefaultLanguage = assetFile.IsDefaultLanguage.HasValue && assetFile.IsDefaultLanguage.Value ? 1 : 0;
             this.FileSize = assetFile.FileSize.HasValue ? assetFile.FileSize.Value : 0;
             this.Quality = fileType.Quality.ToString();
-            this.m_sFileFormat = fileType.Description;
+            this.m_sFileFormat = fileType.Name;
         }
 
         private void initializeAdvertisingMembers()

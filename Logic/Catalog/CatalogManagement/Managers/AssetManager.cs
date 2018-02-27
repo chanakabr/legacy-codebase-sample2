@@ -128,7 +128,7 @@ namespace Core.Catalog.CatalogManagement
             List<AssetFile> files = null;
             if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
             {
-                files = FileManager.CreateAssetFileListResponseFromDataTable(ds.Tables[3]);
+                files = FileManager.CreateAssetFileListResponseFromDataTable(groupId, ds.Tables[3]);
                 // get only active files
                 files = files.Where(x => x.IsActive.HasValue && x.IsActive.Value).ToList();
             }
