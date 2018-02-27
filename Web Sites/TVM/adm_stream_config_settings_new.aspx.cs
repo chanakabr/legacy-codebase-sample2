@@ -40,13 +40,14 @@ public partial class adm_stream_config_settings_new : System.Web.UI.Page
 
                 if (Session["cdn_adapter_id"] != null && !string.IsNullOrEmpty(Session["cdn_adapter_id"].ToString()) && int.TryParse(Session["cdn_adapter_id"].ToString(), out cdnAdapterId))
                 {
+                    int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
                     // set adapter configuration
                     apiWS.API api = new apiWS.API();
 
                     string sIP = "1.1.1.1";
                     string sWSUserName = "";
                     string sWSPass = "";
-                    TVinciShared.WS_Utils.GetWSUNPass(DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID()), "SendCDNAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
+                    TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "SendCDNAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
                     string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
                     if (!string.IsNullOrEmpty(sWSURL))
                         api.Url = sWSURL;
@@ -63,7 +64,7 @@ public partial class adm_stream_config_settings_new : System.Web.UI.Page
                                     string.Format("{0}_cdn_adapter_{1}", version, cdnAdapterId)
                                 };
 
-                        QueueUtils.UpdateCache(DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID()), CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
+                        QueueUtils.UpdateCache(parentGroupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
                     }
                     catch (Exception ex)
                     {

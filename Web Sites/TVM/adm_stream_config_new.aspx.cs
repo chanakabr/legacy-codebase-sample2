@@ -54,11 +54,12 @@ public partial class adm_stream_config_new : System.Web.UI.Page
                         Int32 nID = DBManipulator.DoTheWork();
                         if (nID > 0)
                         {
+                            int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
                             // set adapter configuration 
                             string sIP = "1.1.1.1";
                             string sWSUserName = "";
                             string sWSPass = "";
-                            TVinciShared.WS_Utils.GetWSUNPass(DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID()), "", "api", sIP, ref sWSUserName, ref sWSPass);
+                            TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "", "api", sIP, ref sWSUserName, ref sWSPass);
                             apiWS.API api = new apiWS.API();
                             string sWSURL = WS_Utils.GetTcmConfigValue("api_ws");
                             if (sWSURL != "")
@@ -75,7 +76,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
                                     string.Format("{0}_cdn_adapter_{1}", version, nID)
                                 };
 
-                                QueueUtils.UpdateCache(DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID()), CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
+                                QueueUtils.UpdateCache(parentGroupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
                             }
                             catch (Exception ex)
                             {
@@ -88,7 +89,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
             }
 
             Int32 nMenuID = 0;
-            m_sMenu = TVinciShared.Menu.GetMainMenu(4, true, ref nMenuID);
+            //m_sMenu = TVinciShared.Menu.GetMainMenu(4, true, ref nMenuID);
             if (Request.QueryString["stream_company_id"] != null &&
                 Request.QueryString["stream_company_id"].ToString() != "")
             {
@@ -104,7 +105,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
             else
                 Session["stream_company_id"] = 0;
 
-            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
+            //m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
         }
     }
 
