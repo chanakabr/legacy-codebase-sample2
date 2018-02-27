@@ -10,11 +10,13 @@ namespace NPVR
     {
         public NPVRProvider npvrProvider { get; set; }
         public bool synchronizeNpvrWithDomain { get; set; }
+        public int version { get; set; }
 
-        public NPVRProviderImp(NPVRProvider provider, bool synchronizeNpvrWithDomain)
+        public NPVRProviderImp(NPVRProvider provider, bool synchronizeNpvrWithDomain, int version)
         {
             this.npvrProvider = provider;
             this.synchronizeNpvrWithDomain = synchronizeNpvrWithDomain;
+            this.version = version;
         }
     }
 }

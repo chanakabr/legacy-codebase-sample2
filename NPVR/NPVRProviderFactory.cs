@@ -39,7 +39,7 @@ namespace NPVR
 
         private NPVRProvider GetGroupNPVRImpl(int groupID, out bool synchronizeNpvrWithDomain, out int version)
         {
-            NPVRProviderImp providerImp = new NPVRProviderImp(NPVRProvider.None, false);
+            NPVRProviderImp providerImp = new NPVRProviderImp(NPVRProvider.None, false, 0);
             synchronizeNpvrWithDomain = false;
             version = 0;
 
@@ -59,12 +59,13 @@ namespace NPVR
                             log.Error("Error - " + string.Format("Unknown NPVR Provider ID extracted from DB. G ID: {0} , NPVR ID: {1}", groupID, npvrProviderID));
                         }
 
-                        groupsToNPVRImplMapping.Add(groupID, new NPVRProviderImp(providerImp.npvrProvider, synchronizeNpvrWithDomain));
+                        groupsToNPVRImplMapping.Add(groupID, new NPVRProviderImp(providerImp.npvrProvider, synchronizeNpvrWithDomain, version));
                     }
                     else
                     {
                         providerImp = groupsToNPVRImplMapping[groupID];
                         synchronizeNpvrWithDomain = providerImp.synchronizeNpvrWithDomain;
+                        version = providerImp.version;
                     }
                 }
             }
@@ -72,6 +73,7 @@ namespace NPVR
             {
                 providerImp = groupsToNPVRImplMapping[groupID];
                 synchronizeNpvrWithDomain = providerImp.synchronizeNpvrWithDomain;
+                version = providerImp.version;
             }
 
             return providerImp.npvrProvider;
