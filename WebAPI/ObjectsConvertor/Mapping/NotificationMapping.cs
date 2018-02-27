@@ -34,6 +34,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
                  ;
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
@@ -53,6 +55,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
+                 .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
                  ;
 
             //NotificationPartnerSettings to KalturaNotificationPartnerSettings
@@ -72,6 +76,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
@@ -90,19 +96,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ChurnMailSubject, opt => opt.MapFrom(src => src.ChurnMailSubject))
                  .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
+                 .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
+                 .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
                  ;
 
             Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
-                 .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnablePush));
+                 .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnablePush))
+                 .ForMember(dest => dest.MailEnabled, opt => opt.MapFrom(src => src.EnableMail))
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.EnableSms));
 
             Mapper.CreateMap<bool?, UserFollowSettings>()
                .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src));
 
             Mapper.CreateMap<KalturaNotificationsSettings, UserNotificationSettings>()
                  .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src.PushNotificationEnabled))
-                 .ForMember(dest => dest.FollowSettings, opt => opt.MapFrom(src => src.PushFollowEnabled));
+                 .ForMember(dest => dest.FollowSettings, opt => opt.MapFrom(src => src.PushFollowEnabled))
+                 .ForMember(dest => dest.EnableMail, opt => opt.MapFrom(src => src.MailEnabled))
+                 .ForMember(dest => dest.EnableSms, opt => opt.MapFrom(src => src.SmsEnabled));
 
             Mapper.CreateMap<MessageAnnouncement, KalturaAnnouncement>()
                  .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
@@ -113,6 +125,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
                  .ForMember(dest => dest.Timezone, opt => opt.MapFrom(src => src.Timezone))
                  .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
+                 .ForMember(dest => dest.IncludeMail, opt => opt.MapFrom(src => src.IncludeMail))
+                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms))
+                 .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
+                 .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertAnnouncementStatusType(src.Status)));
 
             //MessageTemplate to KalturaMessageTemplate
@@ -122,6 +138,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
                  .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                  .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
+                 .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
+                 .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
+                 .ForMember(dest => dest.RatioId, opt => opt.MapFrom(src => src.RatioId))
                  .ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.TemplateType)));
 
             //KalturaMessageTemplate TO MessageTemplate
@@ -131,6 +150,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                  .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
                  .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
+                 .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
+                 .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
+                 .ForMember(dest => dest.RatioId, opt => opt.MapFrom(src => src.RatioId))
                  .ForMember(dest => dest.TemplateType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.MessageType)));
 
             Mapper.CreateMap<FollowDataBase, KalturaFollowDataTvSeries>()

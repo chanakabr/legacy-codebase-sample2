@@ -97,7 +97,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.NotificationClient().DeleteReminder(userId, groupId, id, type);
+                response = ClientsManager.NotificationClient().DeleteReminder(int.Parse(userId), groupId, id, type);
             }
             catch (ClientException ex)
             {
@@ -105,6 +105,33 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Delete a reminder. Reminder cannot be delete while being sent.
+        /// </summary>
+        /// <param name="id">Id of the reminder.</param>
+        /// <param name="type">Reminder type.</param>
+        /// <param name="token">User's token identifier</param>
+        /// <param name="partnerId">Partner identifier</param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        [Route("deleteWithToken"), HttpPost]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.InvalidToken)]
+        public void DeleteWithToken(long id, KalturaReminderType type, string token, int partnerId)
+        {
+            try
+            {
+                int userId = ClientsManager.NotificationClient().GetUserIdByToken(partnerId, token);
+
+                ClientsManager.NotificationClient().DeleteReminder(userId, partnerId, id, type);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
         }
 
         /// <summary>        

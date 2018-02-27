@@ -536,7 +536,7 @@ namespace WebAPI.Clients
             eTransactionType wsType = ConditionalAccessMappings.ConvertTransactionType(type);
 
             // get group ID
-            
+
 
             // convert order by
             EntitlementOrderBy wsOrderBy = ConditionalAccessMappings.ConvertEntitlementOrderBy(orderBy);
@@ -594,7 +594,7 @@ namespace WebAPI.Clients
             eTransactionType wsType = ConditionalAccessMappings.ConvertTransactionType(type);
 
             // get group ID
-            
+
 
             // convert order by
             EntitlementOrderBy wsOrderBy = ConditionalAccessMappings.ConvertEntitlementOrderBy(orderBy);
@@ -640,7 +640,7 @@ namespace WebAPI.Clients
 
             return response;
         }
-        
+
         internal bool GrantEntitlements(int groupId, string user_id, long household_id, int content_id, int product_id, KalturaTransactionType product_type, bool history, string deviceName)
         {
             Status response = null;

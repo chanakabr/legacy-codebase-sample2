@@ -27,9 +27,11 @@ namespace WebAPI.Managers
         private const string REVOKED_KS_MAX_TTL_SECONDS_TCM_KEY = "revoked_ks_max_ttl_seconds";
         private const string USERS_SESSIONS_KEY_FORMAT_TCM_KEY = "users_sessions_key_format";
         private const string REVOKED_KS_KEY_FORMAT_TCM_KEY = "revoked_ks_key_format";
+        private const string REVOKED_SESSION_KEY_FORMAT_TCM_KEY = "revoked_session_key_format";
         private const string USERS_SESSIONS_KEY_FORMAT = "sessions_{0}";
         private const string REVOKED_KS_KEY_FORMAT = "r_ks_{0}";
         private const string REVOKED_SESSION_KEY_FORMAT = "r_session_{0}";
+
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 
@@ -553,7 +555,7 @@ namespace WebAPI.Managers
             string revokedSessionKeyFormat = group.RevokedSessionKeyFormat;
             if (string.IsNullOrEmpty(revokedSessionKeyFormat))
             {
-                revokedSessionKeyFormat = TCMClient.Settings.Instance.GetValue<string>(REVOKED_KS_KEY_FORMAT_TCM_KEY);
+                revokedSessionKeyFormat = TCMClient.Settings.Instance.GetValue<string>(REVOKED_SESSION_KEY_FORMAT_TCM_KEY);
 
                 if (string.IsNullOrEmpty(revokedSessionKeyFormat))
                 {

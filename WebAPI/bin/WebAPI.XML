@@ -1115,6 +1115,17 @@
             <returns></returns>
             <remarks></remarks>
         </member>
+        <member name="M:WebAPI.Controllers.ReminderController.DeleteWithToken(System.Int64,WebAPI.Models.Notifications.KalturaReminderType,System.String,System.Int32)">
+            <summary>
+            Delete a reminder. Reminder cannot be delete while being sent.
+            </summary>
+            <param name="id">Id of the reminder.</param>
+            <param name="type">Reminder type.</param>
+            <param name="token">User's token identifier</param>
+            <param name="partnerId">Partner identifier</param>
+            <returns></returns>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.ReminderController.List``1(WebAPI.Models.Notification.KalturaReminderFilter{``0},WebAPI.Models.General.KalturaFilterPager)">
             <summary>        
             Return a list of reminders with optional filter by KSQL.
@@ -1302,6 +1313,16 @@
             <remarks>       
             </remarks>
             <param name="pager">Page size and index</param>                
+        </member>
+        <member name="M:WebAPI.Controllers.UserInterestController.DeleteWithToken(System.String,System.String,System.Int32)">
+            <summary>
+            Delete new user interest for partner user
+            </summary>
+            <param name="id">User interest identifier</param>
+            <param name="token">User's token identifier</param>
+            <param name="partnerId">Partner identifier</param>
+            <returns></returns>
+            <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.RegionController.List(WebAPI.Models.API.KalturaRegionFilter)">
             <summary>
@@ -1680,6 +1701,16 @@
             <param name="asset_id"></param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.FollowTvSeriesController.DeleteWithToken(System.Int32,System.String,System.Int32)">
+            <summary>
+            Delete a user's tv series follow.
+            </summary>
+            <param name="assetId">Asset identifier</param>
+            <param name="token">User's token identifier</param>
+            <param name="partnerId">Partner identifier</param>
+            <returns></returns>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.PersonalFeedController.List(WebAPI.Models.Notification.KalturaPersonalFeedFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             List user's feeds.
@@ -1873,6 +1904,14 @@
             <param name="userId">User identifications</param>        
             <param name="pushMessage">Message push data</param>     
         </member>
+        <member name="M:WebAPI.Controllers.NotificationController.SendSms(System.String)">
+            <summary>
+            Sends SMS notification to user
+            </summary>
+            <remarks>
+            </remarks>
+            <param name="message">Message to send</param>     
+        </member>
         <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Get">
             <summary>
             Retrieve the partner notification settings.       
@@ -1951,6 +1990,17 @@
             </remarks>
             <returns>The notification settings that apply for the user</returns>
             
+        </member>
+        <member name="M:WebAPI.Controllers.NotificationsSettingsController.UpdateWithToken(WebAPI.Models.Notification.KalturaNotificationsSettings,System.String,System.Int32)">
+            <summary>
+            Update the user’s notification settings.      
+            </summary>    
+            <param name="settings">Notifications settings</param>
+            <param name="token">User's token identifier</param>
+            <param name="partnerId">Partner identifier</param>
+            <remarks>        
+            </remarks>
+            <returns>The notification settings that apply for the user</returns>
         </member>
         <member name="M:WebAPI.Controllers.PaymentMethodProfileController.List(WebAPI.Models.Billing.KalturaPaymentMethodProfileFilter)">
             <summary>
@@ -9462,6 +9512,21 @@
             URL template for deep linking. Example - /app/location/{mediaId}
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.MailTemplate">
+            <summary>
+            Mail template name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.MailSubject">
+            <summary>
+            Mail subject
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.RatioId">
+            <summary>
+            Ratio identifier
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.AnnouncementId">
             <summary>
             Announcement Id
@@ -9547,6 +9612,16 @@
             Specify if the user will be notified for followed content via push. (requires push_notification_enabled to be enabled)
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsSettings.MailEnabled">
+            <summary>
+            Specify if the user wants to receive mail notifications or not
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsSettings.SmsEnabled">
+            <summary>
+            Specify if the user wants to receive SMS notifications or not
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushNotificationEnabled">
             <summary>
             Push notification capability is enabled for the account
@@ -9620,6 +9695,16 @@
         <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.MailSenderName">
             <summary>
             Mail sender name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.MailNotificationAdapterId">
+            <summary>
+            Mail notification adapter identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.SmsEnabled">
+            <summary>
+            SMS capability is enabled for the account
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse">
@@ -12276,6 +12361,26 @@
         <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.ImageUrl">
             <summary>
             Announcement image URL, relevant for system announcements
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.IncludeMail">
+            <summary>
+            Include Mail
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.MailTemplate">
+            <summary>
+            Mail Template
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.MailSubject">
+            <summary>
+            Mail Subject
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.IncludeSms">
+            <summary>
+            Include SMS
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementRecipientsType">

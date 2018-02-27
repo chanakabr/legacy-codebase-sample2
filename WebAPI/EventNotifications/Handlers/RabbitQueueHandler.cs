@@ -21,17 +21,24 @@ namespace WebAPI.EventNotifications
 
         internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaNotification theObject)
         {
-            //
+            // create queue and data objects
             QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
             BaseCeleryData data = new BaseCeleryData()
             {
                 id = Guid.NewGuid().ToString(),
                 task = this.Task,
+                // primary args object is the notified object itself, it will be a complete json object
                 args = new List<object>()
                 {
                     theObject
                 }
             };
+
+            // add extra args if they exist
+            if (ExtraArgs != null && data.args != null)
+            {
+                data.args.AddRange(ExtraArgs);
+            }
 
             queue.Enqueue(data, this.RoutingKey, this.Expiration);
         }
@@ -52,6 +59,13 @@ namespace WebAPI.EventNotifications
 
         [JsonProperty("task")]
         public string Task
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("extra_args")]
+        public List<object> ExtraArgs
         {
             get;
             set;

@@ -2360,6 +2360,14 @@ namespace WebAPI.Reflection
                             return "id";
                         case "ImageUrl":
                             return "imageUrl";
+                        case "IncludeMail":
+                            return "includeMail";
+                        case "IncludeSms":
+                            return "includeSms";
+                        case "MailSubject":
+                            return "mailSubject";
+                        case "MailTemplate":
+                            return "mailTemplate";
                         case "Message":
                             return "message";
                         case "Name":
@@ -4964,10 +4972,16 @@ namespace WebAPI.Reflection
                             return "action";
                         case "DateFormat":
                             return "dateFormat";
+                        case "MailSubject":
+                            return "mailSubject";
+                        case "MailTemplate":
+                            return "mailTemplate";
                         case "Message":
                             return "message";
                         case "MessageType":
                             return "messageType";
+                        case "RatioId":
+                            return "ratioId";
                         case "Sound":
                             return "sound";
                         case "URL":
@@ -5088,6 +5102,8 @@ namespace WebAPI.Reflection
                             return "churnMailTemplateName";
                         case "InboxEnabled":
                             return "inboxEnabled";
+                        case "MailNotificationAdapterId":
+                            return "mailNotificationAdapterId";
                         case "MailSenderName":
                             return "mailSenderName";
                         case "MessageTTLDays":
@@ -5108,6 +5124,8 @@ namespace WebAPI.Reflection
                             return "reminderOffsetSec";
                         case "SenderEmail":
                             return "senderEmail";
+                        case "SmsEnabled":
+                            return "smsEnabled";
                         case "TopicExpirationDurationDays":
                             return "topicExpirationDurationDays";
                     }
@@ -5116,10 +5134,14 @@ namespace WebAPI.Reflection
                 case "KalturaNotificationsSettings":
                     switch(property.Name)
                     {
+                        case "MailEnabled":
+                            return "mailEnabled";
                         case "PushFollowEnabled":
                             return "pushFollowEnabled";
                         case "PushNotificationEnabled":
                             return "pushNotificationEnabled";
+                        case "SmsEnabled":
+                            return "smsEnabled";
                     }
                     break;
                     
@@ -7330,6 +7352,15 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "FollowTvSeriesController":
+                    switch(action.Name)
+                    {
+                        case "DeleteWithToken":
+                            return;
+                            
+                    }
+                    break;
+                    
                 case "HouseholdDeviceController":
                     switch(action.Name)
                     {
@@ -7341,6 +7372,15 @@ namespace WebAPI.Reflection
                     
                 case "MultiRequestController":
                     return;
+                    
+                case "NotificationsSettingsController":
+                    switch(action.Name)
+                    {
+                        case "UpdateWithToken":
+                            return;
+                            
+                    }
+                    break;
                     
                 case "OttUserController":
                     switch(action.Name)
@@ -7389,6 +7429,15 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "ReminderController":
+                    switch(action.Name)
+                    {
+                        case "DeleteWithToken":
+                            return;
+                            
+                    }
+                    break;
+                    
                 case "ServiceController":
                     return;
                     
@@ -7411,6 +7460,15 @@ namespace WebAPI.Reflection
                             return;
                             
                         case "Ping":
+                            return;
+                            
+                    }
+                    break;
+                    
+                case "UserInterestController":
+                    switch(action.Name)
+                    {
+                        case "DeleteWithToken":
                             return;
                             
                     }

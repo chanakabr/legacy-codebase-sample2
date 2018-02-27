@@ -173,7 +173,7 @@ namespace WebAPI.Clients
             return success;
 
         }
-
+        
         internal bool Update(int groupId, string userId, KalturaNotificationsSettings settings)
         {
             bool success = false;
@@ -259,7 +259,11 @@ namespace WebAPI.Clients
                 StartTime = announcement.getStartTime(),
                 Status = status,
                 Timezone = announcement.Timezone,
-                ImageUrl = announcement.ImageUrl
+                ImageUrl = announcement.ImageUrl,
+                IncludeMail = announcement.IncludeMail,
+                MailSubject = announcement.MailSubject,
+                MailTemplate = announcement.MailTemplate,
+                IncludeSms = announcement.IncludeSms
             };
 
             try
@@ -284,7 +288,7 @@ namespace WebAPI.Clients
             KalturaAnnouncement result = Mapper.Map<KalturaAnnouncement>(response.Announcement);
             return result;
         }
-
+        
         internal KalturaAnnouncement UpdateAnnouncement(int groupId, int announcementId, Models.Notifications.KalturaAnnouncement announcement)
         {
             MessageAnnouncementResponse response = null;
@@ -334,7 +338,10 @@ namespace WebAPI.Clients
                 StartTime = announcement.getStartTime(),
                 Status = status,
                 Timezone = announcement.Timezone,
-                ImageUrl = announcement.ImageUrl
+                ImageUrl = announcement.ImageUrl,
+                IncludeMail = announcement.IncludeMail,
+                MailSubject = announcement.MailSubject,
+                MailTemplate = announcement.MailTemplate
             };
 
             try
@@ -637,10 +644,9 @@ namespace WebAPI.Clients
             return ret;
         }
 
-        internal bool DeleteUserTvSeriesFollow(int groupId, string userID, int asset_id)
+        internal bool DeleteUserTvSeriesFollow(int groupId, string userID, int assetId)
         {
             Status response = null;
-
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -650,7 +656,7 @@ namespace WebAPI.Clients
 
             // get asset name
             var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null,
-                                            0, 0, new List<int>() { asset_id }, new List<KalturaCatalogWith>());
+                                            0, 0, new List<int>() { assetId }, new List<KalturaCatalogWith>());
 
             if (mediaInfoResponse == null ||
                 mediaInfoResponse.Objects == null ||
@@ -660,8 +666,8 @@ namespace WebAPI.Clients
             }
 
             FollowDataTvSeries followData = new FollowDataTvSeries();
-            followData.AssetId = asset_id;
-            followData.Title = mediaInfoResponse.Objects[0].Name.ToString();
+            followData.AssetId = assetId;
+            followData.Title = !string.IsNullOrEmpty(mediaInfoResponse.Objects[0].Name) ? mediaInfoResponse.Objects[0].Name.ToString() : string.Empty;
 
             try
             {
@@ -1429,16 +1435,10 @@ namespace WebAPI.Clients
             return kalturaReminder;
         }
 
-        internal bool DeleteReminder(string userID, int groupId, long reminderId, KalturaReminderType type)
+        internal bool DeleteReminder(int userId, int groupId, long reminderId, KalturaReminderType type)
         {
             Status response = null;
-
-            int userId = 0;
-            if (!int.TryParse(userID, out userId))
-            {
-                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
-            }
-
+            
             // get group ID
             ReminderType wsReminderType = NotificationMapping.ConvertReminderType(type);
 
@@ -1451,7 +1451,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while DeleteReminder.  groupID: {0}, userId: {1}, reminderId: {2}, exception: {3}", groupId, userID, reminderId, ex);
+                log.ErrorFormat("Error while DeleteReminder.  groupID: {0}, userId: {1}, reminderId: {2}, exception: {3}", groupId, userId, reminderId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
             if (response.Code != (int)StatusCode.OK)
@@ -1969,6 +1969,64 @@ namespace WebAPI.Clients
             }
 
             return kalturaReminder;
+        }
+
+
+        internal int GetUserIdByToken(int groupId, string token)
+        {
+            IntResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.GetUserIdByToken(groupId, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            return response.Value;
+        }
+
+        internal bool SendSms(int groupId, int userId, string message)
+        {
+            Status response = new Status();
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.SendUserSms(groupId, userId, message);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while sending push to user.  groupID: {0}, userId: {1}, message: {2}, exception: {3}", groupId, userId, message, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+
+            if (response.Code != (int)StatusCode.OK)
+                throw new ClientException((int)response.Code, response.Message);
+
+            return true;
         }
     }
 }
