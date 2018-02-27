@@ -1217,7 +1217,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Issues a record series request by SeriesId")]
         [PrivateMethod]
         public NPVRResponse RecordSeriesBySeriesId(InitializationObject initObj, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId, 
-            List<string> lookupCriteria, int? version)
+            List<string> lookupCriteria)
         {
             NPVRResponse res = null;
 
@@ -1230,7 +1230,7 @@ namespace TVPApiServices
                 try
                 {
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordSeriesBySeriesId(initObj.SiteGuid, initObj.DomainID, initObj.UDID,
-                        seriesId, seasonNumber, seasonSeed, episodeSeed, channelId, lookupCriteria, version);
+                        seriesId, seasonNumber, seasonSeed, episodeSeed, channelId, lookupCriteria);
                 }
                 catch (Exception ex)
                 {
@@ -1279,7 +1279,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Delete Recordings By")]
         [PrivateMethod]
         public NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string bySeriesId, string bySeasonNumber, string byChannelId,
-            List<string> byStatus, int? version)
+            List<string> byStatus)
         {
             NPVRResponse res = null;
 
@@ -1298,7 +1298,7 @@ namespace TVPApiServices
                     });
 
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).DeleteRecordingsBy(initObj.SiteGuid, initObj.DomainID, initObj.UDID, bySeriesId,
-                      bySeasonNumber, byChannelId, status, version);
+                      bySeasonNumber, byChannelId, status);
                 }
                 catch (Exception ex)
                 {
@@ -1377,7 +1377,7 @@ namespace TVPApiServices
         // Ira. this is not at the Icond..
         [WebMethod(EnableSession = true, Description = "Recording Watche Status")]
         [PrivateMethod]
-        public NPVRResponse RecordingWatchStatus(InitializationObject initObj, int recordingId, int alreadyWatched, int? version)
+        public NPVRResponse RecordingWatchStatus(InitializationObject initObj, int recordingId, int alreadyWatched)
         {
             NPVRResponse res = null;
 
@@ -1390,7 +1390,7 @@ namespace TVPApiServices
                 try
                 {
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordingWatchStatus(initObj.SiteGuid, initObj.DomainID, initObj.UDID,
-                        recordingId.ToString(), alreadyWatched, version);
+                        recordingId.ToString(), alreadyWatched);
                 }
                 catch (Exception ex)
                 {

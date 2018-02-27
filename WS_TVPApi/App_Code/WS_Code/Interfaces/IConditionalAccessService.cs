@@ -152,14 +152,14 @@ namespace TVPApiServices
         ClientResponseStatus GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, string product_type, bool history);
 
         [OperationContract]
-        NPVRResponse RecordingWatchStatus(InitializationObject initObj, int recordingId, int alreadyWatched, int? version);
+        NPVRResponse RecordingWatchStatus(InitializationObject initObj, int recordingId, int alreadyWatched);
 
         [OperationContract]
         NPVRResponse RecordSeriesBySeriesId(InitializationObject initObj, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId,
-            List<string> lookupCriteria, int? version);
+            List<string> lookupCriteria);
 
         [OperationContract]
         NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string bySeriesId, string bySeasonNumber, string byChannelId,
-            List<string> byStatus, int? version);
+            List<string> byStatus);
     }
 }
