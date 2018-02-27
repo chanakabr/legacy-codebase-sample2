@@ -569,7 +569,7 @@ namespace NPVR
                 {
 
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "3.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_COUNT_URL_PARAM, "true"));
 
