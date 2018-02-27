@@ -724,7 +724,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.OutputProtecationLevel))
                  .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.StartDate)))
                  .ForMember(dest => dest.CdnAdapaterProfileId, opt => opt.MapFrom(src => src.CdnAdapaterProfileId))
-                 .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.Type))
+                 .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.GetTypeName()))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
                  ;
@@ -749,7 +750,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => ConvertToNullableDatetime(src.StartDate)))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.CdnAdapaterProfileId, opt => opt.MapFrom(src => src.CdnAdapaterProfileId))
-                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.TypeId))
+                 .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
                  .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status));
 
             #endregion
