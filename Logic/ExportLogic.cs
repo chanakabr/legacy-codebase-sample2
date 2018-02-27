@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using ApiObjects.Epg;
 
 namespace APILogic
 {
@@ -560,6 +561,19 @@ namespace APILogic
                 }
                 xml.Append("</files>");
 
+                // images
+                if (media.m_lPicture != null)
+                {
+                    xml.Append("<images>");
+                    foreach (var image in media.m_lPicture)
+                    {
+                        if (image != null && !string.IsNullOrEmpty(image.m_sURL))
+                        {
+                            xml.Append(GetImageSection(image));
+                        }
+                    }
+                    xml.Append("</images>");
+                }
 
                 xml.Append("</media>");
             }
@@ -571,7 +585,7 @@ namespace APILogic
 
             return xml.ToString();
         }
-
+        
         private static string BuildSingleProgramXml(ProgramObj program, string mainLang, long taskId)
         {
             StringBuilder xml = new StringBuilder();
@@ -646,6 +660,20 @@ namespace APILogic
                     }
                 }
 
+                // images
+                if (prog.EPG_PICTURES != null)
+                {
+                    xml.Append("<images>");
+                    foreach (var image in prog.EPG_PICTURES)
+                    {
+                        if (image != null && !string.IsNullOrEmpty(image.Url))
+                        {
+                            xml.Append(GetImageSection(image));
+                        }
+                    }
+                    xml.Append("</images>");
+                }
+
                 xml.Append("</programme>");
             }
             catch (Exception ex)
@@ -655,7 +683,7 @@ namespace APILogic
             }
             return xml.ToString();
         }
-
+        
         private static MediaObj[] GetMediaByIds(List<long> ids, int groupId)
         {
             MediaObj[] result = null;
@@ -904,6 +932,28 @@ namespace APILogic
                 result = true;
             }
             return result;
+        }
+
+        private static string GetImageSection(Picture image)
+        {
+            return string.Format("<image size=\"{0}\" url=\"{1}\" ratio=\"{2}\" version=\"{3}\" id=\"{4}\"/>",
+                TVinciShared.ProtocolsFuncs.XMLEncode(image.m_sSize, true),
+                TVinciShared.ProtocolsFuncs.XMLEncode(image.m_sURL, true),                  
+                TVinciShared.ProtocolsFuncs.XMLEncode(image.ratio, true),               
+                TVinciShared.ProtocolsFuncs.XMLEncode(image.version.ToString(), true),  
+                TVinciShared.ProtocolsFuncs.XMLEncode(image.id, true)                  
+            );
+        }
+
+        private static string GetImageSection(EpgPicture image)
+        {
+            return string.Format("<image size=\"{0}\" url=\"{1}\" ratio=\"{2}\" version=\"{3}\" id=\"{4}\"/>",
+               TVinciShared.ProtocolsFuncs.XMLEncode(string.Format("{0}X{1}", image.PicWidth, image.PicHeight), true),
+               TVinciShared.ProtocolsFuncs.XMLEncode(image.Url, true),
+               TVinciShared.ProtocolsFuncs.XMLEncode(image.Ratio, true),
+               TVinciShared.ProtocolsFuncs.XMLEncode(image.Version.ToString(), true),
+               TVinciShared.ProtocolsFuncs.XMLEncode(image.Id, true)
+           );
         }
     }
 }

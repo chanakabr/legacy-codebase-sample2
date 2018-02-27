@@ -17,6 +17,7 @@ namespace Core.Notification
         private const int MIN_REMINDERS_PREPADDING_SEC = 0;
         private const string INVALID_MESSAGE_TTL = "Invalid message ttl";
         private const string INVALID_REMINDERS_PREPADDING_SEC = "Invalid pre-padding value";
+        private const string MAIL_NOTIFICATION_ADAPTER_NOT_EXIST = "Mail notification adapter not exist";
 
         public static ApiObjects.Response.Status UpdateNotificationPartnerSettings(int groupID, ApiObjects.Notification.NotificationPartnerSettings settings)
         {
@@ -28,7 +29,7 @@ namespace Core.Notification
                 response = CheckNotificationPartnerSettings(groupID, settings);
 
                 if (response.Code == (int)eResponseStatus.OK)
-                {
+                {                  
                     isSet = DAL.NotificationDal.UpdateNotificationPartnerSettings(groupID, settings);
 
                     if (isSet)
@@ -79,6 +80,7 @@ namespace Core.Notification
         public static Status UpdateUserNotificationSettings(int groupId, string userIdentifier, ApiObjects.Notification.UserNotificationSettings settings)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
             bool isDocumentExist = true;
             int userId = 0;
             UserNotification userNotificationData = null;
@@ -121,13 +123,37 @@ namespace Core.Notification
                     if (userSettings.EnablePush == true)
                     {
                         // add push registration to all user devices
-                        UserMessageFlow.InitiatePushAction(groupId, ApiObjects.eUserMessageAction.EnableUserNotifications, userId, null, null);
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.EnableUserNotifications, userId, null, null);
                     }
 
                     if (userSettings.EnablePush == false)
                     {
                         // remove push registration from all user devices
-                        UserMessageFlow.InitiatePushAction(groupId, ApiObjects.eUserMessageAction.DisableUserNotifications, userId, null, null);
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.DisableUserNotifications, userId, null, null);
+                    }
+
+                    if (userSettings.EnableMail == true)
+                    {
+                        // add mail registration
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.EnableUserMailNotifications, userId, null, null);
+                    }
+
+                    if (userSettings.EnableMail == false)
+                    {
+                        // remove mail registration
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.DisableUserMailNotifications, userId, null, null);
+                    }
+
+                    if (userSettings.EnableSms == true)
+                    {
+                        // add SMS registration
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.EnableUserSmsNotifications, userId, null, null);
+                    }
+
+                    if (userSettings.EnableSms == false)
+                    {
+                        // remove SMS registration
+                        UserMessageFlow.InitiateNotificationAction(groupId, ApiObjects.eUserMessageAction.DisableUserSmsNotifications, userId, null, null);
                     }
                 }
             }
@@ -151,6 +177,21 @@ namespace Core.Notification
             if (settings.EnableMail.HasValue)
             {
                 userNotificationData.Settings.EnableMail = settings.EnableMail.Value;
+                if (userNotificationData.Settings.EnableMail.Value)
+                {
+
+                    Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
+                    if (response != null && response.m_RespStatus == ApiObjects.ResponseStatus.OK && response.m_user != null)
+                    {
+                        userNotificationData.UserData.Email = response.m_user.m_oBasicData.m_sEmail;
+                        userNotificationData.UserData.FirstName = response.m_user.m_oBasicData.m_sFirstName;
+                        userNotificationData.UserData.LastName = response.m_user.m_oBasicData.m_sLastName;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed to get user data for userId = {0}", userId);
+                    }
+                }
             }
 
             if (settings.EnablePush.HasValue)
@@ -236,6 +277,17 @@ namespace Core.Notification
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidReminderPrePaddingSec, INVALID_REMINDERS_PREPADDING_SEC);
                     return response;
+                }
+
+                if (settings.MailNotificationAdapterId.HasValue && settings.MailNotificationAdapterId > 0)                   
+                {
+                    // make sure adapter exist
+                    var adapter = NotificationDal.GetMailNotificationAdapter(groupID, settings.MailNotificationAdapterId.Value);
+                    if (adapter == null)
+                    {
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.MailNotificationAdapterNotExist, MAIL_NOTIFICATION_ADAPTER_NOT_EXIST);
+                        return response;
+                    }
                 }
             }
             catch (Exception ex)
@@ -399,6 +451,50 @@ namespace Core.Notification
             }
 
             return false;
+        }
+
+        public static bool IsPartnerMailNotificationEnabled(int groupId)
+        {
+            var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+            if (partnerSettingsResponse != null &&
+                partnerSettingsResponse.settings != null &&
+                partnerSettingsResponse.settings.MailNotificationAdapterId.HasValue &&
+                partnerSettingsResponse.settings.MailNotificationAdapterId.Value > 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static long GetPartnerMailNotificationAdapterId(int groupId)
+        {
+            long adapterId = 0;
+            var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+            if (partnerSettingsResponse != null &&
+                partnerSettingsResponse.settings != null &&
+                partnerSettingsResponse.settings.MailNotificationAdapterId.HasValue &&
+                partnerSettingsResponse.settings.MailNotificationAdapterId.Value > 0)
+            {
+                adapterId = partnerSettingsResponse.settings.MailNotificationAdapterId.Value;
+            }
+
+            return adapterId;
+        }
+
+        public static bool IsPartnerSmsNotificationEnabled(int groupId)
+        {
+            var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+            return (partnerSettingsResponse != null &&
+                partnerSettingsResponse.settings != null &&
+                partnerSettingsResponse.settings.IsSMSEnabled.HasValue &&
+                partnerSettingsResponse.settings.IsSMSEnabled.Value);
+        }
+
+        public static bool IsUserSmsEnabled(UserNotificationSettings userSettings)
+        {
+            return (userSettings != null &&
+                userSettings.EnableSms == true);
         }
     }
 }

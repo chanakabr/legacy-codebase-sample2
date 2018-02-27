@@ -543,7 +543,7 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 log.ErrorFormat("fail in DoBundlesCreditNeedToBeDownloaded lstSubCodes:{0}, lstColCodes:{1}, nMediaFileID:{2}, nGroupID:{3}, allUsersInDomain:{4}, ex:{5}",
-                    string.Join(",", lstSubCodes), string.Join(",", lstColCodes), nMediaFileID, nGroupID, string.Join(",", allUsersInDomain), ex);                
+                    string.Join(",", lstSubCodes), string.Join(",", lstColCodes), nMediaFileID, nGroupID, string.Join(",", allUsersInDomain), ex);
             }
         }
 
@@ -1053,7 +1053,7 @@ namespace Core.ConditionalAccess
             gracePeriodMin = ODBCWrapper.Utils.GetIntSafeVal(dataRow["GRACE_PERIOD_MINUTES"]);
         }
 
-        
+
 
         private static void GetCollectionBundlePurchaseData(DataRow dataRow, string codeColumnName, ref int numOfUses, ref int maxNumOfUses,
             ref string bundleCode, ref int waiver, ref DateTime purchaseDate, ref DateTime endDate)
@@ -1263,7 +1263,7 @@ namespace Core.ConditionalAccess
             Subscription subscription = null;
             //create web service pricing insatance
             try
-            {                
+            {
                 subscription = Core.Pricing.Module.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false);
                 if (subscription == null)
                 {
@@ -1688,7 +1688,7 @@ namespace Core.ConditionalAccess
             bool isUserValidRes = true;
             // get user status and validity if needed
             int nDomainID = 0;
-            DAL.DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.Suspended; 
+            DAL.DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.Suspended;
             isUserValidRes = IsUserValid(sSiteGUID, groupId, ref nDomainID, ref userSuspendStatus);
 
 
@@ -2161,7 +2161,7 @@ namespace Core.ConditionalAccess
                 int nDomainID = 0;
                 isUserValidRes = IsUserValid(sSiteGUID, nGroupID, ref nDomainID, ref userSuspendStatus);
             }
-            
+
             // check user status and validity
             if (blockEntitlement == BlockEntitlementType.NONE && isUserValidRes && userSuspendStatus == DAL.DomainSuspentionStatus.Suspended)
             {
@@ -2218,7 +2218,7 @@ namespace Core.ConditionalAccess
                     relatedMediaFileIDs.AddRange(lstFileIDs);
                     relatedMediaFileIDs = relatedMediaFileIDs.Distinct().ToList();
                     price = TVinciShared.ObjectCopier.Clone<Price>((Price)(ppvModule.m_oPriceCode.m_oPrise));
-                    
+
                     int ppvID = 0;
                     string sSubCode = string.Empty;
                     string sPPCode = string.Empty;
@@ -2312,7 +2312,7 @@ namespace Core.ConditionalAccess
 
                 //check here if it is part of a purchased subscription or part of purchased collections
                 if (blockEntitlement != BlockEntitlementType.BLOCK_SUBSCRIPTION)
-                {   
+                {
                     if (domainEntitlements != null && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions != null && domainEntitlements.DomainBundleEntitlements.EntitledCollections != null)
                     {
                         subsPurchase = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions;
@@ -2387,7 +2387,7 @@ namespace Core.ConditionalAccess
                 {
                     return price;
                 }
-            
+
                 // check here if its part of a purchased collection
                 if (relevantValidCollections != null && relevantValidCollections.Length > 0)
                 {
@@ -5252,9 +5252,9 @@ namespace Core.ConditionalAccess
         internal static SeriesRecording ValidateSeriesRecordID(int groupId, long domainId, long domainSeriesRecordingId)
         {
             SeriesRecording seriesRecording = new SeriesRecording()
-               {
-                   Status = new ApiObjects.Response.Status((int)eResponseStatus.SeriesRecordingNotFound, eResponseStatus.SeriesRecordingNotFound.ToString())
-               };
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.SeriesRecordingNotFound, eResponseStatus.SeriesRecordingNotFound.ToString())
+            };
 
             try
             {
@@ -7086,7 +7086,7 @@ namespace Core.ConditionalAccess
             NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
 
             INPVRProvider npvr;
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupId, out npvr) && npvr.SynchronizeNpvrWithDomain)
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupId, out npvr, null) && npvr.SynchronizeNpvrWithDomain)
             {
                 log.DebugFormat("Subscription with NPVR service, Quota: {0}, Create={1}", npvrObject.Quota, isCreate);
                 NPVRUserActionResponse userActionResponse = new NPVRUserActionResponse();
@@ -7755,7 +7755,7 @@ namespace Core.ConditionalAccess
                             retVal = (ePaymentMethod)billingInt;
                     }
                 }
-                else 
+                else
                 {
                     retVal = ePaymentMethod.Gift;
                 }
@@ -7798,7 +7798,7 @@ namespace Core.ConditionalAccess
         internal static ApiObjects.Response.Status ConcurrencyResponseToResponseStatus(DomainResponseStatus mediaConcurrencyResponse)
         {
             ApiObjects.Response.Status status;
-            
+
             switch (mediaConcurrencyResponse)
             {
                 case DomainResponseStatus.LimitationPeriod:
@@ -8222,7 +8222,7 @@ namespace Core.ConditionalAccess
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetSubscriptionSetsInvalidationKeysMap(groupId, setIds);
 
                 if (!LayeredCache.Instance.GetValues<SubscriptionSet>(keyToOriginalValueMap, ref subscriptionSetMap, GetSubscriptionSets,
-                    new Dictionary<string, object>() { { "groupId", groupId },{ "setIds", setIds } }, 
+                    new Dictionary<string, object>() { { "groupId", groupId }, { "setIds", setIds } },
                     groupId, LayeredCacheConfigNames.GET_SUBSCRIPTION_SETS_CACHE_CONFIG_NAME,
                                                                         invalidationKeysMap))
                 {
@@ -8242,9 +8242,9 @@ namespace Core.ConditionalAccess
         }
 
         private static Tuple<Dictionary<string, SubscriptionSet>, bool> GetSubscriptionSets(Dictionary<string, object> funcParams)
-        {           
+        {
             bool res = false;
-            Dictionary<string, SubscriptionSet> result = new Dictionary<string, SubscriptionSet>();            
+            Dictionary<string, SubscriptionSet> result = new Dictionary<string, SubscriptionSet>();
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("setIds") && funcParams.ContainsKey("groupId"))
@@ -8254,7 +8254,7 @@ namespace Core.ConditionalAccess
                     int? groupId = funcParams["groupId"] as int?;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
-                        setIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();    
+                        setIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
                     }
                     else
                     {
@@ -8266,7 +8266,7 @@ namespace Core.ConditionalAccess
                         List<SubscriptionSet> subscriptionSets = Pricing.Utils.GetSubscriptionSets(groupId.Value, setIds);
                         foreach (SubscriptionSet item in subscriptionSets)
                         {
-                             result.Add(LayeredCacheKeys.GetSubscriptionSetKey(groupId.Value, item.Id), item);
+                            result.Add(LayeredCacheKeys.GetSubscriptionSetKey(groupId.Value, item.Id), item);
                         }
                         res = true;
 
@@ -8295,14 +8295,14 @@ namespace Core.ConditionalAccess
 
         internal static ApiObjects.Response.Status CanPurchaseAddOn(int groupId, long householdId, Subscription subscription)
         {
-            
+
             ApiObjects.Response.Status Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 if (subscription == null)
                 {
                     Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Subscription is null");
-                    return Status; 
+                    return Status;
                 }
                 List<long> setIds = subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
                 DomainEntitlements domainEntitlements = null;
@@ -8312,7 +8312,7 @@ namespace Core.ConditionalAccess
                 if (!TryGetSubscriptionSets(groupId, setIds, ref subscriptionSets))
                 {
                     Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No Sets found");
-                    return Status; 
+                    return Status;
                 }
 
                 if (subscriptionSets != null && subscriptionSets.Count() > 0)
@@ -8429,7 +8429,7 @@ namespace Core.ConditionalAccess
                             unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupUnifiedBillingCycle.Value);
                         }
                     }
-                    
+
                 }
             }
             catch (Exception ex)

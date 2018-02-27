@@ -1,28 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-using System.Globalization;
-using KLogMonitor;
-using System.Reflection;
-using ApiObjects.Response;
+﻿using ApiObjects;
 using ApiObjects.Notification;
-using ApiObjects;
-using System.Data;
-using System.Web;
-using System.Net;
-using System.ServiceModel;
-using System.Threading.Tasks;
-using DAL;
+using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using DAL;
+using KLogMonitor;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
+using Core.Catalog;
 
 namespace Core.Notification
 {
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private const string USER_TOKEN_SECRET = "MyMailIsSecured";
+        private const int BLOCK_SIZE = 16;
 
 
         static public string GetWSURL(string sKey)
@@ -65,16 +64,23 @@ namespace Core.Notification
             if (Enum.IsDefined(typeof(eAnnouncementStatus), dbStatus))
                 status = (eAnnouncementStatus)dbStatus;
 
-            MessageAnnouncement msg = new MessageAnnouncement(ODBCWrapper.Utils.GetSafeStr(row, "name"),
-                                                              ODBCWrapper.Utils.GetSafeStr(row, "message"),
-                                                              (ODBCWrapper.Utils.GetIntSafeVal(row, "is_active") == 0) ? false : true,
-                                                              startTime,
-                                                              timezone,
-                                                              recipients,
-                                                              status,
-                                                              ODBCWrapper.Utils.GetSafeStr(row, "message_reference"),
-                                                              ODBCWrapper.Utils.GetIntSafeVal(row, "announcement_id"),
-                                                              ODBCWrapper.Utils.GetSafeStr(row, "image_url"));
+            MessageAnnouncement msg = new MessageAnnouncement()
+            {
+                Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                Message = ODBCWrapper.Utils.GetSafeStr(row, "message"),
+                Enabled = (ODBCWrapper.Utils.GetIntSafeVal(row, "is_active") == 0) ? false : true,
+                StartTime = startTime,
+                Timezone = timezone,
+                Recipients = recipients,
+                Status = status,
+                MessageReference = ODBCWrapper.Utils.GetSafeStr(row, "message_reference"),
+                AnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "announcement_id"),
+                ImageUrl = ODBCWrapper.Utils.GetSafeStr(row, "image_url"),
+                MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
+                MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
+                IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false),
+                IncludeSms = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false)
+            };
 
             msg.MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
 
@@ -114,7 +120,7 @@ namespace Core.Notification
 
             // build the filter query for the search
             string ksql = string.Format("(and {0} = '{1}' epg_channel_id = '{2}' {3} start_date > '0')",
-                seriesIdName, seriesId, epgChannelId, seasonNumber.HasValue && seasonNumber.Value != 0  ? string.Format("{0} = '{1}' ", seasonNumberName, seasonNumber) : string.Empty);
+                seriesIdName, seriesId, epgChannelId, seasonNumber.HasValue && seasonNumber.Value != 0 ? string.Format("{0} = '{1}' ", seasonNumberName, seasonNumber) : string.Empty);
 
             // get program ids
             try
@@ -191,7 +197,7 @@ namespace Core.Notification
             {
                 return res;
             }
-            
+
             try
             {
                 Dictionary<string, DbSeriesReminder> seriesReminderMap = null;
@@ -223,12 +229,12 @@ namespace Core.Notification
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("seriesReminderIds"))
-                {                                        
+                {
                     int? groupId = funcParams["groupId"] as int?;
                     List<long> seriesReminderIds = null;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
-                        seriesReminderIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();                        
+                        seriesReminderIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
                     }
                     else
                     {
@@ -241,10 +247,10 @@ namespace Core.Notification
                         List<DbSeriesReminder> seriesReminders = NotificationDal.GetSeriesReminders(groupId.Value, seriesReminderIds);
                         if (seriesReminders != null && seriesReminders.Count > 0)
                         {
-                            tempResult = seriesReminders.ToDictionary(x => long.Parse(x.ID.ToString()), x => x);                            
+                            tempResult = seriesReminders.ToDictionary(x => long.Parse(x.ID.ToString()), x => x);
                         }
 
-                        List<long> missingIds = seriesReminderIds.Where(x => !tempResult.ContainsKey(x)).ToList();                        
+                        List<long> missingIds = seriesReminderIds.Where(x => !tempResult.ContainsKey(x)).ToList();
                         if (missingIds != null)
                         {
                             foreach (long missingId in missingIds)
@@ -256,7 +262,7 @@ namespace Core.Notification
                         result = tempResult.ToDictionary(x => LayeredCacheKeys.GetSeriesRemindersKey(groupId.Value, x.Key), x => x.Value);
                     }
 
-                    res = result.Keys.Count() == seriesReminderIds.Count();                    
+                    res = result.Keys.Count() == seriesReminderIds.Count();
                 }
             }
             catch (Exception ex)
@@ -266,7 +272,7 @@ namespace Core.Notification
 
             return new Tuple<Dictionary<string, DbSeriesReminder>, bool>(result, res);
         }
-
+        
         internal static bool GetSeriesMetaTagsFieldsNamesAndTypes(int groupId, out Tuple<string, FieldTypes> seriesIdName,
             out Tuple<string, FieldTypes> seasonNumberName, out Tuple<string, FieldTypes> episodeNumberName)
         {
@@ -347,7 +353,7 @@ namespace Core.Notification
                     List<long> reminderIds = null;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
-                        reminderIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();                        
+                        reminderIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
                     }
                     else
                     {
@@ -386,5 +392,177 @@ namespace Core.Notification
             return new Tuple<Dictionary<string, DbReminder>, bool>(result, res);
         }
 
+
+        public static Status GetUserNotificationData(int groupId, int userId, out UserNotification userNotificationData)
+        {
+            bool docExists = false;
+            userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
+            if (userNotificationData == null)
+            {
+                if (docExists)
+                {
+                    // error while getting user notification data
+                    log.ErrorFormat("error retrieving user notification data. GID: {0}, UID: {1}", groupId, userId);
+                    return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+                else
+                {
+                    log.DebugFormat("user announcement data wasn't found - going to create a new one. GID: {0}, UID: {1}", groupId, userId);
+
+                    // create user notification object
+                    userNotificationData = new UserNotification(userId) { CreateDateSec = TVinciShared.DateUtils.UnixTimeStampNow() };
+
+                    //update user settings according to partner settings configuration                    
+                    userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(groupId, userId);
+
+                    userNotificationData.Settings.EnableMail = NotificationSettings.IsPartnerMailNotificationEnabled(groupId);
+
+                    userNotificationData.Settings.EnableSms = NotificationSettings.IsPartnerSmsNotificationEnabled(groupId);
+
+                    if (userNotificationData.Settings.EnableMail.Value || userNotificationData.Settings.EnableSms.Value)
+                    {
+                        Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
+                        if (response != null && response.m_RespStatus == ApiObjects.ResponseStatus.OK && response.m_user != null)
+                        {
+                            if (userNotificationData.Settings.EnableMail.Value)
+                            {
+                                userNotificationData.UserData.Email = response.m_user.m_oBasicData.m_sEmail;
+                                userNotificationData.UserData.FirstName = response.m_user.m_oBasicData.m_sFirstName;
+                                userNotificationData.UserData.LastName = response.m_user.m_oBasicData.m_sLastName;
+                            }
+
+                            if (userNotificationData.Settings.EnableSms.Value)
+                            {
+                                userNotificationData.UserData.PhoneNumber = response.m_user.m_oBasicData.m_sPhone;
+                            }
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Failed to get user data for userId = {0}", userId);
+                        }
+                    }
+
+                    if (!NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+                    {
+                        log.ErrorFormat("Error while trying to create user notification document", JsonConvert.SerializeObject(userNotificationData));
+                        return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    }
+                }
+            }
+
+            return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+        }
+
+        internal static string GetMediaImageUrlByRatio(List<Picture> mediaImages, int ratioId)
+        {
+            string imageUrl = string.Empty;
+            object ratio = null;
+            if (mediaImages != null)
+            {
+                ratio = ODBCWrapper.Utils.GetTableSingleVal("lu_pics_ratios", "RATIO", ratioId, 86400, "MAIN_CONNECTION_STRING");
+
+                if (ratio != null && ratio != DBNull.Value)
+                {
+                    Picture pic = mediaImages.Where(p => p.ratio == ratio.ToString()).FirstOrDefault();
+                    if (pic != null)
+                    {
+                        imageUrl = pic.m_sURL;
+                    }
+                }
+            }
+
+            return imageUrl;
+        }
+
+        internal static string GetProgramImageUrlByRatio(List<ApiObjects.Epg.EpgPicture> mediaImages, int ratioId)
+        {
+            string imageUrl = string.Empty;
+            object ratio = null;
+            if (mediaImages != null)
+            {
+                ratio = ODBCWrapper.Utils.GetTableSingleVal("lu_pics_epg_ratios", "RATIO", ratioId, 86400, "MAIN_CONNECTION_STRING");
+                if (ratio != null && ratio != DBNull.Value)
+                {
+                    ApiObjects.Epg.EpgPicture pic = mediaImages.Where(p => p.Ratio == ratio.ToString()).FirstOrDefault();
+                    if (pic != null)
+                    {
+                        imageUrl = pic.Url;
+                    }
+                }
+            }
+
+            return imageUrl;
+        }
+
+        internal static bool CreateUserToken(int groupId, int userId, out string token)
+        {
+            token = string.Empty;
+            try
+            {
+                string userIdStr = string.Format("{0}|{1}|{2}", userId.ToString(), groupId, TVinciShared.DateUtils.UnixTimeStampNow());
+                byte[] input = new byte[userIdStr.Length];
+                Array.Copy(Encoding.ASCII.GetBytes(userIdStr), 0, input, 0, input.Length);
+
+                byte[] encrypted = TVinciShared.EncryptUtils.AesEncrypt(USER_TOKEN_SECRET, input, BLOCK_SIZE);
+
+                token = System.Convert.ToBase64String(encrypted);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while trying to create user token userId: {0}", userId), ex);
+                return false;
+            }
+
+            return true;
+        }
+
+        internal static bool ExtractUserIdFromToken(string token, out int userId)
+        {
+            userId = 0;
+            try
+            {
+                byte[] input = System.Convert.FromBase64String(token);
+               
+                byte[] encrypted = TVinciShared.EncryptUtils.TrimRight(TVinciShared.EncryptUtils.AesDecrypt(USER_TOKEN_SECRET, input, BLOCK_SIZE));
+
+                string userIdStr = Encoding.ASCII.GetString(encrypted);
+
+                string[] userIdStrParts = userIdStr.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                if (userIdStrParts.Length == 3)
+                {
+                    return int.TryParse(userIdStrParts[0], out userId) && userId > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while trying to extract userId from token token: {0}", token), ex);
+            }
+
+            return false;
+        }
+
+        public static Status GetUserSmsNotificationData(int groupId, int userId, UserNotification userNotification, out SmsNotificationData userSmsNotificationData)
+        {
+            bool docExists = false;
+            userSmsNotificationData = DAL.NotificationDal.GetUserSmsNotificationData(groupId, userId, ref docExists);
+            if (userSmsNotificationData == null)
+            {
+                if (docExists)
+                {
+                    // error while getting user notification data
+                    log.ErrorFormat("error retrieving user notification data. GID: {0}, USERID: {1}", groupId, userId);
+                    return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+                else
+                {
+                    log.DebugFormat("user sms data wasn't found - going to create a new one. GID: {0}, USERID: {1}", groupId, userId);
+
+                    // create user notification object
+                    userSmsNotificationData = new SmsNotificationData(userId) { UpdatedAt = TVinciShared.DateUtils.UnixTimeStampNow() };
+                }
+            }
+
+            return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+        }
     }
 }

@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using KLogMonitor;
 using KlogMonitorHelper;
 using Core.Users;
+using ApiObjects.Response;
 
 namespace Core.Notification
 {
@@ -26,6 +27,10 @@ namespace Core.Notification
 
         private const string deafultDateFormat = "dd/MM/yyyy HH:mm:ss";
         private const string deafultEmailDateFormat = "dd-MMM-yyyy";
+
+        private const string ADAPTER_ID_REQUIRED = "Adapter identifier is required";
+        private const string ADAPTER_NOT_EXIST  = "Adapter not exist";
+        
 
 
         #region private Memebers
@@ -1316,6 +1321,46 @@ namespace Core.Notification
                 log.Error(string.Format("GetTagsNameByIDs Exception = {0}", ex.Message));
                 return null;
             }
+        }
+
+        internal static ApiObjects.Response.Status SetMailNotificationsAdapterConfiguration(int groupId, int adapterId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                if (adapterId == 0)
+                {
+                    status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.AdapterIdentifierRequired, ADAPTER_ID_REQUIRED);
+                    return status;
+                }
+
+                //get adapter
+                MailNotificationAdapter adapter = NotificationDal.GetMailNotificationAdapter(groupId, adapterId);
+
+                if (adapter == null || adapter.Id <= 0)
+                {
+                    status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return status;
+                }
+
+                if (MailNotificationAdapterClient.SendConfigurationToAdapter(groupId, adapter))
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    log.ErrorFormat("SetMailNotificationsAdapterConfiguration - SendConfigurationToAdapter failed : AdapterID = {0}", adapter.Id);
+                }
+            }
+            catch (Exception ex)
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed ex={0}", ex);
+            }
+
+            return status;
         }
 
         #endregion

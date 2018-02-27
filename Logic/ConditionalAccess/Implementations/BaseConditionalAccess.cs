@@ -1,19 +1,29 @@
 using AdapterControllers;
 using AdapterControllers.CDVR;
+using APILogic.ConditionalAccess.Managers;
+using APILogic.ConditionalAccess.Response;
 using ApiObjects;
 using ApiObjects.Billing;
-using ApiObjects.CDNAdapter;
+using ApiObjects.Catalog;
+using ApiObjects.ConditionalAccess;
 using ApiObjects.MediaIndexingObjects;
 using ApiObjects.PlayCycle;
+using ApiObjects.Pricing;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
+using CachingProvider.LayeredCache;
+using Core.Catalog.Response;
+using Core.ConditionalAccess.Modules;
 using Core.ConditionalAccess.Response;
+using Core.Pricing;
+using Core.Recordings;
+using Core.Users;
 using DAL;
 using EpgBL;
-using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
+using NPVR;
 using QueueWrapper;
 using ScheduledTasks;
 using System;
@@ -26,23 +36,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using TVinciShared;
-using Core.Users;
-using EventManager;
-using Core.Billing;
-using Core.Pricing;
-using Core.Catalog.Response;
-using ApiObjects.Catalog;
-using Core.Catalog.Request;
-using Core.Catalog;
-using Core.Recordings;
-using ApiObjects.ConditionalAccess;
-using ApiObjects.Pricing;
-using NPVR;
-using CachingProvider.LayeredCache;
-using Core.ConditionalAccess.Modules;
-using ApiObjects.SubscriptionSet;
-using APILogic.ConditionalAccess.Managers;
-using APILogic.ConditionalAccess.Response;
 
 namespace Core.ConditionalAccess
 {
@@ -9840,7 +9833,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // check if payment gateway supports this
-                    if (transactionType == eTransactionType.Subscription && !string.IsNullOrEmpty(billingGuid))
+                    if (transactionType == eTransactionType.Subscription && !string.IsNullOrEmpty(billingGuid) && !isForce)
                     {
                         try
                         {
@@ -9864,7 +9857,7 @@ namespace Core.ConditionalAccess
                         {
                             log.Error("Error while calling the billing GetPaymentGatewayVerificationStatus", ex);
                             return new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                        }
+                        }   
                     }
 
                     // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
@@ -10934,50 +10927,51 @@ namespace Core.ConditionalAccess
             return (container.m_oItemPrices[0] != null && container.m_oItemPrices[0].m_PriceReason == PriceReason.UserSuspended);
         }
 
-        public virtual RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
+        public virtual RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries, int? version)
         {
             throw new NotImplementedException("Not implemented yet.");
         }
 
-        public virtual RecordResponse RecordSeriesByProgramID(string siteGuid, string epgProgramIdAssignedToSeries)
+        public virtual RecordResponse RecordSeriesByProgramID(string siteGuid, string epgProgramIdAssignedToSeries, int? version)
         {
             throw new NotImplementedException("Not implemented yet.");
         }
 
-        public virtual RecordResponse RecordSeriesByName(string siteGuid, string seriesName)
+        public virtual RecordResponse RecordSeriesByName(string siteGuid, string seriesName, int? version)
         {
             throw new NotImplementedException("Not implemented yet.");
         }
 
-        public virtual RecordResponse RecordSeriesBySeriesId(string siteGuid, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId, List<string> lookupCriteria)
+        public virtual RecordResponse RecordSeriesBySeriesId(string siteGuid, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId, 
+            List<string> lookupCriteria, int? version)
         {
             throw new NotImplementedException("Not implemented yet.");
         }
 
-        public virtual NPVRResponse CancelNPVR(string siteGuid, string assetID, bool isSeries)
+        public virtual NPVRResponse CancelNPVR(string siteGuid, string assetID, bool isSeries, int? version)
         {
             throw new NotImplementedException("Not implemented yet.");
         }
 
-        public virtual NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries)
+        public virtual NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries, int? version)
         {
             throw new NotImplementedException("Not implemented yet.");
         }
-        public virtual NPVRResponse DeleteNPVR(string siteGuid, string seriesId, string seasonNumber, string channelId, List<NPVRRecordingStatus> status)
-        {
-            throw new NotImplementedException("Not implemented yet.");
-        }
-
-        public virtual QuotaResponse GetNPVRQuota(string siteGuid)
+        public virtual NPVRResponse DeleteNPVR(string siteGuid, string seriesId, string seasonNumber, string channelId, List<NPVRRecordingStatus> status, int? version)
         {
             throw new NotImplementedException("Not implemented yet.");
         }
 
-        public virtual NPVRResponse SetNPVRProtectionStatus(string siteGuid, string assetID, bool isSeries, bool isProtect)
+        public virtual QuotaResponse GetNPVRQuota(string siteGuid, int? version)
         {
             throw new NotImplementedException("Not implemented yet.");
         }
-        public virtual NPVRResponse SetAssetAlreadyWatchedStatus(string siteGuid, string assetID, int alreadyWatched)
+
+        public virtual NPVRResponse SetNPVRProtectionStatus(string siteGuid, string assetID, bool isSeries, bool isProtect, int? version)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+        public virtual NPVRResponse SetAssetAlreadyWatchedStatus(string siteGuid, string assetID, int alreadyWatched, int? version)
         {
             throw new NotImplementedException("Not implemented yet.");
         }

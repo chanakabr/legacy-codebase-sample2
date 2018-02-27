@@ -8,31 +8,14 @@ using Newtonsoft.Json;
 namespace ApiObjects.Notification
 {
     //  KEY: device_data_<GID>_<UDID>
-    public class DeviceNotificationData
+    public class DeviceNotificationData : NotificationData
     {
-        public DeviceNotificationData()
+        public DeviceNotificationData(string udid) : base()
         {
-            this.SubscribedAnnouncements = new List<NotificationSubscription>();
-            this.SubscribedReminders = new List<NotificationSubscription>();
-            this.SubscribedSeriesReminders = new List<NotificationSubscription>();
-            this.SubscribedUserInterests = new List<NotificationSubscription>();
+            this.Udid = udid;
         }
 
-        public int UserId { get; set; }
         public string Udid { get; set; }
-        public long UpdatedAt { get; set; }
         public bool IsLoggedIn { get; set; }
-        public string SubscriptionExternalIdentifier { get; set; }
-
-        public List<NotificationSubscription> SubscribedAnnouncements { get; set; }
-
-        public List<NotificationSubscription> SubscribedReminders { get; set; }
-
-        public List<NotificationSubscription> SubscribedSeriesReminders { get; set; }
-
-        public List<NotificationSubscription> SubscribedUserInterests { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public ulong cas { get; set; }
     }
 }

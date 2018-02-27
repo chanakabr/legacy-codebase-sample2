@@ -1,19 +1,18 @@
 ﻿using ApiObjects;
+using ApiObjects.ConditionalAccess;
+using Core.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Pricing;
+using Core.Users;
 using DAL;
+using KLogMonitor;
 using NPVR;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using KLogMonitor;
 using System.Reflection;
-using Core.Pricing;
-using Core.Users;
-using Core.Catalog.Request;
-using Core.Catalog.Response;
-using Core.Catalog;
-using ApiObjects.ConditionalAccess;
 
 
 namespace Core.ConditionalAccess
@@ -31,12 +30,12 @@ namespace Core.ConditionalAccess
         {
         }
 
-        public override RecordResponse RecordSeriesByProgramID(string siteGuid, string epgProgramIdAssignedToSeries)
+        public override RecordResponse RecordSeriesByProgramID(string siteGuid, string epgProgramIdAssignedToSeries, int? version)
         {
-            return RecordNPVR(siteGuid, epgProgramIdAssignedToSeries, true);
+            return RecordNPVR(siteGuid, epgProgramIdAssignedToSeries, true, version);
         }
 
-        public override RecordResponse RecordSeriesByName(string siteGuid, string seriesName)
+        public override RecordResponse RecordSeriesByName(string siteGuid, string seriesName, int? version)
         {
             RecordResponse res = new RecordResponse();
             try
@@ -44,7 +43,7 @@ namespace Core.ConditionalAccess
                 string epgProgramIDRelatedToSeries = GetEpgProgramIDRelatedToSeries(seriesName);
                 if (!string.IsNullOrEmpty(epgProgramIDRelatedToSeries))
                 {
-                    res = RecordSeriesByProgramID(siteGuid, epgProgramIDRelatedToSeries);
+                    res = RecordSeriesByProgramID(siteGuid, epgProgramIDRelatedToSeries, version);
                 }
                 else
                 {
@@ -63,7 +62,7 @@ namespace Core.ConditionalAccess
         }
 
         // new implementation to support new business functionality
-        public override RecordResponse RecordSeriesBySeriesId(string siteGuid, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId, List<string> lookupCriteria)
+        public override RecordResponse RecordSeriesBySeriesId(string siteGuid, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId, List<string> lookupCriteria, int? version)
         {
             RecordResponse res = new RecordResponse();
             try
@@ -79,12 +78,12 @@ namespace Core.ConditionalAccess
                         // validate that the service is allowed
                         if (IsServiceAllowed(domainID, eService.NPVR))
                         {
-                            INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                            INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, version);
                             if (npvr != null)
                             {
                                 NPVRRecordResponse response = null;
 
-                                NPVRRecordObj recordObj = new NPVRRecordObj(channelId.ToString(), domainID.ToString(), seriesId, seasonSeed, seasonNumber, lookupCriteria);
+                                NPVRRecordObj recordObj = new NPVRRecordObj(channelId.ToString(), domainID.ToString(), seriesId, seasonSeed, seasonNumber, episodeSeed, lookupCriteria);
 
                                 response = npvr.RecordSeries(recordObj);
 
@@ -148,7 +147,7 @@ namespace Core.ConditionalAccess
         }
 
         // here assetID will be the EPG program id as appearing in epg_channels_schedule in CB.
-        public override RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
+        public override RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries, int? version)
         {
             RecordResponse res = new RecordResponse();
             DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
@@ -197,7 +196,7 @@ namespace Core.ConditionalAccess
                                     string assetIDToALU = GetEpgProgramCoGuid(assetID, ref epgChannelID, ref programStartDate);
                                     if (!string.IsNullOrEmpty(assetIDToALU) && !string.IsNullOrEmpty(epgChannelID) && !programStartDate.Equals(UNIX_ZERO_TIME) && !programStartDate.Equals(DateTime.MinValue))
                                     {
-                                        INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                                        INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, version);
                                         if (npvr != null)
                                         {
                                             NPVRRecordResponse response = null;
@@ -335,7 +334,7 @@ namespace Core.ConditionalAccess
         }
 
         // here asset ID will be the recording ID in ALU.
-        public override NPVRResponse CancelNPVR(string siteGuid, string assetID, bool isSeries)
+        public override NPVRResponse CancelNPVR(string siteGuid, string assetID, bool isSeries, int? version)
         {
             NPVRResponse res = new NPVRResponse();
             DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
@@ -346,7 +345,7 @@ namespace Core.ConditionalAccess
                 {
                     if (!string.IsNullOrEmpty(assetID))
                     {
-                        INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                        INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, version);
                         if (npvr != null)
                         {
                             NPVRCancelDeleteResponse response = null;
@@ -422,7 +421,7 @@ namespace Core.ConditionalAccess
         }
 
         //Delete Series Nokia new implementation
-        public override NPVRResponse DeleteNPVR(string siteGuid, string seriesId, string seasonNumber, string channelId, List<NPVRRecordingStatus> status)
+        public override NPVRResponse DeleteNPVR(string siteGuid, string seriesId, string seasonNumber, string channelId, List<NPVRRecordingStatus> status, int? version)
         {
             NPVRResponse res = new NPVRResponse();
             DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
@@ -433,7 +432,7 @@ namespace Core.ConditionalAccess
                 int domainID = 0;
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
-                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, version);
                     if (npvr != null)
                     {
                         NPVRCancelDeleteResponse response = null;
@@ -488,7 +487,7 @@ namespace Core.ConditionalAccess
         }
         
         // here assetID will be the recording ID in ALU
-        public override NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries)
+        public override NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries, int? version)
         {
             NPVRResponse res = new NPVRResponse();
             DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
@@ -499,7 +498,7 @@ namespace Core.ConditionalAccess
                 {
                     if (!string.IsNullOrEmpty(assetID))
                     {
-                        INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                        INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, version);
                         if (npvr != null)
                         {
                             NPVRCancelDeleteResponse response = null;
@@ -569,7 +568,7 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        public override QuotaResponse GetNPVRQuota(string siteGuid)
+        public override QuotaResponse GetNPVRQuota(string siteGuid, int? version)
         {
             QuotaResponse res = new QuotaResponse();
             DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
@@ -578,7 +577,7 @@ namespace Core.ConditionalAccess
                 int domainID = 0;
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
-                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, version);
                     if (npvr != null)
                     {
                         NPVRQuotaResponse response = npvr.GetQuotaData(new NPVRParamsObj() { EntityID = domainID.ToString() });
@@ -618,7 +617,7 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        public override NPVRResponse SetNPVRProtectionStatus(string siteGuid, string assetID, bool isSeries, bool isProtect)
+        public override NPVRResponse SetNPVRProtectionStatus(string siteGuid, string assetID, bool isSeries, bool isProtect, int? version)
         {
             NPVRResponse res = new NPVRResponse();
             DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
@@ -627,7 +626,7 @@ namespace Core.ConditionalAccess
                 int domainID = 0;
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
-                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, version);
 
                     if (npvr != null)
                     {
@@ -693,7 +692,7 @@ namespace Core.ConditionalAccess
             return res;
         }
         
-        public override NPVRResponse SetAssetAlreadyWatchedStatus(string siteGuid, string assetID, int alreadyWatched)
+        public override NPVRResponse SetAssetAlreadyWatchedStatus(string siteGuid, string assetID, int alreadyWatched, int? version)
         {
             NPVRResponse res = new NPVRResponse();
             DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
@@ -702,7 +701,7 @@ namespace Core.ConditionalAccess
                 int domainID = 0;
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
-                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, version);
 
                     if (npvr != null)
                     {
@@ -800,7 +799,8 @@ namespace Core.ConditionalAccess
             return !string.IsNullOrEmpty(programID) && !string.IsNullOrEmpty(siteGuid) && !string.IsNullOrEmpty(deviceUDID);
         }
 
-        protected override string CalcNPVRLicensedLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, int nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
+        protected override string CalcNPVRLicensedLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, int nMediaFileID, string sBasicLink, 
+            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
             // don't catch exceptions in this function!
             string res = string.Empty;
@@ -811,7 +811,7 @@ namespace Core.ConditionalAccess
                 if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0
                                                                 && suspendStatus == DomainSuspentionStatus.OK)
                 {
-                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, null);
                     if (npvr != null)
                     {
                         string streamType = string.Empty;

@@ -566,6 +566,9 @@ namespace Core.Users
                     resp.m_RespStatus = ResponseStatus.UserCreatedWithNoRole;
                     log.ErrorFormat("User created with no role. userId = {0}", userID);
                 }
+
+                // add notifications event 
+                Utils.AddInitiateNotificationActionToQueue(m_nGroupID, eUserMessageAction.Signup, nUserID, string.Empty);
             }
 
             if (u.m_domianID <= 0)
@@ -1213,6 +1216,9 @@ namespace Core.Users
 
                     }
                 }
+
+                // add notifications event if email was changed
+                Utils.AddInitiateNotificationActionToQueue(m_nGroupID, eUserMessageAction.UpdateUser, nUserID, string.Empty);
 
                 resp.Initialize(ResponseStatus.OK, u);
             }

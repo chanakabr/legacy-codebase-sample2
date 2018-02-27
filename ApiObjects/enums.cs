@@ -535,14 +535,17 @@ namespace ApiObjects
         All = 0,
         LoggedIn = 1,
         Guests = 2,
-        Other = 3
+        Other = 3,
+        Mail = 4,
+        Sms = 5
     }
 
     public enum eMessageType
     {
         Push = 0,
         Mail = 1,
-        Inbox = 2
+        Inbox = 2,
+        Sms = 3
     }
 
     public enum eUserMessageAction
@@ -555,7 +558,13 @@ namespace ApiObjects
         ChangeUsers = 5,
         EnableUserNotifications = 6,
         DisableUserNotifications = 7,
-        DeleteDevice = 8
+        DeleteDevice = 8,
+        EnableUserMailNotifications = 9,
+        DisableUserMailNotifications = 10,
+        UpdateUser = 11,
+        Signup = 12,
+        EnableUserSmsNotifications = 13,
+        DisableUserSmsNotifications = 14,
     }
 
     public enum eAnnouncementStatus
@@ -591,7 +600,9 @@ namespace ApiObjects
         SeriesName = 1,
         CatalaogStartDate = 2,
         StartDate = 3,
-        MediaId = 4
+        MediaId = 4,
+        Image = 5,
+        ReferenceId = 6
     }
 
     public enum eChurnPlaceHolders
@@ -605,7 +616,9 @@ namespace ApiObjects
         ProgramName = 0,
         ChannelName = 1,
         StartDate = 2,
-        ProgramId = 3
+        ProgramId = 3,
+        Image = 4,
+        ReferenceId = 5
     }
 
     public enum eSeriesReminderPlaceHolders
@@ -614,6 +627,8 @@ namespace ApiObjects
         StartDate = 1,
         SeriesName = 2,
         EpisodeName = 3,
+        Image = 4,
+        ReferenceId = 5
     }
 
     public enum TstvRecordingStatus
@@ -995,4 +1010,18 @@ namespace ApiObjects
         UHD_4K = 5
     }
 
+    public enum MailMessageType
+    {
+        SystemAnnouncement = 0,
+        Follow = 1,
+        Reminder = 2,
+        SeriesReminder = 3,
+        Interest = 4
+    }
+
+    public enum AlcatelLucentNPVRVersion
+    {
+        V1_0 = 1,
+        V2_0 = 2
+    }
 }

@@ -558,7 +558,7 @@ namespace Core.Notification
 
             try
             {
-                result = UserMessageFlow.InitiatePushAction(nGroupID, userAction, userId, udid != null ? udid : string.Empty, pushToken);
+                result = UserMessageFlow.InitiateNotificationAction(nGroupID, userAction, userId, udid != null ? udid : string.Empty, pushToken);
             }
             catch (Exception ex)
             {
@@ -925,7 +925,7 @@ namespace Core.Notification
                     bool result = false;
                     foreach (var userId in userIds)
                     {
-                        result = UserMessageFlow.InitiatePushAction(nGroupID, eUserMessageAction.DeleteUser, int.Parse(userId), string.Empty, null);
+                        result = UserMessageFlow.InitiateNotificationAction(nGroupID, eUserMessageAction.DeleteUser, int.Parse(userId), string.Empty, null);
                         if (!result)
                         {
                             log.ErrorFormat("Failed to remove notification data for userId = {0}", userId);
@@ -1104,6 +1104,11 @@ namespace Core.Notification
             return EngagementManager.SetEngagementAdapterConfiguration(groupId, engagementId);
         }
 
+        public static ApiObjects.Response.Status SetMailNotificationsAdapterConfiguration(int groupId, int adapterId)
+        {
+            return NotificationManager.SetMailNotificationsAdapterConfiguration(groupId, adapterId);
+        }
+
         public static bool ReSendEngagement(int partnerId, int engagementId)
         {
             try
@@ -1194,6 +1199,41 @@ namespace Core.Notification
                 log.ErrorFormat("SendMessageInterest caught an exception: GroupID: {0}, notification interest message id: {1}, ex: {2}", nGroupID, notificationInterestMessageId, ex);
                 return false;
             }
+        }
+
+        public static IntResponse GetUserIdByToken(int groupId, string token)
+        {
+            IntResponse response = new IntResponse()
+            {
+                Status = new Status((int)eResponseStatus.InvalidToken, "Invalid token")
+            };
+
+            int userId = 0;
+            if (Utils.ExtractUserIdFromToken(token, out userId))
+            {
+                response.Value = userId;
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
+
+        public static Status SendUserSms(int groupId, int userId, string message)
+        {
+            Status result = new Status() { Code = (int)eResponseStatus.Error };
+            try
+            {
+                result = EngagementManager.SendSmsToUser(groupId, userId, message);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while trying to send SMS. group ID: {0}, user ID: {1}, message: {2}, Ex: {3}",
+                    groupId,
+                    userId,
+                    message,
+                    ex);
+            }
+            return result;
         }
     }
 }

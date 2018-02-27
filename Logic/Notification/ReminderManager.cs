@@ -74,7 +74,7 @@ namespace Core.Notification
 
                 // get user notifications
                 UserNotification userNotificationData = null;
-                response.Status = GetUserNotificationData(dbReminder.GroupId, userId, out userNotificationData);
+                response.Status = Utils.GetUserNotificationData(dbReminder.GroupId, userId, out userNotificationData);
                 if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
                 {
                     return response;
@@ -212,6 +212,18 @@ namespace Core.Notification
                     return response;
                 }
 
+                if (NotificationSettings.IsPartnerMailNotificationEnabled(dbReminder.GroupId) &&
+                    userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
+                    !string.IsNullOrEmpty(userNotificationData.UserData.Email))
+                {
+                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(dbReminder.GroupId, new List<string>() { dbReminder.MailExternalId }, userNotificationData.UserData, userId))
+                    {
+                        log.ErrorFormat("Failed subscribing user reminder to email announcement. group: {0}, userId: {1}, email: {2}", dbReminder.GroupId, userId, userNotificationData.UserData.Email);
+                    }
+                }
+
+                HandleAddSmsReminder(dbReminder.GroupId, userId, dbReminder, userNotificationData, addedSecs, false);
+
                 // update user devices
                 if (userNotificationData.devices != null &&
                    userNotificationData.devices.Count > 0 &&
@@ -323,7 +335,7 @@ namespace Core.Notification
 
                 // get user notifications
                 UserNotification userNotificationData = null;
-                response.Status = GetUserNotificationData(dbSeriesReminder.GroupId, userId, out userNotificationData);
+                response.Status = Utils.GetUserNotificationData(dbSeriesReminder.GroupId, userId, out userNotificationData);
                 if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
                 {
                     return response;
@@ -341,7 +353,6 @@ namespace Core.Notification
                     response.Status = new Status((int)eResponseStatus.UserAlreadySetReminder, "User already set a reminder");
                     return response;
                 }
-
 
                 dbSeriesReminder.Name = clientReminder.SeasonNumber != 0 ? string.Format("{0}, season {1}", clientReminder.SeriesId, clientReminder.SeasonNumber) : clientReminder.SeriesId.ToString();
 
@@ -399,6 +410,18 @@ namespace Core.Notification
                     Utils.WaitForAllTasksToFinish(tasks);
                     return response;
                 }
+
+                if (NotificationSettings.IsPartnerMailNotificationEnabled(dbSeriesReminder.GroupId) &&
+                    userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
+                    !string.IsNullOrEmpty(userNotificationData.UserData.Email))
+                {
+                    if (!MailNotificationAdapterClient.SubscribeToAnnouncement(dbSeriesReminder.GroupId, new List<string>() { dbSeriesReminder.MailExternalId }, userNotificationData.UserData, userId))
+                    {
+                        log.ErrorFormat("Failed subscribing user series reminder to email announcement. group: {0}, userId: {1}, email: {2}", dbSeriesReminder.GroupId, userId, userNotificationData.UserData.Email);
+                    }
+                }
+
+                HandleAddSmsReminder(dbSeriesReminder.GroupId, userId, dbSeriesReminder, userNotificationData, addedSecs, true);
 
                 // update user devices
                 if (userNotificationData.devices != null &&
@@ -692,6 +715,29 @@ namespace Core.Notification
                 }
             }
 
+            if (!NotificationSettings.IsPartnerMailNotificationEnabled(dbReminder.GroupId))
+            {
+                log.DebugFormat("AddUserReminder - partner mail notifications is disabled. groupID = {0}", dbReminder.GroupId);
+            }
+            else
+            {
+                // push enabled - check if topic creation is needed
+                if (string.IsNullOrEmpty(dbReminder.MailExternalId))
+                {
+                    // Create topic
+                    string externalId = MailNotificationAdapterClient.CreateAnnouncement(dbReminder.GroupId, dbReminder.Name);
+                    if (string.IsNullOrEmpty(externalId))
+                    {
+                        log.DebugFormat("failed to create mail announcement groupID = {0}, reminderName = {1}", dbReminder.GroupId, dbReminder.Name);
+                        response = new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create mail announcement");
+                        return response;
+                    }
+
+                    dbReminder.MailExternalId = externalId;
+                    setReminderDBNeeded = true;
+                }
+            }
+
             return response;
         }
 
@@ -731,33 +777,6 @@ namespace Core.Notification
             return programs;
         }
 
-        private static Status GetUserNotificationData(int groupId, int userId, out UserNotification userNotificationData)
-        {
-            bool docExists = false;
-            userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
-            if (userNotificationData == null)
-            {
-                if (docExists)
-                {
-                    // error while getting user notification data
-                    log.ErrorFormat("error retrieving user notification data. GID: {0}, UID: {1}", groupId, userId);
-                    return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                }
-                else
-                {
-                    log.DebugFormat("user notification data wasn't found - going to create a new one. GID: {0}, UID: {1}", groupId, userId);
-
-                    // create user notification object
-                    userNotificationData = new UserNotification(userId) { CreateDateSec = TVinciShared.DateUtils.UnixTimeStampNow() };
-
-                    //update user settings according to partner settings configuration                    
-                    userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(groupId, userId);
-                }
-            }
-
-            return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-        }
-
         public static Status DeleteUserReminder(int groupId, int userId, long reminderId)
         {
             Status statusResult = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -787,6 +806,26 @@ namespace Core.Notification
                 statusResult = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
+            if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) &&
+                   userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
+                   !string.IsNullOrEmpty(userNotificationData.UserData.Email))
+            {
+                List<DbReminder> reminders = NotificationDal.GetReminders(groupId, reminderId);
+                if (reminders != null && reminders.Count > 0)
+                {
+                    if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, new List<string>() { reminders[0].MailExternalId }, userNotificationData.UserData, userId))
+                    {
+                        log.ErrorFormat("Failed subscribing user reminder to email announcement. group: {0}, userId: {1}, email: {2}", groupId, userId, userNotificationData.UserData.Email);
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("Reminder not found. group: {0}, reminderId: {1}", groupId, reminderId);
+                }
+            }
+
+            HandleRemoveSmsReminder(groupId, userId, reminderId, false);
+
             // iterate through user devices and remove reminders
             if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
                 log.DebugFormat("User doesn't have any devices. no reminders were removed. PID: {0}, UID: {1}, reminderId: {2}", groupId, userId, reminderId);
@@ -812,12 +851,12 @@ namespace Core.Notification
                     }
 
                     // unsubscribe device 
-                    List<UnSubscribe> unsubscibeList = new List<UnSubscribe>() 
-                    { 
-                        new UnSubscribe() 
-                        { 
-                            SubscriptionArn = subscribedReminder.ExternalId 
-                        } 
+                    List<UnSubscribe> unsubscibeList = new List<UnSubscribe>()
+                    {
+                        new UnSubscribe()
+                        {
+                            SubscriptionArn = subscribedReminder.ExternalId
+                        }
                     };
 
                     // unsubscribe reminder from Amazon
@@ -873,6 +912,26 @@ namespace Core.Notification
                 statusResult = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
+            if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) &&
+                  userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
+                  !string.IsNullOrEmpty(userNotificationData.UserData.Email))
+            {
+                List<DbSeriesReminder> reminders = NotificationDal.GetSeriesReminders(groupId, new List<long> () { reminderId });
+                if (reminders != null && reminders.Count > 0)
+                {
+                    if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, new List<string>() { reminders[0].MailExternalId }, userNotificationData.UserData, userId))
+                    {
+                        log.ErrorFormat("Failed subscribing user reminder to email announcement. group: {0}, userId: {1}, email: {2}", groupId, userId, userNotificationData.UserData.Email);
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("Series reminder not found. group: {0}, reminderId: {1}", groupId, reminderId);
+                }
+            }
+
+            HandleRemoveSmsReminder(groupId, userId, reminderId, true);
+
             // iterate through user devices and remove reminders
             if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
                 log.DebugFormat("User doesn't have any devices. no reminders were removed. PID: {0}, UID: {1}, reminderId: {2}", groupId, userId, reminderId);
@@ -898,12 +957,12 @@ namespace Core.Notification
                     }
 
                     // unsubscribe device 
-                    List<UnSubscribe> unsubscibeList = new List<UnSubscribe>() 
-                    { 
-                        new UnSubscribe() 
-                        { 
-                            SubscriptionArn = subscribedReminder.ExternalId 
-                        } 
+                    List<UnSubscribe> unsubscibeList = new List<UnSubscribe>()
+                    {
+                        new UnSubscribe()
+                        {
+                            SubscriptionArn = subscribedReminder.ExternalId
+                        }
                     };
 
                     // unsubscribe reminder from Amazon
@@ -1079,8 +1138,9 @@ namespace Core.Notification
                 return false;
             }
 
-            // send push messages
-            if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+            // send push / mail messages
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerMailNotificationEnabled(partnerId)
+                || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
             {
                 // get message templates
                 MessageTemplate reminderTemplate = null;
@@ -1122,56 +1182,103 @@ namespace Core.Notification
 
         private static void SendSingleMessageReminder(int partnerId, DbReminder reminder, ProgramObj program, MediaObj mediaChannel, DateTime dbReminderSendDate, MessageTemplate reminderTemplate)
         {
-            // build message 
-            MessageData messageData = new MessageData()
+            // push - send to Amazon
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
             {
-                Category = reminderTemplate.Action,
-                Sound = reminderTemplate.Sound,
-                Url = reminderTemplate.URL.Replace("{" + eReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(reminderTemplate.DateFormat)).
-                                                     Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
-                                                     Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
-                                                     Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
-                Alert = reminderTemplate.Message.Replace("{" + eReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(reminderTemplate.DateFormat)).
-                                                       Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
-                                                       Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
-                                                       Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty)
-            };
-
-            // send to Amazon
-            if (string.IsNullOrEmpty(reminder.ExternalPushId))
-            {
-                log.ErrorFormat("External push ID wasn't found. reminder: {0}", JsonConvert.SerializeObject(reminder));
-                return;
-            }
-
-            // update message reminder
-            reminder.Message = JsonConvert.SerializeObject(messageData);
-
-            string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, reminder.ExternalPushId, string.Empty, messageData);
-            if (string.IsNullOrEmpty(resultMsgId))
-                log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for reminder {0}", reminder.ID);
-            else
-            {
-
-                log.DebugFormat("Successfully sent reminder. reminder Id: {0}", reminder.ID);
-                // update external push result
-                reminder.ExternalResult = resultMsgId;
-                reminder.IsSent = true;
-
-                // update reminder 
-                if (DAL.NotificationDal.SetReminder(reminder) == 0)
+                if (string.IsNullOrEmpty(reminder.ExternalPushId))
                 {
-                    log.ErrorFormat("Failed to update reminder. partner ID: {0}, reminder ID: {1} ", partnerId, reminder.ID);
+                    log.ErrorFormat("External push ID wasn't found. reminder: {0}", JsonConvert.SerializeObject(reminder));
+                }
+                else
+                {
+                    // build message 
+                    MessageData messageData = new MessageData()
+                    {
+                        Category = reminderTemplate.Action,
+                        Sound = reminderTemplate.Sound,
+                        Url = reminderTemplate.URL.Replace("{" + eReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(reminderTemplate.DateFormat)).
+                                                             Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
+                                                             Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
+                                                             Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
+                        Alert = reminderTemplate.Message.Replace("{" + eReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(reminderTemplate.DateFormat)).
+                                                               Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
+                                                               Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
+                                                               Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty)
+                    };
+
+                    // update message reminder
+                    reminder.Message = JsonConvert.SerializeObject(messageData);
+
+                    string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, reminder.ExternalPushId, string.Empty, messageData);
+                    if (string.IsNullOrEmpty(resultMsgId))
+                        log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for reminder {0}", reminder.ID);
+                    else
+                    {
+                        log.DebugFormat("Successfully sent push reminder. reminder Id: {0}", reminder.ID);
+                        // update external push result
+                        reminder.ExternalResult = resultMsgId;
+                        reminder.IsSent = true;
+                    }
+
+                    // send to push web - rabbit.                
+                    PushToWeb(partnerId, reminder, messageData);
                 }
             }
 
-            // send to push web - rabbit.                
-            PushToWeb(partnerId, reminder, messageData);
+            // mail
+            if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId))
+            {
+                if (string.IsNullOrEmpty(reminder.MailExternalId))
+                {
+                    log.ErrorFormat("External mail ID wasn't found. reminder: {0}", JsonConvert.SerializeObject(reminder));
+                }
+                else
+                {
+                    string imageUrl = Utils.GetProgramImageUrlByRatio(program.m_oProgram.EPG_PICTURES, reminderTemplate.RatioId);
+                    string subject = reminderTemplate.MailSubject.Replace("{" + eReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(reminderTemplate.DateFormat)).
+                                                             Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
+                                                             Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
+                                                             Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty);
+
+                    List<KeyValuePair<string, string>> mergeVars = new List<KeyValuePair<string, string>>() {
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.StartDate.ToString(), dbReminderSendDate.ToString(reminderTemplate.DateFormat)),
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.ProgramId.ToString(), program.m_oProgram.EPG_ID.ToString()),
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.ProgramName.ToString(), program.m_oProgram.NAME),
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.ChannelName.ToString(), mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
+                        new KeyValuePair<string, string>(eReminderPlaceHolders.Image.ToString(), imageUrl),
+                    };
+
+                    if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, reminder.MailExternalId, subject, mergeVars, reminderTemplate.MailTemplate))
+                        log.ErrorFormat("failed to send remind message to mail adapter. result message id is empty for reminder {0}", reminder.ID);
+                    else
+                    {
+                        reminder.IsSent = true;
+                        log.DebugFormat("Successfully sent reminder to mail. reminder Id: {0}", reminder.ID);
+                        
+                        // update series reminder external result
+                        if (NotificationDal.AddMailExternalResult(partnerId, reminder.ID, MailMessageType.Reminder, string.Empty, true) == 0)
+                        {
+                            log.ErrorFormat("Failed to add mail external result for reminder. reminderId = {0}", reminder.ID);
+                        }
+                    }
+                }
+            }
+
+            // update reminder 
+            if (DAL.NotificationDal.SetReminder(reminder) == 0)
+            {
+                log.ErrorFormat("Failed to update reminder. partner ID: {0}, reminder ID: {1} ", partnerId, reminder.ID);
+            }
         }
 
         private static void SendSeriesMessageReminder(int partnerId, ProgramObj program, DateTime dbReminderSendDate, MessageTemplate seriesReminderTemplate, long reminderId, MediaObj mediaChannel)
         {
             log.DebugFormat("SendSeriesMessageReminder started");
+
+            if (seriesReminderTemplate == null)
+            {
+                log.ErrorFormat("series reminder message template was not found. group: {0}", partnerId);
+            }
 
             Dictionary<string, string> aliases = Core.ConditionalAccess.Utils.GetEpgFieldTypeEntitys(partnerId, program.m_oProgram);
             if (aliases == null || aliases.Count == 0)
@@ -1196,11 +1303,9 @@ namespace Core.Notification
                 else
                 {
                     log.DebugFormat("found series reminders for the program");
-                    if (seriesReminderTemplate == null)
-                    {
-                        log.ErrorFormat("series reminder message template was not found. group: {0}", partnerId);
-                    }
-                    else
+
+                    // PUSH
+                    if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
                     {
                         MessageData seriesMessageData = new MessageData()
                         {
@@ -1249,7 +1354,52 @@ namespace Core.Notification
                                 // send to push web - rabbit.                
                                 PushToWeb(partnerId, seriesReminder, seriesMessageData);
                             }
+                        }
+                    }
 
+                    // MAIL
+                    if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId))
+                    {
+                        string imageUrl = Utils.GetProgramImageUrlByRatio(program.m_oProgram.EPG_PICTURES, seriesReminderTemplate.RatioId);
+                        string subject = seriesReminderTemplate.MailSubject.Replace("{" + eSeriesReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)).
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty).
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.SeriesName + "}", seriesId).
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.EpisodeName + "}", program.m_oProgram.NAME != null ? program.m_oProgram.NAME : string.Empty);
+
+                        List<KeyValuePair<string, string>> mergeVars = new List<KeyValuePair<string, string>>()
+                        {
+                            new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.StartDate.ToString(), dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)),
+                            new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.ChannelName.ToString(), mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
+                            new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.SeriesName.ToString(), seriesId),
+                            new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.EpisodeName.ToString(), program.m_oProgram.NAME != null ? program.m_oProgram.NAME : string.Empty),
+                            new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.Image.ToString(), imageUrl),
+                            new KeyValuePair<string, string>(eSeriesReminderPlaceHolders.ReferenceId.ToString(), reminderId.ToString()),
+                        };
+
+                        foreach (DbSeriesReminder seriesReminder in seriesReminders)
+                        {
+                            if (seriesReminder != null && !string.IsNullOrEmpty(seriesReminder.MailExternalId))
+                            {
+                                // send to mail adapter
+                                if (!MailNotificationAdapterClient.PublishToAnnouncement(partnerId, seriesReminder.MailExternalId, subject, mergeVars, seriesReminderTemplate.MailTemplate))
+                                    log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for series reminder {0}", seriesReminder.ID);
+                                else
+                                {
+                                    // update last send date
+                                    seriesReminder.LastSendDate = DateTime.UtcNow;
+                                    if (NotificationDal.SetSeriesReminder(seriesReminder) == 0)
+                                    {
+                                        log.ErrorFormat("Failed to set series reminder send date. seriesReminder.ID = {0}", seriesReminder.ID);
+                                    }
+
+                                    // update series reminder external result
+                                    if (NotificationDal.AddMailExternalResult(partnerId, seriesReminder.ID, MailMessageType.SeriesReminder, string.Empty, true) == 0)
+                                    {
+                                        log.ErrorFormat("Failed to add mail external result for series reminder. seriesReminder.ID = {0}, reminderId = {1}",
+                                            seriesReminder.ID, reminderId);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -1835,6 +1985,136 @@ namespace Core.Notification
                 response.NotificationId = seriesReminderId;
             }
             return response;
+        }
+
+        private static void HandleAddSmsReminder(int groupId, int userId, DbReminder reminder, UserNotification userNotificationData, long addedSecs, bool isSeries)
+        {
+            if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) &&
+                userNotificationData.Settings.EnableSms.HasValue &&
+                userNotificationData.Settings.EnableSms.Value &&
+                !string.IsNullOrEmpty(userNotificationData.UserData.PhoneNumber))
+            {
+                try
+                {
+                    SmsNotificationData userSmsNotificationData = DAL.NotificationDal.GetUserSmsNotificationData(groupId, userNotificationData.UserId);
+                    if (userSmsNotificationData == null)
+                    {
+                        log.DebugFormat("user sms notification data is empty {0}", userId);
+                        return;
+                    }
+
+                    IEnumerable<NotificationSubscription> subscribedReminders = null;
+                    if (isSeries)
+                    {
+                        subscribedReminders = userSmsNotificationData.SubscribedSeriesReminders.Where(r => r.Id == reminder.ID);
+                    }
+                    else
+                    {
+                        subscribedReminders = userSmsNotificationData.SubscribedReminders.Where(r => r.Id == reminder.ID);
+                    }
+
+                    if (subscribedReminders != null && subscribedReminders.Count() > 0)
+                    {
+                        log.ErrorFormat("user already has a reminder on SMS. userId: {0}", userId);
+                        return;
+                    }
+
+                    AnnouncementSubscriptionData subData = new AnnouncementSubscriptionData()
+                    {
+                        EndPointArn = userNotificationData.UserData.PhoneNumber,
+                        Protocol = EnumseDeliveryProtocol.sms,
+                        TopicArn = reminder.ExternalPushId,
+                        ExternalId = reminder.ID
+                    };
+
+                    List<AnnouncementSubscriptionData> subs = new List<AnnouncementSubscriptionData>() { subData };
+                    subs = NotificationAdapter.SubscribeToAnnouncement(groupId, subs);
+                    if (subs == null || subs.Count == 0 || string.IsNullOrEmpty(subs.First().SubscriptionArnResult))
+                    {
+                        log.ErrorFormat("Error registering SMS for reminder. userId: {0}, PhoneNumber: {1}", userId, userNotificationData.UserData.PhoneNumber);
+                        return;
+                    }
+
+                    // update SMS notification object
+                    NotificationSubscription sub = new NotificationSubscription()
+                    {
+                        ExternalId = subs.First().SubscriptionArnResult,
+                        Id = reminder.ID,
+                        SubscribedAtSec = addedSecs
+                    };
+
+                    if (isSeries)
+                    {
+                        userSmsNotificationData.SubscribedSeriesReminders.Add(sub);
+                    }
+                    else
+                    {
+                        userSmsNotificationData.SubscribedReminders.Add(sub);
+                    }
+
+                    if (!DAL.NotificationDal.SetUserSmsNotificationData(groupId, userId, userSmsNotificationData))
+                    {
+                        log.ErrorFormat("error setting SMS notification data for reminder. group: {0}, userId: {1}, topic: {2}", groupId, userId, subData.EndPointArn);
+                    }
+                    else
+                    {
+                        log.DebugFormat("Successfully updated SMS data for reminder. group: {0}, userId: {1}, topic: {2}", groupId, userId, subData.EndPointArn);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error in adding reminder for SMS", ex);
+                }
+            }
+        }
+
+        private static void HandleRemoveSmsReminder(int groupId, int userId, long reminderId, bool isSeries)
+        {
+            SmsNotificationData smsNotificationData = NotificationDal.GetUserSmsNotificationData(groupId, userId);
+            if (smsNotificationData != null)
+            {
+
+                IEnumerable<NotificationSubscription> subscribedReminders = null;
+                if (isSeries)
+                    subscribedReminders = smsNotificationData.SubscribedSeriesReminders.Where(x => x.Id == reminderId);
+                else
+                    subscribedReminders = smsNotificationData.SubscribedReminders.Where(x => x.Id == reminderId);
+
+                if (subscribedReminders == null || subscribedReminders.Count() == 0)
+                {
+                    log.DebugFormat("SMS notification data had no subscription for reminder. group: {0}, userId: {1}, reminderId = {2}", groupId, userId, reminderId);
+                    return;
+                }
+
+                // unsubscribe sms 
+                List<UnSubscribe> unsubscibeList = new List<UnSubscribe>()
+                    {
+                        new UnSubscribe()
+                        {
+                            SubscriptionArn = subscribedReminders.First().ExternalId
+                        }
+                    };
+
+                unsubscibeList = NotificationAdapter.UnSubscribeToAnnouncement(groupId, unsubscibeList);
+                if (unsubscibeList == null ||
+                    unsubscibeList.Count == 0 ||
+                    !unsubscibeList.First().Success)
+                {
+                    log.ErrorFormat("error removing reminder from SMS subscription. group: {0}, userId: {1}, reminderId = {2}", groupId, userId, reminderId);
+                }
+                else
+                {
+                    if (isSeries)
+                        smsNotificationData.SubscribedSeriesReminders.Remove(subscribedReminders.First());
+                    else
+                        smsNotificationData.SubscribedReminders.Remove(subscribedReminders.First());
+
+                    if (!DAL.NotificationDal.SetUserSmsNotificationData(groupId, userId, smsNotificationData))
+                        log.ErrorFormat("error updating SMS data. group: {0}, userId: {1}", groupId, userId);
+                    else
+                        log.DebugFormat("Successfully updated SMS data. group: {0}, userId: {1}", groupId, userId);
+                }
+            }
         }
     }
 }

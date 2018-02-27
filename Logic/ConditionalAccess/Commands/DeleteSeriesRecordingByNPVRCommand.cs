@@ -1,11 +1,6 @@
 ﻿using ApiObjects.ConditionalAccess;
-using Core.ConditionalAccess;
 using NPVR;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.ConditionalAccess
 {
@@ -17,12 +12,11 @@ namespace Core.ConditionalAccess
 
         public List<NPVRRecordingStatus> Status { get; set; }
 
-        public string ChannelId { get; set; }
-        
+        public string ChannelId { get; set; }        
 
         protected override NPVRResponse ExecuteFlow(BaseConditionalAccess cas)
         {
-            return cas.DeleteNPVR(siteGuid, SeriesId, SeasonNumber, ChannelId, Status);
+            return cas.DeleteNPVR(siteGuid, SeriesId, SeasonNumber, ChannelId, Status, Version);
         }
     }   
 }

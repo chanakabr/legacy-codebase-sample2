@@ -16,6 +16,7 @@ namespace ApiObjects.Notification
         public string ExternalPushId { get; set; }
         public string ExternalResult { get; set; }
         public string Message { get; set; }
+        public string MailExternalId { get; set; }
     }
     
     public class DbSeriesReminder : DbReminder

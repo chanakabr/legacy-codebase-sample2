@@ -1,9 +1,4 @@
-﻿using ApiObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
+﻿using System.Runtime.Serialization;
 
 namespace ApiObjects.Notification
 {
@@ -43,25 +38,23 @@ namespace ApiObjects.Notification
         [DataMember]
         public string ImageUrl { get; set; }
 
-        public MessageAnnouncement() { }
+        [DataMember]
+        public bool IncludeMail { get; set; }
 
-        public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, eAnnouncementStatus status = eAnnouncementStatus.NotSent, string messageReference = null, int announcementId = 0, string imageUrl = null)
-        {
-            Name = name;
-            Message = msg;
-            Enabled = enabled;
-            StartTime = startTime;
-            Timezone = timezone;
-            Recipients = recipients;
-            Status = status;
-            AnnouncementId = announcementId;
-            MessageReference = messageReference;
-            ImageUrl = imageUrl;
-        }
+        [DataMember]
+        public string MailSubject { get; set; }
+
+        [DataMember]
+        public string MailTemplate { get; set; }
+
+        [DataMember]
+        public bool IncludeSms{ get; set; }
+
+        public MessageAnnouncement() { }
 
         public override string ToString()
         {
-            return string.Format("MessageAnnouncement: Name: {0}, Message {1}, StartTime: {2}, TimeZone: {3} Status: {4}, Recipients {5}, Enabled {6}, AnnouncementId: {7}",
+            return string.Format("MessageAnnouncement: Name: {0}, Message {1}, StartTime: {2}, TimeZone: {3} Status: {4}, Recipients {5}, Enabled {6}, AnnouncementId: {7}, IncludeMail: {8}, , MailTemplate: {9}, , MailSubject: {10}",
                 Name,
                 Message,
                 StartTime,
@@ -69,7 +62,10 @@ namespace ApiObjects.Notification
                 Status,
                 Recipients,
                 Enabled,
-                AnnouncementId);
+                AnnouncementId,
+                IncludeMail,
+                MailTemplate,
+                MailTemplate);
         }
     }
 }

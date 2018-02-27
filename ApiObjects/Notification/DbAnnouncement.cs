@@ -13,5 +13,6 @@ namespace ApiObjects.Notification
         public long LastMessageSentDateSec { get; set; }
         public int SubscribersAmount{ get; set; }
         public string QueueName { get; set; }
+        public string MailExternalId { get; set; }
     }
 }

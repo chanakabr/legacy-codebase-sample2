@@ -1,14 +1,15 @@
-﻿using ApiObjects;
+﻿using APILogic.AmazonSnsAdapter;
+using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using Core.Notification.Adapters;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
-using Core.Notification.Adapters;
 using QueueWrapper;
 using QueueWrapper.Queues.QueueObjects;
 using ScheduledTasks;
@@ -17,11 +18,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using TVinciShared;
-using APILogic.AmazonSnsAdapter;
 
 namespace Core.Notification
 {
@@ -191,7 +190,8 @@ namespace Core.Notification
             int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
             DateTime announcementStartTime = ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime);
 
-            DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(id, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null, announcement.ImageUrl);
+            DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(id, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null,
+                announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject);
             announcement = Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
 
             // add a new message to queue when new time updated
@@ -260,7 +260,7 @@ namespace Core.Notification
         }
 
         private static bool HandleRecipientOtherTvSeries(int groupId, int messageId, long startTime, int announcementId, ref DataRow messageAnnouncementDataRow, ref string url, ref string ImageUrl, ref string sound,
-                                                            ref string category, out string annExternalId, out string singleQueueName, out bool failRes)
+                                                            ref string category, out string annExternalId, out string singleQueueName, out bool failRes, out List<KeyValuePair<string, string>> mergeVars, out string mailExternalId)
         {
             failRes = false;
             string[] seriesNames = null;
@@ -271,6 +271,10 @@ namespace Core.Notification
             DateTime startDate = DateTime.MinValue;
             annExternalId = string.Empty;
             singleQueueName = string.Empty;
+            mergeVars = new List<KeyValuePair<string, string>>();
+            mailExternalId = string.Empty;
+            List<Picture> mediaImages = null;
+            string imageUrl = string.Empty;
 
             // check if announcement is for series, if not - return true to do nothing. if yes, check no msg was sent for series in the last 24H.
             // get topic push external id's of guests and logged in users
@@ -291,6 +295,7 @@ namespace Core.Notification
 
             annExternalId = announcement.ExternalId;
             singleQueueName = announcement.QueueName;
+            mailExternalId = announcement.MailExternalId;
 
             # region get asset details from catalog
             // for tv series msg ref is asset id of the asset msg is for.
@@ -302,7 +307,6 @@ namespace Core.Notification
             }
 
             // send get media to catalog
-            string catalogUrl = Core.Notification.Utils.GetWSURL(NotificationUtils.CATALOG_WS);
             var request = new MediasProtocolRequest()
             {
                 m_sSignature = NotificationUtils.GetSignature(CatalogSignString, CatalogSignatureKey),
@@ -344,8 +348,11 @@ namespace Core.Notification
                             tag.m_oTagMeta.m_sName.ToLower().Trim() == FollowManager.GetEpisodeAssociationTag(groupId).ToLower().Trim())
                         {
                             seriesNames = tag.m_lValues.ToArray();
+                            break;
                         }
                     }
+
+                    mediaImages = mediaObj.m_lPicture;
                 }
             }
 
@@ -364,6 +371,7 @@ namespace Core.Notification
 
             // check in all series messages if any msg was sent in the last 24h
             if (drs != null && drs.Count > 0)
+            {
                 foreach (DataRow row in drs)
                 {
                     MessageAnnouncement msg = Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
@@ -380,6 +388,7 @@ namespace Core.Notification
                         }
                     }
                 }
+            }
 
             log.DebugFormat("HandleRecipientOtherTvSeries: about to send message announcement for: group {0}, asset: {1}, id: {2}", groupId, assetId, messageId);
 
@@ -390,14 +399,15 @@ namespace Core.Notification
                 msgTemplateResponse.Status.Code == (int)eResponseStatus.OK &&
                 msgTemplateResponse.MessageTemplate != null)
             {
+                imageUrl = Utils.GetMediaImageUrlByRatio(mediaImages, msgTemplateResponse.MessageTemplate.RatioId);
+                
                 category = msgTemplateResponse.MessageTemplate.Action;
                 sound = msgTemplateResponse.MessageTemplate.Sound;
-                //ImageUrl = msgTemplateResponse.MessageTemplate.ImageUrl;
                 url = msgTemplateResponse.MessageTemplate.URL.Replace("{" + eFollowSeriesPlaceHolders.CatalaogStartDate + "}", catalogStartDateStr.ToString(msgTemplateResponse.MessageTemplate.DateFormat)).
                                                             Replace("{" + eFollowSeriesPlaceHolders.MediaId + "}", assetId.ToString()).
                                                             Replace("{" + eFollowSeriesPlaceHolders.MediaName + "}", mediaName).
                                                             Replace("{" + eFollowSeriesPlaceHolders.SeriesName + "}", (seriesNames != null && seriesNames.Length > 0) ? seriesNames[0] : string.Empty).
-                                                            Replace("{" + eFollowSeriesPlaceHolders.StartDate + "}", startDate.ToString(msgTemplateResponse.MessageTemplate.DateFormat)); ;
+                                                            Replace("{" + eFollowSeriesPlaceHolders.StartDate + "}", startDate.ToString(msgTemplateResponse.MessageTemplate.DateFormat));
 
                 string message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message");
                 if (!string.IsNullOrEmpty(message))
@@ -406,6 +416,17 @@ namespace Core.Notification
                                             Replace("{" + eFollowSeriesPlaceHolders.MediaName + "}", mediaName).
                                             Replace("{" + eFollowSeriesPlaceHolders.SeriesName + "}", (seriesNames != null && seriesNames.Length > 0) ? seriesNames[0] : string.Empty).
                                             Replace("{" + eFollowSeriesPlaceHolders.StartDate + "}", startDate.ToString(msgTemplateResponse.MessageTemplate.DateFormat));
+
+                mergeVars = new List<KeyValuePair<string, string>>()
+                    {
+                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.CatalaogStartDate.ToString(), catalogStartDateStr.ToString(msgTemplateResponse.MessageTemplate.DateFormat)),
+                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.MediaId.ToString(), assetId.ToString()),
+                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.MediaName.ToString(), mediaName),
+                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.SeriesName.ToString(), (seriesNames != null && seriesNames.Length > 0) ? seriesNames[0] : string.Empty),
+                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.StartDate.ToString(), startDate.ToString(msgTemplateResponse.MessageTemplate.DateFormat)),
+                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.Image.ToString(), imageUrl),
+                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.ReferenceId.ToString(), announcement.FollowReference),
+                    };
             }
 
             return true;
@@ -446,16 +467,22 @@ namespace Core.Notification
                     if (Enum.IsDefined(typeof(eAnnouncementStatus), dbStatus))
                         status = (eAnnouncementStatus)dbStatus;
 
-                    MessageAnnouncement msg = new MessageAnnouncement(ODBCWrapper.Utils.GetSafeStr(row, "name"),
-                                                                      ODBCWrapper.Utils.GetSafeStr(row, "message"),
-                                                                      (ODBCWrapper.Utils.GetIntSafeVal(row, "is_active") == 0) ? false : true,
-                                                                      startTime,
-                                                                      timezone,
-                                                                      recipients,
-                                                                      status,
-                                                                      null,
-                                                                      0,
-                                                                      ODBCWrapper.Utils.GetSafeStr(row, "image_url"));
+                    MessageAnnouncement msg = new MessageAnnouncement()
+                    {
+                        Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                        Message = ODBCWrapper.Utils.GetSafeStr(row, "message"),
+                        Enabled = (ODBCWrapper.Utils.GetIntSafeVal(row, "is_active") == 0) ? false : true,
+                        StartTime = startTime,
+                        Timezone = timezone,
+                        Recipients = recipients,
+                        Status = status,
+                        ImageUrl = ODBCWrapper.Utils.GetSafeStr(row, "image_url"),
+                        MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
+                        MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
+                        IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false),
+                        IncludeSms = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false)
+
+                    };
 
                     msg.MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
 
@@ -473,7 +500,9 @@ namespace Core.Notification
             try
             {
                 DateTime announcementStartTime = ODBCWrapper.Utils.UnixTimestampToDateTime(announcement.StartTime);
-                DataRow row = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, announcement.AnnouncementId, announcement.MessageReference, null, announcement.ImageUrl);
+                DataRow row = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message,
+                    announcement.Enabled, announcementStartTime, announcement.Timezone, 0, announcement.MessageReference, null,
+                    announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeSms, announcement.AnnouncementId);
                 return Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
             }
             catch (Exception ex)
@@ -538,6 +567,11 @@ namespace Core.Notification
         {
             try
             {
+                List<DbAnnouncement> dbAnnouncements = null;
+                NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
+                string announcementName = string.Empty;
+                string externalAnnouncementId = string.Empty;
+
                 // validate system announcements are enabled
                 if (!NotificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
                 {
@@ -545,37 +579,78 @@ namespace Core.Notification
                     return new Status((int)eResponseStatus.FeatureDisabled, "Feature Disabled");
                 }
 
-                // create guest topic
-                string announcementName = "Guest";
-                string externalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
-                if (string.IsNullOrEmpty(externalAnnouncementId))
+                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Guests).FirstOrDefault() == null)
                 {
-                    log.ErrorFormat("CreateSystemAnnouncement failed Create guest announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
-                    return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
+                    // create guest topic
+                    announcementName = "Guest";
+                    externalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
+                    if (string.IsNullOrEmpty(externalAnnouncementId))
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed Create guest announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
+                    }
+
+                    // insert ARN to DB
+                    if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, externalAnnouncementId, (int)eMessageType.Push, (int)eAnnouncementRecipientsType.Guests, string.Empty) == 0)
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed insert guest announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.Error, "fail insert guest announcement to DB");
+                    }
                 }
 
-                // insert ARN to DB
-                if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, externalAnnouncementId, (int)eMessageType.Push, (int)eAnnouncementRecipientsType.Guests) == 0)
+                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn).FirstOrDefault() == null)
                 {
-                    log.ErrorFormat("CreateSystemAnnouncement failed insert guest announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
-                    return new Status((int)eResponseStatus.Error, "fail insert guest announcement to DB");
+                    // create logged-in topic
+                    announcementName = "LoggedIn";
+                    externalAnnouncementId = string.Empty;
+                    externalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
+                    if (string.IsNullOrEmpty(externalAnnouncementId))
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed Create logged in announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create LoggedIn announcement");
+                    }
+
+                    // insert ARN to DB 
+                    if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, externalAnnouncementId, (int)eMessageType.Push, (int)eAnnouncementRecipientsType.LoggedIn, string.Empty) == 0)
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed insert logged in announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.Error, "fail insert Logged in announcement to DB");
+                    }
                 }
 
-                // create logged-in topic
-                announcementName = "LoggedIn";
-                externalAnnouncementId = string.Empty;
-                externalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
-                if (string.IsNullOrEmpty(externalAnnouncementId))
+                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Mail).FirstOrDefault() == null)
                 {
-                    log.ErrorFormat("CreateSystemAnnouncement failed Create logged in announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
-                    return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create LoggedIn announcement");
+                    announcementName = "Mail";
+                    string mailExternalAnnouncementId = MailNotificationAdapterClient.CreateAnnouncement(groupId, announcementName);
+                    if (string.IsNullOrEmpty(mailExternalAnnouncementId))
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed Create mail announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create mail announcement");
+                    }
+
+                    if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, string.Empty, (int)eMessageType.Mail, (int)eAnnouncementRecipientsType.Mail, mailExternalAnnouncementId) == 0)
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed insert mail announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.Error, "fail insert mail announcement to DB");
+                    }
                 }
 
-                // insert ARN to DB 
-                if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, externalAnnouncementId, (int)eMessageType.Push, (int)eAnnouncementRecipientsType.LoggedIn) == 0)
+                if (dbAnnouncements != null && dbAnnouncements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Sms).FirstOrDefault() == null)
                 {
-                    log.ErrorFormat("CreateSystemAnnouncement failed insert logged in announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
-                    return new Status((int)eResponseStatus.Error, "fail insert Logged in announcement to DB");
+                    announcementName = "Sms";
+                    string smsExternalAnnouncementId = NotificationAdapter.CreateAnnouncement(groupId, announcementName);
+                    if (string.IsNullOrEmpty(smsExternalAnnouncementId))
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed Create SMS announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create SMS announcement");
+                    }
+
+                    if (DAL.NotificationDal.Insert_Announcement(groupId, announcementName, smsExternalAnnouncementId, (int)eMessageType.Sms, 
+                        (int)eAnnouncementRecipientsType.Sms, string.Empty) == 0)
+                    {
+                        log.ErrorFormat("CreateSystemAnnouncement failed insert SMS announcement to DB groupID = {0}, announcementName = {1}", groupId, announcementName);
+                        return new Status((int)eResponseStatus.Error, "fail insert SMS announcement to DB");
+                    }
                 }
 
                 NotificationCache.Instance().RemoveAnnouncementsFromCache(groupId);
@@ -593,7 +668,6 @@ namespace Core.Notification
             string url = string.Empty;
             string sound = string.Empty;
             string category = string.Empty;
-            string imageUrl = string.Empty;
 
             // get message announcements
             DataRow messageAnnouncementDataRow = DAL.NotificationDal.Get_MessageAnnouncementWithActiveStatus(messageId);
@@ -629,17 +703,20 @@ namespace Core.Notification
             string singleQueueName = string.Empty;
             List<string> topicExternalIds = new List<string>();
             List<string> queueNames = new List<string>();
+            bool includeMail = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "INCLUDE_EMAIL") == 1;
+            bool includeSms = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "INCLUDE_SMS") == 1;
+            string mailTemplate = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "MAIL_TEMPLATE");
+            string mailSubject = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "MAIL_SUBJECT");
+
+            // in case system announcement - the image URL is taken from the message announcement and not from template
+            string imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "image_url");
 
             List<DbAnnouncement> announcements = null;
             NotificationCache.TryGetAnnouncements(groupId, ref announcements);
 
-
             switch (recipients)
             {
                 case eAnnouncementRecipientsType.All:
-
-                    // in case system announcement - the image URL is taken from the message announcement and not from template
-                    imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "image_url");
 
                     if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {
@@ -674,6 +751,17 @@ namespace Core.Notification
                             log.ErrorFormat("Error while setting system announcement inbox message. GID: {0}, InboxMessage: {1}", groupId, JsonConvert.SerializeObject(inboxMessage));
                     }
 
+                    if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && includeMail)
+                    {
+                        PublishMailSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, mailTemplate, mailSubject);
+                    }
+
+                    if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
+                    {
+                        PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
+                            ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+                    }
+
                     // add the Q name to list to be sent to later
                     DbAnnouncement loggedInAnnouncement = null;
                     if (announcements != null)
@@ -688,13 +776,12 @@ namespace Core.Notification
 
                     if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {
-                        // in case system announcement - the image URL is taken from the message announcement and not from template
-                        imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "image_url");
+                        DbAnnouncement announcementGuest = null;
+                        if (announcements != null)
+                            announcementGuest = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Guests).FirstOrDefault();
 
-                        // get topic push external id's of guests users
-                        singleTopicExternalId = DAL.NotificationDal.Get_AnnouncementExternalIdByRecipients(groupId, (int)recipients);
-                        if (!string.IsNullOrEmpty(singleTopicExternalId))
-                            topicExternalIds.Add(singleTopicExternalId);
+                        if (announcementGuest != null)
+                            topicExternalIds.Add(announcementGuest.ExternalId);
                         else
                         {
                             DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
@@ -703,19 +790,30 @@ namespace Core.Notification
                         }
                     }
 
-                    break;
+                    if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && includeMail)
+                    {
+                        PublishMailSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, mailTemplate, mailSubject);
+                    }
+
+                    if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
+                    {
+                        PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, 
+                            ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+                    }
+
+                        break;
 
                 case eAnnouncementRecipientsType.LoggedIn:
-
-                    // in case system announcement - the image URL is taken from the message announcement and not from template
-                    imageUrl = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "image_url");
 
                     if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {
                         // get topic push external id's of logged-in users
-                        singleTopicExternalId = DAL.NotificationDal.Get_AnnouncementExternalIdByRecipients(groupId, (int)recipients);
-                        if (!string.IsNullOrEmpty(singleTopicExternalId))
-                            topicExternalIds.Add(singleTopicExternalId);
+                        DbAnnouncement announcementLoggedIn = null;
+                        if (announcements != null)
+                            announcementLoggedIn = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn).FirstOrDefault();
+
+                        if (announcementLoggedIn != null)
+                            topicExternalIds.Add(announcementLoggedIn.ExternalId);
                         else
                         {
                             DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
@@ -743,7 +841,17 @@ namespace Core.Notification
                             log.ErrorFormat("Error while setting system announcement inbox message. GID: {0}, InboxMessage: {1}", groupId, JsonConvert.SerializeObject(inboxMessage));
                     }
 
-                    // add the Q name to list to be sent to later
+                    if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && includeMail)
+                    {
+                        PublishMailSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, mailTemplate, mailSubject);
+                    }
+
+                    if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
+                    {
+                        PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
+                            ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+                    }
+
                     // add the Q name to list to be sent to later
                     DbAnnouncement loggedInAnn = null;
                     if (announcements != null)
@@ -766,7 +874,10 @@ namespace Core.Notification
                         return false;
                     }
 
-                    if (!HandleRecipientOtherTvSeries(groupId, messageId, startTime, announcementId, ref messageAnnouncementDataRow, ref url, ref imageUrl, ref sound, ref category, out singleTopicExternalId, out singleQueueName, out res))
+                    List<KeyValuePair<string, string>> mergeVars = null;
+                    string mailExternalId = string.Empty;
+                    if (!HandleRecipientOtherTvSeries(groupId, messageId, startTime, announcementId, ref messageAnnouncementDataRow, ref url, ref imageUrl, ref sound, ref category, out singleTopicExternalId,
+                        out singleQueueName, out res, out mergeVars, out mailExternalId))
                     {
                         DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
                         return res;
@@ -779,7 +890,6 @@ namespace Core.Notification
                     // add the Q name to list to be sent to later
                     if (!string.IsNullOrEmpty(singleQueueName))
                         queueNames.Add(singleQueueName);
-
 
                     // send inbox messages
                     if (NotificationSettings.IsPartnerInboxEnabled(groupId))
@@ -812,13 +922,46 @@ namespace Core.Notification
                                     log.DebugFormat("Successfully inserted user message inbox. Group ID: {0}, Inbox message: {1},  TTL in days: {2}", groupId, JsonConvert.SerializeObject(inboxMessage), TtlDays);
                             }
                     }
+
+                    if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && !string.IsNullOrEmpty(mailExternalId))
+                    {
+                        var msgTemplateResponse = FollowManager.GetMessageTemplate(groupId, MessageTemplateType.Series);
+                        if (msgTemplateResponse != null &&
+                            msgTemplateResponse.Status != null &&
+                            msgTemplateResponse.Status.Code == (int)eResponseStatus.OK &&
+                            msgTemplateResponse.MessageTemplate != null)
+                        {
+                            string subject = msgTemplateResponse.MessageTemplate.MailSubject;
+                            string template = msgTemplateResponse.MessageTemplate.MailTemplate;
+                            foreach (var mergeVar in mergeVars)
+                            {
+                                subject = subject.Replace("{" + mergeVar.Key + "}", mergeVar.Value);
+                            }
+
+                            if (!MailNotificationAdapterClient.PublishToAnnouncement(groupId, mailExternalId, subject, mergeVars, template))
+                            {
+                                log.ErrorFormat("failed to send follow announcement to mail adapter. annoucementId = {0}", announcementId);
+                            }
+                            else
+                            {
+                                log.DebugFormat("Successfully sent follow announcement to mail. announcementId: {0}", announcementId);
+
+                                // update follow external result
+                                if (NotificationDal.AddMailExternalResult(groupId, announcementId, MailMessageType.Follow, string.Empty, true) == 0)
+                                {
+                                    log.ErrorFormat("Failed to add mail external result for follow announcement. announcementId = {0}", announcementId);
+                                }
+                            }
+                        }
+                    }
+
                     break;
             }
 
             string resultMsgIds = "";
 
             // send push messages
-            if (NotificationSettings.IsPartnerPushEnabled(groupId))
+            if (NotificationSettings.IsPartnerPushEnabled(groupId) || NotificationSettings.IsPartnerSmsNotificationEnabled(groupId))
             {
                 // send to Amazon
                 if (topicExternalIds != null && topicExternalIds.Count > 0)
@@ -870,6 +1013,62 @@ namespace Core.Notification
             DAL.NotificationDal.Update_MessageAnnouncementSent(messageId, groupId, (int)eAnnouncementStatus.Sent);
             DAL.NotificationDal.Update_MessageAnnouncementResultMessageId(messageId, groupId, resultMsgIds);
             return true;
+        }
+
+        private static void PublishSmsSystemAnnouncement(int groupId, DataRow messageAnnouncementDataRow, List<DbAnnouncement> announcements,
+            string alert, string url, string sound, string category, string imageUrl)
+        {
+            DbAnnouncement smsAnnouncement = null;
+
+            if (announcements != null)
+                smsAnnouncement = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Sms).FirstOrDefault();
+
+            if (smsAnnouncement != null)
+            {
+                string resultMsgId = NotificationAdapter.PublishToAnnouncement(groupId, smsAnnouncement.ExternalId, string.Empty,
+                    new MessageData()
+                    {
+                        Alert = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
+                        Url = url,
+                        Sound = sound,
+                        Category = category,
+                        ImageUrl = imageUrl
+                    });
+                if (string.IsNullOrEmpty(resultMsgId))
+                {
+                    log.ErrorFormat("failed to send SMS system announcement to adapter. annoucementId = {0}", smsAnnouncement.ID);
+                }
+                else
+                {
+                    log.DebugFormat("Successfully sent SMS system announcement. announcementId: {0}", smsAnnouncement.ID);
+                }
+            }
+        }
+
+        private static void PublishMailSystemAnnouncement(int groupId, DataRow messageAnnouncementDataRow, List<DbAnnouncement> announcements, string template, string subject)
+        {
+            DbAnnouncement mailAnnouncement = null;
+
+            if (announcements != null)
+                mailAnnouncement = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.Mail).FirstOrDefault();
+
+            if (mailAnnouncement != null)
+            {
+                if (!MailNotificationAdapterClient.PublishToAnnouncement(groupId, mailAnnouncement.MailExternalId, subject, null, template))
+                {
+                    log.ErrorFormat("failed to send system announcement to mail adapter. annoucementId = {0}", mailAnnouncement.ID);
+                }
+                else
+                {
+                    log.DebugFormat("Successfully sent system announcement to mail. announcementId: {0}", mailAnnouncement.ID);
+
+                    // update system external result
+                    if (NotificationDal.AddMailExternalResult(groupId, mailAnnouncement.ID, MailMessageType.SystemAnnouncement, string.Empty, true) == 0)
+                    {
+                        log.ErrorFormat("Failed to add mail external result for system announcement. announcementId = {0}", mailAnnouncement.ID);
+                    }
+                }
+            }
         }
 
         public static Status DeleteAnnouncement(int groupId, long announcementId)

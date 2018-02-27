@@ -36,5 +36,8 @@ namespace ApiObjects.Notification
 
         [DataMember]
         public string TopicInterestId { get; set; }
+
+        [DataMember]
+        public string MailExternalId { get; set; }
     }
 }

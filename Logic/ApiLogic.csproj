@@ -448,11 +448,13 @@
     <Compile Include="Modules\Users.cs" />
     <Compile Include="Notification\Adapters\DmsAdapter.cs" />
     <Compile Include="Notification\Adapters\EngagementAdapterClient.cs" />
+    <Compile Include="Notification\Adapters\MailNotificationAdapterClient.cs" />
     <Compile Include="Notification\Adapters\NotificationAdapter.cs" />
     <Compile Include="Notification\AnnouncementManager.cs" />
     <Compile Include="Notification\BaseImplementor.cs" />
     <Compile Include="Notification\BaseNotification.cs" />
     <Compile Include="Notification\BroadcastImplementor.cs" />
+    <Compile Include="Notification\SmsAnnouncementsHelper.cs" />
     <Compile Include="Notification\Datatable.cs" />
     <Compile Include="Notification\DeviceNotification.cs" />
     <Compile Include="Notification\ElisaEmailNotification.cs" />
@@ -466,6 +468,7 @@
     <Compile Include="Notification\IFactoryImp.cs" />
     <Compile Include="Notification\ImplementorsFactory.cs" />
     <Compile Include="Notification\IRequestImp.cs" />
+    <Compile Include="Notification\MailAnnouncementsHelper.cs" />
     <Compile Include="Notification\MessageBoxServiceWrapper.cs" />
     <Compile Include="Notification\MessageInboxManger.cs" />
     <Compile Include="Notification\Notification.cs" />
@@ -574,6 +577,11 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Service References\EngagementAdapterService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\MailNotificationsAdapterService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -890,6 +898,7 @@
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Properties\DataSources\AdapterControllers.RecommendationEngineAdapter.AdapterStatus.datasource" />
     <None Include="Properties\DataSources\AdapterControllers.RecommendationEngineAdapter.RecommendationsResult.datasource" />
@@ -961,6 +970,31 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\EngagementAdapterService\Service32.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AdapterStatus.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AnnouncementListResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AnnouncementResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\Service1.wsdl" />
+    <None Include="Service References\MailNotificationsAdapterService\Service5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\Service51.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\Service52.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\Service53.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MailNotificationsAdapterService\Service54.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.AdapterStatus.datasource">
@@ -1180,6 +1214,7 @@
     <WCFMetadataStorage Include="Service References\AmazonSnsAdapter\" />
     <WCFMetadataStorage Include="Service References\DmsService\" />
     <WCFMetadataStorage Include="Service References\EngagementAdapterService\" />
+    <WCFMetadataStorage Include="Service References\MailNotificationsAdapterService\" />
     <WCFMetadataStorage Include="Service References\PaymentGWAdapter\" />
   </ItemGroup>
   <ItemGroup>
@@ -1268,6 +1303,21 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\MailNotificationsAdapterService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\MailNotificationsAdapterService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\MailNotificationsAdapterService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\MailNotificationsAdapterService\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
