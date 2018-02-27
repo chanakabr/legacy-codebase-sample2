@@ -1406,34 +1406,34 @@ namespace Core.Notification
                     case eUserMessageAction.EnableUserSmsNotifications:
                         result = EnableUserSmsNotification(groupId, userId, userNotificationData);
                         if (result)
-                            log.Debug("Successfully enabled user mail notifications");
+                            log.Debug("Successfully enabled user SMS notifications");
                         else
-                            log.Error("Error enabling user mail notifications");
+                            log.Error("Error enabling user sms notifications");
                         break;
 
                     case eUserMessageAction.DisableUserSmsNotifications:
                         result = DisableUserSmsNotifications(groupId, userId, userNotificationData);
                         if (result)
-                            log.Debug("Successfully disabled user mail notifications");
+                            log.Debug("Successfully disabled user SMS notifications");
                         else
-                            log.Error("Error disabling user mail notifications");
+                            log.Error("Error disabling user SMS notifications");
                         break;
                     case eUserMessageAction.UpdateUser:
                         result = HandleUpdateUserForSmsNotification(groupId, userId, userNotificationData);
                         if (result)
-                            log.Debug("Successfully updated user data for mail notifications");
+                            log.Debug("Successfully updated user data for SMS notifications");
                         else
-                            log.Error("Error occurred while trying to update user data for mail notifications");
+                            log.Error("Error occurred while trying to update user data for SMS notifications");
                         break;
                     case eUserMessageAction.Signup:
                         result = HandleUserSignUpForSmsNotification(groupId, userId, userNotificationData);
                         if (result)
-                            log.Debug("Successfully enabled user mail notifications");
+                            log.Debug("Successfully enabled user SMS notifications");
                         else
-                            log.Error("Error enabling user mail notifications");
+                            log.Error("Error enabling user SMS notifications");
                         break;
                     default:
-                        log.ErrorFormat("Unidentified mail notification action requested. action: {0}", userAction);
+                        log.ErrorFormat("Unidentified SMS notification action requested. action: {0}", userAction);
                         break;
                 }
             }
