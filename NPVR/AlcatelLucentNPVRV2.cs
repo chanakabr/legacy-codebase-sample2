@@ -1,19 +1,18 @@
 ﻿using ApiObjects;
 using ApiObjects.Epg;
+using CachingProvider.LayeredCache;
+using KLogMonitor;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NPVR.AlcatelLucentResponses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using KLogMonitor;
-using System.Reflection;
 using Tvinci.Core.DAL;
 using TVinciShared;
-using CachingProvider.LayeredCache;
-using Newtonsoft.Json.Linq;
 
 namespace NPVR
 {
@@ -21,7 +20,7 @@ namespace NPVR
      * Don't change the visibility of this class to public. Any communication with a third party NPVR Provider should be done via
      * the interface INPVRProvider.
      */
-    internal class AlcatelLucentNPVR : INPVRProvider
+    internal class AlcatelLucentNPVR2 : INPVRProvider
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -123,7 +122,7 @@ namespace NPVR
         private int groupID;
         public bool SynchronizeNpvrWithDomain { get; set; }
 
-        public AlcatelLucentNPVR(int groupID, bool synchronizeNpvrWithDomain)
+        public AlcatelLucentNPVR2(int groupID, bool synchronizeNpvrWithDomain)
         {
             this.groupID = groupID;
             SynchronizeNpvrWithDomain = synchronizeNpvrWithDomain;
@@ -342,7 +341,7 @@ namespace NPVR
 
             return res;
         }
-        
+
         public NPVRCancelDeleteResponse CancelAsset(NPVRParamsObj args)
         {
             NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
@@ -396,7 +395,7 @@ namespace NPVR
 
             return res;
         }
-        
+
         public NPVRCancelDeleteResponse DeleteAsset(NPVRParamsObj args)
         {
             NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
@@ -448,7 +447,7 @@ namespace NPVR
 
             return res;
         }
-        
+
         public NPVRProtectResponse SetAssetProtectionStatus(NPVRParamsObj args)
         {
             NPVRProtectResponse res = new NPVRProtectResponse();
@@ -517,7 +516,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_NAME_URL_PARAM, "alreadyWatched"));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_VALUE_URL_PARAM, args.Value.ToString()));                    
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_VALUE_URL_PARAM, args.Value.ToString()));
 
                     string url = BuildRestCommand(ALU_RECORD_COMMAND, ALU_ENDPOINT_UPDATE_FIELD, urlParams);
 
@@ -529,7 +528,7 @@ namespace NPVR
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
-                            GetRecordSeriesResponse(responseJson, args, res);                            
+                            GetRecordSeriesResponse(responseJson, args, res);
                         }
                         else
                         {
@@ -542,7 +541,7 @@ namespace NPVR
                         res.recordingID = args.AssetID;
                         res.status = RecordStatus.Error;
                         res.entityID = args.EntityID;
-                        res.msg = "An error occurred. Refer to server log files.";                        
+                        res.msg = "An error occurred. Refer to server log files.";
                     }
                 }
                 else
@@ -683,7 +682,7 @@ namespace NPVR
                 if (IsRecordAssetInputValid(args))
                 {
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "2.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
@@ -729,7 +728,7 @@ namespace NPVR
 
             return res;
         }
-        
+
         // new implementation to support RecordSeriesBySeriesId 
         public NPVRRecordResponse RecordSeries(NPVRRecordObj args)
         {
@@ -751,8 +750,12 @@ namespace NPVR
                     {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_SEASON_NUMBER, args.SeasonNumber.ToString()));
                     }
-                    
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_EPISODE_SEED, args.EpisodeSeed.ToString()));
+
+                    if (args.EpisodeSeed > 0)
+                    {
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_EPISODE_SEED, args.EpisodeSeed.ToString()));
+                    }
+
                     urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
 
                     if (args.LookupCriteria != null && args.LookupCriteria.Count > 0)
@@ -815,7 +818,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ID_URL_PARAM, args.AssetID));
 
                     string url = BuildRestCommand(ALU_CANCEL_COMMAND, ALU_ENDPOINT_SERIES, urlParams);
-                   
+
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
@@ -1292,7 +1295,7 @@ namespace NPVR
                 }
             }
         }
-              
+
         private string GetLogMsg(string msg, NPVRParamsObj obj, Exception ex)
         {
             StringBuilder sb = new StringBuilder(String.Concat(msg, "."));
@@ -2163,8 +2166,12 @@ namespace NPVR
         {
             string baseUrl = TVinciShared.WS_Utils.GetTcmGenericValue<string>(String.Concat("ALU_BASE_URL_", groupID));
             bool isAddSlash = !baseUrl.EndsWith("/");
-            return String.Concat(baseUrl, isAddSlash ? "/" : string.Empty, ALU_GENERIC_BODY, endPoint, method, "?",
+            string url =  String.Concat(baseUrl, isAddSlash ? "/" : string.Empty, ALU_GENERIC_BODY, endPoint, method, "?",
                 TVinciShared.WS_Utils.BuildDelimiterSeperatedString(urlParams, "&", false, false));
+
+            log.DebugFormat("BuildRestCommand url: {0}", url);
+
+            return url;
         }
 
         private void GetCreateAccountResponse(string responseJson, NPVRParamsObj args, NPVRUserActionResponse response)

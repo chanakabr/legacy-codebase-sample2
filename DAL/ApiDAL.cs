@@ -3262,8 +3262,8 @@ namespace DAL
                         case ePermissionItemType.Action:
                             permissionItem = new ApiActionPermissionItem()
                             {
-                                Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION"),
-                                Service = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "SERVICE"),
+                                Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION").Trim(),
+                                Service = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "SERVICE").Trim(),
                                 IsExcluded = isExcluded,
 
                             };
@@ -3271,18 +3271,18 @@ namespace DAL
                         case ePermissionItemType.Parameter:
                             permissionItem = new ApiParameterPermissionItem()
                             {
-                                Object = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "OBJECT"),
-                                Parameter = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "PARAMETER"),
-                                Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION"),
+                                Object = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "OBJECT").Trim(),
+                                Parameter = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "PARAMETER").Trim(),
+                                Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION").Trim(),
                                 IsExcluded = isExcluded,
                             };
                             break;
                         case ePermissionItemType.Argument:
                             permissionItem = new ApiArgumentPermissionItem()
                             {
-                                Service = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "SERVICE"),
-                                Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION"),
-                                Parameter = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "PARAMETER"),
+                                Service = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "SERVICE").Trim(),
+                                Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION").Trim(),
+                                Parameter = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "PARAMETER").Trim(),
                                 IsExcluded = isExcluded
                             };
                             break;

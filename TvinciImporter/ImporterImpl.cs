@@ -4394,9 +4394,9 @@ namespace TvinciImporter
 
                 string size = GetItemParameterVal(ref theItem, "file_size");
                 long fileSize = 0;
-                if (!long.TryParse(size, out fileSize))
+                if (!string.IsNullOrEmpty(size) && !long.TryParse(size, out fileSize))
                 {
-                    log.DebugFormat("FileSize: {0} is Empty or not valid. groupId: {1}", size, nGroupID);
+                    log.DebugFormat("FileSize: {0} is not valid", size);
                 }
 
                 // try to parse the files date correctly
@@ -5413,7 +5413,8 @@ namespace TvinciImporter
 
         #region Notification
 
-        static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, string imageUrl, ref int id)
+        static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, 
+            string timezone, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSMS, ref int id)
         {
             AddMessageAnnouncementResponse response = null;
             try
@@ -5437,6 +5438,10 @@ namespace TvinciImporter
                 announcement.Timezone = timezone;
                 announcement.Enabled = Enabled;
                 announcement.ImageUrl = imageUrl;
+                announcement.IncludeMail = includeMail;
+                announcement.MailTemplate = mailTemplate;
+                announcement.MailSubject = mailSubject;
+                announcement.IncludeSms = includeSMS;
                 response = service.AddMessageAnnouncement(sWSUserName, sWSPass, announcement);
                 if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
@@ -5450,7 +5455,8 @@ namespace TvinciImporter
             }
         }
 
-        static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, string imageUrl)
+        static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date,                 
+            string timezone, string imageUrl, bool includeMail ,string  mailTemplate, string mailSubject, bool includeSms)
         {
             try
             {
@@ -5474,6 +5480,11 @@ namespace TvinciImporter
                 announcement.MessageAnnouncementId = id;
                 announcement.Enabled = Enabled;
                 announcement.ImageUrl = imageUrl;
+                announcement.IncludeMail = includeMail;
+                announcement.MailTemplate = mailTemplate;
+                announcement.MailSubject = mailSubject;
+                announcement.MailSubject = mailSubject;
+                announcement.IncludeSms = includeSms;
                 MessageAnnouncementResponse response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, id, announcement);
                 return response.Status;
             }
@@ -5642,7 +5653,10 @@ namespace TvinciImporter
                     Action = messageTemplate.Action,
                     URL = messageTemplate.URL,
                     Id = messageTemplate.Id,
-                    DateFormat = messageTemplate.DateFormat
+                    DateFormat = messageTemplate.DateFormat,
+                    MailSubject = messageTemplate.MailSubject,
+                    MailTemplate = messageTemplate.MailTemplate,
+                    RatioId = messageTemplate.RatioId
                 };
 
                 response = service.SetMessageTemplate(sWSUserName, sWSPass, wcfMessageTemplate);
@@ -5654,12 +5668,19 @@ namespace TvinciImporter
                         Message = response.MessageTemplate.Message,
                         DateFormat = response.MessageTemplate.DateFormat,
                         TemplateType = response.MessageTemplate.TemplateType,
+                        MailSubject = response.MessageTemplate.MailSubject,
+                        MailTemplate  = response.MessageTemplate.MailTemplate,
+                        Action =   response.MessageTemplate.Action,
+                        Sound = response.MessageTemplate.Sound,
+                        URL = response.MessageTemplate.URL,
+                        RatioId = response.MessageTemplate.RatioId
                     };
                 }
                 return response.Status;
             }
-            catch
+            catch(Exception exc)
             {
+                log.ErrorFormat("Error while call service.SetMessageTemplate ex:{0}", exc);
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
         }
@@ -5725,6 +5746,30 @@ namespace TvinciImporter
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
         }
+
+        public static Status SetMailNotificationsAdapterConfiguration(int groupId, int adapterId)
+        {
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                TVinciShared.WS_Utils.GetWSUNPass(groupId, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+
+                return service.SetMailNotificationsAdapterConfiguration(sWSUserName, sWSPass, adapterId);
+            }
+            catch
+            {
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+        }
+
 
         #endregion
 
@@ -6514,6 +6559,8 @@ namespace TvinciImporter
 
             return result;
         }
+
+
     }
 }
 

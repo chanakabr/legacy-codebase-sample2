@@ -1,10 +1,7 @@
 ﻿using DAL;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using KLogMonitor;
 using System.Reflection;
 
 namespace NPVR
@@ -40,10 +37,11 @@ namespace NPVR
             return instance;
         }
 
-        private NPVRProvider GetGroupNPVRImpl(int groupID, out bool synchronizeNpvrWithDomain)
+        private NPVRProvider GetGroupNPVRImpl(int groupID, out bool synchronizeNpvrWithDomain, out int version)
         {
-            NPVRProviderImp providerImp = new NPVRProviderImp(NPVRProvider.None, false);
+            NPVRProviderImp providerImp = new NPVRProviderImp(NPVRProvider.None, false, 0);
             synchronizeNpvrWithDomain = false;
+            version = 0;
 
             if (!groupsToNPVRImplMapping.ContainsKey(groupID))
             {
@@ -51,7 +49,7 @@ namespace NPVR
                 {
                     if (!groupsToNPVRImplMapping.ContainsKey(groupID))
                     {
-                        int npvrProviderID = UtilsDal.Get_NPVRProviderID(groupID, out synchronizeNpvrWithDomain);
+                        int npvrProviderID = UtilsDal.Get_NPVRProviderID(groupID, out synchronizeNpvrWithDomain, out version);
                         if (Enum.IsDefined(typeof(NPVRProvider), npvrProviderID))
                         {
                             providerImp.npvrProvider = (NPVRProvider)npvrProviderID;
@@ -61,12 +59,13 @@ namespace NPVR
                             log.Error("Error - " + string.Format("Unknown NPVR Provider ID extracted from DB. G ID: {0} , NPVR ID: {1}", groupID, npvrProviderID));
                         }
 
-                        groupsToNPVRImplMapping.Add(groupID, new NPVRProviderImp(providerImp.npvrProvider, synchronizeNpvrWithDomain));
+                        groupsToNPVRImplMapping.Add(groupID, new NPVRProviderImp(providerImp.npvrProvider, synchronizeNpvrWithDomain, version));
                     }
                     else
                     {
                         providerImp = groupsToNPVRImplMapping[groupID];
                         synchronizeNpvrWithDomain = providerImp.synchronizeNpvrWithDomain;
+                        version = providerImp.version;
                     }
                 }
             }
@@ -74,28 +73,58 @@ namespace NPVR
             {
                 providerImp = groupsToNPVRImplMapping[groupID];
                 synchronizeNpvrWithDomain = providerImp.synchronizeNpvrWithDomain;
+                version = providerImp.version;
             }
 
             return providerImp.npvrProvider;
         }
 
-        public bool IsGroupHaveNPVRImpl(int groupID, out INPVRProvider npvr)
+        public bool IsGroupHaveNPVRImpl(int groupID, out INPVRProvider npvr, int? version)
         {
-            npvr = GetProvider(groupID);
+            npvr = GetProvider(groupID, version);
             return npvr != null;
         }
 
-        public INPVRProvider GetProvider(int groupID)
+        public INPVRProvider GetProvider(int groupID, int? version)
         {
             INPVRProvider res = null;
             bool synchronizeNpvrWithDomain = false;
-            NPVRProvider provider = GetGroupNPVRImpl(groupID, out synchronizeNpvrWithDomain);
+            int dbVersion = 0;
+            NPVRProvider provider = GetGroupNPVRImpl(groupID, out synchronizeNpvrWithDomain, out dbVersion);
+
+            log.DebugFormat("NPVR int version: {0}, dbVersion: {1}", version.HasValue ? version.Value.ToString() : string.Empty, dbVersion);
+
             switch (provider)
             {
                 case NPVRProvider.None:
                     break;
                 case NPVRProvider.AlcatelLucent:
-                    res = new AlcatelLucentNPVR(groupID, synchronizeNpvrWithDomain);
+                    if (version.HasValue)
+                    {
+                        if (version.Value == 2)
+                        {
+                            res = new AlcatelLucentNPVR2(groupID, synchronizeNpvrWithDomain);
+                            log.Debug("NPVR provider: AlcatelLucentNPVR2");
+                        }
+                        else
+                        {
+                            res = new AlcatelLucentNPVR1(groupID, synchronizeNpvrWithDomain);
+                            log.Debug("NPVR provider: AlcatelLucentNPVR1");
+                        }
+                    }
+                    else
+                    {
+                        if (dbVersion == 2)
+                        {
+                            res = new AlcatelLucentNPVR2(groupID, synchronizeNpvrWithDomain);
+                            log.Debug("NPVR provider: AlcatelLucentNPVR2");
+                        }
+                        else
+                        {
+                            res = new AlcatelLucentNPVR1(groupID, synchronizeNpvrWithDomain);
+                            log.Debug("NPVR provider: AlcatelLucentNPVR1");
+                        }
+                    }
                     break;
                 case NPVRProvider.Kaltura:
                 // fall through

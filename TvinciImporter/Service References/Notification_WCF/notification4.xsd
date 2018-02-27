@@ -1,12 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://172.31.6.89:8030/Notifications_V4_6/ws_notification_service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="ArrayOfKeyValuePair">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfKeyValuePair" nillable="true" type="tns:ArrayOfKeyValuePair" />
+  <xs:complexType name="KeyValuePair">
+    <xs:sequence>
+      <xs:element name="_x003C_key_x003E_k__BackingField" nillable="true" type="xs:string" />
+      <xs:element name="_x003C_value_x003E_k__BackingField" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
   <xs:simpleType name="eAnnouncementRecipientsType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="All" />
       <xs:enumeration value="LoggedIn" />
       <xs:enumeration value="Guests" />
       <xs:enumeration value="Other" />
+      <xs:enumeration value="Mail" />
+      <xs:enumeration value="Sms" />
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eAnnouncementRecipientsType" nillable="true" type="tns:eAnnouncementRecipientsType" />
@@ -29,6 +44,13 @@
       <xs:enumeration value="ChangeUsers" />
       <xs:enumeration value="EnableUserNotifications" />
       <xs:enumeration value="DisableUserNotifications" />
+      <xs:enumeration value="DeleteDevice" />
+      <xs:enumeration value="EnableUserMailNotifications" />
+      <xs:enumeration value="DisableUserMailNotifications" />
+      <xs:enumeration value="UpdateUser" />
+      <xs:enumeration value="Signup" />
+      <xs:enumeration value="EnableUserSmsNotifications" />
+      <xs:enumeration value="DisableUserSmsNotifications" />
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eUserMessageAction" nillable="true" type="tns:eUserMessageAction" />
