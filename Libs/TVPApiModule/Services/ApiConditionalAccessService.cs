@@ -1569,8 +1569,7 @@ namespace TVPApiModule.Services
                     couponCode = couponCode,
                     format = 3,
                     wsPassword = m_wsPassword,
-                    wsUsername = m_wsUserName,
-                    Version = 1
+                    wsUsername = m_wsUserName
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
