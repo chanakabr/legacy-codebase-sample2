@@ -28,19 +28,29 @@ namespace RemoteTasksService
 
             try
             {
-                // update request ID
+                string actionImplementation = string.Empty;
                 if (request != null)
                 {
+                    // update request ID
                     string requestId = string.Empty;
                     if (ExtractRequestID(request.data, ref requestId))
                         if (!KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(KLogMonitor.Constants.REQUEST_ID_KEY, requestId))
                             log.ErrorFormat("Error while trying to update request ID. request: {0}, req_id: {1}", JsonConvert.SerializeObject(request), requestId);
+
+                    // extract action if exists
+                    if (!string.IsNullOrEmpty(request.data))
+                        ExtractActionImplementation(request.data, ref actionImplementation);
                 }
 
                 log.DebugFormat("Info - Add Task Request Started: {0}, data: {1}", request.task, request.data);
 
-                string taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}", request.task));
-                              
+                // get task handler name (with/without action)
+                string taskHandlerName = string.Empty;
+                if (string.IsNullOrEmpty(actionImplementation))
+                    taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}", request.task));
+                else
+                    taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}.{1}", request.task, actionImplementation));
+
                 log.Debug("Info - " + string.Format("Request: {0} should be handled by taskHandlerName: {1}", request.task, string.IsNullOrEmpty(taskHandlerName) ? string.Empty : taskHandlerName));
 
                 ITaskHandler taskHandler = (ITaskHandler)Activator.CreateInstance(Type.GetType(string.Format("{0}.TaskHandler, {0}", taskHandlerName)));
@@ -79,6 +89,28 @@ namespace RemoteTasksService
             catch (Exception ex)
             {
                 log.ErrorFormat("Error extracting request ID. messageData: {0}, ex: {1}", messageData, ex);
+            }
+            return false;
+        }
+
+        private bool ExtractActionImplementation(string extraParams, ref string action)
+        {
+            try
+            {
+                action = string.Empty;
+                if (!string.IsNullOrEmpty(extraParams))
+                {
+                    var actionContainer = JsonConvert.DeserializeObject<Action>(extraParams);
+                    if (actionContainer != null && !string.IsNullOrEmpty(actionContainer.ActionImp))
+                    {
+                        action = actionContainer.ActionImp;
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error extracting request ID. messageData: {0}, ex: {1}", extraParams, ex);
             }
             return false;
         }
