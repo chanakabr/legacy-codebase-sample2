@@ -1,4 +1,5 @@
-﻿using DAL;
+﻿using ApiObjects;
+using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -99,7 +100,7 @@ namespace NPVR
                 case NPVRProvider.None:
                     break;
                 case NPVRProvider.AlcatelLucent:
-                    if (version.HasValue)
+                    if (version.HasValue && Enum.IsDefined(typeof(AlcatelLucentNPVRVersion), version.Value))
                     {
                         if (version.Value == 2)
                         {

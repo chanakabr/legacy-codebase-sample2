@@ -63,7 +63,7 @@ namespace AdapterControllers
 
             if (adapter != null && !string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                RecommendationEngineAdapter.ServiceClient client = new RecommendationEngineAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);
+                CdnAdapter.ServiceClient client = new CdnAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);
 
                 //set unixTimestamp
                 long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -73,9 +73,8 @@ namespace AdapterControllers
 
                 try
                 {
-                    RecommendationEngineAdapter.AdapterStatus adapterResponse =
-                        client.SetConfiguration(adapter.ID,
-                        adapter.Settings != null ? adapter.Settings.Select(setting => new RecommendationEngineAdapter.KeyValue()
+                    CdnAdapter.AdapterStatus adapterResponse =
+                        client.SetConfiguration(adapter.ID, adapter.Settings != null ? adapter.Settings.Select(setting => new CdnAdapter.KeyValue()
                         {
                             Key = setting.key,
                             Value = setting.value
