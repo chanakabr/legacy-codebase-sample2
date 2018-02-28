@@ -28,7 +28,7 @@ namespace RemoteTasksService
 
             try
             {
-                string action = string.Empty;
+                string actionImplementation = string.Empty;
                 if (request != null)
                 {
                     // update request ID
@@ -39,17 +39,17 @@ namespace RemoteTasksService
 
                     // extract action if exists
                     if (!string.IsNullOrEmpty(request.data))
-                        ExtractAction(request.data, ref action);
+                        ExtractActionImplementation(request.data, ref actionImplementation);
                 }
 
                 log.DebugFormat("Info - Add Task Request Started: {0}, data: {1}", request.task, request.data);
 
                 // get task handler name (with/without action)
                 string taskHandlerName = string.Empty;
-                if (string.IsNullOrEmpty(action))
+                if (string.IsNullOrEmpty(actionImplementation))
                     taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}", request.task));
                 else
-                    taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}.{1}", request.task, action));
+                    taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}.{1}", request.task, actionImplementation));
 
                 log.Debug("Info - " + string.Format("Request: {0} should be handled by taskHandlerName: {1}", request.task, string.IsNullOrEmpty(taskHandlerName) ? string.Empty : taskHandlerName));
 
@@ -93,7 +93,7 @@ namespace RemoteTasksService
             return false;
         }
 
-        private bool ExtractAction(string extraParams, ref string action)
+        private bool ExtractActionImplementation(string extraParams, ref string action)
         {
             try
             {

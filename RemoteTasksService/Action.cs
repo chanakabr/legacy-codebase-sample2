@@ -9,7 +9,7 @@ namespace RemoteTasksService
     [Serializable]
     public class Action
     {
-        [JsonProperty("action")]
+        [JsonProperty("actionImplementation")]
         public string ActionImp { get; set; }
     }
 }
