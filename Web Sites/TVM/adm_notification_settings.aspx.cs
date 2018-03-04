@@ -176,7 +176,8 @@ public partial class adm_notification_settings : System.Web.UI.Page
             theRecord.AddRecord(drDropDownField);
 
             DataRecordCheckBoxField drCheckBoxField = new DataRecordCheckBoxField(true);
-            drCheckBoxField.Initialize("SMS enabled", "adm_table_header_nbg", "FormInput", "IS_SMS_ENABLE", false);            
+            drCheckBoxField.Initialize("SMS enabled", "adm_table_header_nbg", "FormInput", "IS_SMS_ENABLE", false);
+            drCheckBoxField.SetDefault(0);
             theRecord.AddRecord(drCheckBoxField);
 
             sTable = theRecord.GetTableHTML("adm_notification_settings.aspx?submited=1");

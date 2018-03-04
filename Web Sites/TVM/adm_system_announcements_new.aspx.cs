@@ -252,7 +252,7 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         DataRecordDropDownField dr_message_recipient = new DataRecordDropDownField("", "name", "id", "", null, 60, false);
         dr_message_recipient.setFiledName("recipients");
         dr_message_recipient.SetSelectsDT(GetReceipentType());
-        dr_message_recipient.Initialize("Recipients", "adm_table_header_nbg", "FormInput", "recipients", true);
+        dr_message_recipient.Initialize("Push recipients", "adm_table_header_nbg", "FormInput", "recipients", true);
         theRecord.AddRecord(dr_message_recipient);
 
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 256);
@@ -384,14 +384,11 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         System.Data.DataTable dt = new System.Data.DataTable();
         dt.Columns.Add("id", typeof(int));
         dt.Columns.Add("txt", typeof(string));
-        int i = 0;
-        foreach (ApiObjects.eAnnouncementRecipientsType r in Enum.GetValues(typeof(ApiObjects.eAnnouncementRecipientsType)))
-        {
-            if ((int)r != (int)ApiObjects.eAnnouncementRecipientsType.Other)
-            {
-                dt.Rows.Add((int)r, r);
-            }
-        }
+
+        dt.Rows.Add((int)ApiObjects.eAnnouncementRecipientsType.All, ApiObjects.eAnnouncementRecipientsType.All);
+        dt.Rows.Add((int)ApiObjects.eAnnouncementRecipientsType.LoggedIn, ApiObjects.eAnnouncementRecipientsType.LoggedIn);
+        dt.Rows.Add((int)ApiObjects.eAnnouncementRecipientsType.Guests, ApiObjects.eAnnouncementRecipientsType.Guests);
+
         return dt;
     }
 
