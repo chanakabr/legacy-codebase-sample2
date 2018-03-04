@@ -9834,7 +9834,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // check if payment gateway supports this
-                    if (transactionType == eTransactionType.Subscription && !string.IsNullOrEmpty(billingGuid))
+                    if (transactionType == eTransactionType.Subscription && !string.IsNullOrEmpty(billingGuid) && !isForce)
                     {
                         try
                         {
@@ -9858,7 +9858,7 @@ namespace Core.ConditionalAccess
                         {
                             log.Error("Error while calling the billing GetPaymentGatewayVerificationStatus", ex);
                             return new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                        }
+                        }   
                     }
 
                     // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided

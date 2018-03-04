@@ -150,7 +150,7 @@ namespace Core.Notification
 
             // build announcements adapter object
             if (announcements == null || announcements.Count == 0)
-                log.ErrorFormat("Error while trying to fetch announcements from DB. login announcement + announcements ID: {0}", JsonConvert.SerializeObject(notificationIds));
+                log.ErrorFormat("Error while trying to fetch announcements from DB. sms announcement + announcements ID: {0}", JsonConvert.SerializeObject(notificationIds));
             else
             {
                 AnnouncementSubscriptionData announcement;

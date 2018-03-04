@@ -105,46 +105,10 @@ namespace Core.Notification
             PushData pushData = null;
             DeviceNotificationData deviceData = null;
 
+            log.Debug("Starting push action handle");
+
             try
             {
-                // get user notification data
-                if (userId > 0)
-                {
-                    docExists = false;
-                    userNotificationData = NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
-                    if (userNotificationData == null)
-                    {
-                        if (docExists)
-                        {
-                            // error while getting user notification data
-                            log.ErrorFormat("error retrieving user announcement data. GID: {0}, UID: {1}", groupId, userId);
-                            return false;
-                        }
-                        else
-                        {
-                            log.DebugFormat("user announcement data wasn't found - going to create a new one. GID: {0}, UID: {1}", groupId, userId);
-
-                            // create user notification object
-                            userNotificationData = new UserNotification(userId) { CreateDateSec = DateUtils.UnixTimeStampNow() };
-
-                            //update user settings according to partner settings configuration                    
-                            userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(groupId, userId);
-
-                            // update user notification data
-                            if (!NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
-                            {
-                                log.ErrorFormat("Error while trying to create user notification document", JsonConvert.SerializeObject(userNotificationData));
-                                return false;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // remove old user reminders
-                        DeleteOldAnnouncements(groupId, userNotificationData);
-                    }
-                }
-
                 // get push data
                 if (!string.IsNullOrEmpty(udid))
                 {
@@ -1245,6 +1209,8 @@ namespace Core.Notification
         {
             bool result = false;
 
+            log.Debug("Starting mail action handle");
+
             try
             {
                 switch (userAction)
@@ -1325,17 +1291,12 @@ namespace Core.Notification
         {
             bool result = true;
             List<string> externalIds = MailAnnouncementsHelper.GetAllAnnouncementExternalIdsForUser(groupId, userNotificationData);
-            if (externalIds == null || externalIds.Count == 0)
-            {
-                log.ErrorFormat("Failed to get user announcements external Ids to unsubscribe. group: {0}, userId = {1}", groupId, userId);
-                return false;
-            }
 
-            if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData, userId))
+            if (externalIds != null && externalIds.Count > 0 && !MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, externalIds, userNotificationData.UserData, userId))
             {
                 log.ErrorFormat("Failed unsubscribing user to mail announcement. group: {0}, userId: {1}, email: {2}, externaiIds: {3}",
                     groupId, userId, userNotificationData.UserData.Email, JsonConvert.SerializeObject(externalIds));
-                return false;
+                result = false;
             }
 
             return result;
@@ -1428,6 +1389,8 @@ namespace Core.Notification
         {
             bool result = false;
 
+            log.Debug("Starting SMS action handle");
+
             try
             {
                 switch (userAction)
@@ -1443,34 +1406,34 @@ namespace Core.Notification
                     case eUserMessageAction.EnableUserSmsNotifications:
                         result = EnableUserSmsNotification(groupId, userId, userNotificationData);
                         if (result)
-                            log.Debug("Successfully enabled user mail notifications");
+                            log.Debug("Successfully enabled user SMS notifications");
                         else
-                            log.Error("Error enabling user mail notifications");
+                            log.Error("Error enabling user sms notifications");
                         break;
 
-                    case eUserMessageAction.DisableUserNotifications:
+                    case eUserMessageAction.DisableUserSmsNotifications:
                         result = DisableUserSmsNotifications(groupId, userId, userNotificationData);
                         if (result)
-                            log.Debug("Successfully disabled user mail notifications");
+                            log.Debug("Successfully disabled user SMS notifications");
                         else
-                            log.Error("Error disabling user mail notifications");
+                            log.Error("Error disabling user SMS notifications");
                         break;
                     case eUserMessageAction.UpdateUser:
                         result = HandleUpdateUserForSmsNotification(groupId, userId, userNotificationData);
                         if (result)
-                            log.Debug("Successfully updated user data for mail notifications");
+                            log.Debug("Successfully updated user data for SMS notifications");
                         else
-                            log.Error("Error occurred while trying to update user data for mail notifications");
+                            log.Error("Error occurred while trying to update user data for SMS notifications");
                         break;
                     case eUserMessageAction.Signup:
                         result = HandleUserSignUpForSmsNotification(groupId, userId, userNotificationData);
                         if (result)
-                            log.Debug("Successfully enabled user mail notifications");
+                            log.Debug("Successfully enabled user SMS notifications");
                         else
-                            log.Error("Error enabling user mail notifications");
+                            log.Error("Error enabling user SMS notifications");
                         break;
                     default:
-                        log.ErrorFormat("Unidentified mail notification action requested. action: {0}", userAction);
+                        log.ErrorFormat("Unidentified SMS notification action requested. action: {0}", userAction);
                         break;
                 }
             }
@@ -1820,6 +1783,11 @@ namespace Core.Notification
                             if (removedReminder != null)
                                 smsNotificationData.SubscribedReminders.Remove(removedReminder);
                         }
+
+                        if (cancelSubResult.ExternalId == smsAnnouncementId && cancelSubResult.Success)
+                        {
+                            smsNotificationData.SubscriptionExternalIdentifier = string.Empty;
+                        }
                     }
 
                     if (!canceledSystemAnnouncement)
@@ -1840,7 +1808,7 @@ namespace Core.Notification
                 {
                     bool smsAnnouncementUpdated = false;
 
-                    // update device announcements
+                    // update SMS announcements
                     foreach (var subscription in subscribrAdapterResult)
                     {
                         if (subscription == null || string.IsNullOrEmpty(subscription.SubscriptionArnResult))
@@ -1849,7 +1817,7 @@ namespace Core.Notification
                             continue;
                         }
 
-                        // add device announcements except login announcements 
+                        // add SMS announcements except login announcements 
                         if (subscription.ExternalId != smsAnnouncementId)
                         {
                             // add result to follow announcements (if its a follow push announcement)

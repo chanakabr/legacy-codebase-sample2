@@ -1419,6 +1419,12 @@ namespace Core.Notification
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
+            if (!NotificationSettings.IsPartnerSmsNotificationEnabled(groupId))
+            {
+                result.Message = "SMS is disabled for partner";
+                return result;
+            }
+
             // get maximum allowed push 
             int allowedPushMsg = TCMClient.Settings.Instance.GetValue<int>("push_message.num_of_msg_per_seconds");
             if (allowedPushMsg == 0)
@@ -1440,59 +1446,70 @@ namespace Core.Notification
                 return result;
             }
 
+            string phoneNumber = null;
             // get user notification data
             bool docExists = false;
             UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
             if (userNotificationData == null)
             {
-                log.ErrorFormat("Error retrieving User notification data. partnerId: {0}, UserId: {1}, message: {2}", groupId, userId, message);
-                return result;
-            }
-
-            // get sms data
-            SmsNotificationData smsData = NotificationDal.GetUserSmsNotificationData(groupId, userId);
-            if (smsData == null)
-            {
-                log.DebugFormat("user SMS data wasn't found. GID: {0}, userId: {2}", groupId, userId);
-                return result;
-            }
-
-            List<EndPointData> usersEndPointDatas = new List<EndPointData>();
-
-            // prepare SMS
-            usersEndPointDatas.Add(new EndPointData()
-            {
-                EndPointArn = userNotificationData.UserData.PhoneNumber,
-                ExtraData = userId.ToString()
-            });
-            
-            // prepare SMS 
-            WSEndPointPublishData publishData = new WSEndPointPublishData();
-            publishData.EndPoints = usersEndPointDatas;
-            publishData.Message = new MessageData()
-            {
-                Alert = message
-            };
-
-            // send SMS
-            List<WSEndPointPublishDataResult> smsPublishResults = NotificationAdapter.PublishToEndPoint(groupId, publishData);
-            if (smsPublishResults == null)
-            {
-                log.ErrorFormat("Error at PublishToEndPoint. GID: {0}, user ID: {1}, message: {2}", groupId, userId, message);
-                result = new Status() { Code = (int)eResponseStatus.Error };
-                return result;
-            }
-
-            // log SMS results
-            foreach (var smsPublishResult in smsPublishResults)
-            {
-                if (string.IsNullOrEmpty(smsPublishResult.ResultMessageId))
-                    log.ErrorFormat("Error occur at PublishToEndPoint. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", groupId, userId, smsPublishResult.EndPointArn, message);
+                log.DebugFormat("user notification data wasn't found. sending SMS by user data GID: {0}, userId: {2}", groupId, userId);
+                Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
+                if (response == null || response.m_RespStatus != ApiObjects.ResponseStatus.OK || response.m_user == null)
+                {
+                    log.ErrorFormat("Failed to get user data for userId = {0}", userId);
+                    result.Message = "Failed to get user data";
+                    return result;
+                }
                 else
-                    log.DebugFormat("Successfully sent push message. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", groupId, userId, smsPublishResult.EndPointArn, message);
+                {
+                    phoneNumber = response.m_user.m_oBasicData.m_sPhone;
+                }
+            }
+            else if (userNotificationData.Settings.EnableSms == true)
+            {
+                phoneNumber = userNotificationData.UserData.PhoneNumber;
             }
 
-            result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            if (!string.IsNullOrEmpty(phoneNumber))
+            {
+                List<EndPointData> usersEndPointDatas = new List<EndPointData>();
+
+                // prepare SMS
+                usersEndPointDatas.Add(new EndPointData()
+                {
+                    EndPointArn = phoneNumber,
+                    ExtraData = userId.ToString()
+                });
+
+                // prepare SMS 
+                WSEndPointPublishData publishData = new WSEndPointPublishData();
+                publishData.EndPoints = usersEndPointDatas;
+                publishData.Message = new MessageData()
+                {
+                    Alert = message
+                };
+
+                // send SMS
+                List<WSEndPointPublishDataResult> smsPublishResults = NotificationAdapter.PublishToEndPoint(groupId, publishData);
+                if (smsPublishResults == null)
+                {
+                    log.ErrorFormat("Error at PublishToEndPoint. GID: {0}, user ID: {1}, message: {2}", groupId, userId, message);
+                    result = new Status() { Code = (int)eResponseStatus.Error };
+                    return result;
+                }
+
+                // log SMS results
+                foreach (var smsPublishResult in smsPublishResults)
+                {
+                    if (string.IsNullOrEmpty(smsPublishResult.ResultMessageId))
+                        log.ErrorFormat("Error occur at PublishToEndPoint. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", groupId, userId, smsPublishResult.EndPointArn, message);
+                    else
+                        log.DebugFormat("Successfully sent push message. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", groupId, userId, smsPublishResult.EndPointArn, message);
+                }
+
+                result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
             return result;
         }
 
