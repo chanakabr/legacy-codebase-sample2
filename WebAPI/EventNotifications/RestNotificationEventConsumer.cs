@@ -12,6 +12,7 @@ using System.Reflection;
 using ApiObjects;
 using System.Threading.Tasks;
 using WebAPI.Models.General;
+using System.Web.Hosting;
 
 namespace WebAPI
 {
@@ -253,11 +254,16 @@ namespace WebAPI
             }
             else
             {
-                Task t = Task.Factory.StartNew(() =>
+                HostingEnvironment.QueueBackgroundWorkItem((obj) =>
                 {
                     action.Handle(kalturaEvent, eventWrapper);
-                }
-                );
+                });
+
+                //Task t = Task.Factory.StartNew(() =>
+                //{
+                //    action.Handle(kalturaEvent, eventWrapper);
+                //}
+                //);
             }
         }
 
