@@ -497,9 +497,12 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     List<int> noneGroupAssetTypes = channelToAdd.m_nMediaType.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
-                    response.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
-                                    eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
-                    return response;
+                    if (noneGroupAssetTypes != null && noneGroupAssetTypes.Count > 0)
+                    {
+                        response.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
+                                        eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
+                        return response;
+                    }
                 }
 
                 List<int> channelMedias = null;
@@ -641,9 +644,12 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     List<int> noneGroupAssetTypes = channelToUpdate.m_nMediaType.Except(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x).ToList()).ToList();
-                    response.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
-                                    eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
-                    return response;
+                    if (noneGroupAssetTypes != null && noneGroupAssetTypes.Count > 0)
+                    {
+                        response.Status = new Status((int)eResponseStatus.AssetStructDoesNotExist, string.Format("{0} for the following AssetTypes: {1}",
+                                        eResponseStatus.AssetStructDoesNotExist.ToString(), string.Join(",", noneGroupAssetTypes)));
+                        return response;
+                    }
                 }
 
                 List<int> channelMedias = null;
