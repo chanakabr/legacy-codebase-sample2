@@ -5424,9 +5424,9 @@ namespace Tvinci.Core.DAL
             sp.AddIDListParameter<int>("@AssetTypes", assetTypes, "Id");
             sp.AddParameter("@AssetTypesValuesInd", assetTypes != null && assetTypes.Count > 0 ? 1 : 0);
             sp.AddParameter("@SystemName", systemName);
-            sp.AddParameter("@ShouldUpdateOtherNames", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
+            sp.AddParameter("@NamesInOtherLanguagesExist", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
             sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
-            sp.AddParameter("@ShouldUpdateOtherDescriptions", descriptionsInOtherLanguages != null && descriptionsInOtherLanguages.Count > 0);
+            sp.AddParameter("@DescriptionsInOtherLanguagesExist", descriptionsInOtherLanguages != null && descriptionsInOtherLanguages.Count > 0);
             sp.AddKeyValueListParameter<string, string>("@DescriptionsInOtherLanguages", descriptionsInOtherLanguages, "key", "value");
             sp.AddParameter("@MediaIdsToOrderNumExist", mediaIdsToOrderNum != null && mediaIdsToOrderNum.Count > 0 ? 1 : 0);
             sp.AddKeyValueListParameter<int, int>("@MediaIdsToOrderNum", mediaIdsToOrderNum, "key", "value");
@@ -5453,9 +5453,9 @@ namespace Tvinci.Core.DAL
             sp.AddIDListParameter<int>("@AssetTypes", assetTypes, "Id");
             sp.AddParameter("@AssetTypesValuesInd", assetTypes != null && assetTypes.Count > 0 ? 1 : 0);
             sp.AddParameter("@SystemName", systemName);
-            sp.AddParameter("@NamesInOtherLanguagesExist", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
+            sp.AddParameter("@ShouldUpdateOtherNames", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
             sp.AddKeyValueListParameter<string, string>("@NamesInOtherLanguages", namesInOtherLanguages, "key", "value");
-            sp.AddParameter("@DescriptionsInOtherLanguagesExist", descriptionsInOtherLanguages != null && descriptionsInOtherLanguages.Count > 0);
+            sp.AddParameter("@ShouldUpdateOtherDescriptions", descriptionsInOtherLanguages != null && descriptionsInOtherLanguages.Count > 0);
             sp.AddKeyValueListParameter<string, string>("@DescriptionsInOtherLanguages", descriptionsInOtherLanguages, "key", "value");
             sp.AddParameter("@MediaIdsToOrderNumExist", mediaIdsToOrderNum != null && mediaIdsToOrderNum.Count > 0 ? 1 : 0);
             sp.AddKeyValueListParameter<int, int>("@MediaIdsToOrderNum", mediaIdsToOrderNum, "key", "value");
