@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace Core.Catalog.CatalogManagement
 {
+    [Serializable]
     public class AssetFile
     {
         public long Id { get; set; }
@@ -26,6 +28,7 @@ namespace Core.Catalog.CatalogManagement
         public long? FileSize { get; set; }
         public bool? IsActive { get; set; }
 
+        [JsonProperty("type")]
         private string type;
 
         public AssetFile()
