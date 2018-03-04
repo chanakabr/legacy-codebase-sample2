@@ -104,8 +104,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
                  .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnablePush))
-                 .ForMember(dest => dest.MailEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnableMail))
-                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnableSms));
+                 .ForMember(dest => dest.MailEnabled, opt => opt.MapFrom(src => src.EnableMail))
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.EnableSms));
 
             Mapper.CreateMap<bool?, UserFollowSettings>()
                .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src));
