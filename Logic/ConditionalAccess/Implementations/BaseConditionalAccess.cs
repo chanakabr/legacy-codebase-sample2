@@ -9487,6 +9487,7 @@ namespace Core.ConditionalAccess
         {
             string sKeyOfMinPrice = String.Concat("PreviewModuleMinPrice", m_nGroupID);
             double dMinPriceForPreviewModule = Utils.DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE;
+
             string sValInConfig = Utils.GetValueFromConfig(sKeyOfMinPrice);
             if (sValInConfig.Length > 0 && double.TryParse(sValInConfig, out dMinPriceForPreviewModule))
                 return dMinPriceForPreviewModule == 0d;

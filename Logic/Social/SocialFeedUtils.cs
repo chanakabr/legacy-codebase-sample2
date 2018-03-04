@@ -104,8 +104,8 @@ namespace Core.Social
 
         public static class Twitter
         {
-            static readonly string TWITTER_CONSUMER_KEY = TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_KEY");
-            static readonly string TWITTER_CONSUMER_SECRET = TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_SECRET");
+            public static readonly string TWITTER_CONSUMER_KEY = TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_KEY");
+            public static readonly string TWITTER_CONSUMER_SECRET = TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_SECRET");
             static Dictionary<int, ApplicationOnlyAuthorizer> _accessTokenDictionary = new Dictionary<int, ApplicationOnlyAuthorizer>();
             static object _locker = new object();
 
@@ -475,7 +475,8 @@ namespace Core.Social
                             {
                                 try
                                 {
-                                    socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_KEY"), TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_SECRET"), userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"));
+                                    socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_KEY"),
+                                        Twitter.TWITTER_CONSUMER_SECRET, userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"));
                                 }
                                 catch (Exception)
                                 {

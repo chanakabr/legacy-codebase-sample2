@@ -1163,7 +1163,7 @@ namespace Core.ConditionalAccess
             }
             else 
             {
-                log.DebugFormat("No data return from DB for processId", processId);
+                log.DebugFormat("No data return from DB for processId {0}", processId);
                 return true;
             }
 
