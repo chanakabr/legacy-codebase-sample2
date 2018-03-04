@@ -30,8 +30,10 @@ namespace WebAPI.EventNotifications
                 // primary args object is the notified object itself, it will be a complete json object
                 args = new List<object>()
                 {
+                    kalturaEvent.PartnerId,
                     theObject
-                }
+                },
+                GroupId = kalturaEvent.PartnerId
             };
 
             // add extra args if they exist

@@ -40,7 +40,8 @@ namespace WebAPI.EventNotifications
                     eventObject = eventWrapper.eventObject,
                     eventObjectType = eventWrapper.eventObjectType,
                     eventType = eventWrapper.eventType,
-                    objectType = eventWrapper.objectType
+                    objectType = eventWrapper.objectType,
+                    partnerId = kalturaEvent.PartnerId
                 }
                 );
         }
