@@ -585,14 +585,38 @@ namespace Core.Catalog.CatalogManagement
                 {
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     Image image = imagesResponse.Images.First();
-                    if (image != null && image.IsDefault.HasValue && image.IsDefault.Value)
+                    if (image != null)
                     {
-                        string invalidationKey = LayeredCacheKeys.GetGroupDefaultImagesInvalidationKey(groupId);
-                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        if (image.IsDefault.HasValue && image.IsDefault.Value)
                         {
-                            log.ErrorFormat("Failed to set invalidation key on DeleteImage key = {0}", invalidationKey);
+                            string invalidationKey = LayeredCacheKeys.GetGroupDefaultImagesInvalidationKey(groupId);
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key on DeleteImage key = {0}", invalidationKey);
+                            }
                         }
-                    }
+
+                        eAssetTypes assetType = ConverteAssetImageTypeToeAssetTypes(image.ImageObjectType);
+                        if (assetType != eAssetTypes.UNKNOWN)
+                        {
+                            // invalidate asset
+                            string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), image.ImageObjectId);
+                            if (assetType != eAssetTypes.UNKNOWN && !LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after DeleteImage",
+                                                    image.ImageObjectId, assetType.ToString(), invalidationKey);
+                            }
+                        }
+                        else if (image.ImageObjectType == eAssetImageType.Channel)
+                        {
+                            // invalidate channel
+                            if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)image.ImageObjectId)))
+                            {
+                                log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after DeleteImage",
+                                                    image.ImageObjectId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)image.ImageObjectId));
+                            }
+                        }
+                    }                   
                 }
             }
             catch (Exception ex)

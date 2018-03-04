@@ -643,14 +643,13 @@ namespace Core.Catalog.CatalogManagement
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after DeleteMediaFile", assetFileResponse.File.AssetId, groupId);
                         }
 
-                        //string invalidationKey = LayeredCacheKeys.GetGroupAssetFileTypesInvalidationKey(groupId);
-                        //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                        //{
-                        //    log.ErrorFormat("Failed to set invalidation key on DeleteAssetFileType key = {0}", invalidationKey);
-                        //}
-
-                        // TODO
-                        // InvalidateCatalogGroupCache(groupId, result, false);
+                        // invalidate asset
+                        string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.MEDIA.ToString(), assetFileResponse.File.AssetId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to invalidate asset with id: {0}, mediaFileId: {1}, invalidationKey: {2} after DeleteMediaFile",
+                                                assetFileResponse.File.AssetId, assetFileResponse.File.Id, invalidationKey);
+                        }
                     }
                 }
             }
