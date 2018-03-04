@@ -724,12 +724,24 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                // validate CdnAdapaterProfileId + AlternativeCdnAdapaterProfileId
+                // validate CdnAdapaterProfileId (0 or null for setting group default adapter) \ AlternativeCdnAdapaterProfileId     
                 Status validateCdnReponse = ValidateCdnAdapterProfileIds(groupId, assetFileToUpdate.CdnAdapaterProfileId, assetFileToUpdate.AlternativeCdnAdapaterProfileId);
                 if (validateCdnReponse.Code != (int)eResponseStatus.OK)
                 {
                     result.Status = validateCdnReponse;
                     return result;
+                }
+                else if (assetFileToUpdate.CdnAdapaterProfileId.HasValue && assetFileToUpdate.CdnAdapaterProfileId.Value == 0)
+                {
+                    ApiObjects.CDNAdapter.CDNAdapterResponse GroupDefaultCdnAdapter = Core.Api.api.GetGroupDefaultCdnAdapter(groupId, eAssetTypes.MEDIA);
+                    if (GroupDefaultCdnAdapter == null || GroupDefaultCdnAdapter.Status == null || GroupDefaultCdnAdapter.Status.Code != (int)eResponseStatus.OK
+                        || GroupDefaultCdnAdapter.Adapter == null || GroupDefaultCdnAdapter.Adapter.ID <= 0)
+                    {
+                        result.Status = new Status((int)eResponseStatus.DefaultCdnAdapterProfileNotConfigurd, eResponseStatus.DefaultCdnAdapterProfileNotConfigurd.ToString());
+                        return result;
+                    }
+
+                    assetFileToUpdate.CdnAdapaterProfileId = GroupDefaultCdnAdapter.Adapter.ID;
                 }
 
                 DateTime startDate = assetFileToUpdate.StartDate.HasValue ? assetFileToUpdate.StartDate.Value : DateTime.UtcNow;
