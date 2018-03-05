@@ -1503,6 +1503,7 @@ namespace ElasticSearch.Common
             json["name"] = JToken.FromObject(channel.m_sName);
             json["channel_type"] = JToken.FromObject(channel.m_nChannelTypeID);
             json["channel_id"] = JToken.FromObject(channel.m_nChannelID);
+            json["create_date"] = JToken.FromObject(channel.CreateDate.Value.ToString("yyyyMMddHHmmss"));
 
             result = json.ToString(Newtonsoft.Json.Formatting.None);
 
