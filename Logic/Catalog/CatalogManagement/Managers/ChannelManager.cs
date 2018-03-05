@@ -509,6 +509,7 @@ namespace Core.Catalog.CatalogManagement
                 // validate medias exist for manual channel only
                 if (channelToAdd.m_nChannelTypeID == (int)ChannelType.Manual && channelToAdd.m_lManualMedias != null && channelToAdd.m_lManualMedias.Count > 0)
                 {
+                    channelMedias = new List<int>();
                     List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
                     foreach (string manualMediaId in channelToAdd.m_lManualMedias.Select(x => x.m_sMediaId))
                     {
@@ -656,6 +657,7 @@ namespace Core.Catalog.CatalogManagement
                 // validate medias exist for manual channel only
                 if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.Manual && channelToUpdate.m_lManualMedias != null && channelToUpdate.m_lManualMedias.Count > 0)
                 {
+                    channelMedias = new List<int>();
                     List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
                     foreach (string manualMediaId in channelToUpdate.m_lManualMedias.Select(x => x.m_sMediaId))
                     {
