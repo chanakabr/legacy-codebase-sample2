@@ -225,7 +225,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.filterQuery))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.m_nIsActive)))
-                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertToKalturaChannelOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
+                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
                 .ForMember(dest => dest.GroupBy, opt => opt.MapFrom(src => ConvertToGroupBy(src.searchGroupBy)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
@@ -256,7 +256,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.m_sName)))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.DescriptionInOtherLanguages, src.m_sDescription)))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.m_nIsActive)))
-                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertToKalturaChannelOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
+                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
                 .ForMember(dest => dest.MediaIds, opt => opt.MapFrom(src => src.m_lManualMedias != null ? string.Join(",", src.m_lManualMedias.OrderBy(x => x.m_nOrderNum).Select(x => x.m_sMediaId)) : string.Empty))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
@@ -1402,11 +1402,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static KalturaChannelOrder ConvertToKalturaChannelOrder(OrderBy OrderBy, OrderDir OrderDir)
+        public static KalturaChannelOrder ConvertToKalturaChannelOrder(OrderObj orderObj)
         {
             KalturaChannelOrder result = new KalturaChannelOrder();
 
-            switch (OrderBy)
+            switch (orderObj.m_eOrderBy)
             {
                 case OrderBy.VIEWS:
                     {
@@ -1425,7 +1425,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 case OrderBy.START_DATE:
                     {
-                        if (OrderDir == OrderDir.DESC)
+                        if (orderObj.m_eOrderDir == OrderDir.DESC)
                         {
                             result.orderBy = KalturaChannelOrderBy.START_DATE_DESC;
                         }
@@ -1437,7 +1437,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 case OrderBy.CREATE_DATE:
                     {
-                        if (OrderDir == OrderDir.DESC)
+                        if (orderObj.m_eOrderDir == OrderDir.DESC)
                         {
                             result.orderBy = KalturaChannelOrderBy.CREATE_DATE_DESC;
                         }
@@ -1449,7 +1449,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 case OrderBy.NAME:
                     {
-                        if (OrderDir == OrderDir.ASC)
+                        if (orderObj.m_eOrderDir == OrderDir.ASC)
                         {
                             result.orderBy = KalturaChannelOrderBy.NAME_ASC;
                         }
@@ -1465,6 +1465,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         break;
                     }
                 case OrderBy.META:
+                    {
+                        KalturaMetaTagOrderBy metaOrderBy = orderObj.m_eOrderDir == OrderDir.DESC ? KalturaMetaTagOrderBy.META_DESC : KalturaMetaTagOrderBy.META_ASC;
+                        result.DynamicOrderBy = new KalturaDynamicOrderBy() { OrderBy = metaOrderBy, Name = orderObj.m_sOrderValue };
+                        break;
+                    }
                 case OrderBy.RECOMMENDATION:
                 case OrderBy.RANDOM:
                 case OrderBy.LIKE_COUNTER:
