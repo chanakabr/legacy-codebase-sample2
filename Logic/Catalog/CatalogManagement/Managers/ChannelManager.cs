@@ -508,19 +508,19 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                List<int> channelMedias = null;
+                List<KeyValuePair<long, int>> mediaIdsToOrderNum = null;
                 // validate medias exist for manual channel only
                 if (channelToAdd.m_nChannelTypeID == (int)ChannelType.Manual && channelToAdd.m_lManualMedias != null && channelToAdd.m_lManualMedias.Count > 0)
                 {
-                    channelMedias = new List<int>();
+                    mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
                     List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
-                    foreach (string manualMediaId in channelToAdd.m_lManualMedias.Select(x => x.m_sMediaId))
+                    foreach (GroupsCacheManager.ManualMedia manualMedia in channelToAdd.m_lManualMedias)
                     {
                         long mediaId;
-                        if (long.TryParse(manualMediaId, out mediaId) && mediaId > 0)
+                        if (long.TryParse(manualMedia.m_sMediaId, out mediaId) && mediaId > 0)
                         {
                             assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
-                            channelMedias.Add((int)mediaId);
+                            mediaIdsToOrderNum.Add(new KeyValuePair<long, int>(mediaId, manualMedia.m_nOrderNum));
                         }
                     }
 
@@ -534,7 +534,7 @@ namespace Core.Catalog.CatalogManagement
                                             eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
                             return response;
                         }
-                    }                    
+                    }     
                 }
 
                 if (channelToAdd.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToAdd.m_OrderObject.m_sOrderValue)
@@ -565,7 +565,7 @@ namespace Core.Catalog.CatalogManagement
                 string groupBy = channelToAdd.searchGroupBy != null && channelToAdd.searchGroupBy.groupBy != null && channelToAdd.searchGroupBy.groupBy.Count == 1 ? channelToAdd.searchGroupBy.groupBy.First() : null;
                 DataSet ds = CatalogDAL.InsertChannel(groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription, channelToAdd.m_nIsActive, (int)channelToAdd.m_OrderObject.m_eOrderBy,
                                                         (int)channelToAdd.m_OrderObject.m_eOrderDir, channelToAdd.m_OrderObject.m_sOrderValue, channelToAdd.m_nChannelTypeID, channelToAdd.filterQuery,
-                                                        channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription, new List<KeyValuePair<int, int>>(), userId);
+                                                        channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription, mediaIdsToOrderNum, userId);
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
                     DataRow dr = ds.Tables[0].Rows[0];
@@ -664,19 +664,19 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                List<int> channelMedias = null;
+                List<KeyValuePair<long, int>> mediaIdsToOrderNum = null;
                 // validate medias exist for manual channel only
                 if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.Manual && channelToUpdate.m_lManualMedias != null && channelToUpdate.m_lManualMedias.Count > 0)
                 {
-                    channelMedias = new List<int>();
+                    mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
                     List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
-                    foreach (string manualMediaId in channelToUpdate.m_lManualMedias.Select(x => x.m_sMediaId))
+                    foreach (GroupsCacheManager.ManualMedia manualMedia in channelToUpdate.m_lManualMedias)
                     {
                         long mediaId;
-                        if (long.TryParse(manualMediaId, out mediaId) && mediaId > 0)
+                        if (long.TryParse(manualMedia.m_sMediaId, out mediaId) && mediaId > 0)
                         {
                             assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
-                            channelMedias.Add((int)mediaId);
+                            mediaIdsToOrderNum.Add(new KeyValuePair<long, int>(mediaId, manualMedia.m_nOrderNum));
                         }
                     }
 
@@ -721,7 +721,7 @@ namespace Core.Catalog.CatalogManagement
                 string groupBy = channelToUpdate.searchGroupBy != null && channelToUpdate.searchGroupBy.groupBy != null && channelToUpdate.searchGroupBy.groupBy.Count == 1 ? channelToUpdate.searchGroupBy.groupBy.First() : null;
                 DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, (int)channelToUpdate.m_OrderObject.m_eOrderBy,
                                                         (int)channelToUpdate.m_OrderObject.m_eOrderDir, channelToUpdate.m_OrderObject.m_sOrderValue, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy,
-                                                        languageCodeToName, languageCodeToDescription, new List<KeyValuePair<int, int>>(), userId);
+                                                        languageCodeToName, languageCodeToDescription, mediaIdsToOrderNum, userId);
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
                     DataRow dr = ds.Tables[0].Rows[0];
