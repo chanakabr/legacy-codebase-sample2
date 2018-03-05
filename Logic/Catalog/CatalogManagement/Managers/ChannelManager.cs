@@ -431,8 +431,11 @@ namespace Core.Catalog.CatalogManagement
                 int totalItems = 0;
                 List<int> channelIds = wrapper.SearchChannels(definitions, ref totalItems);
                 result.Channels = ChannelManager.GetChannels(groupId, channelIds);
-                result.TotalItems = totalItems;
-                result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                if (result.Channels != null)
+                {
+                    result.TotalItems = totalItems;
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
             catch (Exception ex)
             {

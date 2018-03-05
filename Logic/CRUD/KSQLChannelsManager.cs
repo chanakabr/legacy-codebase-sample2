@@ -168,6 +168,11 @@ namespace APILogic.CRUD
             {
                 log.ErrorFormat("Failed updating channel index for channelId: {0}", channelId);
             }
+            else if (action == eAction.Delete)
+            {
+                // if delete didn't fail, sleep for 1 seconds because of the ES internal delay (delete is longer)
+                System.Threading.Thread.Sleep(1000);
+            }
             else
             {
                 // if update didn't fail, sleep for 0.5 seconds because of the ES internal delay
