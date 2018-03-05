@@ -537,7 +537,14 @@ namespace Core.Catalog.CatalogManagement
                     }                    
                 }
 
-                List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
+                if (channelToAdd.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToAdd.m_OrderObject.m_sOrderValue)
+                    && !CatalogManager.CheckMetaExsits(groupId, channelToAdd.m_OrderObject.m_sOrderValue))
+                {
+                    response.Status = new Status((int)eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
+                    return response;
+                }
+
+                List <KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
                 if (channelToAdd.NamesInOtherLanguages != null && channelToAdd.NamesInOtherLanguages.Count > 0)
                 {
                     foreach (LanguageContainer language in channelToAdd.NamesInOtherLanguages)
@@ -683,6 +690,13 @@ namespace Core.Catalog.CatalogManagement
                             return response;
                         }
                     }
+                }
+
+                if (channelToUpdate.m_OrderObject != null && channelToUpdate.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToUpdate.m_OrderObject.m_sOrderValue)
+                    && !CatalogManager.CheckMetaExsits(groupId, channelToUpdate.m_OrderObject.m_sOrderValue))
+                {
+                    response.Status = new Status((int)eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
+                    return response;
                 }
 
                 List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
