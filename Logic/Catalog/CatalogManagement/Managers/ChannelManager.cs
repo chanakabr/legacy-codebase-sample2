@@ -618,7 +618,8 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                if (!string.IsNullOrEmpty(channelToUpdate.SystemName) &&  !CatalogDAL.ValidateChannelSystemName(groupId, channelToUpdate.SystemName))
+                if (!string.IsNullOrEmpty(channelToUpdate.SystemName) && currentChannel.SystemName != channelToUpdate.SystemName
+                    && !CatalogDAL.ValidateChannelSystemName(groupId, channelToUpdate.SystemName))
                 {
                     response.Status = new Status((int)eResponseStatus.ChannelSystemNameAlreadyInUse, eResponseStatus.ChannelSystemNameAlreadyInUse.ToString());
                     return response;
