@@ -163,7 +163,7 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
-        internal void ValidateForInsert()
+        internal virtual void ValidateForInsert()
         {
             if (string.IsNullOrEmpty(SystemName))
             {
@@ -190,7 +190,7 @@ namespace WebAPI.Models.Catalog
             OrderBy.Validate(this.GetType());
         }
 
-        internal void ValidateForUpdate()
+        internal virtual void ValidateForUpdate()
         {
             if (SystemName != null && SystemName == string.Empty)
             {
