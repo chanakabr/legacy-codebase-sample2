@@ -758,17 +758,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
         }
 
-        private static List<Core.Catalog.ManualMedia> ConvertToManualMedias(string mediaIdString)
+        private static List<GroupsCacheManager.ManualMedia> ConvertToManualMedias(string mediaIdString)
         {
-            List<Core.Catalog.ManualMedia> manualMedias = new List<Core.Catalog.ManualMedia>();
-            Core.Catalog.ManualMedia manualMedia = null;
+            List<GroupsCacheManager.ManualMedia> manualMedias = new List<GroupsCacheManager.ManualMedia>();
+            GroupsCacheManager.ManualMedia manualMedia = null;
 
             if (!string.IsNullOrEmpty(mediaIdString))
             {
                 var mediaIds = mediaIdString.Split(',');
-                for (int orderNum = 0; orderNum < mediaIds.Length; orderNum++)
+                for (int orderNum = 1; orderNum < mediaIds.Length; orderNum++)
                 {
-                    manualMedia = new Core.Catalog.ManualMedia(mediaIds[orderNum], orderNum);
+                    manualMedia = new GroupsCacheManager.ManualMedia(mediaIds[orderNum], orderNum);
                     manualMedias.Add(manualMedia);
                 }
             }
