@@ -20,7 +20,7 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "mediaIds", IsNullable = true)]
         public string MediaIds { get; set; }
 
-        public bool ValidateMediaIds()
+        public void ValidateMediaIds()
         {
             if (!string.IsNullOrEmpty(MediaIds))
             {
@@ -33,10 +33,19 @@ namespace WebAPI.Models.Catalog
                         throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaManualChannel.mediaIds");
                     }
                 }
-            }
-
-            return true;
+            }            
         }
 
+        internal override void ValidateForInsert()
+        {
+            base.ValidateForInsert();
+            ValidateMediaIds();
+        }
+
+        internal override void ValidateForUpdate()
+        {
+            base.ValidateForUpdate();
+            ValidateMediaIds();
+        }
     }
 }

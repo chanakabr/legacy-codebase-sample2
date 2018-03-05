@@ -766,9 +766,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             if (!string.IsNullOrEmpty(mediaIdString))
             {
                 var mediaIds = mediaIdString.Split(',');
-                for (int orderNum = 1; orderNum < mediaIds.Length; orderNum++)
+                for (int orderNum = 1; orderNum <= mediaIds.Length; orderNum++)
                 {
-                    manualMedia = new GroupsCacheManager.ManualMedia(mediaIds[orderNum], orderNum);
+                    manualMedia = new GroupsCacheManager.ManualMedia(mediaIds[orderNum-1], orderNum);
                     manualMedias.Add(manualMedia);
                 }
             }
