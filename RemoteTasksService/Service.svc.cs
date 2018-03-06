@@ -29,6 +29,7 @@ namespace RemoteTasksService
             try
             {
                 string actionImplementation = string.Empty;
+
                 if (request != null)
                 {
                     // update request ID
