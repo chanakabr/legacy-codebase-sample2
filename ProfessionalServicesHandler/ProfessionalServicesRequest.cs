@@ -16,8 +16,8 @@ namespace ProfessionalServicesHandler
             set;
         }
 
-        [JsonProperty("the_object")]
-        public object TheObject
+        [JsonProperty("model")]
+        public object Model
         {
             get;
             set;
