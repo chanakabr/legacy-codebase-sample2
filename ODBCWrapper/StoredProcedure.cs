@@ -113,14 +113,17 @@ namespace ODBCWrapper
             table.Columns.Add(colNameKey, typeof(T1));
             table.Columns.Add(colNameValue, typeof(T2));
 
-
-            foreach (KeyValuePair<T1, T2> obj in oListValue)
+            if (oListValue != null)
             {
-                DataRow dr = table.NewRow();
-                dr[colNameKey] = obj.Key;
-                dr[colNameValue] = obj.Value;
-                table.Rows.Add(dr);
+                foreach (KeyValuePair<T1, T2> obj in oListValue)
+                {
+                    DataRow dr = table.NewRow();
+                    dr[colNameKey] = obj.Key;
+                    dr[colNameValue] = obj.Value;
+                    table.Rows.Add(dr);
+                }
             }
+
             return table;
         }
 
