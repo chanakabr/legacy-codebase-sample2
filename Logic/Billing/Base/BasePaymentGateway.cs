@@ -940,10 +940,10 @@ namespace Core.Billing
 
                 bool purchaseMail = true;
                 bool failPurchaseMail = true;
-                DAL.BillingDAL.GetPurchaseMailTriggerAccountSettings(groupID, ref purchaseMail, ref failPurchaseMail);
+                DAL.BillingDAL.GetPurchaseMailTriggerAccountSettings(groupID, out purchaseMail, out failPurchaseMail);
                 SendMail(siteGuid, price, currency, customData, productID, productType, contentID, response, paymentGatewayId, purchaseMail, failPurchaseMail);
 
-                log.DebugFormat("Account purchase mail settings purchaseMail = {0} failPurchaseMail = {1}, groupID = {2}", purchaseMail, failPurchaseMail, groupID);
+                //log.DebugFormat("Account purchase mail settings purchaseMail = {0} failPurchaseMail = {1}, groupID = {2}", purchaseMail, failPurchaseMail, groupID);
             }
             catch (Exception ex)
             {
@@ -1051,7 +1051,7 @@ namespace Core.Billing
 
                     if (SendMail == 0)
                     {
-                        log.DebugFormat("SendMail for payment_gateway id {0} is false - can't send mail", paymentGatewayId);
+                        //log.DebugFormat("SendMail for payment_gateway id {0} is false - can't send mail", paymentGatewayId);
                         return;
                     }
                     GetDetailsFromCustomData(customData, ref PreivewEnd, ref price, ref currency, ref partialPrice);
@@ -1829,9 +1829,9 @@ namespace Core.Billing
                 // check if account trigger settings for send purchase mail is true 
                 bool renewMail = true;
                 bool failRenewMail = true;
-                DAL.BillingDAL.GetRenewMailTriggerAccountSettings(groupID, ref renewMail, ref failRenewMail);
+                DAL.BillingDAL.GetRenewMailTriggerAccountSettings(groupID, out renewMail, out failRenewMail);
                 SendMail(siteguid, price, currency, customData, productId, eTransactionType.Subscription, 0, transactionResponse, paymentGatewayId, renewMail, failRenewMail);
-                log.DebugFormat("Account Renew mail settings renewMail = {0} failRenewMail = {1}, groupID = {2}", renewMail, failRenewMail, groupID);
+                //log.DebugFormat("Account Renew mail settings renewMail = {0} failRenewMail = {1}, groupID = {2}", renewMail, failRenewMail, groupID);
             }
             catch (Exception ex)
             {
