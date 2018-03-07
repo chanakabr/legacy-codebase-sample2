@@ -64,15 +64,35 @@ namespace ElasticSearchHandler.IndexBuilders
                 maxResults = 100000;
             }
 
+            CatalogGroupCache catalogGroupCache = null;
+            Group group = null;
             GroupManager groupManager = new GroupManager();
-            groupManager.RemoveGroup(groupId);
-            Group group = groupManager.GetGroup(groupId);
-
-            // Without the group we cannot advance at all - there must be an error in CB or something
-            if (group == null)
+            List<ApiObjects.LanguageObj> languages = null;
+            ApiObjects.LanguageObj defaultLanguage = null;
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            if (doesGroupUsesTemplates)
             {
-                log.ErrorFormat("Could not load group {0} in media index builder", groupId);
-                return false;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
+                    return false;
+                }
+
+                languages = catalogGroupCache.LanguageMapById.Values.ToList();
+                defaultLanguage = catalogGroupCache.DefaultLanguage;
+            }
+            else
+            {
+                groupManager.RemoveGroup(groupId);
+                group = groupManager.GetGroup(groupId);
+                if (group == null)
+                {
+                    log.ErrorFormat("Could not load group {0} in media index builder", groupId);
+                    return false;
+                }
+
+                languages = group.GetLangauges();
+                defaultLanguage = group.GetGroupDefaultLanguage();
             }
 
             List<string> analyzers;
@@ -80,7 +100,7 @@ namespace ElasticSearchHandler.IndexBuilders
             List<string> tokenizers;
 
             // get definitions of analyzers, filters and tokenizers
-            GetAnalyzers(group.GetLangauges(), out analyzers, out filters, out tokenizers);
+            GetAnalyzers(languages, out analyzers, out filters, out tokenizers);
 
             bool actionResult = api.BuildIndex(newIndexName, numOfShards, numOfReplicas, analyzers, filters, tokenizers, maxResults);
 
@@ -92,11 +112,8 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #endregion
 
-            #region create mapping
-
-            var languages = group.GetLangauges();
-
-            var defaultLanguage = group.GetGroupDefaultLanguage();
+            #region create mapping            
+            
             MappingAnalyzers defaultMappingAnalyzers = GetMappingAnalyzers(defaultLanguage, VERSION);
 
             // Mapping for each language
@@ -116,17 +133,10 @@ namespace ElasticSearchHandler.IndexBuilders
                 List<string> tags = new List<string>();
                 Dictionary<string, KeyValuePair<eESFieldType, string>> metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();
                 // Check if group supports Templates
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (doesGroupUsesTemplates)
                 {
                     try
                     {
-                        CatalogGroupCache catalogGroupCache;
-                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                        {
-                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
-                            return false;
-                        }
-
                         HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
                         tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
                         foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Value))
@@ -312,8 +322,14 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #region insert channel queries
 
-            HashSet<string> channelsToRemove; 
-            ChannelIndexBuilderV2.BuildChannelQueries(groupId, api, group.channelIDs, newIndexName, out channelsToRemove);
+            HashSet<string> channelsToRemove;
+            HashSet<int> channelIds = new HashSet<int>();
+            if (!doesGroupUsesTemplates)
+            {
+                channelIds = group.channelIDs;
+            }
+
+            ChannelIndexBuilderV2.BuildChannelQueries(groupId, api, channelIds, newIndexName, out channelsToRemove, doesGroupUsesTemplates);
             
             #endregion
 

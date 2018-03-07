@@ -21,7 +21,6 @@ namespace ElasticSearchHandler.IndexBuilders
     public class ChannelMetadataIndexBuilder : AbstractIndexBuilder
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         private static readonly string CHANNEL = "channel";
         protected const string VERSION = "2";
 

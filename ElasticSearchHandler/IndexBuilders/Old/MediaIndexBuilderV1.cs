@@ -54,24 +54,39 @@ namespace ElasticSearchHandler.IndexBuilders
                 sizeOfBulk = 50;
             }
 
+            CatalogGroupCache catalogGroupCache = null;
+            Group group = null;
             GroupManager groupManager = new GroupManager();
-            groupManager.RemoveGroup(groupId);
-            Group group = groupManager.GetGroup(groupId);
+            List<ApiObjects.LanguageObj> languages = null;
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            if (doesGroupUsesTemplates)
+            {                
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
+                    return false;
+                }
 
-            if (group == null)
-            {
-                log.ErrorFormat("Could not load group {0} in media index builder", groupId);
-                return false;
+                languages = catalogGroupCache.LanguageMapById.Values.ToList();
+            }
+            else
+            {                
+                groupManager.RemoveGroup(groupId);
+                group = groupManager.GetGroup(groupId);
+                if (group == null)
+                {
+                    log.ErrorFormat("Could not load group {0} in media index builder", groupId);
+                    return false;
+                }
+
+                languages = group.GetLangauges();
             }
 
             List<string> analyzers;
             List<string> filters;
-            List<string> tokenizers;
-
-            GetAnalyzers(group.GetLangauges(), out analyzers, out filters, out tokenizers);
-
+            List<string> tokenizers;            
+            GetAnalyzers(languages, out analyzers, out filters, out tokenizers);
             bool actionResult = api.BuildIndex(newIndexName, numOfShards, numOfReplicas, analyzers, filters, tokenizers);
-
             if (!actionResult)
             {
                 log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
@@ -89,17 +104,10 @@ namespace ElasticSearchHandler.IndexBuilders
                 List<string> tags = new List<string>();
                 Dictionary<string, KeyValuePair<eESFieldType, string>> metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();      
                 // Check if group supports Templates
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (doesGroupUsesTemplates)
                 {
                     try
                     {
-                        CatalogGroupCache catalogGroupCache;
-                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                        {
-                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
-                            return false;
-                        }
-
                         HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
                         tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
                         foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Value))
@@ -203,24 +211,29 @@ namespace ElasticSearchHandler.IndexBuilders
             #endregion
 
             #region insert channel queries
+            List<Channel> groupChannels = null;
+            if (doesGroupUsesTemplates)
+            {
+                groupChannels = ChannelManager.GetGroupChannels(groupId);
+            }
+            else if (group.channelIDs != null)
+            {
+                groupChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
+            }
 
-            if (group.channelIDs != null)
+            if (groupChannels != null)
             {
                 log.Info(string.Format("Start indexing channels. total channels={0}", group.channelIDs.Count));
-
-
                 List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
                 try
                 {
-                    List<Channel> allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
-
                     ESMediaQueryBuilder mediaQueryParser = new ESMediaQueryBuilder()
                     {
                         QueryType = eQueryType.EXACT
                     };
                     var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, groupId);
 
-                    foreach (Channel currentChannel in allChannels)
+                    foreach (Channel currentChannel in groupChannels)
                     {
                         if (currentChannel == null || currentChannel.m_nIsActive != 1)
                             continue;

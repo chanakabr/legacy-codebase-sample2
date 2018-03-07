@@ -12,14 +12,13 @@ using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Response;
+using Core.Catalog.CatalogManagement;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
     public class ChannelIndexBuilderV1 : AbstractIndexBuilder
     {
-        private static readonly string MEDIA = "media";
         private static readonly string PERCOLATOR = "_percolator";
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public ChannelIndexBuilderV1(int groupID)
@@ -40,14 +39,29 @@ namespace ElasticSearchHandler.IndexBuilders
             // make sure the index exists - if not build the index
             if (api.IndexExists(indexName))
             {
-                GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(groupId);
-
-                if (group == null)
+                CatalogGroupCache catalogGroupCache = null;
+                Group group = null;
+                GroupManager groupManager = new GroupManager();                             
+                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                if (doesGroupUsesTemplates)
                 {
-                    log.ErrorFormat("Could not load group {0} in media index builder", groupId);
-                    return false;
+                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
+                        return false;
+                    }                
                 }
+                else
+                {
+                    groupManager.RemoveGroup(groupId);
+                    group = groupManager.GetGroup(groupId);
+                    if (group == null)
+                    {
+                        log.ErrorFormat("Could not load group {0} in channel index builder", groupId);
+                        return false;
+                    }               
+                }
+
                 try
                 {
                     // get current indexed channels
@@ -58,15 +72,17 @@ namespace ElasticSearchHandler.IndexBuilders
                     };
 
                     string query = filteredQuery.ToString();
-
                     string searchResults = api.Search(PERCOLATOR, indexName, ref query);
-
-                    List<string> currentChannelIds = ElasticSearch.Common.Utils.GetDocumentIds(searchResults);
-                    
+                    List<string> currentChannelIds = ElasticSearch.Common.Utils.GetDocumentIds(searchResults);                    
                     HashSet<string> channelsToRemove;
+                    HashSet<int> channelIds = new HashSet<int>();
+                    if (!doesGroupUsesTemplates)
+                    {
+                        channelIds = group.channelIDs;
+                    }
 
                     // insert / update new channels
-                    result = BuildChannelQueries(groupId, api, group.channelIDs, indexName, out channelsToRemove);
+                    result = BuildChannelQueries(groupId, api, group.channelIDs, indexName, out channelsToRemove, doesGroupUsesTemplates);
 
                     // remove old deleted channels
                     List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
@@ -120,22 +136,29 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #endregion
 
-        public static bool BuildChannelQueries(int groupId, ElasticSearchApi api, HashSet<int> channelIds, string newIndexName, out HashSet<string> channelsToRemove)
+        public static bool BuildChannelQueries(int groupId, ElasticSearchApi api, HashSet<int> channelIds, string newIndexName, out HashSet<string> channelsToRemove, bool doesGroupUsesTemplates)
         {
             channelsToRemove = new HashSet<string>();
 
             if (channelIds != null)
             {
-                log.Info(string.Format("Start indexing channels. total channels={0}", channelIds.Count));
-
+                log.Info(string.Format("Start indexing channels. total channels={0}, doesGroupUsesTemplates ={ 1}", channelIds.Count, doesGroupUsesTemplates));
                 List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
 
                 try
                 {
-                    GroupManager groupManager = new GroupManager();
-                    groupManager.RemoveGroup(groupId);
-
-                    List<Channel> allChannels = groupManager.GetChannels(channelIds.ToList(), groupId);
+                    List<Channel> groupChannels = null;
+                    if (doesGroupUsesTemplates)
+                    {
+                        groupChannels = ChannelManager.GetGroupChannels(groupId);
+                    }
+                    // means that channelIds != null
+                    else
+                    {
+                        GroupManager groupManager = new GroupManager();
+                        groupManager.RemoveGroup(groupId);
+                        groupChannels = groupManager.GetChannels(channelIds.ToList(), groupId);
+                    }
 
                     ESMediaQueryBuilder mediaQueryParser = new ESMediaQueryBuilder()
                     {
@@ -143,7 +166,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     };
                     var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, groupId);
 
-                    foreach (Channel currentChannel in allChannels)
+                    foreach (Channel currentChannel in groupChannels)
                     {
                         if (currentChannel == null || currentChannel.m_nIsActive != 1)
                             continue;
