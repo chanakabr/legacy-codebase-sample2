@@ -454,8 +454,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.PlayManifestUrl))
               .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
               .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.Url.Substring(src.Url.LastIndexOf('.'))))
-              .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("https") ? "https" : src.Url.StartsWith("http") ? "http" : string.Empty))
-              .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.ToString()))
+              .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("https") ? "https" : src.Url.StartsWith("http") ? "http" : string.Empty))                          
+              .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.HasValue ? src.StreamerType.ToString(): string.Empty))
               .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParam))
               .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => ConvertAdsPolicy(src.AdsPolicy)));
 
