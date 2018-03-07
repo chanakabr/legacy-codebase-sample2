@@ -243,7 +243,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     // For each language
                     foreach (int languageId in groupMedia.Value.Keys)
                     {
-                        var language = group.GetLanguage(languageId);
+                        ApiObjects.LanguageObj language = doesGroupUsesTemplates ? catalogGroupCache.LanguageMapById[languageId] : group.GetLanguage(languageId);
                         string suffix = null;
 
                         if (!language.IsDefault)

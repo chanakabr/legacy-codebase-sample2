@@ -82,7 +82,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     }
 
                     // insert / update new channels
-                    result = BuildChannelQueries(groupId, api, group.channelIDs, indexName, out channelsToRemove, doesGroupUsesTemplates);
+                    result = BuildChannelQueries(groupId, api, ref channelIds, indexName, out channelsToRemove, doesGroupUsesTemplates);
 
                     // remove old deleted channels
                     List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
@@ -92,7 +92,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     foreach (var channelId in currentChannelIds)
                     {
                         // channel is not in groups channel anymore / channel with empty query / channel id is not int - must be garbage
-                        if ((int.TryParse(channelId, out id) && !group.channelIDs.Contains(id)) || id == 0 || channelsToRemove.Contains(channelId))
+                        if ((int.TryParse(channelId, out id) && !channelIds.Contains(id)) || id == 0 || channelsToRemove.Contains(channelId))
                         {
                             log.DebugFormat("Removing channel from percolator - channelId = {0}", channelId);
 
@@ -136,7 +136,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #endregion
 
-        public static bool BuildChannelQueries(int groupId, ElasticSearchApi api, HashSet<int> channelIds, string newIndexName, out HashSet<string> channelsToRemove, bool doesGroupUsesTemplates)
+        public static bool BuildChannelQueries(int groupId, ElasticSearchApi api, ref HashSet<int> channelIds, string newIndexName, out HashSet<string> channelsToRemove, bool doesGroupUsesTemplates)
         {
             channelsToRemove = new HashSet<string>();
 
@@ -151,6 +151,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     if (doesGroupUsesTemplates)
                     {
                         groupChannels = ChannelManager.GetGroupChannels(groupId);
+                        channelIds = new HashSet<int>(groupChannels.Select(x => x.m_nChannelID));
                     }
                     // means that channelIds != null
                     else

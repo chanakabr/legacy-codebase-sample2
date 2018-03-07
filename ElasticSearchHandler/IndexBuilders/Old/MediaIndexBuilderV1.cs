@@ -181,8 +181,8 @@ namespace ElasticSearchHandler.IndexBuilders
                             string serializedMedia;
 
                             serializedMedia = serializer.SerializeMediaObject(media);
-
-                            string sType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
+                            ApiObjects.LanguageObj language = doesGroupUsesTemplates ? catalogGroupCache.LanguageMapById[languageId] : group.GetLanguage(languageId);
+                            string sType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, language);
 
                             bulkList.Add(new ESBulkRequestObj<int>()
                             {
