@@ -89,7 +89,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
             }
 
             Int32 nMenuID = 0;
-            //m_sMenu = TVinciShared.Menu.GetMainMenu(4, true, ref nMenuID);
+            m_sMenu = TVinciShared.Menu.GetMainMenu(4, true, ref nMenuID);
             if (Request.QueryString["stream_company_id"] != null &&
                 Request.QueryString["stream_company_id"].ToString() != "")
             {
@@ -105,7 +105,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
             else
                 Session["stream_company_id"] = 0;
 
-            //m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
         }
     }
 
