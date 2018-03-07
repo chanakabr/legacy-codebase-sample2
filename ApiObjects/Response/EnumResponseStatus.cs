@@ -239,6 +239,7 @@ namespace ApiObjects.Response
         DefaultCdnAdapterProfileNotConfigurd = 4063,
         ChannelDoesNotExist = 4064,
         MediaFileWithThisTypeAlreadyExistForAsset = 4065,
+        InvalidUrlForImage = 4066,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

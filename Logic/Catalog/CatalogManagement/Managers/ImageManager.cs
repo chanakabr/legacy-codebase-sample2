@@ -763,7 +763,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             using (WebClient webClient = new WebClient())
                             {
-                                byte[] imageBytes = webClient.DownloadData(url);                                
+                                byte[] imageBytes = webClient.DownloadData(url);                    
                                 MemoryStream imageStream = new MemoryStream(imageBytes);
                                 System.Drawing.Image downloadedImage = System.Drawing.Image.FromStream(imageStream);
                                 double downloadedImageRatio = (double)downloadedImage.Width / downloadedImage.Height;
@@ -779,6 +779,8 @@ namespace Core.Catalog.CatalogManagement
                         catch (Exception ex)
                         {
                             log.Error(string.Format("Failed to validate image ratio, groupId: {0}, imageId: {1}, url: {2}", groupId, id, url), ex);
+                            result = new Status((int)eResponseStatus.InvalidUrlForImage, eResponseStatus.InvalidUrlForImage.ToString());
+                            return result;
                         }
                     }
                 }
@@ -792,6 +794,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.ErrorFormat("POST to image server failed. imageId = {0}, contentId = {1}", image.Id, image.ContentId);
                     TVinciShared.ImageUtils.UpdateImageState(groupId, image.Id, image.Version, eMediaType.VOD, eTableStatus.Failed, (int)userId);
+                    result = new Status((int)eResponseStatus.InvalidUrlForImage, eResponseStatus.InvalidUrlForImage.ToString());
                     return result;
                 }
                 else if (res.ToLower() == "true")
