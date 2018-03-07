@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 using TVinciShared;
 
 public partial class adm_business_types_new : System.Web.UI.Page
@@ -117,10 +114,9 @@ public partial class adm_business_types_new : System.Web.UI.Page
         dr_isTrailer.Initialize("Trailer", "adm_table_header_nbg", "FormInput", "IS_TRAILER", false);
         theRecord.AddRecord(dr_isTrailer);
 
-        DataRecordDropDownField dr_streamerType = new DataRecordDropDownField("", "NAME", "id", "", null, 60, true);
+        DataRecordDropDownField dr_streamerType = new DataRecordDropDownField("", "NAME", "id", "", null, 60, false);
         dr_streamerType.SetSelectsDT(GetStreamerTypeDT());
         dr_streamerType.Initialize("Streamer type", "adm_table_header_nbg", "FormInput", "STREAMER_TYPE", false);
-        dr_streamerType.SetNoSelectStr("None");
         theRecord.AddRecord(dr_streamerType);
 
         DataRecordDropDownField dr_drmType = new DataRecordDropDownField("", "NAME", "id", "", null, 60, false);
@@ -138,10 +134,14 @@ public partial class adm_business_types_new : System.Web.UI.Page
         System.Data.DataTable dt = new System.Data.DataTable();
         dt.Columns.Add("id", typeof(int));
         dt.Columns.Add("txt", typeof(string));
-        foreach (ApiObjects.StreamerType r in Enum.GetValues(typeof(ApiObjects.StreamerType)))
+
+        var streamerTypes = ((ApiObjects.StreamerType[])Enum.GetValues(typeof(ApiObjects.StreamerType))).OrderBy(x => x);
+
+        foreach (ApiObjects.StreamerType r in streamerTypes)
         {
             dt.Rows.Add((int)r, r);
         }
+
         return dt;
     }
 
