@@ -16,6 +16,14 @@ namespace WebAPI.Models.Catalog
     public class KalturaChannel : KalturaBaseChannel
     {
         /// <summary>
+        /// Channel name
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty(PropertyName = "name")]
+        [XmlElement(ElementName = "name")]
+        public string Name { get; set; }
+
+        /// <summary>
         /// Cannel description
         /// </summary>
         [DataMember(Name = "description")]
