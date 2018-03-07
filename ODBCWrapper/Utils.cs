@@ -50,6 +50,20 @@ namespace ODBCWrapper
             }
         }
 
+        public static int? GetNullableInt(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return int.Parse(dr[sField].ToString());
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public static int GetIntSafeVal(DataRowView dr, string sField)
         {
             try
