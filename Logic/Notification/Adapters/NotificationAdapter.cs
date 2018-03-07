@@ -1,7 +1,6 @@
 ﻿using APILogic.AmazonSnsAdapter;
 using KLogMonitor;
 using Newtonsoft.Json;
-using Core.Notification;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -163,7 +162,7 @@ namespace Core.Notification.Adapters
             return result;
         }
 
-        public static string PublishToAnnouncement(int groupId,string externalAnnouncementId, string subject, MessageData message)
+        public static string PublishToAnnouncement(int groupId, string externalAnnouncementId, string subject, MessageData message)
         {
             string messageId = string.Empty;
 
@@ -193,7 +192,7 @@ namespace Core.Notification.Adapters
             return messageId;
         }
 
-        public static List<WSEndPointPublishDataResult> PublishToEndPoint(int groupId,WSEndPointPublishData publishData)
+        public static List<WSEndPointPublishDataResult> PublishToEndPoint(int groupId, WSEndPointPublishData publishData)
         {
             List<WSEndPointPublishDataResult> publishResult = new List<WSEndPointPublishDataResult>();
 
@@ -333,6 +332,34 @@ namespace Core.Notification.Adapters
                 }
             }
             return result;
+        }
+
+        public static bool SendSms(int groupId, string message, string phoneNumber)
+        {
+            bool success = false;
+
+            // validate notification URL exists
+            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
+                log.Error("Notification URL wasn't found");
+            else
+            {
+                try
+                {
+                    using (ServiceClient client = new ServiceClient())
+                    {
+                        client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
+
+                        success = client.SendSms(message, phoneNumber);
+
+                        log.DebugFormat("Send Sms to phoneNumber: {0}, success: {1}, message: {2}", phoneNumber, success, message);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to send SMS . ex {0}", ex);
+                }
+            }
+            return success;
         }
     }
 }

@@ -977,7 +977,7 @@ namespace Core.Notification
 
             return true;
         }
-        
+
         private static MessageTemplate GetMessageTemplate(int partnerId, eEngagementType eEngagementType)
         {
             MessageTemplate engagementTemplate = null;
@@ -1472,39 +1472,13 @@ namespace Core.Notification
 
             if (!string.IsNullOrEmpty(phoneNumber))
             {
-                List<EndPointData> usersEndPointDatas = new List<EndPointData>();
-
-                // prepare SMS
-                usersEndPointDatas.Add(new EndPointData()
+                // send SMS                
+                var success = NotificationAdapter.SendSms(groupId, message, phoneNumber);
+                if (!success)
                 {
-                    EndPointArn = phoneNumber,
-                    ExtraData = userId.ToString()
-                });
-
-                // prepare SMS 
-                WSEndPointPublishData publishData = new WSEndPointPublishData();
-                publishData.EndPoints = usersEndPointDatas;
-                publishData.Message = new MessageData()
-                {
-                    Alert = message
-                };
-
-                // send SMS
-                List<WSEndPointPublishDataResult> smsPublishResults = NotificationAdapter.PublishToEndPoint(groupId, publishData);
-                if (smsPublishResults == null)
-                {
-                    log.ErrorFormat("Error at PublishToEndPoint. GID: {0}, user ID: {1}, message: {2}", groupId, userId, message);
+                    log.ErrorFormat("Error at SendSMS. GID: {0}, user ID: {1}, message: {2}", groupId, userId, message);
                     result = new Status() { Code = (int)eResponseStatus.Error };
                     return result;
-                }
-
-                // log SMS results
-                foreach (var smsPublishResult in smsPublishResults)
-                {
-                    if (string.IsNullOrEmpty(smsPublishResult.ResultMessageId))
-                        log.ErrorFormat("Error occur at PublishToEndPoint. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", groupId, userId, smsPublishResult.EndPointArn, message);
-                    else
-                        log.DebugFormat("Successfully sent push message. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", groupId, userId, smsPublishResult.EndPointArn, message);
                 }
 
                 result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
