@@ -23,13 +23,5 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "id")]
         [SchemeProperty(ReadOnly = true)]
         public long? Id { get; set; }
-
-        /// <summary>
-        /// Channel name
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty(PropertyName = "name")]
-        [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
     }
 }

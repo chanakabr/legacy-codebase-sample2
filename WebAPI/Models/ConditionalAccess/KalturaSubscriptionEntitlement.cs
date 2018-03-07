@@ -78,6 +78,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "scheduledSubscriptionId")]
         [JsonProperty("scheduledSubscriptionId")]
         [XmlElement(ElementName = "scheduledSubscriptionId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public long? ScheduledSubscriptionId { get; set; }
 
         /// <summary>
@@ -86,6 +87,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "unifiedPaymentId")]
         [JsonProperty("unifiedPaymentId")]
         [XmlElement(ElementName = "unifiedPaymentId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public long? UnifiedPaymentId { get; set; }
 
         /// <summary>
