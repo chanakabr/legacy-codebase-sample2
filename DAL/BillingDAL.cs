@@ -2494,7 +2494,7 @@ namespace DAL
             }
         }
 
-        public static void GetRenewMailTriggerAccountSettings(int groupID, ref bool renewMail, ref bool failRenewMail)
+        public static void GetRenewMailTriggerAccountSettings(int groupID, out bool renewMail, out bool failRenewMail)
         {
             DataRow row = GetMailAndReminderTriggerAccountSettings(groupID);
             renewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_RENEW_MAIL") == 1 ? true : false;
@@ -2537,7 +2537,7 @@ namespace DAL
             return result;
         }
 
-        public static void GetPurchaseMailTriggerAccountSettings(int groupID, ref bool purchaseMail, ref bool failPurchaseMail)
+        public static void GetPurchaseMailTriggerAccountSettings(int groupID, out bool purchaseMail, out bool failPurchaseMail)
         {            
             DataRow row = GetMailAndReminderTriggerAccountSettings(groupID);
             purchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FIRST_PURCHASE_MAIL") == 1 ? true : false;
