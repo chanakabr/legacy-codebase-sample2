@@ -329,7 +329,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 channelIds = group.channelIDs;
             }
 
-            ChannelIndexBuilderV2.BuildChannelQueries(groupId, api, channelIds, newIndexName, out channelsToRemove, doesGroupUsesTemplates);
+            ChannelIndexBuilderV2.BuildChannelQueries(groupId, api, ref channelIds, newIndexName, out channelsToRemove, doesGroupUsesTemplates);
             
             #endregion
 
