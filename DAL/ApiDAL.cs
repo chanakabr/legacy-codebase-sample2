@@ -4209,11 +4209,16 @@ namespace DAL
                         Type = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"), 
                         IsTrailer = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false,
                         CdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
-                        StreamerType = (StreamerType)ODBCWrapper.Utils.GetIntSafeVal(dr, "streamer_type"),
                         Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                         DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
                         MediaId = mediaId,
                     };
+
+                    if (ODBCWrapper.Utils.GetNullableInt(dr, "streamer_type").HasValue)
+                    {
+                        file.StreamerType = (StreamerType)ODBCWrapper.Utils.GetNullableInt(dr, "streamer_type");
+                    }
+
 
                     files.Add(file);
                 }
