@@ -145,6 +145,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.ImageDoesNotExist)]
         [Throws(eResponseStatus.InvalidRatioForImage)]
+        [Throws(eResponseStatus.InvalidUrlForImage)]
         public void SetContent(long id, KalturaContentResource content)
         {            
             int groupId = KS.GetFromRequest().GroupId;
