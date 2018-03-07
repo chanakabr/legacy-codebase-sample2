@@ -96,7 +96,7 @@ namespace ElasticSearchHandler.IndexBuilders
             #endregion
 
             #region create mapping
-            foreach (ApiObjects.LanguageObj language in group.GetLangauges())
+            foreach (ApiObjects.LanguageObj language in languages)
             {
                 MappingAnalyzers specificMappingAnlyzers = GetMappingAnalyzers(language, string.Empty);
 
