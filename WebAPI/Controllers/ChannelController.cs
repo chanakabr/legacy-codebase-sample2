@@ -184,14 +184,14 @@ namespace WebAPI.Controllers
         /// NoObjectToInsert = 4019,
         /// NameRequired = 5005
         /// </remarks>
-        /// <param name="channelId">Channel identifier</param>      
+        /// <param name="id">Channel identifier</param>      
         /// <param name="channel">KSQL channel Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.ObjectNotExist)]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
-        public KalturaChannel Update(int channelId, KalturaChannel channel)
+        public KalturaChannel Update(int id, KalturaChannel channel)
         {
             KalturaChannel response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
@@ -210,12 +210,12 @@ namespace WebAPI.Controllers
                 // KalturaManualChannel or KalturaDynamicChannel                             
                 if (manualChannelType.IsAssignableFrom(channel.GetType()) || dynamicChannelType.IsAssignableFrom(channel.GetType()))
                 {
-                    response = ClientsManager.CatalogClient().UpdateChannel(groupId, channelId, channel, userId);
+                    response = ClientsManager.CatalogClient().UpdateChannel(groupId, id, channel, userId);
                 }
                 // KalturaChannel (backward compatability)
                 else if (dynamicChannelType.IsAssignableFrom(channel.GetType()))
                 {
-                    channel.Id = channelId;
+                    channel.Id = id;
                     response = ClientsManager.CatalogClient().SetKSQLChannel(groupId, channel, userId);
                 }
 

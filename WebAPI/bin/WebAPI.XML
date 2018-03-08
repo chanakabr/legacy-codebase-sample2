@@ -3046,7 +3046,7 @@
             NoObjectToInsert = 4019,
             NameRequired = 5005
             </remarks>
-            <param name="channelId">Channel identifier</param>      
+            <param name="id">Channel identifier</param>      
             <param name="channel">KSQL channel Object</param>       
         </member>
         <member name="M:WebAPI.Controllers.ChannelController.AddOldStandard(WebAPI.Models.API.KalturaChannelProfile)">
