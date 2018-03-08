@@ -805,6 +805,7 @@ namespace Core.Notification
 
                         // insert create user engagement message to CB
                         UserEngagement userEngagement = new UserEngagement(partnerId, userList[(int)i], engagementToBeSent.Id, insertedBulkMessage.Id);
+                        userEngagement.IsEngagementSent = bulkMessage.IsSent;
                         if (!EngagementDal.SetUserEngagement(userEngagement))
                             log.ErrorFormat("Error inserting user engagement message into CB. User message: {0}", JsonConvert.SerializeObject(userEngagement));
                     }
@@ -1091,7 +1092,7 @@ namespace Core.Notification
                     // update user document with result push ID
                     if (userEngagement != null)
                     {
-                        userEngagement.ResultPushIds.Add(pushPublishResult.ResultMessageId);
+                        userEngagement.ResultPushIds.Add(pushPublishResult.ResultMessageId);                        
                         if (!EngagementDal.SetUserEngagement(userEngagement))
                         {
                             log.ErrorFormat("Error occurred while updating user engagement data with result push token. GID: {0}, user ID: {1}, EndPointArn: {2}",
