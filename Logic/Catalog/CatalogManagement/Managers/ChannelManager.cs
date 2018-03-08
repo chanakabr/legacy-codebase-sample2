@@ -190,11 +190,16 @@ namespace Core.Catalog.CatalogManagement
                         if (channelMedias != null)
                         {
                             List<GroupsCacheManager.ManualMedia> manualMedias = new List<GroupsCacheManager.ManualMedia>();
+                            HashSet<int> mediaIdsSet = new HashSet<int>();
                             foreach (DataRow mediaRow in channelMedias)
                             {
-                                string mediaId = ODBCWrapper.Utils.GetSafeStr(mediaRow, "MEDIA_ID");
+                                int mediaId = ODBCWrapper.Utils.GetIntSafeVal(mediaRow, "MEDIA_ID");
                                 int orderNum = ODBCWrapper.Utils.GetIntSafeVal(mediaRow, "ORDER_NUM");
-                                manualMedias.Add(new GroupsCacheManager.ManualMedia(mediaId, orderNum));
+                                if (!mediaIdsSet.Contains(mediaId))
+                                {
+                                    mediaIdsSet.Add(mediaId);
+                                    manualMedias.Add(new GroupsCacheManager.ManualMedia(mediaId.ToString(), orderNum));
+                                }
                             }
 
                             if (manualMedias != null)

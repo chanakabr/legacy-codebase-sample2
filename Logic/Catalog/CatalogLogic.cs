@@ -7355,6 +7355,7 @@ namespace Core.Catalog
             if (definitions.isOperatorSearch)
             {
                 definitions.shouldAddIsActiveTerm = false;
+                definitions.shouldIgnoreDeviceRuleID = true;
             }
 
             #endregion
@@ -7533,6 +7534,12 @@ namespace Core.Catalog
                         }
                     default:
                         break;
+                }
+
+                // need to build channel tags from manualMedias
+                if (channel.m_nChannelTypeID == (int)ChannelType.Manual && channel.m_lManualMedias != null && channel.m_lManualMedias.Count > 0)
+                {
+                    channel.m_lChannelTags = channel.m_lManualMedias.Select(x => new SearchValue() { m_sKey = "media_id", m_lValue = new List<string>() { x.m_sMediaId } }).ToList();
                 }
 
                 // If there is at least one tag

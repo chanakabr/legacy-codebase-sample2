@@ -60,6 +60,7 @@ namespace Core.Catalog
                 if (definitions.isOperatorSearch)
                 {
                     definitions.shouldAddIsActiveTerm = false;
+                    definitions.shouldIgnoreDeviceRuleID = true;
                 }
 
                 if (request.filterTree != null)
