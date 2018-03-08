@@ -1295,12 +1295,7 @@ namespace Core.Notification
 
                 seriesReminders = seriesReminders != null && seriesReminders.Count > 0 ? seriesReminders.Where(sr => sr.SeasonNumber == seasonNumber || sr.SeasonNumber == 0).ToList() : null;
 
-                if (seriesReminders == null || seriesReminders.Count == 0)
-                {
-                    log.ErrorFormat("failed to get series reminders for programId = {0}, seriesId = {1}, seasonNumber = {2}, epgChannelId = {3}",
-                        program.AssetId, seriesId, seasonNumber, program.m_oProgram.EPG_CHANNEL_ID);
-                }
-                else
+                if (seriesReminders != null && seriesReminders.Count > 0)
                 {
                     log.DebugFormat("found series reminders for the program");
 
