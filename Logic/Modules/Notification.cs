@@ -623,12 +623,12 @@ namespace Core.Notification
             return response;
         }
 
-        public static GetUserFollowsResponse GetUserFollows(int nGroupID, int userId, int pageSize, int pageIndex, OrderDir order)
+        public static GetUserFollowsResponse GetUserFollows(int nGroupID, int userId, int pageSize, int pageIndex, OrderDir order, bool isFollowTvSeriesRequest = false)
         {
             GetUserFollowsResponse response = null;
             try
             {
-                response = FollowManager.Get_UserFollows(nGroupID, userId, pageSize, pageIndex, order);
+                response = FollowManager.Get_UserFollows(nGroupID, userId, pageSize, pageIndex, order, isFollowTvSeriesRequest);
             }
             catch (Exception ex)
             {

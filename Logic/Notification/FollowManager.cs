@@ -312,7 +312,7 @@ namespace Core.Notification
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()); ;
         }
 
-        public static GetUserFollowsResponse Get_UserFollows(int groupId, int userId, int pageSize, int pageIndex, OrderDir order)
+        public static GetUserFollowsResponse Get_UserFollows(int groupId, int userId, int pageSize, int pageIndex, OrderDir order, bool isFollowTvSeriesRequest = false)
         {
             GetUserFollowsResponse userFollowResponse = new GetUserFollowsResponse();
             userFollowResponse.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -338,10 +338,21 @@ namespace Core.Notification
                 NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
 
                 if (dbAnnouncements != null)
-                    dbAnnouncements = dbAnnouncements.Where(ann => userNotificationData.Announcements.Select(userAnn => userAnn.AnnouncementId).Contains(ann.ID)).ToList();
+                {
+                    // filter out mail if its for follow tv series
+                    if (isFollowTvSeriesRequest)
+                    {
+                        dbAnnouncements = dbAnnouncements.Where(ann => ann.RecipientsType != eAnnouncementRecipientsType.Mail
+                                                                        && userNotificationData.Announcements.Select(userAnn => userAnn.AnnouncementId).Contains(ann.ID)).ToList();
+                    }
+                    else
+                    {
+                        dbAnnouncements = dbAnnouncements.Where(ann => userNotificationData.Announcements.Select(userAnn => userAnn.AnnouncementId).Contains(ann.ID)).ToList();
+                    }
+                }
 
                 // create response object
-                userFollowResponse.Follows = dbAnnouncements.Select(x => new FollowDataBase(groupId, x.FollowPhrase)
+                    userFollowResponse.Follows = dbAnnouncements.Select(x => new FollowDataBase(groupId, x.FollowPhrase)
                 {
                     AnnouncementId = x.ID,
                     Status = 1,                         // only enabled status in this phase
