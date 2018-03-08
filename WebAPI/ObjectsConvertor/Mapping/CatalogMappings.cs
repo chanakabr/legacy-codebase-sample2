@@ -1329,73 +1329,77 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         public static OrderObj ConvertAssetOrderToOrderObj(KalturaChannelOrder order)
         {
-            OrderObj result = new OrderObj();
-            if (order.DynamicOrderBy != null)
+            OrderObj result = null;
+            if (order != null)
             {
-                result.m_eOrderBy = OrderBy.META;
-                result.m_eOrderDir = order.DynamicOrderBy.OrderBy.HasValue ? order.DynamicOrderBy.OrderBy.Value == KalturaMetaTagOrderBy.META_ASC ? OrderDir.ASC : OrderDir.DESC : OrderDir.ASC;
-                result.m_sOrderValue = order.DynamicOrderBy.Name;
-            }
-            else
-            {
-                result.m_sOrderValue = null;
-                switch (order.orderBy)
+                result = new OrderObj();
+                if (order.DynamicOrderBy != null)
                 {
-                    case KalturaChannelOrderBy.NAME_ASC:
-                        result.m_eOrderBy = OrderBy.NAME;
-                        result.m_eOrderDir = OrderDir.ASC;
-                        break;
-                    case KalturaChannelOrderBy.NAME_DESC:
-                        result.m_eOrderBy = OrderBy.NAME;
-                        result.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case KalturaChannelOrderBy.VIEWS_DESC:
-                        result.m_eOrderBy = OrderBy.VIEWS;
-                        result.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case KalturaChannelOrderBy.RATINGS_DESC:
-                        result.m_eOrderBy = OrderBy.RATING;
-                        result.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case KalturaChannelOrderBy.VOTES_DESC:
-                        result.m_eOrderBy = OrderBy.VOTES_COUNT;
-                        result.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case KalturaChannelOrderBy.START_DATE_DESC:
-                        result.m_eOrderBy = OrderBy.START_DATE;
-                        result.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case KalturaChannelOrderBy.RELEVANCY_DESC:
-                        result.m_eOrderBy = OrderBy.RELATED;
-                        result.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case KalturaChannelOrderBy.START_DATE_ASC:
-                        result.m_eOrderBy = OrderBy.START_DATE;
-                        result.m_eOrderDir = OrderDir.ASC;
-                        break;
-                    case KalturaChannelOrderBy.CREATE_DATE_ASC:
-                        result.m_eOrderBy = OrderBy.CREATE_DATE;
-                        result.m_eOrderDir = OrderDir.ASC;
-                        break;
-                    case KalturaChannelOrderBy.CREATE_DATE_DESC:
-                        result.m_eOrderBy = OrderBy.CREATE_DATE;
-                        result.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case KalturaChannelOrderBy.LIKES_DESC:
-                        result.m_eOrderBy = OrderBy.LIKE_COUNTER;
-                        result.m_eOrderDir = OrderDir.DESC;
-                        break;
-                    case KalturaChannelOrderBy.ORDER_NUM:
-                        result.m_eOrderBy = OrderBy.ID;
-                        result.m_eOrderDir = OrderDir.ASC;
-                        break;
+                    result.m_eOrderBy = OrderBy.META;
+                    result.m_eOrderDir = order.DynamicOrderBy.OrderBy.HasValue ? order.DynamicOrderBy.OrderBy.Value == KalturaMetaTagOrderBy.META_ASC ? OrderDir.ASC : OrderDir.DESC : OrderDir.ASC;
+                    result.m_sOrderValue = order.DynamicOrderBy.Name;
                 }
-
-                if (order.SlidingWindowPeriod.HasValue)
+                else
                 {
-                    result.m_bIsSlidingWindowField = true;
-                    result.isSlidingWindowFromRestApi = true;
-                    result.lu_min_period_id = order.SlidingWindowPeriod.Value;
+                    result.m_sOrderValue = null;
+                    switch (order.orderBy)
+                    {
+                        case KalturaChannelOrderBy.NAME_ASC:
+                            result.m_eOrderBy = OrderBy.NAME;
+                            result.m_eOrderDir = OrderDir.ASC;
+                            break;
+                        case KalturaChannelOrderBy.NAME_DESC:
+                            result.m_eOrderBy = OrderBy.NAME;
+                            result.m_eOrderDir = OrderDir.DESC;
+                            break;
+                        case KalturaChannelOrderBy.VIEWS_DESC:
+                            result.m_eOrderBy = OrderBy.VIEWS;
+                            result.m_eOrderDir = OrderDir.DESC;
+                            break;
+                        case KalturaChannelOrderBy.RATINGS_DESC:
+                            result.m_eOrderBy = OrderBy.RATING;
+                            result.m_eOrderDir = OrderDir.DESC;
+                            break;
+                        case KalturaChannelOrderBy.VOTES_DESC:
+                            result.m_eOrderBy = OrderBy.VOTES_COUNT;
+                            result.m_eOrderDir = OrderDir.DESC;
+                            break;
+                        case KalturaChannelOrderBy.START_DATE_DESC:
+                            result.m_eOrderBy = OrderBy.START_DATE;
+                            result.m_eOrderDir = OrderDir.DESC;
+                            break;
+                        case KalturaChannelOrderBy.RELEVANCY_DESC:
+                            result.m_eOrderBy = OrderBy.RELATED;
+                            result.m_eOrderDir = OrderDir.DESC;
+                            break;
+                        case KalturaChannelOrderBy.START_DATE_ASC:
+                            result.m_eOrderBy = OrderBy.START_DATE;
+                            result.m_eOrderDir = OrderDir.ASC;
+                            break;
+                        case KalturaChannelOrderBy.CREATE_DATE_ASC:
+                            result.m_eOrderBy = OrderBy.CREATE_DATE;
+                            result.m_eOrderDir = OrderDir.ASC;
+                            break;
+                        case KalturaChannelOrderBy.CREATE_DATE_DESC:
+                            result.m_eOrderBy = OrderBy.CREATE_DATE;
+                            result.m_eOrderDir = OrderDir.DESC;
+                            break;
+                        case KalturaChannelOrderBy.LIKES_DESC:
+                            result.m_eOrderBy = OrderBy.LIKE_COUNTER;
+                            result.m_eOrderDir = OrderDir.DESC;
+                            break;
+                        case KalturaChannelOrderBy.ORDER_NUM:
+                            result.m_eOrderBy = OrderBy.ID;
+                            result.m_eOrderDir = OrderDir.ASC;
+                            break;
+                    }
+
+                    if (order.SlidingWindowPeriod.HasValue)
+                    {
+                        result.m_bIsSlidingWindowField = true;
+                        result.isSlidingWindowFromRestApi = true;
+                        result.lu_min_period_id = order.SlidingWindowPeriod.Value;
+                    }
                 }
             }
 
