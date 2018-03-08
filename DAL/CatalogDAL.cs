@@ -5435,7 +5435,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateChannel(int groupId, int id, string systemName, string name, string description, int isActive, int orderBy, int orderByDir, string orderByValue, string filterQuery, List<int> assetTypes, string groupBy,
+        public static DataSet UpdateChannel(int groupId, int id, string systemName, string name, string description, int isActive, int? orderBy, int? orderByDir, string orderByValue, string filterQuery, List<int> assetTypes, string groupBy,
             List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateChannel");
@@ -5445,8 +5445,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@name", name);
             sp.AddParameter("@description", description);
             sp.AddParameter("@isActive", isActive);
-            sp.AddParameter("@orderBy", orderBy);
-            sp.AddParameter("@orderDirection", orderByDir + 1);
+            sp.AddParameter("@orderBy", orderBy.HasValue ? orderBy : null);
+            sp.AddParameter("@orderDirection", orderByDir.HasValue ? orderByDir + 1 : null);
             sp.AddParameter("@orderByValue", orderByValue);
             sp.AddParameter("@Filter", filterQuery);
             sp.AddParameter("@groupBy", groupBy);
