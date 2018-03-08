@@ -719,9 +719,18 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 string groupBy = channelToUpdate.searchGroupBy != null && channelToUpdate.searchGroupBy.groupBy != null && channelToUpdate.searchGroupBy.groupBy.Count == 1 ? channelToUpdate.searchGroupBy.groupBy.First() : null;
-                DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, (int)channelToUpdate.m_OrderObject.m_eOrderBy,
-                                                        (int)channelToUpdate.m_OrderObject.m_eOrderDir, channelToUpdate.m_OrderObject.m_sOrderValue, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy,
-                                                        languageCodeToName, languageCodeToDescription, mediaIdsToOrderNum, userId);
+                int? orderByType = null;
+                int? orderByDir = null;
+                string orderByValue = null;
+                if (channelToUpdate.m_OrderObject != null)
+                {
+                    orderByType = (int)channelToUpdate.m_OrderObject.m_eOrderBy;
+                    orderByDir = (int)channelToUpdate.m_OrderObject.m_eOrderDir;
+                    orderByValue = channelToUpdate.m_OrderObject.m_sOrderValue;
+                }
+                DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, orderByType,
+                                                        orderByDir, orderByValue, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
+                                                        mediaIdsToOrderNum, userId);
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
                     DataRow dr = ds.Tables[0].Rows[0];
