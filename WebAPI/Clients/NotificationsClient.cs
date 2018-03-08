@@ -581,7 +581,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order);
+                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order, true);
                 }
             }
             catch (Exception ex)
