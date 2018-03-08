@@ -6138,11 +6138,6 @@
             Unique identifier for the channel
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaBaseChannel.Name">
-            <summary>
-            Channel name
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaPersonalAssetRequest.Id">
             <summary>
             Unique identifier for the asset
@@ -6251,6 +6246,11 @@
         <member name="T:WebAPI.Models.Catalog.KalturaChannel">
             <summary>
             Channel details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.Name">
+            <summary>
+            Channel name
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannel.Description">

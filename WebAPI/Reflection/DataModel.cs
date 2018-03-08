@@ -2565,8 +2565,6 @@ namespace WebAPI.Reflection
                     {
                         case "Id":
                             return "id";
-                        case "Name":
-                            return "name";
                     }
                     break;
                     
@@ -2793,6 +2791,8 @@ namespace WebAPI.Reflection
                             return "isActive";
                         case "MediaTypes":
                             return "media_types";
+                        case "Name":
+                            return "name";
                         case "Order":
                             return "order";
                     }
