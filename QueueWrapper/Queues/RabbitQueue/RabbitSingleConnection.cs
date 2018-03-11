@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace QueueWrapper
 {
@@ -270,15 +271,19 @@ namespace QueueWrapper
             int failCounterLimit = this.FAIL_COUNT_LIMIT;  // A random value was chosen here. It is only for a case on which we can't read value neither from TCM nor from AppSettings
             try
             {
-                string sFailCountLimit = Utils.GetTcmConfigValue("queue_fail_limit");
+                int tcmFailCountLimit = ApplicationConfiguration.QueueFailLimit.IntValue;
+
                 bool isParseSucceeded = false;
-                if (string.IsNullOrEmpty(sFailCountLimit)) // If reading from TCM failed, try to read from extra.config. Else, convert to int
+
+                // If reading from TCM failed, try to read from extra.config. Else, convert to int
+                if (tcmFailCountLimit <= 0)
                 {
-                    isParseSucceeded = int.TryParse(ConfigurationManager.AppSettings["queue_fail_limit"], out failCounterLimit);
+                    isParseSucceeded = int.TryParse(System.Configuration.ConfigurationManager.AppSettings["queue_fail_limit"], out failCounterLimit);
                 }
                 else
                 {
-                    isParseSucceeded = int.TryParse(sFailCountLimit, out failCounterLimit);
+                    isParseSucceeded = true;
+                    failCounterLimit = tcmFailCountLimit;
                 }
 
                 // If any reading failed, set the failCounterLimit as the constant

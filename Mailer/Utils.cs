@@ -84,6 +84,5 @@ namespace Mailer
 
             return mcKey;
         }
-
     }
 }
