@@ -1971,7 +1971,9 @@ namespace ElasticSearch.Searcher
 
         private IESTerm BuildEntitledAssetsQuery()
         {
-            BoolQuery result = new BoolQuery();
+            IESTerm result = null;
+
+            BoolQuery boolQuery = new BoolQuery();
 
             BaseFilterCompositeType assetsFilter = new FilterCompositeType(CutWith.OR);
 
@@ -2099,7 +2101,7 @@ namespace ElasticSearch.Searcher
 
                 channelsTerm.Value.AddRange(entitlementSearchDefinitions.epgChannelIds.Select(i => i.ToString()));
 
-                result.AddChild(channelsTerm, CutWith.OR);
+                boolQuery.AddChild(channelsTerm, CutWith.OR);
             }
 
             //
@@ -2112,7 +2114,7 @@ namespace ElasticSearch.Searcher
                     (this.SubscriptionsQuery == null || 
                     (this.SubscriptionsQuery.IsEmpty() && specificAssetsTerm.Filter.FilterSettings.IsEmpty())))
                 {
-                    result.AddChild(new ESTerm(true)
+                    boolQuery.AddChild(new ESTerm(true)
                     {
                         Key = "_id",
                         Value = "-1"
@@ -2122,8 +2124,8 @@ namespace ElasticSearch.Searcher
                 else
                 {
                     // Connect all the channels in the entitled user's subscriptions
-                    result.AddChild(this.SubscriptionsQuery, CutWith.OR);
-                    result.AddChild(specificAssetsTerm, CutWith.OR);
+                    boolQuery.AddChild(this.SubscriptionsQuery, CutWith.OR);
+                    boolQuery.AddChild(specificAssetsTerm, CutWith.OR);
                 }
             }
             else
@@ -2134,12 +2136,24 @@ namespace ElasticSearch.Searcher
             // Get free assets only if requested in definitions
             if (entitlementSearchDefinitions.shouldGetFreeAssets)
             {
-                result.AddChild(isFreeTerm, CutWith.OR);
+                boolQuery.AddChild(isFreeTerm, CutWith.OR);
 
                 if (fileTypeTerm != null)
                 {
-                    result.AddChild(fileTypeTerm, CutWith.OR);
+                    boolQuery.AddChild(fileTypeTerm, CutWith.OR);
                 }
+            }
+
+            // if we want to get the assets the user is NOT entitled to, we will invert everything we have done up until now
+            if (entitlementSearchDefinitions.shouldSearchNotEntitled)
+            {
+                BoolQuery notBoolQuery = new Searcher.BoolQuery();
+                notBoolQuery.AddNot(boolQuery);
+                result = notBoolQuery;
+            }
+            else
+            {
+                result = boolQuery;
             }
 
             return result;
