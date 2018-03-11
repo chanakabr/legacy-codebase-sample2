@@ -40,6 +40,7 @@ using TVinciShared;
 using Core.Notification;
 using Catalog.Response;
 using ElasticSearch.Common;
+using ConfigurationManager;
 
 namespace Core.Catalog
 {
@@ -76,7 +77,7 @@ namespace Core.Catalog
         protected static readonly string META_BOOL_SUFFIX = "_BOOL";
         protected static readonly string META_DATE_PREFIX = "date";
 
-        private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
+        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
 
         private const string NO_META_TO_UPDATE = "No meta update";
         private const string NAME_REQUIRED = "Name must have a value";
@@ -7927,7 +7928,7 @@ namespace Core.Catalog
             {
                 CouchbaseManager.ViewStaleState staleState = CouchbaseManager.ViewStaleState.Ok;
 
-                string staleStateConfiguration = ODBCWrapper.Utils.GetTcmConfigValue("WatchHistory_StaleMode");
+                string staleStateConfiguration = ApplicationConfiguration.CatalogLogicConfiguration.WatchHistoryStaleMode.Value;
 
                 if (!string.IsNullOrEmpty(staleStateConfiguration))
                 {

@@ -3,6 +3,7 @@ using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
+using ConfigurationManager;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
@@ -38,15 +39,15 @@ namespace Core.Notification
         private const int MIN_TIME_FOR_START_TIME_SECONDS = 30;
 
         private static string CatalogSignString = Guid.NewGuid().ToString();
-        private static string CatalogSignatureKey = ODBCWrapper.Utils.GetTcmConfigValue("CatalogSignatureKey");
+        private static string CatalogSignatureKey = ApplicationConfiguration.CatalogSignatureKey.Value;
 
         private const string ANNOUNCEMENT_NOT_FOUND = "Announcement Not Found";
         private const string ANNOUNCEMENT_QUEUE_NAME_FORMAT = @"Announcement_{0}_{1}"; // Announcement_{GID}_{AnnID}
 
 
-        private static string outerPushDomainName = ODBCWrapper.Utils.GetTcmConfigValue("PushDomainName");
-        private static string outerPushServerSecret = ODBCWrapper.Utils.GetTcmConfigValue("PushServerKey");
-        private static string outerPushServerIV = ODBCWrapper.Utils.GetTcmConfigValue("PushServerIV");
+        private static string outerPushDomainName = ApplicationConfiguration.AnnouncementManagerConfiguration.PushDomainName.Value;
+        private static string outerPushServerSecret = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerKey.Value;
+        private static string outerPushServerIV = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerIV.Value;
 
         //private static string PushNotificationQueueTTLMilliSec = ODBCWrapper.Utils.GetTcmConfigValue("PushNotificationQueueTTLMilliSec");
         public const int PUSH_MESSAGE_EXPIRATION_MILLI_SEC = 3000;

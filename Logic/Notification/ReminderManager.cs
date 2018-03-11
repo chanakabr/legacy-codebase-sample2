@@ -24,6 +24,7 @@ using TVinciShared;
 using System.Threading.Tasks;
 using CachingProvider.LayeredCache;
 using APILogic.Notification;
+using ConfigurationManager;
 
 namespace Core.Notification
 {
@@ -31,13 +32,12 @@ namespace Core.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string REMINDER_QUEUE_NAME_FORMAT = @"Reminder_{0}_{1}"; // Reminder_GID_ReminderID
-        private static string outerPushServerSecret = ODBCWrapper.Utils.GetTcmConfigValue("PushServerKey");
-        private static string outerPushServerIV = ODBCWrapper.Utils.GetTcmConfigValue("PushServerIV");
-        private static string outerPushDomainName = ODBCWrapper.Utils.GetTcmConfigValue("PushDomainName");
-
-
+        private static string outerPushServerSecret = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerKey.Value;
+        private static string outerPushServerIV = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerIV.Value;
+        private static string outerPushDomainName = ApplicationConfiguration.AnnouncementManagerConfiguration.PushDomainName.Value;
+        
         private static string CatalogSignString = Guid.NewGuid().ToString();
-        private static string CatalogSignatureKey = ODBCWrapper.Utils.GetTcmConfigValue("CatalogSignatureKey");
+        private static string CatalogSignatureKey = ApplicationConfiguration.CatalogSignatureKey.Value;
 
         public const double REMINDER_CLEANUP_INTERVAL_SEC = 21600; // 6 hours 
         private const string ROUTING_KEY_REMINDERS_MESSAGES = "PROCESS_MESSAGE_REMINDERS";
