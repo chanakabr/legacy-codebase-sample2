@@ -10,6 +10,7 @@ using KLogMonitor;
 using System.Reflection;
 using ApiObjects.TimeShiftedTv;
 using ApiObjects.SubscriptionSet;
+using ConfigurationManager;
 
 namespace DAL
 {
@@ -17,7 +18,7 @@ namespace DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
-        private static readonly uint CACHED_ENTITLEMENT_RESULTS_TTL_SEC = TCMClient.Settings.Instance.GetValue<uint>("LicenseLinkCacheInSec");
+        private static readonly uint CACHED_ENTITLEMENT_RESULTS_TTL_SEC = (uint)ApplicationConfiguration.LicensedLinksCacheConfiguration.CacheTimeInSeconds.IntValue;
 
         public static DataTable Get_MediaFileByProductCode(int nGroupID, string sProductCode)
         {

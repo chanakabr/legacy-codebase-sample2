@@ -11,6 +11,7 @@ using ApiObjects.Notification;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
+using ConfigurationManager;
 
 namespace DAL
 {
@@ -488,7 +489,8 @@ namespace DAL
             try
             {
                 // get user interest TTL
-                int userInterestTtl = TCMClient.Settings.Instance.GetValue<int>("ttl_user_interest_days");
+                int userInterestTtl = ApplicationConfiguration.UserInterestsTTLDays.IntValue;
+
                 if (userInterestTtl == 0)
                     userInterestTtl = TTL_USER_INTEREST_DAYS;
 

@@ -61,22 +61,7 @@ namespace Mailer
 
             }
         }
-
-        public static string GetTcmConfigValue(string sKey)
-        {
-            string result = string.Empty;
-            try
-            {
-                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
-            }
-            catch (Exception ex)
-            {
-                result = string.Empty;
-                log.Error("Mailer - Key=" + sKey + "," + ex.Message, ex);
-            }
-            return result;
-        }
-
+        
         public static string GetGroupMcKey(int groupId)
         {
             string mcKey = string.Empty;

@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Statistics;
+using ConfigurationManager;
 using ElasticSearch.Common;
 using KLogMonitor;
 using System;
@@ -31,9 +32,9 @@ namespace ElasticSearch.Utilities
                 Date = DateTime.UtcNow
             };
 
-            string urlV1 = Utils.GetWSURL("ES_URL_V1");
-            string urlV2 = Utils.GetWSURL("ES_URL_V2");
-            string originalUrl = Utils.GetWSURL("ES_URL");
+            string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
+            string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
+            string originalUrl = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
 
             HashSet<string> urls = new HashSet<string>();
             urls.Add(urlV1);
@@ -102,9 +103,9 @@ namespace ElasticSearch.Utilities
         {
             bool result = false;
 
-            string urlV1 = Utils.GetWSURL("ES_URL_V1");
-            string urlV2 = Utils.GetWSURL("ES_URL_V2");
-            string originalUrl = Utils.GetWSURL("ES_URL");
+            string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
+            string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
+            string originalUrl = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
 
             HashSet<string> urls = new HashSet<string>();
             urls.Add(urlV1);

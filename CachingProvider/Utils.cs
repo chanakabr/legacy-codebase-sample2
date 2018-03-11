@@ -11,7 +11,6 @@ namespace CachingProvider
 {
     public class Utils
     {
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static double GetDoubleValueFromTcm(string key)
@@ -36,8 +35,9 @@ namespace CachingProvider
             try
             {
                 result = TCMClient.Settings.Instance.GetValue<T>(key);
+
                 if (result == null)
-                    throw new NullReferenceException("missing key");
+                    log.ErrorFormat("GetTcmGenericValue - couldn't find key {0}", key);
             }
             catch (Exception ex)
             {
@@ -53,10 +53,9 @@ namespace CachingProvider
             try
             {
                 result = TCMClient.Settings.Instance.GetValue<string>(key);
-                if (string.IsNullOrEmpty(result))
-                {
-                    throw new Exception("missing key");
-                }
+
+                if (result == null)
+                    log.ErrorFormat("GetTcmConfigValue - couldn't find key {0}", key);
             }
             catch (Exception ex)
             {

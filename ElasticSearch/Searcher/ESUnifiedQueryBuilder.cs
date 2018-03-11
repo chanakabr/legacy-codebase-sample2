@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiObjects.SearchObjects;
+using ConfigurationManager;
 
 namespace ElasticSearch.Searcher
 {
@@ -121,9 +122,9 @@ namespace ElasticSearch.Searcher
         /// </summary>
         static ESUnifiedQueryBuilder()
         {
-            string maxResults = Common.Utils.GetWSURL("MAX_RESULTS");
+            MAX_RESULTS = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
 
-            if (!int.TryParse(maxResults, out MAX_RESULTS))
+            if (MAX_RESULTS == 0)
             {
                 MAX_RESULTS = 10000;
             }

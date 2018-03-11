@@ -81,11 +81,11 @@
     <Compile Include="LayeredCache\Config\LayeredCacheBucketSettings.cs" />
     <Compile Include="LayeredCache\Config\LayeredCacheConfig.cs" />
     <Compile Include="LayeredCache\Config\LayeredCacheGroupConfig.cs" />
-    <Compile Include="LayeredCache\LayeredCache.cs" />
     <Compile Include="LayeredCache\Config\LayeredCacheTcmConfig.cs" />
+    <Compile Include="LayeredCache\LayeredCacheType.cs" />
+    <Compile Include="LayeredCache\LayeredCache.cs" />
     <Compile Include="LayeredCache\LayeredCacheConfigNames.cs" />
     <Compile Include="LayeredCache\LayeredCacheKeys.cs" />
-    <Compile Include="LayeredCache\LayeredCacheType.cs" />
     <Compile Include="OutOfProcessCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SingleInMemoryCache.cs" />
