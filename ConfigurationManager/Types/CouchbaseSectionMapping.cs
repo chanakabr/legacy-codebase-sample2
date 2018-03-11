@@ -96,5 +96,27 @@ namespace ConfigurationManager
 
             return result;
         }
+
+        public Dictionary<string, string> GetDictionary()
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+
+            result.Add("tokens", this.Tokens.Value);
+            result.Add("groups", this.Groups.Value);
+            result.Add("epg", this.EPG.Value);
+            result.Add("mediamark", this.MediaMarks.Value);
+            result.Add("domain_concurrency", this.DomainConcurrency.Value);
+            result.Add("media_hits", this.MediaHits.Value);
+            result.Add("statistics", this.Statistics.Value);
+            result.Add("recordings", this.Recordings.Value);
+            result.Add("cache", this.Cache.Value);
+            result.Add("social", this.Social.Value);
+            result.Add("scheduled_tasks", this.ScheduledTasks.Value);
+            result.Add("memcached", this.Memcached.Value);
+            result.Add("notification", this.Notifications.Value);
+            result.Add("ott_apps", this.OTTApps.Value);
+            
+            return result;
+        }
     }
 }

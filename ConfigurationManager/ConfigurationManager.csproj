@@ -91,12 +91,6 @@
     <Compile Include="Types\WebServicesConfiguration.cs" />
     <Compile Include="Types\WSCacheSettings.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\tvmcore\CouchbaseManager\CouchbaseManager.csproj">
-      <Project>{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}</Project>
-      <Name>CouchbaseManager</Name>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

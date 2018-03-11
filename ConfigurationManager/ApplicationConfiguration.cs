@@ -61,6 +61,9 @@ namespace ConfigurationManager
         public static BooleanConfigurationValue ShouldGetCatalogDataFromDB;
         public static NumericConfigurationValue CrowdSourcerFeedNumberOfItems;
         public static PushMessagesConfiguration PushMessagesConfiguration;
+        public static NumericConfigurationValue QueueFailLimit;
+        public static StringConfigurationValue Version;
+        public static NumericConfigurationValue PendingThresholdDays;
 
         #endregion
 
@@ -197,6 +200,17 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true
             };
             PushMessagesConfiguration = new ConfigurationManager.PushMessagesConfiguration("push_messages");
+            QueueFailLimit = new ConfigurationManager.NumericConfigurationValue("queue_fail_limit")
+            {
+                DefaultValue = 3,
+                ShouldAllowEmpty = true
+            };
+            Version = new ConfigurationManager.StringConfigurationValue("Version");
+            PendingThresholdDays = new ConfigurationManager.NumericConfigurationValue("pending_threshold_days")
+            {
+                DefaultValue = 180,
+                ShouldAllowEmpty = true
+            };
 
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -248,7 +262,10 @@ namespace ConfigurationManager
                     WebServicesConfiguration,
                     ShouldGetCatalogDataFromDB,
                     CrowdSourcerFeedNumberOfItems,
-                    PushMessagesConfiguration
+                    PushMessagesConfiguration,
+                    QueueFailLimit,
+                    Version,
+                    PendingThresholdDays
                 };
 
             if (shouldLoadDefaults)
