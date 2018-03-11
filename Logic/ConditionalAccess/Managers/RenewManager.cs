@@ -7,6 +7,7 @@ using ApiObjects.ConditionalAccess;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.ConditionalAccess.Modules;
 using Core.Pricing;
 using Core.Users;
@@ -1394,7 +1395,8 @@ namespace Core.ConditionalAccess
                         case eTransactionState.Failed:
                             {
                                 // get tcm value 
-                                int PendingThresholdDays = TCMClient.Settings.Instance.GetValue<int>("pending_threshold_days");
+                                int PendingThresholdDays = ApplicationConfiguration.PendingThresholdDays.IntValue;
+
                                 if (PendingThresholdDays == 0)
                                 {
                                     PendingThresholdDays = PENDING_THRESHOLD_DAYS;

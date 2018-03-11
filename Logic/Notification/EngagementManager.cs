@@ -4,6 +4,7 @@ using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
+using ConfigurationManager;
 using Core.Notification.Adapters;
 using Core.Pricing;
 using DAL;
@@ -765,7 +766,8 @@ namespace Core.Notification
             }
 
             // get bulk from TCM
-            int engagementBulkMessages = TCMClient.Settings.Instance.GetValue<int>("num_of_bulk_message_engagements");
+            int engagementBulkMessages = ApplicationConfiguration.EngagementsConfiguration.NumberOfBulkMessageEngagements.IntValue;
+
             if (engagementBulkMessages == 0)
                 engagementBulkMessages = NUM_OF_BULK_MESSAGE_ENGAGEMENTS;
 
@@ -776,7 +778,7 @@ namespace Core.Notification
                 numOfBulkMessages++;
 
             // get number of allowed threads
-            int numberOfEngagementThread = TCMClient.Settings.Instance.GetValue<int>("num_of_engagement_threads");
+            int numberOfEngagementThread = ApplicationConfiguration.EngagementsConfiguration.NumberOfEngagementThreads.IntValue;
             if (numberOfEngagementThread == 0)
                 numberOfEngagementThread = NUM_OF_ENGAGEMENT_THREADS;
 
@@ -942,7 +944,7 @@ namespace Core.Notification
             }
 
             // get number of engagements threads
-            int numberOfEngagementThread = TCMClient.Settings.Instance.GetValue<int>("num_of_engagement_threads");
+            int numberOfEngagementThread = ApplicationConfiguration.EngagementsConfiguration.NumberOfEngagementThreads.IntValue;
             if (numberOfEngagementThread == 0)
                 numberOfEngagementThread = NUM_OF_ENGAGEMENT_THREADS;
 
@@ -1111,7 +1113,8 @@ namespace Core.Notification
             Status result = new Status() { Code = (int)eResponseStatus.Error };
 
             // get maximum allowed push 
-            int allowedPushMsg = TCMClient.Settings.Instance.GetValue<int>("push_message.num_of_msg_per_seconds");
+            int allowedPushMsg = ApplicationConfiguration.PushMessagesConfiguration.NumberOfMessagesPerSecond.IntValue;
+                
             if (allowedPushMsg == 0)
                 allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 
@@ -1426,7 +1429,8 @@ namespace Core.Notification
             }
 
             // get maximum allowed push 
-            int allowedPushMsg = TCMClient.Settings.Instance.GetValue<int>("push_message.num_of_msg_per_seconds");
+            int allowedPushMsg = ApplicationConfiguration.PushMessagesConfiguration.NumberOfMessagesPerSecond.IntValue;
+
             if (allowedPushMsg == 0)
                 allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 
