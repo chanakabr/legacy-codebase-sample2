@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ConfigurationManager;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,14 +98,65 @@ namespace WebAPI.ClientManagers.Client
             if (!clients.TryGetValue(clientType, out client) && client == null)
             {
                 string serviceTcmConfigurationKey = string.Format("WebServices.{0}", clientType);
-                string serviceUrl = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "URL"));
-               
+                string serviceUrl = string.Empty;
+
+                switch (clientType)
+                {
+                    case ClientType.Api:
+                        {
+                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+                            break;
+                        }
+                    case ClientType.Billing:
+                        {
+                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Billing.URL.Value;
+                            break;
+                        }
+                    case ClientType.ConditionalAccess:
+                        {
+                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
+                            break;
+                        }
+                    case ClientType.Domains:
+                        {
+                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
+                            break;
+                        }
+                    case ClientType.Notification:
+                        {
+                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
+                            break;
+                        }
+                    case ClientType.Pricing:
+                        {
+                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
+                            break;
+                        }
+                    case ClientType.Social:
+                        {
+                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Social.URL.Value;
+                            break;
+                        }
+                    case ClientType.Users:
+                        {
+                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Users.URL.Value;
+                            break;
+                        }
+                    case ClientType.Catalog:
+                        {
+                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
+                            break;
+                        }
+                    default:
+                        break;
+                }
+
                 client = ClientFactory.GetService(serviceUrl, clientType);
 
                 if (clientType == ClientType.Catalog)
                 {
-                    ((CatalogClient)client).SignatureKey = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "SignatureKey"));
-                    ((CatalogClient)client).CacheDuration = TCMClient.Settings.Instance.GetValue<int>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "CacheDurationSeconds"));
+                    ((CatalogClient)client).SignatureKey = ApplicationConfiguration.WebServicesConfiguration.Catalog.SignatureKey.Value;
+                    ((CatalogClient)client).CacheDuration = ApplicationConfiguration.WebServicesConfiguration.Catalog.CacheDurationSeconds.IntValue;
                 }
                 
                 clients.TryAdd(clientType, client);

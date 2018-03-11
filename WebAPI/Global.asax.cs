@@ -13,6 +13,7 @@ using KlogMonitorHelper;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
+using ConfigurationManager;
 
 namespace WebAPI
 {
@@ -22,7 +23,10 @@ namespace WebAPI
 
         protected void Application_Start()
         {
+            // Configuration
             TCMClient.Settings.Instance.Init();
+            ConfigurationManager.ApplicationConfiguration.Initialize(true);
+
             GlobalConfiguration.Configure(WebApiConfig.Register);
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();

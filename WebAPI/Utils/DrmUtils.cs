@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ConfigurationManager;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -60,7 +61,9 @@ namespace WebAPI.Utils
         internal static string BuildUDrmUrl(Group group, KalturaDrmSchemeName schemeName, string customDataString, string signature)
         {
             string response = null;
-            string baseUdrmUrl = !string.IsNullOrEmpty(group.UDrmUrl) ? group.UDrmUrl : TCMClient.Settings.Instance.GetValue<string>(BASE_UDRM_URL_TCM_KEY);
+            string baseUdrmUrl = !string.IsNullOrEmpty(group.UDrmUrl) ?
+                group.UDrmUrl :
+                ApplicationConfiguration.UDRMUrl.Value;
 
             customDataString = HttpUtility.UrlEncode(Convert.ToBase64String(Encoding.ASCII.GetBytes(customDataString)));
             signature = HttpUtility.UrlEncode(signature);

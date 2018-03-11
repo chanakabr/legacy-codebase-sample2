@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using ConfigurationManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -790,8 +791,8 @@ namespace WebAPI.Controllers
             try
             {
                 string userId = KS.GetFromRequest().UserId;
-                string key = TCMClient.Settings.Instance.GetValue<string>("user_id_encryption_key");
-                string iv = TCMClient.Settings.Instance.GetValue<string>("user_id_encryption_iv");
+                string key = ApplicationConfiguration.OTTUserControllerConfiguration.UserIdEncryptionKey.Value;
+                string iv = ApplicationConfiguration.OTTUserControllerConfiguration.UserIdEncryptionIV.Value;
 
                 if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(iv))
                 {

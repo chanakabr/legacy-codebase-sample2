@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using EventManager;
 using KLogMonitor;
 using System.IO;
+using ConfigurationManager;
 
 namespace WebAPI.Filters
 {
@@ -21,8 +22,9 @@ namespace WebAPI.Filters
 
             try
             {
-                object consumerSettingsJson = TCMClient.Settings.Instance.GetValue<object>("ConsumerSettings");
-                consumerSettings = Newtonsoft.Json.JsonConvert.DeserializeObject<ConsumerSettings>(consumerSettingsJson.ToString());
+                string consumerSettingsJson = ApplicationConfiguration.EventConsumersConfiguration.Value;
+
+                consumerSettings = Newtonsoft.Json.JsonConvert.DeserializeObject<ConsumerSettings>(consumerSettingsJson);
             }
             catch (Exception ex)
             {

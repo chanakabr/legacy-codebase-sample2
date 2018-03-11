@@ -14,6 +14,7 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using APILogic.Api.Managers;
 using ApiObjects;
+using ConfigurationManager;
 
 namespace WebAPI.Managers
 {
@@ -24,10 +25,7 @@ namespace WebAPI.Managers
         private const string APP_TOKEN_PRIVILEGE_SESSION_ID = "sessionid";
         private const string APP_TOKEN_PRIVILEGE_APP_TOKEN = "apptoken";
         private const string CB_SECTION_NAME = "tokens";
-        private const string REVOKED_KS_MAX_TTL_SECONDS_TCM_KEY = "revoked_ks_max_ttl_seconds";
-        private const string USERS_SESSIONS_KEY_FORMAT_TCM_KEY = "users_sessions_key_format";
-        private const string REVOKED_KS_KEY_FORMAT_TCM_KEY = "revoked_ks_key_format";
-        private const string REVOKED_SESSION_KEY_FORMAT_TCM_KEY = "revoked_session_key_format";
+
         private const string USERS_SESSIONS_KEY_FORMAT = "sessions_{0}";
         private const string REVOKED_KS_KEY_FORMAT = "r_ks_{0}";
         private const string REVOKED_SESSION_KEY_FORMAT = "r_session_{0}";
@@ -539,12 +537,7 @@ namespace WebAPI.Managers
             string revokedKsKeyFormat = group.RevokedKsKeyFormat;
             if (string.IsNullOrEmpty(revokedKsKeyFormat))
             {
-                revokedKsKeyFormat = TCMClient.Settings.Instance.GetValue<string>(REVOKED_KS_KEY_FORMAT_TCM_KEY);
-
-                if (string.IsNullOrEmpty(revokedKsKeyFormat))
-                {
-                    revokedKsKeyFormat = REVOKED_KS_KEY_FORMAT;
-                }
+                revokedKsKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedKSKeyFormat.Value;
             }
 
             return revokedKsKeyFormat;
@@ -555,8 +548,8 @@ namespace WebAPI.Managers
             string revokedSessionKeyFormat = group.RevokedSessionKeyFormat;
             if (string.IsNullOrEmpty(revokedSessionKeyFormat))
             {
-                revokedSessionKeyFormat = TCMClient.Settings.Instance.GetValue<string>(REVOKED_SESSION_KEY_FORMAT_TCM_KEY);
-
+                revokedSessionKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedSessionKeyFormat.Value;
+                
                 if (string.IsNullOrEmpty(revokedSessionKeyFormat))
                 {
                     revokedSessionKeyFormat = REVOKED_SESSION_KEY_FORMAT;
@@ -568,7 +561,7 @@ namespace WebAPI.Managers
 
         private static int GetRevokedKsMaxTtlSeconds(Group group)
         {
-            return group.RevokedKsMaxTtlSeconds == 0 ? TCMClient.Settings.Instance.GetValue<int>(REVOKED_KS_MAX_TTL_SECONDS_TCM_KEY) : group.RevokedKsMaxTtlSeconds;
+            return group.RevokedKsMaxTtlSeconds == 0 ? ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedKSMaxTTLSeconds.IntValue : group.RevokedKsMaxTtlSeconds;
         }
 
         internal static bool RevokeSessions(int groupId, string userId)
@@ -642,7 +635,7 @@ namespace WebAPI.Managers
             string userSessionsKeyFormat = group.UserSessionsKeyFormat;
             if (string.IsNullOrEmpty(userSessionsKeyFormat))
             {
-                userSessionsKeyFormat = TCMClient.Settings.Instance.GetValue<string>(USERS_SESSIONS_KEY_FORMAT_TCM_KEY);
+                userSessionsKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.UsersSessionsKeyFormat.Value;
 
                 if (string.IsNullOrEmpty(userSessionsKeyFormat))
                 {

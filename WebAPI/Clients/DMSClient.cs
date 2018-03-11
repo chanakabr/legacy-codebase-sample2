@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ConfigurationManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using System;
@@ -223,7 +224,8 @@ namespace WebAPI.Clients
         {
             string result = string.Empty;
 
-            string dmsServer = TCMClient.Settings.Instance.GetValue<string>("dms_url");
+            string dmsServer = ApplicationConfiguration.DMSUrl.Value;
+            
             if (string.IsNullOrWhiteSpace(dmsServer))
             {
                 throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "dms_url");
@@ -246,7 +248,8 @@ namespace WebAPI.Clients
         {
             string result = string.Empty;
 
-            string dmsServer = TCMClient.Settings.Instance.GetValue<string>("dms_url");
+            string dmsServer = ApplicationConfiguration.DMSUrl.Value;
+
             if (string.IsNullOrWhiteSpace(dmsServer))
             {
                 throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "dms_url");
@@ -270,7 +273,8 @@ namespace WebAPI.Clients
         {
             string result = string.Empty;
 
-            string dmsServer = TCMClient.Settings.Instance.GetValue<string>("dms_url");
+            string dmsServer = ApplicationConfiguration.DMSUrl.Value;
+
             if (string.IsNullOrWhiteSpace(dmsServer))
             {
                 throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "dms_url");

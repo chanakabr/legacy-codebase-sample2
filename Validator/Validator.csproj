@@ -77,6 +77,10 @@
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
+      <Name>ConfigurationManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WebAPI\WebAPI.csproj">
       <Project>{223f9697-c15b-46e8-b71b-52ffbafbeba2}</Project>
       <Name>WebAPI</Name>

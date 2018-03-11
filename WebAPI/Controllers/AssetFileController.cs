@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using ConfigurationManager;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -135,8 +136,8 @@ namespace WebAPI.Controllers
                     {
                         if (HttpContext.Current.Request.QueryString.Count > 0)
                         {
-                            string dynamicQueryStringParamsConfiguration = TCMClient.Settings.Instance.GetValue<string>("PlayManifestDynamicQueryStringParamsNames");
-
+                            string dynamicQueryStringParamsConfiguration = ApplicationConfiguration.PlayManifestDynamicQueryStringParamsNames.Value;
+                            
                             // old fix for passing query string params - not using dynamic configuration
                             string[] dynamicQueryStringParamsNames;
                             if (string.IsNullOrEmpty(dynamicQueryStringParamsConfiguration))

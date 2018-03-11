@@ -28,6 +28,7 @@ using WebAPI.Models.MultiRequest;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 using WebAPI.Reflection;
+using ConfigurationManager;
 
 namespace WebAPI.Filters
 {
@@ -72,8 +73,8 @@ namespace WebAPI.Filters
         private const char PARAMS_NESTED_PREFIX = '.';
         private const string CB_SECTION_NAME = "tokens";
 
-        private static int accessTokenLength = TCMClient.Settings.Instance.GetValue<int>("access_token_length");
-        private static string accessTokenKeyFormat = TCMClient.Settings.Instance.GetValue<string>("access_token_key_format");
+        private static int accessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
+        private static string accessTokenKeyFormat = ApplicationConfiguration.RequestParserConfiguration.AccessTokenKeyFormat.Value;
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 

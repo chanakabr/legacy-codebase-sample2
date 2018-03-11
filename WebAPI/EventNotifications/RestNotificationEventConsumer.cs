@@ -13,6 +13,7 @@ using ApiObjects;
 using System.Threading.Tasks;
 using WebAPI.Models.General;
 using System.Web.Hosting;
+using KlogMonitorHelper;
 
 namespace WebAPI
 {
@@ -255,10 +256,15 @@ namespace WebAPI
             }
             else
             {
+                // save context data - for multi threading operations
+                ContextData contextData = new ContextData();
+
                 HostingEnvironment.QueueBackgroundWorkItem((obj) =>
                 {
                     try
                     {
+                        contextData.Load();
+
                         log.DebugFormat("Start async action: action name = {0}, partner {1},  specific notification is {2}",
                             action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());
 
