@@ -322,7 +322,7 @@ namespace Core.Catalog.CatalogManagement
                 if (!LayeredCache.Instance.GetValues<Channel>(keyToOriginalValueMap, ref channelMap, GetChannels, new Dictionary<string, object>() { { "groupId", groupId }, { "channelIds", channelIds } },
                     groupId, LayeredCacheConfigNames.GET_CHANNELS_CACHE_CONFIG_NAME, invalidationKeysMap))
                 {
-                    log.ErrorFormat("Failed getting Channels from LayeredCache, groupId: {0}, channelIds", groupId, string.Join(",", channelIds));
+                    log.ErrorFormat("Failed getting Channels from LayeredCache, groupId: {0}, channelIds: {1}", groupId, string.Join(",", channelIds));
                 }
                 else if (channelMap != null)
                 {
@@ -363,11 +363,16 @@ namespace Core.Catalog.CatalogManagement
                         DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, true);
                         channels = GetChannelListFromDs(ds);
                         res = channels.Count() == channelIds.Count();
-                    }                    
+                    }
 
                     if (res)
                     {
                         result = channels.ToDictionary(x => LayeredCacheKeys.GetChannelKey(groupId.Value, x.m_nChannelID), x => x);
+                    }
+                    else
+                    {
+                        List<int> missingChannelIds = channels.Select(x => x.m_nChannelID).Except(channelIds).ToList();
+                        log.DebugFormat("missingChannelIds: {0}", missingChannelIds);
                     }
                 }
             }
@@ -435,7 +440,19 @@ namespace Core.Catalog.CatalogManagement
                 ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
                 int totalItems = 0;
                 List<int> channelIds = wrapper.SearchChannels(definitions, ref totalItems);
-                result.Channels = ChannelManager.GetChannels(groupId, channelIds);
+                List<Channel> unorderedChannels = ChannelManager.GetChannels(groupId, channelIds);
+                if (unorderedChannels == null || unorderedChannels.Count != channelIds.Count)
+                {
+                    log.ErrorFormat("Failed getting channels from GetChannels, for groupId: {0}, channelIds: {1}", groupId, channelIds != null ? string.Join(",", channelIds) : string.Empty);
+                    return result;
+                }
+
+                Dictionary<int, Channel> mappedChannels = unorderedChannels.ToDictionary(x => x.m_nChannelID, x => x);
+                foreach (int channelId in channelIds)
+                {
+                    result.Channels.Add(mappedChannels[channelId]);
+                }
+
                 if (result.Channels != null)
                 {
                     result.TotalItems = totalItems;
