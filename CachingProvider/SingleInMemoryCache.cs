@@ -8,6 +8,7 @@ using System.Security.Principal;
 using System.Security.AccessControl;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace CachingProvider
 {
@@ -47,7 +48,8 @@ namespace CachingProvider
 
         private string GetCacheName()
         {
-            string res = Utils.GetTcmConfigValue("CACHE_NAME");
+            string res = ApplicationConfiguration.WSCacheSettings.Name.Value;
+
             if (res.Length > 0)
                 return res;
             return DEFAULT_CACHE_NAME;

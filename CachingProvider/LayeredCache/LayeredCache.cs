@@ -7,6 +7,8 @@ using KLogMonitor;
 using System.Reflection;
 using Newtonsoft.Json;
 using System.Web;
+using ConfigurationManager;
+
 namespace CachingProvider.LayeredCache
 {
     public class LayeredCache
@@ -373,10 +375,11 @@ namespace CachingProvider.LayeredCache
             LayeredCacheTcmConfig layeredCacheTcmConfig = null;
             try
             {
-                object obj = Utils.GetTcmGenericValue<object>(LAYERED_CACHE_TCM_CONFIG);
-                if (obj != null)
+                string layeredCacheConfigurationString = ApplicationConfiguration.LayeredCacheConfigurationValidation.Value;
+                    
+                if (!string.IsNullOrEmpty(layeredCacheConfigurationString))
                 {
-                    layeredCacheTcmConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<LayeredCacheTcmConfig>(obj.ToString(), layeredCacheConfigSerializerSettings);
+                    layeredCacheTcmConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<LayeredCacheTcmConfig>(layeredCacheConfigurationString, layeredCacheConfigSerializerSettings);
                 }
             }
 
