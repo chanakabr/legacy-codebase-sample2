@@ -64,6 +64,7 @@ namespace ConfigurationManager
         public static NumericConfigurationValue QueueFailLimit;
         public static StringConfigurationValue Version;
         public static NumericConfigurationValue PendingThresholdDays;
+        public static BooleanConfigurationValue DownloadPicWithQueue;
 
         #endregion
 
@@ -211,6 +212,11 @@ namespace ConfigurationManager
                 DefaultValue = 180,
                 ShouldAllowEmpty = true
             };
+            DownloadPicWithQueue = new ConfigurationManager.BooleanConfigurationValue("downloadPicWithQueue")
+            {
+                DefaultValue = false,
+                ShouldAllowEmpty = true
+            };
 
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -265,7 +271,8 @@ namespace ConfigurationManager
                     PushMessagesConfiguration,
                     QueueFailLimit,
                     Version,
-                    PendingThresholdDays
+                    PendingThresholdDays,
+                    DownloadPicWithQueue
                 };
 
             if (shouldLoadDefaults)
@@ -280,7 +287,7 @@ namespace ConfigurationManager
         public static bool Validate()
         {
             bool result = true;
-            
+
             try
             {
                 Initialize();
