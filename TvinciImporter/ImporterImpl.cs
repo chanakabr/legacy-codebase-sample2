@@ -5364,7 +5364,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrl(int nGroupID)
         {
-            string sCatalogURL = ApplicationConfiguration.CatalogWSUrl.Value;
+            string sCatalogURL = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
             try
             {
                 DataTable dt = DAL.ImporterImpDAL.Get_CatalogUrl(nGroupID);
@@ -5391,7 +5391,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrlByParameters(int groupId, eObjectType? objectType, eAction? action)
         {
-            string tcmCatalogURL = ApplicationConfiguration.CatalogWSUrl.Value;
+            string tcmCatalogURL = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
             string catalogURL = tcmCatalogURL;
 
             try
@@ -5423,7 +5423,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service                
-                string sWSURL = ApplicationConfiguration.NotificationsService.Value;
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5464,7 +5464,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = ApplicationConfiguration.NotificationsService.Value;
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5502,7 +5502,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = ApplicationConfiguration.NotificationsService.Value;
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5611,7 +5611,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = ApplicationConfiguration.NotificationsService.Value;
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5637,7 +5637,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = ApplicationConfiguration.NotificationsService.Value;
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5694,7 +5694,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = ApplicationConfiguration.NotificationsService.Value;
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5731,7 +5731,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = ApplicationConfiguration.NotificationsService.Value;
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -5755,7 +5755,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = ApplicationConfiguration.NotificationsService.Value;
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -6126,7 +6126,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = ApplicationConfiguration.NotificationsService.Value;
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -6449,7 +6449,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = ApplicationConfiguration.NotificationsService.Value;
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -6481,7 +6481,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = ApplicationConfiguration.NotificationsService.Value;
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
@@ -6516,7 +6516,7 @@ namespace TvinciImporter
             try
             {
                 //Call Notifications WCF service
-                string sWSURL = ApplicationConfiguration.NotificationsService.Value;
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
