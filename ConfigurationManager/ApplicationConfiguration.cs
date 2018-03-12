@@ -55,6 +55,7 @@ namespace ConfigurationManager
         public static NumericConfigurationValue UserInterestsTTLDays;
         public static StringConfigurationValue PlayManifestDynamicQueryStringParamsNames;
         public static NumericConfigurationValue RecordingsMaxDegreeOfParallelism;
+        public static NumericConfigurationValue ReconciliationFrequencySeconds;
         public static EventConsumersConfiguration EventConsumersConfiguration;
         public static AuthorizationManagerConfiguration AuthorizationManagerConfiguration;
         public static UserPINDigitsConfiguration UserPINDigitsConfiguration;
@@ -223,6 +224,10 @@ namespace ConfigurationManager
             RecordingsMaxDegreeOfParallelism = new ConfigurationManager.NumericConfigurationValue("recordings_max_degree_of_parallelism")
             {
                 DefaultValue = 5
+            };
+            ReconciliationFrequencySeconds = new ConfigurationManager.NumericConfigurationValue("reconciliation_frequency_seconds")
+            {
+                DefaultValue = 7200
             };
             EventConsumersConfiguration = new ConfigurationManager.EventConsumersConfiguration("ConsumerSettings");
             AuthorizationManagerConfiguration = new ConfigurationManager.AuthorizationManagerConfiguration("authorization_manager_configuration");
