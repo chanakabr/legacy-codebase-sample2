@@ -93,7 +93,7 @@
     <Compile Include="VersionModuleCache.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\tvpapi_rest\ConfigurationManager\ConfigurationManager.csproj">
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
       <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
       <Name>ConfigurationManager</Name>
     </ProjectReference>
