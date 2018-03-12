@@ -7642,7 +7642,7 @@ namespace Core.Catalog
 
                 // insert all above  
                 int nCount = 0;
-                int nCountPackage = TVinciShared.WS_Utils.GetTcmIntValue("update_epg_package");
+                int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
                 if (nCountPackage == 0)
                     nCountPackage = 200;
                 List<long> epgIds = new List<long>();
