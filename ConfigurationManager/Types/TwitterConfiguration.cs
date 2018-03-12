@@ -14,7 +14,8 @@ namespace ConfigurationManager
         {
             ConsumerKey = new StringConfigurationValue("consumer_key", this)
             {
-                DefaultValue = "fK0bd1pQxeAQTZECa657LdAxF"
+                DefaultValue = "fK0bd1pQxeAQTZECa657LdAxF",
+                Description = "Original key is TWITTER_CONSUMER_KEY"
             };
             ConsumerSecret = new StringConfigurationValue("consumer_secret", this)
             {
