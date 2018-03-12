@@ -43,6 +43,7 @@ namespace ConfigurationManager
         public static SocialFeedQueueConfiguration SocialFeedQueueConfiguration;
         public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
         public static ExportConfiguration ExportConfiguration;
+        public static NumericConfigurationValue BillingCacheTTL;
         public static StringConfigurationValue UDRMUrl;
         public static StringConfigurationValue MediaSearcher;
         public static StringConfigurationValue UseOldImageServer;
@@ -71,7 +72,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue EncryptorService;
         public static StringConfigurationValue EncryptorPassword;
         public static StringConfigurationValue PicsBasePath;
-        
+
         #endregion
 
         #region Private Members
@@ -186,6 +187,10 @@ namespace ConfigurationManager
             UDRMUrl = new ConfigurationManager.StringConfigurationValue("UDRM_URL")
             {
                 DefaultValue = "https://ny-udrm-stg.kaltura.com"
+            };
+            BillingCacheTTL = new ConfigurationManager.NumericConfigurationValue("BillingCacheTTL")
+            {
+                DefaultValue = 60
             };
             MediaSearcher = new ConfigurationManager.StringConfigurationValue("media_searcher")
             {
@@ -305,6 +310,7 @@ namespace ConfigurationManager
                     LayeredCacheConfigurationValidation,
                     ExportConfiguration,
                     UDRMUrl,
+                    BillingCacheTTL,
                     MediaSearcher,
                     UseOldImageServer,
                     CatalogLogicConfiguration,
@@ -335,7 +341,7 @@ namespace ConfigurationManager
                     GroupIDsWithIPNOFilteringSeperatedBySemiColon,
                     EncryptorService,
                     EncryptorPassword,
-                    PicsBasePath
+                    PicsBasePath,
                 };
 
             if (shouldLoadDefaults)
