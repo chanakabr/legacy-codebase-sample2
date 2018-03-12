@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace ConfigurationManager
+﻿namespace ConfigurationManager
 {
     public class TwitterConfiguration : ConfigurationValue
     {
@@ -19,7 +14,8 @@ namespace ConfigurationManager
             };
             ConsumerSecret = new StringConfigurationValue("consumer_secret", this)
             {
-                DefaultValue = "1Ei0ouAmvUgys8nIFRZgYqQ8K6LiO201WnUcDdEziERfvmOmHa"
+                DefaultValue = "1Ei0ouAmvUgys8nIFRZgYqQ8K6LiO201WnUcDdEziERfvmOmHa",
+                Description = "Original key is TWITTER_CONSUMER_SECRET"
             };
         }
 

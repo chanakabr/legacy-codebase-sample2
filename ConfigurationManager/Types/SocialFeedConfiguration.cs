@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using ApiObjects.Social;
 
 namespace ConfigurationManager
 {
@@ -18,11 +15,13 @@ namespace ConfigurationManager
         {
             FacebookItemCount = new NumericConfigurationValue("facebook_item_count", this)
             {
-                DefaultValue = 100
+                DefaultValue = 100,
+                Description = "Original key is SocialFeed_FB_item_count"
             };
             InAppItemCount = new NumericConfigurationValue("in_app_item_count", this)
             {
-                DefaultValue = 100
+                DefaultValue = 100,
+                Description = "Original key is SocialFeed_InApp_item_count"
             };
             TwitterItemCount = new NumericConfigurationValue("twitter_item_count", this)
             {
@@ -41,6 +40,29 @@ namespace ConfigurationManager
             {
                 DefaultValue = 10
             };
+        }
+
+        public NumericConfigurationValue GetTTLByPlatform(eSocialPlatform platform)
+        {
+            NumericConfigurationValue ttl = null;
+            switch (platform)
+            {
+                case eSocialPlatform.InApp:
+                    ttl = InAppTTL;
+                    break;
+                case eSocialPlatform.Facebook:
+                    ttl = FacebookTTL;
+                    break;
+                case eSocialPlatform.Twitter:
+                    ttl = TwitterTTL;
+                    break;
+                case eSocialPlatform.Unknown:
+                default:
+                    ttl = new NumericConfigurationValue("unknown_ttl") { DefaultValue = 10 };
+                    break;
+            }
+
+            return ttl;
         }
 
         internal override bool Validate()
