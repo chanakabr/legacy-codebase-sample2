@@ -1041,6 +1041,10 @@
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
+      <Name>ConfigurationManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
       <Project>{27c6f3ed-b660-466a-9415-de2d43e58ff0}</Project>
       <Name>ApiLogic</Name>
@@ -1096,10 +1100,6 @@
     <ProjectReference Include="..\..\tvmcore\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj">
-      <Project>{27cc9e99-d886-4403-899b-1e0769fdb649}</Project>
-      <Name>ConfigurationManager</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
