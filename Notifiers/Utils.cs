@@ -76,11 +76,6 @@ namespace Notifiers
 	        }
         }
 
-        public static string GetValueFromConfig(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         public static string MakeJsonRequest(Uri requestUri, string wsUsername, string wsPassword, string jsonContent = "")
         {
             string sRes = string.Empty;
