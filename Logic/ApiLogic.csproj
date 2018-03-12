@@ -830,10 +830,6 @@
       <Project>{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvpapi_rest\ConfigurationManager\ConfigurationManager.csproj">
-      <Project>{27cc9e99-d886-4403-899b-1e0769fdb649}</Project>
-      <Name>ConfigurationManager</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
       <Project>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</Project>
       <Name>ApiObjects</Name>
@@ -841,6 +837,10 @@
     <ProjectReference Include="..\..\tvmcore\Uploader\Uploader.csproj">
       <Project>{a35bd0d3-3055-4206-8b3f-80079f9eca15}</Project>
       <Name>Uploader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
+      <Name>ConfigurationManager</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
