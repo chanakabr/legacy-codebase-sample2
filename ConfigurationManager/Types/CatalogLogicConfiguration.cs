@@ -38,7 +38,8 @@ namespace ConfigurationManager
 
             CurrentRequestDaysOffset = new NumericConfigurationValue("CURRENT_REQUEST_DAYS_OFFSET", this)
             {
-                DefaultValue = 7
+                DefaultValue = 7,
+                ShouldAllowEmpty = true
             };
         }
     }
