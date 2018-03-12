@@ -3,18 +3,16 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using ApiObjects.Social;
 using ApiObjects.Statistics;
+using ConfigurationManager;
+using Core.Social.SocialCommands;
 using DAL;
 using ElasticSearch.Common.DeleteResults;
 using KLogMonitor;
-using Core.Social.Requests;
-using Core.Social.SocialCommands;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Social
 {
@@ -203,9 +201,9 @@ namespace Core.Social
         {
             bool result = false;
 
-            string urlV1 = Utils.GetWSURL("ES_URL_V1");
-            string urlV2 = Utils.GetWSURL("ES_URL_V2");
-            string originalUrl = Utils.GetWSURL("ES_URL");
+            string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
+            string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
+            string originalUrl = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
 
             HashSet<string> urls = new HashSet<string>();
             urls.Add(urlV1);

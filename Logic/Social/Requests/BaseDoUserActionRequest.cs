@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Core.Social.Responses;
-using Core.Social;
-using ApiObjects;
-using ApiObjects.Statistics;
-using ApiObjects.MediaIndexingObjects;
-using Core.Social.SocialCommands;
+﻿using ApiObjects;
 using ApiObjects.SearchObjects;
+using ApiObjects.Social;
+using ApiObjects.Statistics;
+using ConfigurationManager;
+using Core.Social.Responses;
+using Core.Social.SocialCommands;
+using Core.Users;
 using ElasticSearch.Common.DeleteResults;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-using Core.Users;
-using ApiObjects.Social;
 
 namespace Core.Social.Requests
 {
@@ -196,9 +194,9 @@ namespace Core.Social.Requests
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(m_nGroupID);
             bool result = false;
 
-            string urlV1 = Utils.GetWSURL("ES_URL_V1");
-            string urlV2 = Utils.GetWSURL("ES_URL_V2");
-            string originalUrl = Utils.GetWSURL("ES_URL");
+            string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
+            string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
+            string originalUrl = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
 
             HashSet<string> urls = new HashSet<string>();
             urls.Add(urlV1);

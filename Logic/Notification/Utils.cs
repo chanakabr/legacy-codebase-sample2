@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Core.Catalog;
+using ConfigurationManager;
 
 namespace Core.Notification
 {
@@ -145,7 +146,7 @@ namespace Core.Notification
                 };
 
                 Core.ConditionalAccess.Utils.FillCatalogSignature(request);
-                string catalogUrl = GetWSURL("WS_Catalog");
+                string catalogUrl = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
                 if (string.IsNullOrEmpty(catalogUrl))
                 {
                     log.Error("Catalog Url is null or empty");

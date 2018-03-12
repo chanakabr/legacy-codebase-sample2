@@ -3118,78 +3118,6 @@ namespace Core.ConditionalAccess
             return streamType;
         }
 
-        internal static string GetStreamTypeAndFormatLink(eStreamType streamType, eEPGFormatType format)
-        {
-            string url = string.Empty;
-            string urlConfig = string.Empty;
-            switch (format)
-            {
-                case eEPGFormatType.Catchup:
-                    {
-                        switch (streamType)
-                        {
-                            case eStreamType.HLS:
-                                urlConfig = "hls_catchup";
-                                break;
-                            case eStreamType.SS:
-                                urlConfig = "smooth_catchup";
-                                break;
-                            case eStreamType.DASH:
-                                urlConfig = "dash_catchup";
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    break;
-
-                case eEPGFormatType.StartOver:
-                    {
-                        switch (streamType)
-                        {
-                            case eStreamType.HLS:
-                                urlConfig = "hls_start_over";
-                                break;
-                            case eStreamType.SS:
-                                urlConfig = "smooth_start_over";
-                                break;
-                            case eStreamType.DASH:
-                                urlConfig = "dash_start_over";
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    break;
-
-                case eEPGFormatType.LivePause:
-                    {
-                        switch (streamType)
-                        {
-                            case eStreamType.HLS:
-                                urlConfig = "hls_start_over";
-                                break;
-                            case eStreamType.SS:
-                                urlConfig = "smooth_start_over";
-                                break;
-                            case eStreamType.DASH:
-                                urlConfig = "dash_start_over";
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-
-            if (!string.IsNullOrEmpty(urlConfig))
-                url = Utils.GetValueFromConfig(urlConfig);
-
-            return url;
-        }
 
 
         /*
@@ -5879,7 +5807,7 @@ namespace Core.ConditionalAccess
                     ShouldUseSearchEndDate = true
                 };
                 FillCatalogSignature(request);
-                string catalogUrl = GetWSURL("WS_Catalog");
+                string catalogUrl = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
                 if (string.IsNullOrEmpty(catalogUrl))
                 {
                     log.Error("Catalog Url is null or empty");

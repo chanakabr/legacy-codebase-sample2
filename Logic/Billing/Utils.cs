@@ -2365,11 +2365,6 @@ namespace Core.Billing
             return status;
         }
 
-        private static string GetWSUrl(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         public static ApiObjects.Response.Status SetPartnerConfiguration(int groupId, PartnerConfiguration partnerConfig)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

@@ -1,25 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using System.Configuration;
-using ApiObjects;
-using KLogMonitor;
-using System.Reflection;
+﻿using ApiObjects;
+using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
-using Tvinci.Core.DAL;
+using ApiObjects.SearchObjects;
+using CachingProvider.LayeredCache;
+using ConfigurationManager;
+using Core.Api.Managers;
+using Core.Users;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
-using System.Web;
-using System.ServiceModel;
-using Core.Users;
-using ApiObjects.SearchObjects;
-using ApiObjects.AssetLifeCycleRules;
-using Core.Api.Managers;
+using System.Reflection;
 using System.Security.Cryptography;
-using CachingProvider.LayeredCache;
+using System.Text;
+using Tvinci.Core.DAL;
 
 namespace APILogic
 {
@@ -128,7 +126,7 @@ namespace APILogic
 
             try
             {
-                sCatalogURL = GetWSUrl("WS_Catalog");
+                sCatalogURL = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
             }
             catch (Exception ex)
             {

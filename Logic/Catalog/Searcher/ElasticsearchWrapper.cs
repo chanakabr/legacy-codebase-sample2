@@ -17,6 +17,7 @@ using KLogMonitor;
 using System.Reflection;
 using KlogMonitorHelper;
 using Catalog.Response;
+using ConfigurationManager;
 
 namespace Core.Catalog
 {
@@ -27,7 +28,7 @@ namespace Core.Catalog
         public static readonly string DATE_FORMAT = "yyyyMMddHHmmss";
         private static readonly string INDEX_DATE_FORMAT = "yyyyMMdd";
 
-        public static readonly string ES_BASE_ADDRESS = Utils.GetWSURL("ES_URL");
+        public static readonly string ES_BASE_ADDRESS = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
         public const int STATUS_OK = 200;
         public const int STATUS_NOT_FOUND = 404;
         public const int STATUS_INTERNAL_ERROR = 500;
