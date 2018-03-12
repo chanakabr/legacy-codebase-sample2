@@ -21,8 +21,10 @@ namespace ConfigurationManager
         public static BaseCacheConfiguration BaseCacheConfiguration;
         public static DatabaseConfiguration DatabaseConfiguration;
         public static NamedCacheConfiguration WSCacheConfiguration;
+        public static NamedCacheConfiguration ODBCWrapperCacheConfiguration;
+        public static NamedCacheConfiguration CatalogCacheConfiguration;
+        public static NamedCacheConfiguration NotificationCacheConfiguration;
         public static StringConfigurationValue SingleInMemoryCacheName;
-        public static NamedCacheConfiguration SingleInMemoryCacheConfiguration;
         public static CouchBaseDesigns CouchBaseDesigns;
         public static NumericConfigurationValue EPGDocumentExpiry;
         public static EutelsatSettings EutelsatSettings;
@@ -107,6 +109,18 @@ namespace ConfigurationManager
                 DefaultValue = "Cache",
                 ShouldAllowEmpty = true
             };
+
+            ODBCWrapperCacheConfiguration = new ConfigurationManager.NamedCacheConfiguration("odbc_wrapper_cache_configuration");
+            ODBCWrapperCacheConfiguration.TTLSeconds.DefaultValue = 7200;
+            ODBCWrapperCacheConfiguration.Name.DefaultValue = "Cache";
+
+            CatalogCacheConfiguration = new ConfigurationManager.NamedCacheConfiguration("catalog_cache_configuration");
+            CatalogCacheConfiguration.TTLSeconds.DefaultValue = 3600;
+            CatalogCacheConfiguration.Name.DefaultValue = "CatalogCache";
+
+            NotificationCacheConfiguration = new ConfigurationManager.NamedCacheConfiguration("notification_cache_configuration");
+            NotificationCacheConfiguration.TTLSeconds.DefaultValue = 3600;
+            NotificationCacheConfiguration.Name.DefaultValue = "NotificationCache";
 
             CouchBaseDesigns = new CouchBaseDesigns("couchbase_designs");
             EPGDocumentExpiry = new NumericConfigurationValue("epg_doc_expiry")
@@ -291,7 +305,11 @@ namespace ConfigurationManager
                     Version,
                     PendingThresholdDays,
                     DownloadPicWithQueue,
-                    EPGUrl
+                    EPGUrl,
+                    SingleInMemoryCacheName,
+                    ODBCWrapperCacheConfiguration,
+                    CatalogCacheConfiguration,
+                    NotificationCacheConfiguration
                 };
 
             if (shouldLoadDefaults)
