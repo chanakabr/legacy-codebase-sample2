@@ -24,6 +24,7 @@ namespace ConfigurationManager
         public static NamedCacheConfiguration ODBCWrapperCacheConfiguration;
         public static NamedCacheConfiguration CatalogCacheConfiguration;
         public static NamedCacheConfiguration NotificationCacheConfiguration;
+        public static NamedCacheConfiguration GroupsCacheConfiguration;
         public static StringConfigurationValue SingleInMemoryCacheName;
         public static CouchBaseDesigns CouchBaseDesigns;
         public static NumericConfigurationValue EPGDocumentExpiry;
@@ -99,6 +100,7 @@ namespace ConfigurationManager
             OTTUserControllerConfiguration = new OTTUserControllerConfiguration("ott_user_controller");
             CouchbaseSectionMapping = new CouchbaseSectionMapping("CouchbaseSectionMapping");
             BaseCacheConfiguration = new BaseCacheConfiguration("base_cache_configuration");
+            
             DatabaseConfiguration = new DatabaseConfiguration("database_configuration");
             WSCacheConfiguration = new NamedCacheConfiguration("ws_cache_configuration");
             WSCacheConfiguration.TTLSeconds.DefaultValue = 7200;
@@ -121,6 +123,11 @@ namespace ConfigurationManager
             NotificationCacheConfiguration = new ConfigurationManager.NamedCacheConfiguration("notification_cache_configuration");
             NotificationCacheConfiguration.TTLSeconds.DefaultValue = 3600;
             NotificationCacheConfiguration.Name.DefaultValue = "NotificationCache";
+
+            GroupsCacheConfiguration = new ConfigurationManager.NamedCacheConfiguration("groups_cache_configuration");
+            GroupsCacheConfiguration.TTLSeconds.DefaultValue = 86400;
+            GroupsCacheConfiguration.Name.DefaultValue = "GroupsCache";
+            GroupsCacheConfiguration.Type.DefaultValue = "CouchBase";
 
             CouchBaseDesigns = new CouchBaseDesigns("couchbase_designs");
             EPGDocumentExpiry = new NumericConfigurationValue("epg_doc_expiry")
@@ -309,7 +316,8 @@ namespace ConfigurationManager
                     SingleInMemoryCacheName,
                     ODBCWrapperCacheConfiguration,
                     CatalogCacheConfiguration,
-                    NotificationCacheConfiguration
+                    NotificationCacheConfiguration,
+                    GroupsCacheConfiguration
                 };
 
             if (shouldLoadDefaults)
