@@ -1,21 +1,14 @@
-using System;
-using System.Data;
-using System.Configuration;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using System.Threading;
-using System.IO;
-using System.Collections.Generic;
-using Uploader;
-using KLogMonitor;
-using System.Reflection;
 using ApiObjects;
+using ConfigurationManager;
+using KLogMonitor;
 using QueueWrapper;
-using Tvinci.Core.DAL;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Threading;
+using System.Web;
+using Uploader;
 
 namespace TVinciShared
 {
@@ -323,8 +316,9 @@ namespace TVinciShared
                             }
                             if (bValid == true)
                             {
-                                string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-                                if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
+                                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                                //use the rabbit Queue
+                                if (sUseQueue)
                                 {
                                     #region useRabbitQueue
 
@@ -1655,9 +1649,9 @@ namespace TVinciShared
                             }
                             if (bValid == true)
                             {
-                                string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-                                sUseQueue = sUseQueue.ToLower();
-                                if (sUseQueue.Equals("true"))
+                                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                                //use the rabbit Queue
+                                if (sUseQueue)
                                 {
                                     log.DebugFormat("downloadPicWithQueue");
 

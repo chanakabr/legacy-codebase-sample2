@@ -171,6 +171,10 @@
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvpapi_rest\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
+      <Name>ConfigurationManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
       <Project>{4e22204a-9560-4e78-8805-efed0d0eec9d}</Project>
       <Name>AkamaiTokenGenerator</Name>

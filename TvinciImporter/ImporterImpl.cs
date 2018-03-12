@@ -3,6 +3,7 @@ using ApiObjects.Catalog;
 using ApiObjects.DRM;
 using ApiObjects.Notification;
 using ApiObjects.Response;
+using ConfigurationManager;
 using DAL;
 using KLogMonitor;
 using KlogMonitorHelper;
@@ -2025,8 +2026,9 @@ namespace TvinciImporter
             // use old/or image queue
             if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
             {
-                string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-                if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
+                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                //use the rabbit Queue
+                if (sUseQueue)
                 {
                     picId = DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
                 }
@@ -2642,8 +2644,9 @@ namespace TvinciImporter
             // use old/or image queue
             if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
             {
-                string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-                if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
+                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                //use the rabbit Queue
+                if (sUseQueue)
                 {
                     picId = DownloadPicToQueue(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID, ratioSize);
 
