@@ -14,6 +14,7 @@ using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Api.Managers;
 using Core.Api.Modules;
 using Core.Catalog;
@@ -6940,7 +6941,7 @@ namespace Core.Api
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine deleted");
 
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1] 
                     { 
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
@@ -7038,7 +7039,7 @@ namespace Core.Api
                         }
                     }
 
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]{ 
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngine.ID)
                     };
@@ -7277,7 +7278,7 @@ namespace Core.Api
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine set changes");
 
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1] 
                     { 
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
@@ -7342,7 +7343,7 @@ namespace Core.Api
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine configs delete");
 
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1] 
                     { 
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
@@ -7596,7 +7597,7 @@ namespace Core.Api
                     response = new ApiObjects.Response.Status((int)eResponseStatus.ExternalChannelNotExist, EXTERNAL_CHANNEL_NOT_EXIST);
                 }
 
-                string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1] 
                 { 
                     string.Format("{0}_external_channel_{1}_{2}", version, groupID, externalChannelId)
@@ -7688,7 +7689,7 @@ namespace Core.Api
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "external channel failed set changes");
                 }
 
-                string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1] 
                 { 
                     string.Format("{0}_external_channel_{1}_{2}", version, groupID, externalChannel.ID)
@@ -8725,7 +8726,7 @@ namespace Core.Api
                     }
 
                     // remove adapter from cache
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1] 
                     { 
                         string.Format("{0}_cdn_adapter_{1}", version, adapter.ID)
@@ -8782,7 +8783,7 @@ namespace Core.Api
                     }
 
                     // remove adapter from cache
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1] 
                     { 
                         string.Format("{0}_cdn_adapter_{1}", version,adapterId)
@@ -8881,7 +8882,7 @@ namespace Core.Api
                     }
 
                     // remove adapter from cache
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1] 
                     { 
                         string.Format("{0}_cdn_adapter_{1}", version, adapterId)

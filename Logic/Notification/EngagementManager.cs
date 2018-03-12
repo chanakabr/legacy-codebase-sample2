@@ -766,8 +766,8 @@ namespace Core.Notification
             }
 
             // get bulk from TCM
-            int engagementBulkMessages = ApplicationConfiguration.EngagementsConfiguration.NumberOfBulkMessageEngagements.IntValue;
 
+            int engagementBulkMessages = ApplicationConfiguration.EngagementsConfiguration.NumberOfBulkMessageEngagements.IntValue;
             if (engagementBulkMessages == 0)
                 engagementBulkMessages = NUM_OF_BULK_MESSAGE_ENGAGEMENTS;
 
@@ -1114,7 +1114,6 @@ namespace Core.Notification
 
             // get maximum allowed push 
             int allowedPushMsg = ApplicationConfiguration.PushMessagesConfiguration.NumberOfMessagesPerSecond.IntValue;
-                
             if (allowedPushMsg == 0)
                 allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 
@@ -1430,7 +1429,6 @@ namespace Core.Notification
 
             // get maximum allowed push 
             int allowedPushMsg = ApplicationConfiguration.PushMessagesConfiguration.NumberOfMessagesPerSecond.IntValue;
-
             if (allowedPushMsg == 0)
                 allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 
