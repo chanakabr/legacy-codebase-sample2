@@ -10,6 +10,7 @@ using System.Data;
 using System.Linq;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace TVinciShared
 {
@@ -569,6 +570,7 @@ namespace TVinciShared
             try
             {
                 TCMClient.Settings.Instance.Init();
+                ApplicationConfiguration.Initialize(true);
             }
             catch (Exception ex)
             {
