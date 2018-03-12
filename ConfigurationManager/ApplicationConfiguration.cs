@@ -127,6 +127,7 @@ namespace ConfigurationManager
             GroupsCacheConfiguration = new ConfigurationManager.NamedCacheConfiguration("groups_cache_configuration");
             GroupsCacheConfiguration.TTLSeconds.DefaultValue = 86400;
             GroupsCacheConfiguration.Name.DefaultValue = "GroupsCache";
+            GroupsCacheConfiguration.Name.Description= "Original key is GROUPS_CACHE_NAME";
             GroupsCacheConfiguration.Type.DefaultValue = "CouchBase";
 
             CouchBaseDesigns = new CouchBaseDesigns("couchbase_designs");
