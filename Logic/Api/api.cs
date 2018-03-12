@@ -7777,7 +7777,8 @@ namespace Core.Api
                 return response;
             }
 
-            int frequencyMinValue = TVinciShared.WS_Utils.GetTcmIntValue("export.frequency_min_value");
+            int frequencyMinValue = ApplicationConfiguration.ExportConfiguration.FrequencyMinimumValue.IntValue;
+
             if (frequency < frequencyMinValue)
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExportFrequencyMinValue, string.Format(EXPORT_FREQUENCY_MIN_VALUE_FORMAT, frequencyMinValue));
@@ -7841,7 +7842,8 @@ namespace Core.Api
                     return response;
                 }
 
-                int frequencyMinValue = TVinciShared.WS_Utils.GetTcmIntValue("export.frequency_min_value");
+                int frequencyMinValue = ApplicationConfiguration.ExportConfiguration.FrequencyMinimumValue.IntValue;
+
                 if (frequency < frequencyMinValue)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExportFrequencyMinValue, string.Format(EXPORT_FREQUENCY_MIN_VALUE_FORMAT, frequencyMinValue));

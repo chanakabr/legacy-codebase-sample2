@@ -14436,7 +14436,8 @@ namespace Core.ConditionalAccess
                     List<long> deletedRecordingIds = new List<long>();
                     int adapterId = 0;
                     // set max amount of concurrent tasks
-                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                    int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                        
                     if (maxDegreeOfParallelism == 0)
                     {
                         maxDegreeOfParallelism = 5;
@@ -14915,7 +14916,7 @@ namespace Core.ConditionalAccess
                     DataTable modifiedDomainRecordings = RecordingsDAL.UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value, maxDomainRecordingId);
 
                     // set max amount of concurrent tasks
-                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                    int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
                     if (maxDegreeOfParallelism == 0)
                     {
                         maxDegreeOfParallelism = 5;
@@ -15209,7 +15210,7 @@ namespace Core.ConditionalAccess
                         List<TstvRecordingStatus> validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recorded };
 
                         // set max amount of concurrent tasks
-                        int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                        int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
                         if (maxDegreeOfParallelism == 0)
                         {
                             maxDegreeOfParallelism = 5;
@@ -15512,7 +15513,7 @@ namespace Core.ConditionalAccess
                     if (domainFutureSingleRecordings != null)
                     {
                         // set max amount of concurrent tasks
-                        int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                        int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
                         if (maxDegreeOfParallelism == 0)
                         {
                             maxDegreeOfParallelism = 5;
@@ -15640,7 +15641,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // set max amount of concurrent tasks
-                int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
                 if (maxDegreeOfParallelism == 0)
                 {
                     maxDegreeOfParallelism = 5;
@@ -15776,7 +15777,7 @@ namespace Core.ConditionalAccess
                                 {
                                     //cancel all of those + the record with the epgid we got before 
                                     // set max amount of concurrent tasks
-                                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                                    int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
                                     if (maxDegreeOfParallelism == 0)
                                     {
                                         maxDegreeOfParallelism = 5;
