@@ -26,7 +26,8 @@ namespace ConfigurationManager
             };
             TwitterItemCount = new NumericConfigurationValue("twitter_item_count", this)
             {
-                DefaultValue = 100
+                DefaultValue = 100,
+                Description = "Original key is SocialFeed_Twitter_item_count"
             };
             FacebookTTL = new NumericConfigurationValue("facebook_ttl", this)
             {

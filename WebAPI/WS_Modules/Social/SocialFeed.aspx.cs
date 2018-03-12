@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ApiObjects;
+using ApiObjects.Social;
+using ConfigurationManager;
 using Core.Social;
 using Core.Social.SocialFeed;
-using System.Web.Script.Serialization;
-using System.Linq;
-using TVinciShared;
-using KLogMonitor;
-using System.Reflection;
 using Core.Users;
-using ApiObjects;
-using ApiObjects.Social;
-
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Web.Script.Serialization;
+using TVinciShared;
 
 namespace WS_Social.SocialFeed
 {
@@ -69,16 +69,16 @@ namespace WS_Social.SocialFeed
                                 {
                                     try
                                     {
-                                        socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(queryParam, TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_KEY"), TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_SECRET"), userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"));
+                                        socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(queryParam, ApplicationConfiguration.TwitterConfiguration.ConsumerKey.Value, TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_SECRET"), userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue);
                                     }
                                     catch (Exception)
                                     {
-                                        socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(queryParam, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"), groupId);
+                                        socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(queryParam, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue, groupId);
                                     }
                                 }
                                 else
                                     // User wasn't found or has no twitter access_token
-                                    socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(queryParam, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"), groupId);
+                                    socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(queryParam, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue, groupId);
                                 break;
                         }
                         JavaScriptSerializer serializer = new JavaScriptSerializer();
