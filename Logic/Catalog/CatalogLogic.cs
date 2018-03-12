@@ -4579,7 +4579,7 @@ namespace Core.Catalog
 
             #region  try get values from catalog cache
 
-            double cacheTime = TVinciShared.WS_Utils.GetTcmDoubleValue("CATALOG_HIT_CACHE_TIME_IN_MINUTES");
+            double cacheTime = ApplicationConfiguration.CatalogLogicConfiguration.HitCacheTimeInMinutes.DoubleValue;
 
             if (cacheTime == 0)
             {
