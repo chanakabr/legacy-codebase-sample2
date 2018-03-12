@@ -52,7 +52,7 @@ namespace Core.Users
 
         private static double GetDocTTLSettings()
         {
-            double nResult = TVinciShared.WS_Utils.GetTcmDoubleValue("UsersCacheDocTimeout");
+            double nResult = ApplicationConfiguration.UsersCacheConfiguration.TTLSeconds.DoubleValue;
             if (nResult == 0)
             {
                 nResult = 1440.0;
@@ -66,7 +66,7 @@ namespace Core.Users
             // create an instance of user to external cache (by CouchBase)
             cache = CouchBaseCache<User>.GetInstance("CACHE");
             cacheTTL = GetDocTTLSettings();     //set ttl time for document
-            shouldUseCache = ApplicationConfiguration.UseUserCache.Value;
+            shouldUseCache = ApplicationConfiguration.UsersCacheConfiguration.ShouldUseCache.Value;
         }
 
         #endregion
