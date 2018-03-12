@@ -72,6 +72,7 @@ namespace ConfigurationManager
         public static BooleanConfigurationValue DownloadPicWithQueue;
         public static ImageUtilsConfiguration ImageUtilsConfiguration;
         public static StringConfigurationValue EPGUrl;        
+        public static StringConfigurationValue GroupIDsWithIPNOFilteringSeperatedBySemiColon;        
 
         #endregion
 
@@ -264,6 +265,10 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true,
                 Description = "Use in yes epg BL"
+            };
+            GroupIDsWithIPNOFilteringSeperatedBySemiColon = new StringConfigurationValue("GroupIDsWithIPNOFilteringSeperatedBySemiColon")
+            {
+                ShouldAllowEmpty = true
             };
 
             AllConfigurationValues = new List<ConfigurationValue>()
