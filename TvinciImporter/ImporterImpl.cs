@@ -5915,7 +5915,7 @@ namespace TvinciImporter
         {
             bool isUpdateChannelIndexSucceeded = false;
 
-            string sUseElasticSearch = GetConfigVal("indexer");
+            string sUseElasticSearch = ApplicationConfiguration.SearchIndexType.Value; // Indexer - ES / Lucene
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES"))
             {
                 WSCatalog.IserviceClient wsCatalog = null;
@@ -6147,7 +6147,7 @@ namespace TvinciImporter
 
             int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
 
-            string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
+            string sUseElasticSearch = ApplicationConfiguration.SearchIndexType.Value;  // Indexer - ES / Lucene
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
             {
                 WSCatalog.IserviceClient wsCatalog = null;
@@ -6296,7 +6296,8 @@ namespace TvinciImporter
         {
             bool isUpdateIndexSucceeded = false;
 
-            string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
+            string sUseElasticSearch = ApplicationConfiguration.SearchIndexType.Value; // Indexer - ES / Lucene
+
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
             {
                 WSCatalog.IserviceClient wsCatalog = null;
