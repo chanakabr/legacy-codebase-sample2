@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using ApiObjects.Statistics;
+﻿using ApiObjects.Statistics;
+using ConfigurationManager;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace DalCB
 {
     public class StatisicsDal_CouchBase
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string CB_STATISTICS_DESGIN = Utils.GetValFromConfig("cb_statistics_design");
+        private static readonly string CB_STATISTICS_DESGIN = ApplicationConfiguration.CouchBaseDesigns.StatisticsDesign.Value;
 
         CouchbaseManager.CouchbaseManager cbManager;
 
