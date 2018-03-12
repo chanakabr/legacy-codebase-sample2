@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ApiObjects;
+using ConfigurationManager;
 using CouchbaseManager;
-using System.Configuration;
-using ApiObjects;
-using Newtonsoft.Json;
 using KLogMonitor;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 
 namespace DalCB
 {
@@ -16,7 +15,8 @@ namespace DalCB
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly string sEndMaxValue = @"\uefff";
-        private static readonly string CB_EPG_DESGIN = Utils.GetValFromConfig("cb_epg_design");
+
+        private static readonly string CB_EPG_DESGIN = ApplicationConfiguration.CouchBaseDesigns.EPGDesign.Value;
         private static readonly string EPG_DAL_CB_LOG_FILE = "EpgDAL_CB";
 
         CouchbaseManager.CouchbaseManager cbManager;
@@ -327,7 +327,7 @@ namespace DalCB
 
         private EpgCB BuildEpgCbFromCbObject(object cbObject)
         {
-            EpgCB epgCb = null;                        
+            EpgCB epgCb = null;
 
             // Old code:
             // If the value that CB returned is valid
