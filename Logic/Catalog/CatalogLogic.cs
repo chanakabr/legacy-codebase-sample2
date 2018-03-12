@@ -120,15 +120,6 @@ namespace Core.Catalog
 
         private static int maxNGram = -1;
 
-        internal static int GetCurrentRequestDaysOffset()
-        {
-            int res = DEFAULT_CURRENT_REQUEST_DAYS_OFFSET;
-            string daysOffset = Utils.GetWSURL("CURRENT_REQUEST_DAYS_OFFSET");
-            if (daysOffset.Length > 0 && Int32.TryParse(daysOffset, out res) && res > 0)
-                return res;
-            return DEFAULT_CURRENT_REQUEST_DAYS_OFFSET;
-        }
-
         /*Get All Relevant Details About Media (by id) , 
          Use Stored Procedure */
         internal static bool CompleteDetailsForMediaResponse(MediasProtocolRequest mediaRequest, ref MediaResponse mediaResponse, int nStartIndex, int nEndIndex, bool managementData = false)
@@ -7479,7 +7470,7 @@ namespace Core.Catalog
             #endregion
 
             // Get days offset for EPG search from TCM
-            definitions.epgDaysOffest = CatalogLogic.GetCurrentRequestDaysOffset();
+            definitions.epgDaysOffest = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
 
             #region Regions and associations
 
