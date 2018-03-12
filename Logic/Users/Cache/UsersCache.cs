@@ -8,6 +8,7 @@ using System.Threading;
 using CachingProvider;
 using KLogMonitor;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 
 namespace Core.Users
 {
@@ -65,7 +66,7 @@ namespace Core.Users
             // create an instance of user to external cache (by CouchBase)
             cache = CouchBaseCache<User>.GetInstance("CACHE");
             cacheTTL = GetDocTTLSettings();     //set ttl time for document
-            shouldUseCache = TVinciShared.WS_Utils.GetTcmBoolValue("UseUsersCache");
+            shouldUseCache = ApplicationConfiguration.UseUserCache.Value;
         }
 
         #endregion

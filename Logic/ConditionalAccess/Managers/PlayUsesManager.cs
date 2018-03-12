@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Pricing;
 using DAL;
 using KLogMonitor;
@@ -501,7 +502,7 @@ namespace Core.ConditionalAccess
                 isCreditDownloaded = true;
             }
 
-            if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache"))
+            if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value)
             {
                 // update lastUseWithCredit value according to nIsCreditDownloaded
                 lastUseWithCredit = isCreditDownloaded ? DateTime.UtcNow : lastUseWithCredit;

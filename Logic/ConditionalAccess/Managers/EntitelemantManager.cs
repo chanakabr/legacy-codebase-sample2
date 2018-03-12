@@ -4,6 +4,7 @@ using ApiObjects.Billing;
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.ConditionalAccess.Response;
 using Core.Pricing;
 using Core.Users;
@@ -119,7 +120,7 @@ namespace Core.ConditionalAccess
                     {
                         List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(userId, groupId, ref domainId);
 
-                        if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache") && !isRecording)
+                        if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && !isRecording)
                         {
                             CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, mediaFileId);
                             if (cachedEntitlementResults != null)

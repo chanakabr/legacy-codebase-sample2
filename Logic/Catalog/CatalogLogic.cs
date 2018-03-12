@@ -4580,7 +4580,7 @@ namespace Core.Catalog
         internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration, int groupId)
         {
-            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
+            if (!ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseHitCache.Value)
             {
                 countryID = Utils.GetIP2CountryId(groupId, userIP);
                 return CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
@@ -4740,7 +4740,7 @@ namespace Core.Catalog
             CatalogCache catalogCache = CatalogCache.Instance();
             string key = string.Format("Recording_{0}", domainRecordingId);
 
-            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
+            if (!ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseHitCache.Value)
             {
                 shouldGoToCas = true;
             }
@@ -6693,12 +6693,12 @@ namespace Core.Catalog
         public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
             Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping)
         {
-            bool shouldUseCache = WS_Utils.GetTcmBoolValue("Use_Search_Cache");
+            bool shouldUseCache = ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
 
             // initialize maximum nGram member only once - when this is negative it is still not set
             if (maxNGram < 0)
             {
-                maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
+                maxNGram = ApplicationConfiguration.ElasticSearchConfiguration.MaxNGram.IntValue;
             }
 
             List<int> geoBlockRules = null;
