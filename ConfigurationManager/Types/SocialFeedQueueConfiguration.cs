@@ -14,11 +14,13 @@ namespace ConfigurationManager
         {
             Task = new StringConfigurationValue("task", this)
             {
-                DefaultValue = "distributed_tasks.process_update_social_feed"
+                DefaultValue = "distributed_tasks.process_update_social_feed",
+                Description = "Original key is taskSocialFeed"
             };
             RoutingKey = new StringConfigurationValue("routing_key", this)
             {
-                DefaultValue = "PROCESS_UPDATE_SOCIAL_FEED"
+                DefaultValue = "PROCESS_UPDATE_SOCIAL_FEED",
+                Description = "Original key is routingKeySocialFeedUpdate"
             };
         }
 
