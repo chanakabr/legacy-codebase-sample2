@@ -18,7 +18,7 @@ namespace ConfigurationManager
         public static RequestParserConfiguration RequestParserConfiguration;
         public static OTTUserControllerConfiguration OTTUserControllerConfiguration;
         public static CouchbaseSectionMapping CouchbaseSectionMapping;
-        public static BaseCacheConfiguration BaseCacheConfiguration;
+        public static NamedCacheConfiguration BaseCacheConfiguration;
         public static DatabaseConfiguration DatabaseConfiguration;
         public static NamedCacheConfiguration WSCacheConfiguration;
         public static NamedCacheConfiguration ODBCWrapperCacheConfiguration;
@@ -99,7 +99,7 @@ namespace ConfigurationManager
             RequestParserConfiguration = new RequestParserConfiguration("request_parser");
             OTTUserControllerConfiguration = new OTTUserControllerConfiguration("ott_user_controller");
             CouchbaseSectionMapping = new CouchbaseSectionMapping("CouchbaseSectionMapping");
-            BaseCacheConfiguration = new BaseCacheConfiguration("base_cache_configuration");
+            BaseCacheConfiguration = new NamedCacheConfiguration("base_cache_configuration");
             
             DatabaseConfiguration = new DatabaseConfiguration("database_configuration");
             WSCacheConfiguration = new NamedCacheConfiguration("ws_cache_configuration");
