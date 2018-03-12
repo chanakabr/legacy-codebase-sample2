@@ -90,8 +90,8 @@ namespace CachingHelpers
         private string GetCacheName()
         {
             string result = DEFAULT_CACHE_NAME;
-
-            string tcm = TVinciShared.WS_Utils.GetTcmConfigValue("GROUPS_CACHE_NAME");
+                        
+            string tcm = ApplicationConfiguration.GroupsCacheConfiguration.Name.Value;
 
             if (tcm.Length > 0)
             {
@@ -103,15 +103,12 @@ namespace CachingHelpers
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint result = DEFAULT_TIME_IN_CACHE_SECONDS;
-            uint tcm = 0;
+            uint result = (uint)ApplicationConfiguration.GroupsCacheConfiguration.TTLSeconds.IntValue;
 
-            string timeString = TVinciShared.WS_Utils.GetTcmConfigValue("GROUPS_CACHE_TIME_IN_MINUTES");
-
-            if (timeString.Length > 0 && uint.TryParse(timeString, out tcm) && tcm > 0)
+            if (result <= 0)
             {
-                result = tcm * 60;
-            }
+                result = DEFAULT_TIME_IN_CACHE_SECONDS;
+            }           
 
             return result;
         }
