@@ -1,27 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Web;
-using System.Web.Script.Serialization;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Net;
-using System.IO;
-using TVinciShared;
-using System.Configuration;
-using System.Data;
-using ApiObjects;
+﻿using ApiObjects;
+using ApiObjects.Billing;
 using ApiObjects.Response;
-using KLogMonitor;
-using System.Reflection;
-using Core.Users;
-using Core.Billing;
+using ApiObjects.Social;
+using ConfigurationManager;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
-using ApiObjects.Social;
-using ApiObjects.Billing;
+using Core.Users;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Web.Script.Serialization;
 
 namespace Core.Social
 {
@@ -542,7 +535,7 @@ namespace Core.Social
 
             //call catalog service for details 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = Utils.GetWSURL("CatalogSignatureKey");
+            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -612,7 +605,7 @@ namespace Core.Social
             string sAppAccessToken = string.Format("{0}|{1}", m_oFBConfig.sFBKey, m_oFBConfig.sFBSecret);
 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = Utils.GetWSURL("CatalogSignatureKey");
+            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -744,11 +737,11 @@ namespace Core.Social
 
                 //User Exists
                 if (uObj.m_RespStatus == ResponseStatus.OK)
-                {                    
+                {
                     if (string.IsNullOrEmpty(uObj.m_user.m_oBasicData.m_sFacebookToken))
                     {
                         throw new FacebookException(FacebookResponseStatus.ERROR, "User token is empty");
-                    }                    
+                    }
                     string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
                     string sDecryptToken = Utils.Decrypt(uObj.m_user.m_oBasicData.m_sFacebookToken, key);
 
@@ -1185,7 +1178,7 @@ namespace Core.Social
             FBUser fbUser = serializer.Deserialize<FBUser>(sRetVal);
             string fbid = fbUser.id;
 
-            if(!string.IsNullOrEmpty(userId))
+            if (!string.IsNullOrEmpty(userId))
                 uObj = Utils.GetUserDataByID(userId, m_nGroupID);
 
             if (uObj != null && uObj.m_RespStatus == ResponseStatus.OK)

@@ -457,18 +457,6 @@ namespace Core.Api
             return ret;
         }
 
-        /*Get the Lucene URL from DB , else from config file*/
-        private static string GetLuceneUrl(int nGroupID)
-        {
-            string sLuceneURL = GetWSURL("LUCENE_WCF");
-            return sLuceneURL;
-        }
-
-        static public string GetWSURL(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         static public List<string> GetAutoCompleteList(RequestObj request, int groupID)
         {
             log.Debug("AutoComplete - Start AutoComplete");
@@ -494,8 +482,8 @@ namespace Core.Api
             autoCompleteRequest.m_lMetas = request.m_InfoStruct.m_Metas;
             autoCompleteRequest.m_lTags = request.m_InfoStruct.m_Tags;
 
-            string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = GetWSURL("CatalogSignatureKey");
+            string sSignString = Guid.NewGuid().ToString();           
+            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
             autoCompleteRequest.m_sSignature = sSignature;
@@ -841,7 +829,7 @@ namespace Core.Api
             try
             {
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = GetWSURL("CatalogSignatureKey");
+                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
                 for (int i = 0; i < nChannels.Length; i++)
@@ -1018,7 +1006,7 @@ namespace Core.Api
                 ccm.m_nMediaID = nMediaID;
                 ccm.m_lChannles = nChannels.ToList();
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = GetWSURL("CatalogSignatureKey");
+                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
                 ccm.m_sSignString = sSignString;
                 ccm.m_sSignature = sSignature;
@@ -1047,7 +1035,7 @@ namespace Core.Api
                 ccm.m_nMediaID = nMediaID;
                 ccm.m_lChannles = nChannels.ToList();
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = GetWSURL("CatalogSignatureKey");
+                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
                 ccm.m_sSignString = sSignString;
                 ccm.m_sSignature = sSignature;
@@ -3775,7 +3763,7 @@ namespace Core.Api
         {
             //call catalog service for details 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = GetWSURL("CatalogSignatureKey");
+            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -3830,7 +3818,7 @@ namespace Core.Api
         {
             List<string> medias = new List<string>();
             string signString = Guid.NewGuid().ToString();
-            string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, GetWSURL("CatalogSignatureKey"));
+            string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, ApplicationConfiguration.CatalogSignatureKey.Value);
 
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
@@ -3858,7 +3846,7 @@ namespace Core.Api
         public static bool DoesMediaBelongToBundle(int nBundleCode, int[] nFileTypeIDs, int nMediaID, string sDevice, int nGroupID, Btype bType)
         {
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = GetWSURL("CatalogSignatureKey");
+            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -3915,7 +3903,7 @@ namespace Core.Api
             List<int> nMedias = new List<int>();
 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = GetWSURL("CatalogSignatureKey");
+            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4220,7 +4208,7 @@ namespace Core.Api
                 oFilter.m_sPlatform = "";
 
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = GetWSURL("CatalogSignatureKey");
+                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
 
@@ -4252,7 +4240,7 @@ namespace Core.Api
             try
             {
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = APILogic.Utils.GetWSUrl("CatalogSignatureKey");
+                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4283,7 +4271,7 @@ namespace Core.Api
         {
             //call catalog service for details 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = GetWSURL("CatalogSignatureKey");
+            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4484,7 +4472,7 @@ namespace Core.Api
                 request.m_oFilter.m_bOnlyActiveMedia = true;
 
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = GetWSURL("CatalogSignatureKey");
+                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
                 request.m_sSignature = sSignature;
@@ -8282,7 +8270,7 @@ namespace Core.Api
             try
             {
                 string catalogSignString = Guid.NewGuid().ToString();
-                string catalogSignatureString = GetWSURL("CatalogSignatureKey");
+                string catalogSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
                 string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
 
@@ -9270,7 +9258,7 @@ namespace Core.Api
             try
             {
                 string catalogSignString = Guid.NewGuid().ToString();
-                string catalogSignatureString = GetWSURL("CatalogSignatureKey");
+                string catalogSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
 
                 string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
 
