@@ -88,8 +88,8 @@ namespace ConfigurationManager
         }
 
         #endregion
-
-        #region Abstract Methods
+        
+        #region Virtual Methods
 
         internal virtual bool Validate()
         {
@@ -105,10 +105,6 @@ namespace ConfigurationManager
 
             return result;
         }
-
-        #endregion
-
-        #region Virtual Methods
 
         protected virtual void LogError(string reason)
         {

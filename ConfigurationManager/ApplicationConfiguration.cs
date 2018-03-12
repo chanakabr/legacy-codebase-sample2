@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Web;
-using TCMClient;
 
 namespace ConfigurationManager
 {
@@ -72,8 +68,12 @@ namespace ConfigurationManager
         public static NumericConfigurationValue PendingThresholdDays;
         public static BooleanConfigurationValue DownloadPicWithQueue;
         public static ImageUtilsConfiguration ImageUtilsConfiguration;
-        public static StringConfigurationValue EPGUrl;        
+        public static StringConfigurationValue EPGUrl;
         public static StringConfigurationValue GroupIDsWithIPNOFilteringSeperatedBySemiColon;
+        public static StringConfigurationValue EncryptorService;
+        public static StringConfigurationValue EncryptorPassword;
+        public static StringConfigurationValue PicsBasePath;
+        
         #endregion
 
         #region Private Members
@@ -100,7 +100,7 @@ namespace ConfigurationManager
             CouchbaseSectionMapping = new CouchbaseSectionMapping("CouchbaseSectionMapping");
             UsersCacheConfiguration = new ConfigurationManager.UsersCacheConfiguration("users_cache_configuration");
             BaseCacheConfiguration = new NamedCacheConfiguration("base_cache_configuration");
-            
+
             DatabaseConfiguration = new DatabaseConfiguration("database_configuration");
             WSCacheConfiguration = new NamedCacheConfiguration("ws_cache_configuration");
             WSCacheConfiguration.TTLSeconds.DefaultValue = 7200;
@@ -127,7 +127,7 @@ namespace ConfigurationManager
             GroupsCacheConfiguration = new ConfigurationManager.NamedCacheConfiguration("groups_cache_configuration");
             GroupsCacheConfiguration.TTLSeconds.DefaultValue = 86400;
             GroupsCacheConfiguration.Name.DefaultValue = "GroupsCache";
-            GroupsCacheConfiguration.Name.Description= "Original key is GROUPS_CACHE_NAME";
+            GroupsCacheConfiguration.Name.Description = "Original key is GROUPS_CACHE_NAME";
             GroupsCacheConfiguration.Type.DefaultValue = "CouchBase";
             GroupsCacheConfiguration.Type.Description = "Original key is GroupsCacheConfiguration";
             GroupsCacheConfiguration.TTLSeconds.Description = "Original key is GroupsCacheDocTimeout";
@@ -271,10 +271,14 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 Description = "Use in yes epg BL"
             };
-            GroupIDsWithIPNOFilteringSeperatedBySemiColon = new StringConfigurationValue("GroupIDsWithIPNOFilteringSeperatedBySemiColon")
+            GroupIDsWithIPNOFilteringSeperatedBySemiColon = new ConfigurationManager.StringConfigurationValue("GroupIDsWithIPNOFilteringSeperatedBySemiColon")
             {
                 ShouldAllowEmpty = true
             };
+
+            EncryptorService = new ConfigurationManager.StringConfigurationValue("EncryptorService") { ShouldAllowEmpty = true };
+            EncryptorPassword = new ConfigurationManager.StringConfigurationValue("EncryptorPassword") { ShouldAllowEmpty = true };
+            PicsBasePath = new ConfigurationManager.StringConfigurationValue("pics_base_path") { ShouldAllowEmpty = true };
 
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -339,6 +343,10 @@ namespace ConfigurationManager
                     CatalogCacheConfiguration,
                     NotificationCacheConfiguration,
                     GroupsCacheConfiguration,
+                    GroupIDsWithIPNOFilteringSeperatedBySemiColon,
+                    EncryptorService,
+                    EncryptorPassword,
+                    PicsBasePath
                 };
 
             if (shouldLoadDefaults)
