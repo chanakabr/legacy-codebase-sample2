@@ -26,7 +26,8 @@ namespace ConfigurationManager
             };
             TokenKey = new StringConfigurationValue("token_key", this)
             {
-                DefaultValue = "tvinci"
+                DefaultValue = "tvinci",
+                Description = "Original key is FB_TOKEN_KEY"
             };
             ListName = new StringConfigurationValue("list_name", this)
             {

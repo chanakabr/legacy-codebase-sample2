@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace ConfigurationManager
+﻿namespace ConfigurationManager
 {
     public class CouchBaseDesigns : ConfigurationValue
     {
@@ -12,6 +7,7 @@ namespace ConfigurationManager
         public StringConfigurationValue QueueMessagesDesign;
         public StringConfigurationValue SocialFeedDesign;
         public StringConfigurationValue SearchHistoryDesign;
+        public StringConfigurationValue StatisticsDesign;
 
         public CouchBaseDesigns(string key) : base(key)
         {
@@ -21,7 +17,8 @@ namespace ConfigurationManager
             };
             EPGDesign = new StringConfigurationValue("epg", this)
             {
-                DefaultValue = "epg"
+                DefaultValue = "epg",
+                Description = "Original key is cb_epg_design"
             };
             QueueMessagesDesign = new StringConfigurationValue("queue_messages", this)
             {
@@ -29,11 +26,17 @@ namespace ConfigurationManager
             };
             SocialFeedDesign = new StringConfigurationValue("social_feed", this)
             {
-                DefaultValue = "socialfeed"
+                DefaultValue = "socialfeed",
+                Description = "Original key is cb_feed_design"
             };
             SearchHistoryDesign = new StringConfigurationValue("search_history", this)
             {
                 DefaultValue = "searchHistory"
+            };
+            StatisticsDesign = new StringConfigurationValue("statistics", this)
+            {
+                DefaultValue = "statistics",
+                Description = "Original key is cb_statistics_design"
             };
         }
 
