@@ -48,7 +48,7 @@ namespace CachingProvider
 
         private string GetCacheName()
         {
-            string res = ApplicationConfiguration.WSCacheSettings.Name.Value;
+            string res = ApplicationConfiguration.SingleInMemoryCacheName.Value;
 
             if (res.Length > 0)
                 return res;

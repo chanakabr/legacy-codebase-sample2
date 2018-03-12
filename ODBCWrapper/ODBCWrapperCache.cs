@@ -23,7 +23,7 @@ namespace ODBCWrapper
 
         private string GetCacheName()
         {
-            string res = ApplicationConfiguration.WSCacheSettings.Name.Value;
+            string res = ApplicationConfiguration.ODBCWrapperCacheConfiguration.Name.Value;
 
             if (!string.IsNullOrEmpty(res))
             {
@@ -35,20 +35,19 @@ namespace ODBCWrapper
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint res = (uint)ApplicationConfiguration.WSCacheSettings.TimeInMinutes.IntValue;
+            uint result = (uint)ApplicationConfiguration.ODBCWrapperCacheConfiguration.TTLSeconds.IntValue;
 
-            if (res > 0)
+            if (result <= 0)
             {
-                res *= 60;
-                return res;
+                result = DEFAULT_TIME_IN_CACHE_SECONDS;
             }
-          
-            return DEFAULT_TIME_IN_CACHE_SECONDS;
+
+            return result;
         }
 
         private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
-            string res = ApplicationConfiguration.WSCacheSettings.Type.Value;
+            string res = ApplicationConfiguration.ODBCWrapperCacheConfiguration.Type.Value;
 
             switch (res)
             {

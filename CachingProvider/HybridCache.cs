@@ -25,7 +25,7 @@ namespace CachingProvider
         {
             this.inMemoryCache = new SingleInMemoryCache(0);
             this.couchbaseCache = CouchBaseCache<T>.GetInstance(externalCacheName.ToString());
-            this.secondsInMemory = ApplicationConfiguration.BaseCacheConfiguration.CacheDocumentTimeout.DoubleValue;
+            this.secondsInMemory = ApplicationConfiguration.BaseCacheConfiguration.TTLSeconds.DoubleValue;
 
             // default value = 1 minute = 60 seconds
             if (this.secondsInMemory == 0)
