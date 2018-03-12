@@ -1,30 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TVinciShared;
-using System.Reflection;
-using System.Configuration;
-using System.Security.Cryptography;
-using System.Data;
-using System.Security.AccessControl;
-using System.Security.Principal;
+﻿using ApiObjects;
+using ApiObjects.Response;
 using ApiObjects.SearchObjects;
-using Tvinci.Core.DAL;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
+using ConfigurationManager;
+using Core.Catalog.Request;
 using DAL;
 using ElasticSearch.Searcher;
-using Core.Catalog.Cache;
 using GroupsCacheManager;
-using ApiObjects;
-using Core.Catalog.Request;
 using KLogMonitor;
 using KlogMonitorHelper;
-using ApiObjects.Response;
-using Catalog.Response;
-using Core.Catalog.Response;
-using ElasticSearch.Common;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
+using Tvinci.Core.DAL;
 
 namespace Core.Catalog
 {
@@ -44,7 +36,7 @@ namespace Core.Catalog
         {
             string retVal;
 
-            string hmacSecret = GetWSURL("CatalogSignatureKey");
+            string hmacSecret = ApplicationConfiguration.CatalogSignatureKey.Value;
 
             System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
 
