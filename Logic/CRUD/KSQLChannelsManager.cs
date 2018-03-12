@@ -1,27 +1,13 @@
-﻿using ApiLogic;
-using ApiObjects;
-using ApiObjects.BulkExport;
-using ApiObjects.QueueObjects;
+﻿using ApiObjects;
 using ApiObjects.Response;
-using ApiObjects.Roles;
-using ApiObjects.Rules;
-using ApiObjects.SearchObjects;
-using ApiObjects.Statistics;
-using CachingHelpers;
-using EpgBL;
+using ConfigurationManager;
 using GroupsCacheManager;
 using KLogMonitor;
-using QueueWrapper;
-using QueueWrapper.Queues.QueueObjects;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Web;
-using System.Xml;
 using Tvinci.Core.DAL;
 
 namespace APILogic.CRUD
@@ -51,7 +37,7 @@ namespace APILogic.CRUD
 
         static KSQLChannelsManager()
         {
-            version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+            version = ApplicationConfiguration.Version.Value;
         }
 
         #endregion

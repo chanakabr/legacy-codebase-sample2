@@ -13,6 +13,7 @@ using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Catalog.Response;
 using Core.ConditionalAccess.Modules;
 using Core.ConditionalAccess.Response;
@@ -13006,7 +13007,7 @@ namespace Core.ConditionalAccess
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                 }
 
-                string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version, adapterId)
@@ -13076,7 +13077,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove adapter from cache
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
@@ -13133,7 +13134,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove adapter from cache
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version,adapterId)
@@ -13938,7 +13939,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove adapter from cache
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)

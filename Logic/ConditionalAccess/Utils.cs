@@ -36,6 +36,7 @@ using Core.ConditionalAccess.Modules;
 using APILogic.ConditionalAccess.Modules;
 using QueueWrapper;
 using ApiObjects.Roles;
+using ConfigurationManager;
 
 namespace Core.ConditionalAccess
 {
@@ -6692,12 +6693,12 @@ namespace Core.ConditionalAccess
 
         internal static bool InsertOrSetCachedEntitlementResults(long domainId, int mediaFileId, CachedEntitlementResults cachedEntitlementResults)
         {
-            return ConditionalAccessDAL.InsertOrSetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId, cachedEntitlementResults);
+            return ConditionalAccessDAL.InsertOrSetCachedEntitlementResults(ApplicationConfiguration.Version.Value, domainId, mediaFileId, cachedEntitlementResults);
         }
 
         internal static CachedEntitlementResults GetCachedEntitlementResults(long domainId, int mediaFileId)
         {
-            return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
+            return ConditionalAccessDAL.GetCachedEntitlementResults(ApplicationConfiguration.Version.Value, domainId, mediaFileId);
         }
 
         internal static ApiObjects.Response.Status SetResponseStatus(PriceReason priceReason)
