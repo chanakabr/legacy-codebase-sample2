@@ -34,7 +34,6 @@ namespace ConfigurationManager
         public static StringConfigurationValue ExcludePsDllImplementation;
         public static NumericConfigurationValue DomainCacheDocTimeout;
         public static FacebookConfiguration FacebookConfiguration;
-        public static StringConfigurationValue NotificationsService;
         public static NumericConfigurationValue PlayCycleDocumentExpiryMinutes;
         public static TwitterConfiguration TwitterConfiguration;
         public static SocialFeedConfiguration SocialFeedConfiguration;
@@ -55,7 +54,6 @@ namespace ConfigurationManager
         public static NumericConfigurationValue UserInterestsTTLDays;
         public static StringConfigurationValue PlayManifestDynamicQueryStringParamsNames;
         public static NumericConfigurationValue RecordingsMaxDegreeOfParallelism;
-        public static StringConfigurationValue CatalogWSUrl;
         public static EventConsumersConfiguration EventConsumersConfiguration;
         public static AuthorizationManagerConfiguration AuthorizationManagerConfiguration;
         public static UserPINDigitsConfiguration UserPINDigitsConfiguration;
@@ -162,9 +160,6 @@ namespace ConfigurationManager
                 DefaultValue = 1440
             };
             FacebookConfiguration = new FacebookConfiguration("facebook_configuration");
-            NotificationsService = new StringConfigurationValue("NotificationService")
-            {
-            };
             PlayCycleDocumentExpiryMinutes = new NumericConfigurationValue("playCycle_doc_expiry_min")
             {
                 DefaultValue = 60,
@@ -223,10 +218,6 @@ namespace ConfigurationManager
             RecordingsMaxDegreeOfParallelism = new ConfigurationManager.NumericConfigurationValue("recordings_max_degree_of_parallelism")
             {
                 DefaultValue = 5
-            };
-            CatalogWSUrl = new ConfigurationManager.StringConfigurationValue("WS_Catalog")
-            {
-
             };
             EventConsumersConfiguration = new ConfigurationManager.EventConsumersConfiguration("ConsumerSettings");
             AuthorizationManagerConfiguration = new ConfigurationManager.AuthorizationManagerConfiguration("authorization_manager_configuration");
@@ -304,7 +295,6 @@ namespace ConfigurationManager
                     ExcludePsDllImplementation,
                     DomainCacheDocTimeout,
                     FacebookConfiguration,
-                    NotificationsService,
                     PlayCycleDocumentExpiryMinutes,
                     TwitterConfiguration,
                     SocialFeedConfiguration,
@@ -324,7 +314,6 @@ namespace ConfigurationManager
                     UserInterestsTTLDays,
                     PlayManifestDynamicQueryStringParamsNames,
                     RecordingsMaxDegreeOfParallelism,
-                    CatalogWSUrl,
                     EventConsumersConfiguration,
                     AuthorizationManagerConfiguration,
                     UserPINDigitsConfiguration,
