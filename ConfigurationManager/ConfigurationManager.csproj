@@ -79,6 +79,7 @@
     <Compile Include="Types\LayeredCache\LayeredCacheConfigurationValidation.cs" />
     <Compile Include="Types\LicensedLinksCacheConfiguration.cs" />
     <Compile Include="Types\MailerConfiguration.cs" />
+    <Compile Include="Types\NamedCacheConfiguration.cs" />
     <Compile Include="Types\OTTUserControllerConfiguration.cs" />
     <Compile Include="Types\PushMessagesConfiguration.cs" />
     <Compile Include="Types\RabbitConfiguration.cs" />

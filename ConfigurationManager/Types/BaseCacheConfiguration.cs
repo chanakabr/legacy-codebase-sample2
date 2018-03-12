@@ -7,28 +7,19 @@ namespace ConfigurationManager
 {
     public class BaseCacheConfiguration : ConfigurationValue
     {
-        public StringConfigurationValue CacheType;
-        public NumericConfigurationValue CacheDocumentTimeout;
+        public StringConfigurationValue Type;
+        public NumericConfigurationValue TTLSeconds;
 
         public BaseCacheConfiguration(string key) : base(key)
         {
-            CacheType = new StringConfigurationValue("cache_type", this)
+            Type = new StringConfigurationValue("type", this)
             {
                 DefaultValue = "CouchBase"
             };
-            CacheDocumentTimeout = new NumericConfigurationValue("cache_document_timeout", this)
+            TTLSeconds = new NumericConfigurationValue("ttl_seconds", this)
             {
                 DefaultValue = 86400
             };
-        }
-
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= CacheType.Validate();
-            result &= CacheDocumentTimeout.Validate();
-
-            return result;
         }
     }
 }

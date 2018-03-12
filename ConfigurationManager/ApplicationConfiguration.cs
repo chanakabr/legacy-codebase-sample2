@@ -20,7 +20,9 @@ namespace ConfigurationManager
         public static CouchbaseSectionMapping CouchbaseSectionMapping;
         public static BaseCacheConfiguration BaseCacheConfiguration;
         public static DatabaseConfiguration DatabaseConfiguration;
-        public static WSCacheSettings WSCacheSettings;
+        public static NamedCacheConfiguration WSCacheConfiguration;
+        public static StringConfigurationValue SingleInMemoryCacheName;
+        public static NamedCacheConfiguration SingleInMemoryCacheConfiguration;
         public static CouchBaseDesigns CouchBaseDesigns;
         public static NumericConfigurationValue EPGDocumentExpiry;
         public static EutelsatSettings EutelsatSettings;
@@ -95,7 +97,16 @@ namespace ConfigurationManager
             CouchbaseSectionMapping = new CouchbaseSectionMapping("CouchbaseSectionMapping");
             BaseCacheConfiguration = new BaseCacheConfiguration("base_cache_configuration");
             DatabaseConfiguration = new DatabaseConfiguration("database_configuration");
-            WSCacheSettings = new WSCacheSettings("ws_cache_settings");
+            WSCacheConfiguration = new NamedCacheConfiguration("ws_cache_configuration");
+            WSCacheConfiguration.TTLSeconds.DefaultValue = 7200;
+            WSCacheConfiguration.Name.DefaultValue = "Cache";
+
+            SingleInMemoryCacheName = new ConfigurationManager.StringConfigurationValue("single_in_memory_cache_name")
+            {
+                DefaultValue = "Cache",
+                ShouldAllowEmpty = true
+            };
+
             CouchBaseDesigns = new CouchBaseDesigns("couchbase_designs");
             EPGDocumentExpiry = new NumericConfigurationValue("epg_doc_expiry")
             {
@@ -229,7 +240,7 @@ namespace ConfigurationManager
                     CouchbaseSectionMapping,
                     BaseCacheConfiguration,
                     DatabaseConfiguration,
-                    WSCacheSettings,
+                    WSCacheConfiguration,
                     CouchBaseDesigns,
                     EPGDocumentExpiry,
                     EutelsatSettings,
