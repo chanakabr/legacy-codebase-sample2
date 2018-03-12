@@ -12,6 +12,8 @@ namespace ConfigurationManager
         public NumericConfigurationValue HitCacheTimeInMinutes;
         public BooleanConfigurationValue ShouldUseHitCache;
         public BooleanConfigurationValue ShouldUseSearchCache;
+        public NumericConfigurationValue CurrentRequestDaysOffset;
+
 
         public CatalogLogicConfiguration(string key) : base(key)
         {
@@ -33,17 +35,11 @@ namespace ConfigurationManager
                 DefaultValue = false,
                 ShouldAllowEmpty = true
             };
-        }
 
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= WatchHistoryStaleMode.Validate();
-            result &= HitCacheTimeInMinutes.Validate();
-            result &= ShouldUseHitCache.Validate();
-            result &= ShouldUseSearchCache.Validate();
-
-            return result;
+            CurrentRequestDaysOffset = new NumericConfigurationValue("CURRENT_REQUEST_DAYS_OFFSET", this)
+            {
+                DefaultValue = 7
+            };
         }
     }
 }
