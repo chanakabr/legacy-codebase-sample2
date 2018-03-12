@@ -46,6 +46,9 @@ namespace ProfessionalServicesHandler
                     log.ErrorFormat("Failed reading TCM value of PS action implementation: {0}", ex);
                 }
 
+                ITaskHandler newTaskHandler = null;
+
+
                 if (setting != null)
                 {
                     try
@@ -82,14 +85,30 @@ namespace ProfessionalServicesHandler
 
                         Type handlerType = actionAssembly.GetType(setting.Type);
 
-                        var newTaskHandler = (ITaskHandler)Activator.CreateInstance(handlerType);
+                        newTaskHandler = (ITaskHandler)Activator.CreateInstance(handlerType);
 
-                        newTaskHandler.HandleTask(data);
+                        
                     }
                     catch (Exception ex)
                     {
                         log.ErrorFormat("Failed loading specific action implementation from assembly. location = {0}, type = {1}, ex = {2}",
                             setting.DllLocation, setting.Type, ex);
+                        success = false;
+                    }
+
+                    try
+                    {
+                        if (newTaskHandler != null)
+                        {
+                            result = newTaskHandler.HandleTask(data);
+                            success = true;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Failed handling professional services request for action {0}. ex = {1}",
+                            request.ActionImplementation, ex);
+                        success = false;
                     }
                 }
 
