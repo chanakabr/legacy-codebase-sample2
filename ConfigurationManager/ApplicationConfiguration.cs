@@ -30,6 +30,7 @@ namespace ConfigurationManager
         public static NumericConfigurationValue EPGDocumentExpiry;
         public static EutelsatSettings EutelsatSettings;
         public static ElasticSearchConfiguration ElasticSearchConfiguration;
+        public static StringConfigurationValue SearchIndexType;
         public static StringConfigurationValue CatalogSignatureKey;
         public static HarmonicProviderConfiguration HarmonicProviderConfiguration;
         public static RabbitConfiguration RabbitConfiguration;
@@ -141,6 +142,13 @@ namespace ConfigurationManager
             };
             EutelsatSettings = new EutelsatSettings("eutelsat_settings");
             ElasticSearchConfiguration = new ElasticSearchConfiguration("elasticsearch_settings");
+            SearchIndexType = new StringConfigurationValue("search_index_type")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = "ES",
+                Description = "Used in TVM, for transition between Lucene and ElasticSearch. " + 
+                "Today we use ES exculisvely. Only valid value is 'ES', otherwise Lucene is used"
+            };
             CatalogSignatureKey = new StringConfigurationValue("CatalogSignatureKey")
             {
                 DefaultValue = "liat regev"
@@ -287,6 +295,7 @@ namespace ConfigurationManager
                     EPGDocumentExpiry,
                     EutelsatSettings,
                     ElasticSearchConfiguration,
+                    SearchIndexType,
                     CatalogSignatureKey,
                     HarmonicProviderConfiguration,
                     RabbitConfiguration,
