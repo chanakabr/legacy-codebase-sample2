@@ -20,6 +20,7 @@ using Core.Users;
 using Core.Catalog.Response;
 using Core.Catalog.Request;
 using Core.Catalog;
+using ConfigurationManager;
 
 namespace Core.Social
 {
@@ -81,8 +82,8 @@ namespace Core.Social
 
                     if (oSocialDoc.PermitSharing)
                     {
-                        string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskSocialFeed");
-                        string routingKey = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeySocialFeedUpdate");
+                        string task = ApplicationConfiguration.SocialFeedQueueConfiguration.Task.Value;
+                        string routingKey = ApplicationConfiguration.SocialFeedQueueConfiguration.RoutingKey.Value;
                         Guid guid = Guid.NewGuid();
 
                         ApiObjects.BaseCeleryData data = new ApiObjects.BaseCeleryData(guid.ToString(), task, m_nGroupID.ToString(), oSocialDoc.ActivitySubject.ActorSiteGuid, id);
@@ -126,8 +127,8 @@ namespace Core.Social
 
                     if (doc.PermitSharing)
                     {
-                        string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskSocialFeed");
-                        string routingKey = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeySocialFeedUpdate");
+                        string task = ApplicationConfiguration.SocialFeedQueueConfiguration.Task.Value;
+                        string routingKey = ApplicationConfiguration.SocialFeedQueueConfiguration.RoutingKey.Value;
                         Guid guid = Guid.NewGuid();
 
                         ApiObjects.BaseCeleryData data = new ApiObjects.BaseCeleryData(guid.ToString(), task, m_nGroupID.ToString(), doc.ActivitySubject.ActorSiteGuid, id);
@@ -1380,8 +1381,8 @@ namespace Core.Social
 
                     if (oSocialDoc.PermitSharing)
                     {
-                        string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskSocialFeed");
-                        string routingKey = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeySocialFeedUpdate");
+                        string task = ApplicationConfiguration.SocialFeedQueueConfiguration.Task.Value;
+                        string routingKey = ApplicationConfiguration.SocialFeedQueueConfiguration.RoutingKey.Value;
                         Guid guid = Guid.NewGuid();
 
                         ApiObjects.BaseCeleryData data = new ApiObjects.BaseCeleryData(guid.ToString(), task, m_nGroupID.ToString(), oSocialDoc.ActivitySubject.ActorSiteGuid, id);
