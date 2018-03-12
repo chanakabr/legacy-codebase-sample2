@@ -7,12 +7,12 @@ namespace ConfigurationManager
 {
     public class HarmonicProviderConfiguration : ConfigurationValue
     {
-        public static StringConfigurationValue SmoothCatchup;
-        public static StringConfigurationValue SmoothStartOver;
-        public static StringConfigurationValue HLSStartOver;
-        public static StringConfigurationValue HLSCatchup;
-        public static StringConfigurationValue DashCatchup;
-        public static StringConfigurationValue DashStartOver;
+        public StringConfigurationValue SmoothCatchup;
+        public StringConfigurationValue SmoothStartOver;
+        public StringConfigurationValue HLSStartOver;
+        public StringConfigurationValue HLSCatchup;
+        public StringConfigurationValue DashCatchup;
+        public StringConfigurationValue DashStartOver;
 
         public HarmonicProviderConfiguration(string key) : base(key)
         {
