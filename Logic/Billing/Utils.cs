@@ -16,6 +16,7 @@ using System.Net;
 using ApiObjects;
 using Core.Pricing;
 using Core.Users;
+using ConfigurationManager;
 
 namespace Core.Billing
 {
@@ -2190,7 +2191,7 @@ namespace Core.Billing
                     }
                     else
                     {
-                        double minuteOffset = TVinciShared.WS_Utils.GetTcmDoubleValue("BillingCacheTTL");
+                        double minuteOffset = ApplicationConfiguration.BillingCacheTTL.DoubleValue;
                         if (minuteOffset == 0)
                         {
                             minuteOffset = 60;// default value
