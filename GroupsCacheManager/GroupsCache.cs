@@ -1,15 +1,14 @@
-﻿using System;
+﻿using CachingProvider;
+using ConfigurationManager;
+using CouchbaseManager;
+using KLogMonitor;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
-using CachingProvider;
-using DAL;
-using ApiObjects;
-using CouchbaseManager;
-using KLogMonitor;
-using System.Reflection;
 
 namespace GroupsCacheManager
 {
@@ -51,7 +50,7 @@ namespace GroupsCacheManager
         private GroupsCache()
         {
             cacheGroupConfiguration = TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheConfiguration");
-            version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+            version = ApplicationConfiguration.Version.Value;
 
             switch (cacheGroupConfiguration)
             {
@@ -142,7 +141,7 @@ namespace GroupsCacheManager
             if (!uint.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheDocTimeout"), out nResult))
             {
                 nResult = DEFAULT_TIME_IN_CACHE_SECONDS;
-            }                
+            }
             else
             {
                 // convert to seconds (TCM config is in minutes)
@@ -808,7 +807,7 @@ namespace GroupsCacheManager
             return (mediaTypes);
         }
 
-	    #endregion
+        #endregion
 
     }
 }

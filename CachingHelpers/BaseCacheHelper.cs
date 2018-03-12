@@ -1,12 +1,11 @@
 ﻿using CachingProvider;
+using ConfigurationManager;
 using CouchbaseManager;
-using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 
 namespace CachingHelpers
@@ -57,29 +56,29 @@ namespace CachingHelpers
             switch (cacheType.ToLower())
             {
                 case "couchbase":
-                {
-                    cacheService = CouchBaseCache<T>.GetInstance("CACHE");
-                    version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    {
+                        cacheService = CouchBaseCache<T>.GetInstance("CACHE");
+                        version = ApplicationConfiguration.Version.Value;
 
-                    //set ttl time for document 
-                    cacheTime = GetDocTTLSettings();
-                    break;
-                }
+                        //set ttl time for document 
+                        cacheTime = GetDocTTLSettings();
+                        break;
+                    }
                 case "innercache":
-                {
-                    cacheTime = GetDefaultCacheTimeInSeconds();
-                    InitializeCachingService(GetCacheName(), cacheTime);
-                    break;
-                }
+                    {
+                        cacheTime = GetDefaultCacheTimeInSeconds();
+                        InitializeCachingService(GetCacheName(), cacheTime);
+                        break;
+                    }
                 case "hybrid":
-                {
-                    cacheTime = GetDefaultCacheTimeInSeconds();
-                    string cacheName = GetCacheName();
-                    cacheService = HybridCache<T>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
-                    version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    {
+                        cacheTime = GetDefaultCacheTimeInSeconds();
+                        string cacheName = GetCacheName();
+                        cacheService = HybridCache<T>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
+                        version = ApplicationConfiguration.Version.Value;
 
-                    break;
-                }
+                        break;
+                    }
             }
         }
 
@@ -340,7 +339,7 @@ namespace CachingHelpers
 
                         VersionModuleCache versionModule = (VersionModuleCache)this.cacheService.GetWithVersion<T>(cachedKey);
                         bool inserted = false;
-                        
+
                         //try insert to Cache
                         for (int tryNumber = 0; tryNumber < 3 && !inserted; tryNumber++)
                         {
