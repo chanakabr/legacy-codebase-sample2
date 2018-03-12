@@ -1,26 +1,27 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Response;
+using ApiObjects.Social;
+using ConfigurationManager;
+using Core.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Social.SocialFeed;
+using Core.Social.SocialFeed.SocialFeedJsonTemplates;
+using Core.Users;
+using DAL;
+using KLogMonitor;
+using LinqToTwitter;
+using Newtonsoft.Json;
+using ODBCWrapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web.Script.Serialization;
-using ODBCWrapper;
-using Core.Social.SocialFeed;
-using Core.Social.SocialFeed.SocialFeedJsonTemplates;
-using LinqToTwitter;
-using KLogMonitor;
-using System.Reflection;
-using DAL;
 using TVinciShared;
-using ApiObjects;
-using Core.Users;
-using ApiObjects.Response;
-using Core.Catalog.Request;
-using Core.Catalog;
-using ApiObjects.Social;
-using Core.Catalog.Response;
-using Newtonsoft.Json;
 
 namespace Core.Social
 {
@@ -104,7 +105,7 @@ namespace Core.Social
 
         public static class Twitter
         {
-            public static readonly string TWITTER_CONSUMER_KEY = TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_KEY");
+            public static readonly string TWITTER_CONSUMER_KEY = ApplicationConfiguration.TwitterConfiguration.ConsumerKey.Value;
             public static readonly string TWITTER_CONSUMER_SECRET = TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_SECRET");
             static Dictionary<int, ApplicationOnlyAuthorizer> _accessTokenDictionary = new Dictionary<int, ApplicationOnlyAuthorizer>();
             static object _locker = new object();
@@ -180,7 +181,7 @@ namespace Core.Social
         public static class InApp
         {
             static public List<SocialFeedItem> GetInAppSocialFeed(int assetId, ApiObjects.eAssetType assetType, int groupId, int numOfPosts)
-            {   
+            {
                 string signatureString = Guid.NewGuid().ToString();
                 AssetCommentsRequest request = new AssetCommentsRequest()
                 {
@@ -389,7 +390,7 @@ namespace Core.Social
             return retVal;
         }
 
-        public static SocialFeedResponse GetSocialFeed(int groupId, string userId, int assetId, ApiObjects.eAssetType assetType, eSocialPlatform socialPlatform, int pageSize, int pageIndex, 
+        public static SocialFeedResponse GetSocialFeed(int groupId, string userId, int assetId, ApiObjects.eAssetType assetType, eSocialPlatform socialPlatform, int pageSize, int pageIndex,
             long createDateSince, SocialFeedOrderBy orderBy)
         {
             Core.Social.SocialFeed.SocialFeedResponse response = new Core.Social.SocialFeed.SocialFeedResponse()
@@ -399,7 +400,7 @@ namespace Core.Social
             };
 
             Core.Social.SocialFeed.SocialFeedMediaTag mediaTag = null;
-            
+
             try
             {
                 if (socialPlatform == eSocialPlatform.InApp)
@@ -432,7 +433,7 @@ namespace Core.Social
                 else
                 {
                     cacheKey = string.Format("social_feed_platform={0}_tagValue={1}_userId={2}_groupId={3}", socialPlatform, mediaTag.Value, userId, groupId);
-                   
+
                 }
 
                 CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
@@ -475,17 +476,17 @@ namespace Core.Social
                             {
                                 try
                                 {
-                                    socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_KEY"),
-                                        Twitter.TWITTER_CONSUMER_SECRET, userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"));
+                                    socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(mediaTag.Value, ApplicationConfiguration.TwitterConfiguration.ConsumerKey.Value,
+                                        Twitter.TWITTER_CONSUMER_SECRET, userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue);
                                 }
                                 catch (Exception)
                                 {
-                                    socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"), groupId);
+                                    socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(mediaTag.Value, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue, groupId);
                                 }
                             }
                             else
                                 // User wasn't found or has no twitter access_token
-                                socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_Twitter_item_count"), groupId);
+                                socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(mediaTag.Value, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue, groupId);
                             break;
                     }
 
