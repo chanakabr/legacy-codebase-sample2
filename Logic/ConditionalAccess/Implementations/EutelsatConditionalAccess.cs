@@ -1,21 +1,18 @@
 
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Text;
 using ApiObjects;
-using ApiObjects.Epg;
-using DAL;
-using KLogMonitor;
-using Core.Pricing;
-using Core.Billing;
-using Core.Users;
+using ApiObjects.Billing;
 using ApiObjects.Catalog;
 using ApiObjects.ConditionalAccess;
-using ApiObjects.Billing;
+using ApiObjects.Epg;
+using ConfigurationManager;
+using Core.Pricing;
+using Core.Users;
+using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
 
 namespace Core.ConditionalAccess
 {
@@ -381,8 +378,8 @@ namespace Core.ConditionalAccess
             res.Success = false;
 
             string sWSURL = Utils.GetWSURL("Eutelsat_CheckTvod_ws");
-            string sWSUsername = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
-            string sWSPassword = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
+            string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+            string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
             if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sHouseholdUID))
             {
@@ -425,8 +422,8 @@ namespace Core.ConditionalAccess
             try
             {
                 string sWSURL = Utils.GetWSURL("Eutelsat_Transaction_ws");
-                string sWSUsername = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
-                string sWSPassword = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
+                string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+                string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
                 if (string.IsNullOrEmpty(sHouseholdUID) || string.IsNullOrEmpty(sWSURL))
                 {
@@ -504,8 +501,8 @@ namespace Core.ConditionalAccess
             try
             {
                 string sWSURL = Utils.GetWSURL("Eutelsat_Subscription_ws");
-                string sWSUsername = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
-                string sWSPassword = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
+                string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+                string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
                 if (string.IsNullOrEmpty(sHouseholdUID) || string.IsNullOrEmpty(sWSURL))
                 {
