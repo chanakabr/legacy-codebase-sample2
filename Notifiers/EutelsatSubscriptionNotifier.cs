@@ -68,8 +68,8 @@ namespace Notifiers
                     break;
             }
 
-            string sWSUsername = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
-            string sWSPassword = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
+            string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+            string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
             if (string.IsNullOrEmpty(sSubscriptionID) || string.IsNullOrEmpty(sWSURL))
             {

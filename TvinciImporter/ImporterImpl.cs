@@ -5794,9 +5794,8 @@ namespace TvinciImporter
             }
         }
 
-        internal static WSCatalog.IserviceClient GetWCFSvc(string sSiteUrl)
+        internal static WSCatalog.IserviceClient GetWCFSvc(string siteUrl)
         {
-            string siteUrl = GetConfigVal(sSiteUrl);
             Uri serviceUri = new Uri(siteUrl);
             EndpointAddress endpointAddress = new EndpointAddress(serviceUri);
 
@@ -6102,7 +6101,7 @@ namespace TvinciImporter
                 // Update recordings only if we know that the dates have changed
                 if (datesUpdates)
                 {
-                    UpdateRecordingsOfEPGs(epgIds, groupId, action, "conditionalaccess_ws", isCalledFromTvm);
+                    UpdateRecordingsOfEPGs(epgIds, groupId, action, isCalledFromTvm);
                 }
 
                 #endregion
@@ -6154,7 +6153,7 @@ namespace TvinciImporter
 
                 try
                 {
-                    wsCatalog = GetWCFSvc("WS_Catalog");
+                    wsCatalog = GetWCFSvc(ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value);
 
                     string sWSURL = GetCatalogUrlByParameters(groupId, eObjectType.EPG, action);
 
@@ -6233,14 +6232,14 @@ namespace TvinciImporter
             return isUpdateIndexSucceeded;
         }
 
-        public static void UpdateRecordingsOfEPGs(List<ulong> epgIds, int groupId, ApiObjects.eAction action, string tcmKey = "conditionalaccess_ws", bool isCalledFromTvm = false)
+        public static void UpdateRecordingsOfEPGs(List<ulong> epgIds, int groupId, ApiObjects.eAction action, bool isCalledFromTvm = false)
         {
             try
             {
                 string sWSUserName = string.Empty;
                 string sWSPassword = string.Empty;
                 WS_Utils.GetWSCredentials(groupId, eWSModules.CONDITIONALACCESS.ToString(), ref sWSUserName, ref sWSPassword);
-                string casURL = TVinciShared.WS_Utils.GetTcmConfigValue(tcmKey);
+                string casURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
 
                 if (string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPassword) || string.IsNullOrEmpty(casURL))
                 {
@@ -6305,7 +6304,7 @@ namespace TvinciImporter
                 try
                 {
                     int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
-                    wsCatalog = GetWCFSvc("WS_Catalog");
+                    wsCatalog = GetWCFSvc(ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value);
                     if (epgChannels != null && epgChannels.Count > 0 && nParentGroupID > 0)
                     {
                         string sWSURL = GetCatalogUrlByParameters(nParentGroupID, eObjectType.EpgChannel, eAction);
