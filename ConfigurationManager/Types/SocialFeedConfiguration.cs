@@ -1,5 +1,4 @@
-﻿using ApiObjects.Social;
-
+﻿
 namespace ConfigurationManager
 {
     public class SocialFeedConfiguration : ConfigurationValue
@@ -10,6 +9,7 @@ namespace ConfigurationManager
         public NumericConfigurationValue FacebookTTL;
         public NumericConfigurationValue InAppTTL;
         public NumericConfigurationValue TwitterTTL;
+        public NumericConfigurationValue TagsTTL;
 
         public SocialFeedConfiguration(string key) : base(key)
         {
@@ -40,42 +40,33 @@ namespace ConfigurationManager
             {
                 DefaultValue = 10
             };
+            TagsTTL = new NumericConfigurationValue("tags_ttl", this)
+            {
+                DefaultValue = 30
+            };
         }
 
-        public NumericConfigurationValue GetTTLByPlatform(eSocialPlatform platform)
+        public NumericConfigurationValue GetTTLByPlatform(string platform)
         {
             NumericConfigurationValue ttl = null;
-            switch (platform)
+            switch (platform.ToLower())
             {
-                case eSocialPlatform.InApp:
+                case "inapp":
                     ttl = InAppTTL;
                     break;
-                case eSocialPlatform.Facebook:
+                case "facebook":
                     ttl = FacebookTTL;
                     break;
-                case eSocialPlatform.Twitter:
+                case "twitter":
                     ttl = TwitterTTL;
                     break;
-                case eSocialPlatform.Unknown:
+                case "unknown":
                 default:
                     ttl = new NumericConfigurationValue("unknown_ttl") { DefaultValue = 10 };
                     break;
             }
 
             return ttl;
-        }
-
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= FacebookItemCount.Validate();
-            result &= FacebookTTL.Validate();
-            result &= InAppItemCount.Validate();
-            result &= InAppTTL.Validate();
-            result &= TwitterItemCount.Validate();
-            result &= TwitterTTL.Validate();
-
-            return result;
         }
     }
 }

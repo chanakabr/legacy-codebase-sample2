@@ -84,7 +84,7 @@ namespace WS_Social.SocialFeed
                         JavaScriptSerializer serializer = new JavaScriptSerializer();
                         Response.Write(serializer.Serialize(socialPlatformResp));
 
-                        Response.Cache.SetMaxAge(TimeSpan.FromMinutes((ApplicationConfiguration.SocialFeedConfiguration.GetTTLByPlatform(platform).IntValue)));
+                        Response.Cache.SetMaxAge(TimeSpan.FromMinutes((ApplicationConfiguration.SocialFeedConfiguration.GetTTLByPlatform(platform.ToString()).DoubleValue)));
                     }
                     catch (Exception ex)
                     {
