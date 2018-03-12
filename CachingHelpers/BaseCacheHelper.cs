@@ -50,7 +50,7 @@ namespace CachingHelpers
         {
             if (string.IsNullOrEmpty(cacheType))
             {
-                cacheType = TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheConfiguration");
+                cacheType = ApplicationConfiguration.GroupsCacheConfiguration.Type.Value;
             }
 
             switch (cacheType.ToLower())
@@ -90,7 +90,7 @@ namespace CachingHelpers
         private string GetCacheName()
         {
             string result = DEFAULT_CACHE_NAME;
-                        
+
             string tcm = ApplicationConfiguration.GroupsCacheConfiguration.Name.Value;
 
             if (tcm.Length > 0)
@@ -108,24 +108,18 @@ namespace CachingHelpers
             if (result <= 0)
             {
                 result = DEFAULT_TIME_IN_CACHE_SECONDS;
-            }           
+            }
 
             return result;
         }
 
         private uint GetDocTTLSettings()
         {
-            uint result;
+            uint result = (uint)ApplicationConfiguration.GroupsCacheConfiguration.TTLSeconds.IntValue;
 
-            if (!uint.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheDocTimeout"), out result))
+            if (result <= 0)
             {
-                // 24 hours
                 result = 86400;
-            }
-            else
-            {
-                // convert to seconds (TCM config is in minutes)
-                result *= 60;
             }
 
             return result;
