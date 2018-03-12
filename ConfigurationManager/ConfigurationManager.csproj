@@ -90,6 +90,7 @@
     <Compile Include="Types\SocialFeedQueueConfiguration.cs" />
     <Compile Include="Types\TwitterConfiguration.cs" />
     <Compile Include="Types\UserPINDigitsConfiguration.cs" />
+    <Compile Include="Types\UsersCacheConfiguration.cs" />
     <Compile Include="Types\WebServicesConfiguration.cs" />
     <Compile Include="Types\WSCacheSettings.cs" />
   </ItemGroup>

@@ -12,12 +12,12 @@ namespace ConfigurationManager
         #region Configuration values
 
         public static StringConfigurationValue DMSUrl;
-        public static BooleanConfigurationValue UseUserCache;
         public static MailerConfiguration MailerConfiguration;
         public static GroupsManagerConfiguration GroupsManagerConfiguration;
         public static RequestParserConfiguration RequestParserConfiguration;
         public static OTTUserControllerConfiguration OTTUserControllerConfiguration;
         public static CouchbaseSectionMapping CouchbaseSectionMapping;
+        public static UsersCacheConfiguration UsersCacheConfiguration;
         public static NamedCacheConfiguration BaseCacheConfiguration;
         public static DatabaseConfiguration DatabaseConfiguration;
         public static NamedCacheConfiguration WSCacheConfiguration;
@@ -73,8 +73,7 @@ namespace ConfigurationManager
         public static BooleanConfigurationValue DownloadPicWithQueue;
         public static ImageUtilsConfiguration ImageUtilsConfiguration;
         public static StringConfigurationValue EPGUrl;        
-        public static StringConfigurationValue GroupIDsWithIPNOFilteringSeperatedBySemiColon;        
-
+        public static StringConfigurationValue GroupIDsWithIPNOFilteringSeperatedBySemiColon;
         #endregion
 
         #region Private Members
@@ -90,10 +89,7 @@ namespace ConfigurationManager
             TCMClient.Settings.Instance.Init();
 
             DMSUrl = new StringConfigurationValue("dms_url");
-            UseUserCache = new BooleanConfigurationValue("UseUsersCache")
-            {
-                DefaultValue = true
-            };
+            
 
             MailerConfiguration = new MailerConfiguration("MC");
 
@@ -102,6 +98,7 @@ namespace ConfigurationManager
             RequestParserConfiguration = new RequestParserConfiguration("request_parser");
             OTTUserControllerConfiguration = new OTTUserControllerConfiguration("ott_user_controller");
             CouchbaseSectionMapping = new CouchbaseSectionMapping("CouchbaseSectionMapping");
+            UsersCacheConfiguration = new ConfigurationManager.UsersCacheConfiguration("users_cache_configuration");
             BaseCacheConfiguration = new NamedCacheConfiguration("base_cache_configuration");
             
             DatabaseConfiguration = new DatabaseConfiguration("database_configuration");
@@ -282,12 +279,12 @@ namespace ConfigurationManager
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
                     DMSUrl,
-                    UseUserCache,
                     MailerConfiguration,
                     GroupsManagerConfiguration,
                     RequestParserConfiguration,
                     OTTUserControllerConfiguration,
                     CouchbaseSectionMapping,
+                    UsersCacheConfiguration,
                     BaseCacheConfiguration,
                     DatabaseConfiguration,
                     WSCacheConfiguration,
