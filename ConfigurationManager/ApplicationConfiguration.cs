@@ -129,6 +129,8 @@ namespace ConfigurationManager
             GroupsCacheConfiguration.Name.DefaultValue = "GroupsCache";
             GroupsCacheConfiguration.Name.Description= "Original key is GROUPS_CACHE_NAME";
             GroupsCacheConfiguration.Type.DefaultValue = "CouchBase";
+            GroupsCacheConfiguration.Type.Description = "Original key is GroupsCacheConfiguration";
+            GroupsCacheConfiguration.TTLSeconds.Description = "Original key is GroupsCacheDocTimeout";
 
             CouchBaseDesigns = new CouchBaseDesigns("couchbase_designs");
             EPGDocumentExpiry = new NumericConfigurationValue("epg_doc_expiry")
