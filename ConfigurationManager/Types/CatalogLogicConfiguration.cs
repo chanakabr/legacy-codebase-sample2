@@ -13,7 +13,7 @@ namespace ConfigurationManager
         public BooleanConfigurationValue ShouldUseHitCache;
         public BooleanConfigurationValue ShouldUseSearchCache;
         public NumericConfigurationValue CurrentRequestDaysOffset;
-
+        public NumericConfigurationValue UpdateEPGPackage;
 
         public CatalogLogicConfiguration(string key) : base(key)
         {
@@ -35,11 +35,13 @@ namespace ConfigurationManager
                 DefaultValue = false,
                 ShouldAllowEmpty = true
             };
-
             CurrentRequestDaysOffset = new NumericConfigurationValue("CURRENT_REQUEST_DAYS_OFFSET", this)
             {
-                DefaultValue = 7,
-                ShouldAllowEmpty = true
+                DefaultValue = 7
+            };
+            UpdateEPGPackage = new ConfigurationManager.NumericConfigurationValue("update_epg_package", this)
+            {
+                DefaultValue = 200
             };
         }
     }
