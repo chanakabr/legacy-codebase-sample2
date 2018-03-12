@@ -65,6 +65,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue Version;
         public static NumericConfigurationValue PendingThresholdDays;
         public static BooleanConfigurationValue DownloadPicWithQueue;
+        public static StringConfigurationValue EPGUrl;        
 
         #endregion
 
@@ -218,6 +219,12 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true
             };
 
+            EPGUrl = new ConfigurationManager.StringConfigurationValue("EPGUrl")
+            {
+                ShouldAllowEmpty = true,
+                Description = "Use in yes epg BL"
+            };
+
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
                     DMSUrl,
@@ -272,7 +279,8 @@ namespace ConfigurationManager
                     QueueFailLimit,
                     Version,
                     PendingThresholdDays,
-                    DownloadPicWithQueue
+                    DownloadPicWithQueue,
+                    EPGUrl
                 };
 
             if (shouldLoadDefaults)
@@ -309,6 +317,5 @@ namespace ConfigurationManager
         }
 
         #endregion
-
     }
 }
