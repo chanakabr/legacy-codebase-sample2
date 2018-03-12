@@ -1,9 +1,9 @@
-﻿using System;
+﻿using ConfigurationManager;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using KLogMonitor;
 
 namespace Notifiers
 {
@@ -52,7 +52,7 @@ namespace Notifiers
             ProductNotificationResponse res = new ProductNotificationResponse();
             res.success = false;
 
-            string sWSURL = Utils.GetWSURL("Eutelsat_ProductBase"); //+(update ? "/update" : "/create");
+            string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_ProductBase.Value; //+(update ? "/update" : "/create");
 
             switch (create0update1assign2)
             {

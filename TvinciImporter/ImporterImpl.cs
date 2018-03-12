@@ -3181,9 +3181,9 @@ namespace TvinciImporter
             {
                 return GetConfigVal(key);
             }
-            if (!string.IsNullOrEmpty(GetConfigVal("pics_base_path")))
+            if (!string.IsNullOrEmpty( ApplicationConfiguration.PicsBasePath.Value))
             {
-                return GetConfigVal("pics_base_path");
+                return ApplicationConfiguration.PicsBasePath.Value;
             }
 
             string sBasePath = string.Empty;
@@ -3650,8 +3650,8 @@ namespace TvinciImporter
                     if (WS_Utils.IsGroupIDContainedInConfig(parentGroupID, "OLD_DRM_EXC_GROUPS", ';'))
                     {
                         // old policy attachment
-                        string sWSURL = GetConfigVal("EncryptorService");
-                        string sWSPassword = GetConfigVal("EncryptorPassword");
+                        string sWSURL =   ApplicationConfiguration.EncryptorService.Value;
+                        string sWSPassword = ApplicationConfiguration.EncryptorPassword.Value;
 
                         WS_Encryptor.Encryptor service = new WS_Encryptor.Encryptor();
                         if (!string.IsNullOrEmpty(sWSURL))
@@ -5364,7 +5364,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrl(int nGroupID)
         {
-            string sCatalogURL = GetConfigVal("WS_Catalog");
+            string sCatalogURL = ApplicationConfiguration.CatalogWSUrl.Value;
             try
             {
                 DataTable dt = DAL.ImporterImpDAL.Get_CatalogUrl(nGroupID);
@@ -5391,7 +5391,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrlByParameters(int groupId, eObjectType? objectType, eAction? action)
         {
-            string tcmCatalogURL = GetConfigVal("WS_Catalog");
+            string tcmCatalogURL = ApplicationConfiguration.CatalogWSUrl.Value;
             string catalogURL = tcmCatalogURL;
 
             try

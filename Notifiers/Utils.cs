@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
 
 namespace Notifiers
 {
@@ -11,11 +7,6 @@ namespace Notifiers
         static public void GetBaseUsersNotifierImpl(ref Notifiers.BaseUsersNotifier t, Int32 nGroupID)
         {
             GetBaseUsersNotifierImpl(ref t, nGroupID, "");
-        }
-
-        static public string GetWSURL(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
         static public void GetBaseUsersNotifierImpl(ref Notifiers.BaseUsersNotifier t, Int32 nGroupID , string sConn)

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using DAL;
+﻿using ConfigurationManager;
 using KLogMonitor;
-using ODBCWrapper;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Notifiers
 {
@@ -54,9 +51,9 @@ namespace Notifiers
 
             try
             {
-                string sWSURL = Utils.GetWSURL("Eutelsat_ProductBase") + "/assign";
-                string sWSUsername = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Username");
-                string sWSPassword = Utils.GetValueFromConfig("Eutelsat_3SS_WS_Password");
+                string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_ProductBase + "/assign";
+                string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+                string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
                 if (string.IsNullOrEmpty(sMediaID) || string.IsNullOrEmpty(sWSURL))
                 {
