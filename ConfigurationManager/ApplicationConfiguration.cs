@@ -325,6 +325,7 @@ namespace ConfigurationManager
                     UserInterestsTTLDays,
                     PlayManifestDynamicQueryStringParamsNames,
                     RecordingsMaxDegreeOfParallelism,
+                    ReconciliationFrequencySeconds,
                     EventConsumersConfiguration,
                     AuthorizationManagerConfiguration,
                     UserPINDigitsConfiguration,
