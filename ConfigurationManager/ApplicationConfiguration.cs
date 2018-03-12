@@ -70,6 +70,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue Version;
         public static NumericConfigurationValue PendingThresholdDays;
         public static BooleanConfigurationValue DownloadPicWithQueue;
+        public static ImageUtilsConfiguration ImageUtilsConfiguration;
         public static StringConfigurationValue EPGUrl;        
 
         #endregion
@@ -248,6 +249,11 @@ namespace ConfigurationManager
                 DefaultValue = 180,
                 ShouldAllowEmpty = true
             };
+            ImageUtilsConfiguration = new ConfigurationManager.ImageUtilsConfiguration("image_utils_configuration")
+            {
+                ShouldAllowEmpty = true
+            };
+
             DownloadPicWithQueue = new ConfigurationManager.BooleanConfigurationValue("downloadPicWithQueue")
             {
                 DefaultValue = false,
@@ -314,13 +320,14 @@ namespace ConfigurationManager
                     QueueFailLimit,
                     Version,
                     PendingThresholdDays,
+                    ImageUtilsConfiguration,
                     DownloadPicWithQueue,
                     EPGUrl,
                     SingleInMemoryCacheName,
                     ODBCWrapperCacheConfiguration,
                     CatalogCacheConfiguration,
                     NotificationCacheConfiguration,
-                    GroupsCacheConfiguration
+                    GroupsCacheConfiguration,
                 };
 
             if (shouldLoadDefaults)

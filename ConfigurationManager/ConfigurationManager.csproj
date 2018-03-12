@@ -76,6 +76,7 @@
     <Compile Include="Types\FacebookConfiguration.cs" />
     <Compile Include="Types\GroupsManagerConfiguration.cs" />
     <Compile Include="Types\HarmonicProviderConfiguration.cs" />
+    <Compile Include="Types\ImageUtilsConfiguration.cs" />
     <Compile Include="Types\LayeredCache\LayeredCacheConfigurationValidation.cs" />
     <Compile Include="Types\LicensedLinksCacheConfiguration.cs" />
     <Compile Include="Types\MailerConfiguration.cs" />
