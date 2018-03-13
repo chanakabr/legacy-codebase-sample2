@@ -6253,19 +6253,20 @@ namespace Core.ConditionalAccess
                     List<SubscriptionsPricesContainer> resp = new List<SubscriptionsPricesContainer>();
                     for (int i = 0; i < subscriptions.Length; i++)
                     {
+                        string coupon = couponCode;
                         string subscriptionCode = subscriptions[i];
                         PriceReason theReason = PriceReason.UnKnown;
 
                         Subscription s = null;
                         UnifiedBillingCycle unifiedBillingCycle = null;
-                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, couponCode, ref theReason, ref s, string.Empty, languageCode, udid, ip, ref unifiedBillingCycle,
+                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, ref coupon, ref theReason, ref s, string.Empty, languageCode, udid, ip, ref unifiedBillingCycle,
                             currencyCode, false, blockEntitlement);
 
                         if (price != null)
                         {
                             SubscriptionsPricesContainer cont = new SubscriptionsPricesContainer();
                             long? endDate = null;
-                            if (unifiedBillingCycle != null && theReason != PriceReason.EntitledToPreviewModule)
+                            if (unifiedBillingCycle != null && theReason != PriceReason.EntitledToPreviewModule && string.IsNullOrEmpty(coupon))
                             {
                                 endDate = unifiedBillingCycle.endDate;
                             }
@@ -7807,7 +7808,7 @@ namespace Core.ConditionalAccess
             {
                 sb.Append(string.Format("<context>{0}</context>", context.Value));
             }
-            if (isPartialPrice && !previewEntitled) // add to custom data isPartial price - only if it is parcial 
+            if (isPartialPrice && !previewEntitled && string.IsNullOrEmpty(sCouponCode)) // add to custom data isPartial price - only if it is parcial 
             {
                 sb.Append(string.Format("<partialPrice>{0}</partialPrice>", isPartialPrice));
             }

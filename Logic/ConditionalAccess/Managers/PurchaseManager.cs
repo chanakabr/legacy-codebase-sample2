@@ -1064,20 +1064,15 @@ namespace Core.ConditionalAccess
                 Price priceResponse = null;
 
                 UnifiedBillingCycle unifiedBillingCycle = null; // there is a unified billingCycle for this subscription cycle
-                priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode,
+                priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, ref couponCode,
                     ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, ref unifiedBillingCycle, currency, isSubscriptionSetModifySubscription);
-
-                // if unified billing cycle is in the "history" ignore it in purchase ! 
-                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
-                {
-                    unifiedBillingCycle = null;
-                }
 
                 if (subscription == null)
                 {
                     response.Status.Message = "ProductId doesn't exist";
                     return response;
                 }
+
                 // check permission for subscription with premuim services - by roles 
                 if (subscription.m_lServices != null && subscription.m_lServices.Count() > 0)
                 {
@@ -1094,6 +1089,7 @@ namespace Core.ConditionalAccess
                 {
                     unifiedBillingCycle = null;
                 }
+
                 // if the payment gateway is external ignore unified billing !!
                 if (paymentGateway != null && paymentGateway.ExternalVerification)
                 {
@@ -1143,7 +1139,6 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-               
                 if (coupon != null && coupon.m_CouponStatus == CouponsStatus.Valid && coupon.m_oCouponGroup != null && 
                     coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
                     ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode) ||
@@ -1184,7 +1179,6 @@ namespace Core.ConditionalAccess
                         // create new GUID for billing transaction
                         string billingGuid = Guid.NewGuid().ToString();
 
-
                         // purchase
                         if (couponFullDiscount || isGiftCard)
                         {
@@ -1221,7 +1215,7 @@ namespace Core.ConditionalAccess
                                     endDate = CalculateGiftCardEndDate(cas, coupon, subscription, entitlementDate);
                                 }
 
-                                if (unifiedBillingCycle != null && !entitleToPreview)   
+                                if (unifiedBillingCycle != null && !entitleToPreview && string.IsNullOrEmpty(couponCode))   
                                 {
                                     // calculate end date by unified billing cycle
                                     endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
@@ -1237,7 +1231,7 @@ namespace Core.ConditionalAccess
                                         endDate = Utils.CalcSubscriptionEndDate(subscription, entitleToPreview, entitlementDate);
                                     }
 
-                                    //create process id only for subscription that equal the cycle and are NOT preview module 
+                                    //create process id only for subscription that equal the cycle and are NOT preview module or purchase with coupon
                                     long ? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
                                     if (!paymentGateway.ExternalVerification && 
                                         subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
@@ -1247,7 +1241,7 @@ namespace Core.ConditionalAccess
                                         )
                                     // group define with billing cycle
                                     {
-                                        if (!entitleToPreview || unifiedBillingCycle == null)
+                                        if (unifiedBillingCycle == null || (!entitleToPreview && string.IsNullOrEmpty(couponCode)))
                                         {
                                             processId = Utils.GetUnifiedProcessId(groupId, paymentGateway.ID, endDate.Value, householdId, out isNew);
                                         }
@@ -1304,7 +1298,7 @@ namespace Core.ConditionalAccess
                                                      subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
                                                      subscription.m_MultiSubscriptionUsageModule.Count() == 1)
                                                     {
-                                                        Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, ref unifiedBillingCycle, subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, endDate.Value);
+                                                        Utils.HandleDomainUnifiedBillingCycle(groupId, householdId, ref unifiedBillingCycle, subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, endDate.Value, !string.IsNullOrEmpty(couponCode));
                                                     }
                                                 }
 
@@ -1332,8 +1326,7 @@ namespace Core.ConditionalAccess
                                             Utils.RenewUnifiedTransactionMessageInQueue(groupId, householdId,
                                                 ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate.Value), nextRenewalDate, processId);
                                         }
-
-                                        else if (unifiedBillingCycle == null || (entitleToPreview && !isNew))
+                                        else if (unifiedBillingCycle == null || ((entitleToPreview || !string.IsNullOrEmpty(couponCode)) && !isNew))
                                         {
                                             // insert regular message 
                                             RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate, householdId);
