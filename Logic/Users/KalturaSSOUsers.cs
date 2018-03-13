@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Web;
-using System.Net;
-using System.Data;
-using System.Web.Script.Serialization;
-using System.IO;
-using System.Reflection;
-using System.Configuration;
+﻿using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Data;
+using System.Reflection;
 
 namespace Core.Users
 {
@@ -86,7 +79,7 @@ namespace Core.Users
             }
 
             // load user assembly
-            string usersAssemblyLocation = Utils.GetTcmConfigValue("USERS_ASSEMBLY_LOCATION");
+            string usersAssemblyLocation = ApplicationConfiguration.UsersAssemblyLocation.Value;
             Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation :
                 usersAssemblyLocation + "\\", moduleName));
 

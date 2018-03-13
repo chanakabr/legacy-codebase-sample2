@@ -1,13 +1,14 @@
-﻿using System;
+﻿using CachingProvider;
+using ConfigurationManager;
+using KLogMonitor;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using CachingProvider;
-using KLogMonitor;
-using System.Data;
 
 namespace Core.Users.Cache
 {
@@ -68,7 +69,7 @@ namespace Core.Users.Cache
             query += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
 
             Dictionary<int, DateTime> allDomains = new Dictionary<int, DateTime>();
-            
+
             if (query.Execute("query", true) != null)
             {
                 int count = query.Table("query").DefaultView.Count;
@@ -127,7 +128,7 @@ namespace Core.Users.Cache
                     catch (Exception ex)
                     {
                         log.ErrorFormat("Get invalid domains - failed getting values from couchbase. Error = {0}", ex);
-                    } 
+                    }
                 }
 
                 //this.cache.GetValues<Domain>(
@@ -198,23 +199,12 @@ namespace Core.Users.Cache
 
         private static DomainsCache instance = null;
 
-        private static double GetDocTTLSettings()
-        {
-            double nResult;
-            if (!double.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("DomainCacheDocTimeout"), out nResult))
-            {
-                nResult = 1440.0;
-            }
-
-            return nResult;
-        }
-
         private DomainsCache()
         {
             // create to instance of cache to domain  external (by CouchBase)
             cache = CouchBaseCache<Domain>.GetInstance("CACHE");
             this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
-            dCacheTT = GetDocTTLSettings();     //set ttl time for document            
+            dCacheTT = ApplicationConfiguration.DomainCacheDocTimeout.DoubleValue;     //set ttl time for document            
         }
 
         /*Method that lock domain when change the object*/
@@ -564,7 +554,7 @@ namespace Core.Users.Cache
                 string sKey = string.Format("{0}{1}", sDLMCache, nDlmID);
 
                 //try remove domain from cache 
-                while (limitRetries > 0)                
+                while (limitRetries > 0)
                 {
                     BaseModuleCache bModule = cache.Remove(sKey);
                     if (bModule != null && bModule.result != null)

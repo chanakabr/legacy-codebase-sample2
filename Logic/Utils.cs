@@ -136,11 +136,6 @@ namespace APILogic
             return sCatalogURL;
         }
 
-        public static string GetWSUrl(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         /// <summary>
         /// Validates that a user exists and belongs to a given domain
         /// </summary>
