@@ -8,6 +8,7 @@ using System.Data;
 using System.Configuration;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace TVinciShared
 {
@@ -963,7 +964,8 @@ namespace TVinciShared
             try
             {
                 Lucene_WCF.Service client = new Lucene_WCF.Service();
-                sWSURL = GetWSURL("LUCENE_WCF");
+                sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF");
+                
                 if (!String.IsNullOrEmpty(sWSURL))
                     client.Url = sWSURL;
 
@@ -996,13 +998,7 @@ namespace TVinciShared
 
             return dt;
         }
-
-        private static string GetWSURL(string sKey)
-        {
-            return WS_Utils.GetTcmConfigValue(sKey);
-        }
-
-
+        
         public System.Data.DataTable GetChannelMediaDT_OLD(Int32 nNumOfItems, Int32[] nFileTypes, bool bOnlyActiveMedias, bool bUseStartDate)
         {
             log.Debug("GetChannelMediaDT - channel=" + m_nChannelID + " bUseStartDate=" + bUseStartDate.ToString());

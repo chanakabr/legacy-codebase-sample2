@@ -555,7 +555,8 @@ namespace TVinciShared
                     else
                     {
                         sBasePath = HttpContext.Current.Server.MapPath("");
-                        string sPicUploaderPath = GetWSURL("pic_uploader_path");
+                        string sPicUploaderPath = ApplicationConfiguration.PictureUploaderPath.Value;
+
                         if (!string.IsNullOrEmpty(sPicUploaderPath))
                         {
                             sBasePath = sPicUploaderPath;
@@ -761,11 +762,6 @@ namespace TVinciShared
                 bValid = false;
                 return DateTime.MinValue;
             }
-        }
-
-        private static string GetWSURL(string key)
-        {
-            return WS_Utils.GetTcmConfigValue(key);
         }
     }
 }
