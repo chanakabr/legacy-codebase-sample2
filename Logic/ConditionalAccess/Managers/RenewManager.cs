@@ -326,6 +326,10 @@ namespace Core.ConditionalAccess
                 return false;
             }
 
+            if (!string.IsNullOrEmpty(couponCode))
+                ignoreUnifiedBillingCycle = true; 
+
+
             if (unifiedBillingCycle != null) //should be part of unified cycle 
             {
                 long processId = UpdateMPPRenewalProcessId(groupId, purchaseId, billingGuid, householdId, unifiedBillingCycle);                

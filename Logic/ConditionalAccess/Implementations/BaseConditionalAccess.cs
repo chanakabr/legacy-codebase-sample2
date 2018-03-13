@@ -2636,7 +2636,8 @@ namespace Core.ConditionalAccess
                 }
 
                 bool isCouponGiftCard = false;
-                HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode, ref isCouponGiftCard);
+                bool recurringCouponFirstExceeded = false;
+                HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode, ref isCouponGiftCard, out recurringCouponFirstExceeded);
 
                 if (compensation != null)
                 {
@@ -2656,9 +2657,10 @@ namespace Core.ConditionalAccess
                 // if this is a renew after preview module / gift card - need to calculate partial price (if unified billing cycle)  
                 bool isPartialPrice = false;
 
-                if (!ignoreUnifiedBillingCycle)
+                if (!ignoreUnifiedBillingCycle && string.IsNullOrEmpty(couponCode))
                 {
-                    if ((isCouponGiftCard || (paymentNumber == 1 && isPurchasedWithPreviewModule)) && groupId > 0 && householdId > 0 && endDate.HasValue)
+                    if (groupId > 0 && householdId > 0 && endDate.HasValue 
+                        && (isCouponGiftCard || recurringCouponFirstExceeded || (paymentNumber == 1 && isPurchasedWithPreviewModule)))
                     {
                         unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
 
@@ -3290,8 +3292,10 @@ namespace Core.ConditionalAccess
         /// if coupon is gift card return coupon card and isCouponGiftCard = true
         /// </summary> 
         private void HandleRecurringCoupon(int nPurchaseID, Subscription theSub, int nTotalPaymentsNumber, Currency oCurrency, bool bIsPurchasedWithPreviewModule, ref double dPrice, ref string retCouponCode,
-            ref bool isCouponGiftCard)
+            ref bool isCouponGiftCard, out bool firstExceeded)
         {
+            firstExceeded = false;
+
             try
             {
                 // get all SubscriptionsCouponGroup (with expiry date !!!!)
@@ -3316,7 +3320,7 @@ namespace Core.ConditionalAccess
 
                         if (cg != null)
                         {
-                            retCouponCode = couponCode;
+                            //retCouponCode = couponCode;
                             isCouponGiftCard = true;
                         }
 
@@ -3328,7 +3332,7 @@ namespace Core.ConditionalAccess
 
                             if (cg != null && !string.IsNullOrEmpty(cg.m_sGroupCode))
                             {
-                                if (IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, cg.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber))
+                                if (IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, cg.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber, out firstExceeded))
                                 {
                                     Price priceBeforeCouponDiscount = new Price();
                                     priceBeforeCouponDiscount.m_dPrice = dPrice;
@@ -8974,10 +8978,13 @@ namespace Core.ConditionalAccess
             return false;
         }
 
-        protected bool IsCouponStillRedeemable(bool bIsPurchasedWithPreviewModule, int nMaxRecurringUsesCountForCoupon, int nTotalPaymentsNumber)
+        protected bool IsCouponStillRedeemable(bool bIsPurchasedWithPreviewModule, int nMaxRecurringUsesCountForCoupon, int nTotalPaymentsNumber, out bool first)
         {
             if (bIsPurchasedWithPreviewModule)
                 nTotalPaymentsNumber--;
+
+            first = nMaxRecurringUsesCountForCoupon > 0 && nTotalPaymentsNumber == nMaxRecurringUsesCountForCoupon;
+
             return nMaxRecurringUsesCountForCoupon > nTotalPaymentsNumber || nMaxRecurringUsesCountForCoupon == 0;
         }
 
