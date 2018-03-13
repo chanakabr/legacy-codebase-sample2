@@ -24,7 +24,6 @@ namespace WebAPI
         protected void Application_Start()
         {
             // Configuration
-            TCMClient.Settings.Instance.Init();
             ConfigurationManager.ApplicationConfiguration.Initialize(true);
 
             GlobalConfiguration.Configure(WebApiConfig.Register);
