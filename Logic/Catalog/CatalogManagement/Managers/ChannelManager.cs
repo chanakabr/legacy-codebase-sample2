@@ -604,9 +604,15 @@ namespace Core.Catalog.CatalogManagement
 
                 if (response.Channel != null && response.Channel.m_nChannelID > 0)
                 {
-                    APILogic.CRUD.KSQLChannelsManager.UpdateCatalog(groupId, response.Channel.m_nChannelID);
-
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    bool updateResult = Catalog.Module.UpdateChannelIndex(new List<int>(){ response.Channel.m_nChannelID }, groupId, eAction.On);
+                    if (!updateResult)
+                    {
+                        log.ErrorFormat("Failed update channel index with id: {0} after AddChannel", response.Channel.m_nChannelID);
+                    }
+                    else
+                    {
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
                 }
                 else
                 {
@@ -769,15 +775,22 @@ namespace Core.Catalog.CatalogManagement
 
                 if (response.Channel != null && response.Channel.m_nChannelID > 0)
                 {
-                    APILogic.CRUD.KSQLChannelsManager.UpdateCatalog(groupId, response.Channel.m_nChannelID);
-                    // invalidate channel
-                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
+                    bool updateResult = Catalog.Module.UpdateChannelIndex(new List<int>() { channelId }, groupId, eAction.Update);
+                    if (!updateResult)
                     {
-                        log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after update channel",
-                                            channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
+                        log.ErrorFormat("Failed update channel index with id: {0} after UpdateChannel", channelId);
                     }
+                    else
+                    {
+                        // invalidate channel
+                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
+                        {
+                            log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after UpdateChannel",
+                                                channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
+                        }
 
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
                 }
                 else
                 {
@@ -818,7 +831,7 @@ namespace Core.Catalog.CatalogManagement
 
         public static Status DeleteChannel(int groupId, int channelId, long userId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
                 if (channelId == 0)
@@ -837,26 +850,26 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Channel.m_nChannelTypeID, userId))
                 {
-                    APILogic.CRUD.KSQLChannelsManager.UpdateCatalog(groupId, channelId, eAction.Delete);
-                    // invalidate channel
-                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
+                    bool deleteResult = Catalog.Module.UpdateChannelIndex(new List<int>() { channelId }, groupId, eAction.Delete);
+                    if (!deleteResult)
                     {
-                        log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after deleting channel",
-                                            channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
+                        log.ErrorFormat("Failed update channel index with id: {0} after DeleteChannel", channelId);
                     }
-
-                    string[] keys = new string[1]
+                    else
                     {
-                    APILogic.CRUD.KSQLChannelsManager.BuildChannelCacheKey(groupId, channelId)
-                    };
+                        // invalidate channel
+                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
+                        {
+                            log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after deleting channel",
+                                                channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
+                        }
 
-                    TVinciShared.QueueUtils.UpdateCache(groupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
-
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "KSQL channel deleted");
+                        response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
                 }
                 else
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, APILogic.CRUD.KSQLChannelsManager.CHANNEL_NOT_EXIST);
+                    log.ErrorFormat("Failed to delete channel with id: {0}, groupId: {1}", channelId, groupId);
                 }
             }
             catch (Exception ex)

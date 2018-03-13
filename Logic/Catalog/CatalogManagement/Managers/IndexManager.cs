@@ -377,10 +377,14 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
+
+                if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    return Core.Catalog.CatalogManagement.AssetManager.GetMediaForElasticSearchIndex(groupId, mediaId);                    
+                }
+
                 GroupManager groupManager = new GroupManager();
-
                 Group group = groupManager.GetGroup(groupId);
-
                 if (group == null)
                 {
                     log.Error("Error - Could not load group from cache in GetGroupMedias");
@@ -388,16 +392,10 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 ApiObjects.LanguageObj defaultLangauge = group.GetGroupDefaultLanguage();
-
                 if (defaultLangauge == null)
                 {
                     log.Error("Error - Could not get group default language from cache in GetGroupMedias");
                     return mediaTranslations;
-                }
-
-                if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
-                {
-                    return Core.Catalog.CatalogManagement.AssetManager.GetMediaForElasticSearchIndex(groupId, mediaId);
                 }
 
                 ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
@@ -413,9 +411,7 @@ namespace Core.Catalog.CatalogManagement
                 Core.Catalog.Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet);
 
                 // get media update dates
-                DataTable updateDates = CatalogDAL.Get_MediaUpdateDate(new List<int>() { (int)mediaId });
-
-                OverrideMediaUpdateDates(ref mediaTranslations, updateDates);
+                DataTable updateDates = CatalogDAL.Get_MediaUpdateDate(new List<int>() { (int)mediaId });                
             }
             catch (Exception ex)
             {
@@ -584,27 +580,6 @@ namespace Core.Catalog.CatalogManagement
         #endregion
 
         #region Private Methods
-
-        private static void OverrideMediaUpdateDates(ref Dictionary<int, Dictionary<int, Media>> translatedMedias, DataTable dataTable)
-        {
-            if (dataTable != null && dataTable.Rows.Count > 0)
-            {
-                int id;
-                foreach (DataRow row in dataTable.Rows)
-                {
-                    id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-                    if (translatedMedias.ContainsKey(id) && translatedMedias[id] != null && !string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "update_date")))
-                    {
-                        DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "update_date");
-                        foreach (Media media in translatedMedias[id].Values)
-                        {
-                            if (media != null)
-                                media.m_sUpdateDate = dt.ToString("yyyyMMddHHmmss");
-                        }
-                    }
-                }
-            }
-        }
 
         private static string GetTanslationType(string type, LanguageObj language)
         {
