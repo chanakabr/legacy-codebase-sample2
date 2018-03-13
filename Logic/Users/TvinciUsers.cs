@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using ConfigurationManager;
 using DAL;
 using KLogMonitor;
 using KlogMonitorHelper;
@@ -550,11 +551,11 @@ namespace Core.Users
 
                 if (DAL.UsersDal.IsUserDomainMaster(m_nGroupID, nUserID))
                 {
-                    long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId);
+                    roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
                 }
                 else
                 {
-                    long.TryParse(Utils.GetTcmConfigValue("user_role_id"), out roleId);
+                    roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;                    
                 }
 
                 if (roleId != 0)

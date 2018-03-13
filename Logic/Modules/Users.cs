@@ -48,7 +48,7 @@ namespace Core.Users
                 // add siteguid to logs/monitor
                 HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
 
-                if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+                if (Utils.IsGroupIDContainedInConfig(nGroupID))
                 {
                     // old Core to PS flow
                     BaseUsers t = null;
@@ -109,7 +109,7 @@ namespace Core.Users
         {
             try
             {
-                if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+                if (Utils.IsGroupIDContainedInConfig(nGroupID))
                 {
                     BaseUsers t = null;
                     Utils.GetBaseImpl(ref t, nGroupID);
@@ -150,7 +150,7 @@ namespace Core.Users
                 // add siteguid to logs/monitor
                 HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
 
-                if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+                if (Utils.IsGroupIDContainedInConfig(nGroupID))
                 {
                     // old Core to PS flow
                     BaseUsers t = null;
@@ -256,7 +256,7 @@ namespace Core.Users
                     return null;
                 }
 
-                if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+                if (Utils.IsGroupIDContainedInConfig(nGroupID))
                 {
                     // old Core to PS flow
                     BaseUsers t = null;
@@ -541,7 +541,7 @@ namespace Core.Users
                 HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
             }
 
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID))
             {
                 // old Core to PS flow
                 BaseUsers user = null;
@@ -591,7 +591,7 @@ namespace Core.Users
                 }
             }
 
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID))
             {
                 BaseUsers user = null;
                 Utils.GetBaseImpl(ref user, nGroupID);
@@ -665,7 +665,7 @@ namespace Core.Users
         
         public static UserResponseObject AddNewUser(int nGroupID, UserBasicData oBasicData, UserDynamicData sDynamicData, string sPassword, string sAffiliateCode)
         {
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID))
             {
                 // old Core to PS flow
                 BaseUsers t = null;
@@ -1716,7 +1716,7 @@ namespace Core.Users
                 return new ApiObjects.Response.Status((int)eResponseStatus.NotAllowedToDelete, eResponseStatus.NotAllowedToDelete.ToString());
             }
 
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+            if (Utils.IsGroupIDContainedInConfig(nGroupID))
             {
                 // old Core to PS flow
                 BaseUsers t = null;
@@ -1921,7 +1921,7 @@ namespace Core.Users
                 // add siteguid to logs/monitor
                 HttpContext.Current.Items[Constants.USER_ID] = userId;
 
-                if (Utils.IsGroupIDContainedInConfig(groupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+                if (Utils.IsGroupIDContainedInConfig(groupID))
                 {
                     // old Core to PS flow
                     BaseUsers t = null;

@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -639,8 +640,8 @@ namespace Core.Users
                 m_sSiteGUID = this.userId.ToString();
 
                 // add user role
-                long roleId;
-                if (long.TryParse(Utils.GetTcmConfigValue("user_role_id"), out roleId))
+                long roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue; 
+                if (roleId > 0)
                 {
                     DAL.UsersDal.Insert_UserRole(this.GroupId, m_sSiteGUID, roleId, true);
                 }
