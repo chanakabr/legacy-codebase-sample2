@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ConfigurationManager;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +21,9 @@ namespace RemoteTasksService
             KLogger.Configure("log4net.config", KLogEnums.AppType.WS);
 
             RouteTable.Routes.Add(new ServiceRoute("", new WebServiceHostFactory(), typeof(Service)));
-            TCMClient.Settings.Instance.Init();
 
+            ApplicationConfiguration.Initialize(true);
+            
             WebAPI.Filters.AutoMapperConfig.RegisterMappings();
             WebAPI.Filters.EventNotificationsConfig.SubscribeConsumers();
         }

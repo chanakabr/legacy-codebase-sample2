@@ -170,7 +170,6 @@ namespace ElasticSearchHandler.IndexBuilders
                 if (lEpgCB != null && lEpgCB.Count > 0)
                 {
                     epgs = BuildEpgsLanguageDictionary(lEpgCB);
-                   
                 }
                 else
                 {
