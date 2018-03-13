@@ -9,6 +9,8 @@ namespace ConfigurationManager
 
         public static CeleryRoutingConfiguration CeleryRoutingConfiguration;
         public static ImageResizerConfiguration ImageResizerConfiguration;
+        public static StringConfigurationValue GraceNoteXSLTPath;
+        public static StringConfigurationValue GraceNoteALUIdConvertion;
 
         #endregion
         
@@ -118,6 +120,17 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 Description = "Configuration for image resizer handler in remote tasks."
             };
+            GraceNoteXSLTPath = new ConfigurationManager.StringConfigurationValue("GraceNote_XSLT_PATH")
+            {
+                ShouldAllowEmpty = true,
+                Description = "Remote tasks configuration for EPG XDTV Transformation."
+            };
+            GraceNoteALUIdConvertion = new StringConfigurationValue("GraceNote_ALU_IDConvertion")
+            {
+                ShouldAllowEmpty = true,
+                Description = "Remote tasks configuration for EPG XDTV Transformation."
+            };
+
             PictureUploaderPath = new ConfigurationManager.StringConfigurationValue("pic_uploader_path")
             {
                 ShouldAllowEmpty = true,
