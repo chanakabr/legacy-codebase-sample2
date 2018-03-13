@@ -408,7 +408,6 @@ namespace ConfigurationManager
                     ExportConfiguration,
                     UDRMUrl,
                     BillingCacheTTL,
-                    MediaSearcher,
                     UseOldImageServer,
                     CatalogLogicConfiguration,
                     AnnouncementManagerConfiguration,

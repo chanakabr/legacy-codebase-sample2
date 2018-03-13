@@ -12,6 +12,7 @@
         public NumericConfigurationValue LeftMargin;
         public NumericConfigurationValue TimeMultFactor;
         public BooleanConfigurationValue Skip3SSCheck;
+        public StringConfigurationValue Transaction_Device_Filter;
 
         public EutelsatSettings(string key) : base(key)
         {
@@ -41,7 +42,11 @@
             {
                 DefaultValue = 10000
             };
-
+            Transaction_Device_Filter = new StringConfigurationValue("Transaction_Device_Filter")
+            {
+                DefaultValue = string.Empty,
+                ShouldAllowEmpty = true
+            };
         }
     }
 }

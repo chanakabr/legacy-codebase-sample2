@@ -27,7 +27,7 @@ namespace ConfigurationManager
             this.Initialize();
         }
 
-        private void Initialize()
+        protected virtual void Initialize()
         {
             // host name
             HostName = new StringConfigurationValue("hostName", this);

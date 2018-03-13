@@ -291,11 +291,7 @@ namespace Core.ConditionalAccess
 
                     // If device is portal (3SS), do NOT notify!
                     //
-                    string transDeviceFilter = string.Empty;
-                    if (TVinciShared.WS_Utils.GetTcmConfigValue("Transaction_Device_Filter") != string.Empty)
-                    {
-                        transDeviceFilter = TVinciShared.WS_Utils.GetTcmConfigValue("Transaction_Device_Filter");
-                    }
+                    string transDeviceFilter = ApplicationConfiguration.EutelsatSettings.Transaction_Device_Filter.Value;
 
                     if (!string.IsNullOrEmpty(sDeviceUDID) && (!sDeviceUDID.Contains(transDeviceFilter)))
                     {
@@ -792,11 +788,7 @@ namespace Core.ConditionalAccess
 
                 // If device is portal (3SS), do NOT notify!
                 //
-                string transDeviceFilter = string.Empty;
-                if (TVinciShared.WS_Utils.GetTcmConfigValue("Transaction_Device_Filter") != string.Empty)
-                {
-                    transDeviceFilter = TVinciShared.WS_Utils.GetTcmConfigValue("Transaction_Device_Filter");
-                }
+                string transDeviceFilter = ApplicationConfiguration.EutelsatSettings.Transaction_Device_Filter.Value;
 
                 if (!string.IsNullOrEmpty(sDEVICE_NAME) && (!sDEVICE_NAME.Contains(transDeviceFilter)))
                 {
@@ -873,18 +865,12 @@ namespace Core.ConditionalAccess
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
 
-                string sRightMargin = Utils.GetValueFromConfig("right_margin");
-                string sLeftMargin = Utils.GetValueFromConfig("left_margin");
                 int nRightMargin = ApplicationConfiguration.EutelsatSettings.RightMargin.IntValue;
                 int nLeftMargin = ApplicationConfiguration.EutelsatSettings.LeftMargin.IntValue; ;
 
                 // Time Factor for aligment with Harmonic server (e.g. convert millisec -> 10Xmicrosec)
-                string sTimeMultFactor = Utils.GetValueFromConfig("time_mult_factor");
-                int timeMultFactor = 10000;
-                if (!string.IsNullOrEmpty(sTimeMultFactor))
-                {
-                    int.TryParse(sTimeMultFactor, out timeMultFactor);
-                }
+                
+                int timeMultFactor = ApplicationConfiguration.EutelsatSettings.TimeMultFactor.IntValue;
 
                 //call api service to get the epg_url_link 
                 //get channel name 

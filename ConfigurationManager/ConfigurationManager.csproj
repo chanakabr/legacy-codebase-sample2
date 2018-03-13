@@ -85,6 +85,7 @@
     <Compile Include="Types\MailerConfiguration.cs" />
     <Compile Include="Types\NamedCacheConfiguration.cs" />
     <Compile Include="Types\OTTUserControllerConfiguration.cs" />
+    <Compile Include="Types\ProfessionalServicesRabbitConfiguration.cs" />
     <Compile Include="Types\PushMessagesConfiguration.cs" />
     <Compile Include="Types\RabbitConfiguration.cs" />
     <Compile Include="Types\RequestParserConfiguration.cs" />

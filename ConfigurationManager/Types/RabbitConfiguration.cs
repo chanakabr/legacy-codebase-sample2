@@ -8,7 +8,7 @@ namespace ConfigurationManager
     public class RabbitConfiguration : ConfigurationValue
     {
         public BaseRabbitConfiguration Default;
-        public BaseRabbitConfiguration ProfessionalServices;
+        public ProfessionalServicesRabbitConfiguration ProfessionalServices;
         public BaseRabbitConfiguration SocialFeed;
         public BaseRabbitConfiguration Picture;
         public BaseRabbitConfiguration EPG;
@@ -19,7 +19,10 @@ namespace ConfigurationManager
         public RabbitConfiguration(string key) : base(key)
         {
             Default = new BaseRabbitConfiguration("default", this);
-            ProfessionalServices = new BaseRabbitConfiguration("professional_services", this);
+            ProfessionalServices = new ProfessionalServicesRabbitConfiguration("professional_services", this);
+            ProfessionalServices.RoutingKey.DefaultValue = "CDR_NOTIFICATION";
+            ProfessionalServices.RoutingKey.ShouldAllowEmpty = false;
+
             SocialFeed = new BaseRabbitConfiguration("social_fieed", this);
             Picture = new BaseRabbitConfiguration("picture", this);
             EPG = new BaseRabbitConfiguration("epg", this);
