@@ -434,7 +434,8 @@ namespace Core.Catalog
             ESRange dateRange = new ESRange(false) { Key = "action_date" };
             string sMax = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
 
-            double csts = GetDoubleValFromConfig("CrowdSourceTimeSpan");
+            double csts = ApplicationConfiguration.CrowdSourceTimeSpan.DoubleValue;
+
             if (csts == 0)
                 csts = 30.0;
 
@@ -742,17 +743,7 @@ namespace Core.Catalog
                 return null;
             }
         }
-
-        public static double GetDoubleValFromConfig(string sKey)
-        {
-            double nRes = 0;
-            if (TVinciShared.WS_Utils.GetTcmConfigValue(sKey) != string.Empty)
-            {
-                double.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(sKey), out nRes);
-            }
-            return nRes;
-        }
-
+        
         public static List<T> ListPaging<T>(List<T> list, int nPageSize, int nPageIndex)
         {
             List<T> result = new List<T>();

@@ -28,6 +28,7 @@ namespace ConfigurationManager
 
         #region Configuration values
 
+        public static NumericConfigurationValue CrowdSourceTimeSpan;
         public static StringConfigurationValue DMSUrl;
         public static MailerConfiguration MailerConfiguration;
         public static GroupsManagerConfiguration GroupsManagerConfiguration;
@@ -66,7 +67,6 @@ namespace ConfigurationManager
         public static ExportConfiguration ExportConfiguration;
         public static NumericConfigurationValue BillingCacheTTL;
         public static StringConfigurationValue UDRMUrl;
-        public static StringConfigurationValue MediaSearcher;
         public static StringConfigurationValue UseOldImageServer;
         public static CatalogLogicConfiguration CatalogLogicConfiguration;
         public static AnnouncementManagerConfiguration AnnouncementManagerConfiguration;
@@ -172,6 +172,11 @@ namespace ConfigurationManager
 
             #endregion
 
+            CrowdSourceTimeSpan = new ConfigurationManager.NumericConfigurationValue("CrowdSourceTimeSpan")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 30
+            };
             DMSUrl = new StringConfigurationValue("dms_url");
             MailerConfiguration = new MailerConfiguration("MC");
             GroupsManagerConfiguration = new GroupsManagerConfiguration("groups_manager");
@@ -273,10 +278,6 @@ namespace ConfigurationManager
             BillingCacheTTL = new ConfigurationManager.NumericConfigurationValue("BillingCacheTTL")
             {
                 DefaultValue = 60
-            };
-            MediaSearcher = new ConfigurationManager.StringConfigurationValue("media_searcher")
-            {
-                DefaultValue = "Core.Catalog.ElasticsearchWrapper, ApiLogic"
             };
             UseOldImageServer = new ConfigurationManager.StringConfigurationValue("USE_OLD_IMAGE_SERVER")
             {
