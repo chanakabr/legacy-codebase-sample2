@@ -16,6 +16,7 @@ namespace ConfigurationManager
 
         public static StringConfigurationValue PictureUploaderPath;
         public static StringConfigurationValue TVMBaseUrl;
+        public static BooleanConfigurationValue TVMSkipLoginIPCheck;
 
         #endregion
 
@@ -123,7 +124,13 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = "/",
-                Description = "Base URL for TVM"
+                Description = "Base URL for TVM."
+            };
+            TVMSkipLoginIPCheck = new ConfigurationManager.BooleanConfigurationValue("SKIP_LOGIN_IP_CHECK")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = false,
+                Description = "TVM key, whether IP check during login should be skipped or not."
             };
 
             #endregion
@@ -322,6 +329,8 @@ namespace ConfigurationManager
                     CeleryRoutingConfiguration,
                     ImageResizerConfiguration,
                     PictureUploaderPath,
+                    TVMBaseUrl,
+                    TVMSkipLoginIPCheck,
                     DMSUrl,
                     MailerConfiguration,
                     GroupsManagerConfiguration,
