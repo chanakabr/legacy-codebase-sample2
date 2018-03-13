@@ -717,11 +717,7 @@ namespace TVinciShared
 
                 string sIP = PageUtils.GetCallerIP();
 
-                if (WS_Utils.GetTcmConfigValue("SKIP_LOGIN_IP_CHECK") != string.Empty &&
-                    WS_Utils.GetTcmConfigValue("SKIP_LOGIN_IP_CHECK").ToLower() == "true")
-                {
-                }
-                else
+                if (!ApplicationConfiguration.TVMSkipLoginIPCheck.Value)
                 {
                     bool bAllowedIP = false;
 
