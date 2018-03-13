@@ -1398,7 +1398,7 @@ namespace Core.ConditionalAccess
 
                         if (price != null && price.m_dPrice != 0)
                         {
-                            CalculatePriceByUnifiedBillingCycle(groupId, ref price.m_dPrice, ref unifiedBillingCycle, subscription, domainID, string.IsNullOrEmpty(couponCode));
+                            CalculatePriceByUnifiedBillingCycle(groupId, ref price.m_dPrice, ref unifiedBillingCycle, subscription, domainID, !string.IsNullOrEmpty(couponCode));
                         }
                     }
                 }
