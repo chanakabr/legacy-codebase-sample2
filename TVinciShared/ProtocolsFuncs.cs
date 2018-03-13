@@ -14219,7 +14219,7 @@ namespace TVinciShared
                     {
                         Lucene_WCF.Service s = new Lucene_WCF.Service();
 
-                        string sWSURL = GetWSURL("LUCENE_WCF");
+                        string sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF");
                         if (!String.IsNullOrEmpty(sWSURL))
                             s.Url = sWSURL;
 
@@ -15038,7 +15038,7 @@ namespace TVinciShared
 
                 Lucene_WCF.Service s = new Lucene_WCF.Service();
 
-                sWSURL = GetWSURL("LUCENE_WCF");
+                sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF");
                 if (!String.IsNullOrEmpty(sWSURL))
                     s.Url = sWSURL;
 
@@ -15226,10 +15226,6 @@ namespace TVinciShared
             {
                 log.Error("SearchObjectString", ex);
             }
-        }
-        private static string GetWSURL(string sKey)
-        {
-            return WS_Utils.GetTcmConfigValue(sKey);
         }
 
         /*
