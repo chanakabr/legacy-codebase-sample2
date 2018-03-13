@@ -7,6 +7,7 @@ using System.IO;
 using System.Configuration;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace TVinciShared
 {
@@ -30,9 +31,9 @@ namespace TVinciShared
             string sURLs = "";
             object oCachecleanURL = null;
             log.Debug("Clear Cache String - Start Staging Clear Cache");
-            if (WS_Utils.GetTcmConfigValue("STAGING_CLEAR_CACHE_PATH") != string.Empty)
+            if (!string.IsNullOrEmpty(ApplicationConfiguration.StagingClearCachePath.Value))
             {
-                sURLs = WS_Utils.GetTcmConfigValue("STAGING_CLEAR_CACHE_PATH");
+                sURLs = ApplicationConfiguration.StagingClearCachePath.Value;
             }
             else
             {
@@ -63,10 +64,9 @@ namespace TVinciShared
             }
 
 
-            string sTvinciServersCache = "";
-            if (WS_Utils.GetTcmConfigValue("CLEAR_CACHE_PATH") != string.Empty)
-                sTvinciServersCache = WS_Utils.GetTcmConfigValue("CLEAR_CACHE_PATH");
-            if (sTvinciServersCache != "")
+            string sTvinciServersCache = ApplicationConfiguration.ClearCachePath.Value;
+
+            if (!string.IsNullOrEmpty(sTvinciServersCache))
             {
                 string[] sSep = { ";" };
                 string[] sUrlsArray = sTvinciServersCache.Split(sSep, StringSplitOptions.RemoveEmptyEntries);
