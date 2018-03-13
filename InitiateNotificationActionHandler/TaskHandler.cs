@@ -11,6 +11,7 @@ using KLogMonitor;
 using System.Reflection;
 using InitiateNotificationActionHandler;
 using System.ServiceModel;
+using ConfigurationManager;
 
 namespace InitiateNotificationActionHandler
 {
@@ -28,7 +29,7 @@ namespace InitiateNotificationActionHandler
 
                 InitiateNotificationActionRequest request = JsonConvert.DeserializeObject<InitiateNotificationActionRequest>(data);
 
-                string url = WS_Utils.GetTcmConfigValue("ws_notifications");
+                string url = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
 
                 if (string.IsNullOrEmpty(url))
                 {

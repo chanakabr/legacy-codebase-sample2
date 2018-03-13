@@ -1,4 +1,5 @@
-﻿using Core.Catalog;
+﻿using ConfigurationManager;
+using Core.Catalog;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using ElasticSearchHandler.Updaters;
@@ -22,6 +23,7 @@ namespace ElasticSearchHandler
         protected IElasticSearchUpdater updater;
         protected int maxResults;
         protected int sizeOfBulk;
+
         /// <summary>
         ///  Minimum time span to consider that there was a real change
         ///  (because ES update date has no milliseconds)
@@ -46,8 +48,8 @@ namespace ElasticSearchHandler
             serializer = new ESSerializerV2();
             updater = null;
 
-            sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");
-            maxResults = TVinciShared.WS_Utils.GetTcmIntValue("MAX_RESULTS");
+            sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+            maxResults = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
 
             // Default for size of bulk should be 1000, if not stated otherwise in TCM
             if (sizeOfBulk == 0)

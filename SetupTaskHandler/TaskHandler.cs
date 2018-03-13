@@ -11,6 +11,7 @@ using System.Web;
 using System.ServiceModel;
 using QueueWrapper;
 using ApiObjects;
+using ConfigurationManager;
 
 namespace SetupTaskHandler
 {
@@ -46,8 +47,8 @@ namespace SetupTaskHandler
                         bool v1Success = true;
                         bool v2Success = true;
 
-                        string urlV1 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V1");
-                        string urlV2 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V2");
+                        string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
+                        string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
 
                         if (string.IsNullOrEmpty(urlV1) && string.IsNullOrEmpty(urlV2))
                         {
@@ -113,8 +114,8 @@ namespace SetupTaskHandler
                     {
                         #region Migrate Statistics
 
-                        string urlV1 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V1");
-                        string urlV2 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V2");
+                        string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
+                        string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
 
                         DateTime? startDate = null;
 
