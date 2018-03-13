@@ -291,7 +291,6 @@ namespace ConfigurationManager
             EncryptorService = new ConfigurationManager.StringConfigurationValue("EncryptorService") { ShouldAllowEmpty = true };
             EncryptorPassword = new ConfigurationManager.StringConfigurationValue("EncryptorPassword") { ShouldAllowEmpty = true };
             PicsBasePath = new ConfigurationManager.StringConfigurationValue("pics_base_path") { ShouldAllowEmpty = true };
-
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
                     ImageResizerConfiguration,

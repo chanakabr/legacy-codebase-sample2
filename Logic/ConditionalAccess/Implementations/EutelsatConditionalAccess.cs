@@ -214,13 +214,8 @@ namespace Core.ConditionalAccess
                     return ret;
                 }
 
-
                 // Check user's entitlement via 3SS interface
-                bool skip3SSCheck = false;
-                if (TVinciShared.WS_Utils.GetTcmConfigValue("SKIP_3SS_CHECK") != string.Empty)
-                {
-                    skip3SSCheck = bool.Parse(TVinciShared.WS_Utils.GetTcmConfigValue("SKIP_3SS_CHECK"));
-                }
+                bool skip3SSCheck = ApplicationConfiguration.EutelsatSettings.Skip3SSCheck.Value;
 
                 if (!skip3SSCheck)
                 {
@@ -246,7 +241,7 @@ namespace Core.ConditionalAccess
                 {
                     if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                     {
-                            sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
+                        sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                     }
 
                     //Create the Custom Data
@@ -377,7 +372,7 @@ namespace Core.ConditionalAccess
             EutelsatTransactionResponse res = new EutelsatTransactionResponse();
             res.Success = false;
 
-            string sWSURL = Utils.GetWSURL("Eutelsat_CheckTvod_ws");
+            string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_CheckTvod_ws.Value;
             string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
             string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
@@ -421,7 +416,7 @@ namespace Core.ConditionalAccess
 
             try
             {
-                string sWSURL = Utils.GetWSURL("Eutelsat_Transaction_ws");
+                string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_Transaction_ws.Value;
                 string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
                 string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
@@ -500,7 +495,7 @@ namespace Core.ConditionalAccess
 
             try
             {
-                string sWSURL = Utils.GetWSURL("Eutelsat_Subscription_ws");
+                string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_Subscription_ws.Value;
                 string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
                 string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
@@ -592,7 +587,7 @@ namespace Core.ConditionalAccess
             string sExtraParams, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy, string sPaymentMethodID, string sEncryptedCVV, eBundleType bundleType)
         {
             BillingResponse ret = new BillingResponse();
-            
+
             try
             {
                 #region User and household validation
@@ -866,7 +861,7 @@ namespace Core.ConditionalAccess
                 int fileMainStreamingCoID = 0; // CDN Straming id
                 int mediaId = 0;
                 string fileType = string.Empty;
-                oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, 
+                oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG,
                     ref fileMainStreamingCoID, ref mediaId, ref fileType);
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
@@ -880,8 +875,8 @@ namespace Core.ConditionalAccess
 
                 string sRightMargin = Utils.GetValueFromConfig("right_margin");
                 string sLeftMargin = Utils.GetValueFromConfig("left_margin");
-                int nRightMargin = !string.IsNullOrEmpty(sRightMargin) ? int.Parse(sRightMargin) : RIGHT_MARGIN;
-                int nLeftMargin = !string.IsNullOrEmpty(sLeftMargin) ? int.Parse(sLeftMargin) : LEFT_MARGIN;
+                int nRightMargin = ApplicationConfiguration.EutelsatSettings.RightMargin.IntValue;
+                int nLeftMargin = ApplicationConfiguration.EutelsatSettings.LeftMargin.IntValue; ;
 
                 // Time Factor for aligment with Harmonic server (e.g. convert millisec -> 10Xmicrosec)
                 string sTimeMultFactor = Utils.GetValueFromConfig("time_mult_factor");

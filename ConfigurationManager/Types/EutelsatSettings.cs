@@ -11,6 +11,7 @@
         public NumericConfigurationValue RightMargin;
         public NumericConfigurationValue LeftMargin;
         public NumericConfigurationValue TimeMultFactor;
+        public BooleanConfigurationValue Skip3SSCheck;
 
         public EutelsatSettings(string key) : base(key)
         {
@@ -21,6 +22,11 @@
             Eutelsat_3SS_WS_Password = new StringConfigurationValue("Eutelsat_3SS_WS_Password", this);
             Eutelsat_ProductBase = new StringConfigurationValue("Eutelsat_ProductBase", this)
             {
+                ShouldAllowEmpty = true
+            };
+            Skip3SSCheck = new BooleanConfigurationValue("SKIP_3SS_CHECK", this)
+            {
+                DefaultValue = false,
                 ShouldAllowEmpty = true
             };
             RightMargin = new NumericConfigurationValue("right_margin", this)
