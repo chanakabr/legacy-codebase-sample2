@@ -116,7 +116,7 @@ namespace ConfigurationManager
             PictureUploaderPath = new ConfigurationManager.StringConfigurationValue("pic_uploader_path")
             {
                 ShouldAllowEmpty = true,
-                Description = "Configuration for CouchBaseManipulator in TVM."
+                Description = "Configuration for DBManipulator/CouchBaseManipulator in TVM."
             };
 
             #endregion
