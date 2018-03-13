@@ -91,11 +91,11 @@ namespace CachingHelpers
         {
             string result = DEFAULT_CACHE_NAME;
 
-            string tcm = ApplicationConfiguration.GroupsCacheConfiguration.Name.Value;
+            string name = ApplicationConfiguration.GroupsCacheConfiguration.Name.Value;
 
-            if (tcm.Length > 0)
+            if (name.Length > 0)
             {
-                result = tcm;
+                result = name;
             }
 
             return result;
