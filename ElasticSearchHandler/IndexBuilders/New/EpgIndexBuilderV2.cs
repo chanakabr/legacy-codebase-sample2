@@ -14,6 +14,7 @@ using ApiObjects.SearchObjects;
 using ApiObjects.Response;
 using System.Data;
 using KlogMonitorHelper;
+using ConfigurationManager;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -79,14 +80,14 @@ namespace ElasticSearchHandler.IndexBuilders
 
             GetAnalyzers(group.GetLangauges(), out analyzers, out filters, out tokenizers);
 
-            sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");
+            sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
 
             if (sizeOfBulk == 0)
             {
                 sizeOfBulk = 50;
             }
 
-            int maxResults = TVinciShared.WS_Utils.GetTcmIntValue("MAX_RESULTS");
+            int maxResults = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
 
             if (maxResults == 0)
             {

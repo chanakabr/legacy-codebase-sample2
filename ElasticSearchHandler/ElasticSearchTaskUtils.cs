@@ -17,6 +17,7 @@ using ApiObjects.Response;
 using ElasticSearch.Common;
 using Core.Catalog;
 using Core.Catalog.Cache;
+using ConfigurationManager;
 
 namespace ElasticSearchHandler
 {
@@ -151,7 +152,7 @@ namespace ElasticSearchHandler
         {
             try
             {
-                int days = TCMClient.Settings.Instance.GetValue<int>("CURRENT_REQUEST_DAYS_OFFSET");
+                int days = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
 
                 if (days == 0)
                 {
