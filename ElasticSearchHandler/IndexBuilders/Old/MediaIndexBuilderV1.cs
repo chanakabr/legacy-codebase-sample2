@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Response;
+using ConfigurationManager;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -35,19 +36,11 @@ namespace ElasticSearchHandler.IndexBuilders
             string newIndexName = ElasticSearchTaskUtils.GetNewMediaIndexStr(groupId);
 
             #region Build new index and specify number of nodes/shards
-
-            string numberOfShards = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_SHARDS");
-            string numberOfReplicas = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_REPLICAS");
-            string sizeOfBulkString = ElasticSearchTaskUtils.GetTcmConfigValue("ES_BULK_SIZE");
-
-            int numOfShards;
-            int numOfReplicas;
-            int sizeOfBulk;
-
-            int.TryParse(numberOfReplicas, out numOfReplicas);
-            int.TryParse(numberOfShards, out numOfShards);
-            int.TryParse(sizeOfBulkString, out sizeOfBulk);
-
+            
+            int numOfShards = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.IntValue;
+            int numOfReplicas = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.IntValue; ;
+            int sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+            
             if (sizeOfBulk == 0)
             {
                 sizeOfBulk = 50;

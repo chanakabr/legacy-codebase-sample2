@@ -1,4 +1,5 @@
-﻿using ElasticSearch.Common;
+﻿using ConfigurationManager;
+using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using ElasticSearchHandler;
 using KLogMonitor;
@@ -38,19 +39,16 @@ namespace SetupTaskHandler
             bool success = false;
             
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
+
+            int shards = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.IntValue;
+            int replicas = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.IntValue; ;
+            int sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+
+            if (sizeOfBulk == 0)
+            {
+                sizeOfBulk = 1000;
+            }
             
-            string numberOfShards = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_SHARDS");
-            string numberOfReplicas = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_REPLICAS");
-            string sizeOfBulkString = ElasticSearchTaskUtils.GetTcmConfigValue("ES_BULK_SIZE");
-
-            int shards;
-            int replicas;
-            int sizeOfBulk;
-
-            int.TryParse(numberOfReplicas, out replicas);
-            int.TryParse(numberOfShards, out shards);
-            int.TryParse(sizeOfBulkString, out sizeOfBulk);
-
             if (sizeOfBulk == 0)
             {
                 sizeOfBulk = 1000;

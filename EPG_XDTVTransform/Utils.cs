@@ -13,22 +13,7 @@ namespace EPG_XDTVTransform
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public static string GetTcmConfigValue(string sKey)
-        {
-            string result = string.Empty;
-            try
-            {
-                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
-            }
-            catch (Exception ex)
-            {
-                result = string.Empty;
-                log.Error("EPG_XDTVTransform.Utils - Key=" + sKey + "," + ex.Message, ex);
-            }
-            return result;
-        }
-
+        
         public static string GetSingleNodeValue(XmlNode node, string xpath)
         {
             string res = "";

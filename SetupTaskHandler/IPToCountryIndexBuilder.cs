@@ -1,4 +1,5 @@
-﻿using ElasticSearch.Common;
+﻿using ConfigurationManager;
+using ElasticSearch.Common;
 using ElasticSearchHandler;
 using KLogMonitor;
 using System;
@@ -57,16 +58,10 @@ namespace SetupTaskHandler
 
             string newIndexName = ElasticSearchTaskUtils.GetNewUtilsIndexString();
             string type = "iptocountry";
-
-            string numberOfShards = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_SHARDS");
-            string numberOfReplicas = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_REPLICAS");
-
-            int numOfShards;
-            int numOfReplicas;
-
-            int.TryParse(numberOfReplicas, out numOfReplicas);
-            int.TryParse(numberOfShards, out numOfShards);
-
+            
+            int numOfShards = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.IntValue;
+            int numOfReplicas = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.IntValue;
+            
             try
             {
                 bool indexExists = api.IndexExists(newIndexName);

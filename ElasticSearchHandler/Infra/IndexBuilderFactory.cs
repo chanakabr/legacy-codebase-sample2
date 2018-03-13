@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ConfigurationManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,8 +12,8 @@ namespace ElasticSearchHandler.IndexBuilders
         {
             AbstractIndexBuilder result = null;
 
-            string urlV1 = ElasticSearchTaskUtils.GetTcmConfigValue("ES_URL_V1");
-            string urlV2 = ElasticSearchTaskUtils.GetTcmConfigValue("ES_URL_V2");
+            string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
+            string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
 
             switch (eType)
             {

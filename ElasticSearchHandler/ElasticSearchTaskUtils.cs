@@ -25,21 +25,6 @@ namespace ElasticSearchHandler
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly int DAYS = 7;
         
-        public static string GetTcmConfigValue(string sKey)
-        {
-            string result = string.Empty;
-            try
-            {
-                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
-            }
-            catch (Exception ex)
-            {
-                result = string.Empty;
-                log.Error("TvinciShared.Ws_Utils - Key=" + sKey + "," + ex.Message, ex);
-            }
-            return result;
-        }
-
         public static long UnixTimeStampNow()
         {
             TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
