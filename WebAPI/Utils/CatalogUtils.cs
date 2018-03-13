@@ -225,10 +225,13 @@ namespace WebAPI.Utils
                         throw new Exception("Unexpected AsssetType");
                     }
                 }
-             
+
                 // Media - Get the medias from cache, Cast the results, return false if at least one is missing
-                result = RetriveAssetsFromCache(mediaKeys, MEDIA_CACHE_KEY_PREFIX, language, out medias, out missingMediaIds) &&
-                    RetriveAssetsFromCache(epgKeys, EPG_CACHE_KEY_PREFIX, language, out epgs, out missingEpgIds);
+                bool mediaCacheResult = RetriveAssetsFromCache(mediaKeys, MEDIA_CACHE_KEY_PREFIX, language, out medias, out missingMediaIds);
+                bool epgCacheResult = RetriveAssetsFromCache(epgKeys, EPG_CACHE_KEY_PREFIX, language, out epgs, out missingEpgIds);
+                result = mediaCacheResult && epgCacheResult;
+
+
             }
 
             return result;
