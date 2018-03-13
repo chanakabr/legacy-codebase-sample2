@@ -7,6 +7,7 @@ namespace ConfigurationManager
     {
         #region Remote Tasks Configuration Values
 
+        public static CeleryRoutingConfiguration CeleryRoutingConfiguration;
         public static ImageResizerConfiguration ImageResizerConfiguration;
 
         #endregion
@@ -95,9 +96,15 @@ namespace ConfigurationManager
 
             #region Remote tasks configuration values
 
+            CeleryRoutingConfiguration = new ConfigurationManager.CeleryRoutingConfiguration("CELERY_ROUTING")
+            {
+                ShouldAllowEmpty = true,
+                Description = "Remote tasks celery routing. Not used in phoenix."
+            };
             ImageResizerConfiguration = new ConfigurationManager.ImageResizerConfiguration("image_resizer_configuration")
             {
-                ShouldAllowEmpty = true
+                ShouldAllowEmpty = true,
+                Description = "Configuration for image resizer handler in remote tasks."
             };
 
             #endregion
@@ -294,6 +301,7 @@ namespace ConfigurationManager
 
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
+                    CeleryRoutingConfiguration,
                     ImageResizerConfiguration,
                     DMSUrl,
                     MailerConfiguration,

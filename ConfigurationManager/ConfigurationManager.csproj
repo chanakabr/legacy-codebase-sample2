@@ -65,6 +65,7 @@
     <Compile Include="Types\Base\NumericConfigurationValue.cs" />
     <Compile Include="Types\Base\StringConfigurationValue.cs" />
     <Compile Include="Types\CatalogLogicConfiguration.cs" />
+    <Compile Include="Types\CeleryRoutingConfiguration.cs" />
     <Compile Include="Types\CouchBaseDesigns.cs" />
     <Compile Include="Types\CouchbaseSectionMapping.cs" />
     <Compile Include="Types\DatabaseConfiguration.cs" />
