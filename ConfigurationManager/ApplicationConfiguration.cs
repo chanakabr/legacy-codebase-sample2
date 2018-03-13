@@ -15,6 +15,7 @@ namespace ConfigurationManager
         #region TVM Configuration Values
 
         public static StringConfigurationValue PictureUploaderPath;
+        public static StringConfigurationValue TVMBaseUrl;
 
         #endregion
 
@@ -117,6 +118,12 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true,
                 Description = "Configuration for DBManipulator/CouchBaseManipulator in TVM."
+            };
+            TVMBaseUrl = new StringConfigurationValue("BASE_URL")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = "/",
+                Description = "Base URL for TVM"
             };
 
             #endregion
