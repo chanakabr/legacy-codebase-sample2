@@ -11,6 +11,13 @@ namespace ConfigurationManager
         public static ImageResizerConfiguration ImageResizerConfiguration;
 
         #endregion
+
+        #region TVM Configuration Values
+
+        public static StringConfigurationValue PictureUploaderPath;
+
+        #endregion
+
         #region Configuration values
 
         public static StringConfigurationValue DMSUrl;
@@ -105,6 +112,11 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true,
                 Description = "Configuration for image resizer handler in remote tasks."
+            };
+            PictureUploaderPath = new ConfigurationManager.StringConfigurationValue("pic_uploader_path")
+            {
+                ShouldAllowEmpty = true,
+                Description = "Configuration for CouchBaseManipulator in TVM."
             };
 
             #endregion
@@ -302,6 +314,7 @@ namespace ConfigurationManager
                 {
                     CeleryRoutingConfiguration,
                     ImageResizerConfiguration,
+                    PictureUploaderPath,
                     DMSUrl,
                     MailerConfiguration,
                     GroupsManagerConfiguration,
