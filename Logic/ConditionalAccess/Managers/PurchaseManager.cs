@@ -1073,6 +1073,11 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
+                if (string.IsNullOrEmpty(couponCode))
+                {
+                    coupon = null;
+                }
+
                 // check permission for subscription with premuim services - by roles 
                 if (subscription.m_lServices != null && subscription.m_lServices.Count() > 0)
                 {
