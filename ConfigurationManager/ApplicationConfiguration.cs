@@ -5,6 +5,11 @@ namespace ConfigurationManager
 {
     public class ApplicationConfiguration
     {
+        #region Remote Tasks Configuration Values
+
+        public static ImageResizerConfiguration ImageResizerConfiguration;
+
+        #endregion
         #region Configuration values
 
         public static StringConfigurationValue DMSUrl;
@@ -87,6 +92,15 @@ namespace ConfigurationManager
         public static void Initialize(bool shouldLoadDefaults = false)
         {
             TCMClient.Settings.Instance.Init();
+
+            #region Remote tasks configuration values
+
+            ImageResizerConfiguration = new ConfigurationManager.ImageResizerConfiguration("image_resizer_configuration")
+            {
+                ShouldAllowEmpty = true
+            };
+
+            #endregion
 
             DMSUrl = new StringConfigurationValue("dms_url");
             MailerConfiguration = new MailerConfiguration("MC");
