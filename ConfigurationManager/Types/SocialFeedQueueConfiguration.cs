@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace ConfigurationManager
+﻿namespace ConfigurationManager
 {
     public class SocialFeedQueueConfiguration : ConfigurationValue
     {
         public StringConfigurationValue Task;
         public StringConfigurationValue RoutingKey;
-        
+        public StringConfigurationValue TaskSocialMerge;
+        public StringConfigurationValue RoutingKeyMerge;
+
         public SocialFeedQueueConfiguration(string key) : base(key)
         {
             Task = new StringConfigurationValue("task", this)
@@ -22,15 +19,14 @@ namespace ConfigurationManager
                 DefaultValue = "PROCESS_UPDATE_SOCIAL_FEED",
                 Description = "Original key is routingKeySocialFeedUpdate"
             };
-        }
-
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= Task.Validate();
-            result &= RoutingKey.Validate();
-
-            return result;
+            RoutingKeyMerge = new StringConfigurationValue("routingKeySocialFeedMerge", this)
+            {
+                ShouldAllowEmpty = true              
+            };
+            TaskSocialMerge = new StringConfigurationValue("taskSocialMerge", this)
+            {
+                ShouldAllowEmpty = true
+            };
         }
     }
 }
