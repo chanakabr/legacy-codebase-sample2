@@ -40,7 +40,7 @@ namespace Core.Social
             private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
             static readonly string FB_GRAPH_SOCIALFEED_FIELDS = "posts?fields=from,message,link,picture,created_time,likes.limit(1).summary(true),comments.limit(25).fields(message,from,like_count,created_time)";
-            static readonly string FB_GRAPH_URI_PREFIX = Utils.GetValFromConfig("FB_GRAPH_URI");
+            static readonly string FB_GRAPH_URI_PREFIX = ApplicationConfiguration.FacebookConfiguration.GraphURI.Value;
             static Dictionary<int, string> _accessTokenDict = new Dictionary<int, string>();
             static object _locker = new object();
 

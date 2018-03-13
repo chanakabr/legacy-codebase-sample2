@@ -17,7 +17,8 @@
             };
             GraphURI = new StringConfigurationValue("graph_uri", this)
             {
-                DefaultValue = "https://graph.facebook.com"
+                DefaultValue = "https://graph.facebook.com",
+                Description = "Original key is FB_GRAPH_URI"
             };
             TokenKey = new StringConfigurationValue("token_key", this)
             {

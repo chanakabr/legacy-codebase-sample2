@@ -779,11 +779,6 @@ namespace Core.Social
             return lActions.ToString();
         }
 
-        public static string GetWSURL(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         //Some headers must be modified via the property and cannot be changed by modifing the req.Headers obj
         private static void SetRequestHeaders(WebRequest webRequest, Dictionary<string, string> headerDict)
         {

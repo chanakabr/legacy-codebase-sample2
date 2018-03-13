@@ -132,7 +132,7 @@ namespace Core.Social
             if (!string.IsNullOrEmpty(fbListID))
             {
                 string sRetVal = string.Empty;
-                string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+                string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
                 string sDecryptToken = Utils.Decrypt(uObj.m_user.m_oBasicData.m_sFacebookToken, key);
                 int nStatus = FBUtils.GetGraphApiAction(string.Format("{0}/members?fields=id,name&limit=500", fbListID), string.Empty, sDecryptToken, ref sRetVal);
 
@@ -171,10 +171,10 @@ namespace Core.Social
             Int32 nStatus = 0;
 
             StringBuilder sb = new StringBuilder();
-            sb.Append(Utils.GetValFromConfig("FB_GRAPH_URI"));
+            sb.Append(ApplicationConfiguration.FacebookConfiguration.GraphURI.Value);
             sb.AppendFormat("/{0}/members?members={1}", sFriendsListId, sListMemebers);
 
-            string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+            string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
             string sDecryptToken = Utils.Decrypt(sAccessToken, key);
 
             sb.AppendFormat("&access_token={0}", sDecryptToken);
@@ -204,7 +204,7 @@ namespace Core.Social
             }
 
 
-            string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+            string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
             string token = uObj.m_user.m_oBasicData.m_sFacebookToken;
             string sDecryptToken = Utils.Decrypt(token, key);
 
@@ -285,10 +285,10 @@ namespace Core.Social
             Int32 nStatus = 0;
 
             StringBuilder sb = new StringBuilder();
-            sb.Append(Utils.GetValFromConfig("FB_GRAPH_URI"));
+            sb.Append(ApplicationConfiguration.FacebookConfiguration.GraphURI.Value);
             sb.AppendFormat("/me/FriendLists?name={0}", sListName);
 
-            string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+            string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
             string sDecryptToken = Utils.Decrypt(sAccessToken, key);
 
             sb.AppendFormat("&access_token={0}", sDecryptToken);
@@ -367,7 +367,7 @@ namespace Core.Social
                         return false;
                     }
 
-                    string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+                    string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
                     sFBToken = Utils.Decrypt(uObj.m_user.m_oBasicData.m_sFacebookToken, key);
 
                     List<FBUser> lTempList;
@@ -454,7 +454,7 @@ namespace Core.Social
                 return 0;
             }
 
-            string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+            string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
             sFBToken = Utils.Decrypt(uObj.m_user.m_oBasicData.m_sFacebookToken, key);
 
             List<FBUser> lTempList;
@@ -502,7 +502,7 @@ namespace Core.Social
                 return 0;
             }
 
-            string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+            string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
             sDecryptToken = Utils.Decrypt(uObj.m_user.m_oBasicData.m_sFacebookToken, key);
 
             string sRetVal = string.Empty;
@@ -742,7 +742,7 @@ namespace Core.Social
                     {
                         throw new FacebookException(FacebookResponseStatus.ERROR, "User token is empty");
                     }
-                    string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+                    string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
                     string sDecryptToken = Utils.Decrypt(uObj.m_user.m_oBasicData.m_sFacebookToken, key);
 
                     string sRetVal = string.Empty;
@@ -823,7 +823,7 @@ namespace Core.Social
                 //Search user with facebook id 
                 uObj = Utils.GetUserDataByFacebookID(fbUser.id, m_nGroupID);
 
-                string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+                string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
                 string sEncryptToken = Utils.Encrypt(token, key);
 
                 facebookResponse.ResponseData.fbUser = fbUser;
@@ -955,7 +955,7 @@ namespace Core.Social
 
                 UserResponseObject uObj = new UserResponseObject();
 
-                string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+                string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
                 string sEncryptToken = Utils.Encrypt(token, key);
 
                 facebookResponse.ResponseData.fbUser = fbUser;
@@ -1114,7 +1114,7 @@ namespace Core.Social
                     }
                 }
 
-                string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+                string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
                 string sEncryptToken = Utils.Encrypt(token, key);
 
                 facebookResponse.ResponseData.pic = string.Format("http://graph.facebook.com/{0}/picture?type=normal", fbid);
@@ -1209,7 +1209,7 @@ namespace Core.Social
                     }
                 }
 
-                string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+                string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
                 string sEncryptToken = Utils.Encrypt(token, key);
 
                 facebookResponse.ResponseData.pic = string.Format("http://graph.facebook.com/{0}/picture?type=normal", fbid);
@@ -1272,7 +1272,7 @@ namespace Core.Social
 
             string sRetVal = string.Empty;
             string token = uObj.m_user.m_oBasicData.m_sFacebookToken;
-            string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+            string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
             string sDecryptToken = Utils.Decrypt(token, key);
 
 
@@ -1394,7 +1394,7 @@ namespace Core.Social
                     throw new FacebookException(FacebookResponseStatus.ERROR, "Empty Token");
                 }
 
-                string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+                string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
                 string sDecryptToken = Utils.Decrypt(token, key);
 
                 string sRetVal = string.Empty;
@@ -1583,8 +1583,8 @@ namespace Core.Social
         private void WriteMergeToQueue(string sSiteGuid, string sAction)
         {
             QueueWrapper.BaseQueue queue = new QueueWrapper.Queues.QueueObjects.SocialQueue();
-            string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskSocialMerge");
-            string routingKey = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeySocialFeedMerge");
+            string task = ApplicationConfiguration.SocialFeedQueueConfiguration.TaskSocialMerge.Value;
+            string routingKey = ApplicationConfiguration.SocialFeedQueueConfiguration.RoutingKeyMerge.Value;
             Guid guid = Guid.NewGuid();
 
 
@@ -1641,7 +1641,7 @@ namespace Core.Social
                 JavaScriptSerializer serializer = new JavaScriptSerializer();
                 FBUser fbUser = serializer.Deserialize<FBUser>(sRetVal);
 
-                string key = Utils.GetValFromConfig("FB_TOKEN_KEY");
+                string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
                 string sEncryptToken = Utils.Encrypt(token, key);
 
                 UserResponseObject uObj = new UserResponseObject();
