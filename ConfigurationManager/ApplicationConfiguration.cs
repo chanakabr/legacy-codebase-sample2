@@ -294,6 +294,7 @@ namespace ConfigurationManager
 
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
+                    ImageResizerConfiguration,
                     DMSUrl,
                     MailerConfiguration,
                     GroupsManagerConfiguration,
