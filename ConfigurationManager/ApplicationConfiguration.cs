@@ -12,6 +12,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue GraceNoteXSLTPath;
         public static StringConfigurationValue GraceNoteALUIdConvertion;
         public static ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration;
+        public static BooleanConfigurationValue ShouldDistributeRecordingSynchronously;
 
         #endregion
 
@@ -134,6 +135,11 @@ namespace ConfigurationManager
             ElasticSearchHandlerConfiguration = new ConfigurationManager.ElasticSearchHandlerConfiguration("elasticsearch_handler_configuration")
             {
                 ShouldAllowEmpty = true
+            };
+            ShouldDistributeRecordingSynchronously = new ConfigurationManager.BooleanConfigurationValue("ShouldDistributeRecordingSynchronously")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = false
             };
 
             PictureUploaderPath = new ConfigurationManager.StringConfigurationValue("pic_uploader_path")
@@ -364,6 +370,7 @@ namespace ConfigurationManager
                     GraceNoteALUIdConvertion,
                     GraceNoteXSLTPath,
                     ElasticSearchHandlerConfiguration,
+                    ShouldDistributeRecordingSynchronously,
                     PictureUploaderPath,
                     TVMBaseUrl,
                     TVMSkipLoginIPCheck,
