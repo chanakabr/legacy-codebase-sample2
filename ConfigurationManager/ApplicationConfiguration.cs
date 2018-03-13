@@ -11,9 +11,10 @@ namespace ConfigurationManager
         public static ImageResizerConfiguration ImageResizerConfiguration;
         public static StringConfigurationValue GraceNoteXSLTPath;
         public static StringConfigurationValue GraceNoteALUIdConvertion;
+        public static ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration;
 
         #endregion
-        
+
         #region TVM Configuration Values
 
         public static StringConfigurationValue PictureUploaderPath;
@@ -129,6 +130,10 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true,
                 Description = "Remote tasks configuration for EPG XDTV Transformation."
+            };
+            ElasticSearchHandlerConfiguration = new ConfigurationManager.ElasticSearchHandlerConfiguration("elasticsearch_handler_configuration")
+            {
+                ShouldAllowEmpty = true
             };
 
             PictureUploaderPath = new ConfigurationManager.StringConfigurationValue("pic_uploader_path")
@@ -356,6 +361,9 @@ namespace ConfigurationManager
                 {
                     CeleryRoutingConfiguration,
                     ImageResizerConfiguration,
+                    GraceNoteALUIdConvertion,
+                    GraceNoteXSLTPath,
+                    ElasticSearchHandlerConfiguration,
                     PictureUploaderPath,
                     TVMBaseUrl,
                     TVMSkipLoginIPCheck,

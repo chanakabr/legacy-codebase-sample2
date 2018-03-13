@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="ApplicationConfiguration.cs" />
     <Compile Include="ConfigurationValue.cs" />
+    <Compile Include="Types\ElasticSearchHandlerConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\AnnouncementManagerConfiguration.cs" />
     <Compile Include="Types\AuthorizationManagerConfiguration.cs" />
