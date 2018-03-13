@@ -106,7 +106,7 @@ namespace Core.Social
         public static class Twitter
         {
             public static readonly string TWITTER_CONSUMER_KEY = ApplicationConfiguration.TwitterConfiguration.ConsumerKey.Value;
-            public static readonly string TWITTER_CONSUMER_SECRET = TVinciShared.WS_Utils.GetTcmConfigValue("TWITTER_CONSUMER_SECRET");
+            public static readonly string TWITTER_CONSUMER_SECRET = ApplicationConfiguration.TwitterConfiguration.ConsumerSecret.Value;
             static Dictionary<int, ApplicationOnlyAuthorizer> _accessTokenDictionary = new Dictionary<int, ApplicationOnlyAuthorizer>();
             static object _locker = new object();
 
@@ -450,7 +450,7 @@ namespace Core.Social
                                 try
                                 {
                                     socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_FB_item_count"),
-                                        Core.Social.Utils.Decrypt(userData.m_user.m_oBasicData.m_sFacebookToken, Core.Social.Utils.GetValFromConfig("FB_TOKEN_KEY")));
+                                        Core.Social.Utils.Decrypt(userData.m_user.m_oBasicData.m_sFacebookToken, ApplicationConfiguration.FacebookConfiguration.TokenKey.Value));
                                 }
                                 catch (Exception)
                                 {

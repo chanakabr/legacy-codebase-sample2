@@ -90,6 +90,7 @@
     <Compile Include="Types\RoleIdsConfiguration.cs" />
     <Compile Include="Types\SocialFeedConfiguration.cs" />
     <Compile Include="Types\SocialFeedQueueConfiguration.cs" />
+    <Compile Include="Types\NotificationConfiguration.cs" />
     <Compile Include="Types\TwitterConfiguration.cs" />
     <Compile Include="Types\UserPINDigitsConfiguration.cs" />
     <Compile Include="Types\UsersCacheConfiguration.cs" />

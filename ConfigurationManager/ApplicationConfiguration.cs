@@ -12,6 +12,7 @@ namespace ConfigurationManager
 
         #endregion
 
+
         #region TVM Configuration Values
 
         public static StringConfigurationValue PictureUploaderPath;
@@ -88,6 +89,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue EncryptorService;
         public static StringConfigurationValue EncryptorPassword;
         public static StringConfigurationValue PicsBasePath;
+        public static NotificationConfiguration NotificationConfiguration;
 
         #endregion
 
@@ -324,6 +326,8 @@ namespace ConfigurationManager
             EncryptorService = new ConfigurationManager.StringConfigurationValue("EncryptorService") { ShouldAllowEmpty = true };
             EncryptorPassword = new ConfigurationManager.StringConfigurationValue("EncryptorPassword") { ShouldAllowEmpty = true };
             PicsBasePath = new ConfigurationManager.StringConfigurationValue("pics_base_path") { ShouldAllowEmpty = true };
+            NotificationConfiguration = new NotificationConfiguration("notification_configuration");
+
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
                     CeleryRoutingConfiguration,
@@ -396,6 +400,7 @@ namespace ConfigurationManager
                     EncryptorService,
                     EncryptorPassword,
                     PicsBasePath,
+                    NotificationConfiguration
                 };
 
             if (shouldLoadDefaults)

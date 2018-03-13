@@ -972,9 +972,9 @@ namespace Core.Users
                         if (bRes)
                         {
                             int cache_period = 10;
-
-                            if (TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_CACHE_PERIOD") != string.Empty)
-                                int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_CACHE_PERIOD"), out cache_period);
+                            // previous the value were taken from tcm SEARCH_USERS_CACHE_PERIOD
+                            //if (TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_CACHE_PERIOD") != string.Empty)
+                            //    int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_CACHE_PERIOD"), out cache_period);
 
                             DateTime timeStamp;
                             bRes = UsersCache.GetItem<DateTime>(dateTimeKey, out timeStamp);
@@ -1046,10 +1046,9 @@ namespace Core.Users
                             if (filteredDataTable.Length > 0)
                             {
                                 int limit = 40;
-
-
-                                if (TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_RESULTS_LIMIT") != string.Empty)
-                                    int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_RESULTS_LIMIT"), out limit);
+                                // previous the value were taken from tcm SEARCH_USERS_RESULTS_LIMIT
+                                //if (TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_RESULTS_LIMIT") != string.Empty)
+                                //    int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_RESULTS_LIMIT"), out limit);
 
                                 long[] usersIDs = filteredDataTable.Take(limit).Select(x => ODBCWrapper.Utils.GetLongSafeVal(x["id"])).ToArray();
 

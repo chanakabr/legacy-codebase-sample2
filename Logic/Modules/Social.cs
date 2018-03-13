@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Social;
+using ConfigurationManager;
 using Core.Social.Requests;
 using Core.Social.Responses;
 using Core.Users;
@@ -105,7 +106,7 @@ namespace Core.Social
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = nSiteGUID;
 
-            string sFbListName = TVinciShared.WS_Utils.GetTcmConfigValue("FB_LIST_NAME");
+            string sFbListName = ApplicationConfiguration.FacebookConfiguration.ListName.Value;
             FacebookWrapper oFBWrapper = new FacebookWrapper(nGroupID);
             return oFBWrapper.GetFBAvailablePrivacyGroups(nSiteGUID.ToString(), nGroupID, sFbListName);
         }

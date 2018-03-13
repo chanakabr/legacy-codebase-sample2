@@ -27,7 +27,8 @@
             };
             ListName = new StringConfigurationValue("list_name", this)
             {
-                DefaultValue = "TvinciAppFriends"
+                DefaultValue = "TvinciAppFriends",
+                Description = "Original key is FB_LIST_NAME"
             };
             SecureSiteGuidKey = new StringConfigurationValue("secure_site_guid_key", this)
             {
