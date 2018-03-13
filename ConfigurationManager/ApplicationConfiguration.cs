@@ -11,13 +11,14 @@ namespace ConfigurationManager
         public static ImageResizerConfiguration ImageResizerConfiguration;
 
         #endregion
-
-
+        
         #region TVM Configuration Values
 
         public static StringConfigurationValue PictureUploaderPath;
         public static StringConfigurationValue TVMBaseUrl;
         public static BooleanConfigurationValue TVMSkipLoginIPCheck;
+        public static StringConfigurationValue ClearCachePath;
+        public static StringConfigurationValue StagingClearCachePath;
 
         #endregion
 
@@ -133,6 +134,16 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = false,
                 Description = "TVM key, whether IP check during login should be skipped or not."
+            };
+            ClearCachePath = new ConfigurationManager.StringConfigurationValue("CLEAR_CACHE_PATH")
+            {
+                ShouldAllowEmpty = true,
+                Description = "TVM key, location of clean_cache.aspx page in different servers."
+            };
+            StagingClearCachePath = new ConfigurationManager.StringConfigurationValue("STAGING_CLEAR_CACHE_PATH")
+            {
+                ShouldAllowEmpty = true,
+                Description = "TVM key, location of clean_cache.aspx page in different servers, for staging environment."
             };
 
             #endregion
