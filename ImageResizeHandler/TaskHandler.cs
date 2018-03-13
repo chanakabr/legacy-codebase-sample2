@@ -7,6 +7,7 @@ using ImageResizer;
 using KLogMonitor;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
+using ConfigurationManager;
 
 namespace ImageResizeHandler
 {
@@ -45,15 +46,8 @@ namespace ImageResizeHandler
 
             try
             {
-                bool _useFileSystem = false;
-
-                string _sUseFileSystem = TCMClient.Settings.Instance.GetValue<string>("TASK_HANDLERS.IMAGE_RESIZER.USE_FILE_SYSTEM");
-
-                if (!string.IsNullOrEmpty(_sUseFileSystem))
-                {
-                    bool.TryParse(_sUseFileSystem, out _useFileSystem);
-                }
-
+                bool _useFileSystem = ApplicationConfiguration.ImageResizerConfiguration.UseFileSystem.Value;
+                
                 if (_useFileSystem)
                 {
                     bool isMutexAlreadyReleased = false;
@@ -66,7 +60,7 @@ namespace ImageResizeHandler
                     {
                         mutex.WaitOne();
 
-                        string imagesBasePath = TCMClient.Settings.Instance.GetValue<string>("TASK_HANDLERS.IMAGE_RESIZER.IMAGES_BASE_PATH");
+                        string imagesBasePath = ApplicationConfiguration.ImageResizerConfiguration.ImagesBasePath.Value;
 
                         if (string.IsNullOrEmpty(imagesBasePath))
                         {

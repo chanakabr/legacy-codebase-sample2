@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ConfigurationManager;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,12 +30,12 @@ namespace ImageResizeHandler
             {
                 HttpWebRequest httpWebRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
 
-                string proxyAddress = TCMClient.Settings.Instance.GetValue<string>("proxyAddress");
+                string proxyAddress = ApplicationConfiguration.ImageResizerConfiguration.ProxyAddress.Value;
 
                 if (!string.IsNullOrEmpty(proxyAddress))
                 {
-                    string username = TCMClient.Settings.Instance.GetValue<string>("proxyUsername");
-                    string password = TCMClient.Settings.Instance.GetValue<string>("proxyPassword");
+                    string username = ApplicationConfiguration.ImageResizerConfiguration.ProxyUsername.Value;
+                    string password = ApplicationConfiguration.ImageResizerConfiguration.ProxyPassword.Value;
 
                     WebProxy webProxy = new WebProxy();
 

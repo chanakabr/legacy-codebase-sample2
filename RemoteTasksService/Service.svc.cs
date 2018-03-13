@@ -13,6 +13,7 @@ using RemoteTasksCommon;
 using KLogMonitor;
 using System.Reflection;
 using Newtonsoft.Json;
+using ConfigurationManager;
 
 namespace RemoteTasksService
 {
@@ -48,9 +49,9 @@ namespace RemoteTasksService
                 // get task handler name (with/without action)
                 string taskHandlerName = string.Empty;
                 if (string.IsNullOrEmpty(actionImplementation))
-                    taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}", request.task));
+                    taskHandlerName = ApplicationConfiguration.CeleryRoutingConfiguration.GetHandler(request.task);
                 else
-                    taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}.{1}", request.task, actionImplementation));
+                    taskHandlerName = ApplicationConfiguration.CeleryRoutingConfiguration.GetHandler(string.Format("{0}.{1}", request.task, actionImplementation));
 
                 log.Debug("Info - " + string.Format("Request: {0} should be handled by taskHandlerName: {1}", request.task, string.IsNullOrEmpty(taskHandlerName) ? string.Empty : taskHandlerName));
 
