@@ -13,13 +13,13 @@ namespace ConfigurationManager
 
         public ImageUtilsConfiguration(string key) : base(key)
         {
-            this.Task = new ConfigurationManager.StringConfigurationValue("picture_queue_task")
+            this.Task = new ConfigurationManager.StringConfigurationValue("picture_queue_task", this)
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = "distributed_tasks.process_image"
             };
 
-            this.RoutingKey = new StringConfigurationValue("picture_queue_routing_key")
+            this.RoutingKey = new StringConfigurationValue("picture_queue_routing_key", this)
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = "PROCESS_IMAGE"

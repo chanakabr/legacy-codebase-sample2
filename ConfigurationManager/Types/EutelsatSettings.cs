@@ -42,7 +42,7 @@
             {
                 DefaultValue = 10000
             };
-            Transaction_Device_Filter = new StringConfigurationValue("Transaction_Device_Filter")
+            Transaction_Device_Filter = new StringConfigurationValue("Transaction_Device_Filter", this)
             {
                 DefaultValue = string.Empty,
                 ShouldAllowEmpty = true

@@ -15,23 +15,23 @@ namespace ConfigurationManager
 
         public ElasticSearchHandlerConfiguration(string key) : base(key)
         {
-            BulkSize = new ConfigurationManager.NumericConfigurationValue("bulk_size")
+            BulkSize = new ConfigurationManager.NumericConfigurationValue("bulk_size", this)
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = 50
             };
 
-            NumberOfShards = new ConfigurationManager.NumericConfigurationValue("shards")
+            NumberOfShards = new ConfigurationManager.NumericConfigurationValue("shards", this)
             {
                 ShouldAllowEmpty = true
             };
 
-            NumberOfReplicas = new NumericConfigurationValue("replicas")
+            NumberOfReplicas = new NumericConfigurationValue("replicas", this)
             {
                 ShouldAllowEmpty = true
             };
 
-            ChannelStartDateDays = new ConfigurationManager.NumericConfigurationValue("channel_start_date_days")
+            ChannelStartDateDays = new ConfigurationManager.NumericConfigurationValue("channel_start_date_days", this)
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = 30,

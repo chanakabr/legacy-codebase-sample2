@@ -70,6 +70,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue UseOldImageServer;
         public static CatalogLogicConfiguration CatalogLogicConfiguration;
         public static AnnouncementManagerConfiguration AnnouncementManagerConfiguration;
+        public static CDVRAdapterConfiguration CDVRAdapterConfiguration;
         public static StringConfigurationValue DMSAdapterUrl;
         public static NumericConfigurationValue PersonalizedFeedTTLDays;
         public static EngagementsConfiguration EngagementsConfiguration;
@@ -286,6 +287,10 @@ namespace ConfigurationManager
             };
             CatalogLogicConfiguration = new CatalogLogicConfiguration("catalog_logic_configuration");
             AnnouncementManagerConfiguration = new ConfigurationManager.AnnouncementManagerConfiguration("announcement_manager_configuration");
+            CDVRAdapterConfiguration = new CDVRAdapterConfiguration("cdvr_adapter_configuration")
+            {
+                ShouldAllowEmpty = true
+            };
             DMSAdapterUrl = new ConfigurationManager.StringConfigurationValue("DMS_ADAPTER_URL")
             {
 
@@ -411,6 +416,7 @@ namespace ConfigurationManager
                     UseOldImageServer,
                     CatalogLogicConfiguration,
                     AnnouncementManagerConfiguration,
+                    CDVRAdapterConfiguration,
                     PersonalizedFeedTTLDays,
                     EngagementsConfiguration,
                     UserInterestsTTLDays,
