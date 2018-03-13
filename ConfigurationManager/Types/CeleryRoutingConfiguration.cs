@@ -13,15 +13,21 @@ namespace ConfigurationManager
         
         public CeleryRoutingConfiguration(string key) : base(key)
         {
-            json = JObject.Parse(this.Value);
+            if (!string.IsNullOrEmpty(this.Value))
+            {
+                json = JObject.Parse(this.Value);
+            }
         }
 
         internal override bool Validate()
         {
             bool result = base.Validate();
-            JToken tempToken = null;
 
-            List<string> paths = new List<string>()
+            if (json != null)
+            {
+                JToken tempToken = null;
+
+                List<string> paths = new List<string>()
             {
                 "distributed_tasks.resize_image",
                 "distributed_tasks.upload_image",
@@ -54,15 +60,16 @@ namespace ConfigurationManager
                 "distributed_tasks.ps_tasks",
             };
 
-            foreach (var path in paths)
-            {
-                tempToken = json.SelectToken(path);
-
-                if (tempToken == null)
+                foreach (var path in paths)
                 {
-                    result = false;
+                    tempToken = json.SelectToken(path);
 
-                    LogError(string.Format("Missing celery routing for {0}", path));
+                    if (tempToken == null)
+                    {
+                        result = false;
+
+                        LogError(string.Format("Missing celery routing for {0}", path));
+                    }
                 }
             }
 
@@ -73,11 +80,14 @@ namespace ConfigurationManager
         {
             string result = string.Empty;
 
-            var tempToken = json.SelectToken(path);
-
-            if (tempToken != null)
+            if (json != null)
             {
-                result = tempToken.Value<string>();
+                var tempToken = json.SelectToken(path);
+
+                if (tempToken != null)
+                {
+                    result = tempToken.Value<string>();
+                }
             }
 
             return result;
