@@ -11,6 +11,7 @@ namespace ConfigurationManager
         public NumericConfigurationValue BulkSize;
         public NumericConfigurationValue NumberOfShards;
         public NumericConfigurationValue NumberOfReplicas;
+        public NumericConfigurationValue ChannelStartDateDays;
 
         public ElasticSearchHandlerConfiguration(string key) : base(key)
         {
@@ -28,6 +29,13 @@ namespace ConfigurationManager
             NumberOfReplicas = new NumericConfigurationValue("replicas")
             {
                 ShouldAllowEmpty = true
+            };
+
+            ChannelStartDateDays = new ConfigurationManager.NumericConfigurationValue("channel_start_date_days")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 30,
+                Description = "Original key is Channel_StartDate_Days. Used in EPG Channel updater (when getting programs by channel Ids and dates)"
             };
         }
     }
