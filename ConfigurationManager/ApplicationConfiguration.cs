@@ -89,19 +89,16 @@ namespace ConfigurationManager
             TCMClient.Settings.Instance.Init();
 
             DMSUrl = new StringConfigurationValue("dms_url");
-            
-
             MailerConfiguration = new MailerConfiguration("MC");
-
             GroupsManagerConfiguration = new GroupsManagerConfiguration("groups_manager");
-
             RequestParserConfiguration = new RequestParserConfiguration("request_parser");
             OTTUserControllerConfiguration = new OTTUserControllerConfiguration("ott_user_controller");
             CouchbaseSectionMapping = new CouchbaseSectionMapping("CouchbaseSectionMapping");
             UsersCacheConfiguration = new ConfigurationManager.UsersCacheConfiguration("users_cache_configuration");
             BaseCacheConfiguration = new NamedCacheConfiguration("base_cache_configuration");
-
             DatabaseConfiguration = new DatabaseConfiguration("database_configuration");
+
+            // ws cache configuration - reset defaults
             WSCacheConfiguration = new NamedCacheConfiguration("ws_cache_configuration");
             WSCacheConfiguration.TTLSeconds.DefaultValue = 7200;
             WSCacheConfiguration.Name.DefaultValue = "Cache";
