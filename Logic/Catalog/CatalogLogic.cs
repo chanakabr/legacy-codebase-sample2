@@ -4130,9 +4130,9 @@ namespace Core.Catalog
 
         private static int GetSearcherMaxResultsSize()
         {
-            int res = 0;
-            string maxResultsStr = Utils.GetWSURL("MAX_RESULTS");
-            if (!string.IsNullOrEmpty(maxResultsStr) && Int32.TryParse(maxResultsStr, out res) && res > 0)
+            int res = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            
+            if ( res > 0)
                 return res;
             return DEFAULT_SEARCHER_MAX_RESULTS_SIZE;
         }

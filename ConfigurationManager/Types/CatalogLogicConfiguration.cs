@@ -14,6 +14,7 @@ namespace ConfigurationManager
         public BooleanConfigurationValue ShouldUseSearchCache;
         public NumericConfigurationValue CurrentRequestDaysOffset;
         public NumericConfigurationValue UpdateEPGPackage;
+        public NumericConfigurationValue PersonalRecommendedMaxResultsSize;
 
         public CatalogLogicConfiguration(string key) : base(key)
         {
@@ -42,6 +43,11 @@ namespace ConfigurationManager
             UpdateEPGPackage = new ConfigurationManager.NumericConfigurationValue("update_epg_package", this)
             {
                 DefaultValue = 200
+            };
+            PersonalRecommendedMaxResultsSize = new NumericConfigurationValue("personal_recommended_max_results_size", this)
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 20
             };
         }
     }
