@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.CrowdsourceItems;
 using ApiObjects.CrowdsourceItems.Base;
 using ApiObjects.CrowdsourceItems.Implementations;
+using ConfigurationManager;
 using CrowdsourcingFeeder.DataCollector.Base;
 using CrowdsourcingFeeder.WS_Catalog;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Tvinci.Core.DAL;
 using OrderBy = ApiObjects.SearchObjects.OrderBy;
 
@@ -40,7 +40,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         m_bUseFinalDate = true,
                     },
                     m_sSignString = catalogSignString,
-                    m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                    m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, ApplicationConfiguration.CatalogSignatureKey.Value),
                     m_nPageIndex = 0,
                     m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("crowdsourcer.CATALOG_PAGE_SIZE"),
                 });
@@ -82,7 +82,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         m_sSignString = catalogSignString,
                         m_sSignature =
                             TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString,
-                                TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                                ApplicationConfiguration.CatalogSignatureKey.Value),
                     });
 
                 if (channelObjResponse != null && channelObjResponse.ChannelObj.m_OrderObject.m_bIsSlidingWindowField)
@@ -98,7 +98,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         m_sSignString = catalogSignString,
                         m_sSignature =
                             TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString,
-                                TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                                ApplicationConfiguration.CatalogSignatureKey.Value),
 
                     });
 

@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.CrowdsourceItems;
 using ApiObjects.CrowdsourceItems.Base;
+using ConfigurationManager;
 using CrowdsourcingFeeder.WS_Catalog;
 using DAL;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.ServiceModel;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
@@ -146,7 +145,7 @@ namespace CrowdsourcingFeeder.DataCollector.Base
                                     m_nLanguage = languageObj.ID,
                                 },
                                 m_sSignString = catalogSignString,
-                                m_sSignature = WS_Utils.GetCatalogSignature(catalogSignString, WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                                m_sSignature = WS_Utils.GetCatalogSignature(catalogSignString, ApplicationConfiguration.CatalogSignatureKey.Value),
                             });
                             retDict.Add(languageObj, mediaInfoForLanguage);
                         }

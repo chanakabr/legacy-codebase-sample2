@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.CrowdsourceItems;
 using ApiObjects.CrowdsourceItems.Base;
 using ApiObjects.CrowdsourceItems.Implementations;
-using ApiObjects.SearchObjects;
+using ConfigurationManager;
 using CrowdsourcingFeeder.DataCollector.Base;
 using CrowdsourcingFeeder.WS_Catalog;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace CrowdsourcingFeeder.DataCollector.Implementations
 {
@@ -39,7 +36,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                     m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("crowdsourcer.CATALOG_PAGE_SIZE"),
                     m_nPageIndex = 0,
                     m_sSignString = catalogSignString,
-                    m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                    m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, ApplicationConfiguration.CatalogSignatureKey.Value),
                     m_oFilter = new Filter()
                     {
 
@@ -119,7 +116,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                     m_bOnlyActiveMedia = true
                                 },
                                 m_sSignString = catalogSignString,
-                                m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, TVinciShared.WS_Utils.GetTcmConfigValue("CatalogSignatureKey")),
+                                m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, ApplicationConfiguration.CatalogSignatureKey.Value),
                             });
 
                             if (programInfoForLanguage != null && programInfoForLanguage.programsPerChannel != null && programInfoForLanguage.programsPerChannel.Length > 0 && mediaInfo.Value != null && mediaInfo.Value.m_lObj[0] != null)
