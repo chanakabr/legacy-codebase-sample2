@@ -1,18 +1,14 @@
-﻿using DAL;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using TVinciShared;
-using KLogMonitor;
-using System.Reflection;
-using Core.Pricing;
-using Core.Billing;
+﻿using ApiObjects.Billing;
 using ApiObjects.Catalog;
 using ApiObjects.ConditionalAccess;
-using ApiObjects.Billing;
+using Core.Pricing;
+using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace Core.ConditionalAccess
 {
@@ -102,8 +98,8 @@ namespace Core.ConditionalAccess
             string sRequestBody = TVinciShared.WS_Utils.BuildDelimiterSeperatedString(lst, "&", false, false);
             string sResultJSON = string.Empty;
             string sErrorMsg = string.Empty;
-            string sAddress = Utils.GetValueFromConfig("CinepolisCustomDataTokenAddress");
-            string sContentType = Utils.GetValueFromConfig("CinepolisPostRequestContentType");
+            string sAddress = Utils.GetValueFromConfig("CinepolisCustomDataTokenAddress"); //TCM not relevant anymore 
+            string sContentType = Utils.GetValueFromConfig("CinepolisPostRequestContentType"); //TCM not relevant anymore 
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {
                 #region Logging
@@ -198,8 +194,8 @@ namespace Core.ConditionalAccess
         {
             bool res = false;
 
-            string sAddress = Utils.GetValueFromConfig("CinepolisOperationConfirmAddress");
-            string sContentType = Utils.GetValueFromConfig("CinepolisPostRequestContentType");
+            string sAddress = Utils.GetValueFromConfig("CinepolisOperationConfirmAddress"); //TCM not relevant anymore 
+            string sContentType = Utils.GetValueFromConfig("CinepolisPostRequestContentType"); //TCM not relevant anymore 
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {
                 // either address or content type retrieved from config is empty
@@ -339,8 +335,8 @@ namespace Core.ConditionalAccess
         {
             bool res = true;
 
-            string sAddress = Utils.GetValueFromConfig("CinepolisRenewalDoneAddress");
-            string sContentType = Utils.GetValueFromConfig("CinepolisPostRequestContentType");
+            string sAddress = Utils.GetValueFromConfig("CinepolisRenewalDoneAddress"); //TCM not relevant anymore 
+            string sContentType = Utils.GetValueFromConfig("CinepolisPostRequestContentType"); //TCM not relevant anymore 
 
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {
