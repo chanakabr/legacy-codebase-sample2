@@ -10754,7 +10754,7 @@ namespace Core.ConditionalAccess
             }
 
             /************* For versions (Joker and before) that want to use DB for getting view stats (first_play), we have to insert the playCycleKey **********/
-            if (Utils.IsGroupIDContainedInConfig(m_nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+            if (Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
             {
                 int nCountryID = Utils.GetIP2CountryId(m_nGroupID, sUserIP);
                 Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sDeviceName, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
