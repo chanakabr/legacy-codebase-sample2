@@ -18,12 +18,7 @@ public partial class AjaxLogin : System.Web.UI.Page
         string sErr = "";
         string sRet = "FAIL";
 
-        bool http = false;
-        if (ApplicationConfiguration.EnableHttpLogin.Value)
-        {
-            http = true;
-        }
-    
+        bool http = ApplicationConfiguration.EnableHttpLogin.Value;    
         
         if (Request.Url.Host != "localhost" && Request.Url.Host != "127.0.0.1" && Request.Url.Scheme.ToUpper().Trim() != "HTTPS" && !http)
             sRet = "HTTPS_REQUIERED";

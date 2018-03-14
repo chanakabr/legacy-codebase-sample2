@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ConfigurationManager;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +17,7 @@ public partial class AjaxTokenApprove : System.Web.UI.Page
     {
         string sRet = "FAIL";
 
-        bool http = false;
-        http = WS_Utils.GetTcmBoolValue("EnableHttpLogin");
+        bool http = ApplicationConfiguration.EnableHttpLogin.Value;
 
         if (Request.Url.Host != "localhost" && Request.Url.Host != "127.0.0.1" && Request.Url.Scheme.ToUpper().Trim() != "HTTPS" && !http)
             sRet = "HTTPS_REQUIERED";
