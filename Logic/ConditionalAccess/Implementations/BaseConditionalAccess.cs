@@ -12222,72 +12222,103 @@ namespace Core.ConditionalAccess
                 status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
-            // Validate the fileTypeIDs
-            if (!Utils.ValidateFileTypesConatainedInGroup(m_nGroupID, fileTypeIDs))
-            {
-                response.status.Code = (int)eResponseStatus.NotEntitled;
-                response.status.Message = eResponseStatus.NotEntitled.ToString();
-                return response;
-            }
 
-            ConditionalAccess.DomainEntitlements.BundleEntitlements bundleEntitlements = Utils.InitializeDomainBundles(domainID, m_nGroupID, new List<int>(), true);
-            if (bundleEntitlements != null)
+            try
             {
-                // Get all subscriptions
-                if (bundleEntitlements.FileTypeIdToSubscriptionMappings != null && bundleEntitlements.FileTypeIdToSubscriptionMappings.Count > 0)
+                // Validate the fileTypeIDs
+                if (!Utils.ValidateFileTypesConatainedInGroup(m_nGroupID, fileTypeIDs))
                 {
-                    if (fileTypeIDs != null && fileTypeIDs.Length > 0)
-                    {
-                        // Get subscriptions that don't have specific fileTypeIDs defined
-                        if (bundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(0) && bundleEntitlements.FileTypeIdToSubscriptionMappings[0].Count > 0)
-                        {
-                            response.channels.AddRange(Utils.GetChannelsListFromSubscriptions(bundleEntitlements.FileTypeIdToSubscriptionMappings[0]));
-                        }
+                    response.status = new ApiObjects.Response.Status((int)eResponseStatus.NotEntitled, eResponseStatus.NotEntitled.ToString());
+                    return response;
+                }
 
-                        // Get subscriptions that have the specific fileTypeID defined
-                        foreach (int fileTypeID in fileTypeIDs)
+                DomainEntitlements domainEntitlements = null;
+                if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, null, ref domainEntitlements))
+                {
+                    log.ErrorFormat("GetUserBundles, groupId: {0}, domainId: {1}", m_nGroupID, domainID);
+                    response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+                
+                if (domainEntitlements != null && domainEntitlements.DomainBundleEntitlements != null)
+                {
+                    // Get all subscriptions
+                    if (domainEntitlements.DomainBundleEntitlements.FileTypeIdToSubscriptionMappings != null
+                        && domainEntitlements.DomainBundleEntitlements.FileTypeIdToSubscriptionMappings.Count > 0)
+                    {
+                        if (fileTypeIDs != null && fileTypeIDs.Length > 0)
                         {
-                            if (bundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(fileTypeID) && bundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID].Count > 0)
+                            // Get subscriptions that don't have specific fileTypeIDs defined
+                            if (domainEntitlements.DomainBundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(0)
+                                && domainEntitlements.DomainBundleEntitlements.FileTypeIdToSubscriptionMappings[0].Count > 0)
                             {
-                                response.channels.AddRange(Utils.GetChannelsListFromSubscriptions(bundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID]));
+                                response.channels.AddRange(Utils.GetChannelsListFromSubscriptions(domainEntitlements.DomainBundleEntitlements.FileTypeIdToSubscriptionMappings[0]));
+                            }
+
+                            // Get subscriptions that have the specific fileTypeID defined
+                            foreach (int fileTypeID in fileTypeIDs)
+                            {
+                                if (domainEntitlements.DomainBundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(fileTypeID)
+                                    && domainEntitlements.DomainBundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID].Count > 0)
+                                {
+                                    response.channels.AddRange(Utils.GetChannelsListFromSubscriptions(domainEntitlements.DomainBundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID]));
+                                }
                             }
                         }
-                    }
 
-                    //Incase we want to ignore filetypeIDs (sent as null or empty)
-                    else
-                    {
-                        response.channels.AddRange(Utils.GetChannelsListFromSubscriptions(bundleEntitlements.SubscriptionsData.Values.ToList()));
-                    }
-                }
-
-                if (response.channels != null && response.channels.Count > 0)
-                {
-                    response.channels = response.channels.Distinct().ToList();
-                }
-
-                // Get all collections
-                if (bundleEntitlements.CollectionsData != null && bundleEntitlements.CollectionsData.Count > 0)
-                {
-                    foreach (Collection collection in bundleEntitlements.CollectionsData.Values)
-                    {
-                        if (collection.m_sCodes != null)
+                        //Incase we want to ignore filetypeIDs (sent as null or empty)
+                        else
                         {
-                            // Get channels from collections
-                            foreach (BundleCodeContainer bundleCode in collection.m_sCodes)
+                            response.channels.AddRange(Utils.GetChannelsListFromSubscriptions(domainEntitlements.DomainBundleEntitlements.SubscriptionsData.Values.ToList()));
+                        }
+                    }
+
+                    if (response.channels != null && response.channels.Count > 0)
+                    {
+                        response.channels = response.channels.Distinct().ToList();
+                    }
+
+                    // Get all collections
+                    if (domainEntitlements.DomainBundleEntitlements.CollectionsData != null && domainEntitlements.DomainBundleEntitlements.CollectionsData.Count > 0)
+                    {
+                        foreach (Collection collection in domainEntitlements.DomainBundleEntitlements.CollectionsData.Values)
+                        {
+                            if (collection.m_sCodes != null)
                             {
-                                int channelID;
-                                if (int.TryParse(bundleCode.m_sCode, out channelID) && !response.channels.Contains(channelID))
+                                // Get channels from collections
+                                foreach (BundleCodeContainer bundleCode in collection.m_sCodes)
                                 {
-                                    response.channels.Add(channelID);
+                                    int channelID;
+                                    if (int.TryParse(bundleCode.m_sCode, out channelID) && !response.channels.Contains(channelID))
+                                    {
+                                        response.channels.Add(channelID);
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                response.status.Code = (int)eResponseStatus.OK;
-                response.status.Message = eResponseStatus.OK.ToString();
+                    response.status.Code = (int)eResponseStatus.OK;
+                    response.status.Message = eResponseStatus.OK.ToString();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                response.status.Code = (int)eResponseStatus.Error;
+                response.status.Message = eResponseStatus.Error.ToString();
+                StringBuilder sb = new StringBuilder("Exception at GetUserBundles. ");
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", DomainID: ", domainID));
+                sb.Append(", FileTypes: ");
+                foreach (int fileTypeID in fileTypeIDs)
+                {
+                    sb.Append(String.Concat(fileTypeID, ", "));
+                }
+                sb.Append(String.Concat("Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error("Exception - " + sb.ToString(), ex);
             }
 
             return response;
@@ -12301,62 +12332,53 @@ namespace Core.ConditionalAccess
                 status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
-            // Validate the fileTypeIDs
-            if (!Utils.ValidateFileTypesConatainedInGroup(m_nGroupID, fileTypeIDs))
-            {
-                response.status.Code = (int)eResponseStatus.NotEntitled;
-                response.status.Message = eResponseStatus.NotEntitled.ToString();
-                return response;
-            }
-
             try
             {
-                // Get all PPV Entitlements
-                Dictionary<string, EntitlementObject> getAllUserEntitlements = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, new List<int>());
-
-                // Map entitlements in an accessible dictionary
-                Dictionary<string, List<int>> ppvToMediaFileIDsDictionary = new Dictionary<string, List<int>>();
-
-                foreach (var currentEntitlement in getAllUserEntitlements.Values)
+                // Validate the fileTypeIDs
+                if (!Utils.ValidateFileTypesConatainedInGroup(m_nGroupID, fileTypeIDs))
                 {
-                    string ppvCode = currentEntitlement.ppvCode.ToString();
-
-                    if (!ppvToMediaFileIDsDictionary.ContainsKey(ppvCode))
-                    {
-                        ppvToMediaFileIDsDictionary.Add(ppvCode, new List<int>());
-                    }
-
-                    ppvToMediaFileIDsDictionary[ppvCode].Add(currentEntitlement.purchasedAsMediaFileID);
+                    response.status = new ApiObjects.Response.Status((int)eResponseStatus.NotEntitled, eResponseStatus.NotEntitled.ToString());
+                    return response;
                 }
 
-                if (ppvToMediaFileIDsDictionary != null && ppvToMediaFileIDsDictionary.Count > 0)
+                DomainEntitlements domainEntitlements = null;
+                if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, null, ref domainEntitlements))
                 {
-                    // Get PPV Modules data
-                    PPVModuleResponse ppvModulesResponse = Pricing.Module.GetPPVModulesData(m_nGroupID, ppvToMediaFileIDsDictionary.Keys.Cast<string>().ToArray(), String.Empty, String.Empty, String.Empty);
-                    if (ppvModulesResponse != null && ppvModulesResponse.Status.Code == (int)eResponseStatus.OK && ppvModulesResponse.PPVModules.Length > 0)
-                    {
-                        List<int> mediaFilesToMap = new List<int>();
-                        foreach (PPVModule ppvModule in ppvModulesResponse.PPVModules)
-                        {
-                            if (fileTypeIDs != null && fileTypeIDs.Length > 0)
-                            {
-                                // PPV does not have specific file types defined --> supports all file types, add PPV purchased mediaFile to list
-                                if (ppvModule.m_relatedFileTypes == null)
-                                {
-                                    foreach (var entitlement in ppvToMediaFileIDsDictionary[ppvModule.m_sObjectCode])
-                                    {
-                                        if (!mediaFilesToMap.Contains(entitlement))
-                                        {
-                                            mediaFilesToMap.Add(entitlement);
-                                        }
-                                    }
-                                }
+                    log.ErrorFormat("GetUserPurchasedAssets, groupId: {0}, domainId: {1}", m_nGroupID, domainID);
+                    response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
 
-                                // PPV has one of the requested file types, add PPV purchased mediaFile to list
-                                else if (ppvModule.m_relatedFileTypes.Count > 0)
+                if (domainEntitlements != null && domainEntitlements.DomainPpvEntitlements != null)
+                {
+                    // Map entitlements in an accessible dictionary
+                    Dictionary<string, List<int>> ppvToMediaFileIDsDictionary = new Dictionary<string, List<int>>();
+                    foreach (EntitlementObject currentEntitlement in domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary.Values)
+                    {
+                        string ppvCode = currentEntitlement.ppvCode.ToString();
+
+                        if (!ppvToMediaFileIDsDictionary.ContainsKey(ppvCode))
+                        {
+                            ppvToMediaFileIDsDictionary.Add(ppvCode, new List<int>());
+                        }
+
+                        ppvToMediaFileIDsDictionary[ppvCode].Add(currentEntitlement.purchasedAsMediaFileID);
+                    }
+
+                    if (ppvToMediaFileIDsDictionary != null && ppvToMediaFileIDsDictionary.Count > 0)
+                    {
+                        // Get PPV Modules data
+                        PPVModuleResponse ppvModulesResponse = Pricing.Module.GetPPVModulesData(m_nGroupID, ppvToMediaFileIDsDictionary.Keys.Cast<string>().ToArray(),
+                                                                                                String.Empty, String.Empty, String.Empty);
+                        if (ppvModulesResponse != null && ppvModulesResponse.Status.Code == (int)eResponseStatus.OK && ppvModulesResponse.PPVModules.Length > 0)
+                        {
+                            List<int> mediaFilesToMap = new List<int>();
+                            foreach (PPVModule ppvModule in ppvModulesResponse.PPVModules)
+                            {
+                                if (fileTypeIDs != null && fileTypeIDs.Length > 0)
                                 {
-                                    int[] relevantFileTypes = ppvModule.m_relatedFileTypes.Intersect(fileTypeIDs).ToArray();
-                                    if (relevantFileTypes != null && relevantFileTypes.Length > 0)
+                                    // PPV does not have specific file types defined --> supports all file types, add PPV purchased mediaFile to list
+                                    if (ppvModule.m_relatedFileTypes == null)
                                     {
                                         foreach (var entitlement in ppvToMediaFileIDsDictionary[ppvModule.m_sObjectCode])
                                         {
@@ -12366,37 +12388,53 @@ namespace Core.ConditionalAccess
                                             }
                                         }
                                     }
-                                }
-                            }
-                            //Incase we want to ignore filetypeIDs (sent as null or empty)
-                            else
-                            {
-                                foreach (var entitlement in ppvToMediaFileIDsDictionary[ppvModule.m_sObjectCode])
-                                {
-                                    if (!mediaFilesToMap.Contains(entitlement))
+
+                                    // PPV has one of the requested file types, add PPV purchased mediaFile to list
+                                    else if (ppvModule.m_relatedFileTypes.Count > 0)
                                     {
-                                        mediaFilesToMap.Add(entitlement);
+                                        int[] relevantFileTypes = ppvModule.m_relatedFileTypes.Intersect(fileTypeIDs).ToArray();
+                                        if (relevantFileTypes != null && relevantFileTypes.Length > 0)
+                                        {
+                                            foreach (var entitlement in ppvToMediaFileIDsDictionary[ppvModule.m_sObjectCode])
+                                            {
+                                                if (!mediaFilesToMap.Contains(entitlement))
+                                                {
+                                                    mediaFilesToMap.Add(entitlement);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                //Incase we want to ignore filetypeIDs (sent as null or empty)
+                                else
+                                {
+                                    foreach (var entitlement in ppvToMediaFileIDsDictionary[ppvModule.m_sObjectCode])
+                                    {
+                                        if (!mediaFilesToMap.Contains(entitlement))
+                                        {
+                                            mediaFilesToMap.Add(entitlement);
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        // Get mediaIds according to mediaFiles from ws_api (MapMediaFiles)
-                        if (mediaFilesToMap.Count > 0)
-                        {
-                            MeidaMaper[] mapper = Utils.GetMediaMapper(m_nGroupID, mediaFilesToMap.ToArray());
-
-                            // Add mediaIDs to response
-                            if (mapper != null && mapper.Length > 0)
+                            // Get mediaIds according to mediaFiles from ws_api (MapMediaFiles)
+                            if (mediaFilesToMap.Count > 0)
                             {
-                                response.assets.AddRange(
-                                    mapper.Select(x => new ApiObjects.KeyValuePair(eAssetTypes.MEDIA.ToString(),
-                                        x.m_nMediaID.ToString())));
+                                MeidaMaper[] mapper = Utils.GetMediaMapper(m_nGroupID, mediaFilesToMap.ToArray());
+
+                                // Add mediaIDs to response
+                                if (mapper != null && mapper.Length > 0)
+                                {
+                                    response.assets.AddRange(
+                                        mapper.Select(x => new ApiObjects.KeyValuePair(eAssetTypes.MEDIA.ToString(),
+                                            x.m_nMediaID.ToString())));
+                                }
                             }
                         }
                     }
+                    // add all ppvCode to the assets of the response
                 }
-                // add all ppvCode to the assets of the response
             }
             catch (Exception ex)
             {
