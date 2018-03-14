@@ -97,6 +97,10 @@ namespace ConfigurationManager
         public static StringConfigurationValue EncryptorPassword;
         public static StringConfigurationValue PicsBasePath;
         public static NotificationConfiguration NotificationConfiguration;
+        public static StringConfigurationValue IngestFtpUrl;
+        public static StringConfigurationValue IngestFtpUser;
+        public static StringConfigurationValue IngestFtpPass;
+
 
         #endregion
 
@@ -231,7 +235,7 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = "ES",
-                Description = "Used in TVM, for transition between Lucene and ElasticSearch. " + 
+                Description = "Used in TVM, for transition between Lucene and ElasticSearch. " +
                 "Today we use ES exculisvely. Only valid value is 'ES', otherwise Lucene is used"
             };
             CatalogSignatureKey = new StringConfigurationValue("CatalogSignatureKey")
@@ -373,6 +377,9 @@ namespace ConfigurationManager
             EncryptorPassword = new ConfigurationManager.StringConfigurationValue("EncryptorPassword") { ShouldAllowEmpty = true };
             PicsBasePath = new ConfigurationManager.StringConfigurationValue("pics_base_path") { ShouldAllowEmpty = true };
             NotificationConfiguration = new NotificationConfiguration("notification_configuration");
+            IngestFtpPass = new StringConfigurationValue("IngestFtpPass") { ShouldAllowEmpty = true };
+            IngestFtpUrl= new StringConfigurationValue("IngestFtpUrl") { ShouldAllowEmpty = true };
+            IngestFtpUser = new StringConfigurationValue("IngestFtpUser") { ShouldAllowEmpty = true };
 
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -451,7 +458,10 @@ namespace ConfigurationManager
                     EncryptorService,
                     EncryptorPassword,
                     PicsBasePath,
-                    NotificationConfiguration
+                    NotificationConfiguration,
+                    IngestFtpPass,
+                    IngestFtpUrl,
+                    IngestFtpUser
                 };
 
             if (shouldLoadDefaults)
