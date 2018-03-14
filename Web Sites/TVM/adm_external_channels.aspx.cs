@@ -1,13 +1,6 @@
-﻿using System;
-using System.Data;
-using System.Configuration;
+﻿using ConfigurationManager;
+using System;
 using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using TVinciShared;
 
 public partial class adm_external_channels : System.Web.UI.Page
@@ -94,7 +87,7 @@ public partial class adm_external_channels : System.Web.UI.Page
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
-        string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+        string version = ApplicationConfiguration.Version.Value;
 
         Int32 groupId = LoginManager.GetLoginGroupID();
         theTable += "SELECT ec.ID, ec.Name, ec.EXTERNAL_IDENTIFIER AS 'External Identifier', ec.FILTER_EXPRESSION as 'Filter Expression', ";

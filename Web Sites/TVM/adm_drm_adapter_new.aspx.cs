@@ -65,7 +65,7 @@ public partial class adm_drm_adapter_new : System.Web.UI.Page
                                     log.Debug("SendDrmAdapterConfiguration - " + string.Format("drm adapter id:{0}, status:{1}", id, status.Status != null ? status.Status.Code : 1));
 
                                     // remove adapter from cache
-                                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                                    string version = ApplicationConfiguration.Version.Value;
                                     string[] keys = new string[1] 
                                 { 
                                     string.Format("{0}_drm_adapter_{1}", version, id)

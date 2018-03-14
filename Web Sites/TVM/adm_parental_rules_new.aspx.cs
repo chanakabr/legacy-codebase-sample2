@@ -36,7 +36,7 @@ public partial class adm_parental_rules_new : System.Web.UI.Page
                     int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
                     TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "Channel", "api", ip, ref userName, ref password);
                     string url = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
 
                     if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
                     {

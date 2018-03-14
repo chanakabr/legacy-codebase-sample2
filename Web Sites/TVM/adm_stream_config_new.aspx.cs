@@ -63,7 +63,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
                                 log.DebugFormat("SendCDNAdapterConfiguration, cdn adapter id:{0}, status:{1}", nID, configurationStatus.Status != null ? configurationStatus.Status.Code : 1);
 
                                 // remove adapter from cache
-                                string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                                string version = ApplicationConfiguration.Version.Value;
                                 string[] keys = new string[1] 
                                 { 
                                     string.Format("{0}_cdn_adapter_{1}", version, nID)

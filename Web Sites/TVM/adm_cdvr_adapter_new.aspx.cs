@@ -64,7 +64,7 @@ public partial class adm_cdvr_adapter_new : System.Web.UI.Page
                                 log.Debug("SendCDVRAdapterConfiguration - " + string.Format("cdvr adapter id:{0}, status:{1}", nID, status.Status != null ? status.Status.Code : 1));
 
                                 // remove adapter from cache
-                                string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                                string version = ApplicationConfiguration.Version.Value;
                                 string[] keys = new string[1] 
                                 { 
                                     string.Format("{0}_cdvr_adapter_{1}", version, nID)
