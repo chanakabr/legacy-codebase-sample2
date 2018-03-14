@@ -15,6 +15,10 @@ namespace ConfigurationManager
         public NumericConfigurationValue CurrentRequestDaysOffset;
         public NumericConfigurationValue UpdateEPGPackage;
         public NumericConfigurationValue PersonalRecommendedMaxResultsSize;
+        public StringConfigurationValue GroupsUsingDBForAssetsStats;
+        public StringConfigurationValue GroupsWithIUserTypeSeperatedBySemiColon;
+        public StringConfigurationValue GroupsWithIPNOFilteringShowAllCatalogAnonymousUser;
+        public StringConfigurationValue GroupIDsWithIFPNPC;
 
         public CatalogLogicConfiguration(string key) : base(key)
         {
@@ -48,6 +52,22 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = 20
+            };
+            GroupsUsingDBForAssetsStats = new StringConfigurationValue("groups_using_db_for_assets_stats", this)
+            {
+                ShouldAllowEmpty = true,
+            };
+            GroupsWithIUserTypeSeperatedBySemiColon = new StringConfigurationValue("GroupIDsWithIUserTypeSeperatedBySemiColon", this)
+            {
+                ShouldAllowEmpty = true,
+            };
+            GroupsWithIPNOFilteringShowAllCatalogAnonymousUser = new StringConfigurationValue("GroupIDsWithIPNOFilteringShowAllCatalogAnonymousUser", this)
+            {
+                ShouldAllowEmpty = true,
+            };
+            GroupIDsWithIFPNPC = new StringConfigurationValue("GroupIDsWithIFPNPC", this)
+            {
+                ShouldAllowEmpty = true,
             };
         }
     }

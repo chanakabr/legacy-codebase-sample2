@@ -1258,7 +1258,7 @@ namespace Core.Catalog
             totalItems = 0;
 
             // Group have user types per media  +  siteGuid != empty
-            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
             {
                 if (request.m_oFilter == null)
                 {
@@ -1685,7 +1685,7 @@ namespace Core.Catalog
         {
             try
             {
-                return Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';');
+                return Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';');
             }
             catch (Exception ex)
             {
@@ -1698,7 +1698,7 @@ namespace Core.Catalog
         {
             try
             {
-                return Utils.IsGroupIDContainedInConfig(nGroupID, "GroupIDsWithIFPNPC", ';');
+                return Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupIDsWithIFPNPC.Value, ';');
             }
             catch (Exception ex)
             {
@@ -3744,7 +3744,7 @@ namespace Core.Catalog
                          *  Only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
                          */
 
-                        if (Utils.IsGroupIDContainedInConfig(nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+                        if (Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
                         {
                             #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
@@ -3884,7 +3884,7 @@ namespace Core.Catalog
                         else
                         {
                             // we bring data from ES statistics index only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
-                            if (Utils.IsGroupIDContainedInConfig(nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+                            if (Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
                             {
                                 #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
@@ -4000,7 +4000,7 @@ namespace Core.Catalog
 
             bool res = false;
             long lSiteGuid = 0;
-            if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
+            if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
             {
                 /*
                  * 1. We need to filter results by IPNO.
@@ -4014,7 +4014,7 @@ namespace Core.Catalog
                 if (!Int64.TryParse(oMediaRequest.m_sSiteGuid, out lSiteGuid) || lSiteGuid == 0)
                 {
                     // anonymous user
-                    if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, "GroupIDsWithIPNOFilteringShowAllCatalogAnonymousUser", ';'))
+                    if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIPNOFilteringShowAllCatalogAnonymousUser.Value, ';'))
                     {
                         //user is able to watch the entire catalog
                         res = false;
@@ -5695,7 +5695,7 @@ namespace Core.Catalog
 
                 // Group have user types per media  +  siteGuid != empty
                 if (!string.IsNullOrEmpty(request.m_sSiteGuid) &&
-                    Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+                    Utils.IsGroupIDContainedInConfig(request.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
                 {
                     if (request.m_oFilter == null)
                     {
