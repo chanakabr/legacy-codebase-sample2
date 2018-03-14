@@ -89,6 +89,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue Version;
         public static NumericConfigurationValue PendingThresholdDays;
         public static BooleanConfigurationValue DownloadPicWithQueue;
+        public static BooleanConfigurationValue CheckImageUrl;
         public static ImageUtilsConfiguration ImageUtilsConfiguration;
         public static StringConfigurationValue EPGUrl;
         public static StringConfigurationValue GroupIDsWithIPNOFilteringSeperatedBySemiColon;
@@ -353,7 +354,11 @@ namespace ConfigurationManager
                 DefaultValue = false,
                 ShouldAllowEmpty = true
             };
-
+            CheckImageUrl = new ConfigurationManager.BooleanConfigurationValue("CheckImageUrl")
+            {
+                DefaultValue = true,
+                ShouldAllowEmpty = true
+            };
             EPGUrl = new ConfigurationManager.StringConfigurationValue("EPGUrl")
             {
                 ShouldAllowEmpty = true,
@@ -435,6 +440,7 @@ namespace ConfigurationManager
                     PendingThresholdDays,
                     ImageUtilsConfiguration,
                     DownloadPicWithQueue,
+                    CheckImageUrl,
                     EPGUrl,
                     SingleInMemoryCacheName,
                     ODBCWrapperCacheConfiguration,
