@@ -569,7 +569,6 @@ namespace TVinciShared
         {
             try
             {
-                TCMClient.Settings.Instance.Init();
                 ApplicationConfiguration.Initialize(true);
             }
             catch (Exception ex)
