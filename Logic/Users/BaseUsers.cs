@@ -2,6 +2,7 @@
 using ApiObjects.Response;
 using ApiObjects.Statistics;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using DAL;
 using KLogMonitor;
 using System;
@@ -1034,7 +1035,8 @@ namespace Core.Users
                 // Create new PIN               
                 try
                 {
-                    int length = TVinciShared.WS_Utils.GetTcmIntValue("PIN_NUMBER_OF_DIGITS");
+                    int length = ApplicationConfiguration.UserPINDigitsConfiguration.NumberOfDigits.IntValue;
+
                     if (length == 0)
                     {
                         length = PIN_NUMBER_OF_DIGITS; //default number of digits
@@ -1054,8 +1056,9 @@ namespace Core.Users
 
         private bool isValidPIN(string PIN, out ApiObjects.Response.Status response)
         {
-            int minlength = TVinciShared.WS_Utils.GetTcmIntValue("PIN_MIN_NUMBER_OF_DIGITS");
-            int maxlength = TVinciShared.WS_Utils.GetTcmIntValue("PIN_MAX_NUMBER_OF_DIGITS");
+            int minlength = ApplicationConfiguration.UserPINDigitsConfiguration.MinNumberOfDigits.IntValue;
+            int maxlength = ApplicationConfiguration.UserPINDigitsConfiguration.MaxNumberOfDigits.IntValue;
+
             if (minlength == 0)
             {
                 minlength = PIN_MIN_NUMBER_OF_DIGITS; //default number of digits

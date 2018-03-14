@@ -23,6 +23,8 @@ namespace Core.Users
         private const string EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED = "Exclusive master user cannot be deleted";
         private const string HOUSEHOLD_NOT_INITIALIZED = "Household not initialized";
         private const string USER_NOT_EXISTS_IN_DOMAIN = "User not exists in domain";
+        private const int SEARCH_USERS_CACHE_PERIOD = 10;
+        private const int SEARCH_USERS_RESULTS_LIMIT = 40;
 
         public TvinciUsers(Int32 nGroupID)
             : base(nGroupID)
@@ -971,10 +973,8 @@ namespace Core.Users
                         bool bRes = UsersCache.GetItem<DataTable>(key, out dtGroupUsers);
                         if (bRes)
                         {
-                            int cache_period = 10;
                             // previous the value were taken from tcm SEARCH_USERS_CACHE_PERIOD
-                            //if (TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_CACHE_PERIOD") != string.Empty)
-                            //    int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_CACHE_PERIOD"), out cache_period);
+                            int cache_period = SEARCH_USERS_CACHE_PERIOD;
 
                             DateTime timeStamp;
                             bRes = UsersCache.GetItem<DateTime>(dateTimeKey, out timeStamp);
@@ -1045,10 +1045,8 @@ namespace Core.Users
 
                             if (filteredDataTable.Length > 0)
                             {
-                                int limit = 40;
                                 // previous the value were taken from tcm SEARCH_USERS_RESULTS_LIMIT
-                                //if (TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_RESULTS_LIMIT") != string.Empty)
-                                //    int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("SEARCH_USERS_RESULTS_LIMIT"), out limit);
+                                int limit = SEARCH_USERS_RESULTS_LIMIT;
 
                                 long[] usersIDs = filteredDataTable.Take(limit).Select(x => ODBCWrapper.Utils.GetLongSafeVal(x["id"])).ToArray();
 
