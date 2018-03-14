@@ -1,20 +1,11 @@
-using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using System.Threading;
-using TVinciShared;
-using TvinciImporter;
-using System.Collections.Generic;
 using ApiObjects;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Web;
+using TvinciImporter;
+using TVinciShared;
 
 public partial class adm_utils : System.Web.UI.Page
 {
@@ -467,11 +458,6 @@ public partial class adm_utils : System.Web.UI.Page
             }
             return sRet;
         }
-    }
-
-    private string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 
     public string GetCollectionFill(string sMiddleTable, string sCollTable, string sTextField, string sStart, string sCollCss, string sExtraQuery, string sCurrentSelect, string sHeader, string sConnKey)

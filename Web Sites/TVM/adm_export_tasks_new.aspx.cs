@@ -179,11 +179,6 @@ public partial class adm_export_tasks_new : System.Web.UI.Page
         return sTable;
     }
 
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-    }
-
     static private bool IsExternalKeyExists(string externalKey, int taskId)
     {
         int groupID = LoginManager.GetLoginGroupID();

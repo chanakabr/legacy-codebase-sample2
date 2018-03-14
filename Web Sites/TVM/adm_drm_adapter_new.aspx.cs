@@ -175,11 +175,6 @@ public partial class adm_drm_adapter_new : System.Web.UI.Page
         return sTable;
     }
 
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-    }
-
     static private bool IsExternalIDExists(string extId, int pgid)
     {
         int groupID = LoginManager.GetLoginGroupID();

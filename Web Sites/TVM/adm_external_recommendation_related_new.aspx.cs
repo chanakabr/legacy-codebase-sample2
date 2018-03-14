@@ -94,11 +94,6 @@ public partial class adm_external_recommendation_related_new : System.Web.UI.Pag
         return table;
     }
 
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-    }
-
     public string GetIPAddress()
     {
         string strHostName = System.Net.Dns.GetHostName();

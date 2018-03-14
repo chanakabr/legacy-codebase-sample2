@@ -344,7 +344,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
             string sWSURL;
 
             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "RemoveDomain", "domains", sIP, ref sWSUserName, ref sWSPass);
-            sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("domains_ws");
+            sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
             if (sWSURL != "")
                 domainWS.Url = sWSURL;
             try

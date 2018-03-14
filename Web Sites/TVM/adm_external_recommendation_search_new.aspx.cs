@@ -92,12 +92,7 @@ public partial class adm_external_recommendation_search_new : System.Web.UI.Page
         string table = theRecord.GetTableHTML("adm_external_recommendation_search_new.aspx?submited=1");
 
         return table;
-    }
-
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-    }
+    }    
 
     public string GetIPAddress()
     {

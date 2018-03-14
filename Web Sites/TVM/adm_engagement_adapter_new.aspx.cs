@@ -124,9 +124,4 @@ public partial class adm_engagement_adapter_new : System.Web.UI.Page
 
         return sTable;
     }
-
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-    }
 }

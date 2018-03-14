@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ConfigurationManager;
+using KLogMonitor;
+using System;
 using System.Reflection;
 using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_payment_gateway_new : System.Web.UI.Page
@@ -57,7 +54,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
                         string sWSUserName = "";
                         string sWSPass = "";
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetPaymentGatewayConfiguration", "billing", sIP, ref sWSUserName, ref sWSPass);
-                        string sWSURL = GetWSURL("billing_ws");
+                        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Billing.URL.Value;
                         if (sWSURL != "")
                             billing.Url = sWSURL;
                         try
@@ -179,11 +176,6 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
         string sTable = theRecord.GetTableHTML("adm_payment_gateway_new.aspx?submited=1");
 
         return sTable;
-    }
-
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 
     static private bool IsExternalIDExists(string extId, int pgid)

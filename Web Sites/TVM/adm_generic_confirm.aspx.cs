@@ -360,7 +360,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         paymentGatewayId = int.Parse(oPaymentGatewayId.ToString());
                         Billing.module billing = new Billing.module();
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetPaymentGatewayConfiguration", "billing", sIP, ref sWSUserName, ref sWSPass);
-                        sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("billing_ws");
+                        sWSURL = ApplicationConfiguration.WebServicesConfiguration.Billing.URL.Value;
                         if (!string.IsNullOrEmpty(sWSURL))
                             billing.Url = sWSURL;
                         try

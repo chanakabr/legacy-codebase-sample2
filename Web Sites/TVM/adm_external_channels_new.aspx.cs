@@ -157,11 +157,6 @@ public partial class adm_external_channels_new : System.Web.UI.Page
         return table;
     }
 
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-    }
-
     static private bool IsExternalIDExists(string externalId, int channelId)
     {
         int groupID = LoginManager.GetLoginGroupID();

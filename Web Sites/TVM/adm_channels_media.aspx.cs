@@ -278,12 +278,6 @@ public partial class adm_channels_media : System.Web.UI.Page
         }
     }
 
-  
-    private string GetWSURL(string key)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(key);
-    }
-
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
         string sOldOrderBy = "";

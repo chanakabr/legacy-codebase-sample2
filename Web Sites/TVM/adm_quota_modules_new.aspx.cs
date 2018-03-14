@@ -1,11 +1,6 @@
 ﻿using KLogMonitor;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 using TVinciShared;
 
 public partial class adm_quota_modules_new : System.Web.UI.Page
@@ -14,10 +9,6 @@ public partial class adm_quota_modules_new : System.Web.UI.Page
     protected string m_sMenu;
     protected string m_sSubMenu;
 
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-    }
     protected void GetMainMenu()
     {
         Response.Write(m_sMenu);
