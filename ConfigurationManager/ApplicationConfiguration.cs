@@ -23,6 +23,8 @@ namespace ConfigurationManager
         public static BooleanConfigurationValue TVMSkipLoginIPCheck;
         public static StringConfigurationValue ClearCachePath;
         public static StringConfigurationValue StagingClearCachePath;
+        public static StringConfigurationValue BatchUpload;
+
 
         #endregion
 
@@ -174,6 +176,10 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true,
                 Description = "TVM key, location of clean_cache.aspx page in different servers, for staging environment."
+            };
+            BatchUpload= new ConfigurationManager.StringConfigurationValue("batch_upload")
+            {
+                ShouldAllowEmpty = true                
             };
 
             #endregion
@@ -392,6 +398,9 @@ namespace ConfigurationManager
                     PictureUploaderPath,
                     TVMBaseUrl,
                     TVMSkipLoginIPCheck,
+                    ClearCachePath,
+                    StagingClearCachePath,
+                    BatchUpload,
                     DMSUrl,
                     MailerConfiguration,
                     GroupsManagerConfiguration,
