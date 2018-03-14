@@ -1,15 +1,6 @@
+using ConfigurationManager;
 using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using TVinciShared;
-using System.Collections.Generic;
 
 public partial class adm_block_rules_new : System.Web.UI.Page
 {
@@ -36,7 +27,7 @@ public partial class adm_block_rules_new : System.Web.UI.Page
 
                     int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
                     TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "Channel", "api", ip, ref userName, ref password);
-                    string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                    string url = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
 
                     if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
                     {

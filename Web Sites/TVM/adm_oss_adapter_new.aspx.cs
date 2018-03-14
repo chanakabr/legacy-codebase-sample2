@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ConfigurationManager;
+using KLogMonitor;
+using System;
 using System.Reflection;
 using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_oss_adapter_new : System.Web.UI.Page
@@ -57,7 +54,7 @@ public partial class adm_oss_adapter_new : System.Web.UI.Page
                         string sWSUserName = "";
                         string sWSPass = "";
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetOSSAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
-                        string sWSURL = GetWSURL("api_ws");
+                        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
                         if (sWSURL != "")
                             api.Url = sWSURL;
                         try

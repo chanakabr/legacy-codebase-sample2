@@ -1,19 +1,12 @@
-using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using TVinciShared;
 using apiWS;
-using System.Collections.Generic;
+using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Reflection;
 using System.Text;
+using TVinciShared;
 
 public partial class adm_video_popup_selector : System.Web.UI.Page
 {
@@ -221,7 +214,7 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
                 int exactGroupId = LoginManager.GetLoginGroupID();
                 int parentGroupID = DAL.UtilsDal.GetParentGroupID(exactGroupId);
                 TVinciShared.WS_Utils.GetWSUNPass(parentGroupID, "SearchAssets", "api", sIP, ref sWSUserName, ref sWSPass);
-                string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
                 if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
                 {
                     log.ErrorFormat("fail to get api WS Url={0}, UserName={1}, Password={2}", sWSURL, sWSUserName, sWSPass);

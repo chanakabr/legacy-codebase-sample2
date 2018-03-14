@@ -1,14 +1,9 @@
-﻿using ApiObjects.QueueObjects;
-using QueueWrapper.Queues.QueueObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using TVinciShared;
+﻿using ConfigurationManager;
 using log4net;
+using System;
 using System.Reflection;
+using System.Web;
+using TVinciShared;
 
 public partial class adm_export_tasks_new : System.Web.UI.Page
 {
@@ -70,7 +65,7 @@ public partial class adm_export_tasks_new : System.Web.UI.Page
                             {
                                 // insert new message to tasks queue (for celery)
                                 apiWS.API m = new apiWS.API();
-                                string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
 
                                 if (sWSURL != "")
                                     m.Url = sWSURL;

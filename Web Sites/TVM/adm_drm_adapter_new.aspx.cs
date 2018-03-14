@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using CachingProvider.LayeredCache;
+using ConfigurationManager;
+using KLogMonitor;
+using System;
 using System.Reflection;
 using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using KLogMonitor;
 using TVinciShared;
-using ca_ws;
-using CachingProvider.LayeredCache;
 
 public partial class adm_drm_adapter_new : System.Web.UI.Page
 {
@@ -58,7 +54,7 @@ public partial class adm_drm_adapter_new : System.Web.UI.Page
                             string sWSPass = "";
 
                             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SendDrmAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
-                            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
                             if (!string.IsNullOrEmpty(sWSURL) && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
                             {
                                 apiWS.API client = new apiWS.API();

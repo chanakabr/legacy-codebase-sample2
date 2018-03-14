@@ -1,16 +1,14 @@
-﻿using System;
+﻿using ConfigurationManager;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Configuration;
 using TVinciShared;
-using System.Collections;
-using System.Data;
-using System.Diagnostics;
-using KLogMonitor;
-using System.Reflection;
 
 public partial class adm_batch_upload_update : System.Web.UI.Page
 {
@@ -269,7 +267,7 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
 
             int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
             TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "Channel", "api", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
             if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
             {
                 return null;

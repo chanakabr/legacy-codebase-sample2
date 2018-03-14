@@ -1,17 +1,10 @@
-using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using TVinciShared;
-using KLogMonitor;
-using System.Reflection;
 using apiWS;
+using ConfigurationManager;
+using KLogMonitor;
+using System;
+using System.Reflection;
+using System.Web;
+using TVinciShared;
 
 public partial class adm_stream_config_new : System.Web.UI.Page
 {
@@ -61,7 +54,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
                             string sWSPass = "";
                             TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "", "api", sIP, ref sWSUserName, ref sWSPass);
                             apiWS.API api = new apiWS.API();
-                            string sWSURL = WS_Utils.GetTcmConfigValue("api_ws");
+                            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
                             if (sWSURL != "")
                                 api.Url = sWSURL;
                             try

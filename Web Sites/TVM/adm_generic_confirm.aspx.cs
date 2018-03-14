@@ -1,20 +1,12 @@
-using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using TVinciShared;
-using TvinciImporter;
 using ApiObjects;
-using System.Collections.Generic;
-using KLogMonitor;
-using System.Reflection;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using TvinciImporter;
+using TVinciShared;
 
 public partial class adm_generic_confirm : System.Web.UI.Page
 {
@@ -396,7 +388,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         sWSUserName = "";
                         sWSPass = "";
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetOSSAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
-                        sWSURL = GetWSURL("api_ws");
+                        sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
                         if (sWSURL != "")
                             api.Url = sWSURL;
 
@@ -492,7 +484,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
 
             int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
             TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
-            string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+            string url = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
 
             if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(password))
             {

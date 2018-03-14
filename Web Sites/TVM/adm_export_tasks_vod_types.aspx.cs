@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using TVinciShared;
-using System.Configuration;
-using System.Globalization;
-using System.Data;
+﻿using ConfigurationManager;
 using log4net;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
+using TVinciShared;
 
 public partial class adm_export_tasks_vod_types : System.Web.UI.Page
 {
@@ -107,7 +103,7 @@ public partial class adm_export_tasks_vod_types : System.Web.UI.Page
         {
             // insert new message to tasks queue (for celery)
             apiWS.API m = new apiWS.API();
-            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
 
             if (sWSURL != "")
                 m.Url = sWSURL;

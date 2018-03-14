@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
+﻿using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Reflection;
 using TVinciShared;
-using CachingProvider.LayeredCache;
 
 public partial class adm_billing_settings : System.Web.UI.Page
 {
@@ -229,7 +225,7 @@ public partial class adm_billing_settings : System.Web.UI.Page
     private System.Data.DataTable GetOSSAdapterDT()
     {
         apiWS.API m = new apiWS.API();
-        string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
 
         if (sWSURL != "")
             m.Url = sWSURL;

@@ -1,11 +1,9 @@
-﻿using System;
+﻿using ConfigurationManager;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_external_channels_new : System.Web.UI.Page
@@ -59,7 +57,7 @@ public partial class adm_external_channels_new : System.Web.UI.Page
 
                         int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
                         TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
-                        string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                        string url = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
                         string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
 
                         if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))

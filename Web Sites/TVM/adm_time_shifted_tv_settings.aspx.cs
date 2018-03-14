@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Reflection;
+﻿using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Reflection;
 using TVinciShared;
-using System.Data;
-using TvinciImporter;
-using ApiObjects;
 
 public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
 {
@@ -45,7 +38,7 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
                     {
                         // call api service
                         apiWS.API api = new apiWS.API();
-                        string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
 
                         if (sWSURL != "")
                             api.Url = sWSURL;

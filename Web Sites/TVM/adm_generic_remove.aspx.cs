@@ -300,7 +300,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
 
         //    int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
         //    TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
-        //    string url = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+        //    string url = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
 
         //    if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(password))
         //    {

@@ -1,4 +1,5 @@
 ﻿using apiWS;
+using ConfigurationManager;
 using GroupsCacheManager;
 using KLogMonitor;
 using System;
@@ -102,7 +103,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
             string sWSPass = "";
             
             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "Asset", "api", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
             if (!string.IsNullOrEmpty(sWSURL) && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
             {
                 apiWS.API client = new apiWS.API();

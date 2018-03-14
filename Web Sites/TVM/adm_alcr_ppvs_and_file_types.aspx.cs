@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using TVinciShared;
-using System.Configuration;
-using TvinciImporter;
-using System.Data;
+﻿using apiWS;
+using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
+using System.Web;
+using System.Web.UI.WebControls;
 using TvinciPricing;
-using apiWS;
+using TVinciShared;
 
 public partial class adm_alcr_ppvs_and_file_types : System.Web.UI.Page
 {
@@ -58,7 +56,7 @@ public partial class adm_alcr_ppvs_and_file_types : System.Web.UI.Page
                 string sWSPass = "";
 
                 TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "Asset", "api", sIP, ref sWSUserName, ref sWSPass);
-                string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");                
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;                
                 if (!string.IsNullOrEmpty(sWSURL) && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
                 {
                     apiWS.API client = new apiWS.API();
@@ -127,7 +125,7 @@ public partial class adm_alcr_ppvs_and_file_types : System.Web.UI.Page
         string sWSPass = "";
 
         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "Asset", "api", sIP, ref sWSUserName, ref sWSPass);
-        string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
         FriendlyAssetLifeCycleRule friendlyAssetLifeCycleRule = null;
         if (!string.IsNullOrEmpty(sWSURL) && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
         {

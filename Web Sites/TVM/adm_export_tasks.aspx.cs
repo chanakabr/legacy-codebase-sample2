@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using TVinciShared;
-using System.Reflection;
+﻿using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Reflection;
+using TVinciShared;
 
 public partial class adm_export_tasks : System.Web.UI.Page
 {
@@ -167,7 +163,7 @@ public partial class adm_export_tasks : System.Web.UI.Page
             {
                 // insert new message to tasks queue (for celery)
                 apiWS.API m = new apiWS.API();
-                sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
 
                 if (sWSURL != "")
                     m.Url = sWSURL;

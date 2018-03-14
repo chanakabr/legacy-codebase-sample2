@@ -1,17 +1,9 @@
-using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using TVinciShared;
-using System.Collections.Generic;
+using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using TVinciShared;
 
 public partial class adm_channels_media : System.Web.UI.Page
 {
@@ -477,7 +469,7 @@ public partial class adm_channels_media : System.Web.UI.Page
 
             int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
             TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "Channel", "api", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = GetWSURL("api_ws");
+            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
             if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
             {
                 return mediaIDs;
@@ -517,7 +509,7 @@ public partial class adm_channels_media : System.Web.UI.Page
 
             int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
             TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "Channel", "api", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = GetWSURL("api_ws");
+            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
 
             if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
             {
