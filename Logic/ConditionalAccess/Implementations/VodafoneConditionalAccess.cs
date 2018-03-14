@@ -906,7 +906,7 @@ namespace Core.ConditionalAccess
             try
             {
                 customerType = customerType.Substring(NPVR_TYPE_PREFIX.Length);
-                string deviceStreamAndProfile = Utils.GetValueFromConfig(string.Format(TCM_NPVR_TYPE_FORMAT, groupId, customerType));
+                string deviceStreamAndProfile = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format(TCM_NPVR_TYPE_FORMAT, groupId, customerType));
                 if (string.IsNullOrEmpty(deviceStreamAndProfile))
                 {
                     log.ErrorFormat("Failed to get GetDeviceStreamTypeAndProfileByCustomerType for key: {0}, key was not found on TCM", string.Format(TCM_NPVR_TYPE_FORMAT, groupId, customerType));

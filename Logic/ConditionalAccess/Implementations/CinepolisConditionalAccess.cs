@@ -98,8 +98,8 @@ namespace Core.ConditionalAccess
             string sRequestBody = TVinciShared.WS_Utils.BuildDelimiterSeperatedString(lst, "&", false, false);
             string sResultJSON = string.Empty;
             string sErrorMsg = string.Empty;
-            string sAddress = Utils.GetValueFromConfig("CinepolisCustomDataTokenAddress"); //TCM not relevant anymore 
-            string sContentType = Utils.GetValueFromConfig("CinepolisPostRequestContentType"); //TCM not relevant anymore 
+            string sAddress = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisCustomDataTokenAddress"); //TCM not relevant anymore 
+            string sContentType = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisPostRequestContentType"); //TCM not relevant anymore 
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {
                 #region Logging
@@ -194,8 +194,8 @@ namespace Core.ConditionalAccess
         {
             bool res = false;
 
-            string sAddress = Utils.GetValueFromConfig("CinepolisOperationConfirmAddress"); //TCM not relevant anymore 
-            string sContentType = Utils.GetValueFromConfig("CinepolisPostRequestContentType"); //TCM not relevant anymore 
+            string sAddress = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisOperationConfirmAddress"); //TCM not relevant anymore 
+            string sContentType = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisPostRequestContentType"); //TCM not relevant anymore 
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {
                 // either address or content type retrieved from config is empty
@@ -335,8 +335,8 @@ namespace Core.ConditionalAccess
         {
             bool res = true;
 
-            string sAddress = Utils.GetValueFromConfig("CinepolisRenewalDoneAddress"); //TCM not relevant anymore 
-            string sContentType = Utils.GetValueFromConfig("CinepolisPostRequestContentType"); //TCM not relevant anymore 
+            string sAddress = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisRenewalDoneAddress"); //TCM not relevant anymore 
+            string sContentType = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisPostRequestContentType"); //TCM not relevant anymore 
 
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {

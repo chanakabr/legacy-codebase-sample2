@@ -179,7 +179,7 @@ namespace Core.ConditionalAccess
 
                     //Tickle WS
                     APILogic.tikle.Service s = new APILogic.tikle.Service();
-                    string sTikleWSURL = Utils.GetWSURL("tikle_ws");
+                    string sTikleWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("tikle_ws");
                     s.Url = sTikleWSURL;
 
                     string sMD5Hash = Core.Billing.Utils.GetHash("0" + sTransactionData, "WS_SECRET");

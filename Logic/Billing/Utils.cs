@@ -2017,11 +2017,6 @@ namespace Core.Billing
             return res;
         }
 
-        public static string GetValFromConfig(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         public static ItemType CinepolisConvertToItemType(string sBusinessModuleInCustomData)
         {
             string sLoweredTrimmed = sBusinessModuleInCustomData.Trim().ToLower();

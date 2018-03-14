@@ -8822,7 +8822,7 @@ namespace Core.ConditionalAccess
             TimeSpan ts = new TimeSpan(2, 0, 0, 0);
 
             // Get the group's configuration for free view life cycle
-            string sFreeLeftView = Utils.GetValueFromConfig(string.Format("free_left_view_{0}", m_nGroupID));
+            string sFreeLeftView = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("free_left_view_{0}", m_nGroupID));
 
             if (!string.IsNullOrEmpty(sFreeLeftView))
             {
@@ -9489,7 +9489,7 @@ namespace Core.ConditionalAccess
             string sKeyOfMinPrice = String.Concat("PreviewModuleMinPrice", m_nGroupID);
             double dMinPriceForPreviewModule = Utils.DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE;
 
-            string sValInConfig = Utils.GetValueFromConfig(sKeyOfMinPrice);
+            string sValInConfig = TVinciShared.WS_Utils.GetTcmConfigValue(sKeyOfMinPrice);
             if (sValInConfig.Length > 0 && double.TryParse(sValInConfig, out dMinPriceForPreviewModule))
                 return dMinPriceForPreviewModule == 0d;
             return false;
