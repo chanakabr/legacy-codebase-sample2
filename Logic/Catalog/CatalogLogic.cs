@@ -9,9 +9,12 @@ using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
+using Catalog.Response;
+using ConfigurationManager;
 using Core.Catalog.Cache;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using Core.Notification;
 using Core.Users;
 using DAL;
 using DalCB;
@@ -37,10 +40,6 @@ using System.Threading.Tasks;
 using System.Web;
 using Tvinci.Core.DAL;
 using TVinciShared;
-using Core.Notification;
-using Catalog.Response;
-using ElasticSearch.Common;
-using ConfigurationManager;
 
 namespace Core.Catalog
 {
@@ -69,8 +68,7 @@ namespace Core.Catalog
         internal const string STAT_ACTION_LIKE = "like";
         internal const string STAT_ACTION_RATES = "rates";
         internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
-        internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
-        private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
+        internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";        
         private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUnixTimestamp(new DateTime(1980, 1, 1, 0, 0, 0));
 
         protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
@@ -731,7 +729,8 @@ namespace Core.Catalog
             try
             {
                 // use old/new image server
-                if (WS_Utils.IsGroupIDContainedInConfig(groupId, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                
+                if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                 {
                     if (dtPic != null && dtPic.Rows != null)
                     {
