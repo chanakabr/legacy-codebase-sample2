@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using ApiObjects;
+﻿using ConfigurationManager;
 using KLogMonitor;
-using TvinciImporter;
-using TVinciShared;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using TVinciShared;
 
 public partial class adm_limitation_modules : System.Web.UI.Page
 {
@@ -177,7 +172,7 @@ public partial class adm_limitation_modules : System.Web.UI.Page
                 int dlmID = int.Parse(oDlmID.ToString());
                 p = new DomainsWS.module();
                 TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("domains_ws");
+                sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
 
                 if (!string.IsNullOrEmpty(sWSURL))
                     p.Url = sWSURL;

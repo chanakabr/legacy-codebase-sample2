@@ -302,7 +302,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         int dlmID = int.Parse(oDlmID.ToString());
                         domainWS = new DomainsWS.module();
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                        sWSURL = GetWSURL("domains_ws");
+                        sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
                         if (sWSURL != "")
                             domainWS.Url = sWSURL;
                         try
@@ -319,7 +319,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                 case "groups_device_limitation_modules":
                     domainWS = new DomainsWS.module();
                     TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                    sWSURL = GetWSURL("domains_ws");
+                    sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
                     if (sWSURL != "")
                         domainWS.Url = sWSURL;
                     try
@@ -335,7 +335,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                 case "domains":
                     domainWS = new DomainsWS.module();
                     TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                    sWSURL = GetWSURL("domains_ws");
+                    sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
                     if (sWSURL != "")
                         domainWS.Url = sWSURL;
                     try
@@ -518,11 +518,6 @@ public partial class adm_generic_confirm : System.Web.UI.Page
     private bool RemoveAnnouncement(int groupId, int announcementId)
     {
         return ImporterImpl.DeleteAnnouncement(groupId, announcementId);
-    }
-
-    private string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 
     protected void GetMainMenu()

@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using TVinciShared;
+﻿using ConfigurationManager;
 using DAL;
-using System.Collections.Specialized;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Reflection;
+using System.Web;
+using TVinciShared;
 
 public partial class adm_limitation_modules_new : System.Web.UI.Page
 {
@@ -77,7 +76,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                                 string sWSUserName = "";
                                 string sWSPass = "";
                                 TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                                string sWSURL = GetWSURL("domains_ws");
+                                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
                                 if (sWSURL != "")
                                     p.Url = sWSURL;
                                 try
@@ -169,11 +168,6 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             return false;
         else
             return true;
-    }
-
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 
     private void UpdateDeviceFamilies(int groupID, int limitID,
@@ -460,7 +454,7 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
                 string sWSUserName = "";
                 string sWSPass = "";
                 TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                string sWSURL = GetWSURL("domains_ws");
+                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
                 if (sWSURL != "")
                     p.Url = sWSURL;
                 try

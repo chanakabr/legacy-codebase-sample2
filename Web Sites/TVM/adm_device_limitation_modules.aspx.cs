@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using TVinciShared;
-using System.Reflection;
+﻿using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Reflection;
+using TVinciShared;
 
 public partial class adm_device_limitation_modules : System.Web.UI.Page
 {
@@ -197,7 +193,7 @@ public partial class adm_device_limitation_modules : System.Web.UI.Page
         {
             p = new DomainsWS.module();
             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-            sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("domains_ws");
+            sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
             if (sWSURL != "")
                 p.Url = sWSURL;
             try

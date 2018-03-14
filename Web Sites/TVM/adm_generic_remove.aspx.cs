@@ -1,19 +1,11 @@
-using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using TVinciShared;
-using TvinciImporter;
-using System.Collections.Generic;
 using ApiObjects;
+using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using TvinciImporter;
+using TVinciShared;
 
 public partial class adm_generic_remove : System.Web.UI.Page
 {
@@ -251,7 +243,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
                             int dlmID = int.Parse(oDlmID.ToString());
                             domainWS = new DomainsWS.module();
                             TVinciShared.WS_Utils.GetWSUNPass(logedInGroupID, "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                            sWSURL = GetWSURL("domains_ws");
+                            sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
                             if (sWSURL != "")
                                 domainWS.Url = sWSURL;
                             try
@@ -271,7 +263,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
                         domainWS = new DomainsWS.module();
 
                         TVinciShared.WS_Utils.GetWSUNPass(logedInGroupID, "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                        sWSURL = GetWSURL("domains_ws");
+                        sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
                         if (sWSURL != "")
                             domainWS.Url = sWSURL;
                         try
@@ -371,11 +363,6 @@ public partial class adm_generic_remove : System.Web.UI.Page
             }
         }
         return isRemoved;
-    }
-
-    private string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 
     protected void GetMainMenu()
