@@ -24,8 +24,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue ClearCachePath;
         public static StringConfigurationValue StagingClearCachePath;
         public static StringConfigurationValue BatchUpload;
-
-
+        
         #endregion
 
         #region Configuration values
@@ -57,6 +56,7 @@ namespace ConfigurationManager
         public static RoleIdsConfiguration RoleIdsConfiguration;
         public static StringConfigurationValue ExcludePsDllImplementation;
         public static NumericConfigurationValue DomainCacheDocTimeout;
+        public static NumericConfigurationValue SocialCacheDocTimeout;
         public static FacebookConfiguration FacebookConfiguration;
         public static NumericConfigurationValue PlayCycleDocumentExpiryMinutes;
         public static TwitterConfiguration TwitterConfiguration;
@@ -102,7 +102,6 @@ namespace ConfigurationManager
         public static StringConfigurationValue IngestFtpUrl;
         public static StringConfigurationValue IngestFtpUser;
         public static StringConfigurationValue IngestFtpPass;
-
 
         #endregion
 
@@ -258,6 +257,11 @@ namespace ConfigurationManager
             DomainCacheDocTimeout = new NumericConfigurationValue("DomainCacheDocTimeout")
             {
                 DefaultValue = 1440
+            };
+            SocialCacheDocTimeout = new NumericConfigurationValue("socialCacheDocTimeout")
+            {
+                DefaultValue = 1440,
+                ShouldAllowEmpty = true
             };
             FacebookConfiguration = new FacebookConfiguration("facebook_configuration");
             PlayCycleDocumentExpiryMinutes = new NumericConfigurationValue("playCycle_doc_expiry_min")

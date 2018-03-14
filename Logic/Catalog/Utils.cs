@@ -782,15 +782,6 @@ namespace Core.Catalog
             }
         }
 
-        public static int GetCatalogLogThreshold()
-        {
-            int res = 0;
-            string configOverride = GetWSURL("LOG_THRESHOLD");
-            if (!string.IsNullOrEmpty(configOverride) && Int32.TryParse(configOverride, out res) && res > 0)
-                return res;
-            return DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC;
-        }
-
         public static void BuildMediaFromDataSet(ref Dictionary<int, Dictionary<int, Media>> mediaTranslations,
             ref Dictionary<int, Media> medias, Group group, DataSet dataSet)
         {
