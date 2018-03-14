@@ -1,20 +1,16 @@
-﻿using System;
+﻿using ConfigurationManager;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Data;
+using System.Data.OleDb;
+using System.IO;
+using System.Reflection;
+using System.Threading;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
-using System.Threading;
-using System.Collections.Generic;
-using ExcelGenerator;
-using ExcelFeeder;
-using System.IO;
-using System.Collections;
-using System.Data;
-using System.Data.OleDb;
-using KLogMonitor;
-using System.Reflection;
 
 public partial class adm_generic_lookup_table_values : System.Web.UI.Page
 {
@@ -103,11 +99,6 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
         Response.Write(m_sSubMenu);
     }
 
-    private string GetWSURL(string key)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(key);
-    }
-
     protected void UploadExcel(object sender, EventArgs e)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
@@ -125,7 +116,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
                 {
                     String path = Server.MapPath(string.Empty);
 
-                    path = GetWSURL("lookup_generic_upload");
+                    path = ApplicationConfiguration.LookupGenericUpload.Value;
                     path = System.IO.Path.Combine(path, nGroupID.ToString());
 
                     // Determine whether the directory exists.

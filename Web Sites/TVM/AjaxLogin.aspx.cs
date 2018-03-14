@@ -9,6 +9,7 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
+using ConfigurationManager;
 
 public partial class AjaxLogin : System.Web.UI.Page
 {
@@ -16,12 +17,9 @@ public partial class AjaxLogin : System.Web.UI.Page
     {
         string sErr = "";
         string sRet = "FAIL";
-        
-        // get value from tcm 
 
-        string loginMode = WS_Utils.GetTcmConfigValue("EnableHttpLogin");
         bool http = false;
-        if (loginMode == "true")
+        if (ApplicationConfiguration.EnableHttpLogin.Value)
         {
             http = true;
         }

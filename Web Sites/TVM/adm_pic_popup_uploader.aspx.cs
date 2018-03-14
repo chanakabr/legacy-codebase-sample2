@@ -1,4 +1,5 @@
 using ApiObjects;
+using ConfigurationManager;
 using KLogMonitor;
 using System;
 using System.Data;
@@ -423,8 +424,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
     {
         bool isImageUrlVaild = true;
         //check if thumb Url exist
-        string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");
-        if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
+        if (!ApplicationConfiguration.CheckImageUrl.Value)
         {
             if (!ImageUtils.IsUrlExists(picLink))
             {

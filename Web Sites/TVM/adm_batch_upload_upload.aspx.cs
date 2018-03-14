@@ -1,21 +1,12 @@
-﻿using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using TVinciShared;
-using ExcelGenerator;
-using ExcelFeeder;
-using System.IO;
-using System.Threading;
-using System.Collections.Generic;
+﻿using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Reflection;
+using System.Threading;
+using TVinciShared;
 
 public partial class adm_batch_upload_upload : System.Web.UI.Page
 {
@@ -69,11 +60,6 @@ public partial class adm_batch_upload_upload : System.Web.UI.Page
         Response.Write(m_sSubMenu);
     }
 
-    private string GetWSURL(string key)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(key);
-    }
-
     protected void UploadExcel(object sender, EventArgs e)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
@@ -92,7 +78,7 @@ public partial class adm_batch_upload_upload : System.Web.UI.Page
 
                     String path = Server.MapPath(string.Empty);
 
-                    path = GetWSURL("batch_upload");
+                    path = ApplicationConfiguration.BatchUpload.Value;
                     //path = System.IO.Path.Combine(path, "batch_upload");
                     path = System.IO.Path.Combine(path, nGroupID.ToString());
 

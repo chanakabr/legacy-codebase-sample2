@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ConfigurationManager;
+using KLogMonitor;
+using System;
 using System.Reflection;
 using System.Web;
-using KLogMonitor;
 using TVinciShared;
 
 /// <summary>
@@ -42,7 +41,7 @@ public class PermittedModule : IHttpModule
         HttpContext context = ((HttpApplication)sender).Context;
         HttpApplication application = sender as HttpApplication;
 
-        string sAppSateConfigValue = TVinciShared.WS_Utils.GetTcmConfigValue("APP_STATE");
+        string sAppSateConfigValue = ApplicationConfiguration.AppState.Value;
 
         if (!string.IsNullOrEmpty(sAppSateConfigValue) && sAppSateConfigValue == "moved_to_ny")
         {
@@ -88,7 +87,7 @@ public class PermittedModule : IHttpModule
         HttpContext context = ((HttpApplication)sender).Context;
         HttpApplication application = sender as HttpApplication;
 
-        string sAppSateConfigValue = TVinciShared.WS_Utils.GetTcmConfigValue("APP_STATE");
+        string sAppSateConfigValue = ApplicationConfiguration.AppState.Value;
 
         if (!string.IsNullOrEmpty(sAppSateConfigValue) && sAppSateConfigValue == "moved_to_ny")
         {
