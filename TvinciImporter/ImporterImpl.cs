@@ -2185,9 +2185,8 @@ namespace TvinciImporter
             string picName = string.Empty;
             int picId = 0;
 
-            //check if thumb Url exist
-            string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");
-            if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
+            //check if thumb Url exist            
+            if (!ApplicationConfiguration.CheckImageUrl.Value)
             {
                 if (!ImageUtils.IsUrlExists(thumb))
                 {
@@ -2979,8 +2978,7 @@ namespace TvinciImporter
             int picRatioId = 0;
 
             //check if pic Url exist
-            string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");
-            if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
+            if (!ApplicationConfiguration.CheckImageUrl.Value)
             {
                 if (!ImageUtils.IsUrlExists(pic))
                 {
