@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ApiObjects.SearchObjects;
-using System.ServiceModel;
-using Core.Catalog.Searchers;
-using ApiObjects;
+﻿using ApiObjects.SearchObjects;
 using Core.Catalog.Response;
-using KLogMonitor;
-using System.Reflection;
 using GroupsCacheManager;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.ServiceModel;
 
 namespace Core.Catalog
 {
@@ -20,7 +16,7 @@ namespace Core.Catalog
         protected readonly string m_EndPointAddress;
         public LuceneWrapper()
         {
-            m_EndPointAddress = Utils.GetWSURL("LUCENE_WCF");
+            m_EndPointAddress = Utils.GetWSURL("LUCENE_WCF"); //TCM not relevant anymore 
         }
 
         public SearchResultsObj SearchMedias(int nGroupID, MediaSearchObj oSearch, int nLangID, bool bUseStartDate, int nIndex)

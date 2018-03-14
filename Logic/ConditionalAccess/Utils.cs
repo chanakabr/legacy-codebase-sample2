@@ -264,16 +264,6 @@ namespace Core.ConditionalAccess
             return discRetPrice;
         }
 
-        static public string GetWSURL(string sKey)
-        {
-            return GetValueFromConfig(sKey);
-        }
-
-        static public string GetValueFromConfig(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         static public Int32 GetCustomData(string sCustomData)
         {
             return (int)BillingDAL.Get_LatestCustomDataID(sCustomData, "BILLING_CONNECTION_STRING");
@@ -3162,8 +3152,8 @@ namespace Core.ConditionalAccess
             {
                 string sKeyOfMinPrice = String.Concat("PreviewModuleMinPrice", nGroupID);
                 double dMinPriceForPreviewModule = DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE;
-                if (GetValueFromConfig(sKeyOfMinPrice) != string.Empty)
-                    double.TryParse(GetValueFromConfig(sKeyOfMinPrice), out dMinPriceForPreviewModule);
+                if (TVinciShared.WS_Utils.GetTcmConfigValue(sKeyOfMinPrice) != string.Empty)
+                    double.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(sKeyOfMinPrice), out dMinPriceForPreviewModule);
                 p.m_dPrice = dMinPriceForPreviewModule;
                 theReason = PriceReason.EntitledToPreviewModule;
             }
@@ -7617,7 +7607,7 @@ namespace Core.ConditionalAccess
             TimeSpan ts = new TimeSpan(2, 0, 0, 0);
 
             // Get the group's configuration for free view life cycle
-            string sFreeLeftView = Utils.GetValueFromConfig(string.Format("free_left_view_{0}", groupId));
+            string sFreeLeftView = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("free_left_view_{0}", groupId));
 
             if (!string.IsNullOrEmpty(sFreeLeftView))
             {
@@ -7711,10 +7701,9 @@ namespace Core.ConditionalAccess
             return retVal;
         }
 
-        internal static bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
+        internal static bool IsGroupIDContainedInConfig(long lGroupID, string rawStrFromConfig, char cSeperator)
         {
             bool res = false;
-            string rawStrFromConfig = GetWSURL(sKey);
             if (rawStrFromConfig.Length > 0)
             {
                 string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);

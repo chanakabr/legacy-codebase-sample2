@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using Newtonsoft.Json;
+﻿using ApiObjects;
+using ApiObjects.Billing;
 using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Web;
-using KLogMonitor;
-using System.Reflection;
-using System.ServiceModel;
-using ApiObjects;
-using ApiObjects.Billing;
 
 namespace Core.Billing
 {
@@ -27,8 +23,8 @@ namespace Core.Billing
         {
             bool res = false;
 
-            string sAddress = Utils.GetValFromConfig("CinepolisOperationConfirmAddress");
-            string sContentType = Utils.GetValFromConfig("CinepolisPostRequestContentType");
+            string sAddress = Utils.GetValFromConfig("CinepolisOperationConfirmAddress"); //TCM not relevant anymore 
+            string sContentType = Utils.GetValFromConfig("CinepolisPostRequestContentType"); //TCM not relevant anymore 
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {
                 // either address or content type retrieved from config is empty
