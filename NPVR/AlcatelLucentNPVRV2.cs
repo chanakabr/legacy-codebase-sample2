@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Epg;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -81,8 +82,6 @@ namespace NPVR
         private static readonly string ALU_EPISODE = "episode";
         private static readonly string ALU_SEASON_NUMBER = "seasonNumber";
         private static readonly string ALU_RATING = "rating";
-
-        private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
 
         private const string ALU_CHANNEL_NAME = "channelName";
         private const string ALU_DESCRIPTION = "description";
@@ -1418,7 +1417,7 @@ namespace NPVR
                                 else
                                 {
                                     // no sizes defined
-                                    if (!WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';') &&
+                                    if (!WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.UseOldImageServer.Value, ';') &&
                                         epgRatios != null &&
                                         epgRatios.Count > 0)
                                     {
@@ -1659,7 +1658,7 @@ namespace NPVR
 
 
                     string url = string.Empty;
-                    if (WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                    if (WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                     {
                         // use old image server flow
                         url = urlStr.ToString();

@@ -736,9 +736,9 @@ namespace TVinciShared
             // true in case image server is in use
             //------------------------------------
             if (groupId > 0)
-                return !WS_Utils.IsGroupIDContainedInConfig(groupId, "USE_OLD_IMAGE_SERVER", ';');
+                return !WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';');
             else
-                return !WS_Utils.IsGroupIDContainedInConfig(LoginManager.GetLoginGroupID(), "USE_OLD_IMAGE_SERVER", ';');
+                return !WS_Utils.IsGroupIDContainedInConfig(LoginManager.GetLoginGroupID(), ApplicationConfiguration.UseOldImageServer.Value, ';');
 
         }
 

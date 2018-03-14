@@ -577,10 +577,9 @@ namespace TVinciShared
             }
         }
 
-        public static bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
+        public static bool IsGroupIDContainedInConfig(long lGroupID, string rawStrFromConfig, char cSeperator)
         {
             bool res = false;
-            string rawStrFromConfig = GetTcmConfigValue(sKey);
             if (rawStrFromConfig.Length > 0)
             {
                 string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);

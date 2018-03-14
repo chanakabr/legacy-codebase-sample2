@@ -2024,7 +2024,7 @@ namespace TvinciImporter
             }
 
             // use old/or image queue
-            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
             {
                 bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
                 //use the rabbit Queue
@@ -2047,7 +2047,7 @@ namespace TvinciImporter
                 log.ErrorFormat("Failed download pic- channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
             else
             {
-                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                     log.DebugFormat("Successfully download pic- channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
                 else
                     log.DebugFormat("Successfully processed image - channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
@@ -2641,7 +2641,7 @@ namespace TvinciImporter
             int picId = 0;
 
             // use old/or image queue
-            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
             {
                 bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
                 //use the rabbit Queue
@@ -2681,7 +2681,7 @@ namespace TvinciImporter
                 log.ErrorFormat("Failed download pic- mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
             else
             {
-                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                     log.DebugFormat("Successfully download pic- mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
                 else
                     log.DebugFormat("Successfully processed image - mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
@@ -3645,7 +3645,8 @@ namespace TvinciImporter
                 if (!string.IsNullOrEmpty(outputProtectionLevel))
                 {
                     // check if policy to file attachment should be through new CENC or not
-                    if (WS_Utils.IsGroupIDContainedInConfig(parentGroupID, "OLD_DRM_EXC_GROUPS", ';'))
+                    string rawStrFromConfig = WS_Utils.GetTcmConfigValue("OLD_DRM_EXC_GROUPS");
+                    if (WS_Utils.IsGroupIDContainedInConfig(parentGroupID, rawStrFromConfig, ';')) // OLD_DRM_EXC_GROUPS not releventAnyMore
                     {
                         // old policy attachment
                         string sWSURL =   ApplicationConfiguration.EncryptorService.Value;

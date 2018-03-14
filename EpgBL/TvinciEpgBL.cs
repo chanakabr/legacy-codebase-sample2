@@ -798,7 +798,7 @@ namespace EpgBL
         {
             try
             {
-                if (WS_Utils.IsGroupIDContainedInConfig(groupId, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                 {
                     // use old image server flow
                     MutateFullEpgPicURLOldImageServerFlow(epgList, pictures);

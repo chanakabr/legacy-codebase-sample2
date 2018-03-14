@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Epg;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -1016,7 +1017,7 @@ namespace NPVR
                                 else
                                 {
                                     // no sizes defined
-                                    if (!WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';') &&
+                                    if (!WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.UseOldImageServer.Value, ';') &&
                                         epgRatios != null &&
                                         epgRatios.Count > 0)
                                     {
@@ -1136,7 +1137,7 @@ namespace NPVR
 
 
                     string url = string.Empty;
-                    if (WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                    if (WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                     {
                         // use old image server flow
                         url = urlStr.ToString();
