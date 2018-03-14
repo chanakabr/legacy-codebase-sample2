@@ -9,12 +9,13 @@ using KLogMonitor;
 using Newtonsoft.Json;
 using TVinciShared;
 using APILogic.DmsService;
+using ConfigurationManager;
 
 namespace Core.Notification.Adapters
 {
     public class DmsAdapter
     {
-        private static string DmsAdapterUrlKey = WS_Utils.GetTcmConfigValue("DMS_ADAPTER_URL");
+        private static string DmsAdapterUrlKey = ApplicationConfiguration.DMSAdapterUrl.Value;
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static List<PushData> GetPushData(int groupId, List<string> udids)

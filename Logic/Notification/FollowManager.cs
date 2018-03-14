@@ -1179,12 +1179,11 @@ namespace Core.Notification
         }
         private static long GetPersonalizedFeedTtlDaysInSec()
         {
-            int personalizedFeedTtlDay = 0;
-            string res = TVinciShared.WS_Utils.GetTcmConfigValue("PersonalizedFeedTTLDays");
+            int personalizedFeedTtlDay = ApplicationConfiguration.PersonalizedFeedTTLDays.IntValue;
 
-            if (!int.TryParse(res, out personalizedFeedTtlDay) || personalizedFeedTtlDay == 0)
+            if (personalizedFeedTtlDay <= 0)
             {
-                throw new Exception("TCM value [PersonalizedFeedTTLDays] wasn't found");
+                throw new Exception("TCM value [PersonalizedFeedTTLDays] isn't valid");
             }
 
             return TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow.AddDays(-personalizedFeedTtlDay));

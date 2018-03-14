@@ -49,7 +49,6 @@ namespace Core.Notification
         private static string outerPushServerSecret = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerKey.Value;
         private static string outerPushServerIV = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerIV.Value;
 
-        //private static string PushNotificationQueueTTLMilliSec = ODBCWrapper.Utils.GetTcmConfigValue("PushNotificationQueueTTLMilliSec");
         public const int PUSH_MESSAGE_EXPIRATION_MILLI_SEC = 3000;
 
         public const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
