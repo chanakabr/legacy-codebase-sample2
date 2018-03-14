@@ -3310,9 +3310,10 @@ namespace Core.ConditionalAccess
                      * */
 
                     long couponGroupId = 0;
-                    string couponCode = Utils.GetSubscriptiopnPurchaseCoupon(nPurchaseID, m_nGroupID, out couponGroupId); // return only if valid 
+                    string couponCode = Utils.GetSubscriptiopnPurchaseCoupon(retCouponCode, nPurchaseID, m_nGroupID, out couponGroupId); // return only if valid .
+                    retCouponCode = string.Empty; // init for recurring coupon
 
-                    if (theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString())
+                    if (couponGroupId > 0 && theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString())
                     {
                         // look if this coupon group id is a gift card in the subscription list 
                         CouponsGroup cg = theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.GiftCard ? theSub.m_oCouponsGroup :
