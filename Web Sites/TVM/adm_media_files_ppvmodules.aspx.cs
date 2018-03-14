@@ -1,27 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using TVinciShared;
-using System.Configuration;
-using System.Globalization;
+﻿using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
 using System.Reflection;
 using TvinciImporter;
-using System.Data;
+using TVinciShared;
 
 public partial class adm_media_files_ppvmodules : System.Web.UI.Page
 {
     private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
-
-    static protected string GetWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
-    }
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -372,7 +363,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         TVinciShared.WS_Utils.GetWSUNPass(nCommerceGroupID, "GetPPVModuleListForAdmin", "pricing", sIP, ref sWSUserName, ref sWSPass);
         log.Debug("Pricing WS - User is : " + sWSUserName + " Pass is : " + sWSPass);
         TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-        string sWSURL = GetWSURL();
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
         TvinciPricing.PPVModuleContainer[] oModules = m.GetPPVModuleListForAdmin(sWSUserName, sWSPass, int.Parse(Session["media_file_id"].ToString()), string.Empty, string.Empty, string.Empty);

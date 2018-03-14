@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using TVinciShared;
-using System.Configuration;
-using TvinciImporter;
+﻿using ConfigurationManager;
 using KLogMonitor;
+using System;
 using System.Reflection;
+using System.Web;
+using TvinciImporter;
+using TVinciShared;
 
 public partial class adm_subscriptions_new : System.Web.UI.Page
 {
@@ -413,12 +409,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
     protected void GetSubMenu()
     {
         Response.Write(m_sSubMenu);
-    }
-
-    static protected string GetWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
-    }
+    }    
 
     protected string GetCurrentValue(string sField, string sTable, Int32 nsubscription_idID, string sLangCode, string sConnKey)
     {
@@ -505,7 +496,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
             string sIP = "1.1.1.1";
             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetPriceCodeList", "pricing", sIP, ref sWSUserName, ref sWSPass);
             TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-            string sWSURL = GetWSURL();
+            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
             if (sWSURL != "")
                 m.Url = sWSURL;
 

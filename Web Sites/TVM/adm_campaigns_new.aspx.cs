@@ -1,13 +1,6 @@
+using ConfigurationManager;
 using System;
 using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using TVinciShared;
 
 public partial class adm_campaigns_new : System.Web.UI.Page
@@ -132,11 +125,6 @@ public partial class adm_campaigns_new : System.Web.UI.Page
         return CouponsGroupDT;
     }
 
-    static protected string GetWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
-    }
-
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
         if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
@@ -178,7 +166,7 @@ public partial class adm_campaigns_new : System.Web.UI.Page
         theRecord.AddRecord(dr_end_date);
 
         TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-        string sWSURL = GetWSURL();
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
         string sWSUserName = "";

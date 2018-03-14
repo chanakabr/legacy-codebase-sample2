@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using TVinciShared;
-using System.Configuration;
-using TvinciImporter;
-using System.Data;
+﻿using ConfigurationManager;
 using KLogMonitor;
-using System.Reflection;
-using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Web;
+using TvinciImporter;
+using TVinciShared;
 
 public class CGObj
 {
@@ -1314,11 +1311,6 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         Response.Write(m_sSubMenu);
     }
 
-    static protected string GetWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
-    }
-
     protected string GetCurrentValue(string sField, string sTable, Int32 nsubscription_idID, string sLangCode, string sConnKey)
     {
         string sRet = "";
@@ -1415,7 +1407,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         string sIP = "1.1.1.1";
         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetPriceCodeList", "pricing", sIP, ref sWSUserName, ref sWSPass);
         TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-        string sWSURL = GetWSURL();
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
 

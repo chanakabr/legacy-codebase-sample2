@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Configuration;
+﻿using ConfigurationManager;
+using System;
 using System.Data;
-using System.Linq;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.HtmlControls;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Xml.Linq;
 using TVinciShared;
 
 public partial class adm_finance_subscriptions_management : System.Web.UI.Page
@@ -66,11 +57,6 @@ public partial class adm_finance_subscriptions_management : System.Web.UI.Page
         return sCSVFile;
     }
 
-    static protected string GetWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
-    }
-
     protected DataTable SetSubsscriptionsDataTable(Int32 nGroupID)
     {
         string sWSUserName = "";
@@ -82,7 +68,7 @@ public partial class adm_finance_subscriptions_management : System.Web.UI.Page
             nCommerceGroupID = nGroupID;
         TVinciShared.WS_Utils.GetWSUNPass(nCommerceGroupID, "GetSubscriptionsList", "pricing", sIP, ref sWSUserName, ref sWSPass);
         TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-        string sWSURL = GetWSURL();
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
         TvinciPricing.Subscription[] oSubscriptions = m.GetSubscriptionsList(sWSUserName, sWSPass, string.Empty, string.Empty, string.Empty);

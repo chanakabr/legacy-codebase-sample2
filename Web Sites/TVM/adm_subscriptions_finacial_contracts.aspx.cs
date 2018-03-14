@@ -1,27 +1,12 @@
-﻿using System;
-using System.Collections;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.HtmlControls;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Xml.Linq;
+﻿using ConfigurationManager;
+using System;
 using TVinciShared;
 
 public partial class adm_subscriptions_finacial_contracts : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;
-
-    static protected string GetWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
-    }
-
+    
     protected void Page_Load(object sender, EventArgs e)
     {
         if (LoginManager.CheckLogin() == false)
@@ -62,7 +47,7 @@ public partial class adm_subscriptions_finacial_contracts : System.Web.UI.Page
             nCommerceGroupID = nGroupID;
         TVinciShared.WS_Utils.GetWSUNPass(nCommerceGroupID, "GetSubscriptionsList", "pricing", sIP, ref sWSUserName, ref sWSPass);
         TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-        string sWSURL = GetWSURL();
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
         TvinciPricing.Subscription oSubscription = m.GetSubscriptionData(sWSUserName, sWSPass , Session["subscription_id"].ToString(), string.Empty,string.Empty,string.Empty,false);

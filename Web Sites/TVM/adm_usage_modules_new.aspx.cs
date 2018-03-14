@@ -8,6 +8,7 @@ using TVinciShared;
 using System.Configuration;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 public partial class adm_usage_modules_new : System.Web.UI.Page
 {
@@ -187,12 +188,6 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         dT.Columns.Add(PageUtils.GetColumn("txt", s));
         return dT.Copy();
     }
-
-    static protected string GetPricingWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
-    }
-
 
     public string GetPPVPageContent(string sOrderBy, string sPageNum)
     {
@@ -497,7 +492,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         string sIP = "1.1.1.1";
         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetPriceCodeList", "pricing", sIP, ref sWSUserName, ref sWSPass);
         TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-        string sWSURL = GetPricingWSURL();
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
 
@@ -536,7 +531,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
         string sWSUserName = "";
         string sWSPass = "";
         TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-        string sWSURL = GetPricingWSURL();
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetDiscountsModuleListForAdmin", "pricing", "1.1.1.1", ref sWSUserName, ref sWSPass);
@@ -577,7 +572,7 @@ public partial class adm_usage_modules_new : System.Web.UI.Page
 
         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetCouponGroupListForAdmin", "pricing", "1.1.1.1", ref sWSUserName, ref sWSPass);
         TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-        string sWSURL = GetPricingWSURL();
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
         TvinciPricing.CouponsGroup[] oCouponsGroup = m.GetCouponGroupListForAdmin(sWSUserName, sWSPass);

@@ -1,26 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Configuration;
-using TVinciShared;
+﻿using DAL;
 using KLogMonitor;
-using System.Reflection;
+using System;
+using System.Collections.Generic;
 using System.Data;
-using DAL;
+using System.Reflection;
+using TVinciShared;
 
 public partial class adm_subscription_file_types : System.Web.UI.Page
 {
     private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
-
-    static protected string GetWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
-    }
 
     protected void Page_Load(object sender, EventArgs e)
     {

@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
@@ -12,12 +9,7 @@ public partial class adm_group_services : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;
-
-    static protected string GetWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
-    }
-
+    
     protected void Page_Load(object sender, EventArgs e)
     {
         if (LoginManager.CheckLogin() == false)

@@ -13,11 +13,6 @@ public partial class adm_external_channels_enrichments : System.Web.UI.Page
     protected string m_sSubMenu;
     protected DataTable allEnrichments;
 
-    static protected string GetWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
-    }
-
     protected void Page_Load(object sender, EventArgs e)
     {
         if (LoginManager.CheckLogin() == false)

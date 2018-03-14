@@ -256,7 +256,7 @@ public partial class adm_alcr_ppvs_and_file_types : System.Web.UI.Page
         string sIP = "1.1.1.1";
         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetPPVModuleList", "pricing", sIP, ref sWSUserName, ref sWSPass);        
         TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-        string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
         if (string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass) || string.IsNullOrEmpty(sWSURL))
         {
             return ppvModules;

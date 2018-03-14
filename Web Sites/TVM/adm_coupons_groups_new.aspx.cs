@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
+﻿using ConfigurationManager;
+using System;
 using TVinciShared;
-using System.Configuration;
 
 public partial class adm_coupons_groups_new : System.Web.UI.Page
 {
@@ -95,12 +90,7 @@ public partial class adm_coupons_groups_new : System.Web.UI.Page
     {
         Response.Write(m_sSubMenu);
     }
-
-    static protected string GetWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
-    }
-
+   
     static protected string GetMainLang()
     {
         string sMainLang = "";
@@ -157,7 +147,7 @@ public partial class adm_coupons_groups_new : System.Web.UI.Page
         string sIP = "1.1.1.1";
         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetDiscountsModuleListForAdmin", "pricing", sIP, ref sWSUserName, ref sWSPass);
         TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-        string sWSURL = GetWSURL();
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
 

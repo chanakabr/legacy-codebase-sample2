@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 using TVinciShared;
 
 public partial class adm_gift_card_reminder_new : System.Web.UI.Page
@@ -92,11 +87,6 @@ public partial class adm_gift_card_reminder_new : System.Web.UI.Page
     protected void GetSubMenu()
     {
         Response.Write(m_sSubMenu);
-    }
-
-    static protected string GetWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
     }
 
     static protected string GetMainLang()

@@ -1,18 +1,11 @@
-﻿using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using TVinciShared;
-using TvinciImporter;
+﻿using ConfigurationManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Data;
 using System.Globalization;
+using System.Linq;
+using System.Web;
+using TVinciShared;
 
 public partial class adm_collections_new : System.Web.UI.Page
 {
@@ -355,7 +348,7 @@ public partial class adm_collections_new : System.Web.UI.Page
         string sIP = "1.1.1.1";
         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetPriceCodeList", "pricing", sIP, ref sWSUserName, ref sWSPass);
         TvinciPricing.mdoule m = new TvinciPricing.mdoule();
-        string sWSURL = GetWSURL();
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
 
@@ -555,11 +548,6 @@ public partial class adm_collections_new : System.Web.UI.Page
         if (Session[OLD_COL_NAME_SESSION_KEY] == null)
             Session[OLD_COL_NAME_SESSION_KEY] = string.Empty;
 
-    }
-
-    static protected string GetWSURL()
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue("pricing_ws");
     }
 
     protected System.Data.DataTable GetBaseDT()
