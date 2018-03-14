@@ -8,10 +8,7 @@ using Core.Users;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace Core.Social
@@ -228,7 +225,7 @@ namespace Core.Social
         {
             FacebookConfigResponse response = new FacebookConfigResponse();
 
-            string str = TVinciShared.WS_Utils.GetTcmConfigValue("CONNECTION_STRING");
+            string str = ApplicationConfiguration.DatabaseConfiguration.ConnectionString.Value;
             FacebookWrapper oFBWRapper = new FacebookWrapper(nGroupID);
             response.FacebookConfig = oFBWRapper.FBConfig;
             if (response.FacebookConfig != null)
