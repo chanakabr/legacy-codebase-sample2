@@ -1,14 +1,10 @@
+using KLogMonitor;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Web;
-using System.Xml;
 using System.Collections;
 using System.Data;
-using System.Configuration;
-using KLogMonitor;
 using System.Reflection;
-using ConfigurationManager;
+using System.Text;
+using System.Xml;
 
 namespace TVinciShared
 {
@@ -964,8 +960,8 @@ namespace TVinciShared
             try
             {
                 Lucene_WCF.Service client = new Lucene_WCF.Service();
-                sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF");
-                
+                sWSURL = WS_Utils.GetTcmConfigValue("LUCENE_WCF"); //TCM not relevant anymore
+
                 if (!String.IsNullOrEmpty(sWSURL))
                     client.Url = sWSURL;
 
