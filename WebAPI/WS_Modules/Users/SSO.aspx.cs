@@ -64,7 +64,7 @@ namespace WS_Users
         {
             TurnerUserDetails res = null;
 
-            string sURL = string.Format(TVinciShared.WS_Utils.GetTcmConfigValue("TurnerTokenAuth"), sContentProviderID, sToken);
+            string sURL = string.Format(TVinciShared.WS_Utils.GetTcmConfigValue("TurnerTokenAuth"), sContentProviderID, sToken); //TCM not relevant anymore 
 
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(sURL);
 
