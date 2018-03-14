@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
+﻿using ConfigurationManager;
+using System;
 using TVinciShared;
 
 public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
