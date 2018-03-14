@@ -13,6 +13,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue GraceNoteALUIdConvertion;
         public static ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration;
         public static BooleanConfigurationValue ShouldDistributeRecordingSynchronously;
+        public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
 
         #endregion
 
@@ -153,6 +154,11 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
+            ProfessionalServicesTasksConfiguration = new ConfigurationManager.ProfessionalServicesTasksConfiguration("professional_services_tasks")
+            {
+                ShouldAllowEmpty = true,
+                Description = "Remote tasks configuratin for professional services handler."
+            };
 
             PictureUploaderPath = new ConfigurationManager.StringConfigurationValue("pic_uploader_path")
             {
@@ -191,7 +197,8 @@ namespace ConfigurationManager
             };
             EnableHttpLogin = new BooleanConfigurationValue("EnableHttpLogin")
             {
-                ShouldAllowEmpty = false
+                ShouldAllowEmpty = true,
+                DefaultValue = true
             };
             AppState = new StringConfigurationValue("APP_STATE")
             {
@@ -425,6 +432,7 @@ namespace ConfigurationManager
                     GraceNoteXSLTPath,
                     ElasticSearchHandlerConfiguration,
                     ShouldDistributeRecordingSynchronously,
+                    ProfessionalServicesTasksConfiguration,
                     PictureUploaderPath,
                     TVMBaseUrl,
                     TVMSkipLoginIPCheck,
