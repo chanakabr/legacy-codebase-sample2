@@ -370,7 +370,7 @@ namespace Core.Social
                 }
             }
 
-            cbManager.Set(cacheKey, response, (uint)WS_Utils.GetTcmIntValue(SOCIAL_FEED_TAGS_TTL_KEY));
+            cbManager.Set(cacheKey, response, (uint)ApplicationConfiguration.SocialFeedConfiguration.TagsTTL.IntValue);
 
             return response;
         }
@@ -449,26 +449,26 @@ namespace Core.Social
                             {
                                 try
                                 {
-                                    socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_FB_item_count"),
+                                    socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue,
                                         Core.Social.Utils.Decrypt(userData.m_user.m_oBasicData.m_sFacebookToken, ApplicationConfiguration.FacebookConfiguration.TokenKey.Value));
                                 }
                                 catch (Exception)
                                 {
                                     //Fallback to app token in case user token is invalid 
-                                    socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_FB_item_count"),
+                                    socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue,
                                         SocialFeedUtils.Facebook.GetFacebookAppAccessToken(groupId));
                                 }
                             }
                             // User wasn't found or has no facebook access_token
                             else
                             {
-                                socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_FB_item_count"),
+                                socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue,
                                     SocialFeedUtils.Facebook.GetFacebookAppAccessToken(groupId));
                             }
                             break;
 
                         case eSocialPlatform.InApp:
-                            socialPlatformFeed = SocialFeedUtils.InApp.GetInAppSocialFeed(assetId, assetType, groupId, TVinciShared.WS_Utils.GetTcmIntValue("SocialFeed_InApp_item_count"));
+                            socialPlatformFeed = SocialFeedUtils.InApp.GetInAppSocialFeed(assetId, assetType, groupId, ApplicationConfiguration.SocialFeedConfiguration.InAppItemCount.IntValue);
                             break;
 
                         case eSocialPlatform.Twitter:
@@ -491,8 +491,10 @@ namespace Core.Social
                     }
 
                     // add to cache
+                    uint expiration = (uint)ApplicationConfiguration.SocialFeedConfiguration.GetTTLByPlatform(socialPlatform.ToString()).IntValue;
 
-                    cbManager.Set(cacheKey, socialPlatformFeed, (uint)WS_Utils.GetTcmIntValue(string.Format(SOCIAL_FEED_PLATFORM_TTL_KEY_FORMAT, socialPlatform)));
+                    
+                    cbManager.Set(cacheKey, socialPlatformFeed, expiration);
                 }
 
                 if (socialPlatformFeed != null)
