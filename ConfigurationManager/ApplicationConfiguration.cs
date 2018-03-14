@@ -24,7 +24,11 @@ namespace ConfigurationManager
         public static StringConfigurationValue ClearCachePath;
         public static StringConfigurationValue StagingClearCachePath;
         public static StringConfigurationValue BatchUpload;
-
+        public static StringConfigurationValue LookupGenericUpload;
+        public static BooleanConfigurationValue EnableHttpLogin;
+        public static StringConfigurationValue AppState;
+        public static StringConfigurationValue ServerName;
+        public static StringConfigurationValue ApplicationName;
 
         #endregion
 
@@ -177,11 +181,32 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 Description = "TVM key, location of clean_cache.aspx page in different servers, for staging environment."
             };
-            BatchUpload= new ConfigurationManager.StringConfigurationValue("batch_upload")
+            BatchUpload = new ConfigurationManager.StringConfigurationValue("batch_upload")
             {
-                ShouldAllowEmpty = true                
+                ShouldAllowEmpty = true
             };
-
+            LookupGenericUpload = new StringConfigurationValue("lookup_generic_upload")
+            {
+                ShouldAllowEmpty = true
+            };
+            EnableHttpLogin = new BooleanConfigurationValue("EnableHttpLogin")
+            {
+                ShouldAllowEmpty = false
+            };
+            AppState = new StringConfigurationValue("APP_STATE")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = "normal"
+            };
+            ServerName = new StringConfigurationValue("SERVER_NAME")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = "TVM_EU"
+            };
+            ApplicationName = new StringConfigurationValue("APPLICATION_NAME")
+            {
+                ShouldAllowEmpty = true
+            };
             #endregion
 
             CrowdSourceTimeSpan = new ConfigurationManager.NumericConfigurationValue("CrowdSourceTimeSpan")
@@ -384,7 +409,7 @@ namespace ConfigurationManager
             PicsBasePath = new ConfigurationManager.StringConfigurationValue("pics_base_path") { ShouldAllowEmpty = true };
             NotificationConfiguration = new NotificationConfiguration("notification_configuration");
             IngestFtpPass = new StringConfigurationValue("IngestFtpPass") { ShouldAllowEmpty = true };
-            IngestFtpUrl= new StringConfigurationValue("IngestFtpUrl") { ShouldAllowEmpty = true };
+            IngestFtpUrl = new StringConfigurationValue("IngestFtpUrl") { ShouldAllowEmpty = true };
             IngestFtpUser = new StringConfigurationValue("IngestFtpUser") { ShouldAllowEmpty = true };
 
             AllConfigurationValues = new List<ConfigurationValue>()
@@ -401,6 +426,11 @@ namespace ConfigurationManager
                     ClearCachePath,
                     StagingClearCachePath,
                     BatchUpload,
+                    LookupGenericUpload,
+                    EnableHttpLogin,
+                    AppState,
+                    ServerName,
+                    ApplicationName,
                     DMSUrl,
                     MailerConfiguration,
                     GroupsManagerConfiguration,
