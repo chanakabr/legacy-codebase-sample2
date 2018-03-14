@@ -42,6 +42,8 @@ namespace WebAPI.EventNotifications
                 data.args.AddRange(ExtraArgs);
             }
 
+            data.args.Add(data.RequestId);
+
             queue.Enqueue(data, this.RoutingKey, this.Expiration);
         }
 
