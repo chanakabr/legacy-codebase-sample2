@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
-using System.IO;
-using System.Xml;
-using System.Data;
-using ApiObjects;
-using TVinciShared;
-using Tvinci.Core.DAL;
-using System.Text.RegularExpressions;
-using System.Configuration;
+﻿using ApiObjects;
 using EpgBL;
-using TvinciImporter;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
+using Tvinci.Core.DAL;
+using TvinciImporter;
+using TVinciShared;
 
 
 namespace EpgFeeder
@@ -1174,11 +1173,7 @@ namespace EpgFeeder
         protected void BuildEpgByChannel(Int32 channelID, DateTime minStartDate, DateTime maxStartDate)
         {
         }
-
-        static protected string GetWSURL(string sUrl)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sUrl);
-        }
+       
         #endregion
 
 

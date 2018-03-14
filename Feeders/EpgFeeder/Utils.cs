@@ -1,26 +1,16 @@
-﻿using System;
+﻿using ElasticSearch.Common;
+using ElasticSearch.Searcher;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using ElasticSearch.Common;
-using ElasticSearch.Searcher;
-using EpgBL;
-using KLogMonitor;
 
 namespace EpgFeeder
 {
     public static class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public static string GetValueByKey(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
-
 
         public static bool ParseEPGStrToDate(string dateStr, ref DateTime theDate)
         {

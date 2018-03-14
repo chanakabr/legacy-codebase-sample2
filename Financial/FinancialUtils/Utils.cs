@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
 
 namespace FinancialUtils
 {
@@ -61,11 +57,6 @@ namespace FinancialUtils
             if (preserveLength > 0)
                 System.Array.Copy(oldArray, newArray, preserveLength);
             return newArray;
-        }
-
-        static public string GetWSURL(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
         static public Int32 GetCurrencyIDByCode(string sCode3)
