@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Collections;
-using System.Configuration;
-using System.Security.Cryptography;
+﻿using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Collections;
 using System.Reflection;
+using System.Text;
 
 namespace CollectionTasker
 {
@@ -127,7 +124,7 @@ namespace CollectionTasker
             string sWSPass = "";
 
             CollectionTasker.TvinciPricing.mdoule m = new CollectionTasker.TvinciPricing.mdoule();
-            string sWSURL = GetWSURL("pricing_ws");
+            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
             if (sWSURL != "")
                 m.Url = sWSURL;
 
@@ -270,11 +267,6 @@ namespace CollectionTasker
             selectQuery = null;
 
             return nPID;
-        }
-
-        public string GetWSURL(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
         private void GetCache(Int32 nMin, Int32 nMax)
