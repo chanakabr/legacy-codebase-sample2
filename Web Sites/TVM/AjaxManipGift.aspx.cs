@@ -1,23 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.HtmlControls;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Xml.Linq;
+﻿using ConfigurationManager;
+using System;
 
 public partial class AjaxManipGift : System.Web.UI.Page
 {
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-    }
-
     protected void AddUserLog(string sSiteGUID, string sRemarks)
     {
         Int32 nGroupID = TVinciShared.LoginManager.GetLoginGroupID();
@@ -26,7 +11,7 @@ public partial class AjaxManipGift : System.Web.UI.Page
         string sWSUserName = "";
         string sWSPass = "";
         TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "AddToLog", "users", sIP, ref sWSUserName, ref sWSPass);
-        string sWSURL = GetWSURL("users_ws");
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Users.URL.Value;
         if (sWSURL != "")
             p.Url = sWSURL;
         /*
@@ -43,7 +28,7 @@ public partial class AjaxManipGift : System.Web.UI.Page
         string sWSUserName = "";
         string sWSPass = "";
         TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "CC_DummyChargeUserForSubscription", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
-        string sWSURL = GetWSURL("conditionalaccess_ws");
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
         if (sWSURL != "")
             p.Url = sWSURL;
         ca_ws.BillingResponse ret = p.CC_DummyChargeUserForSubscription(sWSUserName, sWSPass, sSiteGUID, 0, "USD", sGiftCode, "", "1.1.1.1", "", "", "", "");
@@ -62,7 +47,7 @@ public partial class AjaxManipGift : System.Web.UI.Page
         string sWSUserName = "";
         string sWSPass = "";
         TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "CC_DummyChargeUserForSubscription", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
-        string sWSURL = GetWSURL("conditionalaccess_ws");
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
         if (sWSURL != "")
             p.Url = sWSURL;
 
@@ -83,7 +68,7 @@ public partial class AjaxManipGift : System.Web.UI.Page
         string sWSUserName = "";
         string sWSPass = "";
         TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "CC_DummyChargeUserForSubscription", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
-        string sWSURL = GetWSURL("conditionalaccess_ws");
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
         if (sWSURL != "")
             p.Url = sWSURL;
         int mediaFileId = 0;
@@ -123,7 +108,7 @@ public partial class AjaxManipGift : System.Web.UI.Page
         string sWSUserName = "";
         string sWSPass = "";
         TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "CC_DummyChargeUserForSubscription", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
-        string sWSURL = GetWSURL("conditionalaccess_ws");
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
         if (sWSURL != "")
             p.Url = sWSURL;
         int mediaFileId = 0;

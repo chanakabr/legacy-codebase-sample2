@@ -1,23 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.HtmlControls;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Xml.Linq;
+﻿using ConfigurationManager;
+using System;
 
 public partial class AjaxSubDateChange : System.Web.UI.Page
 {
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-    }
-
     protected bool ChangeSubDates(string sSiteGUID, string sSubscriptionCode, Int32 nPurchaseID , 
         Int32 nDurationIndays , bool bNewRenewable , Int32 nCurrentRenewable)
     {
@@ -27,7 +12,7 @@ public partial class AjaxSubDateChange : System.Web.UI.Page
         string sWSUserName = "";
         string sWSPass = "";
         TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "ChangeSubscriptionDates", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
-        string sWSURL = GetWSURL("conditionalaccess_ws");
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
         if (sWSURL != "")
             p.Url = sWSURL;
         return p.ChangeSubscriptionDates(sWSUserName, sWSPass, sSiteGUID, sSubscriptionCode, nPurchaseID, nDurationIndays, bNewRenewable);

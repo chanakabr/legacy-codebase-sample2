@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Configuration;
+﻿using ConfigurationManager;
+using System;
 using System.Data;
-using System.Linq;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.HtmlControls;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Xml.Linq;
 using TVinciShared;
 
 public partial class adm_user_purchases_report : System.Web.UI.Page
@@ -126,12 +117,7 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
             d.AcceptChanges();
         }
         return d.Copy();
-    }
-
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-    }
+    }    
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
@@ -142,7 +128,7 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
         string sWSUserName = "";
         string sWSPass = "";
         TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetUserBillingHistory", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
-        string sWSURL = GetWSURL("conditionalaccess_ws");
+        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
         if (sWSURL != "")
             p.Url = sWSURL;
 

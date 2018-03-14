@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ca_ws;
+using ConfigurationManager;
+using KLogMonitor;
+using System;
 using System.Reflection;
 using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using KLogMonitor;
 using TVinciShared;
-using ca_ws;
 
 public partial class adm_cdvr_adapter_new : System.Web.UI.Page
 {
@@ -58,7 +55,7 @@ public partial class adm_cdvr_adapter_new : System.Web.UI.Page
                             string sWSPass = "";
                             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
                             ca_ws.module cas = new ca_ws.module();
-                            string sWSURL = GetWSURL("conditionalaccess_ws");
+                            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
                             if (sWSURL != "")
                                 cas.Url = sWSURL;
                             try
@@ -166,11 +163,6 @@ public partial class adm_cdvr_adapter_new : System.Web.UI.Page
         string sTable = theRecord.GetTableHTML("adm_cdvr_adapter_new.aspx?submited=1");
 
         return sTable;
-    }
-
-    static public string GetWSURL(string sKey)
-    {
-        return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
     }
 
     static private bool IsExternalIDExists(string extId, int pgid)

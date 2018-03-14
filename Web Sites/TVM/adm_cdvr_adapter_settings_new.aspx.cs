@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
+﻿using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Reflection;
 using TVinciShared;
 
 public partial class adm_cdvr_adapter_settings_new : System.Web.UI.Page
@@ -46,7 +42,7 @@ public partial class adm_cdvr_adapter_settings_new : System.Web.UI.Page
                     string sWSUserName = "";
                     string sWSPass = "";
                     TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SendCDVRAdapterConfiguration", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
-                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("conditionalaccess_ws");
+                    string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
                     if (!string.IsNullOrEmpty(sWSURL))
                         cas.Url = sWSURL;
                     try
