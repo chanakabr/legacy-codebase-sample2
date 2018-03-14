@@ -1,14 +1,14 @@
-﻿using System;
+﻿using ApiObjects;
+using ConfigurationManager;
+using EnumProject;
+using EpgBL;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Xml;
-using ApiObjects;
-using EnumProject;
-using EpgBL;
-using KLogMonitor;
 using Tvinci.Core.DAL;
 
 namespace GracenoteFeeder
@@ -146,9 +146,8 @@ namespace GracenoteFeeder
                     }
                     #endregion
 
-                    BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);
-                    string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-                    int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+                    BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);                    
+                    int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
                     int nCount = 0;
                     List<ulong> ulProgram = new List<ulong>();
                     List<DateTime> deletedDays = new List<DateTime>();

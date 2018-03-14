@@ -1,18 +1,17 @@
-﻿using System;
+﻿using ApiObjects;
+using ConfigurationManager;
+using EpgBL;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Web;
 using System.Xml;
 using System.Xml.Serialization;
-using System.IO;
 using TvinciImporter;
-using System.Web;
-
-using DAL;
-using EpgBL;
-using ApiObjects;
-using KLogMonitor;
-using System.Reflection;
 
 namespace EpgFeeder
 {
@@ -415,10 +414,8 @@ namespace EpgFeeder
             Dictionary<DateTime, List<int>> epgDateWithChannelIds = new Dictionary<DateTime, List<int>>(new DateComparer());
             List<FieldTypeEntity> FieldEntityMapping = GetMappingFields();
             EpgCB newEpgItem;
-
-
-            string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-            int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+            
+            int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
             int nCount = 0;
             List<ulong> ulProgram = new List<ulong>();
 

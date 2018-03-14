@@ -1,14 +1,14 @@
-﻿using System;
+﻿using ApiObjects;
+using ConfigurationManager;
+using EpgBL;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using ApiObjects;
-using EpgBL;
-using KLogMonitor;
 using TvinciImporter;
 
 namespace EpgFeeder
@@ -237,9 +237,8 @@ namespace EpgFeeder
             }
             #endregion
 
-            BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);
-            string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-            int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+            BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);            
+            int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
             int nCount = 0;
             List<ulong> ulProgram = new List<ulong>();
             Dictionary<string, EpgCB> epgDic = new Dictionary<string, EpgCB>();

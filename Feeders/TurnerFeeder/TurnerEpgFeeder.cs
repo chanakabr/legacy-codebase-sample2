@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Web.Script.Serialization;
-using ApiObjects;
-using TurnerEpgFeeder;
+﻿using ApiObjects;
+using ConfigurationManager;
 using EpgBL;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Web.Script.Serialization;
+using TurnerEpgFeeder;
 
 namespace TurnerFeeder
 {
@@ -164,9 +165,8 @@ namespace TurnerFeeder
                     //#endregion
 
 
-                    BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(m_groupID);
-                    string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-                    int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+                    BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(m_groupID);                    
+                    int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
                     int nCount = 0;
 
                     List<ulong> ulProgram = new List<ulong>();

@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Net;
-using System.Xml.Serialization;
-using System.Xml;
-using TvinciImporter;
-using TVinciShared;
-using System.Data;
-using ApiObjects;
+﻿using ApiObjects;
+using ConfigurationManager;
 using EpgBL;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
 using System.Reflection;
+using System.Text;
+using System.Xml;
+using TvinciImporter;
+
 namespace EpgFeeder
 {
     public class EPGMediaCorp : EPGImplementor
@@ -222,9 +220,8 @@ namespace EpgFeeder
                     }
                     #endregion
 
-                    BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);
-                    string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-                    int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+                    BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);                    
+                    int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
                     int nCount = 0;
                     List<ulong> ulProgram = new List<ulong>();
                     List<DateTime> deletedDays = new List<DateTime>();

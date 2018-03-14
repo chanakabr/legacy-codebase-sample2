@@ -1,18 +1,18 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Epg;
+using ConfigurationManager;
+using DAL;
+using EpgBL;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml;
-using System.Xml.Serialization;
-using ApiObjects;
-using ApiObjects.Epg;
-using EpgBL;
 using Tvinci.Core.DAL;
-using DAL;
-using KLogMonitor;
-using System.Reflection;
 
 namespace YesEpgFeeder
 {
@@ -81,7 +81,7 @@ namespace YesEpgFeeder
                     }
                 }
                 ParentGroupID = DAL.UtilsDal.GetParentGroupID(GroupID);
-                URL = TVinciShared.WS_Utils.GetTcmConfigValue("epgURL");
+                URL = ApplicationConfiguration.EPGUrl.Value;
                 Region = TVinciShared.WS_Utils.GetTcmConfigValue("regionId");
                 DBOnly = TVinciShared.WS_Utils.GetTcmBoolValue("DB_Only");
             }
@@ -115,7 +115,7 @@ namespace YesEpgFeeder
 
                     foreach (string sChannel in lChannelIds)
                     {
-                        URL = TVinciShared.WS_Utils.GetTcmConfigValue("epgURL");
+                        URL = ApplicationConfiguration.EPGUrl.Value;
                         ChannelID = sChannel;
                         SaveChannelByXML();
                     }
@@ -140,7 +140,7 @@ namespace YesEpgFeeder
 
                     foreach (string sChannel in lChannelIds)
                     {
-                        URL = TVinciShared.WS_Utils.GetTcmConfigValue("epgURL");
+                        URL = ApplicationConfiguration.EPGUrl.Value;
                         ChannelID = sChannel;
                         SaveChannelByXML();
                     }
@@ -196,9 +196,8 @@ namespace YesEpgFeeder
                 List<FieldTypeEntity> FieldEntityMapping = Utils.GetMappingFields(GroupID);
                 Dictionary<string, KeyValuePair<string, string>> dParentalRating = GetParentalRating();
 
-                BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(GroupID);
-                string update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-                int nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+                BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(GroupID);                
+                int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
                 int nCount = 0;
 
                 List<ulong> ulProgram = new List<ulong>();

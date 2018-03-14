@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.IO;
-using Newtonsoft.Json;
-using Tvinci.Core.DAL;
-using System.Data;
-using EpgBL;
-using ApiObjects;
-using TvinciImporter;
+﻿using ApiObjects;
 using ApiObjects.Epg;
+using ConfigurationManager;
+using EpgBL;
 using GroupsCacheManager;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
+using Tvinci.Core.DAL;
+using TvinciImporter;
 
 namespace EpgFeeder
 {
@@ -41,9 +37,8 @@ namespace EpgFeeder
             oEpgBL = EpgBL.Utils.GetInstance(m_Channels.parentgroupid);
             lLanguage = GetLanguages(m_Channels.parentgroupid); // dictionary contains all language ids and its  code (string)
             // get mapping tags and metas 
-            FieldEntityMapping = GetMappingFields(m_Channels.parentgroupid);
-            update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-            nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
+            FieldEntityMapping = GetMappingFields(m_Channels.parentgroupid);            
+            nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
             // get mapping between ratio_id and ratio 
             Dictionary<string, string> sRatios = EpgDal.Get_PicsEpgRatios();
             ratios = sRatios.ToDictionary(x => int.Parse(x.Key), x => x.Value);
