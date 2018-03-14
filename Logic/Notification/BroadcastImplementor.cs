@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Data;
-using System.Threading.Tasks;
+﻿using ApiObjects.Notification;
+using ConfigurationManager;
 using DAL;
-using System.Collections.Concurrent;
-using System.Configuration;
-using System.Data.SqlClient;
-using ApiObjects.Notification;
 using KlogMonitorHelper;
-
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Core.Notification
 {
@@ -21,14 +16,6 @@ namespace Core.Notification
     /// </summary>
     public class BroadcastImplementor : BaseImplementor
     {
-
-        #region Consts
-        private const string MAX_TASKS_NUM_KEY = "NOTIFICATION_BROADCAST_TASKS_NUM";
-        private const string MIN_MESSAGES_NUM_FOR_TASKS_KEY = "NOTIFICATION_BROADCAST_MIN_MESSAGES_NUM_FOR_TASKS";
-        private const string THREAD_SLEEP_KEY = "NOTIFICATION_BROADCAST_THREAD_SLEEP";
-        private const string THREAD_SLEEP_INDICATOR_KEY = "NOTIFICATION_BROADCAST_THREAD_SLEEP_INDICATOR";
-        #endregion
-
 
         #region Constructor
         public BroadcastImplementor(NotificationRequest request)
@@ -177,13 +164,9 @@ namespace Core.Notification
             get
             {
                 int ret = 10;
-                if (TVinciShared.WS_Utils.GetTcmConfigValue(MAX_TASKS_NUM_KEY) != string.Empty)
+                if (ApplicationConfiguration.NotificationConfiguration.BroadcastTasksNum.IntValue > 0)
                 {
-                    bool result = int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(MAX_TASKS_NUM_KEY), out ret);
-                    if (result == false)
-                    {
-                        ret = 10;
-                    }
+                    return ApplicationConfiguration.NotificationConfiguration.BroadcastTasksNum.IntValue;
                 }
                 return ret;
             }
@@ -198,13 +181,9 @@ namespace Core.Notification
             get
             {
                 int ret = 100;
-                if (TVinciShared.WS_Utils.GetTcmConfigValue(MIN_MESSAGES_NUM_FOR_TASKS_KEY) != string.Empty)
+                if (ApplicationConfiguration.NotificationConfiguration.BroadcastMinMessagesNumForTasks.IntValue > 0)
                 {
-                    bool result = int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(MIN_MESSAGES_NUM_FOR_TASKS_KEY), out ret);
-                    if (result == false)
-                    {
-                        ret = 100;
-                    }
+                    return ApplicationConfiguration.NotificationConfiguration.BroadcastMinMessagesNumForTasks.IntValue;
                 }
                 return ret;
             }
@@ -218,13 +197,9 @@ namespace Core.Notification
             get
             {
                 int ret = 50;
-                if (TVinciShared.WS_Utils.GetTcmConfigValue(THREAD_SLEEP_KEY) != string.Empty)
+                if (ApplicationConfiguration.NotificationConfiguration.BroadcastThreadSleep.IntValue > 0)
                 {
-                    bool result = int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(THREAD_SLEEP_KEY), out ret);
-                    if (result == false)
-                    {
-                        ret = 50;
-                    }
+                    return ApplicationConfiguration.NotificationConfiguration.BroadcastThreadSleep.IntValue;
                 }
                 return ret;
             }
@@ -238,13 +213,9 @@ namespace Core.Notification
             get
             {
                 int ret = 100;
-                if (TVinciShared.WS_Utils.GetTcmConfigValue(THREAD_SLEEP_INDICATOR_KEY) != string.Empty)
+                if (ApplicationConfiguration.NotificationConfiguration.BroadcastThreadSleepIndicator.IntValue > 0)
                 {
-                    bool result = int.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(THREAD_SLEEP_INDICATOR_KEY), out ret);
-                    if (result == false)
-                    {
-                        ret = 100;
-                    }
+                    return ApplicationConfiguration.NotificationConfiguration.BroadcastThreadSleepIndicator.IntValue;
                 }
                 return ret;
             }
