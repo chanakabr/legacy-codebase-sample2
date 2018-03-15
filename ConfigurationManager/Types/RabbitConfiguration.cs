@@ -23,7 +23,7 @@ namespace ConfigurationManager
             ProfessionalServices.RoutingKey.DefaultValue = "CDR_NOTIFICATION";
             ProfessionalServices.RoutingKey.ShouldAllowEmpty = false;
 
-            SocialFeed = new BaseRabbitConfiguration("social_fieed", this);
+            SocialFeed = new BaseRabbitConfiguration("social_feed", this);
             Picture = new BaseRabbitConfiguration("picture", this);
             EPG = new BaseRabbitConfiguration("epg", this);
             Indexing = new BaseRabbitConfiguration("indexing", this);

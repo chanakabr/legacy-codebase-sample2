@@ -124,14 +124,39 @@ namespace ConfigurationManager
         #region Private Members
 
         private static List<ConfigurationValue> AllConfigurationValues;
-
+        
         #endregion
 
         #region Public Static Methods
 
-        public static void Initialize(bool shouldLoadDefaults = false)
+        public static void Initialize(bool shouldLoadDefaults = false, string application = "", string host = "", string environment = "")
         {
-            TCMClient.Settings.Instance.Init();
+            if (!string.IsNullOrEmpty(application) || !string.IsNullOrEmpty(host) || !string.IsNullOrEmpty(environment))
+            {
+                TCMClient.TCMConfiguration config = (TCMClient.TCMConfiguration)System.Configuration.ConfigurationManager.GetSection("TCMConfig");
+
+                if (string.IsNullOrEmpty(application))
+                {
+                    application = config.Application;
+                }
+
+                if (string.IsNullOrEmpty(host))
+                {
+                    host = config.Host;
+                }
+
+                if (string.IsNullOrEmpty(environment))
+                {
+                    environment = config.Environment;
+                }
+
+                //Populate settings from remote
+                TCMClient.Settings.Instance.Init(config.URL, application, host, environment, config.AppID, config.AppSecret);
+            }
+            else
+            {
+                TCMClient.Settings.Instance.Init();
+            }
 
             #region Remote tasks configuration values
 
@@ -575,13 +600,13 @@ namespace ConfigurationManager
             }
         }
 
-        public static bool Validate()
+        public static bool Validate(string application = "", string host = "", string environment = "")
         {
             bool result = true;
 
             try
             {
-                Initialize();
+                Initialize(false, application, host, environment);
 
                 foreach (var configurationValue in AllConfigurationValues)
                 {
