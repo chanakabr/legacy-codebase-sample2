@@ -160,17 +160,17 @@ namespace ConfigurationManager
 
             #region Remote tasks configuration values
 
-            CeleryRoutingConfiguration = new ConfigurationManager.CeleryRoutingConfiguration("CELERY_ROUTING")
+            CeleryRoutingConfiguration = new CeleryRoutingConfiguration("CELERY_ROUTING")
             {
                 ShouldAllowEmpty = true,
                 Description = "Remote tasks celery routing. Not used in phoenix."
             };
-            ImageResizerConfiguration = new ConfigurationManager.ImageResizerConfiguration("image_resizer_configuration")
+            ImageResizerConfiguration = new ImageResizerConfiguration("image_resizer_configuration")
             {
                 ShouldAllowEmpty = true,
                 Description = "Configuration for image resizer handler in remote tasks."
             };
-            GraceNoteXSLTPath = new ConfigurationManager.StringConfigurationValue("GraceNote_XSLT_PATH")
+            GraceNoteXSLTPath = new StringConfigurationValue("GraceNote_XSLT_PATH")
             {
                 ShouldAllowEmpty = true,
                 Description = "Remote tasks configuration for EPG XDTV Transformation."
@@ -180,22 +180,22 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 Description = "Remote tasks configuration for EPG XDTV Transformation."
             };
-            ElasticSearchHandlerConfiguration = new ConfigurationManager.ElasticSearchHandlerConfiguration("elasticsearch_handler_configuration")
+            ElasticSearchHandlerConfiguration = new ElasticSearchHandlerConfiguration("elasticsearch_handler_configuration")
             {
                 ShouldAllowEmpty = true
             };
-            ShouldDistributeRecordingSynchronously = new ConfigurationManager.BooleanConfigurationValue("ShouldDistributeRecordingSynchronously")
+            ShouldDistributeRecordingSynchronously = new BooleanConfigurationValue("ShouldDistributeRecordingSynchronously")
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
-            ProfessionalServicesTasksConfiguration = new ConfigurationManager.ProfessionalServicesTasksConfiguration("professional_services_tasks")
+            ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration("professional_services_tasks")
             {
                 ShouldAllowEmpty = true,
                 Description = "Remote tasks configuratin for professional services handler."
             };
 
-            PictureUploaderPath = new ConfigurationManager.StringConfigurationValue("pic_uploader_path")
+            PictureUploaderPath = new StringConfigurationValue("pic_uploader_path")
             {
                 ShouldAllowEmpty = true,
                 Description = "Configuration for DBManipulator/CouchBaseManipulator in TVM."
@@ -206,23 +206,23 @@ namespace ConfigurationManager
                 DefaultValue = "/",
                 Description = "Base URL for TVM."
             };
-            TVMSkipLoginIPCheck = new ConfigurationManager.BooleanConfigurationValue("SKIP_LOGIN_IP_CHECK")
+            TVMSkipLoginIPCheck = new BooleanConfigurationValue("SKIP_LOGIN_IP_CHECK")
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = false,
                 Description = "TVM key, whether IP check during login should be skipped or not."
             };
-            ClearCachePath = new ConfigurationManager.StringConfigurationValue("CLEAR_CACHE_PATH")
+            ClearCachePath = new StringConfigurationValue("CLEAR_CACHE_PATH")
             {
                 ShouldAllowEmpty = true,
                 Description = "TVM key, location of clean_cache.aspx page in different servers."
             };
-            StagingClearCachePath = new ConfigurationManager.StringConfigurationValue("STAGING_CLEAR_CACHE_PATH")
+            StagingClearCachePath = new StringConfigurationValue("STAGING_CLEAR_CACHE_PATH")
             {
                 ShouldAllowEmpty = true,
                 Description = "TVM key, location of clean_cache.aspx page in different servers, for staging environment."
             };
-            BatchUpload = new ConfigurationManager.StringConfigurationValue("batch_upload")
+            BatchUpload = new StringConfigurationValue("batch_upload")
             {
                 ShouldAllowEmpty = true
             };
@@ -251,7 +251,7 @@ namespace ConfigurationManager
             };
             #endregion
 
-            CrowdSourceTimeSpan = new ConfigurationManager.NumericConfigurationValue("CrowdSourceTimeSpan")
+            CrowdSourceTimeSpan = new NumericConfigurationValue("CrowdSourceTimeSpan")
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = 30
@@ -262,7 +262,7 @@ namespace ConfigurationManager
             RequestParserConfiguration = new RequestParserConfiguration("request_parser");
             OTTUserControllerConfiguration = new OTTUserControllerConfiguration("ott_user_controller");
             CouchbaseSectionMapping = new CouchbaseSectionMapping("CouchbaseSectionMapping");
-            UsersCacheConfiguration = new ConfigurationManager.UsersCacheConfiguration("users_cache_configuration");
+            UsersCacheConfiguration = new UsersCacheConfiguration("users_cache_configuration");
             BaseCacheConfiguration = new NamedCacheConfiguration("base_cache_configuration");
             DatabaseConfiguration = new DatabaseConfiguration("database_configuration");
 
@@ -271,25 +271,25 @@ namespace ConfigurationManager
             WSCacheConfiguration.TTLSeconds.DefaultValue = 7200;
             WSCacheConfiguration.Name.DefaultValue = "Cache";
 
-            SingleInMemoryCacheName = new ConfigurationManager.StringConfigurationValue("single_in_memory_cache_name")
+            SingleInMemoryCacheName = new StringConfigurationValue("single_in_memory_cache_name")
             {
                 DefaultValue = "Cache",
                 ShouldAllowEmpty = true
             };
 
-            ODBCWrapperCacheConfiguration = new ConfigurationManager.NamedCacheConfiguration("odbc_wrapper_cache_configuration");
+            ODBCWrapperCacheConfiguration = new NamedCacheConfiguration("odbc_wrapper_cache_configuration");
             ODBCWrapperCacheConfiguration.TTLSeconds.DefaultValue = 7200;
             ODBCWrapperCacheConfiguration.Name.DefaultValue = "Cache";
 
-            CatalogCacheConfiguration = new ConfigurationManager.NamedCacheConfiguration("catalog_cache_configuration");
+            CatalogCacheConfiguration = new NamedCacheConfiguration("catalog_cache_configuration");
             CatalogCacheConfiguration.TTLSeconds.DefaultValue = 3600;
             CatalogCacheConfiguration.Name.DefaultValue = "CatalogCache";
 
-            NotificationCacheConfiguration = new ConfigurationManager.NamedCacheConfiguration("notification_cache_configuration");
+            NotificationCacheConfiguration = new NamedCacheConfiguration("notification_cache_configuration");
             NotificationCacheConfiguration.TTLSeconds.DefaultValue = 3600;
             NotificationCacheConfiguration.Name.DefaultValue = "NotificationCache";
 
-            GroupsCacheConfiguration = new ConfigurationManager.NamedCacheConfiguration("groups_cache_configuration");
+            GroupsCacheConfiguration = new NamedCacheConfiguration("groups_cache_configuration");
             GroupsCacheConfiguration.TTLSeconds.DefaultValue = 86400;
             GroupsCacheConfiguration.Name.DefaultValue = "GroupsCache";
             GroupsCacheConfiguration.Name.Description = "Original key is GROUPS_CACHE_NAME";
@@ -353,9 +353,9 @@ namespace ConfigurationManager
             };
             LicensedLinksCacheConfiguration = new LicensedLinksCacheConfiguration("licensed_links_cache_configuration");
             SocialFeedQueueConfiguration = new SocialFeedQueueConfiguration("social_feed_queue_configuration");
-            LayeredCacheConfigurationValidation = new ConfigurationManager.LayeredCacheConfigurationValidation("LayeredCache");
-            ExportConfiguration = new ConfigurationManager.ExportConfiguration("export");
-            UDRMUrl = new ConfigurationManager.StringConfigurationValue("UDRM_URL")
+            LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation("LayeredCache");
+            ExportConfiguration = new ExportConfiguration("export");
+            UDRMUrl = new StringConfigurationValue("UDRM_URL")
             {
                 DefaultValue = "https://ny-udrm-stg.kaltura.com"
             };
@@ -363,18 +363,18 @@ namespace ConfigurationManager
             {
                 DefaultValue = 60
             };
-            UseOldImageServer = new ConfigurationManager.StringConfigurationValue("USE_OLD_IMAGE_SERVER")
+            UseOldImageServer = new StringConfigurationValue("USE_OLD_IMAGE_SERVER")
             {
                 DefaultValue = "0",
                 Description = "Group Ids, split by ';', that wish to use old image server"
             };
             CatalogLogicConfiguration = new CatalogLogicConfiguration("catalog_logic_configuration");
-            AnnouncementManagerConfiguration = new ConfigurationManager.AnnouncementManagerConfiguration("announcement_manager_configuration");
+            AnnouncementManagerConfiguration = new AnnouncementManagerConfiguration("announcement_manager_configuration");
             CDVRAdapterConfiguration = new CDVRAdapterConfiguration("cdvr_adapter_configuration")
             {
                 ShouldAllowEmpty = true
             };
-            DMSAdapterUrl = new ConfigurationManager.StringConfigurationValue("DMS_ADAPTER_URL")
+            DMSAdapterUrl = new StringConfigurationValue("DMS_ADAPTER_URL")
             {
 
             };
@@ -382,89 +382,89 @@ namespace ConfigurationManager
             {
                 DefaultValue = 365
             };
-            EngagementsConfiguration = new ConfigurationManager.EngagementsConfiguration("engagements_configuration");
-            UserInterestsTTLDays = new ConfigurationManager.NumericConfigurationValue("ttl_user_interest_days")
+            EngagementsConfiguration = new EngagementsConfiguration("engagements_configuration");
+            UserInterestsTTLDays = new NumericConfigurationValue("ttl_user_interest_days")
             {
                 DefaultValue = 30
             };
-            PlayManifestDynamicQueryStringParamsNames = new ConfigurationManager.StringConfigurationValue("PlayManifestDynamicQueryStringParamsNames")
+            PlayManifestDynamicQueryStringParamsNames = new StringConfigurationValue("PlayManifestDynamicQueryStringParamsNames")
             {
                 DefaultValue = "clientTag,playSessionId"
             };
-            RecordingsMaxDegreeOfParallelism = new ConfigurationManager.NumericConfigurationValue("recordings_max_degree_of_parallelism")
+            RecordingsMaxDegreeOfParallelism = new NumericConfigurationValue("recordings_max_degree_of_parallelism")
             {
                 DefaultValue = 5
             };
-            ReconciliationFrequencySeconds = new ConfigurationManager.NumericConfigurationValue("reconciliation_frequency_seconds")
+            ReconciliationFrequencySeconds = new NumericConfigurationValue("reconciliation_frequency_seconds")
             {
                 DefaultValue = 7200
             };
-            EventConsumersConfiguration = new ConfigurationManager.EventConsumersConfiguration("ConsumerSettings");
-            AuthorizationManagerConfiguration = new ConfigurationManager.AuthorizationManagerConfiguration("authorization_manager_configuration");
+            EventConsumersConfiguration = new EventConsumersConfiguration("ConsumerSettings");
+            AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration("authorization_manager_configuration");
             UserPINDigitsConfiguration = new UserPINDigitsConfiguration("user_pin_digits_configuration");
-            WebServicesConfiguration = new ConfigurationManager.WebServicesConfiguration("WebServices");
-            ShouldGetCatalogDataFromDB = new ConfigurationManager.BooleanConfigurationValue("get_catalog_data_from_db")
+            WebServicesConfiguration = new WebServicesConfiguration("WebServices");
+            ShouldGetCatalogDataFromDB = new BooleanConfigurationValue("get_catalog_data_from_db")
             {
                 DefaultValue = false,
                 ShouldAllowEmpty = true,
                 Description = "Just in case media mark information is not in Couchbase, we might want to continue to DB. Should be false or empty."
             };
-            CrowdSourcerFeedNumberOfItems = new ConfigurationManager.NumericConfigurationValue("crowdsourcer.FEED_NUM_OF_ITEMS")
+            CrowdSourcerFeedNumberOfItems = new NumericConfigurationValue("crowdsourcer.FEED_NUM_OF_ITEMS")
             {
                 DefaultValue = 0,
                 ShouldAllowEmpty = true
             };
-            PushMessagesConfiguration = new ConfigurationManager.PushMessagesConfiguration("push_messages");
-            QueueFailLimit = new ConfigurationManager.NumericConfigurationValue("queue_fail_limit")
+            PushMessagesConfiguration = new PushMessagesConfiguration("push_messages");
+            QueueFailLimit = new NumericConfigurationValue("queue_fail_limit")
             {
                 DefaultValue = 3,
                 ShouldAllowEmpty = true
             };
-            Version = new ConfigurationManager.StringConfigurationValue("Version");
-            PendingThresholdDays = new ConfigurationManager.NumericConfigurationValue("pending_threshold_days")
+            Version = new StringConfigurationValue("Version");
+            PendingThresholdDays = new NumericConfigurationValue("pending_threshold_days")
             {
                 DefaultValue = 180,
                 ShouldAllowEmpty = true
             };
-            ImageUtilsConfiguration = new ConfigurationManager.ImageUtilsConfiguration("image_utils_configuration")
+            ImageUtilsConfiguration = new ImageUtilsConfiguration("image_utils_configuration")
             {
                 ShouldAllowEmpty = true
             };
 
-            DownloadPicWithQueue = new ConfigurationManager.BooleanConfigurationValue("downloadPicWithQueue")
+            DownloadPicWithQueue = new BooleanConfigurationValue("downloadPicWithQueue")
             {
                 DefaultValue = false,
                 ShouldAllowEmpty = true
             };
-            CheckImageUrl = new ConfigurationManager.BooleanConfigurationValue("CheckImageUrl")
+            CheckImageUrl = new BooleanConfigurationValue("CheckImageUrl")
             {
                 DefaultValue = true,
                 ShouldAllowEmpty = true
             };
-            EpgImageActiveThresholdInMinutes = new ConfigurationManager.NumericConfigurationValue("epgImagePendingThresholdInMinutes")
+            EpgImagePendingThresholdInMinutes = new NumericConfigurationValue("epgImagePendingThresholdInMinutes")
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = 120
             };
 
-            EpgImageActiveThresholdInMinutes = new ConfigurationManager.NumericConfigurationValue("epgImageActiveThresholdInMinutes")
+            EpgImageActiveThresholdInMinutes = new NumericConfigurationValue("epgImageActiveThresholdInMinutes")
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = 43200
             };
-            EPGUrl = new ConfigurationManager.StringConfigurationValue("EPGUrl")
+            EPGUrl = new StringConfigurationValue("EPGUrl")
             {
                 ShouldAllowEmpty = true,
                 Description = "Use in yes epg BL"
             };
-            GroupIDsWithIPNOFilteringSeperatedBySemiColon = new ConfigurationManager.StringConfigurationValue("GroupIDsWithIPNOFilteringSeperatedBySemiColon")
+            GroupIDsWithIPNOFilteringSeperatedBySemiColon = new StringConfigurationValue("GroupIDsWithIPNOFilteringSeperatedBySemiColon")
             {
                 ShouldAllowEmpty = true
             };
 
-            EncryptorService = new ConfigurationManager.StringConfigurationValue("EncryptorService") { ShouldAllowEmpty = true };
-            EncryptorPassword = new ConfigurationManager.StringConfigurationValue("EncryptorPassword") { ShouldAllowEmpty = true };
-            PicsBasePath = new ConfigurationManager.StringConfigurationValue("pics_base_path") { ShouldAllowEmpty = true };
+            EncryptorService = new StringConfigurationValue("EncryptorService") { ShouldAllowEmpty = true };
+            EncryptorPassword = new StringConfigurationValue("EncryptorPassword") { ShouldAllowEmpty = true };
+            PicsBasePath = new StringConfigurationValue("pics_base_path") { ShouldAllowEmpty = true };
             NotificationConfiguration = new NotificationConfiguration("notification_configuration");
             IngestFtpPass = new StringConfigurationValue("IngestFtpPass") { ShouldAllowEmpty = true };
             IngestFtpUrl = new StringConfigurationValue("IngestFtpUrl") { ShouldAllowEmpty = true };
@@ -566,7 +566,7 @@ namespace ConfigurationManager
                     ImageUtilsConfiguration,
                     DownloadPicWithQueue,
                     CheckImageUrl,
-                    EpgImageActiveThresholdInMinutes,
+                    EpgImagePendingThresholdInMinutes,
                     EpgImageActiveThresholdInMinutes,
                     EPGUrl,
                     SingleInMemoryCacheName,
