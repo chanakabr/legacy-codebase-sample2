@@ -604,7 +604,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (response.Channel != null && response.Channel.m_nChannelID > 0)
                 {
-                    bool updateResult = Catalog.Module.UpdateChannelIndex(new List<int>(){ response.Channel.m_nChannelID }, groupId, eAction.On);
+                    bool updateResult = IndexManager.UpsertChannel(groupId, response.Channel.m_nChannelID, response.Channel);
                     if (!updateResult)
                     {
                         log.ErrorFormat("Failed update channel index with id: {0} after AddChannel", response.Channel.m_nChannelID);
@@ -775,7 +775,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (response.Channel != null && response.Channel.m_nChannelID > 0)
                 {
-                    bool updateResult = Catalog.Module.UpdateChannelIndex(new List<int>() { channelId }, groupId, eAction.Update);
+                    bool updateResult = IndexManager.UpsertChannel(groupId, response.Channel.m_nChannelID, response.Channel);
                     if (!updateResult)
                     {
                         log.ErrorFormat("Failed update channel index with id: {0} after UpdateChannel", channelId);
@@ -850,7 +850,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Channel.m_nChannelTypeID, userId))
                 {
-                    bool deleteResult = Catalog.Module.UpdateChannelIndex(new List<int>() { channelId }, groupId, eAction.Delete);
+                    bool deleteResult = IndexManager.DeleteChannel(groupId, channelId);
                     if (!deleteResult)
                     {
                         log.ErrorFormat("Failed update channel index with id: {0} after DeleteChannel", channelId);

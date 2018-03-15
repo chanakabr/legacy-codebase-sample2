@@ -2894,55 +2894,16 @@ namespace Core.Catalog
             bool isUpdateIndexSucceeded = false;
 
             if (ids != null && ids.Count > 0)
-            {
-                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);                
+            {                
                 Group group = null;
                 int groupIdForCelery = groupId;
-                if (!doesGroupUsesTemplates)
-                {
-                    GroupManager groupManager = new GroupManager();
-                    CatalogCache catalogCache = CatalogCache.Instance();
-                    int parentGroupId = catalogCache.GetParentGroup(groupId);
-                    group = groupManager.GetGroup(parentGroupId);
-                    groupIdForCelery = group.m_nParentGroupID;
-                }
+                GroupManager groupManager = new GroupManager();
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int parentGroupId = catalogCache.GetParentGroup(groupId);
+                group = groupManager.GetGroup(parentGroupId);
+                groupIdForCelery = group.m_nParentGroupID;
 
-                if (doesGroupUsesTemplates)
-                {
-                    isUpdateIndexSucceeded = true;
-
-                    // Update channel index directly
-                    if (updatedObjectType == eObjectType.Channel || updatedObjectType == eObjectType.ChannelMetadata)
-                    {
-                        ElasticsearchWrapper wrapper = new Catalog.ElasticsearchWrapper();
-
-                        if (action == eAction.Delete || action == eAction.Off)
-                        {
-                            foreach (long id in ids)
-                            {
-                                ApiObjects.Response.Status deleteStatus = wrapper.DeleteChannel(groupId, (int)id);
-                                if (deleteStatus == null || deleteStatus.Code != (int)eResponseStatus.OK)
-                                {
-                                    log.ErrorFormat("Deleting channel with id {0} failed", id);
-                                    isUpdateIndexSucceeded = false;
-                                }
-                            }
-                        }
-                        else if (action == eAction.On || action == eAction.Update)
-                        {
-                            foreach (long id in ids)
-                            {
-                                ApiObjects.Response.Status UpdateStatus = wrapper.UpdateChannelIndex(groupId, (int)id, doesGroupUsesTemplates);
-                                if (UpdateStatus == null || UpdateStatus.Code != (int)eResponseStatus.OK)
-                                {
-                                    log.ErrorFormat("Updating channel with id {0} failed", id);
-                                    isUpdateIndexSucceeded = false;
-                                }
-                            }
-                        }
-                    }
-                }
-                else if (group != null)
+                if (group != null)
                 {
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery,
                         ids, updatedObjectType, action, DateTime.UtcNow);
