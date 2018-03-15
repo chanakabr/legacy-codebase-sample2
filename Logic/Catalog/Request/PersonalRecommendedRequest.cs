@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
-using System.Reflection;
-using System.Data;
-using Tvinci.Core.DAL;
-using ApiObjects.SearchObjects;
+﻿using ApiObjects.SearchObjects;
+using ConfigurationManager;
 using Core.Catalog.Cache;
-using GroupsCacheManager;
 using Core.Catalog.Response;
+using GroupsCacheManager;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using Tvinci.Core.DAL;
 
 namespace Core.Catalog.Request
 {
@@ -179,13 +179,11 @@ namespace Core.Catalog.Request
             return lMedias;
         }
 
-  
-
         protected override int GetProtocolMaxResultsSize()
         {
             int res = 0;
-            string resultsSize = TVinciShared.WS_Utils.GetTcmConfigValue("PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE");
-            if (resultsSize.Length > 0 && Int32.TryParse(resultsSize, out res))
+            int resultsSize = ApplicationConfiguration.CatalogLogicConfiguration.PersonalRecommendedMaxResultsSize.IntValue;
+            if (resultsSize > 0)
                 return res;
             return CatalogLogic.DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE;
         }

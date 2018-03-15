@@ -244,16 +244,16 @@ namespace Core.Billing
                 //BlinkSmartSunMerchantID: 01140
                 //BlinkSmartSunServiceID: TSTOB
 
-                string sWSURL = string.Format(Utils.GetWSURL("BlinkSmartSunPaymentURL"), msisdn);
+                string sWSURL = string.Format(TVinciShared.WS_Utils.GetTcmConfigValue("BlinkSmartSunPaymentURL"), msisdn); //TCM not relevant anymore 
 
-                string strServiceMerchantID = TVinciShared.WS_Utils.GetTcmConfigValue("BlinkSmartSunServiceMerchantID");
+                string strServiceMerchantID = TVinciShared.WS_Utils.GetTcmConfigValue("BlinkSmartSunServiceMerchantID"); //TCM not relevant anymore 
 
                 if (string.IsNullOrEmpty(strServiceMerchantID.Trim()))
                 {
                     return null;
                 }
 
-                string[] serviceMerchantID = TVinciShared.WS_Utils.GetTcmConfigValue("BlinkSmartSunServiceMerchantID").Split(',');
+                string[] serviceMerchantID = TVinciShared.WS_Utils.GetTcmConfigValue("BlinkSmartSunServiceMerchantID").Split(','); //TCM not relevant anymore 
 
                 string serviceID = serviceMerchantID[0].Trim();
                 string merchantID = serviceMerchantID[1].Trim();

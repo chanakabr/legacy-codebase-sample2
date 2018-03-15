@@ -333,7 +333,7 @@ namespace Core.Billing
                 if (res.Equals(corruptedDate))
                     res = DateTime.UtcNow;
             }
-            string sGMTOffset = Utils.GetWSURL(string.Format("GMTOffset_{0}", lGroupID.ToString()));
+            string sGMTOffset = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("GMTOffset_{0}", lGroupID.ToString()));
             if (sGMTOffset.Length > 0 && Int32.TryParse(sGMTOffset, out hoursOffset))
                 return res.AddHours(hoursOffset).ToString("dd/MM/yyyy");
             return res.ToString("dd/MM/yyyy");
