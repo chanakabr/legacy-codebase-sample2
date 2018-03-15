@@ -11,11 +11,11 @@ namespace ConfigurationValidator
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Different application than app.config? ");
+            Console.WriteLine("Enter application (or press enter if you wish to use app.config): ");
             string application = Console.ReadLine();
-            Console.WriteLine("Different host than app.config? ");
+            Console.WriteLine("Enter host (or press enter if you wish to use app.config): ");
             string host = Console.ReadLine();
-            Console.WriteLine("Different environment than app.config? ");
+            Console.WriteLine("Enter environment (or press enter if you wish to use app.config):");
             string environment = Console.ReadLine();
 
             bool valid = ApplicationConfiguration.Validate(application, host, environment);
