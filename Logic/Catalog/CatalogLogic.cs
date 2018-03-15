@@ -2909,6 +2909,8 @@ namespace Core.Catalog
 
                 if (doesGroupUsesTemplates)
                 {
+                    isUpdateIndexSucceeded = true;
+
                     // Update channel index directly
                     if (updatedObjectType == eObjectType.Channel || updatedObjectType == eObjectType.ChannelMetadata)
                     {
