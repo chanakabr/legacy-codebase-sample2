@@ -98,6 +98,8 @@ namespace ConfigurationManager
         public static NumericConfigurationValue PendingThresholdDays;
         public static BooleanConfigurationValue DownloadPicWithQueue;
         public static BooleanConfigurationValue CheckImageUrl;
+        public static NumericConfigurationValue EpgImagePendingThresholdInMinutes;
+        public static NumericConfigurationValue EpgImageActiveThresholdInMinutes;
         public static ImageUtilsConfiguration ImageUtilsConfiguration;
         public static StringConfigurationValue EPGUrl;
         public static StringConfigurationValue GroupIDsWithIPNOFilteringSeperatedBySemiColon;
@@ -409,6 +411,17 @@ namespace ConfigurationManager
                 DefaultValue = true,
                 ShouldAllowEmpty = true
             };
+            EpgImageActiveThresholdInMinutes = new ConfigurationManager.NumericConfigurationValue("epgImagePendingThresholdInMinutes")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 120
+            };
+
+            EpgImageActiveThresholdInMinutes = new ConfigurationManager.NumericConfigurationValue("epgImageActiveThresholdInMinutes")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 43200
+            };
             EPGUrl = new ConfigurationManager.StringConfigurationValue("EPGUrl")
             {
                 ShouldAllowEmpty = true,
@@ -507,6 +520,8 @@ namespace ConfigurationManager
                     ImageUtilsConfiguration,
                     DownloadPicWithQueue,
                     CheckImageUrl,
+                    EpgImageActiveThresholdInMinutes,
+                    EpgImageActiveThresholdInMinutes,
                     EPGUrl,
                     SingleInMemoryCacheName,
                     ODBCWrapperCacheConfiguration,

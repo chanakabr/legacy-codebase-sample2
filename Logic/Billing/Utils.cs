@@ -264,7 +264,6 @@ namespace Core.Billing
         static public string GetWSURL(string sKey)
         {
             return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-
         }
 
         static public string GetSafeValue(string sQueryKey, ref System.Xml.XmlNode theRoot)
