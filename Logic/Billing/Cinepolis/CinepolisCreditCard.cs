@@ -142,8 +142,8 @@ namespace Core.Billing
             ref int nInternalCode, ref string sKlicOperationID)
         {
             bool res = false;
-            string sAddress = Utils.GetWSURL("CinepolisChargeUserAddress"); //TCM not relevant anymore 
-            string sContentType = Utils.GetWSURL("CinepolisPostRequestContentType"); //TCM not relevant anymore 
+            string sAddress = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisChargeUserAddress"); //TCM not relevant anymore 
+            string sContentType = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisPostRequestContentType"); //TCM not relevant anymore 
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {
                 // no valid data in config

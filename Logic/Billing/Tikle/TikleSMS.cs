@@ -153,7 +153,7 @@ namespace Core.Billing
                 ref sCountryCd, ref sLanguageCode, ref sDeviceName);
 
             APILogic.tikle.Service s = new APILogic.tikle.Service();
-            string sTikleWSURL = Utils.GetWSURL("tikle_ws");
+            string sTikleWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("tikle_ws"); //TCM not relevant anymore 
             s.Url = sTikleWSURL;
             string sTransactionData = GetTransactionData(sSiteGUID, sCellPhone, dPrice,
                 sCurrencyCode, sReferenceCode, sExtraParameters, bIsRecurring);

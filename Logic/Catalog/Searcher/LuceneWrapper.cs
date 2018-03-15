@@ -16,7 +16,7 @@ namespace Core.Catalog
         protected readonly string m_EndPointAddress;
         public LuceneWrapper()
         {
-            m_EndPointAddress = Utils.GetWSURL("LUCENE_WCF"); //TCM not relevant anymore 
+            m_EndPointAddress = TVinciShared.WS_Utils.GetTcmConfigValue("LUCENE_WCF"); //TCM not relevant anymore 
         }
 
         public SearchResultsObj SearchMedias(int nGroupID, MediaSearchObj oSearch, int nLangID, bool bUseStartDate, int nIndex)

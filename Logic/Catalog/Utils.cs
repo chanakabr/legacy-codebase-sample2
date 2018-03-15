@@ -26,12 +26,6 @@ namespace Core.Catalog
 
         public const int DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC = 500; // half a second
 
-        public static string GetWSURL(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
-
         public static string GetSignature(string sSigningString, Int32 nGroupID)
         {
             string retVal;

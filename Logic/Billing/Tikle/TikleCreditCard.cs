@@ -57,7 +57,7 @@ namespace Core.Billing
 
             APILogic.tikle.Service s = new APILogic.tikle.Service();
             //System.Net.WebProxy p = new WebProxy("127.0.0.1");
-            string sTikleWSURL = Utils.GetWSURL("tikle_ws");
+            string sTikleWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("tikle_ws");   //TCM not relevant anymore 
             s.Url = sTikleWSURL;
 
             string sTransactionData = GetTransactionData(sSiteGUID, uBasicData, sToken, dChargePrice,
