@@ -131,8 +131,8 @@ namespace Core.Notification
         {
             return String.Concat(sBaseDMSAddress, 
                 // configuration values are irrelevant today (4.8)
-                "?username=", TVinciShared.WS_Utils.GetTcmConfigValue("DMSUsername"),
-                "&password=", TVinciShared.WS_Utils.GetTcmConfigValue("DMSPassword"));
+                "?username=", TVinciShared.WS_Utils.GetTcmConfigValue("DMSUsername"), //TCM not relevant anymore 
+                "&password=", TVinciShared.WS_Utils.GetTcmConfigValue("DMSPassword")); //TCM not relevant anymore 
         }
 
         private DMSPushRequest ConvertNotificationMessageToDMSPushRequest(NotificationMessage message)

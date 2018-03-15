@@ -211,11 +211,6 @@ namespace Core.Users
 
         }
 
-        static public string GetTcmConfigValue(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         static public void GetBaseImpl(ref BaseDomain t, Int32 nGroupID)
         {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains, USERS_CONNECTION);

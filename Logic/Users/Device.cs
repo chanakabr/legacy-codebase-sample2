@@ -107,8 +107,8 @@ namespace Core.Users
             * 
             * 
             */
-            m_sStreamType = Utils.GetTcmConfigValue(GetStreamTypeConfigKey(m_groupID, m_deviceBrandID));
-            m_sProfile = Utils.GetTcmConfigValue(GetProfileConfigKey(m_groupID, m_deviceBrandID));
+            m_sStreamType = TVinciShared.WS_Utils.GetTcmConfigValue(GetStreamTypeConfigKey(m_groupID, m_deviceBrandID));
+            m_sProfile = TVinciShared.WS_Utils.GetTcmConfigValue(GetProfileConfigKey(m_groupID, m_deviceBrandID));
 
         }
 
