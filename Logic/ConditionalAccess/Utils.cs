@@ -1070,7 +1070,7 @@ namespace Core.ConditionalAccess
             return ret;
         }
 
-        internal static Price CalculateCouponDiscount(ref Price pModule, CouponsGroup oCouponsGroup, string sCouponCode, int nGroupID)
+        internal static Price CalculateCouponDiscount(ref Price pModule, CouponsGroup oCouponsGroup, ref string sCouponCode, int nGroupID)
         {
             Price price = CopyPrice(pModule);
             if (!string.IsNullOrEmpty(sCouponCode) && sCouponCode.Length > 0)
@@ -1098,6 +1098,10 @@ namespace Core.ConditionalAccess
                         DiscountModule dCouponDiscount = oCouponsGroup.m_oDiscountCode;
                         price = GetPriceAfterDiscount(price, dCouponDiscount, 0);
                     }
+                }
+                else //the coupon is not valid
+                {
+                    sCouponCode = string.Empty;
                 }
             }
             return price;
@@ -1228,24 +1232,24 @@ namespace Core.ConditionalAccess
                                                         string countryCode, string languageCode, string udid)
         {
             UnifiedBillingCycle unifiedBillingCycle = null;
-            return GetSubscriptionFinalPrice(groupId, subCode, userId, couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, string.Empty, ref unifiedBillingCycle);
+            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, string.Empty, ref unifiedBillingCycle);
         }
 
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
                                                         string countryCode, string languageCode, string udid, string ip, string currencyCode = null, bool isSubscriptionSetModifySubscription = false)
         {
             UnifiedBillingCycle unifiedBillingCycle = null;
-            return GetSubscriptionFinalPrice(groupId, subCode, userId, couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, ip, ref unifiedBillingCycle, currencyCode, isSubscriptionSetModifySubscription);
+            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, ip, ref unifiedBillingCycle, currencyCode, isSubscriptionSetModifySubscription);
         }
 
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
                                                         string countryCode, string languageCode, string udid, string ip, string currencyCode, ref UnifiedBillingCycle unifiedBillingCycle)
         {
-            return GetSubscriptionFinalPrice(groupId, subCode, userId, couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, ip, ref unifiedBillingCycle, currencyCode);
+            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, ip, ref unifiedBillingCycle, currencyCode);
         }
 
 
-        internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
+        internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, ref string couponCode, ref PriceReason theReason, ref Subscription theSub,
                                 string countryCode, string languageCode, string udid, string ip, ref UnifiedBillingCycle unifiedBillingCycle, string currencyCode = null, bool isSubscriptionSetModifySubscription = false,
                                 BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
@@ -1356,30 +1360,36 @@ namespace Core.ConditionalAccess
                             return price;
                         }
 
-                        long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
-
-                        // look if this coupon group id exsits in coupon list 
-                        CouponsGroup couponGroups = null;
-                        if (theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString())
-                        {
-                            couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)theSub.m_oCouponsGroup);
-                        }
-                        else if (subscription.CouponsGroups != null)
-                        {
-                            couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>(theSub.CouponsGroups.Where(x => x.m_sGroupCode == couponGroupId.ToString() &&
-                                (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)).Select(x => x).FirstOrDefault());
-                        }
-
                         if (externalDisount != null)
                         {
                             price = GetPriceAfterDiscount(price, externalDisount, 1);
                         }
 
-                        price = CalculateCouponDiscount(ref price, couponGroups, couponCode, groupId);
+                        if (!string.IsNullOrEmpty(couponCode))
+                        {
+                            long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
+
+                            if (couponGroupId > 0)
+                            {
+                                // look if this coupon group id exsits in coupon list 
+                                CouponsGroup couponGroups = null;
+                                if (theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString())
+                                {
+                                    couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)theSub.m_oCouponsGroup);
+                                }
+                                else if (subscription.CouponsGroups != null)
+                                {
+                                    couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>(theSub.CouponsGroups.Where(x => x.m_sGroupCode == couponGroupId.ToString() &&
+                                        (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)).Select(x => x).FirstOrDefault());
+                                }
+
+                                price = CalculateCouponDiscount(ref price, couponGroups, ref couponCode, groupId);
+                            }
+                        }
 
                         if (price != null && price.m_dPrice != 0)
                         {
-                            CalculatePriceByUnifiedBillingCycle(groupId, ref price.m_dPrice, ref unifiedBillingCycle, subscription, domainID);
+                            CalculatePriceByUnifiedBillingCycle(groupId, ref price.m_dPrice, ref unifiedBillingCycle, subscription, domainID, !string.IsNullOrEmpty(couponCode));
                         }
                     }
                 }
@@ -1523,7 +1533,7 @@ namespace Core.ConditionalAccess
         /// P = subscription price (original + discount)
         /// AD =  (billingCycle_date - purchase_date ). TotalDays  - Ceiling 
         /// partialPrice = AD * P/D (2 digit after .)      
-        internal static void CalculatePriceByUnifiedBillingCycle(int groupId, ref double price, ref UnifiedBillingCycle unifiedBillingCycle, Subscription subscription = null, int domainID = 0)
+        internal static void CalculatePriceByUnifiedBillingCycle(int groupId, ref double price, ref UnifiedBillingCycle unifiedBillingCycle, Subscription subscription = null, int domainId = 0, bool useCoupon = false)
         {
             long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
             if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
@@ -1536,11 +1546,11 @@ namespace Core.ConditionalAccess
                         && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
                     {
                         //get key from CB household_renewBillingCycle
-                        unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainID, groupUnifiedBillingCycle.Value);
+                        unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainId, groupUnifiedBillingCycle.Value);
                     }
                 }
 
-                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
+                if (!useCoupon && unifiedBillingCycle != null && unifiedBillingCycle.endDate > ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(DateTime.UtcNow))
                 {
                     DateTime nextRenew = Core.Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
                     int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
@@ -1767,7 +1777,7 @@ namespace Core.ConditionalAccess
                     price = GetPriceAfterDiscount(price, externalDisount, 1);
                 }
 
-                price = CalculateCouponDiscount(ref price, couponGroups, couponCode, groupId);
+                price = CalculateCouponDiscount(ref price, couponGroups, ref couponCode, groupId);
 
             }
             return price;
@@ -1805,7 +1815,7 @@ namespace Core.ConditionalAccess
                 if (!string.IsNullOrEmpty(sCouponCode))
                 {
                     CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(thePrePaid.m_CouponsGroup));
-                    p = CalculateCouponDiscount(ref p, couponGroups, sCouponCode, nGroupID);
+                    p = CalculateCouponDiscount(ref p, couponGroups, ref sCouponCode, nGroupID);
                 }
             }
             theReason = PriceReason.ForPurchase;
@@ -7951,19 +7961,25 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal static string GetSubscriptiopnPurchaseCoupon(int purchaseId, int groupId, out long couponGroupId)
+        internal static string GetSubscriptiopnPurchaseCoupon(string couponCode, int purchaseId, int groupId, out long couponGroupId)
         {
             couponGroupId = 0;
-            string couponCode = GetSubscriptiopnPurchaseCoupon(purchaseId);
-            if (!string.IsNullOrEmpty(couponCode))
+            string retCouponCode = couponCode;
+            if (string.IsNullOrEmpty(couponCode))
             {
-                couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode);
+                retCouponCode = GetSubscriptiopnPurchaseCoupon(purchaseId);
+            }
+
+            if (!string.IsNullOrEmpty(retCouponCode))
+            {
+                couponGroupId = PricingDAL.Get_CouponGroupId(groupId, retCouponCode);
                 if (couponGroupId == 0)
                 {
                     log.DebugFormat("GetSubscriptiopnPurchaseCoupon purchaseId={0}, groupId={1}, couponGroupId={2}, couponCode={3}", purchaseId, groupId, couponGroupId, couponCode);
                 }
             }
-            return couponCode;
+
+            return retCouponCode;
         }
 
         internal static List<ApiObjects.Epg.FieldTypeEntity> GetAliasMappingFields(int groupId)
@@ -8340,7 +8356,7 @@ namespace Core.ConditionalAccess
         ///If needed create/ update doc in cb for unifiedBilling_household_{ household_id }_renewBillingCycle
         ///create: unified billing cycle for household (CB)
         ///update: the current one with payment gateway id or end date 
-        internal static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, ref UnifiedBillingCycle unifiedBillingCycle, int maxUsageModuleLifeCycle, DateTime endDate)
+        internal static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, ref UnifiedBillingCycle unifiedBillingCycle, int maxUsageModuleLifeCycle, DateTime endDate, bool useCoupon)
         {
             try
             {
@@ -8349,7 +8365,7 @@ namespace Core.ConditionalAccess
                 if (groupUnifiedBillingCycle.HasValue && (int)groupUnifiedBillingCycle.Value == maxUsageModuleLifeCycle) // group define with billing cycle
                 {
                     long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
-                    if (unifiedBillingCycle == null || (unifiedBillingCycle != null && unifiedBillingCycle.endDate != nextEndDate))
+                    if (unifiedBillingCycle == null || (unifiedBillingCycle != null && !useCoupon && unifiedBillingCycle.endDate != nextEndDate))
                     {
                         // update unified billing by endDate or paymentGatewatId                  
                         bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupUnifiedBillingCycle.Value, nextEndDate);
@@ -8358,7 +8374,6 @@ namespace Core.ConditionalAccess
                             unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupUnifiedBillingCycle.Value);
                         }
                     }
-
                 }
             }
             catch (Exception ex)

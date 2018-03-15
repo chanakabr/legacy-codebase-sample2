@@ -90,24 +90,24 @@ namespace Core.Catalog
         private static string PARENT_PARNER_DIFFRENT_FROM_META_PARTNER = "Partner parent should be the some as meta partner";
 
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
-		            {
-			            "name",
-			            "description",
-			            "epg_channel_id",
+                    {
+                        "name",
+                        "description",
+                        "epg_channel_id",
                         "crid",
                         "...."
-		            };
+                    };
 
         private static readonly HashSet<string> reservedUnifiedSearchNumericFields = new HashSet<string>()
-		            {
-			            "like_counter",
-			            "views",
-			            "rating",
-			            "votes",
+                    {
+                        "like_counter",
+                        "views",
+                        "rating",
+                        "votes",
                         "epg_channel_id",
                         "media_id",
                         "epg_id",
-		            };
+                    };
 
         private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
         {
@@ -2921,7 +2921,7 @@ namespace Core.Catalog
             return searcher.SearchEpgs(epgSearchReq);
         }
 
-        internal static void GetGroupsTagsAndMetas(int nGroupID, ref  List<string> lSearchList)
+        internal static void GetGroupsTagsAndMetas(int nGroupID, ref List<string> lSearchList)
         {
 
             GroupManager groupManager = new GroupManager();
@@ -5197,7 +5197,7 @@ namespace Core.Catalog
         /*This method return all last position (desc order by create date) by domain and \ or user_id 
          * if userType is household and user is default - return all last positions of all users in domain by assetID (BY MEDIA ID)         
          else return last position of user_id (incase userType is not household or last position of user_id and default_user (incase userType is household) */
-        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, 
+        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser,
             List<int> users, List<int> defaultUsers, Dictionary<string, User> usersDictionary)
         {
             AssetBookmarks response = null;
@@ -5264,7 +5264,7 @@ namespace Core.Catalog
                     EntityID = domainID.ToString(),
                     PageIndex = request.m_nPageIndex,
                     PageSize = request.m_nPageSize,
-                    SeriesIDs =  new List<string>() { request.seriesID },
+                    SeriesIDs = new List<string>() { request.seriesID },
                     SeasonNumber = request.seasonNumber,
                     OrderBy = (NPVROrderBy)((int)request.m_oOrderObj.m_eOrderBy),
                     Direction = (NPVROrderDir)((int)request.m_oOrderObj.m_eOrderDir)
@@ -5352,7 +5352,7 @@ namespace Core.Catalog
                 {
                     args.SeriesIDs.AddRange(request.m_lSeriesIDs.Distinct());
                     args.SearchBy.Add(SearchByField.bySeriesId);
-                }           
+                }
 
                 NPVRRetrieveAssetsResponse npvrResp = npvr.RetrieveAssets(args);
                 if (npvrResp != null)
@@ -6214,7 +6214,7 @@ namespace Core.Catalog
 
             // Perform initial search of channel
             searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult);
-            
+
             if (searchResults == null)
             {
                 return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
@@ -6490,9 +6490,9 @@ namespace Core.Catalog
 
             // BEO-1338: Related media types is from the Media Search Request object - it knows the best!          
             definitions.mediaTypes = mediaSearchRequest.m_nMediaTypes;
-           
 
-           
+
+
 
             if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
             {
@@ -6629,7 +6629,7 @@ namespace Core.Catalog
             return status;
         }
 
-        
+
 
         /// <summary>
         /// Update filter tree fields for specific fields/values.
@@ -6881,10 +6881,10 @@ namespace Core.Catalog
 
                             BooleanPhrase newPhrase = new BooleanPhrase(
                                 new List<BooleanPhraseNode>()
-												{
-													mediaTypeCondition, 
-													newLeaf
-												},
+                                                {
+                                                    mediaTypeCondition,
+                                                    newLeaf
+                                                },
                                 eCutType.And);
 
                             BooleanPhraseNode.ReplaceLeafWithPhrase(ref filterTree, parentMapping, leaf, newPhrase);
@@ -6993,6 +6993,13 @@ namespace Core.Catalog
 
                         switch (loweredValue)
                         {
+                            case ("not_entitled"):
+                                {
+                                    definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
+                                    definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                    definitions.entitlementSearchDefinitions.shouldSearchNotEntitled = true;
+                                    break;
+                                }
                             case ("free"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
@@ -7112,7 +7119,7 @@ namespace Core.Catalog
             // Otherwise the search will not work completely 
             if (maxNGram > 0 &&
                 (leaf.operand == ComparisonOperator.Contains || leaf.operand == ComparisonOperator.NotContains ||
-                leaf.operand == ComparisonOperator.WordStartsWith || 
+                leaf.operand == ComparisonOperator.WordStartsWith ||
                 leaf.operand == ComparisonOperator.PhraseStartsWith))
             {
                 leaf.value = leaf.value.ToString().Truncate(maxNGram);
@@ -7143,7 +7150,7 @@ namespace Core.Catalog
         }
 
         public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
-        {           
+        {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
             #region Basic
@@ -7287,7 +7294,7 @@ namespace Core.Catalog
                 #region Group By
 
                 Utils.BuildSearchGroupBy(channel.searchGroupBy, group, definitions, reservedGroupByFields);
-                
+
                 #endregion
             }
             else
@@ -7973,19 +7980,19 @@ namespace Core.Catalog
                         }
 
                         // From the unfiltered list get only the recordings;
-                        
+
                         List<string> listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
                             .Select(x =>
                                 {
                                     // For each recording,
                                     // map the recording to its domain recording id
-                                    searchDefinitions.recordingIdToSearchableRecordingMapping[x.RecordingId.ToString()] = new ApiObjects.TimeShiftedTv.SearchableRecording() 
-                                        { 
-                                            DomainRecordingId = x.AssetId,
-                                            EpgId = x.EpgId,
-                                            RecordingId = x.RecordingId,
-                                            RecordingType = null
-                                        };
+                                    searchDefinitions.recordingIdToSearchableRecordingMapping[x.RecordingId.ToString()] = new ApiObjects.TimeShiftedTv.SearchableRecording()
+                                    {
+                                        DomainRecordingId = x.AssetId,
+                                        EpgId = x.EpgId,
+                                        RecordingId = x.RecordingId,
+                                        RecordingType = null
+                                    };
                                     return x.RecordingId.ToString();
                                 }).ToList();
 
