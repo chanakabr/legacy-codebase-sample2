@@ -67,6 +67,10 @@
       <Project>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
+      <Name>ConfigurationManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
       <Project>{27C6F3ED-B660-466A-9415-DE2D43E58FF0}</Project>
       <Name>ApiLogic</Name>

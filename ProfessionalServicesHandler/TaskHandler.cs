@@ -14,6 +14,8 @@ using System.Web;
 using System.ServiceModel;
 using ApiObjects.Response;
 using System.IO;
+using ConfigurationManager;
+using Newtonsoft.Json.Linq;
 
 namespace ProfessionalServicesHandler
 {
@@ -38,8 +40,9 @@ namespace ProfessionalServicesHandler
 
                 try
                 {
-                    object actionConfigurationJson = TCMClient.Settings.Instance.GetValue<object>(string.Format("professional_services_tasks.{0}", request.ActionImplementation));
-                    setting = Newtonsoft.Json.JsonConvert.DeserializeObject<ProfessionalServicesActionConfiguration>(actionConfigurationJson.ToString());
+                    JToken actionConfigurationJson = ApplicationConfiguration.ProfessionalServicesTasksConfiguration.GetActionHandler(request.ActionImplementation);
+                        
+                    setting = actionConfigurationJson.ToObject<ProfessionalServicesActionConfiguration>();
                 }
                 catch (Exception ex)
                 {
@@ -86,8 +89,6 @@ namespace ProfessionalServicesHandler
                         Type handlerType = actionAssembly.GetType(setting.Type);
 
                         newTaskHandler = (ITaskHandler)Activator.CreateInstance(handlerType);
-
-                        
                     }
                     catch (Exception ex)
                     {

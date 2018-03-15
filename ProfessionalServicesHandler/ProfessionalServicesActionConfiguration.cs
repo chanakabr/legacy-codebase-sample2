@@ -24,6 +24,5 @@ namespace ProfessionalServicesHandler
             get;
             set;
         }
-
     }
 }
