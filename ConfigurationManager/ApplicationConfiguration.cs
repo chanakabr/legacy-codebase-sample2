@@ -113,6 +113,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue AdyenWSUser;
         public static StringConfigurationValue AdyenWSPass;
         public static StringConfigurationValue AdyenWSMerchAccount;
+        public static StringConfigurationValue AdyenPSPReferenceRegexOverride;
 
         #endregion
 
@@ -442,6 +443,7 @@ namespace ConfigurationManager
             AdyenWSUser = new StringConfigurationValue("TvinciAdyenWS_User") { ShouldAllowEmpty = true };
             AdyenWSPass = new StringConfigurationValue("TvinciAdyenWS_Pass") { ShouldAllowEmpty = true };
             AdyenWSMerchAccount = new StringConfigurationValue("TvinciAdyenWS_MerchAccount") { ShouldAllowEmpty = true };
+            AdyenPSPReferenceRegexOverride = new StringConfigurationValue("AdyenPSPReferenceRegexOverride") { ShouldAllowEmpty = true };
 
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -536,9 +538,10 @@ namespace ConfigurationManager
                     IngestFtpPass,
                     IngestFtpUrl,
                     IngestFtpUser,
-                     AdyenWSUser,
-                     AdyenWSPass,
-                     AdyenWSMerchAccount
+                    AdyenWSUser,
+                    AdyenWSPass,
+                    AdyenWSMerchAccount,
+                    AdyenPSPReferenceRegexOverride
                 };
 
             if (shouldLoadDefaults)

@@ -406,10 +406,7 @@ namespace Core.Billing
 
         public static bool IsValidPSPReference(string sPSPReference)
         {
-            string sOverrideRegexFromConfig = string.Empty;
-
-            if (TVinciShared.WS_Utils.GetTcmConfigValue("AdyenPSPReferenceRegexOverride") != string.Empty)
-                sOverrideRegexFromConfig = TVinciShared.WS_Utils.GetTcmConfigValue("AdyenPSPReferenceRegexOverride");
+            string sOverrideRegexFromConfig = ApplicationConfiguration.AdyenPSPReferenceRegexOverride.Value;
             if (!string.IsNullOrEmpty(sOverrideRegexFromConfig))
             {
                 try
