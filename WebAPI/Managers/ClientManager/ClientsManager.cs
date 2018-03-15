@@ -97,7 +97,6 @@ namespace WebAPI.ClientManagers.Client
 
             if (!clients.TryGetValue(clientType, out client) && client == null)
             {
-                string serviceTcmConfigurationKey = string.Format("WebServices.{0}", clientType);
                 string serviceUrl = string.Empty;
 
                 switch (clientType)

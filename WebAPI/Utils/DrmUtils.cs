@@ -16,7 +16,6 @@ namespace WebAPI.Utils
 {
     public static class DrmUtils
     {
-        private const string BASE_UDRM_URL_TCM_KEY = "UDRM_URL";
         private const string UDRM_CENC_LICENSED_URL_FORMAT = "{0}/cenc/{1}/license?custom_data={2}&signature={3}";
         private const string UDRM_LICENSED_URL_FORMAT = "{0}/{1}/license?custom_data={2}&signature={3}";
         private const string PLAYREADY = "playready";

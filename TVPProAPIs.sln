@@ -118,6 +118,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KlogMonitorHelper", "..\tvm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationManager", "..\Core\ConfigurationManager\ConfigurationManager.csproj", "{27CC9E99-D886-4403-899B-1E0769FDB649}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationValidator", "ConfigurationValidator\ConfigurationValidator.csproj", "{745AF174-EF7C-490B-8EC5-9F79535D1FA0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -478,6 +480,14 @@ Global
 		{27CC9E99-D886-4403-899B-1E0769FDB649}.Local|Any CPU.Build.0 = Release|Any CPU
 		{27CC9E99-D886-4403-899B-1E0769FDB649}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27CC9E99-D886-4403-899B-1E0769FDB649}.Release|Any CPU.Build.0 = Release|Any CPU
+		{745AF174-EF7C-490B-8EC5-9F79535D1FA0}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{745AF174-EF7C-490B-8EC5-9F79535D1FA0}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{745AF174-EF7C-490B-8EC5-9F79535D1FA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{745AF174-EF7C-490B-8EC5-9F79535D1FA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{745AF174-EF7C-490B-8EC5-9F79535D1FA0}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{745AF174-EF7C-490B-8EC5-9F79535D1FA0}.Local|Any CPU.Build.0 = Release|Any CPU
+		{745AF174-EF7C-490B-8EC5-9F79535D1FA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{745AF174-EF7C-490B-8EC5-9F79535D1FA0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -527,6 +537,7 @@ Global
 		{798ABF79-9CC5-4D97-BAC3-DE1F9B016EC2} = {14DD0967-5952-417C-89AB-0D30A216122B}
 		{FA277E9A-4C82-4FF7-A6E7-60FEAEB363E2} = {428EC7F8-E16E-4BB8-B773-36AED1D370D9}
 		{27CC9E99-D886-4403-899B-1E0769FDB649} = {6BFFB0D0-FC88-4A56-881B-345E07928B3F}
+		{745AF174-EF7C-490B-8EC5-9F79535D1FA0} = {0DB22A93-7EDC-4651-9E6A-377044620A0A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
