@@ -88,7 +88,7 @@ namespace Core.Notification
 
             string sResult = string.Empty;
             string sErrorMsg = string.Empty;
-            string sBaseDMSAddress = Utils.GetWSURL("DMSBaseAddress");
+            string sBaseDMSAddress = TVinciShared.WS_Utils.GetTcmConfigValue("DMSBaseAddress"); // not relevant anymore
 
             try
             {
@@ -129,7 +129,10 @@ namespace Core.Notification
 
         private string GetDMSAddressWithCredentials(string sBaseDMSAddress)
         {
-            return String.Concat(sBaseDMSAddress, "?username=", Utils.GetWSURL("DMSUsername"), "&password=", Utils.GetWSURL("DMSPassword"));
+            return String.Concat(sBaseDMSAddress, 
+                // configuration values are irrelevant today (4.8)
+                "?username=", TVinciShared.WS_Utils.GetTcmConfigValue("DMSUsername"),
+                "&password=", TVinciShared.WS_Utils.GetTcmConfigValue("DMSPassword"));
         }
 
         private DMSPushRequest ConvertNotificationMessageToDMSPushRequest(NotificationMessage message)

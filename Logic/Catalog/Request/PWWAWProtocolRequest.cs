@@ -45,7 +45,7 @@ namespace Core.Catalog.Request
         protected override int GetProtocolMaxResultsSize()
         {
             int res = 0;
-            string resultsSize = Utils.GetWSURL("PWWAWP_MAX_RESULTS_SIZE");
+            string resultsSize = TVinciShared.WS_Utils.GetTcmConfigValue("PWWAWP_MAX_RESULTS_SIZE");
             if (resultsSize.Length > 0 && Int32.TryParse(resultsSize, out res))
                 return res;
             return CatalogLogic.DEFAULT_PWWAWP_MAX_RESULTS_SIZE;

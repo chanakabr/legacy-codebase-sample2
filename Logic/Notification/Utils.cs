@@ -24,12 +24,6 @@ namespace Core.Notification
         private const string USER_TOKEN_SECRET = "MyMailIsSecured";
         private const int BLOCK_SIZE = 16;
 
-
-        static public string GetWSURL(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         public static string ExtractDate(DateTime date, string format)
         {
             try
