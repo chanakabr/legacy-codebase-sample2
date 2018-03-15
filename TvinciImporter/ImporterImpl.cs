@@ -2202,13 +2202,8 @@ namespace TvinciImporter
             }
 
             //check for epg_image default threshold value
-            int pendingThresholdInMinutes = 0;
-            var epgImagePendingThresholdInMinutes = WS_Utils.GetTcmConfigValue("epgImagePendingThresholdInMinutes");
-            int.TryParse(epgImagePendingThresholdInMinutes, out pendingThresholdInMinutes);
-
-            int activeThresholdInMinutes = 0;
-            var epgImageActiveThresholdInMinutes = WS_Utils.GetTcmConfigValue("epgImageActiveThresholdInMinutes");
-            int.TryParse(epgImageActiveThresholdInMinutes, out activeThresholdInMinutes);
+            int pendingThresholdInMinutes = ApplicationConfiguration.EpgImagePendingThresholdInMinutes.IntValue;
+            int activeThresholdInMinutes = ApplicationConfiguration.EpgImageActiveThresholdInMinutes.IntValue;
 
             GetEpgPicNameAndId(thumb, groupID, channelID, ratioID, out picName, out picId);
 
