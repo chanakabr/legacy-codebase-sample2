@@ -23,8 +23,8 @@ namespace Core.Billing
         {
             bool res = false;
 
-            string sAddress = Utils.GetValFromConfig("CinepolisOperationConfirmAddress"); //TCM not relevant anymore 
-            string sContentType = Utils.GetValFromConfig("CinepolisPostRequestContentType"); //TCM not relevant anymore 
+            string sAddress = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisOperationConfirmAddress"); //TCM not relevant anymore 
+            string sContentType = TVinciShared.WS_Utils.GetTcmConfigValue("CinepolisPostRequestContentType"); //TCM not relevant anymore 
             if (sAddress.Length == 0 || sContentType.Length == 0)
             {
                 // either address or content type retrieved from config is empty

@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-using DAL;
-using System.Data;
-using System.Text.RegularExpressions;
-using KLogMonitor;
-using System.Reflection;
+﻿using APILogic.AdyenRecAPI;
 using ApiObjects;
-using APILogic.AdyenRecAPI;
+using ConfigurationManager;
+using DAL;
+using KLogMonitor;
+using System;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Core.Billing
 {
@@ -108,9 +106,9 @@ namespace Core.Billing
 
         public static void GetTvinciWSCredentials(ref string userName, ref string password, ref string merchAccount)
         {
-            userName = TVinciShared.WS_Utils.GetTcmConfigValue("TvinciAdyenWS_User");
-            password = TVinciShared.WS_Utils.GetTcmConfigValue("TvinciAdyenWS_Pass");
-            merchAccount = TVinciShared.WS_Utils.GetTcmConfigValue("TvinciAdyenWS_MerchAccount");
+            userName = ApplicationConfiguration.AdyenWSUser.Value;
+            password = ApplicationConfiguration.AdyenWSPass.Value;
+            merchAccount = ApplicationConfiguration.AdyenWSMerchAccount.Value;
         }
 
         public static void SendAdyenPurchaseMail(int nGroupID, string sCustomData, double dChargePrice, string sCurrencyCode, string sPaymentMethod, string sSiteGuid,

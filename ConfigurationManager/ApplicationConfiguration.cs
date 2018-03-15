@@ -108,6 +108,9 @@ namespace ConfigurationManager
         public static StringConfigurationValue IngestFtpUrl;
         public static StringConfigurationValue IngestFtpUser;
         public static StringConfigurationValue IngestFtpPass;
+        public static StringConfigurationValue AdyenWSUser;
+        public static StringConfigurationValue AdyenWSPass;
+        public static StringConfigurationValue AdyenWSMerchAccount;
 
         #endregion
 
@@ -423,6 +426,9 @@ namespace ConfigurationManager
             IngestFtpPass = new StringConfigurationValue("IngestFtpPass") { ShouldAllowEmpty = true };
             IngestFtpUrl = new StringConfigurationValue("IngestFtpUrl") { ShouldAllowEmpty = true };
             IngestFtpUser = new StringConfigurationValue("IngestFtpUser") { ShouldAllowEmpty = true };
+            AdyenWSUser = new StringConfigurationValue("TvinciAdyenWS_User") { ShouldAllowEmpty = true };
+            AdyenWSPass = new StringConfigurationValue("TvinciAdyenWS_Pass") { ShouldAllowEmpty = true };
+            AdyenWSMerchAccount = new StringConfigurationValue("TvinciAdyenWS_MerchAccount") { ShouldAllowEmpty = true };
 
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -514,7 +520,10 @@ namespace ConfigurationManager
                     NotificationConfiguration,
                     IngestFtpPass,
                     IngestFtpUrl,
-                    IngestFtpUser
+                    IngestFtpUser,
+                     AdyenWSUser,
+                     AdyenWSPass,
+                     AdyenWSMerchAccount
                 };
 
             if (shouldLoadDefaults)
