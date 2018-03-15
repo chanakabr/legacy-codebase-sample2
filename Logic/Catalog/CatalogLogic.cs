@@ -62,7 +62,6 @@ namespace Core.Catalog
         internal const int DEFAULT_PWLALP_MAX_RESULTS_SIZE = 8;
         internal const int DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE = 20;
         internal const int FINISHED_PERCENT_THRESHOLD = 95;
-        private static int DEFAULT_CURRENT_REQUEST_DAYS_OFFSET = 7;
         internal const string STAT_ACTION_MEDIA_HIT = "mediahit";
         internal const string STAT_ACTION_FIRST_PLAY = "firstplay";
         internal const string STAT_ACTION_LIKE = "like";
