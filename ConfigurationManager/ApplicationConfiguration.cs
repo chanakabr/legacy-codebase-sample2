@@ -114,6 +114,10 @@ namespace ConfigurationManager
         public static StringConfigurationValue AdyenWSPass;
         public static StringConfigurationValue AdyenWSMerchAccount;
         public static StringConfigurationValue AdyenPSPReferenceRegexOverride;
+        public static NumericConfigurationValue PwwawpMaxResultsSize;
+        public static NumericConfigurationValue PwlalPMaxResultsSize;
+        public static NumericConfigurationValue PreviewModuleNumOfCancelOrRefundAttempts;
+
 
         #endregion
 
@@ -444,6 +448,21 @@ namespace ConfigurationManager
             AdyenWSPass = new StringConfigurationValue("TvinciAdyenWS_Pass") { ShouldAllowEmpty = true };
             AdyenWSMerchAccount = new StringConfigurationValue("TvinciAdyenWS_MerchAccount") { ShouldAllowEmpty = true };
             AdyenPSPReferenceRegexOverride = new StringConfigurationValue("AdyenPSPReferenceRegexOverride") { ShouldAllowEmpty = true };
+            PwwawpMaxResultsSize = new NumericConfigurationValue("PWWAWP_MAX_RESULTS_SIZE")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 8
+            };
+            PwlalPMaxResultsSize = new NumericConfigurationValue("PWLALP_MAX_RESULTS_SIZE")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 8
+            };
+            PreviewModuleNumOfCancelOrRefundAttempts = new NumericConfigurationValue("PreviewModuleNumOfCancelOrRefundAttempts")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 4
+            };
 
             AllConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -541,7 +560,10 @@ namespace ConfigurationManager
                     AdyenWSUser,
                     AdyenWSPass,
                     AdyenWSMerchAccount,
-                    AdyenPSPReferenceRegexOverride
+                    AdyenPSPReferenceRegexOverride,
+                    PwwawpMaxResultsSize,
+                    PwlalPMaxResultsSize,
+                    PreviewModuleNumOfCancelOrRefundAttempts
                 };
 
             if (shouldLoadDefaults)

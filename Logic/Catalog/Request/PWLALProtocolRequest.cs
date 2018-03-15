@@ -1,13 +1,10 @@
-﻿using System;
+﻿using ApiObjects.SearchObjects;
+using ConfigurationManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
-using TVinciShared;
-using System.Runtime.Serialization;
 using System.Data;
+using System.Runtime.Serialization;
 using Tvinci.Core.DAL;
-using ApiObjects.SearchObjects;
 
 namespace Core.Catalog.Request
 {
@@ -22,7 +19,7 @@ namespace Core.Catalog.Request
      * ***********************************************************************/
     [DataContract]
     public class PWLALProtocolRequest : BaseProtocolRequest
-    {        
+    {
 
         [DataMember]
         public int m_nMediaID;
@@ -42,8 +39,8 @@ namespace Core.Catalog.Request
             m_nSocialPlatform = 1;
         }
 
-        public PWLALProtocolRequest(int nMediaID, int nSocialAction, int nSocialPlatform, int nMediaFileID, 
-            int nCountryID, string sSiteGuide, Int32 nGroupID, Int32 nPageSize, Int32 nPageIndex, 
+        public PWLALProtocolRequest(int nMediaID, int nSocialAction, int nSocialPlatform, int nMediaFileID,
+            int nCountryID, string sSiteGuide, Int32 nGroupID, Int32 nPageSize, Int32 nPageIndex,
             string sUserIP, Filter oFilter, string sSignature, string sSignString, int nDomainId)
             : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, sSiteGuide, nDomainId)
         {
@@ -58,9 +55,9 @@ namespace Core.Catalog.Request
         protected override int GetProtocolMaxResultsSize()
         {
             int res = 0;
-            string resultsSize = TVinciShared.WS_Utils.GetTcmConfigValue("PWLALP_MAX_RESULTS_SIZE");
-            if (resultsSize.Length > 0 && Int32.TryParse(resultsSize, out res))
-                return res;
+            int resultsSize = ApplicationConfiguration.PwlalPMaxResultsSize.IntValue;
+            if (resultsSize > 0)
+                return resultsSize;
             return CatalogLogic.DEFAULT_PWLALP_MAX_RESULTS_SIZE;
         }
 

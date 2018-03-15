@@ -1658,8 +1658,10 @@ namespace Core.Billing
         public static int GetPreviewModuleNumOfCancelOrRefundAttempts()
         {
             int res = DEFAULT_PREVIEW_MODULE_NUM_OF_CANCEL_OR_REFUND_ATTEMPTS;
-            if (TVinciShared.WS_Utils.GetTcmConfigValue("PreviewModuleNumOfCancelOrRefundAttempts") != string.Empty)
-                Int32.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("PreviewModuleNumOfCancelOrRefundAttempts"), out res);
+            if (ApplicationConfiguration.PreviewModuleNumOfCancelOrRefundAttempts.IntValue > 0)
+            {
+                return ApplicationConfiguration.PreviewModuleNumOfCancelOrRefundAttempts.IntValue;
+            }
             return res;
         }
 
