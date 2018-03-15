@@ -669,7 +669,7 @@ namespace Core.ConditionalAccess
 
                         if (unifiedBillingCycle != null)
                         {
-                            endDate = ODBCWrapper.Utils.UnixTimestampToDateTime(unifiedBillingCycle.endDate);
+                            endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
                             log.DebugFormat("New end-date was updated according to UnifiedBillingCycle. EndDate={0}", endDate);
                         }
                     }
