@@ -3298,6 +3298,9 @@ namespace Core.ConditionalAccess
 
             try
             {
+                string couponCode = retCouponCode;
+                retCouponCode = string.Empty; // init for recurring coupon
+
                 // get all SubscriptionsCouponGroup (with expiry date !!!!)
                 List<SubscriptionCouponGroup> allCoupons = Core.Pricing.Utils.GetSubscriptionCouponsGroup(long.Parse(theSub.m_SubscriptionCode), m_nGroupID, false);
 
@@ -3309,9 +3312,7 @@ namespace Core.ConditionalAccess
                      * the type is coupon gift card or coupon                        
                      * */
 
-                    long couponGroupId = 0;
-                    string couponCode = Utils.GetSubscriptiopnPurchaseCoupon(retCouponCode, nPurchaseID, m_nGroupID, out couponGroupId); // return only if valid .
-                    retCouponCode = string.Empty; // init for recurring coupon
+                    long couponGroupId = Utils.GetSubscriptiopnPurchaseCoupon(ref couponCode, nPurchaseID, m_nGroupID); // return only if valid .
 
                     if (couponGroupId > 0 && theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString())
                     {
