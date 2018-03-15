@@ -3170,9 +3170,9 @@ namespace TvinciImporter
         {
             string key = string.Format("pics_base_path_{0}", nGroupID);
 
-            if (!string.IsNullOrEmpty(GetConfigVal(key)))
+            if (!string.IsNullOrEmpty(TVinciShared.WS_Utils.GetTcmConfigValue(key)))
             {
-                return GetConfigVal(key);
+                return TVinciShared.WS_Utils.GetTcmConfigValue(key);
             }
             if (!string.IsNullOrEmpty( ApplicationConfiguration.PicsBasePath.Value))
             {
@@ -3640,7 +3640,7 @@ namespace TvinciImporter
                 if (!string.IsNullOrEmpty(outputProtectionLevel))
                 {
                     // check if policy to file attachment should be through new CENC or not
-                    string rawStrFromConfig = WS_Utils.GetTcmConfigValue("OLD_DRM_EXC_GROUPS");
+                    string rawStrFromConfig = WS_Utils.GetTcmConfigValue("OLD_DRM_EXC_GROUPS"); //TCM not relevant anymore 
                     if (WS_Utils.IsGroupIDContainedInConfig(parentGroupID, rawStrFromConfig, ';')) // OLD_DRM_EXC_GROUPS not releventAnyMore
                     {
                         // old policy attachment
@@ -5331,7 +5331,7 @@ namespace TvinciImporter
 
         private static string GetLuceneUrl(int nGroupID)
         {
-            string sLuceneURL = GetConfigVal("LUCENE_WCF_" + nGroupID);
+            string sLuceneURL = TVinciShared.WS_Utils.GetTcmConfigValue("LUCENE_WCF_" + nGroupID);  //TCM not relevant anymore 
             try
             {
                 DataTable dt = DAL.ImporterImpDAL.Get_LuceneUrl(nGroupID);
@@ -5769,11 +5769,6 @@ namespace TvinciImporter
 
 
         #endregion
-
-        private static string GetConfigVal(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
 
         #region create client to WCF service
 
