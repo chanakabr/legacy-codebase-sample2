@@ -383,7 +383,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static bool DeleteChannel(int groupId, int channelId, Channel channel)
+        public static bool DeleteChannel(int groupId, int channelId, Channel channel = null)
         {
             bool result = false;            
             ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
@@ -396,6 +396,16 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
+                if (channel == null)
+                {
+                    channel = ChannelManager.GetChannelById(groupId, channelId);
+                    if (channel == null)
+                    {
+                        log.ErrorFormat("failed to get channel object for groupId: {0}, channelId: {1} when calling DeleteChannel", groupId, channelId);
+                        return result;
+                    }
+                }
+
                 // update channel status to delete
                 channel.m_nStatus = 2;
                 if (UpsertChannel(groupId, channelId, channel))
