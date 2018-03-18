@@ -849,8 +849,8 @@ namespace Core.Catalog.CatalogManagement
                 }                
 
                 if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Channel.m_nChannelTypeID, userId))
-                {
-                    bool deleteResult = IndexManager.DeleteChannel(groupId, channelId);
+                {                    
+                    bool deleteResult = IndexManager.DeleteChannel(groupId, channelId, channelResponse.Channel);
                     if (!deleteResult)
                     {
                         log.ErrorFormat("Failed update channel index with id: {0} after DeleteChannel", channelId);

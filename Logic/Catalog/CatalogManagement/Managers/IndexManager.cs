@@ -354,12 +354,21 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("failed to get channel object for groupId: {0}, channelId: {1} when calling UpsertChannel", groupId, channelId);
                         return result;
                     }
-                }               
-                
+                }
+
                 string index = ElasticSearch.Common.Utils.GetGroupChannelIndex(groupId);
                 string type = "channel";
                 string serializedChannel = esSerializer.SerializeChannelObject(channel);
                 result = esApi.InsertRecord(index, type, channelId.ToString(), serializedChannel);
+
+                // index percolator async
+                if (result)
+                {
+                    if (!CatalogLogic.UpdateChannelIndex(new List<long>() { channelId }, groupId, eAction.Update))
+                    {
+                        log.ErrorFormat("Update channel percolator failed for Upsert Channel");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -369,19 +378,12 @@ namespace Core.Catalog.CatalogManagement
             if (!result)
             {
                 log.ErrorFormat("Upsert channel with id {0} failed", channelId);
-            }
-            // support for old invalidation keys
-            else
-            {
-                // Set invalidation for the entire group
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
-            }
-            
+            }           
 
             return result;
         }
 
-        public static bool DeleteChannel(int groupId, int channelId)
+        public static bool DeleteChannel(int groupId, int channelId, Channel channel)
         {
             bool result = false;            
             ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
@@ -394,17 +396,31 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                string index = ElasticSearch.Common.Utils.GetGroupChannelIndex(groupId);
-                ESTerm term = new ESTerm(true)
+                // update channel status to delete
+                channel.m_nStatus = 2;
+                if (UpsertChannel(groupId, channelId, channel))
                 {
-                    Key = "channel_id",
-                    Value = channelId.ToString()
-                };
+                    string index = ElasticSearch.Common.Utils.GetGroupChannelIndex(groupId);
+                    ESTerm term = new ESTerm(true)
+                    {
+                        Key = "channel_id",
+                        Value = channelId.ToString()
+                    };
 
-                ESQuery query = new ESQuery(term);
-                string queryString = query.ToString();
-                string type = "channel";
-                result = esApi.DeleteDocsByQuery(index, type, ref queryString);
+                    ESQuery query = new ESQuery(term);
+                    string queryString = query.ToString();
+                    string type = "channel";
+                    result = esApi.DeleteDocsByQuery(index, type, ref queryString);
+
+                    // index percolator async
+                    if (result)
+                    {
+                        if (!CatalogLogic.UpdateChannelIndex(new List<long>() { channelId }, groupId, eAction.Delete))
+                        {
+                            log.ErrorFormat("Update channel percolator failed for Delete Channel");
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -414,12 +430,6 @@ namespace Core.Catalog.CatalogManagement
             if (!result)
             {
                 log.ErrorFormat("Delete channel with id {0} failed", channelId);
-            }
-            // support for old invalidation keys
-            else
-            {
-                // Set invalidation for the entire group
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
             }
 
             return result;

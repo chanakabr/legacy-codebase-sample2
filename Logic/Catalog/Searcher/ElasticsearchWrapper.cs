@@ -33,6 +33,8 @@ namespace Core.Catalog
         public const int STATUS_NOT_FOUND = 404;
         public const int STATUS_INTERNAL_ERROR = 500;
 
+        protected const string CHANNEL_SEARCH_STATUS = "status";
+        protected const string CHANNEL_SEARCH_STATUS_VALUE = "1";
         protected const string ES_MEDIA_TYPE = "media";
         protected const string ES_EPG_TYPE = "epg";
         protected ElasticSearchApi m_oESApi;
@@ -3128,11 +3130,20 @@ namespace Core.Catalog
                 query.AddChild(valueTerm, CutWith.AND);
             }
 
+            BaseFilterCompositeType filterSettings = new FilterCompositeType(CutWith.AND);
+            filterSettings.AddChild(new ESTerm(true)
+            {
+                Key = CHANNEL_SEARCH_STATUS_VALUE,
+                Value = CHANNEL_SEARCH_STATUS
+            });
+
+            QueryFilter queryFilter = new QueryFilter() { FilterSettings = filterSettings };
             FilteredQuery filteredQuery = new FilteredQuery()
             {
                 PageIndex = definitions.PageIndex,
                 PageSize = definitions.PageSize,
-                Query = query
+                Query = query,
+                Filter = queryFilter
             };
 
             string orderValue = "_id";

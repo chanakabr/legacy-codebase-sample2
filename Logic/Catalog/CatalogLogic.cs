@@ -2894,29 +2894,32 @@ namespace Core.Catalog
             bool isUpdateIndexSucceeded = false;
 
             if (ids != null && ids.Count > 0)
-            {                
+            {
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
                 Group group = null;
                 int groupIdForCelery = groupId;
-                GroupManager groupManager = new GroupManager();
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int parentGroupId = catalogCache.GetParentGroup(groupId);
-                group = groupManager.GetGroup(parentGroupId);
-                groupIdForCelery = group.m_nParentGroupID;
-
-                if (group != null)
+                if (!doesGroupUsesTemplates)
                 {
-                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery,
-                        ids, updatedObjectType, action, DateTime.UtcNow);
+                    GroupManager groupManager = new GroupManager();
+                    CatalogCache catalogCache = CatalogCache.Instance();
+                    int parentGroupId = catalogCache.GetParentGroup(groupId);
+                    group = groupManager.GetGroup(parentGroupId);
+                    groupIdForCelery = group.m_nParentGroupID;
+                }
 
+                if (doesGroupUsesTemplates || group != null)
+                {
+                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery, ids, updatedObjectType, action, DateTime.UtcNow);
                     var queue = new CatalogQueue();
-
                     isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
 
                     // backward compatibility
-                    var legacyQueue = new CatalogQueue(true);
-                    ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupIdForCelery, updatedObjectType, action);
-
-                    legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
+                    if (!doesGroupUsesTemplates)
+                    {
+                        var legacyQueue = new CatalogQueue(true);
+                        ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupIdForCelery, updatedObjectType, action);
+                        legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
+                    }
                 }
 
                 switch (updatedObjectType)
