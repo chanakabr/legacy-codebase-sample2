@@ -328,12 +328,12 @@ namespace Core.ConditionalAccess
             }
 
             if (!string.IsNullOrEmpty(couponCode))
-                ignoreUnifiedBillingCycle = true; 
+                ignoreUnifiedBillingCycle = true;
 
-
-            if (unifiedBillingCycle != null) //should be part of unified cycle 
+            long unifiedProcessId = 0;
+            if (!ignoreUnifiedBillingCycle && unifiedBillingCycle != null) //should be part of unified cycle 
             {
-                long processId = UpdateMPPRenewalProcessId(groupId, purchaseId, billingGuid, householdId, unifiedBillingCycle);                
+                unifiedProcessId = UpdateMPPRenewalProcessId(groupId, purchaseId, billingGuid, householdId, unifiedBillingCycle, pd != null ? pd.PaymentGatewayId : 0);                
             }
 
             // call billing process renewal
@@ -393,7 +393,7 @@ namespace Core.ConditionalAccess
                 case eTransactionState.OK:
                     {
                         res = HandleRenewSubscriptionSuccess(cas, groupId, siteguid, purchaseId, billingGuid, logString, productId, ref endDate, householdId, price, currency, paymentNumber,
-                            totalNumOfPayments, subscription, customData, maxVLCOfSelectedUsageModule, transactionResponse, unifiedBillingCycle, ignoreUnifiedBillingCycle);
+                            totalNumOfPayments, subscription, customData, maxVLCOfSelectedUsageModule, transactionResponse, unifiedBillingCycle, unifiedProcessId);
                         if (res)
                         {
                             string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(householdId);
@@ -440,15 +440,23 @@ namespace Core.ConditionalAccess
         }
 
         // get right process id from DB and update this row in DB 
-        private static long UpdateMPPRenewalProcessId(int groupId, long purchaseId, string billingGuid, long householdId, UnifiedBillingCycle unifiedBillingCycle)
+        private static long UpdateMPPRenewalProcessId(int groupId, long purchaseId, string billingGuid, long householdId, UnifiedBillingCycle unifiedBillingCycle, int paymentGatewayId)
         {
             long processId = 0;
             try
             {
-                PaymentGateway pg = Core.Billing.Module.GetPaymentGatewayByBillingGuid(groupId, householdId, billingGuid);
-                if (pg != null)
+                if (paymentGatewayId == 0)
                 {
-                    DataTable dt = DAL.ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(groupId, pg.ID, householdId);
+                    PaymentGateway pg = Core.Billing.Module.GetPaymentGatewayByBillingGuid(groupId, householdId, billingGuid);
+                    if (pg != null && pg.ID > 0)
+                    {
+                        paymentGatewayId = pg.ID;
+                    }
+                }
+
+                if (paymentGatewayId > 0)
+                { 
+                    DataTable dt = DAL.ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(groupId, paymentGatewayId, householdId);
 
                     if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                     {
@@ -457,7 +465,8 @@ namespace Core.ConditionalAccess
 
                     if (processId == 0) // need to create new process id 
                     {
-                        processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, pg.ID, ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate), householdId, (int)ProcessUnifiedState.Renew);                        
+                        processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate), 
+                                                                                householdId, (int)ProcessUnifiedState.Renew);                        
                     }
 
                     if (processId > 0)
@@ -616,7 +625,7 @@ namespace Core.ConditionalAccess
         protected static bool HandleRenewSubscriptionSuccess(BaseConditionalAccess cas, int groupId,
             string siteguid, long purchaseId, string billingGuid, string logString, long productId, ref DateTime endDate, long householdId,
             double price, string currency, int paymentNumber, int totalNumOfPayments, Subscription subscription, string customData, int maxVLCOfSelectedUsageModule,
-            TransactResult transactionResponse, UnifiedBillingCycle unifiedBillingCycle, bool ignoreUnifiedBillingCycle)
+            TransactResult transactionResponse, UnifiedBillingCycle unifiedBillingCycle, long unifiedProcessId)
         {
             // renew subscription success!
             log.DebugFormat("Transaction renew success. data: {0}", logString);
@@ -648,9 +657,30 @@ namespace Core.ConditionalAccess
             }
             else
             {
-                // end wasn't retuned - get next end date from MPP
-                endDate = Utils.GetEndDateTime(endDate, maxVLCOfSelectedUsageModule);
-                log.DebugFormat("New end-date was updated according to MPP. EndDate={0}", endDate);
+                // update unified billing cycle for domian with next end date
+                if (unifiedProcessId > 0)
+                {
+                    long? groupBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
+                    if (groupBillingCycle.HasValue && (int)groupBillingCycle.Value == maxVLCOfSelectedUsageModule)
+                    {
+                        if (unifiedBillingCycle == null)
+                        {
+                            unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupBillingCycle.Value);
+                        }
+
+                        if (unifiedBillingCycle != null)
+                        {
+                            endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
+                            log.DebugFormat("New end-date was updated according to UnifiedBillingCycle. EndDate={0}", endDate);
+                        }
+                    }
+                }
+                else
+                {
+                    // end wasn't retuned - get next end date from MPP
+                    endDate = Utils.GetEndDateTime(endDate, maxVLCOfSelectedUsageModule);
+                    log.DebugFormat("New end-date was updated according to MPP. EndDate={0}", endDate);
+                }
             }
 
 
@@ -679,30 +709,6 @@ namespace Core.ConditionalAccess
             else
             {
                 log.Error("Error while trying update billing_transactions subscriptions_purchased reference");
-            }
-
-            // update unified billing cycle for domian with next end date
-            if (!ignoreUnifiedBillingCycle)
-            {
-                long? groupBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-                if (groupBillingCycle.HasValue && (int)groupBillingCycle.Value == maxVLCOfSelectedUsageModule)
-                {
-                    if (unifiedBillingCycle == null)
-                    {
-                        unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupBillingCycle.Value);
-                    }
-
-                    if (unifiedBillingCycle != null)
-                    {
-                        long nextEndDate = ODBCWrapper.Utils.DateTimeToUnixTimestampUtcMilliseconds(endDate);
-
-                        if (unifiedBillingCycle.endDate == nextEndDate)
-                        {
-                            log.DebugFormat("going to update UnifiedBillingCycle. current endDate = {0}, nextEndDate = {1}", unifiedBillingCycle.endDate, nextEndDate);
-                            UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, nextEndDate); //, unifiedBillingCycle.paymentGatewayIds);
-                        }
-                    }
-                }
             }
 
             if (unifiedBillingCycle == null)

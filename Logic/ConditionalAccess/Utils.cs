@@ -7961,25 +7961,25 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal static string GetSubscriptiopnPurchaseCoupon(string couponCode, int purchaseId, int groupId, out long couponGroupId)
+        internal static long GetSubscriptiopnPurchaseCoupon(ref string couponCode, int purchaseId, int groupId)
         {
-            couponGroupId = 0;
-            string retCouponCode = couponCode;
+            long couponGroupId = 0;
+            
             if (string.IsNullOrEmpty(couponCode))
             {
-                retCouponCode = GetSubscriptiopnPurchaseCoupon(purchaseId);
+                couponCode = GetSubscriptiopnPurchaseCoupon(purchaseId);
             }
 
-            if (!string.IsNullOrEmpty(retCouponCode))
+            if (!string.IsNullOrEmpty(couponCode))
             {
-                couponGroupId = PricingDAL.Get_CouponGroupId(groupId, retCouponCode);
+                couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode);
                 if (couponGroupId == 0)
                 {
                     log.DebugFormat("GetSubscriptiopnPurchaseCoupon purchaseId={0}, groupId={1}, couponGroupId={2}, couponCode={3}", purchaseId, groupId, couponGroupId, couponCode);
                 }
             }
 
-            return retCouponCode;
+            return couponGroupId;
         }
 
         internal static List<ApiObjects.Epg.FieldTypeEntity> GetAliasMappingFields(int groupId)
