@@ -3133,8 +3133,8 @@ namespace Core.Catalog
             BaseFilterCompositeType filterSettings = new FilterCompositeType(CutWith.AND);
             filterSettings.AddChild(new ESTerm(true)
             {
-                Key = CHANNEL_SEARCH_STATUS_VALUE,
-                Value = CHANNEL_SEARCH_STATUS
+                Key = CHANNEL_SEARCH_STATUS,
+                Value = CHANNEL_SEARCH_STATUS_VALUE
             });
 
             QueryFilter queryFilter = new QueryFilter() { FilterSettings = filterSettings };
