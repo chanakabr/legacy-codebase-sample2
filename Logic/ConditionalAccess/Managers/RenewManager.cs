@@ -669,7 +669,16 @@ namespace Core.ConditionalAccess
 
                         if (unifiedBillingCycle != null)
                         {
-                            endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
+                            if (unifiedBillingCycle.endDate < ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(endDate))
+                            {
+                                // update unified billing by endDate or paymentGatewatId                  
+                                bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupBillingCycle.Value, ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(endDate));
+                            }
+                            else
+                            {
+                                endDate = ODBCWrapper.Utils.UnixTimestampToDateTimeMilliseconds(unifiedBillingCycle.endDate);
+                            }
+
                             log.DebugFormat("New end-date was updated according to UnifiedBillingCycle. EndDate={0}", endDate);
                         }
                     }
