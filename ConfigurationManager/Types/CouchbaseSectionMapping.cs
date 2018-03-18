@@ -32,9 +32,13 @@ namespace ConfigurationManager
             {
                 DefaultValue = "OTT_Apps"
             };
-            MediaMarks = new StringConfigurationValue("mediamark", this)
+            EPG = new StringConfigurationValue("epg", this)
             {
                 DefaultValue = "epg_channels_schedule"
+            };
+            MediaMarks = new StringConfigurationValue("mediamark", this)
+            {
+                DefaultValue = "MediaMarks"
             };
             DomainConcurrency = new StringConfigurationValue("domain_concurrency", this)
             {
