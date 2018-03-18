@@ -122,41 +122,13 @@ namespace ElasticSearchHandler.Updaters
                     case eAction.On:
                     case eAction.Update:
                         {
-                            GroupManager groupManager = new GroupManager();
-
-                            var group = groupManager.GetGroup(this.groupId);
-
-                            var channel = groupManager.GetChannel(id, ref group);
-
-                            if (channel == null)
-                            {
-                                result = false;
-                                log.ErrorFormat("Update channel with id {0} failed", id);
-                            }
-                            else
-                            {
-                                var status = wrapper.UpdateChannelIndex(groupId, channel);
-
-                                if (status == null || status.Code != (int)eResponseStatus.OK)
-                                {
-                                    result = false;
-                                    log.ErrorFormat("Update tag with id {0} failed", id);
-                                }
-                            }
-
+                            result = IndexManager.UpsertChannel(groupId, id);
                             break;
                         }
                     case eAction.Off:
                     case eAction.Delete:
                         {
-                            var status = wrapper.DeleteChannel(groupId, id);
-
-                            if (status == null || status.Code != (int)eResponseStatus.OK)
-                            {
-                                result = false;
-                                log.ErrorFormat("Delete channel with id {0} failed", id);
-                            }
-
+                            result = IndexManager.DeleteChannel(groupId, id);
                             break;
                         }
                     default:
