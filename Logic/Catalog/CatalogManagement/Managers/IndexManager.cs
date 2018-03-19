@@ -25,9 +25,10 @@ namespace Core.Catalog.CatalogManagement
     public class IndexManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string MEDIA = "media";
-        private static readonly string EPG = "epg";
-        private static readonly string PERCOLATOR = ".percolator";
+        private const string MEDIA = "media";
+        private const string CHANNEL = "channel";
+        private const string EPG = "epg";
+        private const string PERCOLATOR = ".percolator";
 
         #region Public Methods
 
@@ -188,19 +189,13 @@ namespace Core.Catalog.CatalogManagement
                 List<LanguageObj> languages = catalogGroupCache.LanguageMapById.Values.ToList();
                 if (languages != null && languages.Count > 0)
                 {
-                    ESTerm term = new ESTerm(true)
-                    {
-                        Key = "media_id",
-                        Value = assetId.ToString()
-                    };
-
-                    ESQuery query = new ESQuery(term);
-                    string queryString = query.ToString();
                     result = true;
+                    
                     foreach (LanguageObj lang in languages)
                     {
                         string type = GetTanslationType(MEDIA, lang);
-                        result = esApi.DeleteDocsByQuery(index, type, ref queryString) && result;                        
+                        ESDeleteResult deleteResult = esApi.DeleteDoc(index, type, assetId.ToString());
+                        result = deleteResult.Ok && result;                        
                     }
                 }                       
             }
@@ -444,7 +439,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static bool DeleteChannel(int groupId, int channelId, Channel channel = null)
+        public static bool DeleteChannel(int groupId, int channelId)
         {
             bool result = false;            
             ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
@@ -457,39 +452,14 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                if (channel == null)
+                string index = ElasticSearch.Common.Utils.GetGroupChannelIndex(groupId);
+                ESDeleteResult deleteResult = esApi.DeleteDoc(index, CHANNEL, channelId.ToString());
+                if (deleteResult.Ok)
                 {
-                    channel = ChannelManager.GetChannelById(groupId, channelId);
-                    if (channel == null)
+                    result = true;
+                    if (!CatalogLogic.UpdateChannelIndex(new List<long>() { channelId }, groupId, eAction.Delete))
                     {
-                        log.ErrorFormat("failed to get channel object for groupId: {0}, channelId: {1} when calling DeleteChannel", groupId, channelId);
-                        return result;
-                    }
-                }
-
-                // update channel status to delete
-                channel.m_nStatus = 2;
-                if (UpsertChannel(groupId, channelId, channel))
-                {
-                    string index = ElasticSearch.Common.Utils.GetGroupChannelIndex(groupId);
-                    ESTerm term = new ESTerm(true)
-                    {
-                        Key = "channel_id",
-                        Value = channelId.ToString()
-                    };
-
-                    ESQuery query = new ESQuery(term);
-                    string queryString = query.ToString();
-                    string type = "channel";
-                    result = esApi.DeleteDocsByQuery(index, type, ref queryString);
-
-                    // index percolator async
-                    if (result)
-                    {
-                        if (!CatalogLogic.UpdateChannelIndex(new List<long>() { channelId }, groupId, eAction.Delete))
-                        {
-                            log.ErrorFormat("Update channel percolator failed for Delete Channel");
-                        }
+                        log.ErrorFormat("Update channel percolator failed for Delete Channel");
                     }
                 }
             }
