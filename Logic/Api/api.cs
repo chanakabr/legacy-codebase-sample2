@@ -10361,7 +10361,7 @@ namespace Core.Api
                     {
                         // get mediaIds from catalog using WatchHistoryRequest
                         string signString = Guid.NewGuid().ToString();
-                        string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, GetWSURL("CatalogSignatureKey"));
+                        string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, ApplicationConfiguration.WebServicesConfiguration.Catalog.SignatureKey.Value);
 
                         // build request
                         WatchHistoryRequest request = new WatchHistoryRequest()
