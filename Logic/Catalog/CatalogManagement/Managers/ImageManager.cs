@@ -394,6 +394,15 @@ namespace Core.Catalog.CatalogManagement
             ImageTypeResponse result = new ImageTypeResponse();
             try
             {
+                if (imageTypeToAdd.DefaultImageId.HasValue)
+                {
+                    ImageListResponse imageList = GetImagesByIds(groupId, new List<long>() { imageTypeToAdd.DefaultImageId.Value });
+                    if (imageList == null || imageList.Status == null || imageList.Status.Code != (int)eResponseStatus.OK ||imageList.Images == null || imageList.Images.Count != 1)
+                    {
+                        result.Status = new Status((int)eResponseStatus.ImageDoesNotExist, eResponseStatus.ImageDoesNotExist.ToString());
+                    }
+                }
+
                 DataSet ds = CatalogDAL.InsertImageType(groupId, imageTypeToAdd.Name, imageTypeToAdd.SystemName, imageTypeToAdd.RatioId.Value, imageTypeToAdd.HelpText,
                                                       userId, imageTypeToAdd.DefaultImageId);
                 if (ds != null)
@@ -480,6 +489,15 @@ namespace Core.Catalog.CatalogManagement
             ImageTypeResponse result = new ImageTypeResponse();
             try
             {
+                if (imageTypeToUpdate.DefaultImageId.HasValue)
+                {
+                    ImageListResponse imageList = GetImagesByIds(groupId, new List<long>() { imageTypeToUpdate.DefaultImageId.Value });
+                    if (imageList == null || imageList.Status == null || imageList.Status.Code != (int)eResponseStatus.OK || imageList.Images == null || imageList.Images.Count != 1)
+                    {
+                        result.Status = new Status((int)eResponseStatus.ImageDoesNotExist, eResponseStatus.ImageDoesNotExist.ToString());
+                    }
+                }
+
                 ImageTypeListResponse imageTypeListResponse = GetImageTypes(groupId, true, null);
                 if (imageTypeListResponse == null || (imageTypeListResponse != null && imageTypeListResponse.ImageTypes == null) || (imageTypeListResponse.ImageTypes.Count == 0))
                 {
