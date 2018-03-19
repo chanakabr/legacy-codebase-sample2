@@ -4715,7 +4715,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static bool DeleteMediaFileType(int groupId, long id, long userId)
+        public static DataSet DeleteMediaFileType(int groupId, long id, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteMediaFileType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4723,7 +4723,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Id", id);
             sp.AddParameter("@UpdaterId", userId);
 
-            return sp.ExecuteReturnValue<int>() > 0;
+            return sp.ExecuteDataSet();
         }
 
         public static DataSet GetTopicsByGroupId(int groupId)
@@ -4986,7 +4986,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static bool DeleteImageType(int groupId, long id, long userId)
+        public static DataSet DeleteImageType(int groupId, long id, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteImageType");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4994,7 +4994,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@id", id);
             sp.AddParameter("@updaterId", userId);
 
-            return sp.ExecuteReturnValue<int>() > 0;
+            return sp.ExecuteDataSet();
         }
 
         public static DataSet UpdateImageType(int groupId, long id, string name, string systemName, long? ratioId, string helpText, long userId, long? defaultImageId)
