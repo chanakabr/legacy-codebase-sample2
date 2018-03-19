@@ -87,7 +87,7 @@ namespace Core.Catalog.CatalogManagement
             return mediaTranslations;
         }
 
-        public static bool UpsertMedia(int groupId, int assetId, bool shouldResetMediaGroupId = false)
+        public static bool UpsertMedia(int groupId, int assetId)
         {
             bool result = false;
             ElasticSearch.Common.ESSerializerV2 esSerializer = new ElasticSearch.Common.ESSerializerV2();
@@ -129,13 +129,7 @@ namespace Core.Catalog.CatalogManagement
                                 Media media = mediaDictionary[assetId][languageId];
                                 if (media != null)
                                 {
-                                    string serializedMedia;
-                                    if (shouldResetMediaGroupId)
-                                    {
-                                        media.m_nGroupID = 0;
-                                    }
-
-                                    serializedMedia = esSerializer.SerializeMediaObject(media, suffix);
+                                    string serializedMedia = esSerializer.SerializeMediaObject(media, suffix);
                                     string type = GetTanslationType(MEDIA, language);
                                     if (!string.IsNullOrEmpty(serializedMedia))
                                     {
