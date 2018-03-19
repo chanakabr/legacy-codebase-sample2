@@ -133,6 +133,7 @@ namespace Core.Catalog
                 GroupManager manager = new GroupManager();
                 Group group = manager.GetGroup(parentGroupID);
                 UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
+                bool shouldSearchNotEntitled = originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled;
 
                 bool shouldSearchNotEntitled = originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled;
 

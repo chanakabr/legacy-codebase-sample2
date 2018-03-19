@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
-using System.Reflection;
-using System.ServiceModel;
-using System.Xml;
-using System.Xml.Serialization;
-using System.Data;
-using TVinciShared;
-using DAL;
-using Tvinci.Core.DAL;
-using System.Threading.Tasks;
-using ApiObjects;
+﻿using ApiObjects;
+using ApiObjects.Catalog;
+using ApiObjects.PlayCycle;
+using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using Core.Catalog.Response;
+using EpgBL;
+using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
-using EpgBL;
-using ApiObjects.Response;
-using ApiObjects.PlayCycle;
-using GroupsCacheManager;
-using ApiObjects.Catalog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
+using Tvinci.Core.DAL;
 
 namespace Core.Catalog.Request
 {
@@ -558,6 +552,13 @@ namespace Core.Catalog.Request
                 {
                     log.Error("Error - " + String.Concat("Failed to write firstplay into stats index. Req: ", ToString()));
                 }
+
+                string invalidationKey = LayeredCacheKeys.GetUserWatchedMediaIdsInvalidationKey(int.Parse(siteGuid));
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on GetUserWatchedMediasInvalidationKey key = {0}", invalidationKey);
+                }
+
             }
             catch (Exception ex)
             {
