@@ -272,7 +272,10 @@ namespace CachingProvider.LayeredCache
             return string.Format("unifiedBillingCycle_groupId_{0}", groupId);
         }
 
-
+        public static string GetDeviceRulesByBrandIdKey(int groupId, int brandId)
+        {
+            return string.Format("deviceRules_groupId_{0}_brandId_{1}", groupId, brandId);
+        }
 
         #endregion
 
