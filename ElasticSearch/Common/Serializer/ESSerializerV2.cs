@@ -1489,13 +1489,6 @@ namespace ElasticSearch.Common
                 index = eMappingIndex.not_analyzed,
                 format = DATE_FORMAT
             });
-            mappingObj.AddProperty(new BasicMappingPropertyV2()
-            {
-                name = "status",
-                type = eESFieldType.INTEGER,
-                index = eMappingIndex.not_analyzed,
-                null_value = "0"
-            });
 
             result = mappingObj.ToString();
 
@@ -1511,7 +1504,6 @@ namespace ElasticSearch.Common
             json["channel_type"] = JToken.FromObject(channel.m_nChannelTypeID);
             json["channel_id"] = JToken.FromObject(channel.m_nChannelID);
             json["create_date"] = JToken.FromObject(channel.CreateDate.Value.ToString("yyyyMMddHHmmss"));
-            json["status"] = JToken.FromObject(channel.m_nStatus);
 
             result = json.ToString(Newtonsoft.Json.Formatting.None);
 
