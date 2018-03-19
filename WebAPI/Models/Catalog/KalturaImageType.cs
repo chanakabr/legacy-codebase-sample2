@@ -30,7 +30,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
         [XmlElement(ElementName = "name")]
-        [SchemeProperty(MinLength = 1)]
+        [SchemeProperty(MinLength = 1, MaxLength = 128)]
         public string Name { get; set; }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "systemName")]
         [JsonProperty(PropertyName = "systemName")]
         [XmlElement(ElementName = "systemName")]
-        [SchemeProperty(MinLength = 1)]
+        [SchemeProperty(MinLength = 1, MaxLength = 512)]
         public string SystemName { get; set; }
 
         /// <summary>
@@ -57,6 +57,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "helpText")]
         [JsonProperty(PropertyName = "helpText")]
         [XmlElement(ElementName = "helpText")]
+        [SchemeProperty(MaxLength = 800)]
         public string HelpText { get; set; }
 
         /// <summary>
