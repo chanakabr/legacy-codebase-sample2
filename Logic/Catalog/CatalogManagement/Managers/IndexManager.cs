@@ -415,12 +415,13 @@ namespace Core.Catalog.CatalogManagement
                 string index = ElasticSearch.Common.Utils.GetGroupChannelIndex(groupId);
                 string type = "channel";
                 string serializedChannel = esSerializer.SerializeChannelObject(channel);
-                result = esApi.InsertRecord(index, type, channelId.ToString(), serializedChannel);
-
-                // index percolator async only if channel is not deleted
-                if (channel.m_nStatus != 2 && result)
+                if (esApi.InsertRecord(index, type, channelId.ToString(), serializedChannel))
                 {
-                    if (!UpdateChannelPercolator(groupId, new List<int>() { channelId }, channel))
+                    if (UpdateChannelPercolator(groupId, new List<int>() { channelId }, channel))
+                    {
+                        result = true;
+                    }
+                    else
                     {
                         log.ErrorFormat("Update channel percolator failed for Upsert Channel");
                     }
@@ -457,9 +458,9 @@ namespace Core.Catalog.CatalogManagement
                 if (deleteResult.Ok)
                 {
                     result = true;
-                    if (!CatalogLogic.UpdateChannelIndex(new List<long>() { channelId }, groupId, eAction.Delete))
+                    if (DeleteChannelPercolator(groupId, new List<int>() { channelId }))
                     {
-                        log.ErrorFormat("Update channel percolator failed for Delete Channel");
+                        log.ErrorFormat("Delete channel percolator failed for Delete Channel");
                     }
                 }
             }
