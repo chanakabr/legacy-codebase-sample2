@@ -52,6 +52,7 @@ namespace CachingProvider.LayeredCache
         public const string DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "DrmAdapter";
         public const string GROUP_DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "GroupDrmAdapter";
         public const string GET_DEVICE_RULES_BY_BRAND_ID_CACHE_CONFIG_NAME = "GetDeviceRulesByBrandId";
+        public const string GET_USER_WATCHED_MEDIA_IDS_LAYERED_CACHE_CONFIG_NAME = "GetUserWatchedMediaIds";
 
         #endregion
 

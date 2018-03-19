@@ -277,6 +277,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("deviceRules_groupId_{0}_brandId_{1}", groupId, brandId);
         }
 
+        public static string GetUserWatchedMediaIdsKey(int userId)
+        {
+            return string.Format("user_watched_media_ids_user_{0}", userId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -444,7 +449,7 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_mediaConcurrencyRules_by_domainLimitationModule_{0}", dlmId);
         }
 
-        #endregion
+        #endregion  
 
         #region Domains
 
@@ -475,6 +480,11 @@ namespace CachingProvider.LayeredCache
         public static string GetUserInvalidationKey(string siteGuid)
         {
             return string.Format("invalidationKey_user_{0}", siteGuid);
+        }
+
+        public static string GetUserWatchedMediaIdsInvalidationKey(int userId)
+        {
+            return string.Format("invalidationkey_userWatchedMediaIds_user_{0}", userId);
         }
 
         #endregion
