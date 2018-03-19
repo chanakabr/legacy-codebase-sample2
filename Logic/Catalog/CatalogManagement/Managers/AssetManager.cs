@@ -36,7 +36,24 @@ namespace Core.Catalog.CatalogManagement
         {
             NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, ENTRY_ID_META_SYSTEM_NAME, STATUS_META_SYSTEM_NAME, PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME,
             PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_START_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_TIME_META_SYSTEM_NAME
-        };        
+        };
+
+        #endregion
+
+        #region Internal Methods
+
+        public static bool InvalidateAsset(eAssetTypes assetType, long assetId, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
+        {
+            bool result = true;
+            string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), assetId);
+            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+            {
+                result = false;
+                log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after {3}", assetId, assetType.ToString(), invalidationKey, callingMethod);
+            }
+
+            return result;
+        }
 
         #endregion
 
@@ -1744,11 +1761,7 @@ namespace Core.Catalog.CatalogManagement
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
                     // invalidate asset
-                    string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                    {
-                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after updating asset", id, assetType.ToString(), invalidationKey);
-                    }
+                    InvalidateAsset(assetType, id);
                 }
             }
             catch (Exception ex)
@@ -1802,11 +1815,7 @@ namespace Core.Catalog.CatalogManagement
                 if (result.Code == (int)eResponseStatus.OK)
                 {
                     // invalidate asset
-                    string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                    {
-                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after deleting asset", id, assetType.ToString(), invalidationKey);
-                    }
+                    InvalidateAsset(assetType, id);
                 }
             }
             catch (Exception ex)
@@ -1913,11 +1922,7 @@ namespace Core.Catalog.CatalogManagement
                 if (result.Code == (int)eResponseStatus.OK)
                 {
                     // invalidate asset
-                    string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), id);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                    {
-                        log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after removing topics from asset", id, assetType.ToString(), invalidationKey);
-                    }
+                    InvalidateAsset(assetType, id);
                 }
             }
             catch (Exception ex)

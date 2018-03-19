@@ -324,29 +324,22 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<List<Image>, bool>(groupDefaultImages, res);
         }
 
-        private static eAssetTypes ConverteAssetImageTypeToeAssetTypes(eAssetImageType assetImageType)
+        private static void InvalidateAsset(int groupId, long id, eAssetImageType assetImageType, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
         {
-            eAssetTypes result = eAssetTypes.UNKNOWN;
-            switch (assetImageType)
+            // invalidate media
+            if (assetImageType == eAssetImageType.Media)
             {
-                case eAssetImageType.Media:
-                    result = eAssetTypes.MEDIA;
-                    break;
-                case eAssetImageType.Channel:
-                    break;
-                case eAssetImageType.Category:
-                    break;
-                case eAssetImageType.DefaultPic:
-                    break;
-                case eAssetImageType.LogoPic:
-                    break;
-                case eAssetImageType.ImageType:
-                    break;
-                default:
-                    break;
+                AssetManager.InvalidateAsset(eAssetTypes.MEDIA, id, callingMethod);
             }
-
-            return result;
+            // invalidate channel
+            else if (assetImageType == eAssetImageType.Channel)
+            {
+                string invalidationKey = LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)id);                
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after {2}", id, invalidationKey, callingMethod);
+                }
+            }
         }
 
         #endregion
@@ -435,8 +428,28 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                if (CatalogDAL.DeleteImageType(groupId, id, userId))
+                DataSet ds = CatalogDAL.DeleteImageType(groupId, id, userId);
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
+                    /* We don't care about the first table, we just checked to see count > 0 to know if the image type was deleted successfully
+                       The second table is needed to invalidate the assets that had images of this image type  */
+                    DataTable imagesDt = ds.Tables.Count > 1 && ds.Tables[1] != null ? ds.Tables[1] : null;
+                    if (imagesDt != null && imagesDt.Rows != null && imagesDt.Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in imagesDt.Rows)
+                        {
+                            long imageObjectId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ASSET_ID");
+                            eAssetImageType imageObjectType = (eAssetImageType)ODBCWrapper.Utils.GetIntSafeVal(dr, "ASSET_IMAGE_TYPE");
+                            if (imageObjectId > 0)
+                            {
+                                // invalidate asset with this image
+                                InvalidateAsset(groupId, imageObjectId, imageObjectType);
+                            }
+                        }
+                    }
+
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
                     string invalidationKey = LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
@@ -452,9 +465,7 @@ namespace Core.Catalog.CatalogManagement
                             log.ErrorFormat("Failed to set invalidation key on DeleteImageType key = {0}", defaultGroupImagesInvalidationKey);
                         }
                     }
-
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
+                }                
             }
             catch (Exception ex)
             {
@@ -596,26 +607,8 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
 
-                        eAssetTypes assetType = ConverteAssetImageTypeToeAssetTypes(image.ImageObjectType);
-                        if (assetType != eAssetTypes.UNKNOWN)
-                        {
-                            // invalidate asset
-                            string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), image.ImageObjectId);
-                            if (assetType != eAssetTypes.UNKNOWN && !LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                            {
-                                log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after DeleteImage",
-                                                    image.ImageObjectId, assetType.ToString(), invalidationKey);
-                            }
-                        }
-                        else if (image.ImageObjectType == eAssetImageType.Channel)
-                        {
-                            // invalidate channel
-                            if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)image.ImageObjectId)))
-                            {
-                                log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after DeleteImage",
-                                                    image.ImageObjectId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)image.ImageObjectId));
-                            }
-                        }
+                        // invalidate asset with this image
+                        InvalidateAsset(groupId, image.ImageObjectId, image.ImageObjectType);
                     }                   
                 }
             }
@@ -803,26 +796,8 @@ namespace Core.Catalog.CatalogManagement
                     TVinciShared.ImageUtils.UpdateImageState(groupId, image.Id, image.Version, eMediaType.VOD, eTableStatus.OK, (int)userId, image.ContentId);
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                    eAssetTypes assetType = ConverteAssetImageTypeToeAssetTypes(image.ImageObjectType);
-                    if (assetType != eAssetTypes.UNKNOWN)
-                    {
-                        // invalidate asset
-                        string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), image.ImageObjectId);
-                        if (assetType != eAssetTypes.UNKNOWN && !LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                        {
-                            log.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after SetContent",
-                                                image.ImageObjectId, assetType.ToString(), invalidationKey);
-                        }
-                    }
-                    else if (image.ImageObjectType == eAssetImageType.Channel)
-                    {
-                        // invalidate channel
-                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)image.ImageObjectId)))
-                        {
-                            log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after SetContent",
-                                                image.ImageObjectId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)image.ImageObjectId));
-                        }
-                    }
+                    // invalidate asset with this image
+                    InvalidateAsset(groupId, image.ImageObjectId, image.ImageObjectType);
                 }
             }
             catch (Exception ex)

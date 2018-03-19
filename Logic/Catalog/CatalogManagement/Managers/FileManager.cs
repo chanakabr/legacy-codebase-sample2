@@ -486,16 +486,30 @@ namespace Core.Catalog.CatalogManagement
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                if (CatalogDAL.DeleteMediaFileType(groupId, id, userId))
+                DataSet ds = CatalogDAL.DeleteMediaFileType(groupId, id, userId);
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    /* We don't care about the first table, we just checked to see count > 0 to know if the media file type was deleted successfully
+                       The second table is needed to invalidate the assets that had media files of this file type  */
 
-                    if (result.Code == (int)eResponseStatus.OK)
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                                        
+                    string invalidationKey = LayeredCacheKeys.GetGroupMediaFileTypesInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
-                        string invalidationKey = LayeredCacheKeys.GetGroupMediaFileTypesInvalidationKey(groupId);
-                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        log.ErrorFormat("Failed to set invalidation key on DeleteMediaFileType key = {0}", invalidationKey);
+                    }
+
+                    DataTable mediaFilesDt = ds.Tables.Count > 1 && ds.Tables[1] != null ? ds.Tables[1] : null;
+                    if (mediaFilesDt != null && mediaFilesDt.Rows != null && mediaFilesDt.Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in mediaFilesDt.Rows)
                         {
-                            log.ErrorFormat("Failed to set invalidation key on DeleteMediaFileType key = {0}", invalidationKey);
+                            long mediaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID");                            
+                            if (mediaId > 0)
+                            {
+                                // invalidate asset with this file
+                                AssetManager.InvalidateAsset(eAssetTypes.MEDIA, mediaId);
+                            }
                         }
                     }
                 }
@@ -596,12 +610,7 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // invalidate asset
-                    string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.MEDIA.ToString(), assetFileToAdd.AssetId);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                    {
-                        log.ErrorFormat("Failed to invalidate asset with id: {0}, mediaFileId: {1}, invalidationKey: {2} after InsertMediaFile",
-                                            assetFileToAdd.AssetId, assetFileToAdd.Id, invalidationKey);
-                    }
+                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileToAdd.AssetId);
 
                     // free item index update 
                     DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToAdd.AssetId, null, assetFileToAdd.StartDate, null, assetFileToAdd.EndDate);
@@ -644,12 +653,7 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         // invalidate asset
-                        string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.MEDIA.ToString(), assetFileResponse.File.AssetId);
-                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                        {
-                            log.ErrorFormat("Failed to invalidate asset with id: {0}, mediaFileId: {1}, invalidationKey: {2} after DeleteMediaFile",
-                                                assetFileResponse.File.AssetId, assetFileResponse.File.Id, invalidationKey);
-                        }
+                        AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileResponse.File.AssetId);
                     }
                 }
             }
@@ -765,12 +769,8 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // invalidate asset
-                    string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.MEDIA.ToString(), assetFileToUpdate.AssetId);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                    {
-                        log.ErrorFormat("Failed to invalidate asset with id: {0}, mediaFileId: {1}, invalidationKey: {2} after UpdateMediaFile",
-                                            assetFileToUpdate.AssetId, assetFileToUpdate.Id, invalidationKey);
-                    }
+                    // invalidate asset
+                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileToUpdate.AssetId);
 
                     // free item index update 
                     DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToUpdate.AssetId, currentAssetFile.File.StartDate, assetFileToUpdate.StartDate,

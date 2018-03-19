@@ -636,12 +636,8 @@ namespace Core.Catalog.CatalogManagement
 
                 // invalidate medias
                 foreach (int mediaId in mediaIds)
-                {
-                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.MEDIA.ToString(), mediaId)))
-                    {
-                        log.ErrorFormat("Failed to invalidate media with id: {0}", mediaId);
-                        res = false;
-                    }
+                {                    
+                    res = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, mediaId);
                 }
             }
 
@@ -658,11 +654,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate epgs
                 foreach (int epgId in epgIds)
                 {
-                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), epgId)))
-                    {
-                        log.ErrorFormat("Failed to invalidate epg with id: {0}", epgId);
-                        res = false;
-                    }
+                    res = AssetManager.InvalidateAsset(eAssetTypes.EPG, epgId);
                 }
             }
 
