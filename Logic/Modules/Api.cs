@@ -1836,5 +1836,10 @@ namespace Core.Api
         {
             return Core.Api.api.GetMediaConcurrencyRulesByDeviceLimitionModule(groupId, dlmId);
         }
+
+        public static List<long> GetUserWatchedMediaIds(int groupId, int userId)
+        {
+            return Core.Api.api.GetUserWatchedMediaIds(groupId, userId);
+        }
     }
 }

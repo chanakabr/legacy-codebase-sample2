@@ -10321,5 +10321,90 @@ namespace Core.Api
             }
             return response;
         }
+
+        internal static List<long> GetUserWatchedMediaIds(int groupId, int userId)
+        {
+            List<long> mediaIds = new List<long>();
+
+            try
+            {
+                string key = LayeredCacheKeys.GetUserWatchedMediaIdsKey(userId);
+
+                bool cacheResult = LayeredCache.Instance.Get<List<long>>(
+                    key, ref mediaIds, GetUserWatchedMedias,
+                    new Dictionary<string, object>()
+                        {
+                        { "groupId", groupId },
+                        { "userId", userId }
+                        },
+                    groupId, LayeredCacheConfigNames.GET_USER_WATCHED_MEDIA_IDS_LAYERED_CACHE_CONFIG_NAME,
+                    new List<string>() { LayeredCacheKeys.GetUserWatchedMediaIdsInvalidationKey(userId) });
+
+                if (!cacheResult)
+                {
+                    log.Error(string.Format("GetUserWatchedMediaIds - Failed get data from cache groupId= {0}, userId= {1}", groupId, userId));
+                    return null;
+                }
+
+                return mediaIds;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed - GetUserWatchedMediaIds. ex: {0}", ex);
+                return null;
+            }
+        }
+
+        internal static Tuple<List<long>, bool> GetUserWatchedMedias(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<long> mediaIds = new List<long>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("userId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    int? userId = funcParams["userId"] as int?;
+
+                    if (groupId.HasValue && userId.HasValue)
+                    {
+                        // get mediaIds from catalog using WatchHistoryRequest
+                        string signString = Guid.NewGuid().ToString();
+                        string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, GetWSURL("CatalogSignatureKey"));
+
+                        // build request
+                        WatchHistoryRequest request = new WatchHistoryRequest()
+                        {
+                            m_sSiteGuid = userId.ToString(),
+                            m_sSignature = signature,
+                            m_sSignString = signString,
+                            m_nGroupID = groupId.Value,
+                            m_nPageIndex = 0,
+                            m_nPageSize = 0,
+                            AssetTypes = null,
+                            FilterStatus = eWatchStatus.All,
+                            NumOfDays = 1000, // TODO: should be configurable? 
+                            OrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                        };
+
+                        WatchHistoryResponse response = request.GetResponse(request) as WatchHistoryResponse;
+                        if (response != null && response.result != null)
+                        {
+                            mediaIds = response.result.Select(x => long.Parse(x.AssetId)).ToList<long>();
+                            result = true;
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetUserWatchedMedias failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<long>, bool>(mediaIds.Distinct().ToList(), result);
+        }
+
     }
 }
