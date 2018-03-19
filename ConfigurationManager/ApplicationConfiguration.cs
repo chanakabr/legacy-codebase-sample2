@@ -256,7 +256,10 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = 30
             };
-            DMSUrl = new StringConfigurationValue("dms_url");
+            DMSUrl = new StringConfigurationValue("dms_url")
+            {
+                Description = "Address of DMS server."
+            };
             MailerConfiguration = new MailerConfiguration("MC");
             GroupsManagerConfiguration = new GroupsManagerConfiguration("groups_manager");
             RequestParserConfiguration = new RequestParserConfiguration("request_parser");

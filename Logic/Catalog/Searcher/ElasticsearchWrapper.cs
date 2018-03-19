@@ -2381,6 +2381,7 @@ namespace Core.Catalog
             ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(definitions);
             queryParser.PageIndex = 0;
             queryParser.PageSize = 0;
+            queryParser.GetAllDocuments = true;
 
             if (definitions.entitlementSearchDefinitions != null &&
                 definitions.entitlementSearchDefinitions.subscriptionSearchObjects != null)
