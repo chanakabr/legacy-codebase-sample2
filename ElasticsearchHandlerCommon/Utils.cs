@@ -954,12 +954,12 @@ namespace ElasticsearchTasksCommon
 
                                 media.geoBlockRule = ODBCWrapper.Utils.ExtractInteger(row, "geo_block_rule_id");
 
-                                //string epgIdentifier = ODBCWrapper.Utils.ExtractString(row, "epg_identifier");
+                                string epgIdentifier = ODBCWrapper.Utils.ExtractString(row, "epg_identifier");
 
-                                //if (!string.IsNullOrEmpty(epgIdentifier))
-                                //{
-                                //    media.epgIdentifier = epgIdentifier;
-                                //}
+                                if (!string.IsNullOrEmpty(epgIdentifier))
+                                {
+                                    media.epgIdentifier = epgIdentifier;
+                                }
 
                                 #endregion
 
