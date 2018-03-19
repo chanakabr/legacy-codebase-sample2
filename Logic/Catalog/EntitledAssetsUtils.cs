@@ -135,8 +135,6 @@ namespace Core.Catalog
                 UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
                 bool shouldSearchNotEntitled = originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled;
 
-                bool shouldSearchNotEntitled = originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled;
-
                 // Copy definitons from original object
                 definitions.entitlementSearchDefinitions = originalDefinitions.entitlementSearchDefinitions;
                 definitions.entitlementSearchDefinitions.shouldSearchNotEntitled = false;
