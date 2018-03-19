@@ -339,7 +339,7 @@ namespace Core.Catalog.Request
         {
             int[] nDeviceRuleId = null;
             if (request.m_oFilter != null)
-                nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                nDeviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
 
             return CatalogLogic.BuildBaseChannelSearchObject(channel, request, request.m_oOrderObj, nParentGroupID, channel.m_nGroupID == channel.m_nParentGroupID ? lPermittedWatchRules : null, nDeviceRuleId, oLanguage);
         }

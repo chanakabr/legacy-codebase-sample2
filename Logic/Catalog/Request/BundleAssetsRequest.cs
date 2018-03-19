@@ -92,7 +92,7 @@ namespace Core.Catalog.Request
 
                             if (request.m_oFilter != null)
                             {
-                                deviceRuleIds = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                                deviceRuleIds = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
                             }
 
                             List<BaseSearchObject> searchObjectsList = 

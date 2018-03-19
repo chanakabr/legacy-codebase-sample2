@@ -1802,7 +1802,7 @@ namespace Core.Catalog
                 }
 
                 if (request.m_oFilter != null)
-                    searchObj.m_nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                    searchObj.m_nDeviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
 
                 if (m_dOr.Count > 0)
                 {
@@ -6196,7 +6196,14 @@ namespace Core.Catalog
             }
 
             // Build search object
-            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group);
+            List<string> personalData;
+            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group, out personalData);
+
+            string cacheKey = GetSearchCacheKey(parentGroupID, request.m_sSiteGuid, request.domainId, request.m_oFilter.m_sDeviceId, request.m_sUserIP, request.filterQuery, unifiedSearchDefinitions, personalData);
+            if (!string.IsNullOrEmpty(cacheKey))
+            {
+                // IRA: help
+            }
 
             int pageIndex = 0;
             int pageSize = 0;
@@ -6318,6 +6325,86 @@ namespace Core.Catalog
             status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
 
             return status;
+        }
+
+        private static string GetSearchCacheKey(int groupId, string userId, int domainId, string udid, string ip, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions, List<string> personalData)
+        {
+            string key = null;
+            if (personalData != null && personalData.Count > 0)
+            {
+                // IRA: make the names in the key shorter?
+
+                StringBuilder cacheKey = new StringBuilder("channel");
+                cacheKey.AppendFormat("_gId={0}", groupId);
+                cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
+                cacheKey.AppendFormat("_order={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy, unifiedSearchDefinitions.order.m_eOrderDir);
+                if (unifiedSearchDefinitions.order.m_eOrderBy == OrderBy.META)
+                {
+                    cacheKey.AppendFormat("|{0}", unifiedSearchDefinitions.order.m_sOrderValue);
+                    // IRA: what else with ordering
+                }
+
+                if (!string.IsNullOrEmpty(udid))
+                {
+                    List<int> deviceRules = Api.api.GetDeviceAllowedRuleIDs(groupId, udid, domainId);
+                    if (deviceRules != null && deviceRules.Count > 0)
+                    {
+                        cacheKey.AppendFormat("_deviceRules={0}", string.Join("|", deviceRules.OrderBy(r => r)));
+                    }
+                }
+
+                if (personalData.Contains(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD))
+                {
+                    UserPurhcasedAssetsResponse purchasedAssets = ConditionalAccess.Module.GetUserPurchasedAssets(groupId, domainId, null);
+                    if (purchasedAssets.status.Code == (int)eResponseStatus.OK)
+                    {
+                        if (purchasedAssets.assets != null && purchasedAssets.assets.Count > 0)
+                        {
+                            return key;
+                        }
+                        else
+                        {
+                            UserBundlesResponse bundelsResponse = ConditionalAccess.Module.GetUserBundles(groupId, domainId, null);
+                            if (bundelsResponse.status.Code == (int)eResponseStatus.OK)
+                            {
+                                cacheKey.AppendFormat("_entitlements={0}", string.Join("|", bundelsResponse.channels.OrderBy(c => c)));
+                            }
+                        }
+                    }
+                }
+
+                if (personalData.Contains(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD))
+                {
+                    int countryId = Utils.GetIP2CountryId(groupId, ip);
+                    cacheKey.AppendFormat("_countryId={0}", countryId);
+                }
+
+                if (personalData.Contains(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD))
+                {
+                    List<long> ruleIds = DAL.ApiDAL.Get_User_ParentalRulesIDs(groupId, userId.ToString());
+                    // IRENA: change to cache
+                    cacheKey.AppendFormat("_parentalRules={0}", string.Join("|", ruleIds.OrderBy(r => r)));
+                }
+
+                if (!string.IsNullOrEmpty(ksql))
+                {
+                    string ksqlMd5 = null;
+                    try
+                    {
+                        ksqlMd5 = EncryptUtils.HashMD5(ksql);
+                    }
+                    catch(Exception ex)
+                    {
+                        log.Error("Failed to MD5 KSQL for personal ES cache", ex);
+                        return key;
+                    }
+                    cacheKey.AppendFormat("_ksql={0}", ksqlMd5);
+                }
+
+                key = cacheKey.ToString();
+            }
+
+            return key;
         }
 
         internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems,
@@ -6487,7 +6574,7 @@ namespace Core.Catalog
 
             if (request.m_oFilter != null)
             {
-                deviceRules = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                deviceRules = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
             }
 
             definitions.deviceRuleId = deviceRules;
@@ -6598,7 +6685,8 @@ namespace Core.Catalog
                 }
 
                 // Add prefixes, check if non start/end date exist
-                UpdateNodeTreeFields(request, ref filterTree, definitions, group);
+                List<string> withEntitlements;
+                UpdateNodeTreeFields(request, ref filterTree, definitions, group, out withEntitlements);
 
                 if (phrase != null)
                 {
@@ -6646,8 +6734,10 @@ namespace Core.Catalog
         /// <param name="filterTree"></param>
         /// <param name="definitions"></param>
         /// <param name="group"></param>
-        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
+        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group, out List<string> personalData)
         {
+            personalData = new List<string>();
+
             if (group != null && filterTree != null)
             {
                 Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
@@ -6663,7 +6753,7 @@ namespace Core.Catalog
                     // If it is a leaf, just replace the field name
                     if (node.type == BooleanNodeType.Leaf)
                     {
-                        TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping);
+                        TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping, out personalData);
                     }
                     else if (node.type == BooleanNodeType.Parent)
                     {
@@ -6689,8 +6779,10 @@ namespace Core.Catalog
         /// <param name="group"></param>
         /// <param name="node"></param>
         public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
-            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping)
+            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, out List<string> personalData)
         {
+            personalData = new List<string>();
+
             bool shouldUseCache = WS_Utils.GetTcmBoolValue("Use_Search_Cache");
 
             // initialize maximum nGram member only once - when this is negative it is still not set
@@ -6876,6 +6968,8 @@ namespace Core.Catalog
                         // geo_block is a personal filter that currently will work only with "true".
                         if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
                         {
+                            personalData.Add(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD);
+
                             if (geoBlockRules == null)
                             {
                                 geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
@@ -6909,6 +7003,8 @@ namespace Core.Catalog
                         {
                             if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
                             {
+                                personalData.Add(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD);
+
                                 if (shouldUseCache)
                                 {
                                     var parentalRulesTags = ParentalRulesTagsCache.Instance().GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid);
@@ -7006,6 +7102,7 @@ namespace Core.Catalog
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldSearchNotEntitled = true;
+                                    personalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             case ("free"):
@@ -7016,12 +7113,14 @@ namespace Core.Catalog
                             case ("entitled"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                    personalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             case ("both"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                    personalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             default:
@@ -7157,9 +7256,10 @@ namespace Core.Catalog
             }
         }
 
-        public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
+        public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group, out List<string> personalData)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
+            personalData = new List<string>();
 
             #region Basic
 
@@ -7179,7 +7279,7 @@ namespace Core.Catalog
 
             if (request.m_oFilter != null)
             {
-                deviceRules = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                deviceRules = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
             }
 
             definitions.deviceRuleId = deviceRules;
@@ -7246,7 +7346,7 @@ namespace Core.Catalog
                 else
                 {
                     initialTree = filterTree;
-                    CatalogLogic.UpdateNodeTreeFields(request, ref initialTree, definitions, group);
+                    CatalogLogic.UpdateNodeTreeFields(request, ref initialTree, definitions, group, out personalData);
                 }
 
                 #region Asset Types
@@ -7448,7 +7548,7 @@ namespace Core.Catalog
                     throw new KalturaException(status.Message, status.Code);
                 }
 
-                CatalogLogic.UpdateNodeTreeFields(request, ref requestFilterTree, definitions, group);
+                CatalogLogic.UpdateNodeTreeFields(request, ref requestFilterTree, definitions, group, out personalData);
 
                 if (initialTree != null)
                 {
@@ -7523,14 +7623,15 @@ namespace Core.Catalog
                 }
                 );
 
-            return BuildInternalChannelSearchObject(channel, channelRequest, group);
+            List<string> withEntitlements;
+            return BuildInternalChannelSearchObject(channel, channelRequest, group, out withEntitlements);
         }
 
         private static MediaSearchObj BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, int groupId, LanguageObj languageObj, List<string> lPermittedWatchRules)
         {
             int[] nDeviceRuleId = null;
             if (request.m_oFilter != null)
-                nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                nDeviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
 
             return CatalogLogic.BuildBaseChannelSearchObject(channel, request,
                 request.order, groupId, channel.m_nGroupID == channel.m_nParentGroupID ? lPermittedWatchRules : null, nDeviceRuleId, languageObj);
