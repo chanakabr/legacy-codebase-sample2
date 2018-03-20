@@ -57,7 +57,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "helpText")]
         [JsonProperty(PropertyName = "helpText")]
         [XmlElement(ElementName = "helpText")]
-        [SchemeProperty(MaxLength = 800)]
+        [SchemeProperty(MaxLength = 600)]
         public string HelpText { get; set; }
 
         /// <summary>
