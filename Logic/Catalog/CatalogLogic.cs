@@ -1,4 +1,5 @@
 ﻿using AdapterControllers;
+using APILogic.Catalog.Response;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
@@ -6167,6 +6168,7 @@ namespace Core.Catalog
         {
             // Set default values for out parameters
             totalItems = 0;
+            aggregationsResult = null;
             searchResults = new List<UnifiedSearchResult>();
             aggregationsResult = null;
 
@@ -6199,12 +6201,37 @@ namespace Core.Catalog
             List<string> personalData;
             UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group, out personalData);
 
-            string cacheKey = GetSearchCacheKey(parentGroupID, request.m_sSiteGuid, request.domainId, request.m_oFilter.m_sDeviceId, request.m_sUserIP, request.filterQuery, unifiedSearchDefinitions, personalData);
+            UnifiedSearchCachedResponse searchResult;
+
+            string cacheKey = GetChannelSearchCacheKey(parentGroupID, request.m_sSiteGuid, request.domainId, request.m_oFilter.m_sDeviceId, request.m_sUserIP, request.filterQuery, unifiedSearchDefinitions, personalData);
             if (!string.IsNullOrEmpty(cacheKey))
             {
-                // IRA: help
+                log.DebugFormat("Going to get channel assets from cache with key: {0}", cacheKey);
+                searchResult = GetUnifiedSearchResultsFromCache(parentGroupID, unifiedSearchDefinitions, channel, cacheKey);
+            }
+            else
+            {
+                log.DebugFormat("Going to get channel assets from ES");
+                searchResult = ChannelUnifiedSearch(parentGroupID, unifiedSearchDefinitions, channel);
             }
 
+            status = searchResult.Status;
+            searchResults = searchResult.SearchResults;
+            totalItems = searchResult.TotalItems;
+            aggregationsResult = searchResult.AggregationsResult;
+
+            return status;
+            
+        }
+
+        public static UnifiedSearchCachedResponse ChannelUnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel)
+        {
+            UnifiedSearchCachedResponse response = new UnifiedSearchCachedResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
             int pageIndex = 0;
             int pageSize = 0;
 
@@ -6222,17 +6249,21 @@ namespace Core.Catalog
 
             if (searcher == null)
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+                return response;
             }
 
             int to = 0;
-
+            int totalItems = 0;
+            List<AggregationsResult> aggregationsResult;
+            
             // Perform initial search of channel
             searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult);
 
             if (searchResults == null)
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                return response;
             }
 
             List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
@@ -6241,7 +6272,7 @@ namespace Core.Catalog
 
             if (ChannelRequest.IsSlidingWindow(channel))
             {
-                assetIDs = ChannelRequest.OrderMediaBySlidingWindow(group.m_nParentGroupID, channel.m_OrderObject.m_eOrderBy,
+                assetIDs = ChannelRequest.OrderMediaBySlidingWindow(groupId, channel.m_OrderObject.m_eOrderBy,
                     channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, pageSize,
                     pageIndex, assetIDs, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
 
@@ -6319,15 +6350,79 @@ namespace Core.Catalog
             {
                 searchResults = null;
                 totalItems = 0;
-                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                return response;
             }
 
-            status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+            response.SearchResults = searchResults;
+            response.TotalItems = totalItems;
+            response.AggregationsResult = aggregationsResult;
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
 
-            return status;
+            return response;
         }
 
-        private static string GetSearchCacheKey(int groupId, string userId, int domainId, string udid, string ip, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions, List<string> personalData)
+        private static UnifiedSearchCachedResponse GetUnifiedSearchResultsFromCache(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel, string cacheKey)
+        {
+            UnifiedSearchCachedResponse cachedResult = new UnifiedSearchCachedResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            if (!LayeredCache.Instance.Get<UnifiedSearchCachedResponse>(cacheKey, ref cachedResult, GetChannelUnifiedSearchResults, 
+                new Dictionary<string, object>() { { "groupId", groupId }, { "unifiedSearchDefinitions", unifiedSearchDefinitions }, { "channel", channel } },
+                groupId, LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, null)) // IRA: what about invalidation
+            {
+                log.ErrorFormat("Failed getting unified search results from LayeredCache, key: {0}", cacheKey);
+            }
+
+            return cachedResult;
+        }
+
+        private static Tuple<UnifiedSearchCachedResponse, bool> GetChannelUnifiedSearchResults(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            UnifiedSearchCachedResponse cachedResult = new UnifiedSearchCachedResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+            
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("unifiedSearchDefinitions") && funcParams.ContainsKey("channel"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        UnifiedSearchDefinitions unifiedSearchDefinitions = funcParams["unifiedSearchDefinitions"] as UnifiedSearchDefinitions;
+                        GroupsCacheManager.Channel channel = funcParams["channel"] as GroupsCacheManager.Channel;
+
+                        if (groupId.HasValue && unifiedSearchDefinitions != null && channel != null)
+                        {
+                            cachedResult = ChannelUnifiedSearch(groupId.Value, unifiedSearchDefinitions, channel);
+
+                            if (cachedResult.Status.Code == (int)eResponseStatus.OK)
+                            {
+                                result = true;
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Failed to get search results from ES, code = {0}, message = {1}", cachedResult.Status.Code, cachedResult.Status.Message);
+                                // IRA: the error messages will not return anymore, are we OK with that?
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetChannelUnifiedSearchResults failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<UnifiedSearchCachedResponse, bool>(cachedResult, result);
+        }
+
+        private static string GetChannelSearchCacheKey(int groupId, string userId, int domainId, string udid, string ip, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions, List<string> personalData)
         {
             string key = null;
             if (personalData != null && personalData.Count > 0)
@@ -6381,9 +6476,17 @@ namespace Core.Catalog
 
                 if (personalData.Contains(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD))
                 {
-                    List<long> ruleIds = DAL.ApiDAL.Get_User_ParentalRulesIDs(groupId, userId.ToString());
-                    // IRENA: change to cache
-                    cacheKey.AppendFormat("_parentalRules={0}", string.Join("|", ruleIds.OrderBy(r => r)));
+                    Dictionary<long, eRuleLevel> ruleIds = null;
+
+                    string parentalRulesKey = LayeredCacheKeys.GetUserParentalRulesKey(groupId, userId);
+                    bool parentalRulesCacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(parentalRulesKey, ref ruleIds,
+                        APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } },
+                        groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId) });
+
+                    if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
+                    {
+                        cacheKey.AppendFormat("_parentalRules={0}", string.Join("|", ruleIds.Keys.OrderBy(r => r)));
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(ksql))

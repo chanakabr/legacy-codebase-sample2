@@ -4746,7 +4746,7 @@ namespace Core.Api
                         status.Code = (int)eResponseStatus.OK;
                         status.Message = string.Empty;
 
-                        LayeredCache.Instance.SetInvalidationKey(GetUserParentalRuleInvalidationKey(siteGuid));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
                     }
                     else if (newId == -260)
                     {
@@ -4774,12 +4774,7 @@ namespace Core.Api
 
             return status;
         }
-
-        private static string GetUserParentalRuleInvalidationKey(string siteGuid)
-        {
-            return string.Format("user_parental_rules_{0}", siteGuid);
-        }
-
+        
         public static ApiObjects.Response.Status SetDomainParentalRules(int groupId, int domainId, long ruleId, int isActive)
         {
             Users.Domain domain;
@@ -4913,7 +4908,7 @@ namespace Core.Api
                             // if we updated a user only - set its key as invalid
                             if (!string.IsNullOrEmpty(siteGuid))
                             {
-                                LayeredCache.Instance.SetInvalidationKey(GetUserParentalRuleInvalidationKey(siteGuid));
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
                             }
                             // otherwise - set all of the domain's users keys as invalid
                             else
@@ -4960,7 +4955,7 @@ namespace Core.Api
                 // Set invalidation key for each of its users
                 foreach (var userId in domain.m_UsersIDs)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(GetUserParentalRuleInvalidationKey(userId.ToString()));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId.ToString()));
                 }
             }
         }
@@ -5358,7 +5353,7 @@ namespace Core.Api
                         if (!string.IsNullOrEmpty(siteGuid) && siteGuid != "0")
                         {
                             List<string> userParentalRulesInvalidationKeys = new List<string>();
-                            userParentalRulesInvalidationKeys.Add(GetUserParentalRuleInvalidationKey(siteGuid));
+                            userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
 
                             // user rules 
                             key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
@@ -5602,7 +5597,7 @@ namespace Core.Api
                     else if (epgRuleIds != null && epgRuleIds.Count > 0)
                     {
                         List<string> userParentalRulesInvalidationKeys = new List<string>();
-                        userParentalRulesInvalidationKeys.Add(GetUserParentalRuleInvalidationKey(siteGuid));
+                        userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
 
                         // user rules 
                         key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);

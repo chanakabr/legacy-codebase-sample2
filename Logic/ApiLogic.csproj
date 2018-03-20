@@ -319,6 +319,7 @@
     <Compile Include="Catalog\Response\NPVRSeriesResponse.cs" />
     <Compile Include="Catalog\Response\PersonalLastDeviceResponse.cs" />
     <Compile Include="Catalog\Response\PicResponse.cs" />
+    <Compile Include="Catalog\Response\UnifiedSearchCachedResponse.cs" />
     <Compile Include="Catalog\Response\UnifiedSearchExternalResponse.cs" />
     <Compile Include="Catalog\Response\UnifiedSearchResponse.cs" />
     <Compile Include="Catalog\Response\UnifiedSearchResult.cs" />
