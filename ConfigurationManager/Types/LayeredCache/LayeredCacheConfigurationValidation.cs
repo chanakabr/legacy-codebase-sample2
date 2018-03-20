@@ -20,7 +20,7 @@ namespace ConfigurationManager
 
         internal override bool Validate()
         {
-            bool result = true;
+            bool result = base.Validate();
 
             try
             {
@@ -34,7 +34,7 @@ namespace ConfigurationManager
 
             catch (Exception ex)
             {
-                LogError(string.Format("Could not parse layered cache configuration. Error = {0}", ex));
+                LogError(string.Format("Could not parse layered cache configuration. Error = {0}", ex), ConfigurationValidationErrorLevel.Failure);
                 result = false;
             }
             

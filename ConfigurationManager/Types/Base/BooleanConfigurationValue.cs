@@ -18,31 +18,33 @@ namespace ConfigurationManager
 
         internal override bool Validate()
         {
+            bool result = true;
+
             try
             {
                 if (this.ObjectValue == null)
                 {
-                    if (this.ShouldAllowEmpty)
+                    ConfigurationValidationErrorLevel level = ConfigurationValidationErrorLevel.Optional;
+
+                    if (!this.ShouldAllowEmpty)
                     {
-                        return true;
+                        result = false;
+                        level = ConfigurationValidationErrorLevel.Failure;
                     }
-                    else
-                    {
-                        LogError("Missing value");
-                        return false;
-                    }
+
+                    LogError("Missing", level);
                 }
 
                 bool value = Convert.ToBoolean(this.ObjectValue);
             }
             catch (Exception ex)
             {
-                LogError(ex.Message);
+                LogError(ex.Message, ConfigurationValidationErrorLevel.Failure);
 
-                return false;
+                result = false;
             }
 
-            return true;
+            return result;
         }
 
         public bool Value

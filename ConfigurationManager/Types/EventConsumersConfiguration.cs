@@ -20,7 +20,7 @@ namespace ConfigurationManager
 
         internal override bool Validate()
         {
-            bool result = true;
+            bool result = base.Validate();
 
             try
             {
@@ -31,10 +31,9 @@ namespace ConfigurationManager
                     consumerSettings = Newtonsoft.Json.JsonConvert.DeserializeObject<ConsumerSettings>(this.ObjectValue.ToString(), serializerSettings);
                 }
             }
-
             catch (Exception ex)
             {
-                LogError(string.Format("Could not parse event consumers configuration. Error = {0}", ex));
+                LogError(string.Format("Could not parse event consumers configuration. Error = {0}", ex), ConfigurationValidationErrorLevel.Failure);
                 result = false;
             }
 

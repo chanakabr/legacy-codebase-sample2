@@ -80,7 +80,7 @@ namespace ConfigurationManager
                         }
                         else
                         {
-                            LogError(string.Format("parent value {0} has missing child {1}", parent.Key, this.Key));
+                            LogError(string.Format("parent value {0} has missing child {1}", parent.Key, this.Key), ConfigurationValidationErrorLevel.Model);
                         }
                     }
                 }
@@ -106,23 +106,26 @@ namespace ConfigurationManager
             return result;
         }
 
-        protected virtual void LogError(string reason)
+        protected virtual void LogError(string reason, ConfigurationValidationErrorLevel level)
         {
-            StringBuilder builder = new StringBuilder(string.Format("Loading key {0} failed because {1}. ", this.GetFullKey(), reason));
+            StringBuilder builder = new StringBuilder(string.Format("!!{0}!! Key: {1}. Reason: {2}. ", 
+                level.ToString().ToUpper(), 
+                this.GetFullKey(), 
+                reason));
 
             if (this.DefaultValue != null)
             {
-                builder.AppendFormat("Suggested default value is {0}. ", this.DefaultValue);
+                builder.AppendFormat("Default Value: {0}. ", this.DefaultValue);
             }
 
             if (this.ShouldAllowEmpty)
             {
-                builder.Append("This value is optional, it can be empty. ");
+                builder.Append("Optional value. ");
             }
 
             if (!string.IsNullOrEmpty(this.Description))
             {
-                builder.AppendFormat("Key meaning: {0} ", this.Description);
+                builder.AppendFormat("Description: {0} ", this.Description);
             }
 
             string log = builder.ToString();
@@ -191,5 +194,12 @@ namespace ConfigurationManager
 
         #endregion
 
+    }
+
+    public enum ConfigurationValidationErrorLevel
+    {
+        Optional,
+        Model,
+        Failure
     }
 }

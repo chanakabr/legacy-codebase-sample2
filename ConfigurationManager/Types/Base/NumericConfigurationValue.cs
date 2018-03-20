@@ -18,32 +18,33 @@ namespace ConfigurationManager
 
         internal override bool Validate()
         {
+            bool result = true;
+
             try
             {
                 if (this.ObjectValue == null)
                 {
-                    LogError("Missing value");
+                    ConfigurationValidationErrorLevel level = ConfigurationValidationErrorLevel.Optional;
 
-                    if (this.ShouldAllowEmpty)
+                    // if mandatory - mark error as "failure" and fail validation (default is success)
+                    if (!this.ShouldAllowEmpty)
                     {
-                        return true;
+                        level = ConfigurationValidationErrorLevel.Failure;
+                        result = false;
                     }
-                    else
-                    {
-                        return false;
-                    }
+
+                    LogError("Missing", level);
                 }
 
                 long value = Convert.ToInt64(this.ObjectValue);
             }
             catch (Exception ex)
             {
-                LogError(ex.Message);
-
-                return false;
+                LogError(ex.Message, ConfigurationValidationErrorLevel.Failure);
+                result = false;
             }
 
-            return true;
+            return result;
         }
 
         public long LongValue

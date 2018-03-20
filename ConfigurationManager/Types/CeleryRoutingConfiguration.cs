@@ -68,7 +68,7 @@ namespace ConfigurationManager
                     {
                         result = false;
 
-                        LogError(string.Format("Missing celery routing for {0}", path));
+                        LogError(string.Format("Missing celery routing for {0}", path), ConfigurationValidationErrorLevel.Failure);
                     }
                 }
             }

@@ -30,17 +30,27 @@ namespace ConfigurationManager
         protected virtual void Initialize()
         {
             // host name
-            HostName = new StringConfigurationValue("hostName", this);
+            HostName = new StringConfigurationValue("hostName", this)
+            {
+                Description = "RabbitMQ host name (server address). Only for 'default' it is mandatory."
+            };
 
             // user name
-            UserName = new StringConfigurationValue("userName", this);
+            UserName = new StringConfigurationValue("userName", this)
+            {
+                Description = "RabbitMQ login user. Only for 'default' it is mandatory."
+            };
 
             // password
-            Password = new StringConfigurationValue("password", this);
+            Password = new StringConfigurationValue("password", this)
+            {
+                Description = "RabbitMQ login password. Only for 'default' it is mandatory."
+            };
 
             // port
             Port = new NumericConfigurationValue("port", this)
             {
+                Description = "RabbitMQ access port.",
                 ShouldAllowEmpty = true,
                 DefaultValue = 5672
             };
@@ -52,7 +62,10 @@ namespace ConfigurationManager
             };
 
             // exchange
-            Exchange = new StringConfigurationValue("exchange", this);
+            Exchange = new StringConfigurationValue("exchange", this)
+            {
+                Description = "RabbitMQ exchange. Only for 'default' it is mandatory."
+            };
 
             // queue
             Queue = new StringConfigurationValue("queue", this)
@@ -75,6 +88,12 @@ namespace ConfigurationManager
 
         public void CopyBaseValues(BaseRabbitConfiguration source)
         {
+            this.HostName.ShouldAllowEmpty = true;
+            this.UserName.ShouldAllowEmpty = true;
+            this.Password.ShouldAllowEmpty = true;
+            this.Port.ShouldAllowEmpty = true;
+            this.Exchange.ShouldAllowEmpty = true;
+
             if (!this.HostName.Validate())
             {
                 this.HostName.ObjectValue = source.HostName.ObjectValue;

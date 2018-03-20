@@ -24,7 +24,14 @@ namespace ConfigurationManager
 
                 if (string.IsNullOrEmpty(value))
                 {
-                    LogError("key is missing");
+                    ConfigurationValidationErrorLevel level = ConfigurationValidationErrorLevel.Failure;
+
+                    if (this.ShouldAllowEmpty)
+                    {
+                        level = ConfigurationValidationErrorLevel.Optional;
+                    }
+
+                    LogError("Missing", level);
 
                     if (!this.ShouldAllowEmpty)
                     {
@@ -34,7 +41,7 @@ namespace ConfigurationManager
             }
             catch (Exception ex)
             {
-                LogError(ex.Message);
+                LogError(ex.Message, ConfigurationValidationErrorLevel.Failure);
 
                 return false;
             }

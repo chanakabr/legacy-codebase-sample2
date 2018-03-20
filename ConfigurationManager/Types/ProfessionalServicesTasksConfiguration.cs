@@ -34,7 +34,8 @@ namespace ConfigurationManager
                     }
                     catch (Exception ex)
                     {
-                        LogError(string.Format("Could not load action. ex = {0}", ex));
+                        LogError(string.Format("Could not load action. ex = {0}", ex), ConfigurationValidationErrorLevel.Failure);
+                        result = false;
                     }
                 }
             }
