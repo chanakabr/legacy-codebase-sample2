@@ -449,6 +449,10 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_mediaConcurrencyRules_by_domainLimitationModule_{0}", dlmId);
         }
 
+        public static string GetUserParentalRuleInvalidationKey(string siteGuid)
+        {
+            return string.Format("user_parental_rules_{0}", siteGuid);
+        }
         #endregion  
 
         #region Domains
