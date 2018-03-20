@@ -240,6 +240,7 @@ namespace ApiObjects.Response
         ChannelDoesNotExist = 4064,
         MediaFileWithThisTypeAlreadyExistForAsset = 4065,
         InvalidUrlForImage = 4066,
+        ElasticSearchReturnedDeleteItem = 4067,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,
