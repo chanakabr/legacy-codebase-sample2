@@ -97,7 +97,8 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "helpText")]
         [JsonProperty("helpText")]
-        [XmlElement(ElementName = "helpText", IsNullable = true)]        
+        [XmlElement(ElementName = "helpText", IsNullable = true)]
+        [SchemeProperty(MaxLength = 800)]
         public string HelpText { get; set; }
 
         /// <summary>

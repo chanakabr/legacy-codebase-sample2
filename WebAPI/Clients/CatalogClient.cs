@@ -651,6 +651,108 @@ namespace WebAPI.Clients
             return true;
         }
 
+        public KalturaAssetListResponse GetAssetForGroupWithTemplates(int groupId, List<KeyValuePair<ApiObjects.eAssetTypes, long>> assetsToRetrieve)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+            if (assetsToRetrieve != null && assetsToRetrieve.Count > 0)
+            {
+                List<Asset> assets = AssetManager.GetOrderedAssets(groupId, assetsToRetrieve);
+                if (assets != null)
+                {
+                    result.Objects = new List<KalturaAsset>();
+                    // convert assets
+                    foreach (MediaAsset mediaAssetToConvert in assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
+                    {
+                        KalturaMediaAsset kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);
+                        kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images);
+                        result.Objects.Add(kalturaMediaAsset);
+
+                    }
+
+                    //TODO : add support when needed for EPG\Recording
+                    //List<KalturaProgramAsset> programAssets = null;
+                    //List<KalturaRecordingAsset> recordingAssets = null;
+                    //if (programAssets != null && programAssets.Count > 0)
+                    //{
+                    //    result.Objects.AddRange(programAssets);
+                    //}
+
+                    //if (recordingAssets != null && recordingAssets.Count > 0)
+                    //{
+                    //    result.Objects.AddRange(recordingAssets);
+                    //}        
+                }
+                else
+                {
+                    throw new ClientException((int)eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        public KalturaAssetListResponse GetAssetFromUnifiedSearchResponse(int groupId, UnifiedSearchResponse searchResponse, BaseRequest request,
+                                                                            bool managementData = false, KalturaBaseResponseProfile responseProfile = null)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+            // check if aggragation result have values 
+            if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
+                searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
+            {
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assetsToRetrieve = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
+                    foreach (Catalog.Response.AggregationResult aggregationResult in searchResponse.aggregationResults[0].results)
+                    {
+                        if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
+                        {
+                            long assetId;
+                            if (long.TryParse(aggregationResult.topHits[0].AssetId, out assetId) && assetId > 0)
+                            {
+                                assetsToRetrieve.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(aggregationResult.topHits[0].AssetType, assetId));
+                            }
+                        }
+                    }
+
+                    result = GetAssetForGroupWithTemplates(groupId, assetsToRetrieve);
+                }
+                else
+                {
+                    // build the assetsBaseDataList from the hit array 
+                    result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, CacheDuration, managementData, responseProfile);
+                }
+
+                result.TotalCount = searchResponse.aggregationResults[0].totalItems;
+            }
+            else if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+            {
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assetsToRetrieve = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
+                    foreach (UnifiedSearchResult searchResult in searchResponse.searchResults)
+                    {
+                        long assetId;
+                        if (long.TryParse(searchResult.AssetId, out assetId) && assetId > 0)
+                        {
+                            assetsToRetrieve.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(searchResult.AssetType, assetId));
+                        }
+                    }
+
+                    result = GetAssetForGroupWithTemplates(groupId, assetsToRetrieve);
+                }
+                else
+                {
+                    // get base objects list
+                    List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+                    result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, managementData);
+                }
+
+                result.TotalCount = searchResponse.m_nTotalItems;
+            }
+
+            return result;
+        }
+
         #endregion        
 
         public int CacheDuration { get; set; }
@@ -841,110 +943,8 @@ namespace WebAPI.Clients
                 // Bad response received from WS
                 throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
             }
-            // check if aggragation result have values 
-            if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
-                searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
-            {
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
-                {
-                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assetsToRetrieve = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
-                    foreach (Catalog.Response.AggregationResult aggregationResult in searchResponse.aggregationResults[0].results)
-                    {
-                        if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
-                        {
-                            long assetId;                            
-                            if (long.TryParse(aggregationResult.topHits[0].AssetId, out assetId) && assetId > 0)
-                            {
-                                assetsToRetrieve.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(aggregationResult.topHits[0].AssetType, assetId));
-                            }                            
-                        }
-                    }
 
-                    List<Asset> assets =  AssetManager.GetOrderedAssets(groupId, assetsToRetrieve);
-                    if (assets != null)
-                    {
-                        result.Objects = new List<KalturaAsset>();
-                        // convert assets
-                        foreach (MediaAsset mediaAssetToConvert in assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
-                        {
-                            KalturaMediaAsset kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);
-                            kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images);
-                            result.Objects.Add(kalturaMediaAsset);
-
-                        }
-
-                        //TODO : add support when needed for EPG\Recording
-                        //List<KalturaProgramAsset> programAssets = null;
-                        //List<KalturaRecordingAsset> recordingAssets = null;
-                        //if (programAssets != null && programAssets.Count > 0)
-                        //{
-                        //    result.Objects.AddRange(programAssets);
-                        //}
-
-                        //if (recordingAssets != null && recordingAssets.Count > 0)
-                        //{
-                        //    result.Objects.AddRange(recordingAssets);
-                        //}        
-                    }
-                }
-                else
-                {
-                    // build the assetsBaseDataList from the hit array 
-                    result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, CacheDuration, managementData, responseProfile);                    
-                }
-
-                result.TotalCount = searchResponse.aggregationResults[0].totalItems;
-            }
-            else if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
-            {
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
-                {
-                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assetsToRetrieve = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
-                    foreach (UnifiedSearchResult searchResult in searchResponse.searchResults)
-                    {
-                        long assetId;
-                        if (long.TryParse(searchResult.AssetId, out assetId) && assetId > 0)
-                        {
-                            assetsToRetrieve.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(searchResult.AssetType, assetId));
-                        }
-                    }
-
-                    List<Asset> assets = AssetManager.GetOrderedAssets(groupId, assetsToRetrieve);
-                    if (assets != null)
-                    {
-                        result.Objects = new List<KalturaAsset>();
-                        // convert assets
-                        foreach (MediaAsset mediaAssetToConvert in assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
-                        {
-                            KalturaMediaAsset kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);
-                            kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images);
-                            result.Objects.Add(kalturaMediaAsset);
-
-                        }
-
-                        //TODO : add support when needed for EPG\Recording
-                        //List<KalturaProgramAsset> programAssets = null;
-                        //List<KalturaRecordingAsset> recordingAssets = null;
-                        //if (programAssets != null && programAssets.Count > 0)
-                        //{
-                        //    result.Objects.AddRange(programAssets);
-                        //}
-
-                        //if (recordingAssets != null && recordingAssets.Count > 0)
-                        //{
-                        //    result.Objects.AddRange(recordingAssets);
-                        //}                        
-                    }
-                }
-                else
-                {
-                    // get base objects list
-                    List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
-                    result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, managementData);                    
-                }
-
-                result.TotalCount = searchResponse.m_nTotalItems;
-            }
+            result = GetAssetFromUnifiedSearchResponse(groupId, searchResponse, request, managementData, responseProfile);
 
             return result;
         }
@@ -2680,22 +2680,7 @@ namespace WebAPI.Clients
                 throw new ClientException(channelResponse.status.Code, channelResponse.status.Message);
             }
 
-            if (channelResponse.aggregationResults != null && channelResponse.aggregationResults.Count > 0 &&
-                channelResponse.aggregationResults[0].results != null && channelResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
-            {
-                // build the assetsBaseDataList from the hit array 
-                result.Objects = CatalogUtils.GetAssets(channelResponse.aggregationResults[0].results, request, CacheDuration, false, responseProfile);
-                result.TotalCount = channelResponse.aggregationResults[0].totalItems;
-            }
-            else if (channelResponse.searchResults != null && channelResponse.searchResults.Count > 0)
-            {
-                // get base objects list
-                List<BaseObject> assetsBaseDataList = channelResponse.searchResults.Select(x => x as BaseObject).ToList();
-
-                // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
-                result.TotalCount = channelResponse.m_nTotalItems;
-            }
+            result = GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, false, responseProfile);
 
             return result;
         }
@@ -3561,7 +3546,6 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Code, response.Message);
             }
         }
-
 
         internal KalturaRatio AddRatio(int groupId, long userId, KalturaRatio ratio)
         {
