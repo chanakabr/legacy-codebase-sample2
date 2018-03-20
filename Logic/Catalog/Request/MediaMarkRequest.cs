@@ -553,12 +553,15 @@ namespace Core.Catalog.Request
                     log.Error("Error - " + String.Concat("Failed to write firstplay into stats index. Req: ", ToString()));
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetUserWatchedMediaIdsInvalidationKey(int.Parse(siteGuid));
-                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                int userId = 0;
+                if (int.TryParse(siteGuid, out userId) && userId > 0)
                 {
-                    log.ErrorFormat("Failed to set invalidation key on GetUserWatchedMediasInvalidationKey key = {0}", invalidationKey);
+                    string invalidationKey = LayeredCacheKeys.GetUserWatchedMediaIdsInvalidationKey(userId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on GetUserWatchedMediasInvalidationKey key = {0}", invalidationKey);
+                    }
                 }
-
             }
             catch (Exception ex)
             {
