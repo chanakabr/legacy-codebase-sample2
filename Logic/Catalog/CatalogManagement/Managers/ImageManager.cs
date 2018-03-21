@@ -917,6 +917,7 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<long, string> ratioIdToNameMap = GetGroupRatioIdToNameMap(groupId);
                 if (ratioIdToNameMap != null && ratioIdToNameMap.Count > 0)
                 {
+                    result = new Dictionary<long, string>();
                     foreach (ImageType imageType in groupImageTypes)
                     {
                         if (!result.ContainsKey(imageType.Id))
