@@ -606,7 +606,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 DataSet ds;
                 // update and get all assets
-                ds = CatalogDAL.UpdateTopicAssets(groupId, tagTopicIds,shouldDeleteTag, metaTopicIds, assetStructId, userId);
+                ds = CatalogDAL.UpdateTopicAssets(groupId, tagTopicIds, shouldDeleteTag, metaTopicIds, assetStructId, userId);
 
                 // preparing media list and epg
                 List<int> mediaIds = null;

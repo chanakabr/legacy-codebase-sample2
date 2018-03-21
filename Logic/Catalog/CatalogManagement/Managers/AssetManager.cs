@@ -1581,31 +1581,47 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static List<Asset> GetOrderedAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets)
+        public static AssetListResponse GetOrderedAssets(int groupId, List<BaseObject> assets)
         {
-            List<Asset> result = null;            
+            AssetListResponse result = new AssetListResponse();
             try
             {
-                List<Asset> unOrderedAssets = GetAssets(groupId, assets);
-                if (unOrderedAssets == null || unOrderedAssets.Count != assets.Count)
+                if (assets != null && assets.Count > 0)
                 {
-                    log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
-                                    assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.Key, x.Value)).ToList()) : string.Empty);
-                    return result;
-                }
+                    List<KeyValuePair<eAssetTypes, long>> assetsToRetrieve = assets.Select(x => new KeyValuePair<eAssetTypes, long>(x.AssetType, long.Parse(x.AssetId))).ToList();
+                    List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve);
+                    if (unOrderedAssets == null || unOrderedAssets.Count != assets.Count)
+                    {
+                        log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
+                                        assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.AssetType.ToString(), x.AssetId)).ToList()) : string.Empty);
+                        return result;
+                    }
 
-                string keyFormat = "{0}_{1}"; // mapped asset key format
-                Dictionary<string, Asset> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
-                result = new List<Asset>();
-                foreach (KeyValuePair<eAssetTypes, long> pair in assets)
+                    string keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
+                    Dictionary<string, Asset> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
+                    foreach (BaseObject baseAsset in assets)
+                    {
+                        if (baseAsset.m_dUpdateDate == mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)].UpdateDate)
+                        {
+                            result.Assets.Add(mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)]);
+                        }
+                        else
+                        {
+                            result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedUnupdatedItem, eResponseStatus.ElasticSearchReturnedUnupdatedItem.ToString());
+                        }
+                    }
+
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
                 {
-                    result.Add(mappedAssets[string.Format(keyFormat, pair.Key.ToString(), pair.Value)]);
-                }                
+                    result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
+                }             
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed GetOrderedAssets for groupId: {0}, assets: {1}", groupId,
-                                        assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.Key, x.Value)).ToList()) : string.Empty), ex);
+                                        assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.AssetType.ToString(), x.AssetId)).ToList()) : string.Empty), ex);
             }
 
             return result;
