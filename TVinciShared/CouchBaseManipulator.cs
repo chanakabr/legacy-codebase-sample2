@@ -9,6 +9,7 @@ using System.Text;
 using System.Web;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace TVinciShared
 {
@@ -472,11 +473,9 @@ namespace TVinciShared
                     ImageUtils.GetDateEpgImageDetails(sPicDescription, nGroupID, ref bIsNew, ref sPicName, ref picID, ref baseURL);
                     Dictionary<string, string> ratios = Tvinci.Core.DAL.EpgDal.Get_PicsEpgRatios();
 
-
-                    string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-
+                    bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
                     //use the rabbit Queue
-                    if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
+                    if (sUseQueue)
                     {
                         List<string> lSizes = new List<string>();
                         lSizes.Add("full");
@@ -556,7 +555,8 @@ namespace TVinciShared
                     else
                     {
                         sBasePath = HttpContext.Current.Server.MapPath("");
-                        string sPicUploaderPath = GetWSURL("pic_uploader_path");
+                        string sPicUploaderPath = ApplicationConfiguration.PictureUploaderPath.Value;
+
                         if (!string.IsNullOrEmpty(sPicUploaderPath))
                         {
                             sBasePath = sPicUploaderPath;
@@ -762,11 +762,6 @@ namespace TVinciShared
                 bValid = false;
                 return DateTime.MinValue;
             }
-        }
-
-        private static string GetWSURL(string key)
-        {
-            return WS_Utils.GetTcmConfigValue(key);
         }
     }
 }

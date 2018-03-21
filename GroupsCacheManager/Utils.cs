@@ -7,6 +7,7 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using KLogMonitor;
+using ConfigurationManager;
 
 namespace GroupsCacheManager
 {
@@ -69,10 +70,10 @@ namespace GroupsCacheManager
         }
 
 
-        public static bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
+        public static bool IsGroupIDContainedInConfig(long lGroupID, char cSeperator)
         {
             bool res = false;
-            string rawStrFromConfig = TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
+            string rawStrFromConfig = ApplicationConfiguration.GroupIDsWithIPNOFilteringSeperatedBySemiColon.Value;
             if (rawStrFromConfig.Length > 0)
             {
                 string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);

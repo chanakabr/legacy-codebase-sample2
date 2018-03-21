@@ -4,6 +4,7 @@ using System.Text;
 using System.Web;
 using System.Web.SessionState;
 using System.Configuration;
+using ConfigurationManager;
 
 namespace ODBCWrapper
 {
@@ -26,9 +27,10 @@ namespace ODBCWrapper
         static protected string m_sLocker = "";
         static public Int32 GetCachedSec()
         {
-            if (Utils.GetTcmConfigValue("ODBC_CACH_SEC") != string.Empty)
+            var cacheSec = ApplicationConfiguration.DatabaseConfiguration.ODBCCacheSeconds.IntValue;
+            if (cacheSec > 0)
             {
-                return int.Parse(Utils.GetTcmConfigValue("ODBC_CACH_SEC"));
+                return cacheSec;
             }
             if (HttpContext.Current != null)
             {
@@ -46,9 +48,11 @@ namespace ODBCWrapper
 
         static public System.Data.DataTable GetCachedDataTable(string sCachStr)
         {
-            if (Utils.GetTcmConfigValue("ODBC_CACH_SEC") != string.Empty)
+            var cacheSec = ApplicationConfiguration.DatabaseConfiguration.ODBCCacheSeconds.IntValue;
+
+            if (cacheSec > 0)
             {
-                return GetCachedDataTable(sCachStr, int.Parse(Utils.GetTcmConfigValue("ODBC_CACH_SEC")));
+                return GetCachedDataTable(sCachStr, cacheSec);
             }
             if (HttpContext.Current != null)
             {

@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Notification;
+using ConfigurationManager;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -2518,7 +2519,8 @@ namespace DAL
                     counter = cbManager.Increment(GetUserPushKey(partnerId, userId), 1);
                 else
                 {
-                    uint docTTL = TCMClient.Settings.Instance.GetValue<uint>("push_message.ttl_seconds");
+                    uint docTTL = (uint)ApplicationConfiguration.PushMessagesConfiguration.TTLSeconds.IntValue;
+
                     if (docTTL == 0)
                         docTTL = TTL_USER_PUSH_COUNTER_DOCUMENT_SECONDS;
 

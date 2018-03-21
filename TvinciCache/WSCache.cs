@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using CachingProvider;
 using TVinciShared;
+using ConfigurationManager;
 
 namespace TvinciCache
 {
@@ -23,7 +24,8 @@ namespace TvinciCache
 
         private string GetCacheName()
         {
-            string res = WS_Utils.GetTcmConfigValue("CACHE_NAME");
+            string res = ApplicationConfiguration.WSCacheConfiguration.Name.Value;
+
             if (res.Length > 0)
                 return res;
             return DEFAULT_CACHE_NAME;
@@ -31,22 +33,21 @@ namespace TvinciCache
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint res = 0;
-            string timeStr = WS_Utils.GetTcmConfigValue("CACHE_TIME_IN_MINUTES");
-            if (timeStr.Length > 0 && uint.TryParse(timeStr, out res) && res > 0)
+            uint result = (uint)ApplicationConfiguration.WSCacheConfiguration.TTLSeconds.IntValue;
+
+            if (result <= 0)
             {
-                res *= 60;
-                return res;
+                result = DEFAULT_TIME_IN_CACHE_SECONDS;
             }
 
-            return DEFAULT_TIME_IN_CACHE_SECONDS;
+            return result;
         }
 
         private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
-            string res = WS_Utils.GetTcmConfigValue("CACHE_TYPE");
+            string result = ApplicationConfiguration.WSCacheConfiguration.Type.Value;
 
-            switch (res)
+            switch (result)
             {
                 case "OutOfProcess": 
                     //this.cache = new OutOfProcessCache

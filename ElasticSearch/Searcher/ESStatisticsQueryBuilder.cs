@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace ElasticSearch.Searcher
 {
@@ -38,10 +39,12 @@ namespace ElasticSearch.Searcher
             m_nGroupID = nGroupID;
             ReturnFields = new List<string>() { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"media_id\"", "\"action\"" };
 
-            string sMaxResults = Common.Utils.GetWSURL("MAX_RESULTS");
+            MAX_RESULTS = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
 
-            if (!int.TryParse(sMaxResults, out MAX_RESULTS))
+            if (MAX_RESULTS == 0)
+            {
                 MAX_RESULTS = 10000;
+            }
         }
 
         public string BuildQuery()

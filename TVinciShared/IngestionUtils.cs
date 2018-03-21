@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Net;
-using System.IO;
-using System.Data;
-using System.Configuration;
-using System.Threading;
+﻿using ConfigurationManager;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Net;
 using System.Reflection;
+using System.Threading;
 
 namespace TVinciShared
 {
@@ -672,9 +671,9 @@ namespace TVinciShared
         {
             ThreadPool.QueueUserWorkItem(delegate
                 {
-                    string ftpUrl = WS_Utils.GetTcmConfigValue("IngestFtpUrl");
-                    string ftpUser = WS_Utils.GetTcmConfigValue("IngestFtpUser");
-                    string ftpPass = WS_Utils.GetTcmConfigValue("IngestFtpPass");
+                    string ftpUrl = ApplicationConfiguration.IngestFtpUrl.Value;
+                    string ftpUser = ApplicationConfiguration.IngestFtpUser.Value;
+                    string ftpPass = ApplicationConfiguration.IngestFtpPass.Value;
 
                     byte[] zip = ZipUtils.Compress(files);
 

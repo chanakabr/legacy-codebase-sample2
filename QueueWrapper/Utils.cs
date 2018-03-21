@@ -14,28 +14,7 @@ namespace QueueWrapper
     public static class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public static string GetConfigValue(string sKey)
-        {
-            return GetTcmConfigValue(sKey);
-        }
-
-
-        internal static string GetTcmConfigValue(string sKey)
-        {
-            string result = string.Empty;
-            try
-            {
-                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
-            }
-            catch (Exception ex)
-            {
-                log.Error("", ex);
-                result = string.Empty;        
-            }
-            return result;
-        }
-
+        
         internal static MutexSecurity CreateMutex()
         {
             var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);

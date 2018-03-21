@@ -114,17 +114,7 @@ namespace CachingManager
             System.Web.HttpRuntime.Cache.Add(sName, theDate, null, DateTime.Now.AddSeconds(nSeconds), System.Web.Caching.Cache.NoSlidingExpiration, oPriority, onRemove);
             //cacheKeyList[sName] = DateTime.Now; 
         }
-
-        static public Int32 GetMaxCachedSec()
-        {
-            if (GetTcmConfigValue("CACHE_MAX_SEC") != string.Empty)
-            {
-                return int.Parse(GetTcmConfigValue("CACHE_MAX_SEC"));
-            }
-            else
-                return 86400;
-        }
-
+        
         static public void RemoveFromCache(string sKey)
         {
             System.Collections.ArrayList removeList = new System.Collections.ArrayList();
@@ -183,23 +173,7 @@ namespace CachingManager
                     }
                 }
             }
-        }
-
-
-        static public string GetTcmConfigValue(string sKey)
-        {
-            string result = string.Empty;
-            try
-            {
-                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
-            }
-            catch (Exception ex)
-            {
-                result = string.Empty;
-                log.Error("CachingManager - Key=" + sKey + "," + ex.Message, ex);
-            }
-            return result;
-        }
+        }        
 
         static public List<string> GetCachedKeys()
         {

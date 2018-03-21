@@ -15,15 +15,16 @@ using KLogMonitor;
 using System.Reflection;
 using ApiObjects.PlayCycle;
 using ApiObjects.Catalog;
+using ConfigurationManager;
 
 namespace Tvinci.Core.DAL
 {
     public class CatalogDAL : BaseDal
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
-        private static readonly string CB_EPG_DOCUMENT_EXPIRY_DAYS = ODBCWrapper.Utils.GetTcmConfigValue("epg_doc_expiry");
-        private static readonly string CB_PLAYCYCLE_DOC_EXPIRY_MIN = ODBCWrapper.Utils.GetTcmConfigValue("playCycle_doc_expiry_min");
+        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
+        private static readonly int CB_EPG_DOCUMENT_EXPIRY_DAYS = ApplicationConfiguration.EPGDocumentExpiry.IntValue;
+        private static readonly int CB_PLAYCYCLE_DOC_EXPIRY_MIN = ApplicationConfiguration.PlayCycleDocumentExpiryMinutes.IntValue;
 
         private static readonly string NAME_FIELD = "NAME";
         private static readonly string ASSET_TYPE_FIELD = "ASSET_TYPE";
@@ -157,7 +158,8 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PersonalLastWatched(int nGroupID, string sSiteGuid)
         {
-            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
+
             DataTable dt = null;
 
             int nSiteGuid = 0;
@@ -252,7 +254,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PersonalRecommended(int nGroupID, string sSiteGuid, int Top, List<int> lSubGroupTree)
         {
-            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
             DataSet ds = null;
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
@@ -314,7 +316,7 @@ namespace Tvinci.Core.DAL
         public static DataTable Get_PWWAWProtocol(int nGroupID, int nMediaID, string sSiteGuid, int nCountryID, int nLanguage, string sEndDate, int nDeviceId)
         {
 
-            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
             DataSet ds = null;
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
@@ -1248,7 +1250,7 @@ namespace Tvinci.Core.DAL
         public static DataTable Get_IPWWAWProtocol(int nGroupID, int nMediaID, string sSiteGuid, int nCountryID, int nLanguage, string sEndDate,
                                                       int nDeviceId, int nOperatorID)
         {
-            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
             DataSet ds = null;
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             int nNumOfUsers = 30;
@@ -2466,8 +2468,7 @@ namespace Tvinci.Core.DAL
 
                 TimeSpan? epgDocExpiry = null;
 
-                uint cbEpgDocumentExpiryDays;
-                uint.TryParse(CB_EPG_DOCUMENT_EXPIRY_DAYS, out cbEpgDocumentExpiryDays);
+                uint cbEpgDocumentExpiryDays = (uint)CB_EPG_DOCUMENT_EXPIRY_DAYS;
 
                 bool res = (epgDocExpiry.HasValue) ?
                     manager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version, cbEpgDocumentExpiryDays * 24 * 60 * 60)
@@ -4382,8 +4383,8 @@ namespace Tvinci.Core.DAL
                     playCycleSession = new PlayCycleSession(mediaConcurrencyRuleID, playCycleKey, Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), domainID, mediaConcurrencyRuleIds);
                 }
 
-                int ttl = 0;
-                bool shouldUseTtl = int.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MIN, out ttl);
+                int ttl = CB_PLAYCYCLE_DOC_EXPIRY_MIN;
+                bool shouldUseTtl = ttl > 0;
 
                 bool setResult = cbClient.SetWithVersionWithRetry<PlayCycleSession>(docKey, playCycleSession, version, limitRetries, 50, (uint)(ttl * 60));
 
@@ -4418,8 +4419,8 @@ namespace Tvinci.Core.DAL
             try
             {
                 string docKey = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
-                double ttl;
-                bool shouldUseTtl = double.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MIN, out ttl);
+                double ttl = (double)CB_PLAYCYCLE_DOC_EXPIRY_MIN;
+                bool shouldUseTtl = ttl > 0;
 
                 playCycleSession = cbClient.Get<PlayCycleSession>(docKey);
             }

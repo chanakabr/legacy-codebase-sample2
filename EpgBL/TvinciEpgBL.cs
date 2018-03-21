@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Epg;
+using ConfigurationManager;
 using DalCB;
 using KLogMonitor;
 using KlogMonitorHelper;
@@ -19,7 +20,7 @@ namespace EpgBL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected EpgDal_Couchbase m_oEpgCouchbase;
-        private static readonly double EXPIRY_DATE = (Utils.GetDoubleValFromConfig("epg_doc_expiry") > 0) ? Utils.GetDoubleValFromConfig("epg_doc_expiry") : 7;
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
         private static readonly int DAYSBUFFER = 7;
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
 
@@ -150,7 +151,7 @@ namespace EpgBL
                 {
                     documentId = newEpgItem.EpgID.ToString();
                 }
-                
+
                 var expiresAt = newEpgItem.EndDate.AddDays(EXPIRY_DATE);
 
                 result = (cas.HasValue) ? m_oEpgCouchbase.UpdateProgram(documentId, newEpgItem, expiresAt, cas.Value) :
@@ -640,9 +641,9 @@ namespace EpgBL
                     tasks[i] = Task.Run(() =>
                          {
                              // load monitor and logs context data
-                             contextData.Load();                             
+                             contextData.Load();
                              try
-                             {                                 
+                             {
                                  if (dChannelEpgList.ContainsKey(nChannel))
                                  {
                                      List<EpgCB> lRes = new List<EpgCB>();
@@ -700,7 +701,7 @@ namespace EpgBL
                     tasks[i] = Task.Run(() =>
                          {
                              // load monitor and logs context data
-                             contextData.Load();                             
+                             contextData.Load();
                              try
                              {
                                  if (dChannelEpgList.ContainsKey(nChannel))
@@ -797,7 +798,7 @@ namespace EpgBL
         {
             try
             {
-                if (WS_Utils.IsGroupIDContainedInConfig(groupId, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                 {
                     // use old image server flow
                     MutateFullEpgPicURLOldImageServerFlow(epgList, pictures);

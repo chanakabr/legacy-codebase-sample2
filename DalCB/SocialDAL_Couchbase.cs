@@ -1,13 +1,13 @@
 ﻿using ApiObjects;
+using ConfigurationManager;
 using CouchbaseManager;
+using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
-using KLogMonitor;
 using System.Reflection;
+using System.Text;
 
 namespace DalCB
 {
@@ -15,7 +15,7 @@ namespace DalCB
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly string CB_FEED_DESGIN = Utils.GetValFromConfig("cb_feed_design");
+        private static readonly string CB_FEED_DESGIN = ApplicationConfiguration.CouchBaseDesigns.SocialFeedDesign.Value;
 
         CouchbaseManager.CouchbaseManager cbManager;
         private int m_nGroupID;
@@ -32,7 +32,8 @@ namespace DalCB
             try
             {
                 ViewStaleState? staleState = null;
-                var staleStateConfig = TVinciShared.WS_Utils.GetTcmConfigValue("FRIENDS_ACTIVITY_VIEW_STALE_STATE");
+
+                var staleStateConfig = ApplicationConfiguration.FriendsActivityViewStaleState.Value;
                 if (!string.IsNullOrEmpty(staleStateConfig))
                 {
                     ViewStaleState parsedStaleState = ViewStaleState.None;
@@ -200,7 +201,7 @@ namespace DalCB
 
 
                 List<SocialActivityDoc> retval;
-                if (nNumOfRecords > 0) 
+                if (nNumOfRecords > 0)
                 {
                     retval = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserActions")
                     {
@@ -273,10 +274,10 @@ namespace DalCB
             bool bResult = false;
             try
             {
-                var lFeeds = (nNumOfDocs > 0) ? 
+                var lFeeds = (nNumOfDocs > 0) ?
                     cbManager.ViewIds(new ViewManager(CB_FEED_DESGIN, "FeedByActorId") { limit = nNumOfDocs }) :
                     cbManager.ViewIds(new ViewManager(CB_FEED_DESGIN, "FeedByActorId"));
-                
+
                 bResult = true;
 
                 if (lFeeds != null)

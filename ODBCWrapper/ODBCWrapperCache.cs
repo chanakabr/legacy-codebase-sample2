@@ -1,4 +1,5 @@
 ﻿using CachingProvider;
+using ConfigurationManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,8 @@ namespace ODBCWrapper
 
         private string GetCacheName()
         {
-            string res = TCMClient.Settings.Instance.GetValue<string>("CACHE_NAME");
+            string res = ApplicationConfiguration.ODBCWrapperCacheConfiguration.Name.Value;
+
             if (!string.IsNullOrEmpty(res))
             {
                 return res;
@@ -33,20 +35,19 @@ namespace ODBCWrapper
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint res = 0;
-            string timeStr = TCMClient.Settings.Instance.GetValue<string>("CACHE_TIME_IN_MINUTES");
-            if (timeStr != null && timeStr.Length > 0 && uint.TryParse(timeStr, out res) && res > 0)
+            uint result = (uint)ApplicationConfiguration.ODBCWrapperCacheConfiguration.TTLSeconds.IntValue;
+
+            if (result <= 0)
             {
-                res *= 60;
-                return res;
+                result = DEFAULT_TIME_IN_CACHE_SECONDS;
             }
-          
-            return DEFAULT_TIME_IN_CACHE_SECONDS;
+
+            return result;
         }
 
         private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
-            string res = TCMClient.Settings.Instance.GetValue<string>("CACHE_TYPE");
+            string res = ApplicationConfiguration.ODBCWrapperCacheConfiguration.Type.Value;
 
             switch (res)
             {

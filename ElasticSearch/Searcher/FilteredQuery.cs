@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiObjects.SearchObjects;
+using ConfigurationManager;
 
 namespace ElasticSearch.Searcher
 {
@@ -37,11 +38,15 @@ namespace ElasticSearch.Searcher
                 "\"_score\"", "\"group_id\"", "\"media_id\"", 
                 "\"epg_id\"", "\"name\"", "\"cache_date\"", "\"update_date\"" };
             ESSort = new List<ESOrderObj>();
-            string sMaxResults = Common.Utils.GetWSURL("MAX_RESULTS");
+            
             m_bIsRoot = bIsRoot;
 
-            if (!int.TryParse(sMaxResults, out MAX_RESULTS))
+            MAX_RESULTS = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+
+            if (MAX_RESULTS == 0)
+            {
                 MAX_RESULTS = 10000;
+            }
 
             ZeroSize = false;
         }

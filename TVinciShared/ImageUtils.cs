@@ -1,4 +1,5 @@
 using ApiObjects;
+using ConfigurationManager;
 using DAL;
 using KLogMonitor;
 using QueueWrapper;
@@ -558,7 +559,7 @@ namespace TVinciShared
             args.Add(sBasePath);
 
             string id = Guid.NewGuid().ToString();
-            string task = TVinciShared.WS_Utils.GetTcmConfigValue("taskPicture");
+            string task = ApplicationConfiguration.ImageUtilsConfiguration.Task.Value;
             ApiObjects.PictureData data = new ApiObjects.PictureData(id, task, args);
             log.Debug("Queue - " + string.Format("{0}, {1}, {2}", nParentGroupID, id, task));
 
@@ -566,7 +567,7 @@ namespace TVinciShared
             if (data != null)
             {
                 BaseQueue queue = new PictureQueue();
-                string sRoutingKey = TVinciShared.WS_Utils.GetTcmConfigValue("routingKeyPicture");
+                string sRoutingKey = ApplicationConfiguration.ImageUtilsConfiguration.RoutingKey.Value;
                 bIsUpdateSucceeded = queue.Enqueue(data, sRoutingKey);
             }
             log.Debug("Res - " + bIsUpdateSucceeded.ToString());
@@ -735,9 +736,9 @@ namespace TVinciShared
             // true in case image server is in use
             //------------------------------------
             if (groupId > 0)
-                return !WS_Utils.IsGroupIDContainedInConfig(groupId, "USE_OLD_IMAGE_SERVER", ';');
+                return !WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';');
             else
-                return !WS_Utils.IsGroupIDContainedInConfig(LoginManager.GetLoginGroupID(), "USE_OLD_IMAGE_SERVER", ';');
+                return !WS_Utils.IsGroupIDContainedInConfig(LoginManager.GetLoginGroupID(), ApplicationConfiguration.UseOldImageServer.Value, ';');
 
         }
 

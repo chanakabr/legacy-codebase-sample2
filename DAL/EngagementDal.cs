@@ -9,7 +9,7 @@ using ApiObjects.Notification;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
-
+using ConfigurationManager;
 
 namespace DAL
 {
@@ -401,7 +401,8 @@ namespace DAL
             try
             {
                 // get user engagement TTL
-                int userEngagementTtl = TCMClient.Settings.Instance.GetValue<int>("ttl_user_engagement_days");
+                int userEngagementTtl = ApplicationConfiguration.EngagementsConfiguration.UserEngagementsTTLDays.IntValue;
+                    
                 if (userEngagementTtl == 0)
                     userEngagementTtl = TTL_USER_ENGAGEMENT_DAYS;
 

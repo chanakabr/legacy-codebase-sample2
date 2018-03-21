@@ -8,6 +8,7 @@ using System.Web.Script.Serialization;
 using KLogMonitor;
 using System.Reflection;
 using Newtonsoft.Json;
+using ConfigurationManager;
 
 namespace Mailer
 {
@@ -24,7 +25,8 @@ namespace Mailer
                 bool retVal = false;
                 JavaScriptSerializer jsSer = new JavaScriptSerializer();
                 MCObjByTemplate mcObj = request.parseRequestToTemplate();
-                mcObj.key = Utils.GetTcmConfigValue("MCKey"); //default key
+                mcObj.key = ApplicationConfiguration.MailerConfiguration.MCKey.Value; // default key
+
                 if (!string.IsNullOrEmpty(request.m_emailKey))// specific key to group
                 {
                     mcObj.key = request.m_emailKey;
@@ -46,8 +48,9 @@ namespace Mailer
                 }
                 string json = jsSer.Serialize(mcObj);
                 log.DebugFormat("SendMailTemplate: mcObj={0} ", json);
-                string sResp = Utils.SendXMLHttpReq(Utils.GetTcmConfigValue("MCURL"), json, null);
-                log.DebugFormat("mailurl={0} response={1} ", Utils.GetTcmConfigValue("MCURL") + " key:" + mcObj.key, sResp);
+                string mcURL = ApplicationConfiguration.MailerConfiguration.MCURL.Value;
+                string sResp = Utils.SendXMLHttpReq(mcURL, json, null);
+                log.DebugFormat("mailurl={0} response={1} ", mcURL + " key:" + mcObj.key, sResp);
                 if (sResp.Contains("sent"))
                 {
                     retVal = true;
@@ -60,7 +63,7 @@ namespace Mailer
                         {
                             mcObj.message.to[0].email = mcObj.message.bcc_address;
                             json = jsSer.Serialize(mcObj);
-                            sResp = Utils.SendXMLHttpReq(Utils.GetTcmConfigValue("MCURL"), json, null);
+                            sResp = Utils.SendXMLHttpReq(mcURL, json, null);
                             if (sResp.Contains("sent"))
                             {
                                 retVal = true;

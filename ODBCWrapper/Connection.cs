@@ -8,6 +8,7 @@ using KLogMonitor;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
+using ConfigurationManager;
 
 namespace ODBCWrapper
 {
@@ -46,16 +47,16 @@ namespace ODBCWrapper
         //TODO : add connection string for WRITABLE 
         static public string GetConnectionStringByKey(string sKey, bool bIsWritable)
         {
-            string sRet = "";            
+            string returnValue = "";            
             string applicationIntent = (bIsWritable) ? "ReadWrite" : "ReadOnly";
             m_bIsWritable = bIsWritable;
 
-
-            if (Utils.GetTcmConfigValue(sKey) != string.Empty)
+            var tcmValue = Utils.GetTcmConfigValue(sKey);
+            if (!string.IsNullOrEmpty(tcmValue))
             {
-                sRet = Utils.GetTcmConfigValue(sKey).Replace("Driver={SQL Server};", "");
-                if (sRet.IndexOf(";Trusted_Connection=False") == -1)
-                    sRet += ";Trusted_Connection=False";
+                returnValue = tcmValue.Replace("Driver={SQL Server};", "");
+                if (returnValue.IndexOf(";Trusted_Connection=False") == -1)
+                    returnValue += ";Trusted_Connection=False";
             }
 
             // support 2012-AlwaysOn
@@ -63,16 +64,15 @@ namespace ODBCWrapper
 
             try
             {
-                if (!string.IsNullOrEmpty(Utils.GetTcmConfigValue("UseAlwaysOn")))
-                    bool.TryParse(Utils.GetTcmConfigValue("UseAlwaysOn"), out useAlwaysOn);
+                useAlwaysOn = ApplicationConfiguration.DatabaseConfiguration.UseAlwaysOn.Value;
             }
             catch (Exception) { }
 
             if (useAlwaysOn)
             {
-                if (!sRet.EndsWith(";")) sRet += ";";
-                if (!sRet.ToLower().Contains("multisubnetfailover")) sRet += "MultiSubNetFailover=Yes;";
-                if (!sRet.ToLower().Contains("applicationintent")) sRet += "ApplicationIntent=" + applicationIntent + ";";
+                if (!returnValue.EndsWith(";")) returnValue += ";";
+                if (!returnValue.ToLower().Contains("multisubnetfailover")) returnValue += "MultiSubNetFailover=Yes;";
+                if (!returnValue.ToLower().Contains("applicationintent")) returnValue += "ApplicationIntent=" + applicationIntent + ";";
 
                 // route ReadOnly to slaves
                 if (db_Slaves != null && db_Slaves.Count > 0 && !bIsWritable)
@@ -85,10 +85,10 @@ namespace ODBCWrapper
                         int rndIndex = rnd.Next(0, db_Slaves.Count);
                         string slaveIP = db_Slaves[rndIndex];
 
-                        sRet = Regex.Replace(sRet, "AmazonSQL", slaveIP, RegexOptions.IgnoreCase);
+                        returnValue = Regex.Replace(returnValue, "AmazonSQL", slaveIP, RegexOptions.IgnoreCase);
 
                         // check slave connection
-                        SqlConnection con = new SqlConnection(sRet);
+                        SqlConnection con = new SqlConnection(returnValue);
                         using (SqlDataAdapter da = new SqlDataAdapter())
                         {
                             using (SqlCommand command = new SqlCommand())
@@ -122,13 +122,13 @@ namespace ODBCWrapper
             }
             else
             {
-                if (sRet.ToLower().Contains("multisubnetfailover")) sRet = Regex.Replace(sRet, "MultiSubNetFailover=Yes", string.Empty, RegexOptions.IgnoreCase);
-                if (sRet.ToLower().Contains("applicationintent")) sRet = Regex.Replace(sRet, "ApplicationIntent=ReadWrite", string.Empty, RegexOptions.IgnoreCase);
-                sRet = sRet.TrimEnd(';');
-                sRet += ';';
+                if (returnValue.ToLower().Contains("multisubnetfailover")) returnValue = Regex.Replace(returnValue, "MultiSubNetFailover=Yes", string.Empty, RegexOptions.IgnoreCase);
+                if (returnValue.ToLower().Contains("applicationintent")) returnValue = Regex.Replace(returnValue, "ApplicationIntent=ReadWrite", string.Empty, RegexOptions.IgnoreCase);
+                returnValue = returnValue.TrimEnd(';');
+                returnValue += ';';
             }
 
-            return sRet;
+            return returnValue;
         }
 
 

@@ -16,14 +16,15 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using ApiObjects.Billing;
+using ConfigurationManager;
 
 namespace DAL
 {
     public class ApiDAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
-        private static readonly string CB_MESSAGE_QUEUE_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_queue_messages_design");
+        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
+        private static readonly string CB_MESSAGE_QUEUE_DESGIN = ApplicationConfiguration.CouchBaseDesigns.QueueMessagesDesign.Value;
 
         public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
         {
@@ -577,7 +578,7 @@ namespace DAL
 
         public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID, int nGroupID)
         {
-            bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
+            bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
 
             int nUserID = 0;
             int.TryParse(sSiteGUID, out nUserID);

@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ConfigurationManager;
 using KLogMonitor;
 using KlogMonitorHelper;
 using System;
@@ -139,7 +140,7 @@ namespace EpgBL
             }
             return dChannelEpgList;
         }
-       
+
 
         public override bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas)
         {
@@ -263,7 +264,7 @@ namespace EpgBL
         }
         #endregion
 
-        #region Privat
+        #region Private
         private List<EPGChannelProgrammeObject> GetEPGChannelPrograms(string sChannelID, string sEPGChannelID, DateTime dStartDay, int nTotalMinutes, int nTotalPrograms)
         {
             DateTime dNow = DateTime.UtcNow;
@@ -357,7 +358,7 @@ namespace EpgBL
         private string GetYesRestUrl(DateTime startDate, string sEPGChannelID, int nTotalMinutes, int nTotalPrograms)
         {
             string day = startDate.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl");
+            string epgURL = ApplicationConfiguration.EPGUrl.Value;
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
             url.AppendFormat("schedules?");
@@ -381,7 +382,7 @@ namespace EpgBL
         {
             List<EPGChannelProgrammeObject> programs = new List<EPGChannelProgrammeObject>();
 
-            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl");
+            string epgURL = ApplicationConfiguration.EPGUrl.Value;
             //string epgURL = "http://lab-vms.tve.yeseng.co.il/opencase/sm/resource/rest/";
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
@@ -504,7 +505,7 @@ namespace EpgBL
             EPGChannelProgrammeObject program = new EPGChannelProgrammeObject();
 
             string date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl");
+            string epgURL = ApplicationConfiguration.EPGUrl.Value;
             //string epgURL = "http://lab-vms.tve.yeseng.co.il/opencase/sm/resource/rest/";
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
@@ -562,7 +563,7 @@ namespace EpgBL
             EPGChannelProgrammeObject program = new EPGChannelProgrammeObject();
 
             string date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = TVinciShared.WS_Utils.GetTcmConfigValue("EPGUrl");
+            string epgURL = ApplicationConfiguration.EPGUrl.Value;
             //string epgURL = "http://lab-vms.tve.yeseng.co.il/opencase/sm/resource/rest/";
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
@@ -748,7 +749,7 @@ namespace EpgBL
             return new List<EPGChannelProgrammeObject>();
         }
 
-        public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, List<LanguageObj> language)       
+        public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, List<LanguageObj> language)
         {
             return new List<EPGChannelProgrammeObject>();
         }

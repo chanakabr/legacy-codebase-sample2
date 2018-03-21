@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace ElasticSearch.Common
 {
@@ -17,8 +18,8 @@ namespace ElasticSearch.Common
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static readonly string ES_URL = Common.Utils.GetWSURL("ES_URL");
-        public static readonly string ALT_ES_URL = Common.Utils.GetWSURL("ALT_ES_URL");
+        public static readonly string ES_URL = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
+        public static readonly string ALT_ES_URL = ApplicationConfiguration.ElasticSearchConfiguration.AlternativeUrl.Value;
         private const string ES_LOG_FILENAME = "Elasticsearch";
 
         public string baseUrl
@@ -172,7 +173,7 @@ namespace ElasticSearch.Common
             if (!dESAnalyzers.TryGetValue(sAnalyzerName, out analyzer))
             {
 
-                analyzer = Utils.GetWSURL(sAnalyzerName);
+                analyzer = Utils.GetTcmValue(sAnalyzerName);
                 if (!string.IsNullOrEmpty(analyzer))
                     dESAnalyzers[sAnalyzerName] = analyzer;
             }
@@ -186,7 +187,7 @@ namespace ElasticSearch.Common
 
             if (!dESFilters.TryGetValue(sFilterName, out filter))
             {
-                filter = Utils.GetWSURL(sFilterName);
+                filter = Utils.GetTcmValue(sFilterName);
                 if (!string.IsNullOrEmpty(filter))
                     dESFilters[sFilterName] = filter;
             }
@@ -200,7 +201,7 @@ namespace ElasticSearch.Common
 
             if (!tokenizers.TryGetValue(tokenizerName, out tokenizer))
             {
-                tokenizer = Utils.GetWSURL(tokenizerName);
+                tokenizer = Utils.GetTcmValue(tokenizerName);
 
                 if (!string.IsNullOrEmpty(tokenizer))
                 {
