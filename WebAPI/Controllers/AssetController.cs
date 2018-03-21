@@ -326,18 +326,7 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
 
-                            response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType);
-
-                            //var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                            //    0, 1, new List<int>() { mediaId }, KalturaAssetOrderBy.START_DATE_DESC);
-
-                            //// if no response - return not found status 
-                            //if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
-                            //{
-                            //    throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
-                            //}
-
-                            //response = mediaRes.Objects.First();
+                            response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language);
                         }
                         break;
                     case KalturaAssetReferenceType.epg_internal:

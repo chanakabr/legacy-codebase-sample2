@@ -12,6 +12,7 @@ using Core.Users;
 using GroupsCacheManager;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -1197,14 +1198,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return assetType;
         }
 
-        public static List<KalturaMediaImage> ConvertImageListToKalturaMediaImageList(int groupId, List<Image> images)
+        public static List<KalturaMediaImage> ConvertImageListToKalturaMediaImageList(int groupId, List<Image> images, Dictionary<long, string> imageTypeIdToRatioNameMap)
         {
             List<KalturaMediaImage> result = new List<KalturaMediaImage>();
             if (images != null && images.Count > 0)
             {
                 foreach (Image image in images)
                 {
-                    KalturaMediaImage convertedImage = ConvertImageToKalturaImage(groupId, image);
+                    string ratioName = imageTypeIdToRatioNameMap != null && imageTypeIdToRatioNameMap.ContainsKey(image.ImageTypeId) ? imageTypeIdToRatioNameMap[image.ImageTypeId] : string.Empty;
+                    KalturaMediaImage convertedImage = ConvertImageToKalturaImage(groupId, image, ratioName);
                     if (convertedImage != null)
                     {
                         result.Add(convertedImage);
@@ -1215,7 +1217,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaMediaImage ConvertImageToKalturaImage(int groupId, Image image)
+        private static KalturaMediaImage ConvertImageToKalturaImage(int groupId, Image image, string ratioName)
         {
             KalturaMediaImage result = null;
             if (groupId > 0 && image != null)
@@ -1226,7 +1228,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     IsDefault = image.IsDefault,
                     Url = image.Url,
                     Version = image.Version,
-                    Ratio = ImageManager.GetRatioNameByImageTypeId(groupId, image.ImageTypeId)
+                    Ratio = ratioName
                 };
             }
 
@@ -1914,13 +1916,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 }
                 else if (meta.m_oTagMeta.m_sType.ToLower() == typeof(double).ToString() || meta.m_oTagMeta.m_sType == ApiObjects.MetaType.Number.ToString())
                 {
-                    value = new KalturaDoubleValue() { value = double.Parse(meta.m_sValue) };
+                    value = new KalturaDoubleValue() { value = double.Parse(meta.m_sValue, NumberStyles.Float, CultureInfo.InvariantCulture) };
                 }
                 else if (meta.m_oTagMeta.m_sType.ToLower() == typeof(DateTime).ToString() || meta.m_oTagMeta.m_sType == ApiObjects.MetaType.DateTime.ToString())
                 {
                     if (!string.IsNullOrEmpty(meta.m_sValue))
                     {
-                        value = new KalturaLongValue() { value = SerializationUtils.ConvertToUnixTimestamp(DateTime.Parse(meta.m_sValue)) };
+                        value = new KalturaLongValue() { value = SerializationUtils.ConvertToUnixTimestamp(DateTime.Parse(meta.m_sValue, CultureInfo.InvariantCulture)) };
                     }
                 }
                 else

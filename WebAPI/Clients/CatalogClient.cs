@@ -46,7 +46,7 @@ namespace WebAPI.Clients
             }
         }
 
-        #region New Catalog Management
+        #region New Catalog Management        
 
         public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, long metaId = 0)
         {
@@ -458,7 +458,7 @@ namespace WebAPI.Clients
             if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
                 result = Mapper.Map<KalturaMediaAsset>(response.Asset);
-                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
             // add here else if for epg\recording when needed
             else
@@ -499,19 +499,31 @@ namespace WebAPI.Clients
             }
 
             return true;
-        }
+        }        
 
-        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType)
+        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language)
         {
             KalturaAsset result = null;
             AssetResponse response = null;
             eAssetTypes assetType = eAssetTypes.UNKNOWN;
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
-                    response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, id, assetType);
+                    if (doesGroupUsesTemplates)
+                    {
+                        assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
+                        response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, id, assetType);
+                    }
+                    else
+                    {
+                        KalturaAssetListResponse assetListResponse = GetMediaByIds(groupId, siteGuid, domainId, udid, language, 0, 1, new List<int>() { (int)id }, KalturaAssetOrderBy.START_DATE_DESC);
+                        if (assetListResponse != null && assetListResponse.TotalCount == 1)
+                        {
+                            return assetListResponse.Objects[0];
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -534,7 +546,7 @@ namespace WebAPI.Clients
             {
                 case eAssetTypes.MEDIA:
                     result = Mapper.Map<KalturaMediaAsset>(response.Asset);
-                    result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
+                    result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
                     break;
                 case eAssetTypes.EPG:
                     break;
@@ -595,7 +607,7 @@ namespace WebAPI.Clients
             if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
                 result = Mapper.Map<KalturaMediaAsset>(response.Asset);
-                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
             // add here else if for epg\recording when needed
             else
@@ -649,7 +661,7 @@ namespace WebAPI.Clients
             }
 
             return true;
-        }
+        }        
 
         public KalturaAssetListResponse GetAssetForGroupWithTemplates(int groupId, List<KeyValuePair<ApiObjects.eAssetTypes, long>> assetsToRetrieve)
         {
@@ -661,10 +673,11 @@ namespace WebAPI.Clients
                 {
                     result.Objects = new List<KalturaAsset>();
                     // convert assets
+                    Dictionary<long, string> imageTypeIdToRatioNameMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
                     foreach (MediaAsset mediaAssetToConvert in assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
                     {
                         KalturaMediaAsset kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);
-                        kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images);
+                        kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images, imageTypeIdToRatioNameMap);
                         result.Objects.Add(kalturaMediaAsset);
 
                     }
