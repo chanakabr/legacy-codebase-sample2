@@ -1600,14 +1600,15 @@ namespace Core.Catalog.CatalogManagement
                     string keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
                     Dictionary<string, Asset> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
                     foreach (BaseObject baseAsset in assets)
-                    {
-                        if (baseAsset.m_dUpdateDate == mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)].UpdateDate)
+                    {                        
+                        if (Math.Abs((baseAsset.m_dUpdateDate - mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)].UpdateDate.Value).TotalSeconds) <= 1)
                         {
                             result.Assets.Add(mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)]);
                         }
                         else
                         {
                             result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedUnupdatedItem, eResponseStatus.ElasticSearchReturnedUnupdatedItem.ToString());
+                            return result;
                         }
                     }
 
