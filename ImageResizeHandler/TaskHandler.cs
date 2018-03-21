@@ -58,7 +58,11 @@ namespace ImageResizeHandler
                 {
                     bool isMutexAlreadyReleased = false;
 
-                    string fileName = generateSlug(System.IO.Path.GetFullPath(uri.LocalPath));
+                    string regexSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+                    Regex r = new Regex(string.Format("[{0}]", Regex.Escape(regexSearch)));
+                    string path = r.Replace(uri.LocalPath, "");
+
+                    string fileName = generateSlug(System.IO.Path.GetFullPath(path));
 
                     Mutex mutex = new Mutex(false, "IRHM_" + fileName);
 
