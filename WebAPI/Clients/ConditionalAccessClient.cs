@@ -1,9 +1,21 @@
-﻿using AutoMapper;
+﻿using APILogic.ConditionalAccess;
+using ApiObjects;
+using ApiObjects.Billing;
+using ApiObjects.ConditionalAccess;
+using ApiObjects.Response;
+using ApiObjects.SearchObjects;
+using ApiObjects.TimeShiftedTv;
+using AutoMapper;
+using Core.ConditionalAccess;
+using Core.ConditionalAccess.Response;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.ServiceModel;
+using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -15,25 +27,13 @@ using WebAPI.Models.Pricing;
 using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
-using System.Net;
-using System.Web;
-using System.ServiceModel;
-using ApiObjects.SearchObjects;
-using ApiObjects.TimeShiftedTv;
-using ApiObjects;
-using ApiObjects.Response;
-using ApiObjects.Billing;
-using Core.ConditionalAccess.Response;
-using ApiObjects.ConditionalAccess;
-using Core.ConditionalAccess;
-using APILogic.ConditionalAccess;
 
 namespace WebAPI.Clients
 {
     public class ConditionalAccessClient : BaseClient
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
+
         public ConditionalAccessClient()
         {
 
@@ -42,7 +42,7 @@ namespace WebAPI.Clients
         public bool CancelServiceNow(int groupId, int domain_id, int asset_id, Models.ConditionalAccess.KalturaTransactionType transaction_type, bool bIsForce)
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -75,7 +75,7 @@ namespace WebAPI.Clients
         public void CancelSubscriptionRenewal(int groupId, int domain_id, string subscription_code)
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -104,7 +104,7 @@ namespace WebAPI.Clients
         {
             List<WebAPI.Models.ConditionalAccess.KalturaEntitlement> entitlements = null;
             Entitlements response = null;
-            
+
 
             try
             {
@@ -138,7 +138,7 @@ namespace WebAPI.Clients
         {
             Models.ConditionalAccess.KalturaBillingTransactionListResponse transactions = null;
             BillingTransactions response = null;
-            
+
             TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(orderBy);
 
             try
@@ -175,7 +175,7 @@ namespace WebAPI.Clients
             KalturaBillingResponse result = null;
             BillingStatusResponse response = null;
 
-            
+
 
             try
             {
@@ -216,7 +216,7 @@ namespace WebAPI.Clients
             KalturaBillingResponse result = null;
             BillingStatusResponse response = null;
 
-            
+
 
             try
             {
@@ -295,7 +295,7 @@ namespace WebAPI.Clients
             MediaFileItemPricesContainerResponse response = null;
             List<KalturaItemPrice> prices = new List<KalturaItemPrice>();
 
-            
+
 
             try
             {
@@ -367,7 +367,7 @@ namespace WebAPI.Clients
             TransactionResponse wsResponse = new TransactionResponse();
 
             // get group ID
-            
+
 
             try
             {
@@ -412,7 +412,7 @@ namespace WebAPI.Clients
             TransactionResponse wsResponse = new TransactionResponse();
 
             // get group ID
-            
+
 
             try
             {
@@ -456,7 +456,7 @@ namespace WebAPI.Clients
             Status wsResponse = null;
 
             // get group 
-            
+
 
             try
             {
@@ -646,7 +646,7 @@ namespace WebAPI.Clients
             Status response = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -679,13 +679,13 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaBillingTransactionListResponse GetDomainBillingHistory(int groupId, int domainId, DateTime startDate, DateTime endDate, int pageIndex, int pageSize, KalturaTransactionHistoryOrderBy orderBy)
+        internal KalturaBillingTransactionListResponse GetDomainBillingHistory(int groupId, int domainId, DateTime startDate, DateTime endDate, int pageIndex, int pageSize, KalturaTransactionHistoryOrderBy orderBy, bool isObsolete = false)
         {
             KalturaBillingTransactionListResponse clientResponse = new KalturaBillingTransactionListResponse();
             DomainTransactionsHistoryResponse wsResponse = null;
 
             // get group by ID
-            
+
             TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(orderBy);
 
             try
@@ -724,19 +724,36 @@ namespace WebAPI.Clients
 
                 if (wsResponse.TransactionsCount > 0)
                 {
-                    // Convert current user's list of transactions to List of Kaltura objects
-                    List<KalturaUserBillingTransaction> pageTransactions = Mapper.Map<List<KalturaUserBillingTransaction>>(wsResponse.TransactionsHistory);
-
-                    if (pageTransactions != null && pageTransactions.Count > 0)
+                    // Convert current user's list of transactions to List of Kaltura objects                    
+                    if (isObsolete)
                     {
-                        allTransactions.AddRange(pageTransactions);
+                        List<KalturaUserBillingTransaction> pageTransactions = Mapper.Map<List<KalturaUserBillingTransaction>>(wsResponse.TransactionsHistory);
+                        if (pageTransactions != null && pageTransactions.Count > 0)
+                        {
+                            allTransactions.AddRange(pageTransactions);
+                        }
+
+                        // Set paging if page size exists
+                        if (pageSize != 0)
+                        {
+                            pageTransactions = pageTransactions.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                        }
+                    }
+                    else
+                    {
+                        List<KalturaBillingTransaction> pageTransactions = Mapper.Map<List<KalturaBillingTransaction>>(wsResponse.TransactionsHistory);
+                        if (pageTransactions != null && pageTransactions.Count > 0)
+                        {
+                            allTransactions.AddRange(pageTransactions);
+                        }
+
+                        // Set paging if page size exists
+                        if (pageSize != 0)
+                        {
+                            pageTransactions = pageTransactions.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                        }
                     }
 
-                    // Set paging if page size exists
-                    if (pageSize != 0)
-                    {
-                        pageTransactions = pageTransactions.Skip(pageIndex * pageSize).Take(pageSize).ToList();
-                    }
                 }
 
                 clientResponse.transactions = allTransactions;
@@ -751,7 +768,7 @@ namespace WebAPI.Clients
             List<KalturaAssetPrice> assetPrices = new List<KalturaAssetPrice>();
             AssetItemPriceResponse response = null;
 
-            
+
 
             try
             {
@@ -788,7 +805,7 @@ namespace WebAPI.Clients
         {
             Status response = null;
 
-            
+
 
             try
             {
@@ -821,7 +838,7 @@ namespace WebAPI.Clients
             KalturaHouseholdPremiumServiceListResponse result;
             DomainServicesResponse response = null;
 
-            
+
 
             try
             {
@@ -861,7 +878,7 @@ namespace WebAPI.Clients
             List<KalturaPremiumService> result;
             DomainServicesResponse response = null;
 
-            
+
 
             try
             {
@@ -896,7 +913,7 @@ namespace WebAPI.Clients
             Status response = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -933,7 +950,7 @@ namespace WebAPI.Clients
             PurchaseSessionIdResponse response = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -972,7 +989,7 @@ namespace WebAPI.Clients
             KalturaLicensedUrl urls = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1010,7 +1027,7 @@ namespace WebAPI.Clients
             KalturaLicensedUrl urls = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1050,7 +1067,7 @@ namespace WebAPI.Clients
             KalturaLicensedUrl urls = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1086,7 +1103,7 @@ namespace WebAPI.Clients
         {
             List<KalturaCDVRAdapterProfile> adapters = new List<KalturaCDVRAdapterProfile>();
 
-            
+
 
             CDVRAdapterResponseList response = null;
             try
@@ -1122,7 +1139,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteCDVRAdapter(int groupId, int adapterId)
         {
-            
+
 
             Status response = null;
             try
@@ -1155,7 +1172,7 @@ namespace WebAPI.Clients
         {
             KalturaCDVRAdapterProfile adapter = new KalturaCDVRAdapterProfile();
 
-            
+
 
             CDVRAdapterResponse response = null;
 
@@ -1193,7 +1210,7 @@ namespace WebAPI.Clients
         {
             KalturaCDVRAdapterProfile adapterResponse = new KalturaCDVRAdapterProfile();
 
-            
+
 
             CDVRAdapterResponse response = null;
 
@@ -1231,7 +1248,7 @@ namespace WebAPI.Clients
         {
             KalturaCDVRAdapterProfile adapter = new KalturaCDVRAdapterProfile();
 
-            
+
 
             CDVRAdapterResponse response = null;
             try
@@ -1268,7 +1285,7 @@ namespace WebAPI.Clients
             Recording response = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1308,7 +1325,7 @@ namespace WebAPI.Clients
             RecordingResponse response = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1361,7 +1378,7 @@ namespace WebAPI.Clients
             Recording response = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1421,7 +1438,7 @@ namespace WebAPI.Clients
             List<TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();
 
             // get group configuration
-            
+
 
             try
             {
@@ -1463,7 +1480,7 @@ namespace WebAPI.Clients
         internal bool RemovePaymentMethodHouseholdPaymentGateway(int payment_gateway_id, int groupId, string userID, long householdId, int paymentMethodId, bool force = false)
         {
             Status response = null;
-            
+
 
             try
             {
@@ -1498,7 +1515,7 @@ namespace WebAPI.Clients
             DomainQuotaResponse webServiceResponse = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1541,7 +1558,7 @@ namespace WebAPI.Clients
             Recording response = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1581,7 +1598,7 @@ namespace WebAPI.Clients
             Recording response = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1621,7 +1638,7 @@ namespace WebAPI.Clients
             Recording response = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1661,7 +1678,7 @@ namespace WebAPI.Clients
             SeriesRecording response = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1701,7 +1718,7 @@ namespace WebAPI.Clients
             SeriesRecording response = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1741,7 +1758,7 @@ namespace WebAPI.Clients
             SeriesResponse response = null;
 
             // get group configuration
-            
+
             // Create catalog order object
             SeriesRecordingOrderObj order = new SeriesRecordingOrderObj();
             if (orderBy == null)
@@ -1775,7 +1792,7 @@ namespace WebAPI.Clients
             SeriesRecording response = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1854,7 +1871,7 @@ namespace WebAPI.Clients
             Status status = null;
 
             // get group ID
-            
+
 
             try
             {
@@ -1888,10 +1905,10 @@ namespace WebAPI.Clients
         {
             KalturaEntitlement kalturaEntitlement = null;
             Entitlements response = null;
-           
+
 
             // get group 
-            
+
 
             try
             {
@@ -1947,7 +1964,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-            
+
                     response = Core.ConditionalAccess.Module.SwapSubscription(groupId, userId, currentProductId, newProductId, Utils.Utils.GetClientIP(), string.Empty, history);
                 }
             }
@@ -2008,9 +2025,9 @@ namespace WebAPI.Clients
             }
 
             if (response.Status.Code != (int)eResponseStatus.OK && response.Status.Code != (int)eResponseStatus.ServiceNotAllowed && response.Status.Code != (int)eResponseStatus.NotEntitled &&
-                response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel && 
+                response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel &&
                 response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel &&
-                response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation && response.Status.Code != (int)eResponseStatus.MediaConcurrencyLimitation && 
+                response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation && response.Status.Code != (int)eResponseStatus.MediaConcurrencyLimitation &&
                 response.Status.Code != (int)eResponseStatus.DeviceTypeNotAllowed && response.Status.Code != (int)eResponseStatus.NoFilesFound)
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
@@ -2074,7 +2091,7 @@ namespace WebAPI.Clients
         internal KalturaCompensation AddCompensation(int groupId, string userId, KalturaCompensation compensation)
         {
             CompensationResponse response = null;
-            
+
             Compensation wsCompensation = Mapper.Map<Compensation>(compensation);
 
             try

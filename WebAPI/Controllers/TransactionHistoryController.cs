@@ -49,31 +49,31 @@ namespace WebAPI.Controllers
                 switch (filter.EntityReferenceEqual)
                 {
                     case KalturaEntityReferenceBy.user:
-                    {
-                        response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy);
-                        break;
-                    }
+                        {
+                            response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy);
+                            break;
+                        }
                     case KalturaEntityReferenceBy.household:
-                    {
-                        DateTime startDate = new DateTime(1753, 1, 1);
-                        DateTime endDate = DateTime.MaxValue;
-
-                        if (filter.StartDateGreaterThanOrEqual.HasValue)
                         {
-                            startDate = filter.StartDateGreaterThanOrEqual.Value;
-                        }
+                            DateTime startDate = new DateTime(1753, 1, 1);
+                            DateTime endDate = DateTime.MaxValue;
 
-                        if (filter.EndDateLessThanOrEqual.HasValue)
-                        {
-                            endDate = filter.EndDateLessThanOrEqual.Value;
-                        }
+                            if (filter.StartDateGreaterThanOrEqual.HasValue)
+                            {
+                                startDate = filter.StartDateGreaterThanOrEqual.Value;
+                            }
 
-                        response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
-                            groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy);
-                        break;
-                    }
+                            if (filter.EndDateLessThanOrEqual.HasValue)
+                            {
+                                endDate = filter.EndDateLessThanOrEqual.Value;
+                            }
+
+                            response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
+                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy);
+                            break;
+                        }
                     default:
-                    break;
+                        break;
                 }
                 // call client
             }
@@ -132,7 +132,7 @@ namespace WebAPI.Controllers
                             }
 
                             response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
-                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, filter.getPageIndex(), filter.getPageSize(), KalturaTransactionHistoryOrderBy.CREATE_DATE_DESC);
+                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, filter.getPageIndex(), filter.getPageSize(), KalturaTransactionHistoryOrderBy.CREATE_DATE_DESC, true);
                             break;
                         }
                     default:
