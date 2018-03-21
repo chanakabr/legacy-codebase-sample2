@@ -444,6 +444,7 @@ namespace Core.Catalog.CatalogManagement
                 if (unorderedChannels == null || unorderedChannels.Count != channelIds.Count)
                 {
                     log.ErrorFormat("Failed getting channels from GetChannels, for groupId: {0}, channelIds: {1}", groupId, channelIds != null ? string.Join(",", channelIds) : string.Empty);
+                    result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
                     return result;
                 }
 
