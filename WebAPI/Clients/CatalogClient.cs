@@ -696,7 +696,7 @@ namespace WebAPI.Clients
                 }
                 else if (assetListResponse != null && assetListResponse.Status != null)
                 {
-                    throw new ClientException((int)assetListResponse.Status.Code, assetListResponse.Status.ToString());
+                    throw new ClientException((int)assetListResponse.Status.Code, assetListResponse.Status.Message.ToString());
                 }
             }
 
