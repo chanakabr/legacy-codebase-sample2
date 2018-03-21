@@ -360,6 +360,8 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public UserInterestsMetasAndTags userPreferences;
 
+        public List<string> PersonalData { get; set; }
+
         #endregion
 
         #region Ctor

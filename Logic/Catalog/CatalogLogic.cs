@@ -1,5 +1,4 @@
 ﻿using AdapterControllers;
-using APILogic.Catalog.Response;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
@@ -6198,12 +6197,12 @@ namespace Core.Catalog
             }
 
             // Build search object
-            List<string> personalData;
-            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group, out personalData);
+            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group);
 
-            UnifiedSearchCachedResponse searchResult;
+            UnifiedSearchResponse searchResult;
 
-            string cacheKey = GetChannelSearchCacheKey(parentGroupID, request.m_sSiteGuid, request.domainId, request.m_oFilter.m_sDeviceId, request.m_sUserIP, request.filterQuery, unifiedSearchDefinitions, personalData);
+            string cacheKey = GetChannelSearchCacheKey(parentGroupID, request.m_sSiteGuid, request.domainId, request.m_oFilter.m_sDeviceId, request.m_sUserIP, request.filterQuery, 
+                unifiedSearchDefinitions, unifiedSearchDefinitions.PersonalData);
             if (!string.IsNullOrEmpty(cacheKey))
             {
                 log.DebugFormat("Going to get channel assets from cache with key: {0}", cacheKey);
@@ -6215,20 +6214,20 @@ namespace Core.Catalog
                 searchResult = ChannelUnifiedSearch(parentGroupID, unifiedSearchDefinitions, channel);
             }
 
-            status = searchResult.Status;
-            searchResults = searchResult.SearchResults;
-            totalItems = searchResult.TotalItems;
-            aggregationsResult = searchResult.AggregationsResult;
+            status = searchResult.status;
+            searchResults = searchResult.searchResults;
+            totalItems = searchResult.m_nTotalItems;
+            aggregationsResult = searchResult.aggregationResults;
 
             return status;
             
         }
 
-        public static UnifiedSearchCachedResponse ChannelUnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel)
+        public static UnifiedSearchResponse ChannelUnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel)
         {
-            UnifiedSearchCachedResponse response = new UnifiedSearchCachedResponse()
+            UnifiedSearchResponse response = new UnifiedSearchResponse()
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
             List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
@@ -6249,7 +6248,7 @@ namespace Core.Catalog
 
             if (searcher == null)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
                 return response;
             }
 
@@ -6262,7 +6261,7 @@ namespace Core.Catalog
 
             if (searchResults == null)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
                 return response;
             }
 
@@ -6350,28 +6349,28 @@ namespace Core.Catalog
             {
                 searchResults = null;
                 totalItems = 0;
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
                 return response;
             }
 
-            response.SearchResults = searchResults;
-            response.TotalItems = totalItems;
-            response.AggregationsResult = aggregationsResult;
-            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+            response.searchResults = searchResults;
+            response.m_nTotalItems = totalItems;
+            response.aggregationResults = aggregationsResult;
+            response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
 
             return response;
         }
 
-        private static UnifiedSearchCachedResponse GetUnifiedSearchResultsFromCache(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel, string cacheKey)
+        private static UnifiedSearchResponse GetUnifiedSearchResultsFromCache(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel, string cacheKey)
         {
-            UnifiedSearchCachedResponse cachedResult = new UnifiedSearchCachedResponse()
+            UnifiedSearchResponse cachedResult = new UnifiedSearchResponse()
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
-            if (!LayeredCache.Instance.Get<UnifiedSearchCachedResponse>(cacheKey, ref cachedResult, GetChannelUnifiedSearchResults, 
+            if (!LayeredCache.Instance.Get<UnifiedSearchResponse>(cacheKey, ref cachedResult, GetChannelUnifiedSearchResults, 
                 new Dictionary<string, object>() { { "groupId", groupId }, { "unifiedSearchDefinitions", unifiedSearchDefinitions }, { "channel", channel } },
-                groupId, LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, null)) // IRA: what about invalidation
+                groupId, LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, null)) 
             {
                 log.ErrorFormat("Failed getting unified search results from LayeredCache, key: {0}", cacheKey);
             }
@@ -6379,12 +6378,12 @@ namespace Core.Catalog
             return cachedResult;
         }
 
-        private static Tuple<UnifiedSearchCachedResponse, bool> GetChannelUnifiedSearchResults(Dictionary<string, object> funcParams)
+        private static Tuple<UnifiedSearchResponse, bool> GetChannelUnifiedSearchResults(Dictionary<string, object> funcParams)
         {
             bool result = false;
-            UnifiedSearchCachedResponse cachedResult = new UnifiedSearchCachedResponse()
+            UnifiedSearchResponse cachedResult = new UnifiedSearchResponse()
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
             
             try
@@ -6401,14 +6400,13 @@ namespace Core.Catalog
                         {
                             cachedResult = ChannelUnifiedSearch(groupId.Value, unifiedSearchDefinitions, channel);
 
-                            if (cachedResult.Status.Code == (int)eResponseStatus.OK)
+                            if (cachedResult.status.Code == (int)eResponseStatus.OK)
                             {
                                 result = true;
                             }
                             else
                             {
-                                log.ErrorFormat("Failed to get search results from ES, code = {0}, message = {1}", cachedResult.Status.Code, cachedResult.Status.Message);
-                                // IRA: the error messages will not return anymore, are we OK with that?
+                                log.ErrorFormat("Failed to get search results from ES, code = {0}, message = {1}", cachedResult.status.Code, cachedResult.status.Message);
                             }
                         }
                     }
@@ -6419,7 +6417,7 @@ namespace Core.Catalog
                 log.Error(string.Format("GetChannelUnifiedSearchResults failed params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<UnifiedSearchCachedResponse, bool>(cachedResult, result);
+            return new Tuple<UnifiedSearchResponse, bool>(cachedResult, result);
         }
 
         private static string GetChannelSearchCacheKey(int groupId, string userId, int domainId, string udid, string ip, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions, List<string> personalData)
@@ -6427,8 +6425,6 @@ namespace Core.Catalog
             string key = null;
             if (personalData != null && personalData.Count > 0)
             {
-                // IRA: make the names in the key shorter?
-
                 StringBuilder cacheKey = new StringBuilder("channel");
                 cacheKey.AppendFormat("_gId={0}", groupId);
                 cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
@@ -6788,8 +6784,7 @@ namespace Core.Catalog
                 }
 
                 // Add prefixes, check if non start/end date exist
-                List<string> withEntitlements;
-                UpdateNodeTreeFields(request, ref filterTree, definitions, group, out withEntitlements);
+                UpdateNodeTreeFields(request, ref filterTree, definitions, group);
 
                 if (phrase != null)
                 {
@@ -6837,10 +6832,8 @@ namespace Core.Catalog
         /// <param name="filterTree"></param>
         /// <param name="definitions"></param>
         /// <param name="group"></param>
-        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group, out List<string> personalData)
+        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
         {
-            personalData = new List<string>();
-
             if (group != null && filterTree != null)
             {
                 Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
@@ -6856,7 +6849,7 @@ namespace Core.Catalog
                     // If it is a leaf, just replace the field name
                     if (node.type == BooleanNodeType.Leaf)
                     {
-                        TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping, out personalData);
+                        TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping);
                     }
                     else if (node.type == BooleanNodeType.Parent)
                     {
@@ -6882,10 +6875,8 @@ namespace Core.Catalog
         /// <param name="group"></param>
         /// <param name="node"></param>
         public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
-            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, out List<string> personalData)
+            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping)
         {
-            personalData = new List<string>();
-
             bool shouldUseCache = WS_Utils.GetTcmBoolValue("Use_Search_Cache");
 
             // initialize maximum nGram member only once - when this is negative it is still not set
@@ -7071,7 +7062,7 @@ namespace Core.Catalog
                         // geo_block is a personal filter that currently will work only with "true".
                         if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
                         {
-                            personalData.Add(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD);
+                            definitions.PersonalData.Add(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD);
 
                             if (geoBlockRules == null)
                             {
@@ -7106,7 +7097,7 @@ namespace Core.Catalog
                         {
                             if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
                             {
-                                personalData.Add(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD);
+                                definitions.PersonalData.Add(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD);
 
                                 if (shouldUseCache)
                                 {
@@ -7205,7 +7196,7 @@ namespace Core.Catalog
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldSearchNotEntitled = true;
-                                    personalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
+                                    definitions.PersonalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             case ("free"):
@@ -7216,14 +7207,14 @@ namespace Core.Catalog
                             case ("entitled"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
-                                    personalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
+                                    definitions.PersonalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             case ("both"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
-                                    personalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
+                                    definitions.PersonalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             default:
@@ -7359,10 +7350,9 @@ namespace Core.Catalog
             }
         }
 
-        public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group, out List<string> personalData)
+        public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
-            personalData = new List<string>();
 
             #region Basic
 
@@ -7449,7 +7439,7 @@ namespace Core.Catalog
                 else
                 {
                     initialTree = filterTree;
-                    CatalogLogic.UpdateNodeTreeFields(request, ref initialTree, definitions, group, out personalData);
+                    CatalogLogic.UpdateNodeTreeFields(request, ref initialTree, definitions, group);
                 }
 
                 #region Asset Types
@@ -7651,7 +7641,7 @@ namespace Core.Catalog
                     throw new KalturaException(status.Message, status.Code);
                 }
 
-                CatalogLogic.UpdateNodeTreeFields(request, ref requestFilterTree, definitions, group, out personalData);
+                CatalogLogic.UpdateNodeTreeFields(request, ref requestFilterTree, definitions, group);
 
                 if (initialTree != null)
                 {
@@ -7726,8 +7716,7 @@ namespace Core.Catalog
                 }
                 );
 
-            List<string> withEntitlements;
-            return BuildInternalChannelSearchObject(channel, channelRequest, group, out withEntitlements);
+            return BuildInternalChannelSearchObject(channel, channelRequest, group);
         }
 
         private static MediaSearchObj BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, int groupId, LanguageObj languageObj, List<string> lPermittedWatchRules)
