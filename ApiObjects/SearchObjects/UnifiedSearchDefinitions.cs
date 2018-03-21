@@ -404,6 +404,8 @@ namespace ApiObjects.SearchObjects
             distinctGroup = new KeyValuePair<string, string>();
 
             recordingIdToSearchableRecordingMapping = new Dictionary<string, TimeShiftedTv.SearchableRecording>();
+
+            PersonalData = new List<string>();
         }
 
 
