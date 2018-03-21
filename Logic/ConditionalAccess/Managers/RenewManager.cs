@@ -2174,6 +2174,8 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
+            renewalResponse.EntitlementRenewal.Price.m_oCurrency.m_sCurrencySign = string.Empty;
+
             success = renewalResponse.EntitlementRenewal.Notify();
             
             return success;
@@ -2226,7 +2228,9 @@ namespace Core.ConditionalAccess
                 log.ErrorFormat("Error when getting entitlement renewal data for processId {0}", processId);
                 return true;
             }
-            
+
+            unifiedPaymentResponse.UnifiedPaymentRenewal.Price.m_oCurrency.m_sCurrencySign = string.Empty;
+
             success = unifiedPaymentResponse.UnifiedPaymentRenewal.Notify();
 
             return success;
