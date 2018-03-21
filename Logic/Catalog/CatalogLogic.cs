@@ -6388,7 +6388,7 @@ namespace Core.Catalog
             
             try
             {
-                if (funcParams != null && funcParams.Count == 2)
+                if (funcParams != null && funcParams.Count == 3)
                 {
                     if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("unifiedSearchDefinitions") && funcParams.ContainsKey("channel"))
                     {
