@@ -663,23 +663,22 @@ namespace WebAPI.Clients
             return true;
         }        
 
-        public KalturaAssetListResponse GetAssetForGroupWithTemplates(int groupId, List<KeyValuePair<ApiObjects.eAssetTypes, long>> assetsToRetrieve)
+        public KalturaAssetListResponse GetAssetForGroupWithTemplates(int groupId, List<BaseObject> assetsBaseDataList)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
-            if (assetsToRetrieve != null && assetsToRetrieve.Count > 0)
+            if (assetsBaseDataList != null && assetsBaseDataList.Count > 0)
             {
-                List<Asset> assets = AssetManager.GetOrderedAssets(groupId, assetsToRetrieve);
-                if (assets != null)
+                AssetListResponse assetListResponse = AssetManager.GetOrderedAssets(groupId, assetsBaseDataList);
+                if (assetListResponse != null && assetListResponse.Status != null && assetListResponse.Status.Code == (int)eResponseStatus.OK)
                 {
                     result.Objects = new List<KalturaAsset>();
                     // convert assets
                     Dictionary<long, string> imageTypeIdToRatioNameMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
-                    foreach (MediaAsset mediaAssetToConvert in assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
+                    foreach (MediaAsset mediaAssetToConvert in assetListResponse.Assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
                     {
                         KalturaMediaAsset kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);
                         kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images, imageTypeIdToRatioNameMap);
                         result.Objects.Add(kalturaMediaAsset);
-
                     }
 
                     //TODO : add support when needed for EPG\Recording
@@ -695,9 +694,9 @@ namespace WebAPI.Clients
                     //    result.Objects.AddRange(recordingAssets);
                     //}        
                 }
-                else
+                else if (assetListResponse != null && assetListResponse.Status != null)
                 {
-                    throw new ClientException((int)eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
+                    throw new ClientException((int)assetListResponse.Status.Code, assetListResponse.Status.ToString());
                 }
             }
 
@@ -708,26 +707,23 @@ namespace WebAPI.Clients
                                                                             bool managementData = false, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
             // check if aggragation result have values 
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
                 searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
             {
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (doesGroupUsesTemplates)
                 {
-                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assetsToRetrieve = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
+                    List<BaseObject> assetsBaseDataList = new List<BaseObject>();
                     foreach (Catalog.Response.AggregationResult aggregationResult in searchResponse.aggregationResults[0].results)
                     {
                         if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
                         {
-                            long assetId;
-                            if (long.TryParse(aggregationResult.topHits[0].AssetId, out assetId) && assetId > 0)
-                            {
-                                assetsToRetrieve.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(aggregationResult.topHits[0].AssetType, assetId));
-                            }
+                            assetsBaseDataList.Add(aggregationResult.topHits[0] as BaseObject);                            
                         }
                     }
 
-                    result = GetAssetForGroupWithTemplates(groupId, assetsToRetrieve);
+                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList);
                 }
                 else
                 {
@@ -739,24 +735,14 @@ namespace WebAPI.Clients
             }
             else if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
             {
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
-                {
-                    List<KeyValuePair<ApiObjects.eAssetTypes, long>> assetsToRetrieve = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
-                    foreach (UnifiedSearchResult searchResult in searchResponse.searchResults)
-                    {
-                        long assetId;
-                        if (long.TryParse(searchResult.AssetId, out assetId) && assetId > 0)
-                        {
-                            assetsToRetrieve.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(searchResult.AssetType, assetId));
-                        }
-                    }
-
-                    result = GetAssetForGroupWithTemplates(groupId, assetsToRetrieve);
+                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+                if (doesGroupUsesTemplates)
+                {                    
+                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList);
                 }
                 else
                 {
-                    // get base objects list
-                    List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+                    // get base objects list                    
                     result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, managementData);
                 }
 
