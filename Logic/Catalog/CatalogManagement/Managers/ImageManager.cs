@@ -149,16 +149,16 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static List<Core.Catalog.CatalogManagement.Ratio> GetImageRatios(int groupId)
+        private static List<Ratio> GetGroupImageRatios(int groupId)
         {
-            List<Core.Catalog.CatalogManagement.Ratio> result = null;
+            List<Ratio> result = null;
 
             // check if image types exists for group
             string key = LayeredCacheKeys.GetGroupRatiosKey(groupId);
 
             // try to get from cache  
 
-            bool cacheResult = LayeredCache.Instance.Get<List<Core.Catalog.CatalogManagement.Ratio>>(key, ref result, GetRatios, new Dictionary<string, object>() { { "groupId", groupId } },
+            bool cacheResult = LayeredCache.Instance.Get<List<Ratio>>(key, ref result, GetRatios, new Dictionary<string, object>() { { "groupId", groupId } },
                 groupId, LayeredCacheConfigNames.GET_RATIOS_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupRatiosInvalidationKey(groupId) } );
 
             if (!cacheResult)
@@ -170,10 +170,10 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static Tuple<List<Core.Catalog.CatalogManagement.Ratio>, bool> GetRatios(Dictionary<string, object> funcParams)
+        private static Tuple<List<Ratio>, bool> GetRatios(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            List<Core.Catalog.CatalogManagement.Ratio> ratios = null;
+            List<Ratio> ratios = null;
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
@@ -193,18 +193,18 @@ namespace Core.Catalog.CatalogManagement
                 log.Error("GetRatios failed", ex);
             }
 
-            return new Tuple<List<Core.Catalog.CatalogManagement.Ratio>, bool>(ratios, res);
+            return new Tuple<List<Ratio>, bool>(ratios, res);
         }
 
-        private static List<Core.Catalog.CatalogManagement.Ratio> CreateRatios(DataTable dt)
+        private static List<Ratio> CreateRatios(DataTable dt)
         {
-            List<Core.Catalog.CatalogManagement.Ratio> response = null;
+            List<Ratio> response = null;
             if (dt != null && dt.Rows != null)
             {
-                response = new List<Core.Catalog.CatalogManagement.Ratio>();
+                response = new List<Ratio>();
                 foreach (DataRow dr in dt.Rows)
                 {
-                    Core.Catalog.CatalogManagement.Ratio ratio = new Core.Catalog.CatalogManagement.Ratio()
+                    Ratio ratio = new Ratio()
                     {
                         Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id"),
                         Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
@@ -248,7 +248,7 @@ namespace Core.Catalog.CatalogManagement
         private static Ratio GetRatioById(int groupId, long ratioId)
         {
             Ratio ratio = null;
-            List<Ratio> groupRatios = GetImageRatios(groupId);
+            List<Ratio> groupRatios = GetGroupImageRatios(groupId);
             if (groupRatios != null && groupRatios.Count > 0)
             {
                 ratio = groupRatios.Where(x => x.Id == ratioId).Count() == 1 ? groupRatios.Where(x => x.Id == ratioId).FirstOrDefault() : null;
@@ -283,7 +283,26 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return ratioName;
-        }        
+        }
+
+        private static Dictionary<long, string> GetGroupRatioIdToNameMap(int groupId)
+        {
+            Dictionary<long, string> result = null;
+            List<Ratio> groupRatios = GetGroupImageRatios(groupId);            
+            if (groupRatios != null && groupRatios.Count > 0)
+            {
+                result = new Dictionary<long, string>();
+                foreach (Ratio ratio in groupRatios)
+                {
+                    if (!result.ContainsKey(ratio.Id))
+                    {
+                        result.Add(ratio.Id, ratio.Name);                        
+                    }
+                }
+            }
+
+            return result;
+        }
 
         private static Tuple<List<Image>, bool> GetGroupDefaultImages(Dictionary<string, object> funcParams)
         {
@@ -586,7 +605,7 @@ namespace Core.Catalog.CatalogManagement
         {
             RatioListResponse response = new RatioListResponse();
 
-            response.Ratios = GetImageRatios(groupId);
+            response.Ratios = GetGroupImageRatios(groupId);
 
             if (response.Ratios != null)
             {
@@ -826,7 +845,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static RatioResponse AddRatio(int groupId, long userId, Core.Catalog.CatalogManagement.Ratio ratio)
+        public static RatioResponse AddRatio(int groupId, long userId, Ratio ratio)
         {
             RatioResponse result = new RatioResponse();
             try
@@ -839,7 +858,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (id > 0)
                     {
-                        result.Ratio = new Core.Catalog.CatalogManagement.Ratio()
+                        result.Ratio = new Ratio()
                         {
                             Id = id,
                             Height = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "height"),
@@ -889,13 +908,30 @@ namespace Core.Catalog.CatalogManagement
         }
 
         // for backward compatibility
-        public static string GetRatioNameByImageTypeId(int groupId, long imageTypeId)
+        public static Dictionary<long, string> GetImageTypeIdToRatioNameMap(int groupId)
         {
-            string result = string.Empty;
-            ImageType imageType = ImageManager.GetImageType(groupId, imageTypeId);
-            if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
+            Dictionary<long, string> result = null;
+            List<ImageType> groupImageTypes = GetGroupImageTypes(groupId);            
+            if (groupImageTypes != null && groupImageTypes.Count > 0)
             {
-                result = ImageManager.GetRatioName(groupId, imageType.RatioId.Value);
+                Dictionary<long, string> ratioIdToNameMap = GetGroupRatioIdToNameMap(groupId);
+                if (ratioIdToNameMap != null && ratioIdToNameMap.Count > 0)
+                {
+                    foreach (ImageType imageType in groupImageTypes)
+                    {
+                        if (!result.ContainsKey(imageType.Id))
+                        {
+                            if (ratioIdToNameMap.ContainsKey(imageType.RatioId.Value))
+                            {
+                                result.Add(imageType.Id, ratioIdToNameMap[imageType.RatioId.Value]);
+                            }
+                            else
+                            {
+                                result.Add(imageType.Id, string.Empty);
+                            }
+                        }
+                    }
+                }                                        
             }
 
             return result;
