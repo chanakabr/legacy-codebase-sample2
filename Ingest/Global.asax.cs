@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ConfigurationManager;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace Ingest
         protected void Application_Start(object sender, EventArgs e)
         {
             // init TCM
-            TCMClient.Settings.Instance.Init();
+            ApplicationConfiguration.Initialize(true);
 
             // set monitor and log configuration files
             KMonitor.Configure("log4net.config", KLogEnums.AppType.WCF);
