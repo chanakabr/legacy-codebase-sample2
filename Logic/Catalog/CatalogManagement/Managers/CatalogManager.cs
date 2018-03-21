@@ -599,14 +599,15 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, List<long> metaTopicIds, long assetStructId, long userId)
+        private static bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds,
+                                                                        long assetStructId, long userId)
         {
             bool res = true;
             try
             {
                 DataSet ds;
                 // update and get all assets
-                ds = CatalogDAL.UpdateTopicAssets(groupId, tagTopicIds, shouldDeleteTag, metaTopicIds, assetStructId, userId);
+                ds = CatalogDAL.UpdateTopicAssets(groupId, tagTopicIds, shouldDeleteTag, shouldDeleteAssets, metaTopicIds, assetStructId, userId);
 
                 // preparing media list and epg
                 List<int> mediaIds = null;
@@ -966,7 +967,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, false, metaTopicIds, id, userId))
+                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, false, false, metaTopicIds, id, userId))
                     {
                         log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, assetStructId: {1}, tagTopicIds: {2}, metaTopicIds: {3}",
                                         groupId, id, string.Join(",", tagTopicIds), string.Join(",", metaTopicIds));
@@ -1028,7 +1029,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, false, metaTopicIds, id, userId))
+                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, false, true, metaTopicIds, id, userId))
                     {
                         log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, assetStructId: {1}, tagTopicIds: {2}, metaTopicIds: {3}",
                                         groupId, id, string.Join(",", tagTopicIds), string.Join(",", metaTopicIds));
@@ -1251,7 +1252,7 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // shouldDelete = isTag on purpose, since we are in DeleteTopic, if its a tag then delete it, on UpdateAssetStruct we don't delete the tag itself
-                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, isTag, metaTopicIds, 0, userId))
+                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, isTag, false, metaTopicIds, 0, userId))
                     {
                         log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0} and topicId: {1}, isTag: {2}", groupId, id, isTag);
                     }
