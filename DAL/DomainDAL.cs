@@ -2493,5 +2493,21 @@ namespace DAL
 
             return status == 1;
         }
+
+        public static int GetDeviceBrandIdByUdid(int groupId, string udid)
+        {
+            int brandId = 0; 
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDeviceBrandIdByUdid");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@udid", udid);
+
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                brandId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "device_brand_id");
+            }
+            return brandId;
+        }
     }
 }

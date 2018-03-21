@@ -272,11 +272,15 @@ namespace CachingProvider.LayeredCache
             return string.Format("unifiedBillingCycle_groupId_{0}", groupId);
         }
 
+        public static string GetDeviceRulesByBrandIdKey(int groupId, int brandId)
+        {
+            return string.Format("deviceRules_groupId_{0}_brandId_{1}", groupId, brandId);
+        }
+
         public static string GetUserWatchedMediaIdsKey(int userId)
         {
             return string.Format("user_watched_media_ids_user_{0}", userId);
         }
-
 
         #endregion
 
@@ -445,6 +449,10 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_mediaConcurrencyRules_by_domainLimitationModule_{0}", dlmId);
         }
 
+        public static string GetUserParentalRuleInvalidationKey(string siteGuid)
+        {
+            return string.Format("user_parental_rules_{0}", siteGuid);
+        }
         #endregion  
 
         #region Domains

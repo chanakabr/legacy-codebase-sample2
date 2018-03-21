@@ -4525,5 +4525,28 @@ namespace DAL
 
             return result;
         }
+
+        public static List<int> GetDeviceRulesByBrandId(int groupId, int brandId)
+        {
+            List<int> rules = new List<int>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("GetDeviceRulesByBrandId");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@groupId", groupId);
+            storedProcedure.AddParameter("@brandId", brandId);
+
+            DataTable dt = storedProcedure.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+                    rules.Add(id);
+                }
+            }
+
+            return rules;
+        }
     }
 }
