@@ -1794,7 +1794,7 @@ namespace Core.Catalog
                 }
 
                 if (request.m_oFilter != null)
-                    searchObj.m_nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                    searchObj.m_nDeviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
 
                 if (m_dOr.Count > 0)
                 {
@@ -6159,6 +6159,7 @@ namespace Core.Catalog
         {
             // Set default values for out parameters
             totalItems = 0;
+            aggregationsResult = null;
             searchResults = new List<UnifiedSearchResult>();
             aggregationsResult = null;
 
@@ -6190,6 +6191,38 @@ namespace Core.Catalog
             // Build search object
             UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group);
 
+            UnifiedSearchResponse searchResult;
+
+            string cacheKey = GetChannelSearchCacheKey(parentGroupID, request.m_sSiteGuid, request.domainId, request.m_oFilter.m_sDeviceId, request.m_sUserIP, request.filterQuery, 
+                unifiedSearchDefinitions, unifiedSearchDefinitions.PersonalData);
+            if (!string.IsNullOrEmpty(cacheKey))
+            {
+                log.DebugFormat("Going to get channel assets from cache with key: {0}", cacheKey);
+                searchResult = GetUnifiedSearchResultsFromCache(parentGroupID, unifiedSearchDefinitions, channel, cacheKey);
+            }
+            else
+            {
+                log.DebugFormat("Going to get channel assets from ES");
+                searchResult = ChannelUnifiedSearch(parentGroupID, unifiedSearchDefinitions, channel);
+            }
+
+            status = searchResult.status;
+            searchResults = searchResult.searchResults;
+            totalItems = searchResult.m_nTotalItems;
+            aggregationsResult = searchResult.aggregationResults;
+
+            return status;
+            
+        }
+
+        public static UnifiedSearchResponse ChannelUnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel)
+        {
+            UnifiedSearchResponse response = new UnifiedSearchResponse()
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
             int pageIndex = 0;
             int pageSize = 0;
 
@@ -6207,17 +6240,21 @@ namespace Core.Catalog
 
             if (searcher == null)
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+                return response;
             }
 
             int to = 0;
-
+            int totalItems = 0;
+            List<AggregationsResult> aggregationsResult;
+            
             // Perform initial search of channel
             searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult);
 
             if (searchResults == null)
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                return response;
             }
 
             List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
@@ -6226,7 +6263,7 @@ namespace Core.Catalog
 
             if (ChannelRequest.IsSlidingWindow(channel))
             {
-                assetIDs = ChannelRequest.OrderMediaBySlidingWindow(group.m_nParentGroupID, channel.m_OrderObject.m_eOrderBy,
+                assetIDs = ChannelRequest.OrderMediaBySlidingWindow(groupId, channel.m_OrderObject.m_eOrderBy,
                     channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, pageSize,
                     pageIndex, assetIDs, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
 
@@ -6304,12 +6341,161 @@ namespace Core.Catalog
             {
                 searchResults = null;
                 totalItems = 0;
-                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
+                return response;
             }
 
-            status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+            response.searchResults = searchResults;
+            response.m_nTotalItems = totalItems;
+            response.aggregationResults = aggregationsResult;
+            response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
 
-            return status;
+            return response;
+        }
+
+        private static UnifiedSearchResponse GetUnifiedSearchResultsFromCache(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel, string cacheKey)
+        {
+            UnifiedSearchResponse cachedResult = new UnifiedSearchResponse()
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            if (!LayeredCache.Instance.Get<UnifiedSearchResponse>(cacheKey, ref cachedResult, GetChannelUnifiedSearchResults, 
+                new Dictionary<string, object>() { { "groupId", groupId }, { "unifiedSearchDefinitions", unifiedSearchDefinitions }, { "channel", channel } },
+                groupId, LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, null)) 
+            {
+                log.ErrorFormat("Failed getting unified search results from LayeredCache, key: {0}", cacheKey);
+            }
+
+            return cachedResult;
+        }
+
+        private static Tuple<UnifiedSearchResponse, bool> GetChannelUnifiedSearchResults(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            UnifiedSearchResponse cachedResult = new UnifiedSearchResponse()
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+            
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("unifiedSearchDefinitions") && funcParams.ContainsKey("channel"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        UnifiedSearchDefinitions unifiedSearchDefinitions = funcParams["unifiedSearchDefinitions"] as UnifiedSearchDefinitions;
+                        GroupsCacheManager.Channel channel = funcParams["channel"] as GroupsCacheManager.Channel;
+
+                        if (groupId.HasValue && unifiedSearchDefinitions != null && channel != null)
+                        {
+                            cachedResult = ChannelUnifiedSearch(groupId.Value, unifiedSearchDefinitions, channel);
+
+                            if (cachedResult.status.Code == (int)eResponseStatus.OK)
+                            {
+                                result = true;
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Failed to get search results from ES, code = {0}, message = {1}", cachedResult.status.Code, cachedResult.status.Message);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetChannelUnifiedSearchResults failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<UnifiedSearchResponse, bool>(cachedResult, result);
+        }
+
+        private static string GetChannelSearchCacheKey(int groupId, string userId, int domainId, string udid, string ip, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions, List<string> personalData)
+        {
+            string key = null;
+            if (personalData != null && personalData.Count > 0)
+            {
+                StringBuilder cacheKey = new StringBuilder("channel");
+                cacheKey.AppendFormat("_gId={0}", groupId);
+                cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
+                cacheKey.AppendFormat("_order={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy, unifiedSearchDefinitions.order.m_eOrderDir);
+                if (unifiedSearchDefinitions.order.m_eOrderBy == OrderBy.META)
+                {
+                    cacheKey.AppendFormat("|{0}", unifiedSearchDefinitions.order.m_sOrderValue);
+                    // IRA: what else with ordering
+                }
+
+                if (!string.IsNullOrEmpty(udid))
+                {
+                    List<int> deviceRules = Api.api.GetDeviceAllowedRuleIDs(groupId, udid, domainId);
+                    if (deviceRules != null && deviceRules.Count > 0)
+                    {
+                        cacheKey.AppendFormat("_deviceRules={0}", string.Join("|", deviceRules.OrderBy(r => r)));
+                    }
+                }
+
+                if (personalData.Contains(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD))
+                {
+                    UserPurhcasedAssetsResponse purchasedAssets = ConditionalAccess.Module.GetUserPurchasedAssets(groupId, domainId, null);
+                    if (purchasedAssets.status.Code == (int)eResponseStatus.OK)
+                    {
+                        if (purchasedAssets.assets != null && purchasedAssets.assets.Count > 0)
+                        {
+                            return key;
+                        }
+                        else
+                        {
+                            UserBundlesResponse bundelsResponse = ConditionalAccess.Module.GetUserBundles(groupId, domainId, null);
+                            if (bundelsResponse.status.Code == (int)eResponseStatus.OK)
+                            {
+                                cacheKey.AppendFormat("_entitlements={0}", string.Join("|", bundelsResponse.channels.OrderBy(c => c)));
+                            }
+                        }
+                    }
+                }
+
+                if (personalData.Contains(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD))
+                {
+                    int countryId = Utils.GetIP2CountryId(groupId, ip);
+                    cacheKey.AppendFormat("_countryId={0}", countryId);
+                }
+
+                if (personalData.Contains(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD))
+                {
+                    Dictionary<long, eRuleLevel> ruleIds = null;
+
+                    string parentalRulesKey = LayeredCacheKeys.GetUserParentalRulesKey(groupId, userId);
+                    bool parentalRulesCacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(parentalRulesKey, ref ruleIds,
+                        APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } },
+                        groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId) });
+
+                    if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
+                    {
+                        cacheKey.AppendFormat("_parentalRules={0}", string.Join("|", ruleIds.Keys.OrderBy(r => r)));
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(ksql))
+                {
+                    string ksqlMd5 = null;
+                    try
+                    {
+                        ksqlMd5 = EncryptUtils.HashMD5(ksql);
+                    }
+                    catch(Exception ex)
+                    {
+                        log.Error("Failed to MD5 KSQL for personal ES cache", ex);
+                        return key;
+                    }
+                    cacheKey.AppendFormat("_ksql={0}", ksqlMd5);
+                }
+
+                key = cacheKey.ToString();
+            }
+
+            return key;
         }
 
         internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems,
@@ -6479,7 +6665,7 @@ namespace Core.Catalog
 
             if (request.m_oFilter != null)
             {
-                deviceRules = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                deviceRules = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
             }
 
             definitions.deviceRuleId = deviceRules;
@@ -6868,6 +7054,8 @@ namespace Core.Catalog
                         // geo_block is a personal filter that currently will work only with "true".
                         if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
                         {
+                            definitions.PersonalData.Add(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD);
+
                             if (geoBlockRules == null)
                             {
                                 geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
@@ -6901,6 +7089,8 @@ namespace Core.Catalog
                         {
                             if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
                             {
+                                definitions.PersonalData.Add(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD);
+
                                 if (shouldUseCache)
                                 {
                                     var parentalRulesTags = ParentalRulesTagsCache.Instance().GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid);
@@ -6998,6 +7188,7 @@ namespace Core.Catalog
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldSearchNotEntitled = true;
+                                    definitions.PersonalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             case ("free"):
@@ -7008,12 +7199,14 @@ namespace Core.Catalog
                             case ("entitled"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                    definitions.PersonalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             case ("both"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                    definitions.PersonalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             default:
@@ -7171,7 +7364,7 @@ namespace Core.Catalog
 
             if (request.m_oFilter != null)
             {
-                deviceRules = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                deviceRules = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
             }
 
             definitions.deviceRuleId = deviceRules;
@@ -7522,7 +7715,7 @@ namespace Core.Catalog
         {
             int[] nDeviceRuleId = null;
             if (request.m_oFilter != null)
-                nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                nDeviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
 
             return CatalogLogic.BuildBaseChannelSearchObject(channel, request,
                 request.order, groupId, channel.m_nGroupID == channel.m_nParentGroupID ? lPermittedWatchRules : null, nDeviceRuleId, languageObj);

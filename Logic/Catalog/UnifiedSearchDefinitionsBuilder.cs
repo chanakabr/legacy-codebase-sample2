@@ -75,7 +75,7 @@ namespace Core.Catalog
                     definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
                     if (!definitions.shouldIgnoreDeviceRuleID)
                     {
-                        definitions.deviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                        definitions.deviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
                     }
                 }
 

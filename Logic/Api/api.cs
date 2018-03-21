@@ -4734,7 +4734,7 @@ namespace Core.Api
                         status.Code = (int)eResponseStatus.OK;
                         status.Message = string.Empty;
 
-                        LayeredCache.Instance.SetInvalidationKey(GetUserParentalRuleInvalidationKey(siteGuid));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
                     }
                     else if (newId == -260)
                     {
@@ -4762,12 +4762,7 @@ namespace Core.Api
 
             return status;
         }
-
-        private static string GetUserParentalRuleInvalidationKey(string siteGuid)
-        {
-            return string.Format("user_parental_rules_{0}", siteGuid);
-        }
-
+        
         public static ApiObjects.Response.Status SetDomainParentalRules(int groupId, int domainId, long ruleId, int isActive)
         {
             Users.Domain domain;
@@ -4901,7 +4896,7 @@ namespace Core.Api
                             // if we updated a user only - set its key as invalid
                             if (!string.IsNullOrEmpty(siteGuid))
                             {
-                                LayeredCache.Instance.SetInvalidationKey(GetUserParentalRuleInvalidationKey(siteGuid));
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
                             }
                             // otherwise - set all of the domain's users keys as invalid
                             else
@@ -4948,7 +4943,7 @@ namespace Core.Api
                 // Set invalidation key for each of its users
                 foreach (var userId in domain.m_UsersIDs)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(GetUserParentalRuleInvalidationKey(userId.ToString()));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId.ToString()));
                 }
             }
         }
@@ -5346,7 +5341,7 @@ namespace Core.Api
                         if (!string.IsNullOrEmpty(siteGuid) && siteGuid != "0")
                         {
                             List<string> userParentalRulesInvalidationKeys = new List<string>();
-                            userParentalRulesInvalidationKeys.Add(GetUserParentalRuleInvalidationKey(siteGuid));
+                            userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
 
                             // user rules 
                             key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
@@ -5590,7 +5585,7 @@ namespace Core.Api
                     else if (epgRuleIds != null && epgRuleIds.Count > 0)
                     {
                         List<string> userParentalRulesInvalidationKeys = new List<string>();
-                        userParentalRulesInvalidationKeys.Add(GetUserParentalRuleInvalidationKey(siteGuid));
+                        userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
 
                         // user rules 
                         key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
@@ -6927,7 +6922,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine deleted");
-
+                    
                     string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
@@ -7025,7 +7020,7 @@ namespace Core.Api
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "recommendation engine failed set settings");
                         }
                     }
-
+                    
                     string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]{
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngine.ID)
@@ -7264,7 +7259,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine set changes");
-
+                    
                     string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
@@ -7329,7 +7324,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine configs delete");
-
+                    
                     string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
@@ -7583,7 +7578,7 @@ namespace Core.Api
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.ExternalChannelNotExist, EXTERNAL_CHANNEL_NOT_EXIST);
                 }
-
+                
                 string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                 {
@@ -7675,7 +7670,7 @@ namespace Core.Api
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "external channel failed set changes");
                 }
-
+                
                 string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                 {
@@ -8636,7 +8631,7 @@ namespace Core.Api
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                 }
-
+                
                 string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                     {
@@ -10396,5 +10391,89 @@ namespace Core.Api
             return new Tuple<List<long>, bool>(mediaIds.Distinct().ToList(), result);
         }
 
+        private static List<int> GetDeviceRulesByBrandId(int groupId, int brandId)
+        {
+            List<int> deviceRules = new List<int>();
+
+            string key = LayeredCacheKeys.GetDeviceRulesByBrandIdKey(groupId, brandId);
+            if (!LayeredCache.Instance.Get<List<int>>(key, ref deviceRules, GetDeviceRulesByBrandId, new Dictionary<string, object>() { { "groupId", groupId }, { "brandId", brandId } },
+                groupId, LayeredCacheConfigNames.GET_DEVICE_RULES_BY_BRAND_ID_CACHE_CONFIG_NAME, null))
+            {
+                log.ErrorFormat("Failed getting device rules by brand ID from LayeredCache, key: {0}", key);
+            }
+
+            return deviceRules;
+        }
+
+        private static Tuple<List<int>, bool> GetDeviceRulesByBrandId(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<int> ruleIds = new List<int>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("brandId"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        int? brandId = funcParams["brandId"] as int?;
+
+                        if (groupId.HasValue && brandId.HasValue)
+                        {
+                            ruleIds = ApiDAL.GetDeviceRulesByBrandId(groupId.Value, brandId.Value);
+                            result = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetDeviceRulesByBrandId failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), result);
+        }
+
+        public static int GetDeviceBrandId(int groupId, string udid, int domainId)
+        {
+            if (string.IsNullOrEmpty(udid))
+            {
+                return 22;
+            }
+
+            if (domainId > 0)
+            {
+                Users.DomainResponse domainResponse = Domains.Module.GetDomainInfo(groupId, domainId);
+                if (domainResponse.Status.Code == (int)eResponseStatus.OK)
+                {
+                    Users.Device device = null;
+                    foreach (var deviceFamily in domainResponse.Domain.m_deviceFamilies)
+                    {
+                        device = deviceFamily.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault();
+                        if (device != null)
+                        {
+                            return device.m_deviceBrandID;
+                        }
+                    }
+                }
+            }
+
+            return DomainDal.GetDeviceBrandIdByUdid(groupId, udid);
+        }
+
+        public static List<int> GetDeviceAllowedRuleIDs(int groupId, string udid, int domainId)
+        {
+            List<int> ruleIds = new List<int>();
+
+            int brandId = GetDeviceBrandId(groupId, udid, domainId);
+
+            if (brandId > 0)
+            {
+                ruleIds = GetDeviceRulesByBrandId(groupId, brandId);
+            }
+
+            return ruleIds;
+        }
     }
 }
