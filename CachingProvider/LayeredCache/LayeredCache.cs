@@ -340,6 +340,13 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+        public bool ShouldGoToCache(string layeredCacheConfigName, int groupId)
+        {
+            List<LayeredCacheConfig> layeredCacheConfig = null;
+
+            return ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig);
+        }
+
         #endregion
 
         #region Static Methods
@@ -1080,7 +1087,7 @@ namespace CachingProvider.LayeredCache
 
             return res;
         }
-
+        
         #endregion
 
         #endregion
