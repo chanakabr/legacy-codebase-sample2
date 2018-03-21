@@ -1,20 +1,21 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Social;
+using ConfigurationManager;
+using Core.Users;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Web.Script.Serialization;
-using System.Runtime.Serialization;
-using ApiObjects;
-using Core.Users;
-using ApiObjects.Social;
 
 namespace Core.Social
 {
     public static class FBUtils
     {
         internal static readonly int STATUS_OK = 200;
-        internal static readonly string FB_GRAPH_URI_PREFIX = Utils.GetValFromConfig("FB_GRAPH_URI");
-        internal static readonly string FB_GRAPH_URI_ME_PREFIX = string.Format("{0}/me", Utils.GetValFromConfig("FB_GRAPH_URI"));
+        internal static readonly string FB_GRAPH_URI_PREFIX = ApplicationConfiguration.FacebookConfiguration.GraphURI.Value;
+        internal static readonly string FB_GRAPH_URI_ME_PREFIX = string.Format("{0}/me", ApplicationConfiguration.FacebookConfiguration.GraphURI.Value);
 
         public static SocialActionResponseStatus DeleteUserActionOnObject(string sUserAccessToken, string sFBActionID)
         {

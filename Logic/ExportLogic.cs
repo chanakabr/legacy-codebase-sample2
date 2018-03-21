@@ -16,6 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using ApiObjects.Epg;
+using ConfigurationManager;
 
 namespace APILogic
 {
@@ -25,13 +26,13 @@ namespace APILogic
 
         private static object lockObject = new object();
 
-        private static string exportBasePath = TVinciShared.WS_Utils.GetTcmConfigValue("export.base_path");
-        private static string exportPathFormat = TVinciShared.WS_Utils.GetTcmConfigValue("export.path_format"); // {0}/{1}/{2}
-        private static string exportFileNameFormat = TVinciShared.WS_Utils.GetTcmConfigValue("export.file_name_format"); // {0}_{1}.xml
-        private static string exportFileNameDateFormat = TVinciShared.WS_Utils.GetTcmConfigValue("export.file_name_date_format"); // yyyyMMddHHmmss
-        private static int maxAssetsPerTask = TVinciShared.WS_Utils.GetTcmIntValue("export.max_assets_per_thread");
-        private static int maxTasks = TVinciShared.WS_Utils.GetTcmIntValue("export.max_threads");
-        private static int innerTaskRetriesLimit = TVinciShared.WS_Utils.GetTcmIntValue("export.thread_retry_limit");
+        private static string exportBasePath = ApplicationConfiguration.ExportConfiguration.BasePath.Value;
+        private static string exportPathFormat = ApplicationConfiguration.ExportConfiguration.PathFormat.Value; // {0}/{1}/{2}
+        private static string exportFileNameFormat = ApplicationConfiguration.ExportConfiguration.FileNameFormat.Value; // {0}_{1}.xml
+        private static string exportFileNameDateFormat = ApplicationConfiguration.ExportConfiguration.FileNameDateFormat.Value; // yyyyMMddHHmmss
+        private static int maxAssetsPerTask = ApplicationConfiguration.ExportConfiguration.MaxAssetsPerThread.IntValue;
+        private static int maxTasks = ApplicationConfiguration.ExportConfiguration.MaxThreads.IntValue;
+        private static int innerTaskRetriesLimit = ApplicationConfiguration.ExportConfiguration.ThreadRetryLimit.IntValue;
 
         private delegate bool DoTaskJob(int groupId, long taskId, List<long> ids, string exportFullPath, string mainLang, int firstTaskIndex, int numberOfTasks, int index, int retrisCount = 0);
 

@@ -10,6 +10,7 @@ using ApiObjects.Statistics;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
 using Catalog.Response;
+using ConfigurationManager;
 using Core.Catalog.Cache;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
@@ -67,15 +68,14 @@ namespace Core.Catalog
         internal const string STAT_ACTION_LIKE = "like";
         internal const string STAT_ACTION_RATES = "rates";
         internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
-        internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
-        private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
+        internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";        
         private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUnixTimestamp(new DateTime(1980, 1, 1, 0, 0, 0));
 
         protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
         protected static readonly string META_BOOL_SUFFIX = "_BOOL";
         protected static readonly string META_DATE_PREFIX = "date";
 
-        private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
+        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
 
         private const string NO_META_TO_UPDATE = "No meta update";
         private const string NAME_REQUIRED = "Name must have a value";
@@ -117,15 +117,6 @@ namespace Core.Catalog
         };
 
         private static int maxNGram = -1;
-
-        internal static int GetCurrentRequestDaysOffset()
-        {
-            int res = DEFAULT_CURRENT_REQUEST_DAYS_OFFSET;
-            string daysOffset = Utils.GetWSURL("CURRENT_REQUEST_DAYS_OFFSET");
-            if (daysOffset.Length > 0 && Int32.TryParse(daysOffset, out res) && res > 0)
-                return res;
-            return DEFAULT_CURRENT_REQUEST_DAYS_OFFSET;
-        }
 
         /*Get All Relevant Details About Media (by id) , 
          Use Stored Procedure */
@@ -738,7 +729,8 @@ namespace Core.Catalog
             try
             {
                 // use old/new image server
-                if (WS_Utils.IsGroupIDContainedInConfig(groupId, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                
+                if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                 {
                     if (dtPic != null && dtPic.Rows != null)
                     {
@@ -1266,7 +1258,7 @@ namespace Core.Catalog
             totalItems = 0;
 
             // Group have user types per media  +  siteGuid != empty
-            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
             {
                 if (request.m_oFilter == null)
                 {
@@ -1693,7 +1685,7 @@ namespace Core.Catalog
         {
             try
             {
-                return Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';');
+                return Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';');
             }
             catch (Exception ex)
             {
@@ -1706,7 +1698,7 @@ namespace Core.Catalog
         {
             try
             {
-                return Utils.IsGroupIDContainedInConfig(nGroupID, "GroupIDsWithIFPNPC", ';');
+                return Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupIDsWithIFPNPC.Value, ';');
             }
             catch (Exception ex)
             {
@@ -3752,7 +3744,7 @@ namespace Core.Catalog
                          *  Only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
                          */
 
-                        if (Utils.IsGroupIDContainedInConfig(nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+                        if (Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
                         {
                             #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
@@ -3892,7 +3884,7 @@ namespace Core.Catalog
                         else
                         {
                             // we bring data from ES statistics index only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
-                            if (Utils.IsGroupIDContainedInConfig(nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+                            if (Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
                             {
                                 #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
@@ -4008,7 +4000,7 @@ namespace Core.Catalog
 
             bool res = false;
             long lSiteGuid = 0;
-            if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, "GroupIDsWithIPNOFilteringSeperatedBySemiColon", ';'))
+            if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
             {
                 /*
                  * 1. We need to filter results by IPNO.
@@ -4022,7 +4014,7 @@ namespace Core.Catalog
                 if (!Int64.TryParse(oMediaRequest.m_sSiteGuid, out lSiteGuid) || lSiteGuid == 0)
                 {
                     // anonymous user
-                    if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, "GroupIDsWithIPNOFilteringShowAllCatalogAnonymousUser", ';'))
+                    if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIPNOFilteringShowAllCatalogAnonymousUser.Value, ';'))
                     {
                         //user is able to watch the entire catalog
                         res = false;
@@ -4137,9 +4129,9 @@ namespace Core.Catalog
 
         private static int GetSearcherMaxResultsSize()
         {
-            int res = 0;
-            string maxResultsStr = Utils.GetWSURL("MAX_RESULTS");
-            if (!string.IsNullOrEmpty(maxResultsStr) && Int32.TryParse(maxResultsStr, out res) && res > 0)
+            int res = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            
+            if ( res > 0)
                 return res;
             return DEFAULT_SEARCHER_MAX_RESULTS_SIZE;
         }
@@ -4578,7 +4570,7 @@ namespace Core.Catalog
         internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration, int groupId)
         {
-            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
+            if (!ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseHitCache.Value)
             {
                 countryID = Utils.GetIP2CountryId(groupId, userIP);
                 return CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
@@ -4586,7 +4578,7 @@ namespace Core.Catalog
 
             #region  try get values from catalog cache
 
-            double cacheTime = TVinciShared.WS_Utils.GetTcmDoubleValue("CATALOG_HIT_CACHE_TIME_IN_MINUTES");
+            double cacheTime = ApplicationConfiguration.CatalogLogicConfiguration.HitCacheTimeInMinutes.DoubleValue;
 
             if (cacheTime == 0)
             {
@@ -4738,7 +4730,7 @@ namespace Core.Catalog
             CatalogCache catalogCache = CatalogCache.Instance();
             string key = string.Format("Recording_{0}", domainRecordingId);
 
-            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
+            if (!ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseHitCache.Value)
             {
                 shouldGoToCas = true;
             }
@@ -5703,7 +5695,7 @@ namespace Core.Catalog
 
                 // Group have user types per media  +  siteGuid != empty
                 if (!string.IsNullOrEmpty(request.m_sSiteGuid) &&
-                    Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
+                    Utils.IsGroupIDContainedInConfig(request.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
                 {
                     if (request.m_oFilter == null)
                     {
@@ -6882,12 +6874,12 @@ namespace Core.Catalog
         public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
             Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping)
         {
-            bool shouldUseCache = WS_Utils.GetTcmBoolValue("Use_Search_Cache");
+            bool shouldUseCache = ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
 
             // initialize maximum nGram member only once - when this is negative it is still not set
             if (maxNGram < 0)
             {
-                maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
+                maxNGram = ApplicationConfiguration.ElasticSearchConfiguration.MaxNGram.IntValue;
             }
 
             List<int> geoBlockRules = null;
@@ -7682,7 +7674,7 @@ namespace Core.Catalog
             #endregion
 
             // Get days offset for EPG search from TCM
-            definitions.epgDaysOffest = CatalogLogic.GetCurrentRequestDaysOffset();
+            definitions.epgDaysOffest = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
 
             #region Regions and associations
 
@@ -7854,7 +7846,7 @@ namespace Core.Catalog
 
                 // insert all above  
                 int nCount = 0;
-                int nCountPackage = TVinciShared.WS_Utils.GetTcmIntValue("update_epg_package");
+                int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
                 if (nCountPackage == 0)
                     nCountPackage = 200;
                 List<long> epgIds = new List<long>();
@@ -8131,7 +8123,7 @@ namespace Core.Catalog
             {
                 CouchbaseManager.ViewStaleState staleState = CouchbaseManager.ViewStaleState.Ok;
 
-                string staleStateConfiguration = ODBCWrapper.Utils.GetTcmConfigValue("WatchHistory_StaleMode");
+                string staleStateConfiguration = ApplicationConfiguration.CatalogLogicConfiguration.WatchHistoryStaleMode.Value;
 
                 if (!string.IsNullOrEmpty(staleStateConfiguration))
                 {

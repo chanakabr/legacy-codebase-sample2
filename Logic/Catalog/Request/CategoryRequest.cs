@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Reflection;
-using System.Data;
-using Tvinci.Core.DAL;
+﻿using ConfigurationManager;
 using Core.Catalog.Response;
 using KLogMonitor;
-using TVinciShared;
+using System;
+using System.Collections.Generic;
+using System.Data;
 using System.IO;
-
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace Core.Catalog.Request
 {
@@ -85,7 +85,7 @@ namespace Core.Catalog.Request
                     Dictionary<long, List<Picture>> dChanPics = new Dictionary<long, List<Picture>>();
 
                     // use old/new image server
-                    if (WS_Utils.IsGroupIDContainedInConfig(m_nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                    if (WS_Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                     {
 
                         // Make category-pictures dictionary
@@ -160,7 +160,7 @@ namespace Core.Catalog.Request
 
                     // use old/new image server
                     Dictionary<int, List<Picture>> dCatPics = new Dictionary<int, List<Picture>>();
-                    if (WS_Utils.IsGroupIDContainedInConfig(m_nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                    if (WS_Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
                     {
 
                         // Make category-pictures dictionary

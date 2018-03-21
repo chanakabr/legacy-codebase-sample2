@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-using ApiObjects;
-using KLogMonitor;
-using System.Reflection;
+﻿using ApiObjects;
 using ApiObjects.Pricing;
-using System.Data;
-using System.Xml;
-using DAL;
 using ApiObjects.Response;
+using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Xml;
 
 namespace Core.Pricing
 {
@@ -19,11 +17,6 @@ namespace Core.Pricing
         private static string PRICING_CONNECTION = "PRICING_CONNECTION";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public static string GetValFromConfig(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
 
         public static TimeSpan GetEndDateTimeSpan(Int32 nVal)
         {

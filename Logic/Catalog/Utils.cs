@@ -1,30 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TVinciShared;
-using System.Reflection;
-using System.Configuration;
-using System.Security.Cryptography;
-using System.Data;
-using System.Security.AccessControl;
-using System.Security.Principal;
+﻿using ApiObjects;
+using ApiObjects.Response;
 using ApiObjects.SearchObjects;
-using Tvinci.Core.DAL;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
+using ConfigurationManager;
+using Core.Catalog.Request;
 using DAL;
 using ElasticSearch.Searcher;
-using Core.Catalog.Cache;
 using GroupsCacheManager;
-using ApiObjects;
-using Core.Catalog.Request;
 using KLogMonitor;
 using KlogMonitorHelper;
-using ApiObjects.Response;
-using Catalog.Response;
-using Core.Catalog.Response;
-using ElasticSearch.Common;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
+using Tvinci.Core.DAL;
 
 namespace Core.Catalog
 {
@@ -34,17 +26,11 @@ namespace Core.Catalog
 
         public const int DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC = 500; // half a second
 
-        public static string GetWSURL(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
-
         public static string GetSignature(string sSigningString, Int32 nGroupID)
         {
             string retVal;
 
-            string hmacSecret = GetWSURL("CatalogSignatureKey");
+            string hmacSecret = ApplicationConfiguration.CatalogSignatureKey.Value;
 
             System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
 
@@ -376,10 +362,9 @@ namespace Core.Catalog
 
         }
 
-        public static bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
+        public static bool IsGroupIDContainedInConfig(long lGroupID, string rawStrFromConfig, char cSeperator)
         {
             bool res = false;
-            string rawStrFromConfig = GetWSURL(sKey);
             if (rawStrFromConfig.Length > 0)
             {
                 string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);
@@ -442,7 +427,8 @@ namespace Core.Catalog
             ESRange dateRange = new ESRange(false) { Key = "action_date" };
             string sMax = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
 
-            double csts = GetDoubleValFromConfig("CrowdSourceTimeSpan");
+            double csts = ApplicationConfiguration.CrowdSourceTimeSpan.DoubleValue;
+
             if (csts == 0)
                 csts = 30.0;
 
@@ -750,17 +736,7 @@ namespace Core.Catalog
                 return null;
             }
         }
-
-        public static double GetDoubleValFromConfig(string sKey)
-        {
-            double nRes = 0;
-            if (TVinciShared.WS_Utils.GetTcmConfigValue(sKey) != string.Empty)
-            {
-                double.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(sKey), out nRes);
-            }
-            return nRes;
-        }
-
+        
         public static List<T> ListPaging<T>(List<T> list, int nPageSize, int nPageIndex)
         {
             List<T> result = new List<T>();
@@ -797,15 +773,6 @@ namespace Core.Catalog
                 log.Error("Exception - " + string.Format("Failed to obtain user type. Site Guid: {0} , Ex Msg: {1} , Stack Trace: {2}", sSiteGuid, ex.Message, ex.StackTrace), ex);
                 return 0;
             }
-        }
-
-        public static int GetCatalogLogThreshold()
-        {
-            int res = 0;
-            string configOverride = GetWSURL("LOG_THRESHOLD");
-            if (!string.IsNullOrEmpty(configOverride) && Int32.TryParse(configOverride, out res) && res > 0)
-                return res;
-            return DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC;
         }
 
         public static void BuildMediaFromDataSet(ref Dictionary<int, Dictionary<int, Media>> mediaTranslations,

@@ -3,6 +3,7 @@ using ApiObjects.DRM;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Users.Cache;
 using DAL;
 using KLogMonitor;
@@ -959,11 +960,11 @@ namespace Core.Users
             }
 
             // if user was added successfully as master - set user role to be master
-            long roleId;
+            long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
 
             if (eDomainResponseStatus == DomainResponseStatus.OK && DAL.UsersDal.IsUserDomainMaster(nGroupID, nUserID))
             {
-                if (long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId) && DAL.UsersDal.Insert_UserRole(nGroupID, nUserID.ToString(), roleId, true) > 0)
+                if (roleId > 0 && DAL.UsersDal.Insert_UserRole(nGroupID, nUserID.ToString(), roleId, true) > 0)
                 {
                     // add invalidation key for user roles cache
                     string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nUserID.ToString());

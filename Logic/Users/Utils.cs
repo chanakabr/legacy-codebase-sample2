@@ -1,29 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-using System.Data;
-using DAL;
-using ApiObjects;
-
-using System.Reflection;
-
-using System.Security.Principal;
-using System.Security.AccessControl;
-using KLogMonitor;
-using ApiObjects.Response;
-using QueueWrapper.Queues.QueueObjects;
-using TVinciShared;
-using System.Xml;
-using System.IO;
-using System.Net;
-using ApiObjects.Notification;
-using System.Threading.Tasks;
-using System.Web;
-using System.ServiceModel;
-using Core.Users.Cache;
+﻿using ApiObjects;
 using ApiObjects.DRM;
+using ApiObjects.Response;
+using ConfigurationManager;
+using Core.Users.Cache;
+using DAL;
+using KLogMonitor;
+using QueueWrapper.Queues.QueueObjects;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Security.AccessControl;
+using System.Security.Principal;
+using System.Text;
+using TVinciShared;
 
 namespace Core.Users
 {
@@ -140,11 +131,11 @@ namespace Core.Users
             {
                 string moduleName = TvinciCache.ModulesImplementation.GetModuleName(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, USERS_CONNECTION, operatorId);
 
-                if (String.IsNullOrEmpty(moduleName) || IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+                if (String.IsNullOrEmpty(moduleName) || IsGroupIDContainedInConfig(nGroupID))
                     user = new KalturaUsers(nGroupID);
                 else
                 {
-                    string usersAssemblyLocation = GetTcmConfigValue("USERS_ASSEMBLY_LOCATION");
+                    string usersAssemblyLocation = ApplicationConfiguration.UsersAssemblyLocation.Value;
 
                     try
                     {
@@ -220,11 +211,6 @@ namespace Core.Users
 
         }
 
-        static public string GetTcmConfigValue(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
         static public void GetBaseImpl(ref BaseDomain t, Int32 nGroupID)
         {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains, USERS_CONNECTION);
@@ -273,7 +259,7 @@ namespace Core.Users
             string key = "users_GetCountryList";
             List<int> lCountryIDs;
             List<Country> lCountry;
-            bool bRes = UsersCache.GetItem<List<Country>>(key, out  lCountry);
+            bool bRes = UsersCache.GetItem<List<Country>>(key, out lCountry);
             if (!bRes)
             {
                 Country oCountry;
@@ -562,13 +548,13 @@ namespace Core.Users
         }
 
 
-        static public bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
+        static public bool IsGroupIDContainedInConfig(long lGroupID)
         {
             bool res = false;
-            string rawStrFromConfig = GetTcmConfigValue(sKey);
+            string rawStrFromConfig = ApplicationConfiguration.ExcludePsDllImplementation.Value;
             if (rawStrFromConfig.Length > 0)
             {
-                string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);
+                string[] strArrOfIDs = rawStrFromConfig.Split(';');
                 if (strArrOfIDs != null && strArrOfIDs.Length > 0)
                 {
                     List<long> listOfIDs = strArrOfIDs.Select(s =>
@@ -802,7 +788,7 @@ namespace Core.Users
                     if (externalCode > 0 && !string.IsNullOrEmpty(externalMessage))
                     {
                         result.Code = (int)eResponseStatus.UserExternalError;
-                        result.Message = "User External Error";                        
+                        result.Message = "User External Error";
                     }
                     else
                     {
@@ -1095,34 +1081,7 @@ namespace Core.Users
 
             return res;
         }
-
-        //public static void AddInitiateNotificationAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
-        //{
-        //    string response = string.Empty;
-        //    string wsUsername = string.Empty;
-        //    string wsPassword = string.Empty;
-        //    GetWSCredentials(groupId, eWSModules.NOTIFICATIONS, ref wsUsername, ref wsPassword);
-        //    string Address = Utils.GetTcmConfigValue("NotificationService");
-        //    string SoapAction = "http://tempuri.org/INotificationService/InitiateNotificationAction";
-        //    if (string.IsNullOrEmpty(Address) || string.IsNullOrEmpty(wsUsername) || string.IsNullOrEmpty(wsPassword))
-        //    {
-        //        log.DebugFormat("address or wsUsername or wsPassword is empty. Address: {0} , wsUsername: {1}, wsPassword: {2}", Address, wsUsername, wsPassword);
-        //        return;
-        //    }
-        //    try
-        //    {
-        //        string RequestData = CreateInitiazeNotificationACtionSoapRequest(wsUsername, wsPassword, userAction, userId, udid, pushToken);
-        //        string ErrorMsg = string.Empty;
-        //        Task.Run(() => TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(Address, RequestData, new Dictionary<string, string>() { { "SOAPAction", SoapAction } }));
-        //    }
-
-        //    catch (Exception ex)
-        //    {
-        //        log.ErrorFormat("Error while inserting to notification. groupId: {0}, userAction: {1}, userId: {2}, udid: {3}, pushToken: {4}, Exception: {5}",
-        //                            groupId, userAction, userId, udid, pushToken, ex.Message);
-        //    }
-        //}
-
+        
         private static string CreateInitiazeNotificationACtionSoapRequest(string wsUserName, string wsPassword, eUserMessageAction action, int userId, string udid, string pushToken)
         {
             string request = string.Empty;
@@ -1247,7 +1206,7 @@ namespace Core.Users
 
         private static Dictionary<int, string> BuildDomainDrmId(int groupId, int domainId)
         {
-            Dictionary<int, string> domainDrmId = new Dictionary<int,string>();
+            Dictionary<int, string> domainDrmId = new Dictionary<int, string>();
             // get data from db and insert it to CB
             // get all devices per domain
             DataTable dt = DomainDal.Get_DomainDevices(groupId, domainId);
@@ -1316,7 +1275,7 @@ namespace Core.Users
             {
                 response = drm.Value;
             }
-           
+
             return response;
         }
 

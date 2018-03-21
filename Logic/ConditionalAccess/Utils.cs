@@ -36,6 +36,7 @@ using Core.ConditionalAccess.Modules;
 using APILogic.ConditionalAccess.Modules;
 using QueueWrapper;
 using ApiObjects.Roles;
+using ConfigurationManager;
 
 namespace Core.ConditionalAccess
 {
@@ -261,16 +262,6 @@ namespace Core.ConditionalAccess
                 }
             }
             return discRetPrice;
-        }
-
-        static public string GetWSURL(string sKey)
-        {
-            return GetValueFromConfig(sKey);
-        }
-
-        static public string GetValueFromConfig(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
         static public Int32 GetCustomData(string sCustomData)
@@ -701,7 +692,7 @@ namespace Core.ConditionalAccess
         internal static void FillCatalogSignature(BaseRequest request)
         {
             request.m_sSignString = Guid.NewGuid().ToString();
-            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, GetWSURL("CatalogSignatureKey"));
+            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, ApplicationConfiguration.CatalogSignatureKey.Value);
         }
 
         private static BundlesContainingMediaRequest InitializeCatalogRequest(int nGroupID, int nMediaID,
@@ -3127,78 +3118,6 @@ namespace Core.ConditionalAccess
             return streamType;
         }
 
-        internal static string GetStreamTypeAndFormatLink(eStreamType streamType, eEPGFormatType format)
-        {
-            string url = string.Empty;
-            string urlConfig = string.Empty;
-            switch (format)
-            {
-                case eEPGFormatType.Catchup:
-                    {
-                        switch (streamType)
-                        {
-                            case eStreamType.HLS:
-                                urlConfig = "hls_catchup";
-                                break;
-                            case eStreamType.SS:
-                                urlConfig = "smooth_catchup";
-                                break;
-                            case eStreamType.DASH:
-                                urlConfig = "dash_catchup";
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    break;
-
-                case eEPGFormatType.StartOver:
-                    {
-                        switch (streamType)
-                        {
-                            case eStreamType.HLS:
-                                urlConfig = "hls_start_over";
-                                break;
-                            case eStreamType.SS:
-                                urlConfig = "smooth_start_over";
-                                break;
-                            case eStreamType.DASH:
-                                urlConfig = "dash_start_over";
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    break;
-
-                case eEPGFormatType.LivePause:
-                    {
-                        switch (streamType)
-                        {
-                            case eStreamType.HLS:
-                                urlConfig = "hls_start_over";
-                                break;
-                            case eStreamType.SS:
-                                urlConfig = "smooth_start_over";
-                                break;
-                            case eStreamType.DASH:
-                                urlConfig = "dash_start_over";
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-
-            if (!string.IsNullOrEmpty(urlConfig))
-                url = Utils.GetValueFromConfig(urlConfig);
-
-            return url;
-        }
 
 
         /*
@@ -3243,8 +3162,8 @@ namespace Core.ConditionalAccess
             {
                 string sKeyOfMinPrice = String.Concat("PreviewModuleMinPrice", nGroupID);
                 double dMinPriceForPreviewModule = DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE;
-                if (GetValueFromConfig(sKeyOfMinPrice) != string.Empty)
-                    double.TryParse(GetValueFromConfig(sKeyOfMinPrice), out dMinPriceForPreviewModule);
+                if (TVinciShared.WS_Utils.GetTcmConfigValue(sKeyOfMinPrice) != string.Empty)
+                    double.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue(sKeyOfMinPrice), out dMinPriceForPreviewModule);
                 p.m_dPrice = dMinPriceForPreviewModule;
                 theReason = PriceReason.EntitledToPreviewModule;
             }
@@ -5888,7 +5807,7 @@ namespace Core.ConditionalAccess
                     ShouldUseSearchEndDate = true
                 };
                 FillCatalogSignature(request);
-                string catalogUrl = GetWSURL("WS_Catalog");
+                string catalogUrl = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
                 if (string.IsNullOrEmpty(catalogUrl))
                 {
                     log.Error("Catalog Url is null or empty");
@@ -6702,12 +6621,12 @@ namespace Core.ConditionalAccess
 
         internal static bool InsertOrSetCachedEntitlementResults(long domainId, int mediaFileId, CachedEntitlementResults cachedEntitlementResults)
         {
-            return ConditionalAccessDAL.InsertOrSetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId, cachedEntitlementResults);
+            return ConditionalAccessDAL.InsertOrSetCachedEntitlementResults(ApplicationConfiguration.Version.Value, domainId, mediaFileId, cachedEntitlementResults);
         }
 
         internal static CachedEntitlementResults GetCachedEntitlementResults(long domainId, int mediaFileId)
         {
-            return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
+            return ConditionalAccessDAL.GetCachedEntitlementResults(ApplicationConfiguration.Version.Value, domainId, mediaFileId);
         }
 
         internal static ApiObjects.Response.Status SetResponseStatus(PriceReason priceReason)
@@ -7698,7 +7617,7 @@ namespace Core.ConditionalAccess
             TimeSpan ts = new TimeSpan(2, 0, 0, 0);
 
             // Get the group's configuration for free view life cycle
-            string sFreeLeftView = Utils.GetValueFromConfig(string.Format("free_left_view_{0}", groupId));
+            string sFreeLeftView = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("free_left_view_{0}", groupId));
 
             if (!string.IsNullOrEmpty(sFreeLeftView))
             {
@@ -7792,10 +7711,9 @@ namespace Core.ConditionalAccess
             return retVal;
         }
 
-        internal static bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
+        internal static bool IsGroupIDContainedInConfig(long lGroupID, string rawStrFromConfig, char cSeperator)
         {
             bool res = false;
-            string rawStrFromConfig = GetWSURL(sKey);
             if (rawStrFromConfig.Length > 0)
             {
                 string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);

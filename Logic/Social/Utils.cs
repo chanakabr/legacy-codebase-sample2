@@ -1,35 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.ServiceModel.Channels;
-using System.ServiceModel;
-using System.Data;
+﻿using ApiObjects;
+using ApiObjects.Billing;
+using ApiObjects.Statistics;
+using ConfigurationManager;
 using Core.Users;
 using KLogMonitor;
-using System.Reflection;
-using ApiObjects;
-using System.Net;
-using System.IO;
-using System.Security.Cryptography;
-using System.Web.Script.Serialization;
-using Core.Billing;
-using ApiObjects.Statistics;
 using Newtonsoft.Json.Linq;
-using ApiObjects.Billing;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.Text;
+using System.Web.Script.Serialization;
 
 namespace Core.Social
 {
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        static public string GetValFromConfig(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
-        }
-
+      
         static public Int32 GetGroupID(string sWSUserName, string sWSPassword)
         {
             ApiObjects.Credentials wsc = new ApiObjects.Credentials(sWSUserName, sWSPassword);
@@ -657,8 +652,8 @@ namespace Core.Social
                 using (AesManaged aes = new AesManaged())
                 {
 
-                    string Key = Utils.GetValFromConfig("SecureSiteGuidKey");
-                    string IV = Utils.GetValFromConfig("SecureSiteGuidIV");
+                    string Key = ApplicationConfiguration.FacebookConfiguration.SecureSiteGuidKey.Value;
+                    string IV = ApplicationConfiguration.FacebookConfiguration.SecureSiteGuidIV.Value;
 
                     aes.Key = Convert.FromBase64String(Key);
                     aes.IV = Convert.FromBase64String(IV);
@@ -777,11 +772,6 @@ namespace Core.Social
             }
 
             return lActions.ToString();
-        }
-
-        public static string GetWSURL(string sKey)
-        {
-            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
         //Some headers must be modified via the property and cannot be changed by modifing the req.Headers obj

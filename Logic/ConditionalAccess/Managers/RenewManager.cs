@@ -7,6 +7,7 @@ using ApiObjects.ConditionalAccess;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.ConditionalAccess.Modules;
 using Core.Pricing;
 using Core.Users;
@@ -1412,8 +1413,9 @@ namespace Core.ConditionalAccess
                         case eTransactionState.Pending:
                         case eTransactionState.Failed:
                             {
-                                // get tcm value 
-                                int PendingThresholdDays = TCMClient.Settings.Instance.GetValue<int>("pending_threshold_days");
+                                // get configuration value 
+                                int PendingThresholdDays = ApplicationConfiguration.PendingThresholdDays.IntValue;
+
                                 if (PendingThresholdDays == 0)
                                 {
                                     PendingThresholdDays = PENDING_THRESHOLD_DAYS;
@@ -2193,6 +2195,8 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
+            renewalResponse.EntitlementRenewal.Price.m_oCurrency.m_sCurrencySign = string.Empty;
+
             success = renewalResponse.EntitlementRenewal.Notify();
             
             return success;
@@ -2245,7 +2249,9 @@ namespace Core.ConditionalAccess
                 log.ErrorFormat("Error when getting entitlement renewal data for processId {0}", processId);
                 return true;
             }
-            
+
+            unifiedPaymentResponse.UnifiedPaymentRenewal.Price.m_oCurrency.m_sCurrencySign = string.Empty;
+
             success = unifiedPaymentResponse.UnifiedPaymentRenewal.Notify();
 
             return success;

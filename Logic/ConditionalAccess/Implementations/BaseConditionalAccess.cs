@@ -13,6 +13,7 @@ using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Catalog.Response;
 using Core.ConditionalAccess.Modules;
 using Core.ConditionalAccess.Response;
@@ -8828,7 +8829,7 @@ namespace Core.ConditionalAccess
             TimeSpan ts = new TimeSpan(2, 0, 0, 0);
 
             // Get the group's configuration for free view life cycle
-            string sFreeLeftView = Utils.GetValueFromConfig(string.Format("free_left_view_{0}", m_nGroupID));
+            string sFreeLeftView = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("free_left_view_{0}", m_nGroupID));
 
             if (!string.IsNullOrEmpty(sFreeLeftView))
             {
@@ -9498,7 +9499,7 @@ namespace Core.ConditionalAccess
             string sKeyOfMinPrice = String.Concat("PreviewModuleMinPrice", m_nGroupID);
             double dMinPriceForPreviewModule = Utils.DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE;
 
-            string sValInConfig = Utils.GetValueFromConfig(sKeyOfMinPrice);
+            string sValInConfig = TVinciShared.WS_Utils.GetTcmConfigValue(sKeyOfMinPrice);
             if (sValInConfig.Length > 0 && double.TryParse(sValInConfig, out dMinPriceForPreviewModule))
                 return dMinPriceForPreviewModule == 0d;
             return false;
@@ -10237,13 +10238,13 @@ namespace Core.ConditionalAccess
 
             try
             {
-                string task = Utils.GetValueFromConfig("ProfessionalServices.task");
+                string task = ApplicationConfiguration.RabbitConfiguration.ProfessionalServices.Task.Value;
 
                 PSNotificationData oNotification = new PSNotificationData(task, m_nGroupID, dataDictionary, action);
 
                 PSNotificationsQueue qNotificationQueue = new PSNotificationsQueue();
 
-                string routingKey = Utils.GetValueFromConfig("ProfessionalServices.routingKey");
+                string routingKey = ApplicationConfiguration.RabbitConfiguration.ProfessionalServices.RoutingKey.Value;
 
                 if (string.IsNullOrEmpty(routingKey))
                 {
@@ -10625,8 +10626,8 @@ namespace Core.ConditionalAccess
                         PlayUsesManager.HandlePlayUses(this, prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, domainID, m_nGroupID);
                     }
                     // item must be free otherwise we wouldn't get this far
-                    else if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache")
-                            && !Utils.InsertOrSetCachedEntitlementResults(domainID, nMediaFileID, new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false, eTransactionType.PPV)))
+                    else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && 
+                        !Utils.InsertOrSetCachedEntitlementResults(domainID, nMediaFileID, new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false, eTransactionType.PPV)))
                     // transaction type doesn't matter when item is free so just pass PPV
                     {
                         log.DebugFormat("Failed to insert cachedEntitlementResults, domainId: {0}, mediaFileId: {1}", domainID, nMediaFileID);
@@ -10763,7 +10764,7 @@ namespace Core.ConditionalAccess
             }
 
             /************* For versions (Joker and before) that want to use DB for getting view stats (first_play), we have to insert the playCycleKey **********/
-            if (Utils.IsGroupIDContainedInConfig(m_nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+            if (Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
             {
                 int nCountryID = Utils.GetIP2CountryId(m_nGroupID, sUserIP);
                 Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sDeviceName, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
@@ -13054,7 +13055,7 @@ namespace Core.ConditionalAccess
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                 }
 
-                string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version, adapterId)
@@ -13124,7 +13125,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove adapter from cache
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
@@ -13181,7 +13182,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove adapter from cache
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version,adapterId)
@@ -13986,7 +13987,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove adapter from cache
-                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
@@ -14483,7 +14484,8 @@ namespace Core.ConditionalAccess
                     List<long> deletedRecordingIds = new List<long>();
                     int adapterId = 0;
                     // set max amount of concurrent tasks
-                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                    int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                        
                     if (maxDegreeOfParallelism == 0)
                     {
                         maxDegreeOfParallelism = 5;
@@ -14962,7 +14964,7 @@ namespace Core.ConditionalAccess
                     DataTable modifiedDomainRecordings = RecordingsDAL.UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value, maxDomainRecordingId);
 
                     // set max amount of concurrent tasks
-                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                    int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
                     if (maxDegreeOfParallelism == 0)
                     {
                         maxDegreeOfParallelism = 5;
@@ -15256,7 +15258,7 @@ namespace Core.ConditionalAccess
                         List<TstvRecordingStatus> validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recorded };
 
                         // set max amount of concurrent tasks
-                        int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                        int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
                         if (maxDegreeOfParallelism == 0)
                         {
                             maxDegreeOfParallelism = 5;
@@ -15559,7 +15561,7 @@ namespace Core.ConditionalAccess
                     if (domainFutureSingleRecordings != null)
                     {
                         // set max amount of concurrent tasks
-                        int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                        int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
                         if (maxDegreeOfParallelism == 0)
                         {
                             maxDegreeOfParallelism = 5;
@@ -15687,7 +15689,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // set max amount of concurrent tasks
-                int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
                 if (maxDegreeOfParallelism == 0)
                 {
                     maxDegreeOfParallelism = 5;
@@ -15823,7 +15825,7 @@ namespace Core.ConditionalAccess
                                 {
                                     //cancel all of those + the record with the epgid we got before 
                                     // set max amount of concurrent tasks
-                                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                                    int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
                                     if (maxDegreeOfParallelism == 0)
                                     {
                                         maxDegreeOfParallelism = 5;

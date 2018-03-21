@@ -838,6 +838,10 @@
       <Project>{a35bd0d3-3055-4206-8b3f-80079f9eca15}</Project>
       <Name>Uploader</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
+      <Name>ConfigurationManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
-using System.Reflection;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.SearchObjects;
-using System.Diagnostics;
-using EpgBL;
+using ConfigurationManager;
 using Core.Catalog.Response;
 using KLogMonitor;
-using Core.Catalog.Cache;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text;
 
 namespace Core.Catalog.Request
 {
@@ -19,7 +17,7 @@ namespace Core.Catalog.Request
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        protected static readonly int CURRENT_REQUEST_DAYS_OFFSET = CatalogLogic.GetCurrentRequestDaysOffset();
+        protected static readonly int CURRENT_REQUEST_DAYS_OFFSET = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
 
         [DataMember]
         public List<int> m_nChannelIDs;

@@ -12,6 +12,7 @@ using ApiObjects.Response;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects;
+using ConfigurationManager;
 
 namespace Core.Catalog
 {
@@ -31,7 +32,7 @@ namespace Core.Catalog
 
         public UnifiedSearchDefinitionsBuilder()
         {
-            shouldUseCache = WS_Utils.GetTcmBoolValue("Use_Search_Cache");
+            shouldUseCache = ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
         }
 
         #endregion
@@ -63,7 +64,7 @@ namespace Core.Catalog
                 }
 
                 // Get days offset for EPG search from TCM
-                definitions.epgDaysOffest = CatalogLogic.GetCurrentRequestDaysOffset();
+                definitions.epgDaysOffest = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
 
                 #region Filter & Order
 

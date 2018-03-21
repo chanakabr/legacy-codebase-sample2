@@ -1,16 +1,14 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Social;
+using ConfigurationManager;
 using Core.Social.Requests;
 using Core.Social.Responses;
 using Core.Users;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace Core.Social
@@ -105,7 +103,7 @@ namespace Core.Social
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = nSiteGUID;
 
-            string sFbListName = TVinciShared.WS_Utils.GetTcmConfigValue("FB_LIST_NAME");
+            string sFbListName = ApplicationConfiguration.FacebookConfiguration.ListName.Value;
             FacebookWrapper oFBWrapper = new FacebookWrapper(nGroupID);
             return oFBWrapper.GetFBAvailablePrivacyGroups(nSiteGUID.ToString(), nGroupID, sFbListName);
         }
@@ -227,7 +225,7 @@ namespace Core.Social
         {
             FacebookConfigResponse response = new FacebookConfigResponse();
 
-            string str = TVinciShared.WS_Utils.GetTcmConfigValue("CONNECTION_STRING");
+            string str = ApplicationConfiguration.DatabaseConfiguration.ConnectionString.Value;
             FacebookWrapper oFBWRapper = new FacebookWrapper(nGroupID);
             response.FacebookConfig = oFBWRapper.FBConfig;
             if (response.FacebookConfig != null)

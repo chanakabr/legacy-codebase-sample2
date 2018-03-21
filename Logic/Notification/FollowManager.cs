@@ -20,6 +20,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using ConfigurationManager;
 
 namespace Core.Notification
 {
@@ -32,9 +33,8 @@ namespace Core.Notification
         private const string DATETIME_FORMAT_IS_INVALID = "Date time format is invalid";
         private const string FOLLOW_TEMPLATE_NOT_FOUND = "Message template not found";
         private static string CatalogSignString = Guid.NewGuid().ToString();
-        private static string CatalogSignatureKey = ODBCWrapper.Utils.GetTcmConfigValue("CatalogSignatureKey");
-
-
+        private static string CatalogSignatureKey = ApplicationConfiguration.CatalogSignatureKey.Value;
+        
         /// <summary>
         /// Add/Update group's Message template
         /// </summary>
@@ -1179,12 +1179,11 @@ namespace Core.Notification
         }
         private static long GetPersonalizedFeedTtlDaysInSec()
         {
-            int personalizedFeedTtlDay = 0;
-            string res = TVinciShared.WS_Utils.GetTcmConfigValue("PersonalizedFeedTTLDays");
+            int personalizedFeedTtlDay = ApplicationConfiguration.PersonalizedFeedTTLDays.IntValue;
 
-            if (!int.TryParse(res, out personalizedFeedTtlDay) || personalizedFeedTtlDay == 0)
+            if (personalizedFeedTtlDay <= 0)
             {
-                throw new Exception("TCM value [PersonalizedFeedTTLDays] wasn't found");
+                throw new Exception("TCM value [PersonalizedFeedTTLDays] isn't valid");
             }
 
             return TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow.AddDays(-personalizedFeedTtlDay));

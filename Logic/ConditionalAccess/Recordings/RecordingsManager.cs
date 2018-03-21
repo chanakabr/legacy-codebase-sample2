@@ -17,6 +17,7 @@ using Synchronizer;
 using KlogMonitorHelper;
 using ApiObjects.QueueObjects;
 using Core.ConditionalAccess;
+using ConfigurationManager;
 
 namespace Core.Recordings
 {
@@ -77,8 +78,8 @@ namespace Core.Recordings
 
         static RecordingsManager()
         {
-            int retryInterval = TVinciShared.WS_Utils.GetTcmIntValue("CDVRAdapterRetryInterval");
-            int maximumRetries = TVinciShared.WS_Utils.GetTcmIntValue("CDVRAdapterMaximumRetriesAllowed");
+            int retryInterval = ApplicationConfiguration.CDVRAdapterConfiguration.RetryInterval.IntValue;
+            int maximumRetries = ApplicationConfiguration.CDVRAdapterConfiguration.MaximumRetriesAllowed.IntValue;
 
             if (retryInterval != 0)
             {
