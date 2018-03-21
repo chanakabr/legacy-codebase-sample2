@@ -146,6 +146,8 @@ namespace Core.Catalog.CatalogManagement
                 if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName))
                 {
                     bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
+                    string associationTag = ODBCWrapper.Utils.GetSafeStr(dr, "ASSOCIATION_TAG");
+                    long parentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TYPE_ID");
                     DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
                     DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
                     List<LanguageContainer> namesInOtherLanguages = new List<LanguageContainer>();
@@ -161,8 +163,9 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
                     }
-                    result = new AssetStruct(id, name, namesInOtherLanguages, systemName, isPredefined, createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
-                                             updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0);
+                    result = new AssetStruct(id, name, namesInOtherLanguages, systemName, isPredefined, associationTag, parentId, 
+                                                createDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(createDate.Value) : 0,
+                                                updateDate.HasValue ? ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(updateDate.Value) : 0);
                 }
             }
 

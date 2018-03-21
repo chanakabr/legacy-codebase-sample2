@@ -1719,31 +1719,46 @@ namespace Core.Catalog
             parentMediaTypes = new Dictionary<int, int>();
             associationTags = new Dictionary<int, string>();
 
-            if (groupManager == null)
+            if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
             {
-                groupManager = new GroupManager();
-            }
-
-            if (relevantMediaTypes == null)
-            {
-                relevantMediaTypes = new List<int>();
-                shouldGetAllMediaTypes = true;
-            }
-
-            // Get media types of the group
-            List<GroupsCacheManager.MediaType> groupMediaTypes = groupManager.GetMediaTypesOfGroup(groupId);
-
-            foreach (var mediaType in groupMediaTypes)
-            {
-                // Validate that this media type is defined for parent/association tag
-                if (mediaType.parentId > 0 && !string.IsNullOrEmpty(mediaType.associationTag))
+                CatalogManagement.CatalogGroupCache catalogGroupCache;
+                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
-                    // If this is relevant for the search at all
-                    if (relevantMediaTypes.Contains(mediaType.parentId) ||
-                        (relevantMediaTypes.Count == 0 && shouldGetAllMediaTypes))
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetParentMediaTypesAssociations", groupId);
+                    return;
+                }
+
+                parentMediaTypes = catalogGroupCache.AssetStructsMapById.ToDictionary(x => (int)x.Key, x => (int)x.Value.ParentId);
+                associationTags = catalogGroupCache.AssetStructsMapById.ToDictionary(x => (int)x.Key, x => x.Value.AssociationTag);
+            }
+            else
+            {
+                if (groupManager == null)
+                {
+                    groupManager = new GroupManager();
+                }
+
+                if (relevantMediaTypes == null)
+                {
+                    relevantMediaTypes = new List<int>();
+                    shouldGetAllMediaTypes = true;
+                }
+
+                // Get media types of the group
+                List<GroupsCacheManager.MediaType> groupMediaTypes = groupManager.GetMediaTypesOfGroup(groupId);
+
+                foreach (var mediaType in groupMediaTypes)
+                {
+                    // Validate that this media type is defined for parent/association tag
+                    if (mediaType.parentId > 0 && !string.IsNullOrEmpty(mediaType.associationTag))
                     {
-                        parentMediaTypes.Add(mediaType.id, mediaType.parentId);
-                        associationTags.Add(mediaType.id, mediaType.associationTag);
+                        // If this is relevant for the search at all
+                        if (relevantMediaTypes.Contains(mediaType.parentId) ||
+                            (relevantMediaTypes.Count == 0 && shouldGetAllMediaTypes))
+                        {
+                            parentMediaTypes.Add(mediaType.id, mediaType.parentId);
+                            associationTags.Add(mediaType.id, mediaType.associationTag);
+                        }
                     }
                 }
             }
@@ -2894,14 +2909,19 @@ namespace Core.Catalog
             bool isUpdateIndexSucceeded = false;
 
             if (ids != null && ids.Count > 0)
-            {                                
-                GroupManager groupManager = new GroupManager();
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int parentGroupId = catalogCache.GetParentGroup(groupId);
-                Group group = groupManager.GetGroup(parentGroupId);
-                int groupIdForCelery = group.m_nParentGroupID;
-
-                if (group != null)
+            {
+                int groupIdForCelery = groupId;
+                Group group = null;
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+                if (!doesGroupUsesTemplates)
+                {
+                    GroupManager groupManager = new GroupManager();
+                    CatalogCache catalogCache = CatalogCache.Instance();
+                    int parentGroupId = catalogCache.GetParentGroup(groupId);
+                    group = groupManager.GetGroup(parentGroupId);
+                    groupIdForCelery = group.m_nParentGroupID;
+                }
+                if (doesGroupUsesTemplates || group != null)
                 {
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery, ids, updatedObjectType, action, DateTime.UtcNow);
                     var queue = new CatalogQueue();
