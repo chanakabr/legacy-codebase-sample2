@@ -6201,7 +6201,7 @@ namespace Core.Catalog
 
             UnifiedSearchResponse searchResult;
 
-            string cacheKey = GetChannelSearchCacheKey(parentGroupID, request.m_sSiteGuid, request.domainId, request.m_oFilter.m_sDeviceId, request.m_sUserIP, request.filterQuery, 
+            string cacheKey = GetChannelSearchCacheKey(parentGroupID, request.internalChannelID, request.m_sSiteGuid, request.domainId, request.m_oFilter.m_sDeviceId, request.m_sUserIP, request.filterQuery, 
                 unifiedSearchDefinitions, unifiedSearchDefinitions.PersonalData);
             if (!string.IsNullOrEmpty(cacheKey))
             {
@@ -6420,87 +6420,92 @@ namespace Core.Catalog
             return new Tuple<UnifiedSearchResponse, bool>(cachedResult, result);
         }
 
-        private static string GetChannelSearchCacheKey(int groupId, string userId, int domainId, string udid, string ip, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions, List<string> personalData)
+        private static string GetChannelSearchCacheKey(int groupId, string channelId, string userId, int domainId, string udid, string ip, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions, List<string> personalData)
         {
             string key = null;
-            if (personalData != null && personalData.Count > 0)
+            if (LayeredCache.Instance.ShouldGoToCache(LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, groupId))
             {
-                StringBuilder cacheKey = new StringBuilder("channel");
-                cacheKey.AppendFormat("_gId={0}", groupId);
-                cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
-                cacheKey.AppendFormat("_order={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy, unifiedSearchDefinitions.order.m_eOrderDir);
-                if (unifiedSearchDefinitions.order.m_eOrderBy == OrderBy.META)
+                if (personalData != null && personalData.Count > 0)
                 {
-                    cacheKey.AppendFormat("|{0}", unifiedSearchDefinitions.order.m_sOrderValue);
-                    // IRA: what else with ordering
-                }
-
-                if (!string.IsNullOrEmpty(udid))
-                {
-                    List<int> deviceRules = Api.api.GetDeviceAllowedRuleIDs(groupId, udid, domainId);
-                    if (deviceRules != null && deviceRules.Count > 0)
+                    StringBuilder cacheKey = new StringBuilder();
+                    cacheKey.AppendFormat("channel={0}", channelId);
+                    cacheKey.AppendFormat("_gId={0}", groupId);
+                    cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
+                    cacheKey.AppendFormat("_order={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy, unifiedSearchDefinitions.order.m_eOrderDir);
+                    if (unifiedSearchDefinitions.order.m_eOrderBy == OrderBy.META)
                     {
-                        cacheKey.AppendFormat("_deviceRules={0}", string.Join("|", deviceRules.OrderBy(r => r)));
+                        cacheKey.AppendFormat("|{0}", unifiedSearchDefinitions.order.m_sOrderValue);
+                        // IRA: what else with ordering
                     }
-                }
 
-                if (personalData.Contains(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD))
-                {
-                    UserPurhcasedAssetsResponse purchasedAssets = ConditionalAccess.Module.GetUserPurchasedAssets(groupId, domainId, null);
-                    if (purchasedAssets.status.Code == (int)eResponseStatus.OK)
+                    if (!string.IsNullOrEmpty(udid))
                     {
-                        if (purchasedAssets.assets != null && purchasedAssets.assets.Count > 0)
+                        List<int> deviceRules = Api.api.GetDeviceAllowedRuleIDs(groupId, udid, domainId);
+                        if (deviceRules != null && deviceRules.Count > 0)
                         {
-                            return key;
+                            cacheKey.AppendFormat("_deviceRules={0}", string.Join("|", deviceRules.OrderBy(r => r)));
                         }
-                        else
+                    }
+
+                    if (personalData.Contains(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD))
+                    {
+                        UserPurhcasedAssetsResponse purchasedAssets = ConditionalAccess.Module.GetUserPurchasedAssets(groupId, domainId, null);
+                        if (purchasedAssets.status.Code == (int)eResponseStatus.OK)
                         {
-                            UserBundlesResponse bundelsResponse = ConditionalAccess.Module.GetUserBundles(groupId, domainId, null);
-                            if (bundelsResponse.status.Code == (int)eResponseStatus.OK)
+                            if (purchasedAssets.assets != null && purchasedAssets.assets.Count > 0)
                             {
-                                cacheKey.AppendFormat("_entitlements={0}", string.Join("|", bundelsResponse.channels.OrderBy(c => c)));
+                                return key;
+                            }
+                            else
+                            {
+                                UserBundlesResponse bundelsResponse = ConditionalAccess.Module.GetUserBundles(groupId, domainId, null);
+                                if (bundelsResponse.status.Code == (int)eResponseStatus.OK)
+                                {
+                                    cacheKey.AppendFormat("_entitlements={0}",
+                                        bundelsResponse.channels != null && bundelsResponse.channels.Count > 0 ? string.Join("|", bundelsResponse.channels.OrderBy(c => c)) : "0");
+                                }
                             }
                         }
                     }
-                }
 
-                if (personalData.Contains(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD))
-                {
-                    int countryId = Utils.GetIP2CountryId(groupId, ip);
-                    cacheKey.AppendFormat("_countryId={0}", countryId);
-                }
-
-                if (personalData.Contains(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD))
-                {
-                    Dictionary<long, eRuleLevel> ruleIds = null;
-
-                    string parentalRulesKey = LayeredCacheKeys.GetUserParentalRulesKey(groupId, userId);
-                    bool parentalRulesCacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(parentalRulesKey, ref ruleIds,
-                        APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } },
-                        groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId) });
-
-                    if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
+                    if (personalData.Contains(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD))
                     {
-                        cacheKey.AppendFormat("_parentalRules={0}", string.Join("|", ruleIds.Keys.OrderBy(r => r)));
+                        int countryId = Utils.GetIP2CountryId(groupId, ip);
+                        cacheKey.AppendFormat("_countryId={0}", countryId);
                     }
-                }
 
-                if (!string.IsNullOrEmpty(ksql))
-                {
-                    string ksqlMd5 = null;
-                    try
+                    if (personalData.Contains(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD))
                     {
-                        ksqlMd5 = EncryptUtils.HashMD5(ksql);
-                    }
-                    catch(Exception ex)
-                    {
-                        log.Error("Failed to MD5 KSQL for personal ES cache", ex);
-                        return key;
-                    }
-                    cacheKey.AppendFormat("_ksql={0}", ksqlMd5);
-                }
+                        Dictionary<long, eRuleLevel> ruleIds = null;
 
-                key = cacheKey.ToString();
+                        string parentalRulesKey = LayeredCacheKeys.GetUserParentalRulesKey(groupId, userId);
+                        bool parentalRulesCacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(parentalRulesKey, ref ruleIds,
+                            APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } },
+                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId) });
+
+                        if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
+                        {
+                            cacheKey.AppendFormat("_parentalRules={0}", string.Join("|", ruleIds.Keys.OrderBy(r => r)));
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(ksql))
+                    {
+                        string ksqlMd5 = null;
+                        try
+                        {
+                            ksqlMd5 = EncryptUtils.HashMD5(ksql);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error("Failed to MD5 KSQL for personal ES cache", ex);
+                            return key;
+                        }
+                        cacheKey.AppendFormat("_ksql={0}", ksqlMd5);
+                    }
+
+                    key = cacheKey.ToString();
+                }
             }
 
             return key;

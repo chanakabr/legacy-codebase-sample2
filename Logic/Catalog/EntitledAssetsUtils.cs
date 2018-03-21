@@ -124,6 +124,8 @@ namespace Core.Catalog
             UnifiedSearchDefinitions originalDefinitions,
             List<int> linearChannelMediaTypes)
         {
+            //IRA: check if can skip ES
+
             List<int> result = new List<int>();
 
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
@@ -135,7 +137,7 @@ namespace Core.Catalog
                 UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
                 bool shouldSearchNotEntitled = originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled;
 
-                // Copy definitons from original object
+                // Copy definitions from original object
                 definitions.entitlementSearchDefinitions = originalDefinitions.entitlementSearchDefinitions;
                 definitions.entitlementSearchDefinitions.shouldSearchNotEntitled = false;
                 definitions.deviceRuleId = originalDefinitions.deviceRuleId;
