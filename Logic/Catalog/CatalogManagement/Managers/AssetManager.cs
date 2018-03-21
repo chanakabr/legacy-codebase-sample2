@@ -1594,6 +1594,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
                                         assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.AssetType.ToString(), x.AssetId)).ToList()) : string.Empty);
+                        result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
                         return result;
                     }
 
@@ -1614,10 +1615,6 @@ namespace Core.Catalog.CatalogManagement
 
                     result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
-                else
-                {
-                    result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
-                }             
             }
             catch (Exception ex)
             {
