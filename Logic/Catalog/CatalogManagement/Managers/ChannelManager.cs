@@ -435,7 +435,8 @@ namespace Core.Catalog.CatalogManagement
                     AutocompleteSearchValue = isExcatValue ? string.Empty : searchValue,
                     ExactSearchValue = isExcatValue ? searchValue : string.Empty,
                     OrderBy = orderBy,
-                    OrderDirection = orderDirection
+                    OrderDirection = orderDirection,
+                    IsOperatorSearch = isOperatorSearch
                 };
 
                 ElasticsearchWrapper wrapper = new ElasticsearchWrapper();

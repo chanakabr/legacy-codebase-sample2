@@ -21,6 +21,7 @@ namespace ApiObjects.SearchObjects
         public ChannelOrderBy OrderBy { get; set; }
 
         public OrderDir OrderDirection { get; set; }
+        public bool IsOperatorSearch { get; set; }
     }
 
     public enum ChannelOrderBy
