@@ -88,36 +88,36 @@ namespace ConfigurationManager
 
         public void CopyBaseValues(BaseRabbitConfiguration source)
         {
+            if (string.IsNullOrEmpty(this.HostName.Value))
+            {
+                this.HostName.ObjectValue = source.HostName.ObjectValue;
+            }
+
+            if (string.IsNullOrEmpty(this.UserName.Value))
+            {
+                this.UserName.ObjectValue = source.UserName.ObjectValue;
+            }
+
+            if (string.IsNullOrEmpty(this.Password.Value))
+            {
+                this.Password.ObjectValue = source.Password.ObjectValue;
+            }
+
+            if (this.Port.IntValue <= 0)
+            {
+                this.Port.ObjectValue = source.Port.ObjectValue;
+            }
+
+            if (string.IsNullOrEmpty(this.Exchange.Value))
+            {
+                this.Exchange.ObjectValue = source.Exchange.ObjectValue;
+            }
+
             this.HostName.ShouldAllowEmpty = true;
             this.UserName.ShouldAllowEmpty = true;
             this.Password.ShouldAllowEmpty = true;
             this.Port.ShouldAllowEmpty = true;
             this.Exchange.ShouldAllowEmpty = true;
-
-            if (!this.HostName.Validate())
-            {
-                this.HostName.ObjectValue = source.HostName.ObjectValue;
-            }
-
-            if (!this.UserName.Validate())
-            {
-                this.UserName.ObjectValue = source.UserName.ObjectValue;
-            }
-
-            if (!this.Password.Validate())
-            {
-                this.Password.ObjectValue = source.Password.ObjectValue;
-            }
-
-            if (!this.Port.Validate())
-            {
-                this.Port.ObjectValue = source.Port.ObjectValue;
-            }
-
-            if (!this.Exchange.Validate())
-            {
-                this.Exchange.ObjectValue = source.Exchange.ObjectValue;
-            }
         }
 
         internal override bool Validate()
