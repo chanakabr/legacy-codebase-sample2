@@ -1421,6 +1421,7 @@ namespace ElasticSearch.Common
 
             ESMappingObj mappingObj = new ESMappingObj(AddSuffix("channel", suffix));
 
+            #region Name
             FieldsMappingPropertyV2 nameProperty = new FieldsMappingPropertyV2()
             {
                 name = AddSuffix("name", suffix),
@@ -1468,6 +1469,111 @@ namespace ElasticSearch.Common
             });
 
             mappingObj.AddProperty(nameProperty);
+
+            #endregion
+
+            #region SystemName
+            FieldsMappingPropertyV2 systemNameProperty = new FieldsMappingPropertyV2()
+            {
+                name = AddSuffix("system_name", suffix),
+                type = eESFieldType.STRING,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
+                null_value = ""
+            };
+            systemNameProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = AddSuffix("system_name", suffix),
+                type = eESFieldType.STRING,
+                null_value = string.Empty,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            systemNameProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "analyzed",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = normalSearchAnalyzer,
+                analyzer = normalIndexAnalyzer
+            });
+            systemNameProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            systemNameProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "autocomplete",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = autocompleteSearchAnalyzer,
+                analyzer = autocompleteIndexAnalyzer
+            });
+
+            mappingObj.AddProperty(systemNameProperty);
+
+            #endregion
+
+            #region Description
+            FieldsMappingPropertyV2 descriptionProperty = new FieldsMappingPropertyV2()
+            {
+                name = AddSuffix("description", suffix),
+                type = eESFieldType.STRING,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
+                null_value = ""
+            };
+            descriptionProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = AddSuffix("description", suffix),
+                type = eESFieldType.STRING,
+                null_value = string.Empty,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            descriptionProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "analyzed",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = normalSearchAnalyzer,
+                analyzer = normalIndexAnalyzer
+            });
+            descriptionProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+            descriptionProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "autocomplete",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = autocompleteSearchAnalyzer,
+                analyzer = autocompleteIndexAnalyzer
+            });
+
+            mappingObj.AddProperty(descriptionProperty);
+
+            #endregion
+
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "channel_type",
@@ -1484,7 +1590,21 @@ namespace ElasticSearch.Common
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
+                name = "is_active",
+                type = eESFieldType.INTEGER,
+                index = eMappingIndex.not_analyzed,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
                 name = "create_date",
+                type = eESFieldType.DATE,
+                index = eMappingIndex.not_analyzed,
+                format = DATE_FORMAT
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "update_date",
                 type = eESFieldType.DATE,
                 index = eMappingIndex.not_analyzed,
                 format = DATE_FORMAT
@@ -1501,9 +1621,13 @@ namespace ElasticSearch.Common
             JObject json = new JObject();
 
             json["name"] = JToken.FromObject(channel.m_sName);
+            json["description"] = JToken.FromObject(channel.m_sDescription);
+            json["system_name"] = JToken.FromObject(channel.SystemName);
             json["channel_type"] = JToken.FromObject(channel.m_nChannelTypeID);
             json["channel_id"] = JToken.FromObject(channel.m_nChannelID);
+            json["is_active"] = JToken.FromObject(channel.m_nIsActive);
             json["create_date"] = JToken.FromObject(channel.CreateDate.Value.ToString("yyyyMMddHHmmss"));
+            json["create_date"] = JToken.FromObject(channel.UpdateDate.Value.ToString("yyyyMMddHHmmss"));
 
             result = json.ToString(Newtonsoft.Json.Formatting.None);
 
