@@ -862,7 +862,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.DefaultLanguage.ID);
+                            DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.DefaultLanguage.ID, isOperatorSearch.Value);
                             assets.AddRange(CreateMediaAssets(groupId.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList()));
                         }
 

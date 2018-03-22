@@ -361,7 +361,7 @@ namespace Core.Catalog.CatalogManagement
                     List<Channel> channels = new List<Channel>();
                     if (channelIds != null && groupId.HasValue && isOperatorSearch.HasValue)
                     {
-                        DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, true);
+                        DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, isOperatorSearch.Value);
                         channels = GetChannelListFromDs(ds);
                         res = channels.Count() == channelIds.Count() || !isOperatorSearch.Value;
                     }
