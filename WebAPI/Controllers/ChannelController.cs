@@ -9,6 +9,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -34,10 +35,18 @@ namespace WebAPI.Controllers
         public KalturaChannel Get(int id)
         {
             KalturaChannel response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+            List<long> userRoles = RolesManager.GetRoleIds(ks);
+            bool isOperatorSearch = false;
+            if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
+            {
+                isOperatorSearch = true;
+            }
+
             try
             {                                                
-                response = ClientsManager.CatalogClient().GetChannel(groupId, id);
+                response = ClientsManager.CatalogClient().GetChannel(groupId, id, isOperatorSearch);
             }
             catch (ClientException ex)
             {
@@ -322,28 +331,34 @@ namespace WebAPI.Controllers
             }
 
             try
-            {
-                int groupId = KS.GetFromRequest().GroupId;
+            {                
+                // validate filter
                 filter.Validate();
 
+                KS ks = KS.GetFromRequest();
+                int groupId = ks.GroupId;
+                List<long> userRoles = RolesManager.GetRoleIds(ks);
+                bool isOperatorSearch = false;
+                if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
+                {
+                    isOperatorSearch = true;
+                }
 
                 if (filter.IdEqual > 0)
                 {
                     // get by id
-                    KalturaChannel channel = ClientsManager.CatalogClient().GetChannel(groupId, filter.IdEqual);
+                    KalturaChannel channel = ClientsManager.CatalogClient().GetChannel(groupId, filter.IdEqual, isOperatorSearch);
                     response = new KalturaChannelListResponse() { TotalCount = 1, Channels = new List<KalturaChannel>() { channel } };
                 }                
                 else if (!string.IsNullOrEmpty(filter.NameEqual))
                 {
                     //search using ChannelEqual
-                    response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.NameEqual, pager.getPageIndex(), pager.getPageSize(),
-                        filter.OrderBy);
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.NameEqual, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isOperatorSearch);
                 }
                 else
                 {
                     //search using ChannelLike
-                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.NameStartsWith, pager.getPageIndex(), pager.getPageSize(),
-                        filter.OrderBy);
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.NameStartsWith, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isOperatorSearch);
                 }
             }
             catch (ClientException ex)

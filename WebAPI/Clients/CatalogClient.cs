@@ -501,7 +501,7 @@ namespace WebAPI.Clients
             return true;
         }        
 
-        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language)
+        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language, bool isOperatorSearch)
         {
             KalturaAsset result = null;
             AssetResponse response = null;
@@ -514,7 +514,7 @@ namespace WebAPI.Clients
                     if (doesGroupUsesTemplates)
                     {
                         assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
-                        response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, id, assetType);
+                        response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, id, assetType, isOperatorSearch);
                     }
                     else
                     {
@@ -663,12 +663,12 @@ namespace WebAPI.Clients
             return true;
         }        
 
-        public KalturaAssetListResponse GetAssetForGroupWithTemplates(int groupId, List<BaseObject> assetsBaseDataList)
+        public KalturaAssetListResponse GetAssetForGroupWithTemplates(int groupId, List<BaseObject> assetsBaseDataList, bool isOperatorSearch)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
             if (assetsBaseDataList != null && assetsBaseDataList.Count > 0)
-            {
-                AssetListResponse assetListResponse = AssetManager.GetOrderedAssets(groupId, assetsBaseDataList);
+            {                
+                AssetListResponse assetListResponse = AssetManager.GetOrderedAssets(groupId, assetsBaseDataList, isOperatorSearch);
                 if (assetListResponse != null && assetListResponse.Status != null && assetListResponse.Status.Code == (int)eResponseStatus.OK)
                 {
                     result.Objects = new List<KalturaAsset>();
@@ -703,7 +703,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetListResponse GetAssetFromUnifiedSearchResponse(int groupId, UnifiedSearchResponse searchResponse, BaseRequest request,
+        public KalturaAssetListResponse GetAssetFromUnifiedSearchResponse(int groupId, UnifiedSearchResponse searchResponse, BaseRequest request, bool isOperatorSearch,
                                                                             bool managementData = false, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
@@ -723,7 +723,7 @@ namespace WebAPI.Clients
                         }
                     }
 
-                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList);
+                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList, isOperatorSearch);
                 }
                 else
                 {
@@ -738,7 +738,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
                 if (doesGroupUsesTemplates)
                 {                    
-                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList);
+                    result = GetAssetForGroupWithTemplates(groupId, assetsBaseDataList, isOperatorSearch);
                 }
                 else
                 {
@@ -943,7 +943,7 @@ namespace WebAPI.Clients
                 throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
             }
 
-            result = GetAssetFromUnifiedSearchResponse(groupId, searchResponse, request, managementData, responseProfile);
+            result = GetAssetFromUnifiedSearchResponse(groupId, searchResponse, request, isOperatorSearch, managementData, responseProfile);
 
             return result;
         }
@@ -2679,7 +2679,7 @@ namespace WebAPI.Clients
                 throw new ClientException(channelResponse.status.Code, channelResponse.status.Message);
             }
 
-            result = GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, false, responseProfile);
+            result = GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, isOperatorSearch, false, responseProfile);
 
             return result;
         }
@@ -3860,7 +3860,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy)
+        internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy, bool isOperatorSearch)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
             Core.Catalog.CatalogManagement.ChannelListResponse response = null;
@@ -3909,7 +3909,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, pageIndex, pageSize, orderBy, orderDirection);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);
                 }
             }
             catch (Exception ex)
@@ -3952,7 +3952,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannel GetChannel(int groupId, int channelId)
+        internal KalturaChannel GetChannel(int groupId, int channelId, bool isOperatorSearch)
         {
             Core.Catalog.CatalogManagement.ChannelResponse response = null;
             KalturaChannel result = null;
@@ -3961,7 +3961,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannel(groupId, channelId);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannel(groupId, channelId, isOperatorSearch);
                 }
             }
             catch (Exception ex)

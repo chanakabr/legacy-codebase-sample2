@@ -301,9 +301,7 @@ namespace WebAPI.Controllers
         [Throws(WebAPI.Managers.Models.StatusCode.NotFound)]
         public KalturaAsset Get(string id, KalturaAssetReferenceType assetReferenceType)
         {
-            KalturaAsset response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
+            KalturaAsset response = null;            
 
             if (string.IsNullOrEmpty(id))
             {
@@ -312,9 +310,17 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                KS ks = KS.GetFromRequest();
+                int groupId = ks.GroupId;
+                string userID = ks.UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
+                bool isOperatorSearch = false;
+                List<long> userRoles = RolesManager.GetRoleIds(ks);
+                if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
+                {
+                    isOperatorSearch = true;
+                }
 
                 switch (assetReferenceType)
                 {
@@ -326,7 +332,7 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                             }
 
-                            response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language);
+                            response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isOperatorSearch);
                         }
                         break;
                     case KalturaAssetReferenceType.epg_internal:
