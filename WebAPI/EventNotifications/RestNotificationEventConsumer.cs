@@ -280,12 +280,6 @@ namespace WebAPI
                             kalturaEvent.PartnerId, action.SystemName, ex);
                     }
                 });
-
-                //Task t = Task.Factory.StartNew(() =>
-                //{
-                //    action.Handle(kalturaEvent, eventWrapper);
-                //}
-                //);
             }
         }
 
