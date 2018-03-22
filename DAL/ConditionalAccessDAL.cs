@@ -232,6 +232,7 @@ namespace DAL
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetCachedSec(0);
                 selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
 
                 if (nTopNum > 0)
