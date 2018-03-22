@@ -305,7 +305,7 @@ namespace Core.Catalog.CatalogManagement
             oNewSearchValue.m_lValue = lCurrentTagsValues;
         }
 
-        private static List<Channel> GetChannels(int groupId, List<int> channelIds)
+        private static List<Channel> GetChannels(int groupId, List<int> channelIds, bool isOperatorSearch)
         {
             List<Channel> channels = null;
             try
@@ -319,8 +319,8 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetChannelsKeysMap(groupId, channelIds);
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetChannelsInvalidationKeysMap(groupId, channelIds);
 
-                if (!LayeredCache.Instance.GetValues<Channel>(keyToOriginalValueMap, ref channelMap, GetChannels, new Dictionary<string, object>() { { "groupId", groupId }, { "channelIds", channelIds } },
-                    groupId, LayeredCacheConfigNames.GET_CHANNELS_CACHE_CONFIG_NAME, invalidationKeysMap))
+                if (!LayeredCache.Instance.GetValues<Channel>(keyToOriginalValueMap, ref channelMap, GetChannels, new Dictionary<string, object>() { { "groupId", groupId }, { "channelIds", channelIds },
+                                                                { "isOperatorSearch", isOperatorSearch } }, groupId, LayeredCacheConfigNames.GET_CHANNELS_CACHE_CONFIG_NAME, invalidationKeysMap))
                 {
                     log.ErrorFormat("Failed getting Channels from LayeredCache, groupId: {0}, channelIds: {1}", groupId, string.Join(",", channelIds));
                 }
@@ -343,11 +343,12 @@ namespace Core.Catalog.CatalogManagement
             Dictionary<string, Channel> result = new Dictionary<string, Channel>();
             try
             {
-                if (funcParams != null && funcParams.ContainsKey("channelIds") && funcParams.ContainsKey("groupId"))
+                if (funcParams != null && funcParams.ContainsKey("channelIds") && funcParams.ContainsKey("isOperatorSearch") && funcParams.ContainsKey("groupId"))
                 {
                     string key = string.Empty;
                     List<int> channelIds;
                     int? groupId = funcParams["groupId"] as int?;
+                    bool? isOperatorSearch = funcParams["isOperatorSearch"] as bool?;
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
                         channelIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => int.Parse(x)).ToList();
@@ -358,11 +359,11 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     List<Channel> channels = new List<Channel>();
-                    if (channelIds != null && groupId.HasValue)
+                    if (channelIds != null && groupId.HasValue && isOperatorSearch.HasValue)
                     {
                         DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, true);
                         channels = GetChannelListFromDs(ds);
-                        res = channels.Count() == channelIds.Count();
+                        res = channels.Count() == channelIds.Count() || !isOperatorSearch.Value;
                     }
 
                     if (res)
@@ -388,10 +389,10 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
-        internal static Channel GetChannelById(int groupId, int channelId)
+        internal static Channel GetChannelById(int groupId, int channelId, bool isOperatorSearch)
         {
             Channel channel = null;
-            List<Channel> channels = GetChannels(groupId, new List<int>() { channelId });
+            List<Channel> channels = GetChannels(groupId, new List<int>() { channelId }, isOperatorSearch);
             if (channels != null && channels.Count == 1)
             {
                 channel = channels.First();
@@ -421,7 +422,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         public static ChannelListResponse SearchChannels(int groupId, bool isExcatValue, string searchValue, int pageIndex, int pageSize,
-            ApiObjects.SearchObjects.ChannelOrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection)
+            ApiObjects.SearchObjects.ChannelOrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection, bool isOperatorSearch)
         {
             ChannelListResponse result = new ChannelListResponse();
             try
@@ -440,7 +441,7 @@ namespace Core.Catalog.CatalogManagement
                 ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
                 int totalItems = 0;
                 List<int> channelIds = wrapper.SearchChannels(definitions, ref totalItems);
-                List<Channel> unorderedChannels = ChannelManager.GetChannels(groupId, channelIds);
+                List<Channel> unorderedChannels = ChannelManager.GetChannels(groupId, channelIds, isOperatorSearch);
                 if (unorderedChannels == null || unorderedChannels.Count != channelIds.Count)
                 {
                     log.ErrorFormat("Failed getting channels from GetChannels, for groupId: {0}, channelIds: {1}", groupId, channelIds != null ? string.Join(",", channelIds) : string.Empty);
@@ -549,7 +550,8 @@ namespace Core.Catalog.CatalogManagement
 
                     if (assets.Count > 0)
                     {
-                        List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets);
+                        // isOperatorSearch = true becuase only operator can add channel
+                        List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true);
                         if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToAdd.m_lManualMedias.Count)
                         {
                             List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
@@ -640,7 +642,8 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                Channel currentChannel = GetChannelById(groupId, channelId);
+                //isOperatorSearch = true becuase only operator can update channel
+                Channel currentChannel = GetChannelById(groupId, channelId, true);
                 if (currentChannel == null || currentChannel.m_nChannelTypeID != channelToUpdate.m_nChannelTypeID)
                 {
                     response.Status = new Status((int)eResponseStatus.ChannelDoesNotExist, eResponseStatus.ChannelDoesNotExist.ToString());
@@ -711,7 +714,8 @@ namespace Core.Catalog.CatalogManagement
 
                     if (assets.Count > 0)
                     {
-                        List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets);
+                        // isOperatorSearch = true becuase only operator can update channel
+                        List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true);
                         if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToUpdate.m_lManualMedias.Count)
                         {
                             List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
@@ -806,13 +810,13 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static ChannelResponse GetChannel(int groupId, int channelId)
+        public static ChannelResponse GetChannel(int groupId, int channelId, bool isOperatorSearch)
         {
             ChannelResponse response = new ChannelResponse();
 
             try
             {
-                response.Channel = GetChannelById(groupId, channelId);
+                response.Channel = GetChannelById(groupId, channelId, isOperatorSearch);
                 if (response.Channel != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -841,8 +845,8 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                //check if channel exists
-                ChannelResponse channelResponse = GetChannel(groupId, channelId);                
+                //check if channel exists - isOperatorSearch = true becuase only operator can delete channel
+                ChannelResponse channelResponse = GetChannel(groupId, channelId, true);                
                 if (channelResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     response = channelResponse.Status;

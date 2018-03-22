@@ -688,7 +688,8 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (imageToAdd.ImageObjectType == eAssetImageType.Media && imageToAdd.ImageObjectId > 0)
                 {
-                    AssetResponse asset = AssetManager.GetAsset(groupId, imageToAdd.ImageObjectId, eAssetTypes.MEDIA);
+                    // isOperatorSearch = true becuase only operator can add image
+                    AssetResponse asset = AssetManager.GetAsset(groupId, imageToAdd.ImageObjectId, eAssetTypes.MEDIA, true);
                     if (asset.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Asset not found. assetId = {0}, assetType = {1}", imageToAdd.ImageObjectId, imageToAdd.ImageObjectType);
@@ -699,7 +700,8 @@ namespace Core.Catalog.CatalogManagement
 
                 if (imageToAdd.ImageObjectType == eAssetImageType.Channel && imageToAdd.ImageObjectId > 0)
                 {
-                    ChannelResponse channel = ChannelManager.GetChannel(groupId, (int)imageToAdd.ImageObjectId);
+                    //isOperatorSearch = true becuase only operator can add image
+                    ChannelResponse channel = ChannelManager.GetChannel(groupId, (int)imageToAdd.ImageObjectId, true);
                     if (channel.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Channel not found. channelId = {0}", imageToAdd.ImageObjectId);

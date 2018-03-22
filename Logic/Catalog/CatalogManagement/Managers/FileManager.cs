@@ -533,8 +533,8 @@ namespace Core.Catalog.CatalogManagement
             AssetFileResponse result = new AssetFileResponse();
             try
             {
-                // validate that asset exist
-                AssetResponse assetResponse = AssetManager.GetAsset(groupId, assetFileToAdd.AssetId, eAssetTypes.MEDIA);
+                // validate that asset exist - isOperatorSearch = true becuase only operator can insert media file
+                AssetResponse assetResponse = AssetManager.GetAsset(groupId, assetFileToAdd.AssetId, eAssetTypes.MEDIA, true);
                 if (assetResponse == null || assetResponse.Status == null || assetResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());

@@ -398,7 +398,8 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (channel == null)
                 {
-                    channel = ChannelManager.GetChannelById(groupId, channelId);
+                    // isOperatorSearch = true becuase only operator can cause upsert of channel
+                    channel = ChannelManager.GetChannelById(groupId, channelId, true);
                     if (channel == null)
                     {
                         log.ErrorFormat("failed to get channel object for groupId: {0}, channelId: {1} when calling UpsertChannel", groupId, channelId);

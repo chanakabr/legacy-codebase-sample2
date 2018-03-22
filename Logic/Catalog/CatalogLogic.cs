@@ -6265,7 +6265,7 @@ namespace Core.Catalog
             CatalogManagement.CatalogGroupCache catalogGroupCache = null;
             if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
             {
-                channel = CatalogManagement.ChannelManager.GetChannelById(request.m_nGroupID, channelId);
+                channel = CatalogManagement.ChannelManager.GetChannelById(request.m_nGroupID, channelId, request.IsOperatorSearch);
                 if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetInternalChannelAssets", request.m_nGroupID);
