@@ -12,6 +12,8 @@ using System.Reflection;
 using ApiObjects;
 using System.Threading.Tasks;
 using WebAPI.Models.General;
+using KlogMonitorHelper;
+using System.Web.Hosting;
 
 namespace WebAPI
 {
@@ -253,11 +255,30 @@ namespace WebAPI
             }
             else
             {
-                Task t = Task.Factory.StartNew(() =>
+                // save context data - for multi threading operations
+                ContextData contextData = new ContextData();
+
+                HostingEnvironment.QueueBackgroundWorkItem((obj) =>
                 {
-                    action.Handle(kalturaEvent, eventWrapper);
-                }
-                );
+                    try
+                    {
+                        contextData.Load();
+
+                        log.DebugFormat("Start async action: action name = {0}, partner {1},  specific notification is {2}",
+                            action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());
+
+                        action.Handle(kalturaEvent, eventWrapper);
+
+                        log.DebugFormat("Finished async action: action name = {0}, partner {1},  specific notification is {2}",
+                            action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());
+
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error when performing async action. partner {0}, system name {1}, ex = {2}",
+                            kalturaEvent.PartnerId, action.SystemName, ex);
+                    }
+                });
             }
         }
 
