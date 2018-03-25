@@ -130,79 +130,18 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 #region Join tags and metas of EPG and media to same mapping
 
-                List<string> tags = new List<string>();
-                Dictionary<string, KeyValuePair<eESFieldType, string>> metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();
-                // Check if group supports Templates
-                if (doesGroupUsesTemplates)
+                Dictionary<string, KeyValuePair<eESFieldType, string>> metas = null;
+                List<string> tags = null;
+                if (!ElasticSearchTaskUtils.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, ref metas, ref tags, serializer, group, catalogGroupCache))
                 {
-                    try
-                    {
-                        HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
-                        tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
-                        foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Value))
-                        {
-
-                            string nullValue;
-                            eESFieldType metaType;
-                            serializer.GetMetaType(topic.Type, out metaType, out nullValue);
-                            metas.Add(topic.SystemName, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error(string.Format("Failed BuildIndex for groupId: {0} because CatalogGroupCache", groupId), ex);
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (group.m_oGroupTags != null)
-                    {
-                        tags.AddRange(group.m_oGroupTags.Values);
-                    }
-
-                    if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lTagsName != null)
-                    {
-                        foreach (var item in group.m_oEpgGroupSettings.m_lTagsName)
-                        {
-                            if (!tags.Contains(item))
-                            {
-                                tags.Add(item);
-                            }
-                        }
-                    }
-
-                    if (group.m_oMetasValuesByGroupId != null)
-                    {
-                        foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
-                        {
-                            foreach (KeyValuePair<string, string> meta in metaMap)
-                            {
-                                string nullValue;
-                                eESFieldType metaType;
-                                serializer.GetMetaType(meta.Key, out metaType, out nullValue);
-                                metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
-                            }
-                        }
-                    }
-
-                    if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lMetasName != null)
-                    {
-                        foreach (string epgMeta in group.m_oEpgGroupSettings.m_lMetasName)
-                        {
-                            string nullValue;
-                            eESFieldType metaType;
-                            serializer.GetMetaType(epgMeta, out metaType, out nullValue);
-                            metas.Add(epgMeta, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
-                        }
-                    }
+                    log.Error("Failed GetMetasAndTagsForMapping as part of BuildIndex");
+                    return false;
                 }
 
                 #endregion
 
                 // Ask serializer to create the mapping definitions string
                 string mapping = serializer.CreateMediaMapping(metas, tags, specificMappingAnalyzers, defaultMappingAnalyzers);
-
                 bool mappingResult = api.InsertMapping(newIndexName, type, mapping.ToString());
 
                 // Most important is the mapping for the default language, we can live without the others...

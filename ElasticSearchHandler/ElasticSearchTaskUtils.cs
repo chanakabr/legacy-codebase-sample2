@@ -17,6 +17,7 @@ using ApiObjects.Response;
 using ElasticSearch.Common;
 using Core.Catalog;
 using Core.Catalog.Cache;
+using Core.Catalog.CatalogManagement;
 
 namespace ElasticSearchHandler
 {
@@ -224,6 +225,91 @@ namespace ElasticSearchHandler
                 log.Error("Error - " + string.Format("Update EPGs threw an exception. (in GetLinearChannelValues). Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
                 throw ex;
             }
+        }
+
+        public static bool GetMetasAndTagsForMapping(int groupId, bool? doesGroupUsesTemplates, ref Dictionary<string, KeyValuePair<eESFieldType, string>> metas, ref List<string> tags,
+                                                    BaseESSeralizer serializer, Group group = null, CatalogGroupCache catalogGroupCache = null)
+        {
+            bool result = false;
+            tags = new List<string>();
+            metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();
+            if (!doesGroupUsesTemplates.HasValue)
+            {
+                doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            }
+
+            if (doesGroupUsesTemplates.Value && catalogGroupCache != null)
+            {
+                try
+                {
+                    HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
+                    tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                    foreach (Topic topic in catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type != ApiObjects.MetaType.Tag && !topicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Value))
+                    {
+
+                        string nullValue;
+                        eESFieldType metaType;
+                        serializer.GetMetaType(topic.Type, out metaType, out nullValue);
+                        metas.Add(topic.SystemName, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("Failed BuildIndex for groupId: {0} because CatalogGroupCache", groupId), ex);
+                    return false;
+                }
+            }
+            else if (group != null)
+            {
+                if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lTagsName != null)
+                {
+                    foreach (var item in group.m_oEpgGroupSettings.m_lTagsName)
+                    {
+                        if (!tags.Contains(item))
+                        {
+                            tags.Add(item);
+                        }
+                    }
+                }
+
+                if (group.m_oGroupTags != null)
+                {
+                    foreach (var item in group.m_oGroupTags.Values)
+                    {
+                        if (!tags.Contains(item))
+                        {
+                            tags.Add(item);
+                        }
+                    }
+                }
+
+                if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lMetasName != null)
+                {
+                    foreach (string epgMeta in group.m_oEpgGroupSettings.m_lMetasName)
+                    {
+                        string nullValue;
+                        eESFieldType metaType;
+                        serializer.GetMetaType(epgMeta, out metaType, out nullValue);
+                        metas.Add(epgMeta, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                    }
+                }
+
+                if (group.m_oMetasValuesByGroupId != null)
+                {
+                    foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
+                    {
+                        foreach (KeyValuePair<string, string> meta in metaMap)
+                        {
+                            string nullValue;
+                            eESFieldType metaType;
+                            serializer.GetMetaType(meta.Key, out metaType, out nullValue);
+                            metas.Add(meta.Value, new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
 
         public enum eESFeederType

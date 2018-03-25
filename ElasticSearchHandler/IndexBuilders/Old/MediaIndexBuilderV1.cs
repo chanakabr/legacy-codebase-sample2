@@ -99,8 +99,6 @@ namespace ElasticSearchHandler.IndexBuilders
             foreach (ApiObjects.LanguageObj language in languages)
             {
                 MappingAnalyzers specificMappingAnlyzers = GetMappingAnalyzers(language, string.Empty);
-
-
                 List<string> tags = new List<string>();
                 Dictionary<string, KeyValuePair<eESFieldType, string>> metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();      
                 // Check if group supports Templates
