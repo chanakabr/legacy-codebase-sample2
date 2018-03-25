@@ -5807,6 +5807,11 @@
             (maximum length of entire filter is 2048 characters)]]>
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelFilter.ExcludeWatched">
+            <summary>
+            Exclude watched asset. 
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannelFilter.OrderBy">
             <summary>
             order by
@@ -5850,6 +5855,11 @@
             Comma separated list of asset types to search within. 
             Possible values: any media type ID (according to media type IDs defined dynamically in the system).
             If omitted –   same type as the provided asset.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRelatedFilter.ExcludeWatched">
+            <summary>
+            Exclude watched asset. 
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaRelatedExternalFilter.IdEqual">
@@ -5902,6 +5912,11 @@
         <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetFilter.IdIn">
             <summary>
             Comma separated list of EPG channel ids to search within. 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetFilter.ExcludeWatched">
+            <summary>
+            Exclude watched asset. 
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaSearchExternalFilter.Query">

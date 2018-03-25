@@ -54,6 +54,15 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "typeIn", IsNullable = true)]
         public string TypeIn { get; set; }
 
+        /// <summary>
+        /// Exclude watched asset. 
+        /// </summary>
+        [DataMember(Name = "excludeWatched")]
+        [JsonProperty("excludeWatched")]
+        [XmlElement(ElementName = "excludeWatched", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public bool ExcludeWatched { get; set; }
+
         public int getMediaId()
         {
             return IdEqual.Value;
