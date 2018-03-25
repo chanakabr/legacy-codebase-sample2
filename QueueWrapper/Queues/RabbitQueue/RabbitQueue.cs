@@ -354,21 +354,21 @@ namespace QueueWrapper
 
                         queue = ApplicationConfiguration.RabbitConfiguration.ImageUpload.Queue.Value;
 
-                        if (string.IsNullOrEmpty(routingKey))
+                        if (string.IsNullOrEmpty(queue))
                         {
                             queue = ApplicationConfiguration.RabbitConfiguration.Default.Queue.Value;
                         }
 
                         virtualHost = ApplicationConfiguration.RabbitConfiguration.ImageUpload.VirtualHost.Value;
 
-                        if (string.IsNullOrEmpty(routingKey))
+                        if (string.IsNullOrEmpty(virtualHost))
                         {
                             virtualHost = ApplicationConfiguration.RabbitConfiguration.Default.VirtualHost.Value;
                         }
 
                         exchangeType = ApplicationConfiguration.RabbitConfiguration.ImageUpload.ExchangeType.Value;
 
-                        if (string.IsNullOrEmpty(routingKey))
+                        if (string.IsNullOrEmpty(exchangeType))
                         {
                             exchangeType = ApplicationConfiguration.RabbitConfiguration.Default.ExchangeType.Value;
                         }
