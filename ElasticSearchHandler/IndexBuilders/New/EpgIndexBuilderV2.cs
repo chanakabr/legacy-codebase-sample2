@@ -170,7 +170,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #region insert channel queries
 
-            InsertChannelsQueries(groupManager, group, newIndexName);
+            InsertChannelsQueries(groupManager, group, newIndexName, doesGroupUsesTemplates);
 
             #endregion
 
@@ -207,7 +207,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #region Private and protected Methods
 
-        protected virtual void InsertChannelsQueries(GroupManager groupManager, Group group, string newIndexName)
+        protected virtual void InsertChannelsQueries(GroupManager groupManager, Group group, string newIndexName, bool doesGroupUsesTemplates)
         {
             if (group.channelIDs != null)
             {
@@ -216,12 +216,23 @@ namespace ElasticSearchHandler.IndexBuilders
                 List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
                 try
                 {
-                    List<Channel> allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
+                    List<Channel> allChannels = new List<Channel>();
+                    if (doesGroupUsesTemplates)
+                    {
+                        allChannels = ChannelManager.GetGroupChannels(groupId);
+                    }
+                    else
+                    {
+                        allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
+                    }
 
                     if (allChannels == null || allChannels.Count == 0)
                     {
+                        log.ErrorFormat(string.Format("Didn't find any channels to index. total channels={0}", allChannels.Count));
                         return;
                     }
+
+                    log.Info(string.Format("Start indexing channels. total channels={0}", allChannels.Count));
 
                     var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, groupId);
 
@@ -353,10 +364,27 @@ namespace ElasticSearchHandler.IndexBuilders
         {
             try
             {
-                // Get EPG objects from CB
-                Dictionary<ulong, Dictionary<string, EpgCB>> programs = GetEpgPrograms(groupId, date);
+                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                CatalogGroupCache catalogGroupCache = null;
+                Dictionary<ulong, Dictionary<string, EpgCB>> programs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
+                if (doesGroupUsesTemplates)
+                {
+                    if (doesGroupUsesTemplates && !CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling PopulateEpgIndex", groupId);
+                        return;
+                    }
 
-                AddEPGsToIndex(index, type, programs, group);
+                    // TODO - Lior get all epgs
+                    programs = null;
+                }
+                else
+                {
+                    // Get EPG objects from CB
+                    programs = GetEpgPrograms(groupId, date);
+                }
+
+                AddEPGsToIndex(index, type, programs, group, doesGroupUsesTemplates, catalogGroupCache);
             }
             catch (Exception ex)
             {
@@ -367,12 +395,12 @@ namespace ElasticSearchHandler.IndexBuilders
             }
         }
 
-        protected virtual void AddEPGsToIndex(string index, string type, Dictionary<ulong, Dictionary<string, EpgCB>> programs, Group group)
+        protected virtual void AddEPGsToIndex(string index, string type, Dictionary<ulong, Dictionary<string, EpgCB>> programs, Group group, bool doesGroupUsesTemplates, CatalogGroupCache catalogGroupCache)
         {
             // Basic validation
-            if (programs == null)
+            if (programs == null || programs.Count == 0)
             {
-                log.ErrorFormat("AddEPGsToIndex {0}/{1} for group {2}: programs is null!", index, type, this.groupId);
+                log.ErrorFormat("AddEPGsToIndex {0}/{1} for group {2}: programs is null or empty!", index, type, this.groupId);
                 return;
             }
 
@@ -381,7 +409,7 @@ namespace ElasticSearchHandler.IndexBuilders
             // GetLinear Channel Values 
             var programsList = new List<EpgCB>();
             
-            foreach (var programsValues in programs.Values)
+            foreach (Dictionary<string, EpgCB> programsValues in programs.Values)
             {
                 programsList.AddRange(programsValues.Values);
             }
@@ -391,7 +419,7 @@ namespace ElasticSearchHandler.IndexBuilders
             // Run on all programs
             foreach (ulong epgID in programs.Keys)
             {
-                foreach (var languageCode in programs[epgID].Keys)
+                foreach (string languageCode in programs[epgID].Keys)
                 {
                     string suffix = null;
 
@@ -399,7 +427,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (!string.IsNullOrEmpty(languageCode))
                     {
-                        language = group.GetLanguage(languageCode);
+                        language = doesGroupUsesTemplates ? catalogGroupCache.LanguageMapByCode[languageCode] : group.GetLanguage(languageCode);
 
                         // Validate language
                         if (language == null)
@@ -415,7 +443,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     }
                     else
                     {
-                        language = group.GetGroupDefaultLanguage();
+                        language = doesGroupUsesTemplates ? catalogGroupCache.DefaultLanguage : group.GetGroupDefaultLanguage();
                     }
 
                     EpgCB epg = programs[epgID][languageCode];

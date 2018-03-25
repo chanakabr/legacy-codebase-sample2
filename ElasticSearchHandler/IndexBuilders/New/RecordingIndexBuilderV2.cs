@@ -94,7 +94,7 @@ namespace ElasticSearchHandler.IndexBuilders
         /// <param name="groupManager"></param>
         /// <param name="group"></param>
         /// <param name="newIndexName"></param>
-        protected override void InsertChannelsQueries(GroupsCacheManager.GroupManager groupManager, GroupsCacheManager.Group group, string newIndexName)
+        protected override void InsertChannelsQueries(GroupsCacheManager.GroupManager groupManager, GroupsCacheManager.Group group, string newIndexName, bool doesGroupUsesTemplates)
         {
             
         }

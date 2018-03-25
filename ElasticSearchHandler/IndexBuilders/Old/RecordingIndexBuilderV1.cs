@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EpgBL;
 using ElasticSearch.Common;
+using Core.Catalog.CatalogManagement;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -50,11 +51,24 @@ namespace ElasticSearchHandler.IndexBuilders
             // Get information about relevant recordings
             epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMapByRecordingStatuses(this.groupId, statuses);
             List<string> epgIds = new List<string>();
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            CatalogGroupCache catalogGroupCache = null;
+            Dictionary<ulong, Dictionary<string, EpgCB>> programs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
+            if (doesGroupUsesTemplates)
+            {
+                if (doesGroupUsesTemplates && !CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling PopulateIndex", groupId);
+                    return;
+                }
 
-            List<LanguageObj> languages = group.GetLangauges();
+                // TODO - Lior get all epgs
+                programs = null;
+            }
+
+            List<LanguageObj> languages = doesGroupUsesTemplates ? catalogGroupCache.LanguageMapById.Values.ToList() : group.GetLangauges();
             List<EpgCB> epgs = new List<EpgCB>();
             EpgBL.TvinciEpgBL epgBL = new TvinciEpgBL(this.groupId);
-
             foreach (var programId in epgToRecordingMapping.Keys)
             {
                 // for main language
@@ -84,7 +98,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             Dictionary<ulong, Dictionary<string, EpgCB>> epgDictionary = BuildEpgsLanguageDictionary(epgs);
 
-            this.AddEPGsToIndex(newIndexName, RECORDING, epgDictionary, group);
+            this.AddEPGsToIndex(newIndexName, RECORDING, epgDictionary, group, doesGroupUsesTemplates, catalogGroupCache);
         }
 
         /// <summary>
@@ -93,7 +107,7 @@ namespace ElasticSearchHandler.IndexBuilders
         /// <param name="groupManager"></param>
         /// <param name="group"></param>
         /// <param name="newIndexName"></param>
-        protected override void InsertChannelsQueries(GroupsCacheManager.GroupManager groupManager, GroupsCacheManager.Group group, string newIndexName)
+        protected override void InsertChannelsQueries(GroupsCacheManager.GroupManager groupManager, GroupsCacheManager.Group group, string newIndexName, bool doesGroupUsesTemplates)
         {
             
         }
