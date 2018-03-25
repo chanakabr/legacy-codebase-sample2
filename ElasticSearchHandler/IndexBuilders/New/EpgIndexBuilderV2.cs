@@ -209,10 +209,8 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected virtual void InsertChannelsQueries(GroupManager groupManager, Group group, string newIndexName, bool doesGroupUsesTemplates)
         {
-            if (group.channelIDs != null)
-            {
-                log.Info(string.Format("Start indexing channels. total channels={0}", group.channelIDs.Count));
-
+            if (doesGroupUsesTemplates || group.channelIDs != null)
+            {            
                 List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
                 try
                 {
