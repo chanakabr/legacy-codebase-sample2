@@ -230,7 +230,7 @@ namespace ElasticSearchHandler
         public static bool GetMetasAndTagsForMapping(int groupId, bool? doesGroupUsesTemplates, ref Dictionary<string, KeyValuePair<eESFieldType, string>> metas, ref List<string> tags,
                                                     BaseESSeralizer serializer, Group group = null, CatalogGroupCache catalogGroupCache = null)
         {
-            bool result = false;
+            bool result = true;
             tags = new List<string>();
             metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();
             if (!doesGroupUsesTemplates.HasValue)
