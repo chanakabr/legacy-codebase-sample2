@@ -236,8 +236,7 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags,
-            MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers)
+        public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags, MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers)
         {
             string normalIndexAnalyzer = specificLanguageAnalyzers.normalIndexAnalyzer;
             string normalSearchAnalyzer = specificLanguageAnalyzers.normalSearchAnalyzer;
@@ -644,19 +643,18 @@ namespace ElasticSearch.Common
             }
         }
 
-        public virtual string CreateEpgMapping(List<string> lMetasNames, List<string> lTags, string mappingName)
+        public virtual string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> lTags, MappingAnalyzers specificLanguageAnalyzers,
+                                                MappingAnalyzers defaultLanguageAnalyzers, string mappingName, bool shouldAddRouting)
         {
-            return CreateEpgMapping(lMetasNames, lTags, string.Empty, string.Empty, mappingName);
-        }
+            string normalIndexAnalyzer = specificLanguageAnalyzers.normalIndexAnalyzer;
+            string normalSearchAnalyzer = specificLanguageAnalyzers.normalSearchAnalyzer;
+            string autocompleteIndexAnalyzer = specificLanguageAnalyzers.autocompleteIndexAnalyzer;
+            string autocompleteSearchAnalyzer = specificLanguageAnalyzers.autocompleteSearchAnalyzer;
+            string suffix = specificLanguageAnalyzers.suffix;
+            string phoneticIndexAnalyzer = specificLanguageAnalyzers.phoneticIndexAnalyzer;
+            string phoneticSearchAnalyzer = specificLanguageAnalyzers.phoneticSearchAnalyzer;
 
-        public virtual string CreateEpgMapping(List<string> lMetasNames, List<string> lTags, string indexAnalyzer, string searchAnalyzer,
-                                                string mappingName, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
-                                                string suffix = null,
-                                                bool shouldAddRouting = true,
-                                                string phoneticIndexAnalyzer = null,
-                                                string phoneticSearchAnalyzer = null)
-        {
-            if (lMetasNames == null || lTags == null)
+            if (metasMap == null || lTags == null)
                 return string.Empty;
 
             ESMappingObj mappingObj = new ESMappingObj(mappingName);
@@ -732,8 +730,8 @@ namespace ElasticSearch.Common
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
                 analyzed = true,
-                search_analyzer = searchAnalyzer,
-                index_analyzer = indexAnalyzer
+                search_analyzer = normalSearchAnalyzer,
+                index_analyzer = normalIndexAnalyzer
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -769,8 +767,8 @@ namespace ElasticSearch.Common
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
                 analyzed = true,
-                search_analyzer = searchAnalyzer,
-                index_analyzer = indexAnalyzer
+                search_analyzer = normalSearchAnalyzer,
+                index_analyzer = normalIndexAnalyzer
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -837,8 +835,8 @@ namespace ElasticSearch.Common
                         type = ElasticSearch.Common.eESFieldType.STRING,
                         null_value = "",
                         analyzed = true,
-                        search_analyzer = searchAnalyzer,
-                        index_analyzer = indexAnalyzer
+                        search_analyzer = normalSearchAnalyzer,
+                        index_analyzer = normalIndexAnalyzer
                     });
 
                     if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -860,55 +858,77 @@ namespace ElasticSearch.Common
             #endregion
 
             #region Add metas mapping
+
             InnerMappingPropertyV1 metas = new InnerMappingPropertyV1()
             {
                 name = "metas"
             };
 
-            foreach (string metaName in lMetasNames)
+            if (metasMap != null && metasMap.Count > 0)
             {
-                if (!string.IsNullOrEmpty(metaName))
+                HashSet<string> mappedMetas = new HashSet<string>();
+                foreach (KeyValuePair<string, KeyValuePair<eESFieldType, string>> meta in metasMap)
                 {
-                    string sMetaName = metaName.ToLower();
-                    string sNullValue;
-                    eESFieldType eMetaType;
-                    GetMetaType(metaName, out eMetaType, out sNullValue);
-                    MultiFieldMappingPropertyV1 multiField = new ElasticSearch.Common.MultiFieldMappingPropertyV1()
+                    string sMetaName = meta.Key;
+                    if (!string.IsNullOrEmpty(sMetaName))
                     {
-                        name = sMetaName
-                    };
-                    multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
-                    {
-                        name = sMetaName,
-                        type = eMetaType,
-                        null_value = sNullValue,
-                        analyzed = false
-                    });
-                    multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
-                    {
-                        name = "analyzed",
-                        type = ElasticSearch.Common.eESFieldType.STRING,
-                        null_value = "",
-                        analyzed = true,
-                        search_analyzer = searchAnalyzer,
-                        index_analyzer = indexAnalyzer
-                    });
-
-                    if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
-                    {
-                        multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
+                        sMetaName = sMetaName.ToLower();
+                        // Don't create double mapping for metas in order to avoid errors
+                        if (mappedMetas.Contains(sMetaName))
                         {
-                            name = "autocomplete",
-                            type = ElasticSearch.Common.eESFieldType.STRING,
-                            null_value = "",
-                            analyzed = true,
-                            search_analyzer = autocompleteSearchAnalyzer,
-                            index_analyzer = autocompleteIndexAnalyzer
-                        });
+                            continue;
+                        }
+
+                        if (meta.Value.Key != eESFieldType.DATE)
+                        {
+                            MultiFieldMappingPropertyV1 multiField = new ElasticSearch.Common.MultiFieldMappingPropertyV1()
+                            {
+                                name = sMetaName
+                            };
+                            multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
+                            {
+                                name = sMetaName,
+                                type = meta.Value.Key,
+                                null_value = meta.Value.Value,
+                                analyzed = false
+                            });
+                            multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
+                            {
+                                name = "analyzed",
+                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                null_value = "",
+                                analyzed = true,
+                                search_analyzer = normalSearchAnalyzer,
+                                index_analyzer = normalIndexAnalyzer
+                            });
+
+                            if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+                            {
+                                multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
+                                {
+                                    name = "autocomplete",
+                                    type = ElasticSearch.Common.eESFieldType.STRING,
+                                    null_value = "",
+                                    analyzed = true,
+                                    search_analyzer = autocompleteSearchAnalyzer,
+                                    index_analyzer = autocompleteIndexAnalyzer
+                                });
+                            }
+
+                            metas.AddProperty(multiField);
+                        }
+                        else
+                        {
+                            metas.AddProperty(new BasicMappingPropertyV1()
+                            {
+                                name = sMetaName,
+                                type = eESFieldType.DATE,
+                                analyzed = false
+                            });
+                        }
+
+                        mappedMetas.Add(sMetaName);
                     }
-
-                    metas.AddProperty(multiField);
-
                 }
             }
 
