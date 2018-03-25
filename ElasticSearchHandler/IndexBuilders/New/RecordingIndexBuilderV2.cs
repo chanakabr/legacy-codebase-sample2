@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EpgBL;
 using ElasticSearch.Common;
+using Core.Catalog.CatalogManagement;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -52,7 +53,25 @@ namespace ElasticSearchHandler.IndexBuilders
             epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMapByRecordingStatuses(this.groupId, statuses);
             List<string> epgIds = new List<string>();
 
-            List<LanguageObj> languages = group.GetLangauges();
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            CatalogGroupCache catalogGroupCache = null;
+            Dictionary<ulong, Dictionary<string, EpgCB>> programs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
+            List<LanguageObj> languages = new List<LanguageObj>();
+            if (doesGroupUsesTemplates)
+            {
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling PopulateEpgIndex", groupId);
+                    return;
+                }
+
+                languages = group.GetLangauges();
+            }
+            else
+            {
+                languages = group.GetLangauges();
+            }
+
             List<EpgCB> epgs = new List<EpgCB>();
             EpgBL.TvinciEpgBL epgBL = new TvinciEpgBL(this.groupId);
 
@@ -85,7 +104,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             Dictionary<ulong, Dictionary<string, EpgCB>> epgDictionary = BuildEpgsLanguageDictionary(epgs);
 
-            this.AddEPGsToIndex(newIndexName, RECORDING, epgDictionary, group);
+            this.AddEPGsToIndex(newIndexName, RECORDING, epgDictionary, group, doesGroupUsesTemplates, catalogGroupCache);
         }
 
         /// <summary>
