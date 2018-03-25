@@ -2813,6 +2813,8 @@ namespace WebAPI.Reflection
                 case "KalturaChannelFilter":
                     switch(property.Name)
                     {
+                        case "ExcludeWatched":
+                            return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
                         case "KSql":
@@ -5595,6 +5597,8 @@ namespace WebAPI.Reflection
                 case "KalturaRelatedFilter":
                     switch(property.Name)
                     {
+                        case "ExcludeWatched":
+                            return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
                         case "KSql":
@@ -5691,6 +5695,8 @@ namespace WebAPI.Reflection
                 case "KalturaSearchAssetFilter":
                     switch(property.Name)
                     {
+                        case "ExcludeWatched":
+                            return "excludeWatched";
                         case "IdIn":
                             return "idIn";
                         case "KSql":

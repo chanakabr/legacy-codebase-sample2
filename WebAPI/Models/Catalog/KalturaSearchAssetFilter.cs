@@ -53,6 +53,15 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "idIn", IsNullable = true)]
         public string IdIn { get; set; }
 
+        /// <summary>
+        /// Exclude watched asset. 
+        /// </summary>
+        [DataMember(Name = "excludeWatched")]
+        [JsonProperty("excludeWatched")]
+        [XmlElement(ElementName = "excludeWatched", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public bool ExcludeWatched { get; set; }
+
         internal List<int> getTypeIn()
         {
             if (string.IsNullOrEmpty(TypeIn))

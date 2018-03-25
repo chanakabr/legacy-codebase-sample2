@@ -69,7 +69,7 @@ namespace WebAPI.Clients
 
         [Obsolete]
         public KalturaAssetInfoListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId, List<KalturaCatalogWith> with)
+            string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId, List<KalturaCatalogWith> with, bool excludeWatched)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -77,7 +77,7 @@ namespace WebAPI.Clients
             OrderObj order = new OrderObj();
             if (orderBy == null)
             {
-                order.m_eOrderBy =  OrderBy.RELATED;
+                order.m_eOrderBy = OrderBy.RELATED;
                 order.m_eOrderDir = OrderDir.DESC;
             }
             else
@@ -110,9 +110,9 @@ namespace WebAPI.Clients
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                requestId = requestId               
+                requestId = requestId
             };
-           
+
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
@@ -156,13 +156,103 @@ namespace WebAPI.Clients
             return result;
         }
 
+        public KalturaAssetListResponse SearchAssetsExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize,
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, bool excludeWatched,
+            KalturaDynamicOrderBy assetOrder = null, List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupId, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
+
+            if (assetTypes != null && assetTypes.Count > 0)
+            {
+                key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
+            }
+
+            if (epgChannelIds != null && epgChannelIds.Count > 0)
+            {
+                string strEpgChannelIds = string.Join(",", epgChannelIds.Select(at => at.ToString()).ToArray());
+                key.AppendFormat("_ec={0}", strEpgChannelIds);
+                filter = string.Format("(and {0} epg_channel_id:'{1}')", filter, strEpgChannelIds);
+            }
+
+            UnifiedSearchRequest request = null;
+            UnifiedSearchResponse searchResponse = null;
+            List<BaseObject> assetsBaseDataList = null;
+            List<BaseObject> totalAssetsBaseDataList = new List<BaseObject>();
+            int totalCount = 0;
+            List<long> userWatchedMediaIds = new List<long>();
+
+            while (true)
+            {
+                searchResponse = CatalogUtils.SearchAssets(groupId, userId, domainId, udid, language, pageIndex, pageSize, filter, assetTypes,
+                    getServerTime(), order, group, Signature, SignString, key.ToString(), groupBy, ref request);
+
+                if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+                {
+                    // get base objects list
+                    assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+                    int totalResults = assetsBaseDataList.Count;
+
+                    // Get user user's watched media and exclude them from searchResults
+                    if (pageIndex == 0)
+                    {
+                        userWatchedMediaIds = CatalogUtils.GetUserWatchedMediaIds(groupId, userId);
+                    }
+
+                    // filter out watched media 
+                    if (userWatchedMediaIds != null && userWatchedMediaIds.Count > 0)
+                    {
+                        List<string> searchIds = assetsBaseDataList.Select(x => x.AssetId).ToList();
+                        HashSet<string> existingIds = new HashSet<string>(searchIds.Except(userWatchedMediaIds.Select(x => x.ToString())));
+                        assetsBaseDataList = assetsBaseDataList.Where(x => existingIds.Contains(x.AssetId)).ToList();
+                    }
+                    
+                    if (totalCount + assetsBaseDataList.Count > pageSize)
+                    {
+                        totalAssetsBaseDataList.AddRange(assetsBaseDataList.Take(assetsBaseDataList.Count - totalCount));
+                        totalCount = pageSize.Value;
+                    }
+                    else
+                    {
+                        totalAssetsBaseDataList.AddRange(assetsBaseDataList);
+                        totalCount += assetsBaseDataList.Count;
+                    }
+
+                    if (totalResults < pageSize || totalCount == pageSize)
+                    {
+                        break;
+                    }
+
+                    pageIndex++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            // get assets from catalog/cache
+            result.Objects = CatalogUtils.GetAssets(totalAssetsBaseDataList, request, CacheDuration, managementData);
+            result.TotalCount = totalCount;
+
+            return result;
+        }
+
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
             List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
-            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);            
+            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
 
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
@@ -204,7 +294,7 @@ namespace WebAPI.Clients
                 order = order,
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
-                domainId = domainId                
+                domainId = domainId
             };
 
             if (groupBy != null && groupBy.Count > 0)
@@ -251,8 +341,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetCount GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language, 
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy)
+        public KalturaAssetCount GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language,
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy, bool excludeWatched)
         {
             KalturaAssetCount result = new KalturaAssetCount();
 
@@ -328,7 +418,7 @@ namespace WebAPI.Clients
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0)
             {
                 // get base objects list
-                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList(); //TODO: check assetsBaseDataList?
 
                 // map counts
                 result.SubCounts = Mapper.Map<List<KalturaAssetsCount>>(searchResponse.aggregationResults);
@@ -619,7 +709,8 @@ namespace WebAPI.Clients
         }
 
         [Obsolete]
-        public KalturaAssetInfoListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, List<KalturaCatalogWith> with)
+        public KalturaAssetInfoListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language,
+            int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, List<KalturaCatalogWith> with, bool excludeWatched)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -660,7 +751,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes,
-            KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null, List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null)
+            KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null, List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool excludeWatched = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -690,7 +781,7 @@ namespace WebAPI.Clients
                 m_nMediaTypes = mediaTypes,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                m_sFilter = filter, 
+                m_sFilter = filter,
                 OrderObj = order
             };
             if (groupBy != null && groupBy.Count > 0)
@@ -712,7 +803,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoListResponse GetRelatedMediaExternal(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, 
+        public KalturaAssetInfoListResponse GetRelatedMediaExternal(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
                                                                     int mediaId, List<int> mediaTypes, int utcOffset, List<KalturaCatalogWith> with, string freeParam)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
@@ -863,10 +954,10 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoListResponse GetChannelAssets(int groupId, string siteGuid, int domainId, string udid, string language, 
+        public KalturaAssetInfoListResponse GetChannelAssets(int groupId, string siteGuid, int domainId, string udid, string language,
             int pageIndex, int? pageSize,
             List<KalturaCatalogWith> with,
-            int channelId, KalturaOrder? orderBy, string filterQuery)
+            int channelId, KalturaOrder? orderBy, string filterQuery, bool excludeWatched)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -932,6 +1023,7 @@ namespace WebAPI.Clients
             {
                 // get base objects list
                 List<BaseObject> assetsBaseDataList = channelResponse.searchResults.Select(x => x as BaseObject).ToList();
+                result.TotalCount = channelResponse.m_nTotalItems;
 
                 // get assets from catalog/cache
                 List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
@@ -942,7 +1034,6 @@ namespace WebAPI.Clients
                     result.Objects = assetsInfo.Select(a => (KalturaAssetInfo)a).ToList();
                 }
 
-                result.TotalCount = channelResponse.m_nTotalItems;
             }
 
             return result;
@@ -1279,7 +1370,7 @@ namespace WebAPI.Clients
 
             EpgResponse epgProgramResponse = null;
 
-            var isBaseResponse = CatalogUtils.GetBaseResponse <EpgResponse>(request, out  epgProgramResponse);
+            var isBaseResponse = CatalogUtils.GetBaseResponse<EpgResponse>(request, out epgProgramResponse);
             if (isBaseResponse && epgProgramResponse != null)
             {
                 result = CatalogConvertor.ConvertEPGChannelAssets(groupId, epgProgramResponse.programsPerChannel, with);
@@ -1493,7 +1584,7 @@ namespace WebAPI.Clients
 
         }
 
-        public KalturaAssetInfoListResponse GetExternalChannelAssets(int groupId, string channelId, 
+        public KalturaAssetInfoListResponse GetExternalChannelAssets(int groupId, string channelId,
             string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             KalturaOrder? orderBy, List<KalturaCatalogWith> with,
             string deviceType = null, string utcOffset = null, string freeParam = null)
@@ -1554,7 +1645,7 @@ namespace WebAPI.Clients
             }
 
             if (searchResponse == null || searchResponse.status == null)
-            { 
+            {
                 // Bad response received from WS
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
@@ -1571,7 +1662,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = 
+                List<KalturaIAssetable> assetsInfo =
                     CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // build AssetInfoWrapper response
@@ -1592,7 +1683,7 @@ namespace WebAPI.Clients
         {
             int t;
 
-            if (assetType != KalturaAssetType.recording)                
+            if (assetType != KalturaAssetType.recording)
                 if (string.IsNullOrEmpty(assetId) || !int.TryParse(assetId, out t))
                     throw new ClientException((int)StatusCode.BadRequest, "Invalid Asset id");
 
@@ -1633,7 +1724,7 @@ namespace WebAPI.Clients
                     m_nTotalBitRate = totalBitRate
                 }
             };
-            
+
             // fire search request
             MediaMarkResponse response = new MediaMarkResponse();
 
@@ -1739,7 +1830,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetListResponse GetExternalChannelAssets(int groupId, string channelId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, 
+        internal KalturaAssetListResponse GetExternalChannelAssets(int groupId, string channelId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize,
             KalturaAssetOrderBy orderBy, string deviceType, string utcOffset, string freeParam, KalturaDynamicOrderBy assetOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
@@ -1761,7 +1852,7 @@ namespace WebAPI.Clients
                 internalChannelID = channelId,
                 m_nGroupID = groupId,
                 m_nPageIndex = pageIndex,
-                m_nPageSize = pageSize.Value,                
+                m_nPageSize = pageSize.Value,
                 m_oFilter = new Filter()
                 {
                     m_sDeviceId = udid,
@@ -1859,7 +1950,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetListResponse GetSearchMediaExternal(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, string query, 
+        internal KalturaAssetListResponse GetSearchMediaExternal(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, string query,
             List<int> mediaTypes, int utcOffset)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
@@ -1917,7 +2008,8 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
-            KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null, KalturaBaseResponseProfile responseProfile = null)
+            KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
+            KalturaBaseResponseProfile responseProfile = null, bool excludeWatched = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -1931,7 +2023,7 @@ namespace WebAPI.Clients
             {
                 order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value, assetOrder);
             }
-            
+
 
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
@@ -2044,13 +2136,13 @@ namespace WebAPI.Clients
                 m_nBundleID = id
             };
 
-              // build failover cache key
+            // build failover cache key
             StringBuilder key = new StringBuilder();
             key.AppendFormat("bundle_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}_type={6}",
                 id, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty, bundleType.ToString());
 
             result = CatalogUtils.GetMedia(request, key.ToString(), CacheDuration);
-           
+
             return result;
         }
 
@@ -2089,7 +2181,7 @@ namespace WebAPI.Clients
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 m_sSiteGuid = userId,
-                domainId = domainId,            
+                domainId = domainId,
                 m_dServerTime = getServerTime(),
                 assetId = id,
                 assetType = CatalogMappings.ConvertToAssetType(AssetType),
@@ -2192,7 +2284,7 @@ namespace WebAPI.Clients
             OrderObj order = new OrderObj();
             if (assetOrder != null || orderBy != null)
             {
-                   order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value, assetOrder);
+                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value, assetOrder);
             }
             else
             {
@@ -2220,7 +2312,7 @@ namespace WebAPI.Clients
                 m_nPageSize = pageSize.Value,
                 m_sSiteGuid = userID,
                 domainId = domainId,
-                orderBy = order,                
+                orderBy = order,
                 m_dServerTime = getServerTime(),
                 channelIds = channelIdsToFilter,
                 scheduledRecordingAssetType = CatalogMappings.ConvertKalturaScheduledRecordingAssetType(scheduledRecordingType),
