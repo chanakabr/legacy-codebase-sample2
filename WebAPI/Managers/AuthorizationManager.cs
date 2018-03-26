@@ -330,8 +330,14 @@ namespace WebAPI.Managers
             // 9. privileges - we do not support it so copy from app token
             var privilagesList = new Dictionary<string, string>();
 
-            privilagesList.Add(APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token);
-            privilagesList.Add(APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
+            if (!privilagesList.ContainsKey(APP_TOKEN_PRIVILEGE_APP_TOKEN))
+            {
+                privilagesList.Add(APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token);
+            }
+            if (!privilagesList.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
+            {
+                privilagesList.Add(APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
+            }
 
             if (!string.IsNullOrEmpty(appToken.SessionPrivileges))
             {
