@@ -781,5 +781,50 @@ namespace WebAPI.Utils
             return mediaIds;
         }
 
+        public static UnifiedSearchResponse GetChannelAssets(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, int internalChannelId,
+            string filterQuery, DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, ref InternalChannelRequest request)
+        {
+            UnifiedSearchResponse channelResponse = new UnifiedSearchResponse();
+
+            // build request
+            request = new InternalChannelRequest()
+            {
+                m_sSignature = signature,
+                m_sSignString = signString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = userId.ToString(),
+                domainId = domainId,
+                order = order,
+                internalChannelID = internalChannelId.ToString(),
+                filterQuery = filterQuery,
+                m_dServerTime = serverTime,
+                m_bIgnoreDeviceRuleID = false
+            };
+
+            // fire request
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out channelResponse, true, failoverCacheKey))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (channelResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(channelResponse.status.Code, channelResponse.status.Message);
+            }
+
+            return channelResponse;
+        }
     }
 }

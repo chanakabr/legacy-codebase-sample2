@@ -214,7 +214,7 @@ namespace WebAPI.Clients
                         HashSet<string> existingIds = new HashSet<string>(searchIds.Except(userWatchedMediaIds.Select(x => x.ToString())));
                         assetsBaseDataList = assetsBaseDataList.Where(x => existingIds.Contains(x.AssetId)).ToList();
                     }
-                    
+
                     if (totalCount + assetsBaseDataList.Count > pageSize)
                     {
                         totalAssetsBaseDataList.AddRange(assetsBaseDataList.Take(assetsBaseDataList.Count - totalCount));
@@ -2009,7 +2009,7 @@ namespace WebAPI.Clients
 
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
             KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
-            KalturaBaseResponseProfile responseProfile = null, bool excludeWatched = false)
+            KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2088,6 +2088,94 @@ namespace WebAPI.Clients
                 result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
                 result.TotalCount = channelResponse.m_nTotalItems;
             }
+
+            return result;
+        }
+
+        internal KalturaAssetListResponse GetChannelAssetsExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
+           KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
+           KalturaBaseResponseProfile responseProfile = null)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            // Create catalog order object
+            OrderObj order = new OrderObj();
+            if ((assetOrder == null && orderBy == null) || shouldUseChannelDefault)
+            {
+                order.m_eOrderBy = OrderBy.NONE;
+            }
+            else
+            {
+                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value, assetOrder);
+            }
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+           
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("channel_id={0}_pi={1}_pz={2}_g={3}_l={4}_o_{5}", id, pageIndex, pageSize, groupId, language, orderBy);
+
+            InternalChannelRequest request = null;
+            UnifiedSearchResponse searchResponse = null;
+            List<BaseObject> assetsBaseDataList = null;
+            List<BaseObject> totalAssetsBaseDataList = new List<BaseObject>();
+            int totalCount = 0;
+            List<long> userWatchedMediaIds = new List<long>();
+
+            while (true)
+            {
+                searchResponse = CatalogUtils.GetChannelAssets(groupId, userId, domainId, udid, language, pageIndex, pageSize, id, filterQuery,  getServerTime(), order, group, 
+                    Signature, SignString, key.ToString(), ref request);
+
+                if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+                {
+                    // get base objects list
+                    assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+                    int totalResults = assetsBaseDataList.Count;
+
+                    // Get user user's watched media and exclude them from searchResults
+                    if (pageIndex == 0)
+                    {
+                        userWatchedMediaIds = CatalogUtils.GetUserWatchedMediaIds(groupId, userId);
+                    }
+
+                    // filter out watched media 
+                    if (userWatchedMediaIds != null && userWatchedMediaIds.Count > 0)
+                    {
+                        List<string> searchIds = assetsBaseDataList.Select(x => x.AssetId).ToList();
+                        HashSet<string> existingIds = new HashSet<string>(searchIds.Except(userWatchedMediaIds.Select(x => x.ToString())));
+                        assetsBaseDataList = assetsBaseDataList.Where(x => existingIds.Contains(x.AssetId)).ToList();
+                    }
+
+                    if (totalCount + assetsBaseDataList.Count > pageSize)
+                    {
+                        totalAssetsBaseDataList.AddRange(assetsBaseDataList.Take(assetsBaseDataList.Count - totalCount));
+                        totalCount = pageSize.Value;
+                    }
+                    else
+                    {
+                        totalAssetsBaseDataList.AddRange(assetsBaseDataList);
+                        totalCount += assetsBaseDataList.Count;
+                    }
+
+                    if (totalResults < pageSize || totalCount == pageSize)
+                    {
+                        break;
+                    }
+
+                    pageIndex++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            // get assets from catalog/cache
+            result.Objects = CatalogUtils.GetAssets(totalAssetsBaseDataList, request, CacheDuration);
+            result.TotalCount = totalCount;
 
             return result;
         }

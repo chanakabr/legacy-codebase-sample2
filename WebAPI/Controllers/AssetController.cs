@@ -260,12 +260,29 @@ namespace WebAPI.Controllers
                 else if (filter is KalturaChannelFilter)
                 {
                     KalturaChannelFilter channelFilter = (KalturaChannelFilter)filter;
-                    if (pager == null)
-                        pager = new KalturaFilterPager();
+                    if (channelFilter.ExcludeWatched)
+                    {
+                        if (pager.getPageIndex() > 0)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
+                        }
 
-                    response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(),
+                        int userId = 0;
+                        if (!int.TryParse(userID, out userId))
+                        {
+                            throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
+                        }
+
+                        response = ClientsManager.CatalogClient().GetChannelAssetsExcludeWatched(groupId, userId, domainId, udid, language, pager.getPageIndex(),
                         pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy,
-                        responseProfile, channelFilter.ExcludeWatched);
+                        responseProfile);
+                    }
+                    else
+                    {
+                        response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(),
+                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy,
+                        responseProfile);
+                    }
                 }
                 else if (filter is KalturaBundleFilter)
                 {
