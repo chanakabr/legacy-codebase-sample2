@@ -45,16 +45,26 @@ namespace Core.Catalog
             try
             {
                 SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, definitions);
-
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
                 definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.IsOperatorSearch;
                 definitions.shouldIgnoreDeviceRuleID = request.shouldIgnoreDeviceRuleID;
-
-                GroupManager groupManager = new GroupManager();
-                Group group = groupManager.GetGroup(parentGroupID);
+                int parentGroupID = request.m_nGroupID;
+                GroupManager groupManager = null;
+                Group group = null;
+                CatalogManagement.CatalogGroupCache catalogGroupCache = null;
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(parentGroupID);
+                if (doesGroupUsesTemplates && !CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(parentGroupID, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetDefinitions", parentGroupID);
+                    return definitions;
+                }
+                else
+                {
+                    CatalogCache catalogCache = CatalogCache.Instance();
+                    parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
+                    groupManager = new GroupManager();
+                    group = groupManager.GetGroup(parentGroupID);
+                }                                    
 
                 definitions.isOperatorSearch = request.IsOperatorSearch;
                 if (definitions.isOperatorSearch)
@@ -149,7 +159,15 @@ namespace Core.Catalog
                     definitions.shouldSearchMedia = true;
                 }
 
-                HashSet<int> mediaTypes = new HashSet<int>(group.GetMediaTypes());
+                HashSet<int> mediaTypes = null;
+                if (doesGroupUsesTemplates)
+                {
+                    mediaTypes = new HashSet<int>(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x));
+                }
+                else
+                {
+                    mediaTypes = new HashSet<int>(group.GetMediaTypes());
+                }
 
                 if (mediaTypes != null)
                 {
@@ -166,7 +184,7 @@ namespace Core.Catalog
 
                 if (order.m_eOrderBy == OrderBy.META)
                 {
-                    if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+                    if (doesGroupUsesTemplates)
                     {
                         if (!CatalogManagement.CatalogManager.CheckMetaExsits(request.m_nGroupID, order.m_sOrderValue.ToLower()))
                         {
