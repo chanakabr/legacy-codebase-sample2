@@ -205,9 +205,15 @@ namespace WebAPI.Controllers
                             throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
                         }
 
+                        var groupbys = regularAssetFilter.getGroupByValue();
+                        if (groupbys != null && groupbys.Count > 0)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
+                        }
+
                         response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(groupId, userId, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
                             regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.ExcludeWatched,
-                            regularAssetFilter.DynamicOrderBy, regularAssetFilter.getGroupByValue(), responseProfile);
+                            regularAssetFilter.DynamicOrderBy);
                     }
                     else
                     {
@@ -222,9 +228,36 @@ namespace WebAPI.Controllers
                 else if (filter is KalturaRelatedFilter)
                 {
                     KalturaRelatedFilter relatedFilter = (KalturaRelatedFilter)filter;
-                    response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, domainId, udid,
-                    language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(), relatedFilter.OrderBy, relatedFilter.DynamicOrderBy,
-                    relatedFilter.getGroupByValue(), responseProfile, relatedFilter.ExcludeWatched);
+
+                    if (relatedFilter.ExcludeWatched)
+                    {
+                        if (pager.getPageIndex() > 0)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
+                        }
+
+                        int userId = 0;
+                        if (!int.TryParse(userID, out userId))
+                        {
+                            throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
+                        }
+
+                        var groupbys = relatedFilter.getGroupByValue();
+                        if (groupbys != null && groupbys.Count > 0)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
+                        }
+
+                        response = ClientsManager.CatalogClient().GetRelatedMediaExcludeWatched(groupId, userId, domainId, udid,
+                            language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(),
+                            relatedFilter.OrderBy, relatedFilter.DynamicOrderBy);
+                    }
+                    else
+                    {
+                        response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, domainId, udid, 
+                            language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(), 
+                            relatedFilter.OrderBy, relatedFilter.DynamicOrderBy, relatedFilter.getGroupByValue(), responseProfile);
+                    }
                 }
                 //Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. 
                 //Support on-demand, per asset enrichment. Related assets are provided from the external source (e.g. external recommendation engine). 
@@ -260,12 +293,28 @@ namespace WebAPI.Controllers
                 else if (filter is KalturaChannelFilter)
                 {
                     KalturaChannelFilter channelFilter = (KalturaChannelFilter)filter;
-                    if (pager == null)
-                        pager = new KalturaFilterPager();
+                    if (channelFilter.ExcludeWatched)
+                    {
+                        if (pager.getPageIndex() > 0)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
+                        }
 
-                    response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(),
+                        int userId = 0;
+                        if (!int.TryParse(userID, out userId))
+                        {
+                            throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
+                        }
+
+                        response = ClientsManager.CatalogClient().GetChannelAssetsExcludeWatched(groupId, userId, domainId, udid, language, pager.getPageIndex(),
+                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy);
+                    }
+                    else
+                    {
+                        response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(),
                         pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy,
-                        responseProfile, channelFilter.ExcludeWatched);
+                        responseProfile);
+                    }
                 }
                 else if (filter is KalturaBundleFilter)
                 {
@@ -643,7 +692,7 @@ namespace WebAPI.Controllers
                 string language = Utils.Utils.GetLanguageFromRequest();
 
                 response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.getPageIndex(), pager.PageSize, media_id, filter, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList(), false);
+                    language, pager.getPageIndex(), pager.PageSize, media_id, filter, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {
