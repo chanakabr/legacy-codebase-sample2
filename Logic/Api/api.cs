@@ -10369,7 +10369,7 @@ namespace Core.Api
                             m_nPageSize = 0,
                             AssetTypes = null,
                             FilterStatus = eWatchStatus.All,
-                            NumOfDays = 1000, // TODO: should be configurable? 
+                            NumOfDays = 365, 
                             OrderDir = ApiObjects.SearchObjects.OrderDir.DESC
                         };
 
