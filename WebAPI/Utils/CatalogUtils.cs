@@ -816,5 +816,50 @@ namespace WebAPI.Utils
 
             return channelResponse;
         }
+
+        internal static UnifiedSearchResponse GetMediaExcludeWatched(int groupId, int userId, int domainId, string udid, string language, 
+            int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, DateTime dateTime, OrderObj order, Group group, 
+            string signature, string signString, string failoverCacheKey, ref MediaRelatedRequest request)
+        {
+            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+
+            // build request
+             request = new MediaRelatedRequest()
+            {
+                m_sSignature = signature,
+                m_sSignString = signString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_nMediaID = mediaId,
+                m_nMediaTypes = mediaTypes,
+                m_sSiteGuid = userId.ToString(),
+                domainId = domainId,
+                m_sFilter = filter,
+                OrderObj = order
+            };
+
+            // fire request            
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, failoverCacheKey))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            if (searchResponse.status != null && searchResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+            }
+
+            return searchResponse;
+        }
     }
 }

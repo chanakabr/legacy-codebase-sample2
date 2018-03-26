@@ -339,7 +339,7 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }
+        }        
 
         public KalturaAssetCount GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy, bool excludeWatched)
@@ -710,7 +710,7 @@ namespace WebAPI.Clients
 
         [Obsolete]
         public KalturaAssetInfoListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language,
-            int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, List<KalturaCatalogWith> with, bool excludeWatched)
+            int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -751,7 +751,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes,
-            KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null, List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool excludeWatched = false)
+            KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null, List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -799,6 +799,85 @@ namespace WebAPI.Clients
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
             result = CatalogUtils.GetMedia(request, key.ToString(), CacheDuration, responseProfile);
+
+            return result;
+        }
+
+        public KalturaAssetListResponse GetRelatedMediaExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, 
+            int mediaId, string filter, List<int> mediaTypes, KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // convert order by
+            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
+                mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);          
+
+            MediaRelatedRequest request = null;
+            UnifiedSearchResponse searchResponse = null;
+            List<BaseObject> assetsBaseDataList = null;
+            List<BaseObject> totalAssetsBaseDataList = new List<BaseObject>();
+            int totalCount = 0;
+            List<long> userWatchedMediaIds = new List<long>();
+
+            while (true)
+            {
+                searchResponse = CatalogUtils.GetMediaExcludeWatched(groupId, userId, domainId, udid, language, pageIndex, pageSize, mediaId, filter, mediaTypes,
+                    getServerTime(), order, group, Signature, SignString, key.ToString(), ref request);
+
+                if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+                {
+                    // get base objects list
+                    assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+                    int totalResults = assetsBaseDataList.Count;
+
+                    // Get user user's watched media and exclude them from searchResults
+                    if (pageIndex == 0)
+                    {
+                        userWatchedMediaIds = CatalogUtils.GetUserWatchedMediaIds(groupId, userId);
+                    }
+
+                    // filter out watched media 
+                    if (userWatchedMediaIds != null && userWatchedMediaIds.Count > 0)
+                    {
+                        List<string> searchIds = assetsBaseDataList.Select(x => x.AssetId).ToList();
+                        HashSet<string> existingIds = new HashSet<string>(searchIds.Except(userWatchedMediaIds.Select(x => x.ToString())));
+                        assetsBaseDataList = assetsBaseDataList.Where(x => existingIds.Contains(x.AssetId)).ToList();
+                    }
+
+                    if (totalCount + assetsBaseDataList.Count > pageSize)
+                    {
+                        totalAssetsBaseDataList.AddRange(assetsBaseDataList.Take(assetsBaseDataList.Count - totalCount));
+                        totalCount = pageSize.Value;
+                    }
+                    else
+                    {
+                        totalAssetsBaseDataList.AddRange(assetsBaseDataList);
+                        totalCount += assetsBaseDataList.Count;
+                    }
+
+                    if (totalResults < pageSize || totalCount == pageSize)
+                    {
+                        break;
+                    }
+
+                    pageIndex++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            // get assets from catalog/cache
+            result.Objects = CatalogUtils.GetAssets(totalAssetsBaseDataList, request, CacheDuration);
+            result.TotalCount = totalCount;
 
             return result;
         }
