@@ -55,6 +55,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWithNoDomain = 2024, User does not exist = 2000
         /// </remarks>
         [Route("loginWithPin"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
@@ -108,6 +109,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardArgument("extraParams", "extra_params")]
         [Throws(eResponseStatus.UserNotInDomain)]
@@ -319,6 +321,7 @@ namespace WebAPI.Controllers
         /// <param name="password">New password</param>
         /// <remarks>Possible status codes: User does not exist = 2000</remarks>
         [Route("setInitialPassword"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaOTTUser setInitialPassword(int partnerId, string token, string password)
@@ -399,6 +402,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: User does not exist = 2000</remarks>
         [Route("updatePassword"), HttpPost]
         [ApiAuthorize(true)]
+        [BlockHttpMethods("GET")]
         [WebAPI.Managers.Scheme.ValidationException(WebAPI.Managers.Scheme.SchemeValidationType.ACTION_NAME)]
         public void updatePassword(int userId, string password)
         {
@@ -467,6 +471,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InsideLockTime)]
         [Throws(eResponseStatus.UserAllreadyLoggedIn)]
         [Route("updateLoginData"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardArgument("oldPassword", "old_password")]

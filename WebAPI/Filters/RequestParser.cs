@@ -129,9 +129,6 @@ namespace WebAPI.Filters
         public const string REQUEST_PATH_DATA = "pathData";
         public const string REQUEST_RESPONSE_PROFILE = "responseProfile";
 
-        public const string SERVICE_OTT_USER = "ottuser";
-        public const string ACTION_LOGIN = "login";
-
 
         public static object GetRequestPayload()
         {
@@ -425,12 +422,6 @@ namespace WebAPI.Filters
                     }
                 }
 
-                if (currentAction.ToLower() == ACTION_LOGIN && currentController.ToLower() == SERVICE_OTT_USER)
-                {
-                    createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "HTTP Method not supported");
-                    return;
-                }
-
                 pair = actionContext.Request.GetQueryNameValuePairs().Where(x => x.Key.ToLower() == "pathData");
                 if (pair != null)
                 {
@@ -598,12 +589,6 @@ namespace WebAPI.Filters
             {
                 var tokens = actionContext.Request.GetQueryNameValuePairs().ToDictionary((keyItem) => keyItem.Key,
                     (valueItem) => valueItem.Value);
-
-                if (((string)HttpContext.Current.Items[REQUEST_ACTION]).ToLower() == ACTION_LOGIN && ((string)HttpContext.Current.Items[REQUEST_SERVICE]).ToLower() == SERVICE_OTT_USER)
-                {
-                    createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "HTTP Method not supported");
-                    return;
-                }
 
                 if (tokens.ContainsKey("apiVersion"))
                 {

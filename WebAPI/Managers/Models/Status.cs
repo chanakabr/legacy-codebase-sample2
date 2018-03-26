@@ -126,6 +126,7 @@ namespace WebAPI.Managers.Models
         ArgumentsConflictEachOther = 500061,
         UnableToCreateHouseholdForRole = 500062,
         ExternalError = 500063,
-        MultirequestGenericMethod = 500064
+        MultirequestGenericMethod = 500064,
+        HttpMethodNotSupported = 500065,
     }
 }

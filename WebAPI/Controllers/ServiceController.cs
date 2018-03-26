@@ -48,6 +48,10 @@ namespace WebAPI.Controllers
             if (methodInfo == null)
                 throw new BadRequestException(BadRequestException.INVALID_ACTION, serviceName, actionName);
 
+            BlockHttpMethodsAttribute blockHttpMethods = (BlockHttpMethodsAttribute)methodInfo.GetCustomAttribute(typeof(BlockHttpMethodsAttribute));
+            if (blockHttpMethods != null && blockHttpMethods.HttpMethods != null && blockHttpMethods.HttpMethods.Contains(HttpContext.Current.Request.HttpMethod.ToLower()))
+                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+
             classInstance = (ApiController)Activator.CreateInstance(controller, null);
         }
 

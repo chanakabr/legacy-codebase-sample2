@@ -94,6 +94,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">PIN to set</param>
         /// <returns>The PIN</returns>
         [Route("update"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.UserDoesNotExist)]
@@ -276,6 +277,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">PIN to validate</param>
         /// <returns>Success / fail</returns>
         [Route("validate"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.NoPinDefined)]

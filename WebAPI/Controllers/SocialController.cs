@@ -28,6 +28,7 @@ namespace WebAPI.Controllers
         /// <param name="type">Social network type</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         [Route("getByToken"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.Conflict)]
@@ -138,6 +139,7 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
+        [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaLoginResponse Login(int partnerId, string token, KalturaSocialNetwork type, string udid = null)
