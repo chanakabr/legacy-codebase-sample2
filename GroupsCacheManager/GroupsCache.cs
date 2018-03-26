@@ -196,8 +196,8 @@ namespace GroupsCacheManager
                         try
                         {
                             mutex.WaitOne(-1);
-                            // try to get GRoup from CB 
 
+                            // try to get group from CB with version
                             VersionModuleCache versionModule = null;
 
                             try
@@ -214,9 +214,11 @@ namespace GroupsCacheManager
 
                             if (versionModule != null && versionModule.result != null)
                             {
-                                group = baseModule.result as Group;
+                                group = versionModule.result as Group;
                             }
-                            else
+                            
+                            // if group is still null 
+                            if (group == null)
                             {
                                 Group tempGroup = Utils.BuildGroup(nGroupID, true);
 
