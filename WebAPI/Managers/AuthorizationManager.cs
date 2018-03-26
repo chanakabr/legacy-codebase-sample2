@@ -345,7 +345,7 @@ namespace WebAPI.Managers
                     foreach (var privilige in splitedPrivileges)
                     {
                         var splitedPrivilege = privilige.Split(':');
-                        if (splitedPrivilege != null && splitedPrivilege.Length > 0)
+                        if (splitedPrivilege != null && splitedPrivilege.Length > 0 && !privilagesList.ContainsKey(splitedPrivilege[0]))
                         {
                             if (splitedPrivilege.Length == 2)
                             {
