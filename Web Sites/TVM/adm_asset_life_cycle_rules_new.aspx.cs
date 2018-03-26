@@ -172,7 +172,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_filterTagValues);
 
         DataRecordDropDownField dr_transitionIntervalUnits = new DataRecordDropDownField("lu_alcr_transition_interval_units", "name", "id", "", "", 60, false);
-        sQuery = "select 'Days' as txt, 1 as id";
+        sQuery = "select name as txt, id as id from Tvinci.dbo.lu_alcr_transition_interval_units where status=1";
         dr_transitionIntervalUnits.SetSelectsQuery(sQuery);
         dr_transitionIntervalUnits.Initialize("Transition Interval Unit", "adm_table_header_nbg", "FormInput", "", true);
         dr_transitionIntervalUnits.SetValue("1");
