@@ -701,7 +701,7 @@ namespace WebAPI.Utils
         }
 
         public static UnifiedSearchResponse SearchAssets(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, string filter, List<int> assetTypes,
-            DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, List<string> groupBy, ref UnifiedSearchRequest request)
+            DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, ref UnifiedSearchRequest request)
         {
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
 
@@ -727,17 +727,7 @@ namespace WebAPI.Utils
                 assetTypes = assetTypes,
                 m_sSiteGuid = userId.ToString(),
                 domainId = domainId
-            };
-
-            if (groupBy != null && groupBy.Count > 0)
-            {
-                request.searchGroupBy = new SearchAggregationGroupBy()
-                {
-                    groupBy = groupBy,
-                    distinctGroup = groupBy[0], // maybe will send string.empty - and Back-end will fill it if necessary
-                    topHitsCount = 1
-                };
-            }
+            };           
 
             // fire unified search request
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, failoverCacheKey))

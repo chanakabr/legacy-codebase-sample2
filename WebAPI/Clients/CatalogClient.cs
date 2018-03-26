@@ -158,7 +158,7 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse SearchAssetsExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, bool excludeWatched,
-            KalturaDynamicOrderBy assetOrder = null, List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null)
+            KalturaDynamicOrderBy assetOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -193,7 +193,7 @@ namespace WebAPI.Clients
             while (true)
             {
                 searchResponse = CatalogUtils.SearchAssets(groupId, userId, domainId, udid, language, pageIndex, pageSize, filter, assetTypes,
-                    getServerTime(), order, group, Signature, SignString, key.ToString(), groupBy, ref request);
+                    getServerTime(), order, group, Signature, SignString, key.ToString(), ref request);
 
                 if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
                 {
@@ -2093,8 +2093,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetChannelAssetsExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
-           KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
-           KalturaBaseResponseProfile responseProfile = null)
+           KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2111,7 +2110,7 @@ namespace WebAPI.Clients
 
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
-           
+
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
@@ -2126,7 +2125,7 @@ namespace WebAPI.Clients
 
             while (true)
             {
-                searchResponse = CatalogUtils.GetChannelAssets(groupId, userId, domainId, udid, language, pageIndex, pageSize, id, filterQuery,  getServerTime(), order, group, 
+                searchResponse = CatalogUtils.GetChannelAssets(groupId, userId, domainId, udid, language, pageIndex, pageSize, id, filterQuery, getServerTime(), order, group,
                     Signature, SignString, key.ToString(), ref request);
 
                 if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)

@@ -205,9 +205,15 @@ namespace WebAPI.Controllers
                             throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
                         }
 
+                        var groupbys = regularAssetFilter.getGroupByValue();
+                        if(groupbys != null && groupbys.Count>0)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
+                        }
+
                         response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(groupId, userId, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
                             regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.ExcludeWatched,
-                            regularAssetFilter.DynamicOrderBy, regularAssetFilter.getGroupByValue(), responseProfile);
+                            regularAssetFilter.DynamicOrderBy);
                     }
                     else
                     {
@@ -271,11 +277,10 @@ namespace WebAPI.Controllers
                         if (!int.TryParse(userID, out userId))
                         {
                             throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
-                        }
+                        }                       
 
                         response = ClientsManager.CatalogClient().GetChannelAssetsExcludeWatched(groupId, userId, domainId, udid, language, pager.getPageIndex(),
-                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy,
-                        responseProfile);
+                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy);
                     }
                     else
                     {
