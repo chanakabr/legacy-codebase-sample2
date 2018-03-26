@@ -567,7 +567,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static bool InvalidateCacheAndUpdateIndexForTagAssets(int groupId, long tagId, bool shouldUpdateRowsStatus, long userId)
         {
-            bool res = true;
+            bool result = true;
             try
             {
                 DataSet ds;
@@ -588,15 +588,15 @@ namespace Core.Catalog.CatalogManagement
 
                 CreateAssetsListForUpdateIndexFromDataSet(ds, out mediaIds, out epgIds);
 
-                res = InvalidateCacheAndUpdateIndexForAssets(groupId, res, mediaIds, epgIds);
+                result = InvalidateCacheAndUpdateIndexForAssets(groupId, false, mediaIds, epgIds);
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed InvalidateCacheAndUpdateIndexForTagAssets for groupId: {0}, tagId: {1}", groupId, tagId), ex);
-                res = false;
+                result = false;
             }
 
-            return res;
+            return result;
         }
 
         private static bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds,
@@ -615,7 +615,7 @@ namespace Core.Catalog.CatalogManagement
 
                 CreateAssetsListForUpdateIndexFromDataSet(ds, out mediaIds, out epgIds);
 
-                res = InvalidateCacheAndUpdateIndexForAssets(groupId, res, mediaIds, epgIds);
+                res = InvalidateCacheAndUpdateIndexForAssets(groupId, shouldDeleteAssets, mediaIds, epgIds);
             }
             catch (Exception ex)
             {
@@ -627,21 +627,23 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static bool InvalidateCacheAndUpdateIndexForAssets(int groupId, bool res, List<int> mediaIds, List<int> epgIds)
+        private static bool InvalidateCacheAndUpdateIndexForAssets(int groupId, bool shouldDeleteAssets, List<int> mediaIds, List<int> epgIds)
         {
+            bool result = true;
             if (mediaIds != null && mediaIds.Count > 0)
             {
+                eAction action = shouldDeleteAssets ? eAction.Delete : eAction.Update;
                 // update medias index
-                if (!Core.Catalog.Module.UpdateIndex(mediaIds, groupId, eAction.Update))
+                if (!Core.Catalog.Module.UpdateIndex(mediaIds, groupId, action))
                 {
-                    res = false;
+                    result = false;
                     log.ErrorFormat("Error while update Media index. groupId:{0}, mediaIds:{1}", groupId, string.Join(",", mediaIds));
                 }
 
                 // invalidate medias
                 foreach (int mediaId in mediaIds)
                 {                    
-                    res = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, mediaId);
+                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, mediaId) && result;
                 }
             }
 
@@ -651,18 +653,18 @@ namespace Core.Catalog.CatalogManagement
                 // update epgs index
                 if (!Core.Catalog.Module.UpdateEpgIndex(epgIds, groupId, eAction.Update))
                 {
-                    res = false;
+                    result = false;
                     log.ErrorFormat("Error while update Epg index. groupId:{0}, epgIds:{1}", groupId, string.Join(",", epgIds));
                 }
 
                 // invalidate epgs
                 foreach (int epgId in epgIds)
                 {
-                    res = AssetManager.InvalidateAsset(eAssetTypes.EPG, epgId);
+                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, epgId) && result;
                 }
             }
 
-            return res;
+            return result;
         }
 
         private static void CreateAssetsListForUpdateIndexFromDataSet(DataSet ds, out List<int> mediaIds, out List<int> epgIds)
