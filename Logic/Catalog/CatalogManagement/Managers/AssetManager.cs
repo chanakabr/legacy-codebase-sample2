@@ -1645,6 +1645,19 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.GetMediaAssetForElasitcSearch(groupId, mediaId, catalogGroupCache.DefaultLanguage.ID);
+                if (ds == null || ds.Tables == null)
+                {
+                    log.WarnFormat("GetMediaForElasticSearchIndex - dataset or tables are null");
+                    return result;
+                }
+
+                // Basic details tables
+                if (ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count != 1)
+                {
+                    log.WarnFormat("GetMediaForElasticSearchIndex - basic details table is not valid");
+                    return result;
+                }
+
                 MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                 if (mediaAsset != null)
                 {

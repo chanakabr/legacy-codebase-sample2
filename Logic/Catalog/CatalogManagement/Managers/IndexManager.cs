@@ -110,45 +110,45 @@ namespace Core.Catalog.CatalogManagement
             {
                 //Create Media Object
                 Dictionary<int, Dictionary<int, Media>> mediaDictionary = GetGroupMedias(groupId, assetId);
-                if (mediaDictionary != null)
+                if (mediaDictionary != null && mediaDictionary.Count > 0 && mediaDictionary.ContainsKey(assetId))
                 {
-                    // Just to be sure
-                    if (mediaDictionary.ContainsKey(assetId))
+                    foreach (int languageId in mediaDictionary[assetId].Keys)
                     {
-                        foreach (int languageId in mediaDictionary[assetId].Keys)
+                        LanguageObj language = catalogGroupCache.LanguageMapById.ContainsKey(languageId) ? catalogGroupCache.LanguageMapById[languageId] : null;
+                        if (language != null)
                         {
-                            LanguageObj language = catalogGroupCache.LanguageMapById.ContainsKey(languageId) ? catalogGroupCache.LanguageMapById[languageId] : null;
-                            if (language != null)
+                            string suffix = null;
+                            if (!language.IsDefault)
                             {
-                                string suffix = null;
-                                if (!language.IsDefault)
-                                {
-                                    suffix = language.Code;
-                                }
+                                suffix = language.Code;
+                            }
 
-                                Media media = mediaDictionary[assetId][languageId];
-                                if (media != null)
+                            Media media = mediaDictionary[assetId][languageId];
+                            if (media != null)
+                            {
+                                string serializedMedia = esSerializer.SerializeMediaObject(media, suffix);
+                                string type = GetTanslationType(MEDIA, language);
+                                if (!string.IsNullOrEmpty(serializedMedia))
                                 {
-                                    string serializedMedia = esSerializer.SerializeMediaObject(media, suffix);
-                                    string type = GetTanslationType(MEDIA, language);
-                                    if (!string.IsNullOrEmpty(serializedMedia))
+                                    result = esApi.InsertRecord(groupId.ToString(), type, media.m_nMediaID.ToString(), serializedMedia);
+                                    if (!result)
                                     {
-                                        result = esApi.InsertRecord(groupId.ToString(), type, media.m_nMediaID.ToString(), serializedMedia);
-                                        if (!result)
-                                        {
-                                            log.Error("Error - " + string.Format("Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
-                                                                                    groupId, type, media.m_nMediaID, serializedMedia));
-                                        }
-                                        // support for old invalidation keys
-                                        else
-                                        {
-                                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetId));
-                                        }
+                                        log.Error("Error - " + string.Format("Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
+                                                                                groupId, type, media.m_nMediaID, serializedMedia));
+                                    }
+                                    // support for old invalidation keys
+                                    else
+                                    {
+                                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetId));
                                     }
                                 }
                             }
                         }
                     }
+                }
+                else
+                {
+                    result = true;
                 }
             }
             catch (Exception ex)
@@ -398,7 +398,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (channel == null)
                 {
-                    // isOperatorSearch = true becuase only operator can cause upsert of channel
+                    // isOperatorSearch = true because only operator can cause upsert of channel
                     channel = ChannelManager.GetChannelById(groupId, channelId, true);
                     if (channel == null)
                     {
@@ -412,25 +412,23 @@ namespace Core.Catalog.CatalogManagement
                 string serializedChannel = esSerializer.SerializeChannelObject(channel);
                 if (esApi.InsertRecord(index, type, channelId.ToString(), serializedChannel))
                 {
-                    if (UpdateChannelPercolator(groupId, new List<int>() { channelId }, channel))
+                    result = true;
+                    // TODO: Ask Ira should updateChannelPercolator result influence channel index result 
+                    if (!UpdateChannelPercolator(groupId, new List<int>() { channelId }, channel))
                     {
-                        result = true;
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Update channel percolator failed for Upsert Channel");
+                        log.ErrorFormat("Update channel percolator failed for Upsert Channel with channelId: {0}", channelId);                        
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error("Error - " + string.Format("Upsert Channel threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
+                log.Error("Error - " + string.Format("Upsert Channel threw an exception. channelId: {0}, Exception={1};Stack={2}", channelId, ex.Message, ex.StackTrace), ex);
             }
 
             if (!result)
             {
                 log.ErrorFormat("Upsert channel with id {0} failed", channelId);
-            }           
+            }
 
             return result;
         }

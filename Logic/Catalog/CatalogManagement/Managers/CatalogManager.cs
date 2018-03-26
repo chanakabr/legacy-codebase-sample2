@@ -1406,9 +1406,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             int defaultLanguage = catalogGroupCache.DefaultLanguage.ID;
-
-            List<Topic> tags = catalogGroupCache.TopicsMapBySystemName.Where(x => x.Value.Type == ApiObjects.MetaType.Tag).Select(x => x.Value).ToList();
-
             DataSet dataSet = null;
             try
             {
