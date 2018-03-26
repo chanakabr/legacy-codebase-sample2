@@ -1,27 +1,23 @@
-﻿using KLogMonitor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
-using System.Xml;
 using System.Linq;
-using WebAPI.Models.General;
-using WebAPI.ClientManagers.Client;
-using WebAPI.Managers.Models;
+using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
-using System.Web;
-using System.Xml.Serialization;
-using WebAPI.Utils;
-using WebAPI.Managers.Scheme;
-using WebAPI.Filters;
-using WebAPI.Exceptions;
-using WebAPI.Models.Renderers;
-using WebAPI.Controllers;
-using System.Text.RegularExpressions;
+using System.Xml;
 using WebAPI.App_Start;
+using WebAPI.Controllers;
+using WebAPI.Exceptions;
+using WebAPI.Filters;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+using WebAPI.Models.Renderers;
+using WebAPI.Utils;
 
 namespace Validator.Managers.Scheme
 {
@@ -36,7 +32,7 @@ namespace Validator.Managers.Scheme
         {
             this.type = type;
             _dependsOn = new List<string>();
-            
+
             AddDependencies(type, false);
         }
 
@@ -50,7 +46,7 @@ namespace Validator.Managers.Scheme
 
             if (type == typeof(KalturaOTTObject))
                 return;
-            
+
             if (type.IsSubclassOf(typeof(KalturaOTTObject)))
             {
                 if (!type.Name.Equals(this.type.Name))
@@ -92,7 +88,7 @@ namespace Validator.Managers.Scheme
         {
             return loadedTypes.Values.Where(field => _dependsOn.Contains(field.Name));
         }
-        
+
         public string Name
         {
             get
@@ -134,7 +130,7 @@ namespace Validator.Managers.Scheme
 
             Load();
         }
-        
+
         public void RemoveInvalidObjects()
         {
             controllers = controllers.Where(controller => SchemeManager.Validate(controller, false));
@@ -207,22 +203,22 @@ namespace Validator.Managers.Scheme
 
         private IEnumerable<Type> FixTypeDependencies(IEnumerable<Field> input, List<Type> output, List<string> added)
         {
-		    foreach (Field field in input)
-		    {
-                if(output.Contains(field.type))
-				    continue;		// already added
-                
-                if(added.Contains(field.Name))
-				    continue;
+            foreach (Field field in input)
+            {
+                if (output.Contains(field.type))
+                    continue;       // already added
+
+                if (added.Contains(field.Name))
+                    continue;
 
                 added.Add(field.Name);
                 IEnumerable<Field> dependencies = field.getDependencies();
                 FixTypeDependencies(dependencies, output, added);
 
                 output.Add(field.type);
-		    }
+            }
             return output;
-	    }
+        }
 
         private void loadErrors(Type exception)
         {
@@ -433,7 +429,7 @@ namespace Validator.Managers.Scheme
             writer.WriteStartElement("xml");
             writer.WriteAttributeString("apiVersion", GetAssemblyVersion());
             writer.WriteAttributeString("generatedDate", SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow).ToString());
-            
+
             //Printing enums
             writer.WriteStartElement("enums");
             foreach (Type type in enums.OrderBy(myType => myType.Name))
@@ -648,10 +644,17 @@ namespace Validator.Managers.Scheme
             string actionId = route.Template;
 
             // string routePrefix = assembly.GetType("WebAPI.Controllers.ServiceController").GetCustomAttribute<RoutePrefixAttribute>().Prefix;
-            
+
             writer.WriteStartElement("action");
             writer.WriteAttributeString("name", actionId);
-            writer.WriteAttributeString("enableInMultiRequest", "1");
+            if (action.IsGenericMethod)
+            {
+                writer.WriteAttributeString("enableInMultiRequest", "0");
+            }
+            else
+            {
+                writer.WriteAttributeString("enableInMultiRequest", "1");
+            }
             writer.WriteAttributeString("supportedRequestFormats", "json");
             writer.WriteAttributeString("supportedResponseFormats", "json,xml");
             writer.WriteAttributeString("description", getDescription(action));
@@ -750,7 +753,7 @@ namespace Validator.Managers.Scheme
         {
             return getDescription(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']", method.ReflectedType.FullName, method.Name, param.Name));
         }
-        
+
         private string getDescription(string xPath)
         {
             var classNode = assemblyXml.SelectNodes(xPath);
