@@ -6846,5 +6846,111 @@ namespace WebAPI.Reflection
             return null;
         }
         
+        public static bool IsHttpMethodBlocked(MethodInfo methodInfo, string httpMethod)
+        {
+            bool ret = false;
+            switch (methodInfo.DeclaringType.Name)
+            {
+                case "OttUserController":
+                    { 
+                        switch (methodInfo.Name)
+                        {
+                            case "Login":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "LoginWithPin":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "setInitialPassword":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "UpdateLoginData":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "updatePassword":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                    }
+                 }
+                 break;
+                    
+                case "PinController":
+                    { 
+                        switch (methodInfo.Name)
+                        {
+                            case "Update":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "Validate":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                    }
+                 }
+                 break;
+                    
+                case "SocialController":
+                    { 
+                        switch (methodInfo.Name)
+                        {
+                            case "GetByToken":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                            case "Login":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
+                    }
+                 }
+                 break;
+                    
+            }
+            
+            return ret;
+        }
+        
     }
 }

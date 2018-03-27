@@ -107,6 +107,7 @@ namespace Reflector
             wrtieServeActionContentType();
             wrtieIsNewStandardOnly();
             wrtieGetNewObjectType();
+            wrtieBlockHttpMethods();
         }
 
         static private string GetTypeName(Type type)
@@ -753,6 +754,73 @@ namespace Reflector
             file.WriteLine("            return ret;");
             file.WriteLine("        }");
             file.WriteLine("        ");
+        }
+
+        static void wrtieBlockHttpMethods()
+        {
+            file.WriteLine("        public static bool IsHttpMethodBlocked(MethodInfo methodInfo, string httpMethod)");
+            file.WriteLine("        {");
+            file.WriteLine("            bool ret = false;");
+            file.WriteLine("            switch (methodInfo.DeclaringType.Name)");
+            file.WriteLine("            {");
+
+            foreach (Type type in controllers)
+            {
+                wrtieHttpMethodBlocked(type);
+            }
+
+            file.WriteLine("            }");
+            file.WriteLine("            ");
+            file.WriteLine("            return ret;");
+            file.WriteLine("        }");
+            file.WriteLine("        ");
+        }
+
+        static void wrtieHttpMethodBlocked(Type controller)
+        {
+            List<MethodInfo> actions = controller.GetMethods().ToList();
+            actions.Sort(new MethodInfoComparer());
+
+            Dictionary<string, List<string>> blockedActions = new Dictionary<string, List<string>>();
+
+            foreach (MethodInfo action in actions)
+            {
+                if (action.DeclaringType != controller)
+                    continue;
+
+                BlockHttpMethodsAttribute blockHttpMethods = action.GetCustomAttribute<BlockHttpMethodsAttribute>(true);
+                if (blockHttpMethods != null && blockHttpMethods.HttpMethods != null && blockHttpMethods.HttpMethods.Count > 0)
+                {
+                    blockedActions.Add(action.Name, blockHttpMethods.HttpMethods);
+                }
+            }
+
+            if (blockedActions.Count == 0)
+                return;
+
+            file.WriteLine("                case \"" + controller.Name + "\":");
+            file.WriteLine("                    { ");
+            file.WriteLine("                        switch (methodInfo.Name)");
+            file.WriteLine("                        {");
+            foreach (var action in blockedActions)
+            {
+                file.WriteLine("                            case \"" + action.Key + "\":");
+                file.WriteLine("                            { ");
+                file.WriteLine("                                 List<string> methods = new List<string>();");
+                foreach (var method in action.Value)
+                {
+                    file.WriteLine("                                 methods.Add(\"" + method.ToLower() + "\");");
+                }
+
+                file.WriteLine("                                 return methods.Contains(httpMethod.ToLower());");
+                file.WriteLine("                            }");
+                file.WriteLine("                            break;");
+                file.WriteLine("                            ");
+            }
+            file.WriteLine("                    }");
+            file.WriteLine("                 }");
+            file.WriteLine("                 break;");
+            file.WriteLine("                    ");
         }
 
         static void wrtieFooter()
