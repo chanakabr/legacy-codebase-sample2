@@ -307,7 +307,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static List<Channel> GetChannels(int groupId, List<int> channelIds, bool isOperatorSearch)
         {
-            List<Channel> channels = null;
+            List<Channel> channels = new List<Channel>();
             try
             {
                 if (channelIds == null || channelIds.Count == 0)
