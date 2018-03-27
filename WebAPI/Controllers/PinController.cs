@@ -220,6 +220,7 @@ namespace WebAPI.Controllers
         /// <returns>Success / Fail</returns>
         [Route("updateOldStandard"), HttpPost]
         [OldStandardAction("update")]
+        [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [Obsolete]
         public bool UpdateOldStandard(string pin, KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)

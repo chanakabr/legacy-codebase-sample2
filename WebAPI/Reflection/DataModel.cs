@@ -6911,6 +6911,14 @@ namespace WebAPI.Reflection
                             }
                             break;
                             
+                            case "UpdateOldStandard":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
                             case "Validate":
                             { 
                                  List<string> methods = new List<string>();
