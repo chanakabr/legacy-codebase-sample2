@@ -8,7 +8,7 @@ namespace ConfigurationManager
     public class DatabaseConfiguration : ConfigurationValue
     {
         public NumericConfigurationValue ODBCCacheSeconds;
-        public StringConfigurationValue BillingConnection;
+        public StringConfigurationValue BillingConnectionString;
         public StringConfigurationValue ConnectionString;
         public StringConfigurationValue MainConnectionString;
         public StringConfigurationValue ConditionalAccessConnectionString;
@@ -29,7 +29,7 @@ namespace ConfigurationManager
             {
                 DefaultValue = 60
             };
-            BillingConnection = new StringConfigurationValue("BILLING_CONNECTION_STRING", this)
+            BillingConnectionString = new StringConfigurationValue("BILLING_CONNECTION_STRING", this)
             {
                 DefaultValue = "Driver={SQL Server};Server=amazonSQL;Database=billing;Uid=API;Pwd=QxK9yVXASB;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200;"
             };
@@ -89,7 +89,7 @@ namespace ConfigurationManager
         {
             bool result = true;
             result &= ODBCCacheSeconds.Validate();
-            result &= BillingConnection.Validate();
+            result &= BillingConnectionString.Validate();
             result &= ConnectionString.Validate();
             result &= MainConnectionString.Validate();
             result &= ConditionalAccessConnectionString.Validate();
