@@ -2478,7 +2478,8 @@ namespace Core.Catalog
 
         #endregion
 
-        internal static MediaSearchObj BuildBaseChannelSearchObject(GroupsCacheManager.Channel channel, BaseRequest request, OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId, LanguageObj oLanguage)
+        internal static MediaSearchObj BuildBaseChannelSearchObject(GroupsCacheManager.Channel channel, BaseRequest request, 
+            OrderObj orderObj, int nParentGroupID, List<string> lPermittedWatchRules, int[] nDeviceRuleId, LanguageObj oLanguage)
         {
             MediaSearchObj searchObject = new MediaSearchObj();
             searchObject.m_nGroupId = channel.m_nGroupID;
@@ -6806,6 +6807,20 @@ namespace Core.Catalog
             }
 
             definitions.filterPhrase = root;
+
+            #endregion
+            
+            #region Entitlements, user preferences
+
+            if (definitions.entitlementSearchDefinitions != null)
+            {
+                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, null, group.m_nParentGroupID, group);
+            }
+
+            if (definitions.shouldGetUserPreferences)
+            {
+                definitions.userPreferences = CatalogLogic.GetUserPreferences(request.m_nGroupID, Convert.ToInt32(request.m_sSiteGuid));
+            }
 
             #endregion
 
