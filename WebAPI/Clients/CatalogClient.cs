@@ -190,7 +190,7 @@ namespace WebAPI.Clients
             int totalCount = 0;
             List<long> userWatchedMediaIds = new List<long>();
 
-            while (true)
+            while (true && pageIndex < 10)
             {
                 searchResponse = CatalogUtils.SearchAssets(groupId, userId, domainId, udid, language, pageIndex, pageSize, filter, assetTypes,
                     getServerTime(), order, group, Signature, SignString, key.ToString(), ref request);
@@ -210,9 +210,15 @@ namespace WebAPI.Clients
                     // filter out watched media 
                     if (userWatchedMediaIds != null && userWatchedMediaIds.Count > 0)
                     {
-                        List<string> searchIds = assetsBaseDataList.Select(x => x.AssetId).ToList();
-                        HashSet<string> existingIds = new HashSet<string>(searchIds.Except(userWatchedMediaIds.Select(x => x.ToString())));
-                        assetsBaseDataList = assetsBaseDataList.Where(x => existingIds.Contains(x.AssetId)).ToList();
+                        var excludedMediaIds = assetsBaseDataList.Where(x => userWatchedMediaIds.Select(y => y.ToString()).ToList().Contains(x.AssetId) && x.AssetType != eAssetTypes.EPG && x.AssetType != eAssetTypes.NPVR);
+                        if (excludedMediaIds != null)
+                        {
+                            var res = assetsBaseDataList.Except(excludedMediaIds);
+                            if (res != null)
+                            {
+                                assetsBaseDataList = res.ToList();
+                            }
+                        }
                     }
 
                     if (totalCount + assetsBaseDataList.Count > pageSize)
@@ -339,7 +345,7 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }        
+        }
 
         public KalturaAssetCount GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy, bool excludeWatched)
@@ -803,7 +809,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetListResponse GetRelatedMediaExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, 
+        public KalturaAssetListResponse GetRelatedMediaExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize,
             int mediaId, string filter, List<int> mediaTypes, KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
@@ -817,7 +823,7 @@ namespace WebAPI.Clients
             // build failover cache key
             StringBuilder key = new StringBuilder();
             key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
-                mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);          
+                mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
             MediaRelatedRequest request = null;
             UnifiedSearchResponse searchResponse = null;
@@ -826,7 +832,7 @@ namespace WebAPI.Clients
             int totalCount = 0;
             List<long> userWatchedMediaIds = new List<long>();
 
-            while (true)
+            while (true && pageIndex < 10)
             {
                 searchResponse = CatalogUtils.GetMediaExcludeWatched(groupId, userId, domainId, udid, language, pageIndex, pageSize, mediaId, filter, mediaTypes,
                     getServerTime(), order, group, Signature, SignString, key.ToString(), ref request);
@@ -842,13 +848,18 @@ namespace WebAPI.Clients
                     {
                         userWatchedMediaIds = CatalogUtils.GetUserWatchedMediaIds(groupId, userId);
                     }
-
                     // filter out watched media 
                     if (userWatchedMediaIds != null && userWatchedMediaIds.Count > 0)
                     {
-                        List<string> searchIds = assetsBaseDataList.Select(x => x.AssetId).ToList();
-                        HashSet<string> existingIds = new HashSet<string>(searchIds.Except(userWatchedMediaIds.Select(x => x.ToString())));
-                        assetsBaseDataList = assetsBaseDataList.Where(x => existingIds.Contains(x.AssetId)).ToList();
+                        var excludedMediaIds = assetsBaseDataList.Where(x => userWatchedMediaIds.Select(y => y.ToString()).ToList().Contains(x.AssetId) && x.AssetType != eAssetTypes.EPG && x.AssetType != eAssetTypes.NPVR);
+                        if (excludedMediaIds != null)
+                        {
+                            var res = assetsBaseDataList.Except(excludedMediaIds);
+                            if (res != null)
+                            {
+                                assetsBaseDataList = res.ToList();
+                            }
+                        }
                     }
 
                     if (totalCount + assetsBaseDataList.Count > pageSize)
@@ -2202,7 +2213,7 @@ namespace WebAPI.Clients
             int totalCount = 0;
             List<long> userWatchedMediaIds = new List<long>();
 
-            while (true)
+            while (true && pageIndex < 10)
             {
                 searchResponse = CatalogUtils.GetChannelAssets(groupId, userId, domainId, udid, language, pageIndex, pageSize, id, filterQuery, getServerTime(), order, group,
                     Signature, SignString, key.ToString(), ref request);
@@ -2222,9 +2233,15 @@ namespace WebAPI.Clients
                     // filter out watched media 
                     if (userWatchedMediaIds != null && userWatchedMediaIds.Count > 0)
                     {
-                        List<string> searchIds = assetsBaseDataList.Select(x => x.AssetId).ToList();
-                        HashSet<string> existingIds = new HashSet<string>(searchIds.Except(userWatchedMediaIds.Select(x => x.ToString())));
-                        assetsBaseDataList = assetsBaseDataList.Where(x => existingIds.Contains(x.AssetId)).ToList();
+                        var excludedMediaIds = assetsBaseDataList.Where(x => userWatchedMediaIds.Select(y => y.ToString()).ToList().Contains(x.AssetId) && x.AssetType != eAssetTypes.EPG && x.AssetType != eAssetTypes.NPVR);
+                        if (excludedMediaIds != null)
+                        {
+                            var res = assetsBaseDataList.Except(excludedMediaIds);
+                            if (res != null)
+                            {
+                                assetsBaseDataList = res.ToList();
+                            }
+                        }
                     }
 
                     if (totalCount + assetsBaseDataList.Count > pageSize)
