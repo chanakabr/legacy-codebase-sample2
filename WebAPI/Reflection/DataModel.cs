@@ -6943,6 +6943,14 @@ namespace WebAPI.Reflection
                             }
                             break;
                             
+                            case "GetByTokenOldStandard":
+                            { 
+                                 List<string> methods = new List<string>();
+                                 methods.Add("get");
+                                 return methods.Contains(httpMethod.ToLower());
+                            }
+                            break;
+                            
                             case "Login":
                             { 
                                  List<string> methods = new List<string>();

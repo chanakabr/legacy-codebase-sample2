@@ -66,10 +66,12 @@ namespace WebAPI.Controllers
         [Route("getByTokenOldStandard"), HttpPost]
         [OldStandardAction("getByToken")]
         [ApiAuthorize]
+        [BlockHttpMethods("GET")]
         [Obsolete]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
         [Throws(eResponseStatus.UserEmailIsMissing)]
+
         public KalturaSocialResponse GetByTokenOldStandard(int partnerId, string token, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
