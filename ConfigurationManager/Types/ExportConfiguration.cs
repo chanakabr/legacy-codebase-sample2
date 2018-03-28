@@ -52,20 +52,5 @@ namespace ConfigurationManager
                 DefaultValue = 1
             };
         }
-
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= BasePath.Validate();
-            result &= PathFormat.Validate();
-            result &= FileNameFormat.Validate();
-            result &= FileNameDateFormat.Validate();
-            result &= MaxAssetsPerThread.Validate();
-            result &= MaxThreads.Validate();
-            result &= ThreadRetryLimit.Validate();
-            result &= FrequencyMinimumValue.Validate();
-
-            return result;
-        }
     }
 }

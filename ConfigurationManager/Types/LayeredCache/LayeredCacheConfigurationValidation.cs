@@ -31,7 +31,6 @@ namespace ConfigurationManager
                     layeredCacheTcmConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<LayeredCacheTcmConfig>(this.ObjectValue.ToString(), layeredCacheConfigSerializerSettings);
                 }
             }
-
             catch (Exception ex)
             {
                 LogError(string.Format("Could not parse layered cache configuration. Error = {0}", ex), ConfigurationValidationErrorLevel.Failure);

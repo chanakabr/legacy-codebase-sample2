@@ -15,10 +15,16 @@ namespace ConfigurationManager
 
         public ElasticSearchHandlerConfiguration(string key) : base(key)
         {
-            BulkSize = new ConfigurationManager.NumericConfigurationValue("bulk_size", this)
+            // if this is a sub-configuration value, the second consturctor should be used, sending "this" as a parent
+            BulkSize = new ConfigurationManager.NumericConfigurationValue("bulk_size", this) 
             {
+                // Since this is a remote tasks configuration value, it should be empty on phoenix, which is the component that is validated
                 ShouldAllowEmpty = true,
-                DefaultValue = 50
+                // default value can be set, but is not a must.
+                DefaultValue = 50,
+                // descriptions are important for inetgrators, they help them understand what is the meaning of this key
+                Description = "Number of documents to be updated in same ElasticSearch bulk when rebuilding the index. " +
+                "This value can be several hundreds, depending on typical document size and machine capabilities"
             };
 
             NumberOfShards = new ConfigurationManager.NumericConfigurationValue("shards", this)
