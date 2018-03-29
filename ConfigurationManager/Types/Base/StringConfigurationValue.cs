@@ -20,6 +20,8 @@ namespace ConfigurationManager
         {
             try
             {
+                base.Validate();
+
                 string value = Convert.ToString(this.ObjectValue);
 
                 if (string.IsNullOrEmpty(value))

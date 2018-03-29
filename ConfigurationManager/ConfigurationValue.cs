@@ -18,6 +18,7 @@ namespace ConfigurationManager
         public object DefaultValue;
         internal ConfigurationValue Parent;
         internal List<ConfigurationValue> Children;
+        internal string OriginalKey;
 
         #endregion
 
@@ -103,6 +104,11 @@ namespace ConfigurationManager
                 }
             }
 
+            if (!string.IsNullOrEmpty(this.OriginalKey))
+            {
+                ApplicationConfiguration.AddConfigurationValueWithOrigin(this);
+            }
+
             return result;
         }
 
@@ -128,9 +134,14 @@ namespace ConfigurationManager
                 builder.AppendFormat("Description: {0} ", this.Description);
             }
 
+            if (!string.IsNullOrEmpty(this.OriginalKey))
+            {
+                builder.AppendFormat("Original Key: {0} ", this.OriginalKey);
+            }
+
             string log = builder.ToString();
 
-            Console.WriteLine(log);
+            ApplicationConfiguration.WriteToLog(log);
         }
 
         #endregion

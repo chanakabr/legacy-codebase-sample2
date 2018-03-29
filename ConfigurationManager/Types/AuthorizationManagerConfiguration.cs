@@ -17,21 +17,24 @@ namespace ConfigurationManager
         {
             UsersSessionsKeyFormat = new ConfigurationManager.StringConfigurationValue("users_sessions_key_format", this)
             {
-                DefaultValue = "sessions_{0}"
+                DefaultValue = "sessions_{0}",
+                OriginalKey = "users_sessions_key_format",
             };
             RevokedKSKeyFormat = new ConfigurationManager.StringConfigurationValue("revoked_ks_key_format", this)
             {
-                DefaultValue = "r_ks_{0}"
+                DefaultValue = "r_ks_{0}",
+                OriginalKey = "revoked_ks_key_format"
             };
             RevokedKSMaxTTLSeconds = new ConfigurationManager.NumericConfigurationValue("revoked_ks_max_ttl_seconds", this)
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = 604800,
+                OriginalKey = "revoked_ks_max_ttl_seconds",
                 Description = "Revoked KS TTL in seconds. This key is global for all partners. Specific partner data overrides it, if partner has it."
             };
             RevokedSessionKeyFormat = new StringConfigurationValue("revoked_sessions_key_format", this)
             {
-                DefaultValue = "r_session_{0}"
+                DefaultValue = "r_session_{0}",
             };
         }
     }

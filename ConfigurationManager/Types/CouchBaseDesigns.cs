@@ -13,30 +13,33 @@
         {
             MediaMarkDesign = new StringConfigurationValue("media_mark", this)
             {
-                DefaultValue = "mediamark"
+                DefaultValue = "mediamark",
+                OriginalKey = "cb_media_mark_design"
             };
             EPGDesign = new StringConfigurationValue("epg", this)
             {
                 DefaultValue = "epg",
-                Description = "Original key is cb_epg_design"
+                OriginalKey = "cb_epg_design"
             };
             QueueMessagesDesign = new StringConfigurationValue("queue_messages", this)
             {
-                DefaultValue = "queue_messages"
+                DefaultValue = "queue_messages",
+                OriginalKey = "cb_queue_messages_design"
             };
             SocialFeedDesign = new StringConfigurationValue("social_feed", this)
             {
                 DefaultValue = "socialfeed",
-                Description = "Original key is cb_feed_design"
+                OriginalKey = "cb_feed_design"
             };
             SearchHistoryDesign = new StringConfigurationValue("search_history", this)
             {
-                DefaultValue = "searchHistory"
+                DefaultValue = "searchHistory",
+                OriginalKey = "search_history_design_doc"
             };
             StatisticsDesign = new StringConfigurationValue("statistics", this)
             {
                 DefaultValue = "statistics",
-                Description = "Original key is cb_statistics_design"
+                OriginalKey = "cb_statistics_design"
             };
         }
 

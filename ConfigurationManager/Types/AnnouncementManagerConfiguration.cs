@@ -16,12 +16,15 @@ namespace ConfigurationManager
         {
             PushDomainName = new StringConfigurationValue("PushDomainName", this)
             {
+                OriginalKey = "PushDomainName"
             };
             PushServerKey = new StringConfigurationValue("PushServerKey", this)
             {
+                OriginalKey = "PushServerKey"
             };
             PushServerIV = new StringConfigurationValue("PushServerIV", this)
             {
+                OriginalKey = "PushServerIV"
             };
         }
     }

@@ -1715,9 +1715,7 @@ namespace Core.ConditionalAccess
 
                 cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, psMessage);
             }
-
-
-
+            
             return true;
         }
 

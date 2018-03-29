@@ -18,10 +18,13 @@ namespace ConfigurationManager
 
         internal override bool Validate()
         {
+
             bool result = true;
 
             try
             {
+                base.Validate();
+
                 if (this.ObjectValue == null)
                 {
                     ConfigurationValidationErrorLevel level = ConfigurationValidationErrorLevel.Optional;

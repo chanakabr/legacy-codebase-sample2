@@ -22,6 +22,8 @@ namespace ConfigurationManager
 
             try
             {
+                base.Validate();
+
                 if (this.ObjectValue == null)
                 {
                     ConfigurationValidationErrorLevel level = ConfigurationValidationErrorLevel.Optional;

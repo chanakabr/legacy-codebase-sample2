@@ -16,13 +16,15 @@ namespace ConfigurationManager
             RetryInterval = new ConfigurationManager.NumericConfigurationValue("retry_interval", this)
             {
                 ShouldAllowEmpty = true,
-                DefaultValue = 5
+                DefaultValue = 5,
+                OriginalKey = "CDVRAdapterRetryInterval"
             };
 
             MaximumRetriesAllowed = new NumericConfigurationValue("maximum_retries_allowed", this)
             {
                 ShouldAllowEmpty = true,
-                DefaultValue = 6
+                DefaultValue = 6,
+                OriginalKey = "CDVRAdapterMaximumRetriesAllowed"
             };
         }
     }

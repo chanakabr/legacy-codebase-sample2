@@ -1,10 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace ConfigurationManager
 {
     public class ApplicationConfiguration
     {
+
         #region Remote Tasks Configuration Values
 
         public static CeleryRoutingConfiguration CeleryRoutingConfiguration;
@@ -123,8 +127,10 @@ namespace ConfigurationManager
 
         #region Private Members
 
-        private static List<ConfigurationValue> AllConfigurationValues;
-        
+        private static List<ConfigurationValue> allConfigurationValues;
+        private static string logPath = string.Empty;
+        private static StringBuilder logBuilder;
+        private static List<ConfigurationValue> configurationValuesWithOriginalKeys;
         #endregion
 
         #region Public Static Methods
@@ -295,10 +301,10 @@ namespace ConfigurationManager
             GroupsCacheConfiguration = new NamedCacheConfiguration("groups_cache_configuration");
             GroupsCacheConfiguration.TTLSeconds.DefaultValue = 86400;
             GroupsCacheConfiguration.Name.DefaultValue = "GroupsCache";
-            GroupsCacheConfiguration.Name.Description = "Original key is GROUPS_CACHE_NAME";
+            GroupsCacheConfiguration.Name.OriginalKey = "GROUPS_CACHE_NAME";
             GroupsCacheConfiguration.Type.DefaultValue = "CouchBase";
-            GroupsCacheConfiguration.Type.Description = "Original key is GroupsCacheConfiguration";
-            GroupsCacheConfiguration.TTLSeconds.Description = "Original key is GroupsCacheDocTimeout";
+            GroupsCacheConfiguration.Type.OriginalKey = "GroupsCacheConfiguration";
+            GroupsCacheConfiguration.TTLSeconds.OriginalKey = "GroupsCacheDocTimeout";
 
             CouchBaseDesigns = new CouchBaseDesigns("couchbase_designs");
             EPGDocumentExpiry = new NumericConfigurationValue("epg_doc_expiry")
@@ -421,9 +427,13 @@ namespace ConfigurationManager
             QueueFailLimit = new NumericConfigurationValue("queue_fail_limit")
             {
                 DefaultValue = 3,
-                ShouldAllowEmpty = true
+                ShouldAllowEmpty = true,
+                Description = "Retry limit for RabbitMQ actions like enqueue."
             };
-            Version = new StringConfigurationValue("Version");
+            Version = new StringConfigurationValue("Version")
+            {
+                Description = "CouchBase document prefix. Each version has its own cached document to avoid backward compatibilty issues."
+            };
             PendingThresholdDays = new NumericConfigurationValue("pending_threshold_days")
             {
                 DefaultValue = 180,
@@ -492,7 +502,7 @@ namespace ConfigurationManager
                 DefaultValue = 4
             };
 
-            AllConfigurationValues = new List<ConfigurationValue>()
+            allConfigurationValues = new List<ConfigurationValue>()
                 {
                     CeleryRoutingConfiguration,
                     ImageResizerConfiguration,
@@ -594,37 +604,156 @@ namespace ConfigurationManager
                     PreviewModuleNumOfCancelOrRefundAttempts
                 };
 
+            configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
+
             if (shouldLoadDefaults)
             {
-                foreach (var configurationValue in AllConfigurationValues)
+                foreach (var configurationValue in allConfigurationValues)
                 {
                     configurationValue.LoadDefault();
                 }
             }
         }
 
-        public static bool Validate(string application = "", string host = "", string environment = "")
+        public static bool Validate(string application = "", string host = "", string environment = "", string logFilePath = "")
         {
             bool result = true;
+            logPath = logFilePath;
+
+            try
+            {
+                if (!string.IsNullOrEmpty(logPath))
+                {
+                    // create output directory
+                    string directory = Path.GetDirectoryName(logPath);
+
+                    if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+                }
+
+                logBuilder = new StringBuilder();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(string.Format("Error when creating directory for log file. ex = {0}", ex));
+            }
 
             try
             {
                 Initialize(false, application, host, environment);
 
-                foreach (var configurationValue in AllConfigurationValues)
+                foreach (var configurationValue in allConfigurationValues)
                 {
-                    result &= configurationValue.Validate();
+                    try
+                    {
+                        result &= configurationValue.Validate();
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteToLog(string.Format("Exception when validating: {0}", ex.Message));
+                        result = false;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(string.Format("Exception when validating: {0}", ex.Message));
+                WriteToLog(string.Format("Exception when validating: {0}", ex.Message));
                 result = false;
             }
 
-            Console.WriteLine(string.Format("Finished validating TCM and result is {0}", result));
+            WriteToLog(string.Format("Finished validating TCM and result is {0}", result));
+
+            try
+            {
+                if (!string.IsNullOrEmpty(logPath))
+                {
+                    File.AppendAllText(logPath, logBuilder.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(string.Format("Error when creating file for log file. ex = {0}", ex));
+            }
 
             return result;
+        }
+
+        public static void Migrate(string migrationFilePath)
+        {
+            if (!string.IsNullOrEmpty(migrationFilePath) && configurationValuesWithOriginalKeys != null)
+            {
+                StringBuilder builder = new StringBuilder();
+
+                JObject json = new JObject();
+
+                foreach (var configurationValue in configurationValuesWithOriginalKeys)
+                {
+                    string fullKey = configurationValue.GetFullKey();
+
+                    string[] keyPath = fullKey.Split('.');
+
+                    if (keyPath.Length > 0)
+                    {
+                        JToken currentJson = json;
+
+                        for (int i = 0; i < keyPath.Length - 1; i++)
+                        {
+                            string key = keyPath[i];
+
+                            if (currentJson[key] == null)
+                            {
+                                currentJson[key] = new JObject();
+                            }
+
+                            currentJson = currentJson[key];
+                        }
+
+                        object originalValue = TCMClient.Settings.Instance.GetValue<object>(configurationValue.OriginalKey);
+
+                        currentJson[keyPath[keyPath.Length - 1]] = new JValue(originalValue);
+                    }
+                }
+
+                try
+                {
+                    // create output directory
+                    string directory = Path.GetDirectoryName(migrationFilePath);
+
+                    if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+                    
+                    File.AppendAllText(migrationFilePath, json.ToString());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(string.Format("Error when creating migration file. ex = {0}", ex));
+                }
+            }
+        }
+
+        #endregion
+
+        #region Internal or Private Static Methods
+
+        internal static void WriteToLog(string log)
+        {
+            if (string.IsNullOrEmpty(logPath))
+            {
+                Console.WriteLine(log);
+            }
+            else
+            {
+                logBuilder.AppendLine(log);
+            }
+        }
+
+        internal static void AddConfigurationValueWithOrigin(ConfigurationValue configurationValue)
+        {
+            configurationValuesWithOriginalKeys.Add(configurationValue);
         }
 
         #endregion
