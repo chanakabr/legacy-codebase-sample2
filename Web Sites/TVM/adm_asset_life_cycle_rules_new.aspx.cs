@@ -179,7 +179,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         dr_transitionIntervalUnits.setFiledName("TransitionIntervalUnitsId");
         if (friendlyAssetLifeCycleRule != null)
         {
-            dr_transitionIntervalUnits.SetValue(friendlyAssetLifeCycleRule.TransitionIntervalUnits.ToString());
+            dr_transitionIntervalUnits.SetValue(((int)friendlyAssetLifeCycleRule.TransitionIntervalUnits).ToString());
         }
         theRecord.AddRecord(dr_transitionIntervalUnits);
 
