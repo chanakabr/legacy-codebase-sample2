@@ -1609,7 +1609,8 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedUnupdatedItem, eResponseStatus.ElasticSearchReturnedUnupdatedItem.ToString());
+                            result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedUnupdatedItem, string.Format("{0}, itemId: {1}",
+                                                        eResponseStatus.ElasticSearchReturnedUnupdatedItem.ToString()));
                             return result;
                         }
                     }
