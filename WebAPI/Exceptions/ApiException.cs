@@ -201,6 +201,21 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType Media_FILE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MediaFileTypeDoesNotExist, "The Asset File Type Does Not Exist");
         public static ClientExceptionType CAN_NOT_REMOVE_BASIC_META_IDS = new ClientExceptionType(eResponseStatus.CanNotRemoveBasicMetaIds, "Can Not Remove Basic Meta Ids from Asset");
         public static ClientExceptionType RATIO_ALREADY_EXIST = new ClientExceptionType(eResponseStatus.RatioAlreadyExist, "Ratio Already Exist");
+        public static ClientExceptionType IVALID_URL_FOR_IMAGE = new ClientExceptionType(eResponseStatus.InvalidUrlForImage, "Invalid Url For Image");
+        public static ClientExceptionType MEDIA_FILE_WITH_THIS_TYPE_ALREADY_EXISTS_FOR_ASSET = new ClientExceptionType(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, "Media File With This Type Already Exist For Asset");
+        public static ClientExceptionType DEFUALT_CDN_ADAPTER_PROFILE_NOT_CONFIGURED = new ClientExceptionType(eResponseStatus.DefaultCdnAdapterProfileNotConfigurd, "Default Cdn Adapter Profile Not Configured");
+        public static ClientExceptionType CDN_ADAPTER_PROFILE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.CdnAdapterProfileDoesNotExist, "Cdn Adapter Profile Does Not Exist");
+        public static ClientExceptionType IVALID_RATIO_FOR_IMAGE = new ClientExceptionType(eResponseStatus.InvalidRatioForImage, "Invalid Ratio For Image");
+        public static ClientExceptionType EXTERNAL_AND_ALT_EXTERNAL_ID_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.ExternaldAndAltExternalIdMustBeUnique, "External Id And Alt External Id Must Be Unique");
+        public static ClientExceptionType MEDIA_FILE_ALT_EXTERNAL_ID_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.MediaFileAltExternalIdMustBeUnique, "Media File Alt External Id Must Be Unique");
+        public static ClientExceptionType MEDIA_FILE_EXTERNAL_ID_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.MediaFileExternalIdMustBeUnique, "Media File External Id Must Be Unique");
+        public static ClientExceptionType MEDIA_FILE_NOT_BELONG_TO_ASSET = new ClientExceptionType(eResponseStatus.MediaFileNotBelongToAsset, "Media File Not Belong To Asset");
+        public static ClientExceptionType MEDIA_FILE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MediaFileDoesNotExist, "Media File Does Not Exist");
+        public static ClientExceptionType IMAGE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.ImageDoesNotExist, "Image Does Not Exist");
+        public static ClientExceptionType IMAGE_TYPE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.ImageTypeDoesNotExist, "Image Type Does Not Exist");
+        public static ClientExceptionType IMAGE_TYPE_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.ImageTypeAlreadyInUse, "Image Type Already In Use");
+        public static ClientExceptionType TAG_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.TagDoesNotExist, "Tag Does Not Exist");
+        public static ClientExceptionType TAG_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.TagAlreadyInUse, "Tag Already In Use");
 
         public static ApiExceptionType DUPLICATE_LANGUAGE_SENT = new ApiExceptionType(StatusCode.DuplicateLanguageSent, "languageCode: @lngCode@ has been sent more than once", "lngCode");        
         public static ApiExceptionType INVALID_VALUE_FOR_FEATURE = new ApiExceptionType(StatusCode.InvalidValueForFeature, "Invalid value for feature: @feature@. feature can only contain alphanumeric values and/or underscore up until 64 characters", "feature");
@@ -208,9 +223,11 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType GROUP_DOES_NOT_CONTAIN_LANGUAGE = new ApiExceptionType(StatusCode.GroupDoesNotContainLanguage, "language: @lng@ is not part of group supported languages", "lng");
         public static ApiExceptionType GLOBAL_LANGUAGE_MUST_BE_ASTERISK_FOR_WRITE_ACTIONS = new ApiExceptionType(StatusCode.GlobalLanguageParameterMustBeAsterisk, "Global language parameter must be asterisk for write actions of multilingualName");
         public static ApiExceptionType MULTI_VALUE_NOT_SENT_FOR_META_DATA_TYPE_STRING = new ApiExceptionType(StatusCode.MultiValueWasNotSentForMetaDataTypeString, "multipleValue property must have a value when KalturaMetaDataType equals STRING");
-        public static ApiExceptionType TAG_TRANSLATION_NOT_ALLOWED = new ApiExceptionType(StatusCode.TagTranslationNotAllowed, "Tag translations are not allowed using asset contoller, please use tag controller");
+        public static ApiExceptionType TAG_TRANSLATION_NOT_ALLOWED = new ApiExceptionType(StatusCode.TagTranslationNotAllowed, "Tag translations are not allowed using asset controller, please use tag controller");
 
         public static ClientExceptionType CHANNEL_SYSTEM_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.ChannelSystemNameAlreadyInUse, "System Name Already Used", "The channel system name is already in use");
+        public static ClientExceptionType CHANNEL_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.ChannelDoesNotExist, "Channel Does Not Exist");
+        public static ClientExceptionType CHANNEL_META_ORDER_BY_IS_INVALID = new ClientExceptionType(eResponseStatus.ChannelMetaOrderByIsInvalid, "Channel Meta Order By Is Invalid");
 
         // Api 5000 - 5999
         public static ClientExceptionType NO_PIN_DEFINED = new ClientExceptionType(eResponseStatus.NoPinDefined, "No Pin Defined", "No parental PIN was defined for this user/household");
