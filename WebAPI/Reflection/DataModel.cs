@@ -5695,14 +5695,20 @@ namespace WebAPI.Reflection
                 case "KalturaSearchAssetFilter":
                     switch(property.Name)
                     {
-                        case "ExcludeWatched":
-                            return "excludeWatched";
                         case "IdIn":
                             return "idIn";
                         case "KSql":
                             return "kSql";
                         case "TypeIn":
                             return "typeIn";
+                    }
+                    break;
+                    
+                case "KalturaSearchAssetListFilter":
+                    switch(property.Name)
+                    {
+                        case "ExcludeWatched":
+                            return "excludeWatched";
                     }
                     break;
                     
