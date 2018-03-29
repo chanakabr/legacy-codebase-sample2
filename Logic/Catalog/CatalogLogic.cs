@@ -1268,23 +1268,115 @@ namespace Core.Catalog
                 //call ws_users to get userType                  
                 request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
             }
-
+            
             UnifiedSearchDefinitions searchDefinitions = BuildUnifiedSearchObject(request);
 
+            UnifiedSearchResponse searchResult;
+
+            string cacheKey = GetSearchCacheKey(request.m_nGroupID, request.m_sSiteGuid, request.domainId, request.m_oFilter.m_sDeviceId, request.m_sUserIP, request.assetTypes, request.filterQuery,
+                searchDefinitions, searchDefinitions.PersonalData);
+            if (!string.IsNullOrEmpty(cacheKey))
+            {
+                log.DebugFormat("Going to get search assets from cache with key: {0}", cacheKey);
+                searchResult = GetUnifiedSearchResultsFromCache(request.m_nGroupID, searchDefinitions, cacheKey);
+            }
+            else
+            {
+                log.DebugFormat("Going to get search assets from ES");
+                searchResult = UnifiedSearch(request.m_nGroupID, searchDefinitions);
+            }
+
+            searchResultsList = searchResult.searchResults;
+            totalItems = searchResult.m_nTotalItems;
+            aggregationsResults = searchResult.aggregationResults;
+
+            return searchResultsList;
+        }
+
+
+        private static UnifiedSearchResponse GetUnifiedSearchResultsFromCache(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, string cacheKey)
+        {
+            UnifiedSearchResponse cachedResult = new UnifiedSearchResponse()
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            if (!LayeredCache.Instance.Get<UnifiedSearchResponse>(cacheKey, ref cachedResult, GetUnifiedSearchResults,
+                new Dictionary<string, object>() { { "groupId", groupId }, { "unifiedSearchDefinitions", unifiedSearchDefinitions } },
+                groupId, LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, null))
+            {
+                log.ErrorFormat("Failed getting unified search results from LayeredCache, key: {0}", cacheKey);
+            }
+
+            return cachedResult;
+        }
+
+        private static Tuple<UnifiedSearchResponse, bool> GetUnifiedSearchResults(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            UnifiedSearchResponse cachedResult = new UnifiedSearchResponse()
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("unifiedSearchDefinitions"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        UnifiedSearchDefinitions unifiedSearchDefinitions = funcParams["unifiedSearchDefinitions"] as UnifiedSearchDefinitions;
+
+                        if (groupId.HasValue && unifiedSearchDefinitions != null)
+                        {
+                            cachedResult = UnifiedSearch(groupId.Value, unifiedSearchDefinitions);
+
+                            if (cachedResult.status.Code == (int)eResponseStatus.OK)
+                            {
+                                result = true;
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Failed to get search results from ES, code = {0}, message = {1}", cachedResult.status.Code, cachedResult.status.Message);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetUnifiedSearchResults failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<UnifiedSearchResponse, bool>(cachedResult, result);
+        }
+
+        public static UnifiedSearchResponse UnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions)
+        {
+            UnifiedSearchResponse response = new UnifiedSearchResponse();
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+            int totalItems = 0;
+            int to = 0;
+            List<AggregationsResult> aggregationsResults = null;
 
             if (searcher != null)
             {
-                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to,
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to,
                     out aggregationsResults);
 
                 if (searchResults != null)
                 {
-                    searchResultsList = searchResults;
+                    response.searchResults = searchResults;
                 }
             }
 
-            return searchResultsList;
+            response.m_nTotalItems = totalItems;
+            response.aggregationResults = aggregationsResults;
+            response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+
+            return response;
         }
 
         /// <summary>
@@ -6199,7 +6291,7 @@ namespace Core.Catalog
             if (!string.IsNullOrEmpty(cacheKey))
             {
                 log.DebugFormat("Going to get channel assets from cache with key: {0}", cacheKey);
-                searchResult = GetUnifiedSearchResultsFromCache(parentGroupID, unifiedSearchDefinitions, channel, cacheKey);
+                searchResult = GetUnifiedSearchChannelResultsFromCache(parentGroupID, unifiedSearchDefinitions, channel, cacheKey);
             }
             else
             {
@@ -6354,7 +6446,7 @@ namespace Core.Catalog
             return response;
         }
 
-        private static UnifiedSearchResponse GetUnifiedSearchResultsFromCache(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel, string cacheKey)
+        private static UnifiedSearchResponse GetUnifiedSearchChannelResultsFromCache(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel, string cacheKey)
         {
             UnifiedSearchResponse cachedResult = new UnifiedSearchResponse()
             {
@@ -6429,6 +6521,100 @@ namespace Core.Catalog
                     {
                         cacheKey.AppendFormat("|{0}", unifiedSearchDefinitions.order.m_sOrderValue);
                         // IRA: what else with ordering
+                    }
+
+                    if (!string.IsNullOrEmpty(udid))
+                    {
+                        List<int> deviceRules = Api.api.GetDeviceAllowedRuleIDs(groupId, udid, domainId);
+                        if (deviceRules != null && deviceRules.Count > 0)
+                        {
+                            cacheKey.AppendFormat("_deviceRules={0}", string.Join("|", deviceRules.OrderBy(r => r)));
+                        }
+                    }
+
+                    if (personalData.Contains(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD))
+                    {
+                        UserPurhcasedAssetsResponse purchasedAssets = ConditionalAccess.Module.GetUserPurchasedAssets(groupId, domainId, null);
+                        if (purchasedAssets.status.Code == (int)eResponseStatus.OK)
+                        {
+                            if (purchasedAssets.assets != null && purchasedAssets.assets.Count > 0)
+                            {
+                                return key;
+                            }
+                            else
+                            {
+                                UserBundlesResponse bundelsResponse = ConditionalAccess.Module.GetUserBundles(groupId, domainId, null);
+                                if (bundelsResponse.status.Code == (int)eResponseStatus.OK)
+                                {
+                                    cacheKey.AppendFormat("_entitlements={0}",
+                                        bundelsResponse.channels != null && bundelsResponse.channels.Count > 0 ? string.Join("|", bundelsResponse.channels.OrderBy(c => c)) : "0");
+                                }
+                            }
+                        }
+                    }
+
+                    if (personalData.Contains(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD))
+                    {
+                        int countryId = Utils.GetIP2CountryId(groupId, ip);
+                        cacheKey.AppendFormat("_countryId={0}", countryId);
+                    }
+
+                    if (personalData.Contains(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD))
+                    {
+                        Dictionary<long, eRuleLevel> ruleIds = null;
+
+                        string parentalRulesKey = LayeredCacheKeys.GetUserParentalRulesKey(groupId, userId);
+                        bool parentalRulesCacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(parentalRulesKey, ref ruleIds,
+                            APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } },
+                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId) });
+
+                        if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
+                        {
+                            cacheKey.AppendFormat("_parentalRules={0}", string.Join("|", ruleIds.Keys.OrderBy(r => r)));
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(ksql))
+                    {
+                        string ksqlMd5 = null;
+                        try
+                        {
+                            ksqlMd5 = EncryptUtils.HashMD5(ksql);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error("Failed to MD5 KSQL for personal ES cache", ex);
+                            return key;
+                        }
+                        cacheKey.AppendFormat("_ksql={0}", ksqlMd5);
+                    }
+
+                    key = cacheKey.ToString();
+                }
+            }
+
+            return key;
+        }
+
+        private static string GetSearchCacheKey(int groupId, string userId, int domainId, string udid, string ip, List<int> assetTypes, string ksql, UnifiedSearchDefinitions unifiedSearchDefinitions, List<string> personalData)
+        {
+            string key = null;
+            if (LayeredCache.Instance.ShouldGoToCache(LayeredCacheConfigNames.UNIFIED_SEARCH_WITH_PERSONAL_DATA, groupId))
+            {
+                if (personalData != null && personalData.Count > 0)
+                {
+                    StringBuilder cacheKey = new StringBuilder("search");
+                    cacheKey.AppendFormat("_gId={0}", groupId);
+                    cacheKey.AppendFormat("_paging={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
+                    cacheKey.AppendFormat("_order={0}|{1}", unifiedSearchDefinitions.order.m_eOrderBy, unifiedSearchDefinitions.order.m_eOrderDir);
+                    if (unifiedSearchDefinitions.order.m_eOrderBy == OrderBy.META)
+                    {
+                        cacheKey.AppendFormat("|{0}", unifiedSearchDefinitions.order.m_sOrderValue);
+                        // IRA: what else with ordering
+                    }
+                    if (assetTypes != null && assetTypes.Count > 0)
+                    {
+                        cacheKey.AppendFormat("_types={0}", string.Join("|", assetTypes.OrderBy(at => at)));
                     }
 
                     if (!string.IsNullOrEmpty(udid))
