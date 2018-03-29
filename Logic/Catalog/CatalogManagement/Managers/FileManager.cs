@@ -492,7 +492,7 @@ namespace Core.Catalog.CatalogManagement
                     /* We don't care about the first table, we just checked to see count > 0 to know if the media file type was deleted successfully
                        The second table is needed to invalidate the assets that had media files of this file type  */
 
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                                        
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     string invalidationKey = LayeredCacheKeys.GetGroupMediaFileTypesInvalidationKey(groupId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
@@ -502,14 +502,20 @@ namespace Core.Catalog.CatalogManagement
                     DataTable mediaFilesDt = ds.Tables.Count > 1 && ds.Tables[1] != null ? ds.Tables[1] : null;
                     if (mediaFilesDt != null && mediaFilesDt.Rows != null && mediaFilesDt.Rows.Count > 0)
                     {
+                        // preparing media list for updating index and invalidating cache
+                        List<int> mediaIds = new List<int>();                        
                         foreach (DataRow dr in mediaFilesDt.Rows)
                         {
-                            long mediaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID");                            
+                            int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");                            
                             if (mediaId > 0)
                             {
-                                // invalidate asset with this file
-                                AssetManager.InvalidateAsset(eAssetTypes.MEDIA, mediaId);
+                                mediaIds.Add(mediaId);
                             }
+                        }
+
+                        if (!CatalogManager.InvalidateCacheAndUpdateIndexForAssets(groupId, false, mediaIds, null))
+                        {
+                            log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForAssets after DeleteMediaFileType, groupId: {0}, mediaFileType: {1}", groupId, id);
                         }
                     }
                 }

@@ -625,47 +625,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return res;
-        }
-
-        private static bool InvalidateCacheAndUpdateIndexForAssets(int groupId, bool shouldDeleteAssets, List<int> mediaIds, List<int> epgIds)
-        {
-            bool result = true;
-            if (mediaIds != null && mediaIds.Count > 0)
-            {
-                eAction action = shouldDeleteAssets ? eAction.Delete : eAction.Update;
-                // update medias index
-                if (!Core.Catalog.Module.UpdateIndex(mediaIds, groupId, action))
-                {
-                    result = false;
-                    log.ErrorFormat("Error while update Media index. groupId:{0}, mediaIds:{1}", groupId, string.Join(",", mediaIds));
-                }
-
-                // invalidate medias
-                foreach (int mediaId in mediaIds)
-                {                    
-                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, mediaId) && result;
-                }
-            }
-
-            // TODO: need to update epg object in CB
-            if (epgIds != null && epgIds.Count > 0)
-            {
-                // update epgs index
-                if (!Core.Catalog.Module.UpdateEpgIndex(epgIds, groupId, eAction.Update))
-                {
-                    result = false;
-                    log.ErrorFormat("Error while update Epg index. groupId:{0}, epgIds:{1}", groupId, string.Join(",", epgIds));
-                }
-
-                // invalidate epgs
-                foreach (int epgId in epgIds)
-                {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, epgId) && result;
-                }
-            }
-
-            return result;
-        }
+        }        
 
         private static void CreateAssetsListForUpdateIndexFromDataSet(DataSet ds, out List<int> mediaIds, out List<int> epgIds)
         {
@@ -693,6 +653,50 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
             }
+        }
+
+        #endregion
+
+        #region Internal Methods
+
+        internal static bool InvalidateCacheAndUpdateIndexForAssets(int groupId, bool shouldDeleteAssets, List<int> mediaIds, List<int> epgIds)
+        {
+            bool result = true;
+            if (mediaIds != null && mediaIds.Count > 0)
+            {
+                eAction action = shouldDeleteAssets ? eAction.Delete : eAction.Update;
+                // update medias index
+                if (!Core.Catalog.Module.UpdateIndex(mediaIds, groupId, action))
+                {
+                    result = false;
+                    log.ErrorFormat("Error while update Media index. groupId:{0}, mediaIds:{1}", groupId, string.Join(",", mediaIds));
+                }
+
+                // invalidate medias
+                foreach (int mediaId in mediaIds)
+                {
+                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, mediaId) && result;
+                }
+            }
+
+            // TODO: need to update epg object in CB
+            if (epgIds != null && epgIds.Count > 0)
+            {
+                // update epgs index
+                if (!Core.Catalog.Module.UpdateEpgIndex(epgIds, groupId, eAction.Update))
+                {
+                    result = false;
+                    log.ErrorFormat("Error while update Epg index. groupId:{0}, epgIds:{1}", groupId, string.Join(",", epgIds));
+                }
+
+                // invalidate epgs
+                foreach (int epgId in epgIds)
+                {
+                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, epgId) && result;
+                }
+            }
+
+            return result;
         }
 
         #endregion
