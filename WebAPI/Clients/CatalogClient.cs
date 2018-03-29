@@ -157,8 +157,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse SearchAssetsExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, bool excludeWatched,
-            KalturaDynamicOrderBy assetOrder = null)
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -348,7 +347,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetCount GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy, bool excludeWatched)
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy)
         {
             KalturaAssetCount result = new KalturaAssetCount();
 

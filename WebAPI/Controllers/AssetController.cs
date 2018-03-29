@@ -192,8 +192,9 @@ namespace WebAPI.Controllers
                 else if (filter is KalturaSearchAssetFilter)
                 {
                     KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
-                    if (regularAssetFilter.ExcludeWatched)
-                    {
+
+                    if (filter is KalturaSearchAssetListFilter && ((KalturaSearchAssetListFilter)filter).ExcludeWatched)
+                    {                        
                         if (pager.getPageIndex() > 0)
                         {
                             throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
@@ -212,7 +213,7 @@ namespace WebAPI.Controllers
                         }
 
                         response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(groupId, userId, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
-                            regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.ExcludeWatched,
+                            regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData,
                             regularAssetFilter.DynamicOrderBy);
                     }
                     else
@@ -254,8 +255,8 @@ namespace WebAPI.Controllers
                     }
                     else
                     {
-                        response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, domainId, udid, 
-                            language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(), 
+                        response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, domainId, udid,
+                            language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(),
                             relatedFilter.OrderBy, relatedFilter.DynamicOrderBy, relatedFilter.getGroupByValue(), responseProfile);
                     }
                 }
@@ -1038,7 +1039,7 @@ namespace WebAPI.Controllers
             {
                 KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                 response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, regularAssetFilter.KSql,
-                    regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList, regularAssetFilter.ExcludeWatched);
+                    regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList);
             }
             catch (ClientException ex)
             {

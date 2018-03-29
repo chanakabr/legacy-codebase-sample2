@@ -5261,6 +5261,11 @@
             groupBy
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetListFilter.ExcludeWatched">
+            <summary>
+            Exclude watched asset. 
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetCountListResponse">
             <summary>
             Asset counts wrapper - represents a group
@@ -5912,11 +5917,6 @@
         <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetFilter.IdIn">
             <summary>
             Comma separated list of EPG channel ids to search within. 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetFilter.ExcludeWatched">
-            <summary>
-            Exclude watched asset. 
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaSearchExternalFilter.Query">

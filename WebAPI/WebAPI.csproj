@@ -287,6 +287,7 @@
     <Compile Include="Models\API\KalturaCurrencyFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
     <Compile Include="Models\Catalog\KalturaBaseSearchAssetFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaSearchAssetListFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAdContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingPriceType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRenewal.cs" />
