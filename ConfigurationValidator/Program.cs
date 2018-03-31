@@ -12,6 +12,8 @@ namespace ConfigurationValidator
         private const string APPLICATION = "application";
         private const string HOST = "host";
         private const string ENVIRONMENT = "environment";
+        private const string OUTPUT_FILE = "outputfile";
+        private const string MIGRATE = "migrate";
 
         static void Main(string[] args)
         {
@@ -20,16 +22,20 @@ namespace ConfigurationValidator
             string application = string.Empty;
             string host = string.Empty;
             string environment = string.Empty;
+            string outputFile = string.Empty;
+            string migrate = string.Empty;
 
             if (arguments.ContainsKey("help") || arguments.ContainsKey("h"))
             {
                 Console.WriteLine("The purpose of this application is to validation the configuration in TCM.");
                 Console.WriteLine("Possible command line arguments, which are not case sensitive::");
-                Console.WriteLine("host: TCM value for host. Shortcut: o");
+                Console.WriteLine("host: TCM value for host. If empty, app.config value will be used. Shortcut: o");
                 Console.WriteLine("application: TCM value for application. If empty, app.config value will be used. Shortcut: a");
                 Console.WriteLine("environemnt: TCM value for environment. If empty, app.config value will be used. Shortcut: e");
                 Console.WriteLine("interactive: If application/host/environment shall be defined during runtime. Shortcut: i");
                 Console.WriteLine("wait: If validator shall wait for key press when finishing validatiog. Shortcut: w");
+                Console.WriteLine("outputfile: If validator should write its output in a file, this is the file path. Shortcut: f");
+                Console.WriteLine("migrate: If validator should create a JSON-formatted file which shows the changes from the previous version. Shortcut: m");
 
                 Environment.Exit(0);
             }
@@ -60,7 +66,19 @@ namespace ConfigurationValidator
                 }
             }
 
-            bool valid = ApplicationConfiguration.Validate(application, host, environment);
+            if (arguments.ContainsKey(OUTPUT_FILE))
+            {
+                outputFile = arguments[OUTPUT_FILE];
+            }
+
+            bool valid = ApplicationConfiguration.Validate(application, host, environment, outputFile);
+
+            if (arguments.ContainsKey(MIGRATE))
+            {
+                migrate = arguments[MIGRATE];
+
+                ApplicationConfiguration.Migrate(migrate);
+            }
 
             if (arguments.ContainsKey("wait") || arguments.ContainsKey("w"))
             {
@@ -102,6 +120,14 @@ namespace ConfigurationValidator
                         else if (key == "e")
                         {
                             key = ENVIRONMENT;
+                        }
+                        else if (key == "f")
+                        {
+                            key = OUTPUT_FILE;
+                        }
+                        else if (key == "m")
+                        {
+                            key = MIGRATE;
                         }
                     }
                     else
