@@ -26,7 +26,8 @@ namespace ConfigurationManager
 
             Task = new ConfigurationManager.StringConfigurationValue("task", this)
             {
-                DefaultValue = "distributed_tasks.cdr_notification"
+                DefaultValue = "distributed_tasks.cdr_notification",
+                OriginalKey = "ProfessionalServices.task"
             };
         }
 

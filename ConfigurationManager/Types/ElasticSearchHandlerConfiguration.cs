@@ -24,24 +24,28 @@ namespace ConfigurationManager
                 DefaultValue = 50,
                 // descriptions are important for inetgrators, they help them understand what is the meaning of this key
                 Description = "Number of documents to be updated in same ElasticSearch bulk when rebuilding the index. " +
-                "This value can be several hundreds, depending on typical document size and machine capabilities"
+                "This value can be several hundreds, depending on typical document size and machine capabilities",
+                OriginalKey = "ES_BULK_SIZE"
             };
 
             NumberOfShards = new ConfigurationManager.NumericConfigurationValue("shards", this)
             {
-                ShouldAllowEmpty = true
+                ShouldAllowEmpty = true,
+                OriginalKey = "ES_NUM_OF_SHARDS"
             };
 
             NumberOfReplicas = new NumericConfigurationValue("replicas", this)
             {
-                ShouldAllowEmpty = true
+                ShouldAllowEmpty = true,
+                OriginalKey = "ES_NUM_OF_REPLICAS"
             };
 
             ChannelStartDateDays = new ConfigurationManager.NumericConfigurationValue("channel_start_date_days", this)
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = 30,
-                Description = "Original key is Channel_StartDate_Days. Used in EPG Channel updater (when getting programs by channel Ids and dates)"
+                OriginalKey = "Channel_StartDate_Days",
+                Description = "Used in EPG Channel updater (when getting programs by channel Ids and dates)"
             };
         }
     }

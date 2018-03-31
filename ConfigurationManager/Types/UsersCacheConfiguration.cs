@@ -15,11 +15,13 @@ namespace ConfigurationManager
         {
             ShouldUseCache = new BooleanConfigurationValue("should_use_cache")
             {
-                DefaultValue = true
+                DefaultValue = true,
+                OriginalKey = "UseUsersCache"
             };
             TTLSeconds = new NumericConfigurationValue("ttl_seconds", this)
             {
-                DefaultValue = 1440.0
+                DefaultValue = 1440.0,
+                OriginalKey = "UsersCacheDocTimeout"
             };
         }
     }

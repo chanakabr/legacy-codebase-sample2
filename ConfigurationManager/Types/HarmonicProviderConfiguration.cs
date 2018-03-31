@@ -16,25 +16,30 @@ namespace ConfigurationManager
 
         public HarmonicProviderConfiguration(string key) : base(key)
         {
-            SmoothCatchup = new StringConfigurationValue("smooth_catchup", this);
-            SmoothStartOver = new StringConfigurationValue("smooth_start_over", this);
-            HLSStartOver = new StringConfigurationValue("hls_start_over", this);
-            HLSCatchup = new StringConfigurationValue("hls_catchup", this);
-            DashCatchup = new StringConfigurationValue("dash_start_over", this);
-            DashStartOver = new StringConfigurationValue("dash_catchup", this);
-        }
-
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= SmoothCatchup.Validate();
-            result &= SmoothStartOver.Validate();
-            result &= HLSStartOver.Validate();
-            result &= HLSCatchup.Validate();
-            result &= DashCatchup.Validate();
-            result &= DashStartOver.Validate();
-
-            return result;
+            SmoothCatchup = new StringConfigurationValue("smooth_catchup", this)
+            {
+                OriginalKey= "smooth_catchup"
+            };
+            SmoothStartOver = new StringConfigurationValue("smooth_start_over", this)
+            {
+                OriginalKey = "smooth_start_over"
+            };
+            HLSStartOver = new StringConfigurationValue("hls_start_over", this)
+            {
+                OriginalKey = "hls_start_over"
+            };
+            HLSCatchup = new StringConfigurationValue("hls_catchup", this)
+            {
+                OriginalKey = "hls_catchup"
+            };
+            DashCatchup = new StringConfigurationValue("dash_start_over", this)
+            {
+                OriginalKey = "dash_start_over"
+            };
+            DashStartOver = new StringConfigurationValue("dash_catchup", this)
+            {
+                OriginalKey = "dash_catchup"
+            };
         }
     }
 }

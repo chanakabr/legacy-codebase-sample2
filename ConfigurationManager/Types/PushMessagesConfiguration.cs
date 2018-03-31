@@ -16,11 +16,13 @@ namespace ConfigurationManager
         {
             NumberOfMessagesPerSecond = new NumericConfigurationValue("num_of_messages_per_second", this)
             {
-                DefaultValue = 3
+                DefaultValue = 3,
+                OriginalKey = "push_message.num_of_msg_per_seconds"
             };
             TTLSeconds = new NumericConfigurationValue("ttl_seconds", this)
             {
-                DefaultValue = 30
+                DefaultValue = 30,
+                OriginalKey = "push_message.ttl_seconds"
             };
         }
     }

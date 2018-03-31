@@ -273,30 +273,44 @@ namespace ConfigurationManager
             CouchbaseSectionMapping = new CouchbaseSectionMapping("CouchbaseSectionMapping");
             UsersCacheConfiguration = new UsersCacheConfiguration("users_cache_configuration");
             BaseCacheConfiguration = new NamedCacheConfiguration("base_cache_configuration");
+            BaseCacheConfiguration.TTLSeconds.OriginalKey = "Groups_Cache_TTL";
+
             DatabaseConfiguration = new DatabaseConfiguration("database_configuration");
 
             // ws cache configuration - reset defaults
             WSCacheConfiguration = new NamedCacheConfiguration("ws_cache_configuration");
             WSCacheConfiguration.TTLSeconds.DefaultValue = 7200;
+            WSCacheConfiguration.TTLSeconds.OriginalKey = "CACHE_TIME_IN_MINUTES";
             WSCacheConfiguration.Name.DefaultValue = "Cache";
+            WSCacheConfiguration.Name.OriginalKey = "CACHE_NAME";
+            WSCacheConfiguration.Type.OriginalKey = "CACHE_TYPE";
 
             SingleInMemoryCacheName = new StringConfigurationValue("single_in_memory_cache_name")
             {
                 DefaultValue = "Cache",
-                ShouldAllowEmpty = true
+                ShouldAllowEmpty = true,
+                OriginalKey = "CACHE_NAME"
             };
 
             ODBCWrapperCacheConfiguration = new NamedCacheConfiguration("odbc_wrapper_cache_configuration");
             ODBCWrapperCacheConfiguration.TTLSeconds.DefaultValue = 7200;
+            ODBCWrapperCacheConfiguration.TTLSeconds.OriginalKey = "CACHE_TIME_IN_MINUTES";
             ODBCWrapperCacheConfiguration.Name.DefaultValue = "Cache";
+            ODBCWrapperCacheConfiguration.Name.OriginalKey = "CACHE_NAME";
+            ODBCWrapperCacheConfiguration.Type.OriginalKey = "CACHE_TYPE";
 
             CatalogCacheConfiguration = new NamedCacheConfiguration("catalog_cache_configuration");
             CatalogCacheConfiguration.TTLSeconds.DefaultValue = 3600;
+            CatalogCacheConfiguration.TTLSeconds.OriginalKey = "CACHE_TIME_IN_MINUTES";
             CatalogCacheConfiguration.Name.DefaultValue = "CatalogCache";
+            CatalogCacheConfiguration.Name.OriginalKey = "CACHE_NAME";
+            CatalogCacheConfiguration.Type.OriginalKey = "CACHE_TYPE";
 
             NotificationCacheConfiguration = new NamedCacheConfiguration("notification_cache_configuration");
             NotificationCacheConfiguration.TTLSeconds.DefaultValue = 3600;
             NotificationCacheConfiguration.Name.DefaultValue = "NotificationCache";
+            NotificationCacheConfiguration.TTLSeconds.OriginalKey = "CACHE_TIME_IN_MINUTES";
+            NotificationCacheConfiguration.Name.OriginalKey = "CACHE_NAME";
 
             GroupsCacheConfiguration = new NamedCacheConfiguration("groups_cache_configuration");
             GroupsCacheConfiguration.TTLSeconds.DefaultValue = 86400;
@@ -712,7 +726,16 @@ namespace ConfigurationManager
 
                         object originalValue = TCMClient.Settings.Instance.GetValue<object>(configurationValue.OriginalKey);
 
-                        currentJson[keyPath[keyPath.Length - 1]] = new JValue(originalValue);
+                        string currentJsonKey = keyPath[keyPath.Length - 1];
+
+                        // default behvaior - take the original value from TCM and put it in JSON
+                        currentJson[currentJsonKey] = new JValue(originalValue);
+
+                        // If the original value is empty, but configuration validation forces its value to be not empty, then we will use the defined default value
+                        if ((originalValue == null || string.IsNullOrEmpty(Convert.ToString(originalValue))) && !configurationValue.ShouldAllowEmpty)
+                        {
+                            currentJson[currentJsonKey] = new JValue(configurationValue.DefaultValue);
+                        }
                     }
                 }
 

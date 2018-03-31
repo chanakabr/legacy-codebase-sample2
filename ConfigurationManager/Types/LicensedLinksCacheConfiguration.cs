@@ -14,21 +14,14 @@ namespace ConfigurationManager
         {
             ShouldUseCache = new BooleanConfigurationValue("should_use_cache", this)
             {
-                DefaultValue = true
+                DefaultValue = true,
+                OriginalKey = "ShouldUseLicenseLinkCache"
             };
             CacheTimeInSeconds = new NumericConfigurationValue("cache_time_in_seconds", this)
             {
-                DefaultValue = 300
+                DefaultValue = 300,
+                OriginalKey = "LicenseLinkCacheInSec"
             };
-        }
-
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= ShouldUseCache.Validate();
-            result &= CacheTimeInSeconds.Validate();
-
-            return result;
         }
     }
 }

@@ -866,7 +866,7 @@ namespace Core.ConditionalAccess
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
 
                 int nRightMargin = ApplicationConfiguration.EutelsatSettings.RightMargin.IntValue;
-                int nLeftMargin = ApplicationConfiguration.EutelsatSettings.LeftMargin.IntValue; ;
+                int nLeftMargin = ApplicationConfiguration.EutelsatSettings.LeftMargin.IntValue;
 
                 // Time Factor for aligment with Harmonic server (e.g. convert millisec -> 10Xmicrosec)
                 

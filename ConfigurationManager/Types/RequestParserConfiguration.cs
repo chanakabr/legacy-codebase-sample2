@@ -14,21 +14,14 @@ namespace ConfigurationManager
         {
             AccessTokenKeyFormat = new StringConfigurationValue("access_token_key_format", this)
             {
-                DefaultValue = "access_{0}"
+                DefaultValue = "access_{0}",
+                OriginalKey = "access_token_key_format"
             };
             AccessTokenLength = new NumericConfigurationValue("access_token_length", this)
             {
-                DefaultValue = 32
+                DefaultValue = 32,
+                OriginalKey = "access_token_length"
             };
-        }
-
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= AccessTokenKeyFormat.Validate();
-            result &= AccessTokenLength.Validate();
-
-            return result;
         }
     }
 }

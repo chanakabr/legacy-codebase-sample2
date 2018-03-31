@@ -27,62 +27,69 @@ namespace ConfigurationManager
         {
             ODBCCacheSeconds = new NumericConfigurationValue("ODBC_CACH_SEC", this)
             {
-                DefaultValue = 60
+                DefaultValue = 60,
+                OriginalKey = "ODBC_CACH_SEC",
             };
             BillingConnectionString = new StringConfigurationValue("BILLING_CONNECTION_STRING", this)
             {
-                DefaultValue = "Driver={SQL Server};Server=amazonSQL;Database=billing;Uid=API;Pwd=QxK9yVXASB;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200;"
+                OriginalKey = "BILLING_CONNECTION_STRING"
             };
             ConnectionString = new StringConfigurationValue("CONNECTION_STRING", this)
             {
-                DefaultValue = "Driver={SQL Server};Server=amazonSQL;Database=tvinci;Uid=API;Pwd=QxK9yVXASB;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200;"
+                OriginalKey = "CONNECTION_STRING"
             };
-
             MainConnectionString = new StringConfigurationValue("MAIN_CONNECTION_STRING", this)
             {
-                DefaultValue = "Driver={SQL Server};Server=amazonSQL;Database=tvinci;Uid=API;Pwd=QxK9yVXASB;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200;"
+                OriginalKey = "MAIN_CONNECTION_STRING"
             };
             ConditionalAccessConnectionString = new StringConfigurationValue("CA_CONNECTION_STRING", this)
             {
-                DefaultValue = "Driver={SQL Server};Server=amazonSQL;Database=conditionalaccess;Uid=API;Pwd=QxK9yVXASB;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200;"
+                OriginalKey = "CA_CONNECTION_STRING"
             };
             FinancialReportConnectionString = new StringConfigurationValue("FR_CONNECTION_STRING", this)
             {
-                DefaultValue = "Driver={SQL Server};Server=amazonSQL;Database=financialreporting;Uid=API;Pwd=QxK9yVXASB;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200;"
+                OriginalKey = "FR_CONNECTION_STRING"
             };
             RecordingConnectionString = new StringConfigurationValue("RECORDING_CONNECTION_STRING", this)
             {
-                DefaultValue = "Driver={SQL Server};Server=amazonSQL;Database=recording;Uid=API;Pwd=QxK9yVXASB;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200;"
+                OriginalKey = "RECORDING_CONNECTION_STRING"
             };
             MessageBoxConnectionString = new StringConfigurationValue("MESSAGE_BOX_CONNECTION_STRING", this)
             {
-                DefaultValue = "Driver={SQL Server};Server=amazonSQL;Database=MessageBox;Uid=API;Pwd=QxK9yVXASB;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200;"
+                OriginalKey = "MESSAGE_BOX_CONNECTION_STRING"
             };
-            PricingConnectionString = new StringConfigurationValue("pricing_connection", this)
+            PricingConnectionString = new StringConfigurationValue("pricing_connection_string", this)
             {
-                DefaultValue = "Driver={SQL Server};Server=amazonSQL;Database=pricing;Uid=API;Pwd=QxK9yVXASB;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200;"
+                OriginalKey = "pricing_connection"
             };
             UsersConnectionString = new StringConfigurationValue("users_connection_string", this)
             {
-                DefaultValue = "Driver={SQL Server};Server=amazonSQL;Database=users;Uid=API;Pwd=QxK9yVXASB;Trusted_Connection=False;Min Pool Size=5;Max Pool Size=200;"
+                OriginalKey = "users_connection_string"
             };
             UseAlwaysOn = new BooleanConfigurationValue("UseAlwaysOn", this)
             {
-                DefaultValue = true
+                DefaultValue = true,
+                OriginalKey = "UseAlwaysOn"
             };
             WriteLockUse = new BooleanConfigurationValue("WriteLock_Use", this)
             {
-                DefaultValue = false
+                DefaultValue = false,
+                OriginalKey = "DB_WriteLock_Use"
             };
             WriteLockParameters = new StringConfigurationValue("WriteLock_Params", this)
             {
-                DefaultValue = "userid;user_id;usersid;siteguid;userids;domain_id;domainid;name;site_user_guid;site_guid;userslist;users;co_guid;user_site_guid;username"
+                DefaultValue = "userid;user_id;usersid;siteguid;userids;domain_id;domainid;name;site_user_guid;site_guid;userslist;users;co_guid;user_site_guid;username",
+                OriginalKey = "DB_WriteLock_Params"
             };
             WriteLockTTL = new NumericConfigurationValue("WriteLock_TTL", this)
             {
-                DefaultValue = 1
+                DefaultValue = 1,
+                OriginalKey = "DB_WriteLock_TTL"
             };
-            Prefix = new StringConfigurationValue("prefix", this);
+            Prefix = new StringConfigurationValue("prefix", this)
+            {
+                OriginalKey = "DB_Settings.prefix"
+            };
         }
 
         internal override bool Validate()

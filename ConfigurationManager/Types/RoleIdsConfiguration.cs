@@ -14,21 +14,14 @@ namespace ConfigurationManager
         {
             MasterRoleId = new NumericConfigurationValue("master_role_id", this)
             {
-                DefaultValue = 2
+                DefaultValue = 2,
+                OriginalKey = "master_role_id"
             };
             UserRoleId = new NumericConfigurationValue("user_role_id", this)
             {
-                DefaultValue = 1
+                DefaultValue = 1,
+                OriginalKey = "user_role_id"
             };
-        }
-
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= MasterRoleId.Validate();
-            result &= UserRoleId.Validate();
-
-            return result;
         }
     }
 }

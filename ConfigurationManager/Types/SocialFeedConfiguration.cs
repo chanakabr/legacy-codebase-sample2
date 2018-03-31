@@ -16,33 +16,37 @@ namespace ConfigurationManager
             FacebookItemCount = new NumericConfigurationValue("facebook_item_count", this)
             {
                 DefaultValue = 100,
-                Description = "Original key is SocialFeed_FB_item_count"
+                OriginalKey = "SocialFeed_FB_item_count"
             };
             InAppItemCount = new NumericConfigurationValue("in_app_item_count", this)
             {
                 DefaultValue = 100,
-                Description = "Original key is SocialFeed_InApp_item_count"
+                OriginalKey = "SocialFeed_InApp_item_count"
             };
             TwitterItemCount = new NumericConfigurationValue("twitter_item_count", this)
             {
                 DefaultValue = 100,
-                Description = "Original key is SocialFeed_Twitter_item_count"
+                OriginalKey = "SocialFeed_Twitter_item_count"
             };
             FacebookTTL = new NumericConfigurationValue("facebook_ttl", this)
             {
-                DefaultValue = 10
+                DefaultValue = 10,
+                OriginalKey = "SocialFeed_Facebook_TTL"
             };
             InAppTTL = new NumericConfigurationValue("in_app_ttl", this)
             {
-                DefaultValue = 10
+                DefaultValue = 10,
+                OriginalKey = "SocialFeed_InApp_TTL"
             };
             TwitterTTL = new NumericConfigurationValue("twitter_ttl", this)
             {
-                DefaultValue = 10
+                DefaultValue = 10,
+                OriginalKey = "SocialFeed_Twitter_TTL"
             };
             TagsTTL = new NumericConfigurationValue("tags_ttl", this)
             {
-                DefaultValue = 30
+                DefaultValue = 30,
+                OriginalKey = "SocialFeed_Tags_TTL"
             };
         }
 
@@ -62,7 +66,7 @@ namespace ConfigurationManager
                     break;
                 case "unknown":
                 default:
-                    ttl = new NumericConfigurationValue("unknown_ttl") { DefaultValue = 10 };
+                    ttl = new NumericConfigurationValue("unknown_ttl") { DefaultValue = 10, ObjectValue = 10 };
                     break;
             }
 

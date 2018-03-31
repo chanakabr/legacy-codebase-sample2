@@ -14,21 +14,14 @@ namespace ConfigurationManager
         {
             MCKey = new StringConfigurationValue("MCKey", this)
             {
-                DefaultValue = "5DcCPYFCdFMpSi_994pa4w"
+                DefaultValue = "5DcCPYFCdFMpSi_994pa4w",
+                OriginalKey = "MCKey"
             };
             MCURL = new StringConfigurationValue("MCURL", this)
             {
-                DefaultValue = "https://mandrillapp.com/api/1.0/messages/send-template.json"
+                DefaultValue = "https://mandrillapp.com/api/1.0/messages/send-template.json",
+                OriginalKey = "MCURL"
             };
-        }
-
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= MCKey.Validate();
-            result &= MCURL.Validate();
-
-            return result;
         }
     }
 }

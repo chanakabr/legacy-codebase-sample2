@@ -16,13 +16,15 @@ namespace ConfigurationManager
             this.Task = new ConfigurationManager.StringConfigurationValue("picture_queue_task", this)
             {
                 ShouldAllowEmpty = true,
-                DefaultValue = "distributed_tasks.process_image"
+                DefaultValue = "distributed_tasks.process_image",
+                OriginalKey = "taskPicture"
             };
 
             this.RoutingKey = new StringConfigurationValue("picture_queue_routing_key", this)
             {
                 ShouldAllowEmpty = true,
-                DefaultValue = "PROCESS_IMAGE"
+                DefaultValue = "PROCESS_IMAGE",
+                OriginalKey = "routingKeyPicture"
             };
         }
     }

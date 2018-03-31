@@ -14,21 +14,14 @@ namespace ConfigurationManager
         {
             KeyFormat = new StringConfigurationValue("key_format", this)
             {
-                DefaultValue = "group_{0}"
+                DefaultValue = "group_{0}",
+                OriginalKey = "group_key_format"
             };
             CacheTTLSeconds = new NumericConfigurationValue("cache_ttl_seconds", this)
             {
-                DefaultValue =  60
+                DefaultValue =  60,
+                OriginalKey = "group_cache_ttl_seconds"
             };
-        }
-
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= KeyFormat.Validate();
-            result &= CacheTTLSeconds.Validate();
-
-            return result;
         }
     }
 }

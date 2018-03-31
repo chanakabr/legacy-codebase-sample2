@@ -16,16 +16,19 @@ namespace ConfigurationManager
         {
             UserEngagementsTTLDays = new NumericConfigurationValue("user_engagements_ttl_days", this)
             {
-                DefaultValue = 30
+                DefaultValue = 30,
+                OriginalKey = "ttl_user_engagement_days"
             };
 
             NumberOfBulkMessageEngagements = new NumericConfigurationValue("num_of_bulk_message_engagements", this)
             {
-                DefaultValue = 500
+                DefaultValue = 500,
+                OriginalKey = "num_of_bulk_message_engagements"
             };
             NumberOfEngagementThreads = new NumericConfigurationValue("num_of_engagement_threads", this)
             {
-                DefaultValue = 5
+                DefaultValue = 5,
+                OriginalKey = "num_of_engagement_threads"
             };
         }
     }

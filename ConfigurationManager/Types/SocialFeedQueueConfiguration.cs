@@ -12,20 +12,22 @@
             Task = new StringConfigurationValue("task", this)
             {
                 DefaultValue = "distributed_tasks.process_update_social_feed",
-                Description = "Original key is taskSocialFeed"
+                OriginalKey = "taskSocialFeed"
             };
             RoutingKey = new StringConfigurationValue("routing_key", this)
             {
                 DefaultValue = "PROCESS_UPDATE_SOCIAL_FEED",
-                Description = "Original key is routingKeySocialFeedUpdate"
+                OriginalKey = "routingKeySocialFeedUpdate"
             };
             RoutingKeyMerge = new StringConfigurationValue("routingKeySocialFeedMerge", this)
             {
-                ShouldAllowEmpty = true              
+                ShouldAllowEmpty = true,
+                OriginalKey = "routingKeySocialFeedMerge"
             };
             TaskSocialMerge = new StringConfigurationValue("taskSocialMerge", this)
             {
-                ShouldAllowEmpty = true
+                ShouldAllowEmpty = true,
+                OriginalKey = "taskSocialMerge"
             };
         }
     }

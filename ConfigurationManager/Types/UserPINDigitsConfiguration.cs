@@ -16,15 +16,18 @@ namespace ConfigurationManager
         {
             NumberOfDigits = new NumericConfigurationValue("number_of_digits", this)
             {
-                DefaultValue = 10
+                DefaultValue = 10,
+                OriginalKey = "PIN_NUMBER_OF_DIGITS"
             };
             MinNumberOfDigits = new NumericConfigurationValue("min_number_of_digits", this)
             {
-                DefaultValue = 8
+                DefaultValue = 8,
+                OriginalKey = "PIN_MIN_NUMBER_OF_DIGITS"
             };
             MaxNumberOfDigits = new NumericConfigurationValue("max_number_of_digits", this)
             {
-                DefaultValue = 10
+                DefaultValue = 10,
+                OriginalKey = "PIN_MAX_NUMBER_OF_DIGITS"
             };
         }
     }

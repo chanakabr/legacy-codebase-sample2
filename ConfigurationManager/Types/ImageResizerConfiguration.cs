@@ -18,24 +18,29 @@ namespace ConfigurationManager
         {
             ProxyAddress = new ConfigurationManager.StringConfigurationValue("proxy_address", this)
             {
-                ShouldAllowEmpty = true
+                ShouldAllowEmpty = true,
+                OriginalKey = "proxyAddress"
             };
             ProxyUsername = new ConfigurationManager.StringConfigurationValue("proxy_username", this)
             {
-                ShouldAllowEmpty = true
+                ShouldAllowEmpty = true,
+                OriginalKey = "proxyUsername"
             };
             ProxyPassword = new StringConfigurationValue("proxy_password", this)
             {
-                ShouldAllowEmpty = true
+                ShouldAllowEmpty = true,
+                OriginalKey = "proxyPassword"
             };
             UseFileSystem = new ConfigurationManager.BooleanConfigurationValue("use_file_system", this)
             {
                 ShouldAllowEmpty = true,
-                DefaultValue = true
+                DefaultValue = true,
+                OriginalKey = "TASK_HANDLERS.IMAGE_RESIZER.USE_FILE_SYSTEM"
             };
             ImagesBasePath = new ConfigurationManager.StringConfigurationValue("images_base_path", this)
             {
-                ShouldAllowEmpty = true
+                ShouldAllowEmpty = true,
+                OriginalKey = "TASK_HANDLERS.IMAGE_RESIZER.IMAGES_BASE_PATH"
             };
         }
     }
