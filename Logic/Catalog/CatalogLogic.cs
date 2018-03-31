@@ -1273,8 +1273,16 @@ namespace Core.Catalog
 
             UnifiedSearchResponse searchResult;
 
-            string cacheKey = GetSearchCacheKey(request.m_nGroupID, request.m_sSiteGuid, request.domainId, request.m_oFilter.m_sDeviceId, request.m_sUserIP, request.assetTypes, request.filterQuery,
+            string deviceId = string.Empty;
+
+            if (request.m_oFilter != null)
+            {
+                deviceId = request.m_oFilter.m_sDeviceId;
+            }
+
+            string cacheKey = GetSearchCacheKey(request.m_nGroupID, request.m_sSiteGuid, request.domainId, deviceId, request.m_sUserIP, request.assetTypes, request.filterQuery,
                 searchDefinitions, searchDefinitions.PersonalData);
+
             if (!string.IsNullOrEmpty(cacheKey))
             {
                 log.DebugFormat("Going to get search assets from cache with key: {0}", cacheKey);
