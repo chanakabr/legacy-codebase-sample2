@@ -851,7 +851,8 @@ namespace DAL
             return Get_GroupFailCount(lGroupID, string.Empty);
         }
 
-        public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses, string sConnKey, string siteGuid = null, int? subscriptionStatus = null)
+        public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses, string sConnKey, string siteGuid = null, 
+            int? subscriptionStatus = null, long billingTransactionId = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPRenewalData");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
@@ -864,6 +865,10 @@ namespace DAL
             if (subscriptionStatus.HasValue)
             {
                 sp.AddParameter("@subscriptionStatus", subscriptionStatus.Value);
+            }
+            if (billingTransactionId > 0)
+            {
+                sp.AddParameter("@BillingTransactionId", billingTransactionId); 
             }
 
             sp.ExecuteNonQuery();
