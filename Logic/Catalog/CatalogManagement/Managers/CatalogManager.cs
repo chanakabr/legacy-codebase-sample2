@@ -1705,7 +1705,7 @@ namespace Core.Catalog.CatalogManagement
                 Language = searchLanguage,
                 PageIndex = pageIndex,
                 PageSize = pageSize,
-                AutocompleteSearchValue = isExcatValue ? string.Empty : searchValue,
+                AutocompleteSearchValue = isExcatValue ? string.Empty : searchValue.Trim(),
                 ExactSearchValue = isExcatValue ? searchValue : string.Empty,
                 TopicId = topicId
             };
