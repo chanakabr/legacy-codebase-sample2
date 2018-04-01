@@ -696,7 +696,7 @@ namespace Core.ConditionalAccess
             // update MPP renew data
             try
             {
-                ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING", siteguid);
+                ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING", siteguid, null, transactionResponse.TransactionID);
                 cas.WriteToUserLog(siteguid, string.Format("Successfully renewed. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}, Billing Transition ID: {4}",
                     productId,                           // {0}
                     price,                               // {1}
@@ -953,7 +953,7 @@ namespace Core.ConditionalAccess
             // update MPP renew data
             try
             {
-                ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING", siteguid);
+                ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING", siteguid, null, billingTransitionId);
                 cas.WriteToUserLog(siteguid, string.Format("Successfully renewed. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}, Billing Transition ID: {4}",
                     productId,                           // {0}
                     price,                               // {1}
@@ -1676,7 +1676,7 @@ namespace Core.ConditionalAccess
                 // update MPP renew data
                 try
                 {
-                    ConditionalAccessDAL.Update_MPPRenewalData(renewUnifiedData.PurchaseId, true, endDate.Value, 0, "CA_CONNECTION_STRING", renewUnifiedData.UserId, (int)SubscriptionPurchaseStatus.OK);
+                    ConditionalAccessDAL.Update_MPPRenewalData(renewUnifiedData.PurchaseId, true, endDate.Value, 0, "CA_CONNECTION_STRING", renewUnifiedData.UserId, (int)SubscriptionPurchaseStatus.OK, renewUnifiedData.BillingTransactionId);
                     cas.WriteToUserLog(renewUnifiedData.UserId, string.Format("Successfully renewed. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}, Billing Transition ID: {4}",
                         renewUnifiedData.ProductId,                           // {0}
                         renewUnifiedData.Price,                               // {1}
