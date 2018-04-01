@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,13 +28,29 @@ namespace ConfigurationValidator
 
             if (arguments.ContainsKey("help") || arguments.ContainsKey("h"))
             {
+                string version = string.Empty;
+
+                try
+                {
+                    version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                }
+                catch
+                {
+                }
+
                 Console.WriteLine("The purpose of this application is to validation the configuration in TCM.");
+
+                if (!string.IsNullOrEmpty(version))
+                {
+                    Console.WriteLine(string.Format("Current version is {0}", version));
+                }
+
                 Console.WriteLine("Possible command line arguments, which are not case sensitive::");
                 Console.WriteLine("host: TCM value for host. If empty, app.config value will be used. Shortcut: o");
                 Console.WriteLine("application: TCM value for application. If empty, app.config value will be used. Shortcut: a");
                 Console.WriteLine("environemnt: TCM value for environment. If empty, app.config value will be used. Shortcut: e");
                 Console.WriteLine("interactive: If application/host/environment shall be defined during runtime. Shortcut: i");
-                Console.WriteLine("wait: If validator shall wait for key press when finishing validatiog. Shortcut: w");
+                Console.WriteLine("wait: If validator shall wait for key press when finishing validation. Shortcut: w");
                 Console.WriteLine("outputfile: If validator should write its output in a file, this is the file path. Shortcut: f");
                 Console.WriteLine("migrate: If validator should create a JSON-formatted file which shows the changes from the previous version. Shortcut: m");
 
