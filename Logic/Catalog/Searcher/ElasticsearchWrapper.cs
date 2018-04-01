@@ -2874,7 +2874,7 @@ namespace Core.Catalog
 
         private static IESTerm CreateTagValueTerm(LanguageObj language, string autocompleteValue, string exactValue)
         {
-            IESTerm valueTerm;
+            IESTerm term = null;
             string key = "value";
 
             // not default language - add suffix
@@ -2890,18 +2890,25 @@ namespace Core.Catalog
             {
                 key = string.Format("{0}.autocomplete", key);
                 value = autocompleteValue.ToLower();
+                term = new ESMatchQuery(null)
+                {
+                    Field = key,
+                    eOperator = CutWith.AND,
+                    Query = value
+                };
             }
             else if (!string.IsNullOrEmpty(exactValue))
             {
                 value = exactValue.ToLower();
+                term = new ESTerm(false)
+                {
+                    Key = key,
+                    Value = value
+                };
             }
+            
 
-            valueTerm = new ESTerm(false)
-            {
-                Key = key,
-                Value = value
-            };
-            return valueTerm;
+            return term;
         }
 
         public ApiObjects.Response.Status DeleteTag(int groupId, CatalogGroupCache group, long tagId)
