@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 using System.Security.Cryptography;
-using TVinciShared;
 using System.Threading;
+using TVinciShared;
 
 public class PasswordGenerator
 {
@@ -185,6 +181,9 @@ public class PasswordGenerator
     private bool hasSymbols;
     private string exclusionSet;
     private char[] pwdCharArray = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$?".ToCharArray();
+    public bool useSpecialCharacters { get; set; }
+    public bool UseNumbers { get; set; }
+    public bool UseLetters { get; set; }
 }
 
 public partial class adm_coupons_list_generator : System.Web.UI.Page
@@ -234,11 +233,26 @@ public partial class adm_coupons_list_generator : System.Web.UI.Page
                 return;
             }
 
-            m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID , "adm_coupons_groups.aspx");
+            m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID, "adm_coupons_groups.aspx");
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 string sNumberOfCoupons = Request.Form["0_val"].ToString();
+                int useSpecialCharacters = 0;
+                int useNumbers = 0;
+                int useletters = 0;
+                if (!string.IsNullOrEmpty(Request.Form["1_val"]))
+                {
+                    useSpecialCharacters = 1;
+                }
+                if (!string.IsNullOrEmpty(Request.Form["2_val"]))
+                {
+                    useNumbers = 1;
+                }
+                if (!string.IsNullOrEmpty(Request.Form["3_val"]))
+                {
+                    useletters = 1;
+                }
                 //string sMax = Request.Form["1_val"].ToString();
                 if (sNumberOfCoupons == "")
                 {
@@ -269,10 +283,13 @@ public partial class adm_coupons_list_generator : System.Web.UI.Page
 
                             ThreadDict.Add(LoginManager.GetLoginGroupID(), t);
 
-                            int[] vals = new int[3];
+                            int[] vals = new int[6];
                             vals[0] = nNumberOfCoupons;
                             vals[1] = int.Parse(Session["coupon_group_id"].ToString());
                             vals[2] = nGroupID;
+                            vals[3] = useSpecialCharacters;
+                            vals[4] = useNumbers;
+                            vals[5] = useletters;
 
                             t.Start(vals);
 
@@ -316,7 +333,7 @@ public partial class adm_coupons_list_generator : System.Web.UI.Page
             {
                 Session["error_msg"] = null;
             }
-            
+
             if (Request.QueryString["coupon_group_id"] != null &&
                 Request.QueryString["coupon_group_id"].ToString() != "")
             {
@@ -366,7 +383,7 @@ public partial class adm_coupons_list_generator : System.Web.UI.Page
 
         if (ThreadDict.ContainsKey(nGroupID))
         {
-            return "<div>Working... Please check again later</div>";            
+            return "<div>Working... Please check again later</div>";
         }
 
         if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
@@ -381,6 +398,22 @@ public partial class adm_coupons_list_generator : System.Web.UI.Page
         DataRecordShortIntField dr_min = new DataRecordShortIntField(true, 9, 9);
         dr_min.Initialize("Number of coupons to generate", "adm_table_header_nbg", "FormInput", "MAX_USE_TIME", true);
         theRecord.AddRecord(dr_min);
+
+        DataRecordCheckBoxField drcheckBoxField = new DataRecordCheckBoxField(true);
+        drcheckBoxField.Initialize("Use special characters", "adm_table_header_nbg", "FormInput", "USE_SPECIAL_CHARACTERS", false);
+        drcheckBoxField.SetDefault(0);
+        theRecord.AddRecord(drcheckBoxField);
+
+        drcheckBoxField = new DataRecordCheckBoxField(true);
+        drcheckBoxField.Initialize("Use numbers", "adm_table_header_nbg", "FormInput", "USE_NUMBERS", false);
+        drcheckBoxField.SetDefault(0);
+        theRecord.AddRecord(drcheckBoxField);
+
+        drcheckBoxField = new DataRecordCheckBoxField(true);
+        drcheckBoxField.Initialize("Use letters", "adm_table_header_nbg", "FormInput", "USE_LETTERS", false);
+        drcheckBoxField.SetDefault(0);
+        theRecord.AddRecord(drcheckBoxField);
+
         /*
         DataRecordShortIntField dr_max = new DataRecordShortIntField(true, 9, 9);
         dr_max.Initialize("Maximum Coupon Number", "adm_table_header_nbg", "FormInput", "MAX_USE_TIME", true);
@@ -391,17 +424,19 @@ public partial class adm_coupons_list_generator : System.Web.UI.Page
         return sTable;
     }
 
-    
-    
+
+
 
     protected void GenerateCoupons(object val)
     {
         int[] vals = (int[])val;
 
         Int32 nNumberOfCoupons = vals[0];
-        Int32 nCGID = vals[1];     
+        Int32 nCGID = vals[1];
         Int32 nGroupID = vals[2];
-
+        int useSpecialCharacters = vals[3];
+        int useNumbers = vals[4];
+        int useLetters = vals[5];
 
         string query = string.Empty;
         int nCounter = 0;
@@ -413,6 +448,10 @@ public partial class adm_coupons_list_generator : System.Web.UI.Page
             p.Maximum = 16;
             p.Minimum = 12;
             p.RepeatCharacters = false;
+            p.useSpecialCharacters = useSpecialCharacters == 1;
+            p.UseNumbers = useNumbers == 1;
+            p.UseLetters = useLetters == 1;
+
             string sPass = p.Generate();
 
             query += string.Format("Insert into coupons(code, COUPON_GROUP_ID, GROUP_ID) values('{0}',{1},{2});", sPass, nCGID, nGroupID);
