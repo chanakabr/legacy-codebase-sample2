@@ -195,6 +195,11 @@ public partial class adm_coupons_groups_new : System.Web.UI.Page
         dr_max_recurring_number.SetDefault(0);
         theRecord.AddRecord(dr_max_recurring_number);
 
+        DataRecordShortIntField dr_max_domain_uses = new DataRecordShortIntField(true, 9, 9);
+        dr_max_domain_uses.Initialize("Maximum uses per household", "adm_table_header_nbg", "FormInput", "MAX_DOMAIN_USES", true);
+        dr_max_domain_uses.SetDefault(0);
+        theRecord.AddRecord(dr_max_domain_uses);
+
         DataRecordRadioField dr_financial = new DataRecordRadioField("lu_financial_entities", "text", "id", "", null);
         dr_financial.SetFieldType("string");
         dr_financial.Initialize("Financial Entity", "adm_table_header_nbg", "FormInput", "financial_entity_id", true);
