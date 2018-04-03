@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using TVinciShared;
+
 
 public class PasswordGenerator
 {
@@ -44,17 +46,12 @@ public class PasswordGenerator
 
     protected char GetRandomCharacter()
     {
-        int upperBound = pwdCharArray.GetUpperBound(0);
-
-        if (true == this.ExcludeSymbols)
-        {
-            upperBound = PasswordGenerator.UBoundDigit;
-        }
+        int upperBound = passwordCharModifiedArray.GetUpperBound(0);
 
         int randomCharPosition = GetCryptographicRandomNumber(
-            pwdCharArray.GetLowerBound(0), upperBound);
+            passwordCharModifiedArray.GetLowerBound(0), upperBound);
 
-        char randomChar = pwdCharArray[randomCharPosition];
+        char randomChar = passwordCharModifiedArray[randomCharPosition];
 
         return randomChar;
     }
@@ -64,6 +61,8 @@ public class PasswordGenerator
         // Pick random length between minimum and maximum   
         int pwdLength = GetCryptographicRandomNumber(this.Minimum,
             this.Maximum);
+
+        SetPasswordCharArray();
 
         System.Text.StringBuilder pwdBuffer = new System.Text.StringBuilder();
         pwdBuffer.Capacity = this.Maximum;
@@ -117,6 +116,30 @@ public class PasswordGenerator
         {
             return String.Empty;
         }
+    }
+
+    public void SetPasswordCharArray()
+    {
+        string optionalCharactersModified = optionalCharacters;
+        //pwdCharArray
+        if (ExcludeSymbols)
+        {
+            optionalCharactersModified = optionalCharactersModified.Remove(62, 4);
+        }
+
+        if (!UseNumbers)
+        {
+            optionalCharactersModified = optionalCharactersModified.Remove(52, 10);
+
+        }
+
+        if (!UseLetters)
+        {
+            optionalCharactersModified = optionalCharactersModified.Remove(0, 52);
+
+        }
+
+        passwordCharModifiedArray = optionalCharactersModified.ToArray();
     }
 
     public string Exclusions
@@ -180,8 +203,9 @@ public class PasswordGenerator
     private bool hasConsecutive;
     private bool hasSymbols;
     private string exclusionSet;
-    private char[] pwdCharArray = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$?".ToCharArray();
-    public bool useSpecialCharacters { get; set; }
+    //optional Characters
+    private string optionalCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$?";
+    private char[] passwordCharModifiedArray;
     public bool UseNumbers { get; set; }
     public bool UseLetters { get; set; }
 }
@@ -424,9 +448,6 @@ public partial class adm_coupons_list_generator : System.Web.UI.Page
         return sTable;
     }
 
-
-
-
     protected void GenerateCoupons(object val)
     {
         int[] vals = (int[])val;
@@ -448,7 +469,7 @@ public partial class adm_coupons_list_generator : System.Web.UI.Page
             p.Maximum = 16;
             p.Minimum = 12;
             p.RepeatCharacters = false;
-            p.useSpecialCharacters = useSpecialCharacters == 1;
+            p.ExcludeSymbols = useSpecialCharacters == 0;
             p.UseNumbers = useNumbers == 1;
             p.UseLetters = useLetters == 1;
 
