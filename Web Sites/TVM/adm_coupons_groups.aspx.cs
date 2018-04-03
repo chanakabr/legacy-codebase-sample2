@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 using TVinciShared;
 
 public partial class adm_coupons_groups : System.Web.UI.Page
@@ -122,7 +117,11 @@ public partial class adm_coupons_groups : System.Web.UI.Page
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
-            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_coupons_list_generator.aspx", "Coupons Generator", "");
+            //DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_coupons_list_generator.aspx", "Coupons Generator", "");
+            //linkColumn1.AddQueryStringValue("coupon_group_id", "field=id");
+            //theTable.AddLinkColumn(linkColumn1);
+
+            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("javascript:CouponsGenerator", "Coupons Generator", "");
             linkColumn1.AddQueryStringValue("coupon_group_id", "field=id");
             theTable.AddLinkColumn(linkColumn1);
         }
