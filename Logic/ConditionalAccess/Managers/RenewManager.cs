@@ -1329,7 +1329,10 @@ namespace Core.ConditionalAccess
                                 // save all SubscriptionCode to remove from subscription list 
                                 removeSubscriptionCodes.Add(subscription.m_SubscriptionCode);
                                 // remove this renewDetails (its an AddOn)
-                                renewSubscriptioDetails.Remove(rsDetail);
+                                bool remove = renewSubscriptioDetails.Remove(rsDetail);
+
+                                log.DebugFormat("remove renewSubscriptioDetails : { 0 }, count : {1}, res : {2}", rsDetail.PurchaseId, renewSubscriptioDetails.Count, remove);
+
                             }
 
                             log.ErrorFormat("failed renew subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", subscription.m_SubscriptionCode, status.Code, status.Message);
@@ -1338,7 +1341,7 @@ namespace Core.ConditionalAccess
                 }
             }
 
-            if (renewSubscriptioDetails == null || renewSubscriptioDetails.Count() == 0)// all resDetails were addon with none relevant base
+            if (renewSubscriptioDetails == null || renewSubscriptioDetails.Count == 0)// all resDetails were addon with none relevant base
             {
                 log.DebugFormat("RenewUnifiedTransaction fail due to no addon subscriptions for householdid = {0} and paymentgatewayid = { 1 }", householdId, paymentgatewayId);
                 return true;
