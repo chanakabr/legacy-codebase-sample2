@@ -1302,37 +1302,42 @@ namespace Core.ConditionalAccess
                 if (subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
                 {
                     ApiObjects.Response.Status status = Utils.CanPurchaseAddOn(groupId, householdId, subscription);
+
                     if (status.Code != (int)eResponseStatus.OK)
                     {
                         // check mabye this add on have base subscription in this unified billing cycle 
                         bool canPurchaseAddOn = false;
+                        
                         // get all setsIds for this addon 
                         List<long> addOnSetIds = subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
+                        
                         // check if one of the subscription are base in this unified cycle 
                         foreach (Subscription baseSubscription in baseSubscriptions)
                         {
                             List<long> baseSetIds = baseSubscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
+
                             if (baseSetIds.Where(x => addOnSetIds.Contains(x)).Count() > 0)
                             {
                                 canPurchaseAddOn = true;
                             }
                         }
+
                         if (!canPurchaseAddOn)
                         {
-                            // change is recurring to false and call event handle- this renew subscription failed!                        
-
+                            // change is recurring to false and call event handle- this renew subscription failed!
                             RenewSubscriptionDetails rsDetail = renewSubscriptioDetails.Where(x => x.ProductId == subscription.m_SubscriptionCode).FirstOrDefault();
+
                             if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, 
                                 rsDetail, 0, "AddOn with no BaseSubscription valid", 
                                 string.Empty, nextEndDate))
                             {
                                 // save all SubscriptionCode to remove from subscription list 
                                 removeSubscriptionCodes.Add(subscription.m_SubscriptionCode);
-                                // remove this renewDetails (its an AddOn)
+
+                                // remove this renewDetails (it's an AddOn)
                                 bool remove = renewSubscriptioDetails.Remove(rsDetail);
 
-                                log.DebugFormat("remove renewSubscriptioDetails : { 0 }, count : {1}, res : {2}", rsDetail.PurchaseId, renewSubscriptioDetails.Count, remove);
-
+                                log.DebugFormat("remove renewSubscriptioDetails : {0}, count: {1}, res : {2}", rsDetail.PurchaseId, renewSubscriptioDetails.Count, remove);
                             }
 
                             log.ErrorFormat("failed renew subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", subscription.m_SubscriptionCode, status.Code, status.Message);
