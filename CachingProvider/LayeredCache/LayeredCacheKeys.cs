@@ -282,6 +282,10 @@ namespace CachingProvider.LayeredCache
             return string.Format("user_watched_media_ids_user_{0}", userId);
         }
 
+        public static string GetCouponsGroupKey(long couponsGroupId, int groupId)
+        {
+            return string.Format("coupons_group_id_{0}_groupId_{1}", couponsGroupId, groupId);
+        }
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -452,6 +456,11 @@ namespace CachingProvider.LayeredCache
         public static string GetUserParentalRuleInvalidationKey(string siteGuid)
         {
             return string.Format("user_parental_rules_{0}", siteGuid);
+        }
+
+        public static string GetCouponsGroupInvalidationKey(int groupId, long couponsGroup)
+        {
+            return string.Format("invalidationKey_coupons_group_{0}_groupId_{1}", couponsGroup, groupId);
         }
         #endregion  
 

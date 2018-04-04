@@ -99,7 +99,7 @@ namespace DAL
             return null;
 
         }
-
+        
         public static string Get_ItemName(string sTableName, long lItemCode)
         {
             ODBCWrapper.StoredProcedure spItemName = new ODBCWrapper.StoredProcedure("Get_ItemName");
@@ -1603,5 +1603,34 @@ namespace DAL
             sp.AddParameter("@productType", (int)productType);
             return sp.Execute();
         }
+
+        public static DataTable GetCoupon(int groupId, string couponGroup)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCoupon");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@couponGroup", couponGroup);
+            return sp.Execute();
+        }
+
+        public static DataTable GetCouponsGroup(int groupId, long couponsGroupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCouponsGroup");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@couponsGroupId", couponsGroupId);
+            return sp.Execute();
+        }
+
+        public static int GetCouponDomainUses(int groupId, int couponId, long domainId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCouponDomainUses");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@couponId", couponId);
+            sp.AddParameter("@domainId", domainId);
+            return sp.ExecuteReturnValue<int>();
+        }
+
     }
 }
