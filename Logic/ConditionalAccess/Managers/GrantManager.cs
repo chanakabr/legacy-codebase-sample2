@@ -181,7 +181,7 @@ namespace Core.ConditionalAccess
 
                 // create custom data
                 string customData = cas.GetCustomData(relevantSub, thePPVModule, null, userId, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, contentId,
-                    mediaID, productId.ToString(), string.Empty, string.Empty, ip, country, string.Empty, udid);
+                    mediaID, productId.ToString(), string.Empty, string.Empty, ip, country, string.Empty, udid, householdId);
 
                 string billingGuid = Guid.NewGuid().ToString();
 

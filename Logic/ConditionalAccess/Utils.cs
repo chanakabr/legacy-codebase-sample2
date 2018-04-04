@@ -1070,14 +1070,14 @@ namespace Core.ConditionalAccess
             return ret;
         }
 
-        internal static Price CalculateCouponDiscount(ref Price pModule, CouponsGroup oCouponsGroup, ref string sCouponCode, int nGroupID)
+        internal static Price CalculateCouponDiscount(ref Price pModule, CouponsGroup oCouponsGroup, ref string sCouponCode, int nGroupID, long domainId)
         {
             Price price = CopyPrice(pModule);
             if (!string.IsNullOrEmpty(sCouponCode) && sCouponCode.Length > 0)
             {
                 CouponDataResponse theCouponData = null;
 
-                theCouponData = Core.Pricing.Module.GetCouponStatus(nGroupID, sCouponCode);
+                theCouponData = Core.Pricing.Module.GetCouponStatus(nGroupID, sCouponCode, domainId);
 
                 if (oCouponsGroup != null &&
                     theCouponData != null &&
@@ -1144,7 +1144,7 @@ namespace Core.ConditionalAccess
 
         internal static Price CalculateMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, Price pModule,
             DiscountModule discModule, CouponsGroup oCouponsGroup, string sSiteGUID,
-            string sCouponCode, Int32 nGroupID, string subCode, out DateTime? dtDiscountEnd)
+            string sCouponCode, Int32 nGroupID, string subCode, out DateTime? dtDiscountEnd, long domainId)
         {
             dtDiscountEnd = null;
             Price p = CopyPrice(pModule);
@@ -1170,7 +1170,7 @@ namespace Core.ConditionalAccess
 
             if (sCouponCode.Length > 0)
             {
-                CouponDataResponse theCouponData = Core.Pricing.Module.GetCouponStatus(nGroupID, sCouponCode);
+                CouponDataResponse theCouponData = Core.Pricing.Module.GetCouponStatus(nGroupID, sCouponCode, domainId);
 
                 if (oCouponsGroup == null ||
                     theCouponData == null ||
@@ -1218,14 +1218,14 @@ namespace Core.ConditionalAccess
         }
 
         private static Price GetMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, PPVModule ppvModule,
-            string sSiteGUID, string sCouponCode, Int32 nGroupID, string subCode, out DateTime? dtDiscountEnd)
+            string sSiteGUID, string sCouponCode, Int32 nGroupID, string subCode, out DateTime? dtDiscountEnd, long domainId)
         {
             Price pModule = TVinciShared.ObjectCopier.Clone<Price>((Price)(ppvModule.m_oPriceCode.m_oPrise));
             DiscountModule discModule = TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(ppvModule.m_oDiscountModule));
             CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(ppvModule.m_oCouponsGroup));
 
             return CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, pModule, discModule, couponGroups, sSiteGUID,
-                sCouponCode, nGroupID, subCode, out dtDiscountEnd);
+                sCouponCode, nGroupID, subCode, out dtDiscountEnd, domainId);
         }
 
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
@@ -1383,7 +1383,7 @@ namespace Core.ConditionalAccess
                                         (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)).Select(x => x).FirstOrDefault());
                                 }
 
-                                price = CalculateCouponDiscount(ref price, couponGroups, ref couponCode, groupId);
+                                price = CalculateCouponDiscount(ref price, couponGroups, ref couponCode, groupId, (long)domainID);
                             }
                         }
 
@@ -1777,7 +1777,7 @@ namespace Core.ConditionalAccess
                     price = GetPriceAfterDiscount(price, externalDisount, 1);
                 }
 
-                price = CalculateCouponDiscount(ref price, couponGroups, ref couponCode, groupId);
+                price = CalculateCouponDiscount(ref price, couponGroups, ref couponCode, groupId, domainID);
 
             }
             return price;
@@ -1815,7 +1815,7 @@ namespace Core.ConditionalAccess
                 if (!string.IsNullOrEmpty(sCouponCode))
                 {
                     CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(thePrePaid.m_CouponsGroup));
-                    p = CalculateCouponDiscount(ref p, couponGroups, ref sCouponCode, nGroupID);
+                    p = CalculateCouponDiscount(ref p, couponGroups, ref sCouponCode, nGroupID, 0);
                 }
             }
             theReason = PriceReason.ForPurchase;
@@ -2342,7 +2342,7 @@ namespace Core.ConditionalAccess
                                 Subscription s = prioritySubs[i];
                                 DiscountModule d = (DiscountModule)(s.m_oDiscountModule);
                                 Price subp = TVinciShared.ObjectCopier.Clone<Price>((Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise,
-                                    s.m_oDiscountModule, s.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, s.m_sObjectCode, out dtDiscountEndDate)));
+                                    s.m_oDiscountModule, s.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, s.m_sObjectCode, out dtDiscountEndDate, domainID)));
                                 if (subp != null)
                                 {
                                     if (IsGeoBlock(nGroupID, s.n_GeoCommerceID, sClientIP))
@@ -2396,7 +2396,7 @@ namespace Core.ConditionalAccess
                     {
                         Collection collection = (Collection)relevantValidCollections[i];
                         DiscountModule discount = (DiscountModule)(collection.m_oDiscountModule);
-                        Price collectionsPrice = TVinciShared.ObjectCopier.Clone<Price>((Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise, collection.m_oDiscountModule, collection.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, collection.m_sObjectCode, out dtDiscountEndDate)));
+                        Price collectionsPrice = TVinciShared.ObjectCopier.Clone<Price>((Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise, collection.m_oDiscountModule, collection.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, collection.m_sObjectCode, out dtDiscountEndDate, domainID)));
                         if (collectionsPrice != null)
                         {
                             if (IsItemPurchased(price, collectionsPrice, ppvModule))
@@ -2431,7 +2431,7 @@ namespace Core.ConditionalAccess
                         return null;
                     }
                     // the media file was not purchased in any way. calculate its price as a single media file and its price reason
-                    price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty, out dtDiscountEndDate);
+                    price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty, out dtDiscountEndDate, domainID);
                     if (IsFreeMediaFile(theReason, price))
                     {
                         theReason = PriceReason.Free;
@@ -2444,7 +2444,7 @@ namespace Core.ConditionalAccess
             } // end if site guid is not null or empty            
             else
             {
-                price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty, out dtDiscountEndDate);
+                price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty, out dtDiscountEndDate, domainID);
 
                 if (IsPPVModuleToBePurchasedAsSubOnly(ppvModule))
                 {
@@ -2690,12 +2690,12 @@ namespace Core.ConditionalAccess
             return nGroupID;
         }
 
-        static public double GetCouponDiscountPercent(Int32 nGroupID, string sCouponCode)
+        static public double GetCouponDiscountPercent(Int32 nGroupID, string sCouponCode, long domainId)
         {
             double dCouponDiscountPercent = 0;
             CouponDataResponse theCouponData = null;
 
-            theCouponData = Pricing.Module.GetCouponStatus(nGroupID, sCouponCode);
+            theCouponData = Pricing.Module.GetCouponStatus(nGroupID, sCouponCode, domainId);
 
             if (theCouponData != null &&
                 theCouponData.Status != null &&
@@ -3219,14 +3219,14 @@ namespace Core.ConditionalAccess
             return Core.Users.Module.GetUserData(nGroupID, sSiteGUID, string.Empty);
         }
 
-        static public bool IsCouponValid(int nGroupID, string sCouponCode)
+        static public bool IsCouponValid(int nGroupID, string sCouponCode, long domainId)
         {
             bool result = false;
             try
             {
                 if (!string.IsNullOrEmpty(sCouponCode))
                 {
-                    CouponDataResponse couponData = Pricing.Module.GetCouponStatus(nGroupID, sCouponCode);
+                    CouponDataResponse couponData = Pricing.Module.GetCouponStatus(nGroupID, sCouponCode, domainId);
 
                     if (couponData != null &&
                         couponData.Status != null &&
@@ -3246,14 +3246,14 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        static public CouponData GetCouponData(int groupID, string couponCode)
+        static public CouponData GetCouponData(int groupID, string couponCode, long domainId)
         {
             CouponData result = null;
             try
             {
                 if (!string.IsNullOrEmpty(couponCode))
                 {
-                    CouponDataResponse couponResponse = Core.Pricing.Module.GetCouponStatus(groupID, couponCode);
+                    CouponDataResponse couponResponse = Core.Pricing.Module.GetCouponStatus(groupID, couponCode, domainId);
 
                     if (couponResponse != null &&
                         couponResponse.Status != null &&

@@ -238,7 +238,7 @@ namespace Core.ConditionalAccess
             string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy)
         {
             bool result = true;
-            HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, true, 0, 0);
+            HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, true, 0, 0, (long)domianID);
 
             long lPreviewModuleID = 0;
             if (theSub.m_oPreviewModule != null)
@@ -341,7 +341,7 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        protected override bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, int domianID, Collection theCol,
+        protected override bool HandleChargeUserForCollectionBillingSuccess(string sSiteGUID, int domainID, Collection theCol,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, BillingResponse br, string sCollectionCode,
             string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID)
@@ -350,7 +350,7 @@ namespace Core.ConditionalAccess
             Int32 nColCode;
             Int32.TryParse(sCollectionCode, out nColCode);
             HandleCouponUses(null, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP,
-                sCountryCd, sLanguageCode, sDeviceName, true, 0, nColCode);
+                sCountryCd, sLanguageCode, sDeviceName, true, 0, nColCode, (long)domainID);
 
             lBillingTransactionID = Utils.ParseLongIfNotEmpty(br.m_sRecieptCode);
 
@@ -360,7 +360,7 @@ namespace Core.ConditionalAccess
 
             lPurchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, sCollectionCode, sSiteGUID, dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode, sDeviceName,
                 bUsageModuleExists ? theCol.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theCol.m_oUsageModule.m_tsViewLifeCycle : 0, lBillingTransactionID,
-                dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty, domianID);
+                dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty, domainID);
 
             if (lPurchaseID > 0)
             {
@@ -420,7 +420,7 @@ namespace Core.ConditionalAccess
             bool res = true;
 
             HandleCouponUses(relevantSub, string.Empty, sSiteGUID, dPrice, sCurrency, (int)lMediaFileID, sCouponCode, sUserIP,
-                sCountryCd, sLanguageCode, sDeviceName, true, 0, 0);
+                sCountryCd, sLanguageCode, sDeviceName, true, 0, 0, (long)domianID);
 
             lBillingTransactionID = Utils.ParseLongIfNotEmpty(br.m_sRecieptCode);
             bool bIsPPVUsageModuleExists = (thePPVModule != null && thePPVModule.m_oUsageModule != null);
@@ -720,7 +720,7 @@ namespace Core.ConditionalAccess
             try
             {
                 // update coupon uses
-                HandleCouponUses(relevantSub, productId.ToString(), siteguid, price, currency, contentId, coupon, userIp, country, string.Empty, deviceName, true, 0, 0);
+                HandleCouponUses(relevantSub, productId.ToString(), siteguid, price, currency, contentId, coupon, userIp, country, string.Empty, deviceName, true, 0, 0, houseHoldId);
 
                 bool isPPVUsageModuleExists = (thePPVModule != null && thePPVModule.m_oUsageModule != null);
 
@@ -805,7 +805,7 @@ namespace Core.ConditionalAccess
             try
             {
                 // update coupon uses
-                HandleCouponUses(subscription, string.Empty, siteguid, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, 0);
+                HandleCouponUses(subscription, string.Empty, siteguid, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, 0, houseHoldId);
 
                 long previewModuleID = 0;
                 bool usageModuleExists = (subscription != null && subscription.m_oUsageModule != null);
@@ -914,7 +914,7 @@ namespace Core.ConditionalAccess
             try
             {
                 // update coupon uses
-                HandleCouponUses(null, string.Empty, siteGUID, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, productID);
+                HandleCouponUses(null, string.Empty, siteGUID, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, productID, houseHoldID);
 
                 bool usageModuleExists = (collection != null && collection.m_oUsageModule != null);
 

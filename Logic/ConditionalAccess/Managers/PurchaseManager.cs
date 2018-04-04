@@ -148,7 +148,7 @@ namespace Core.ConditionalAccess
                 // coupon validation
                 if (!string.IsNullOrEmpty(couponCode))
                 {
-                    couponData = Utils.GetCouponData(groupId, couponCode);
+                    couponData = Utils.GetCouponData(groupId, couponCode, domainId);
 
                     if (couponData == null)
                     {
@@ -825,7 +825,7 @@ namespace Core.ConditionalAccess
                 // coupon validation
                 if (!string.IsNullOrEmpty(coupon))
                 {
-                    couponData = Utils.GetCouponData(groupId, coupon);
+                    couponData = Utils.GetCouponData(groupId, coupon, household);
 
                     if (couponData == null)
                     {
@@ -1770,7 +1770,7 @@ namespace Core.ConditionalAccess
                         // create custom data
                         string customData = cas.GetCustomData(relevantSub, ppvModule, null, siteguid, price, currency,
                                                           contentId, mediaID, productId.ToString(), string.Empty, couponCode,
-                                                          userIp, country, string.Empty, deviceName);
+                                                          userIp, country, string.Empty, deviceName, householdId);
 
                         // create new GUID for billing transaction
                         string billingGuid = Guid.NewGuid().ToString();

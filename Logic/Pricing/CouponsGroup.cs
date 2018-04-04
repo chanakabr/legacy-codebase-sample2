@@ -1,12 +1,20 @@
 ﻿using ApiObjects;
 using ApiObjects.Pricing;
+using CachingProvider.LayeredCache;
+using DAL;
+using KLogMonitor;
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Reflection;
 
 namespace Core.Pricing
 {
     [Serializable]
     public class CouponsGroup
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public CouponsGroup()
         {
             m_sDiscountCode = string.Empty;
@@ -16,6 +24,7 @@ namespace Core.Pricing
             m_nMaxUseCountForCoupon = 1;
             m_sGroupName = string.Empty;
             m_nFinancialEntityID = 0;
+            maxDomainUses = 0;
         }
 
         public CouponsStatus GetCouponStatusCode(Int32 nUseCount)
@@ -30,7 +39,7 @@ namespace Core.Pricing
         }
 
         public bool Initialize(string sGroupName , string sGroupCode , DiscountModule oDiscountCode, LanguageContainer[] sDescription,
-            DateTime dStartDate, DateTime dEndDate, Int32 nMaxUseCountForCoupon, Int32 nFinancilaEntityID, Int32 nMaxRecurringUsesCountForCoupon, 
+            DateTime dStartDate, DateTime dEndDate, Int32 nMaxUseCountForCoupon, Int32 nFinancilaEntityID, Int32 nMaxRecurringUsesCountForCoupon, int maxDomainUses,
             CouponGroupType couponType = CouponGroupType.Coupon)
         {
             m_sGroupCode = sGroupCode;
@@ -43,6 +52,7 @@ namespace Core.Pricing
             m_nFinancialEntityID = nFinancilaEntityID;
             m_nMaxRecurringUsesCountForCoupon = nMaxRecurringUsesCountForCoupon;
             this.couponGroupType = couponType;
+            this.maxDomainUses = maxDomainUses;
             return true;
         }
 
@@ -86,51 +96,16 @@ namespace Core.Pricing
             return theContainer;
         }
 
-        public bool Initialize(Int32 nCouponGroupID , Int32 nGroupID)
+        public bool Initialize(int couponGroupId , int groupId)
         {
-            bool bOK = false;
-            ODBCWrapper.DataSetSelectQuery selectQuery = null;
-            try
-            {
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("pricing_connection");
-                selectQuery += "select * from coupons_groups with (nolock) where is_active=1 and status=1 and ";
-                selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(nGroupID, "MAIN_CONNECTION_STRING");
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nCouponGroupID);
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        string sDiscountCode = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "DISCOUNT_CODE", 0);
-                        BaseDiscount t = null;
-                        Utils.GetBaseImpl(ref t, nGroupID);
+            CouponsGroup couponsGroup = GetCouponsGroup(couponGroupId, groupId);
+            if (couponsGroup == null)
+                return false;
 
-                        DiscountModule d = t.GetDiscountCodeData(sDiscountCode);
-                        DateTime dStart = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "START_DATE", 0);
-                        DateTime dEnd = ODBCWrapper.Utils.GetDateSafeVal(selectQuery, "END_DATE", 0);
-                        Int32 nMaxUseForCoupon = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "MAX_USE_TIME", 0);
-                        string sGroupName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "CODE", 0);
-                        Int32 nFinancilaEntityID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "FINANCIAL_ENTITY_ID", 0);
-                        Int32 nMaxRecurringUsesCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "MAX_RECURRING_USES", 0);
-                        CouponGroupType couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "COUPON_GROUP_TYPE", 0);
-                        Initialize(sGroupName, nCouponGroupID.ToString(), d, GetCouponGroupDescription(nCouponGroupID),
-                            dStart, dEnd, nMaxUseForCoupon, nFinancilaEntityID, nMaxRecurringUsesCountForCoupon, couponGroupType);
-                        bOK = true;
-                    }
-                }
-            }
-            finally
-            {
-                if (selectQuery != null)
-                {
-                    selectQuery.Finish();
-                }
-            }
-            return bOK;
+            return Initialize(couponsGroup);
         }
 
+        public long Id;
         public DiscountModule m_oDiscountCode;
         public string m_sDiscountCode;
         public LanguageContainer[] m_sDescription;
@@ -143,13 +118,86 @@ namespace Core.Pricing
         public Int32 m_nMaxRecurringUsesCountForCoupon;
         public string alias;
         public CouponGroupType couponGroupType;
+        public int maxDomainUses;
 
         internal bool Initialize(CouponsGroup couponGroup)
         {
+            Id = couponGroup.Id;
             return this.Initialize(couponGroup.m_sGroupName, couponGroup.m_sGroupCode, couponGroup.m_oDiscountCode, couponGroup.m_sDescription,
-            couponGroup.m_dStartDate, couponGroup.m_dEndDate, couponGroup.m_nMaxUseCountForCoupon, couponGroup.m_nFinancialEntityID, couponGroup.m_nMaxRecurringUsesCountForCoupon,
+            couponGroup.m_dStartDate, couponGroup.m_dEndDate, couponGroup.m_nMaxUseCountForCoupon, couponGroup.m_nFinancialEntityID, couponGroup.m_nMaxRecurringUsesCountForCoupon, couponGroup.maxDomainUses,
             couponGroup.couponGroupType);            
         }
+
+
+
+        public static CouponsGroup GetCouponsGroup(long couponsGroupId, int groupId)
+        {
+            CouponsGroup couponsGroup = null;
+
+            string key = LayeredCacheKeys.GetCouponsGroupKey(couponsGroupId, groupId);
+            if (!LayeredCache.Instance.Get<CouponsGroup>(key, ref couponsGroup, GetCouponsGroup, new Dictionary<string, object>() { { "groupId", groupId }, { "couponsGroupId", couponsGroupId } },
+                groupId, LayeredCacheConfigNames.GET_COUPONS_GROUP, new List<string>() { LayeredCacheKeys.GetCouponsGroupInvalidationKey(groupId, couponsGroupId) }))
+            {
+                log.ErrorFormat("Failed coupons group from LayeredCache, key: {0}", key);
+            }
+
+            return couponsGroup;
+        }
+
+
+        private static Tuple<CouponsGroup, bool> GetCouponsGroup(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            CouponsGroup couponsGroup = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("couponsGroupId"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        long? couponsGroupId = funcParams["couponsGroupId"] as long?;
+
+                        if (groupId.HasValue && couponsGroupId.HasValue)
+                        {
+                            DataTable dt = PricingDAL.GetCouponsGroup(groupId.Value, couponsGroupId.Value);
+
+                            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                            {
+
+                                string sDiscountCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "DISCOUNT_CODE");
+                                BaseDiscount t = null;
+                                Utils.GetBaseImpl(ref t, groupId.Value);
+
+                                couponsGroup = new CouponsGroup()
+                                {
+                                    Id = couponsGroupId.Value,
+                                    m_oDiscountCode = t.GetDiscountCodeData(sDiscountCode),
+                                    m_dStartDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "START_DATE"),
+                                    m_dEndDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "END_DATE"),
+                                    m_nMaxUseCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "MAX_USE_TIME"),
+                                    m_sGroupCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "CODE"),
+                                    m_nFinancialEntityID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "FINANCIAL_ENTITY_ID"),
+                                    m_nMaxRecurringUsesCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "MAX_RECURRING_USES"),
+                                    couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "COUPON_GROUP_TYPE"),
+                                    maxDomainUses = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "MAX_DOMAIN_USES"),
+                                };
+
+                                result = true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetCouponsGroup failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<CouponsGroup, bool>(couponsGroup, result);
+        }
+
     }
 
     [Serializable]

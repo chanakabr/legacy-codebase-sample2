@@ -495,7 +495,7 @@ namespace Core.ConditionalAccess
                             return ret;
                         }
 
-                        if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                        if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode, uObj.m_user.m_domianID))
                         {
                             ret.m_oStatus = BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
@@ -549,7 +549,7 @@ namespace Core.ConditionalAccess
                                         if (ret.m_oStatus == BillingResponseStatus.Success)
                                         {
                                             HandleCouponUses(null, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, 0, sCouponCode, sUserIP,
-                                                sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, thePrePaidModule.m_ObjectCode, 0);
+                                                sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, thePrePaidModule.m_ObjectCode, 0, uObj.m_user.m_domianID);
 
                                             insertQuery = new ODBCWrapper.InsertQuery("pre_paid_purchases");
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
@@ -867,7 +867,7 @@ namespace Core.ConditionalAccess
                                     //Create the Custom Data
                                     sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
                                         nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
 
                                     log.Debug("CustomData - " + sCustomData);
 
@@ -884,7 +884,7 @@ namespace Core.ConditionalAccess
                                     }
 
                                     HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP,
-                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
+                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0, domainId);
 
                                     DateTime endDate = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
                                     long purchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, nMediaFileID, sSiteGUID, dPrice, sCurrency,
@@ -1091,7 +1091,7 @@ namespace Core.ConditionalAccess
                                 }
                                 //Create the Custom Data
                                 sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency,
-                                    string.Empty, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                    string.Empty, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
 
                                 log.Debug("CustomData - " + sCustomData);
 
@@ -1127,7 +1127,7 @@ namespace Core.ConditionalAccess
 
                                         if (nRet == 0)
                                         {
-                                            HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, string.Empty, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
+                                            HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, string.Empty, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0, domainId);
 
                                             updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
                                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
@@ -3829,7 +3829,7 @@ namespace Core.ConditionalAccess
                                 //Create the Custom Data
                                 string sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
                                     nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, string.Empty,
-                                    sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                    sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, uObj.m_user.m_domianID);
 
                                 log.Debug("SMS CustomData - " + sCustomData);
 
@@ -3952,7 +3952,7 @@ namespace Core.ConditionalAccess
                                         Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
 
                                         string sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency,
-                                        sCouponCode, string.Empty, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                        sCouponCode, string.Empty, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, uObj.m_user.m_domianID);
 
                                         log.Debug("SMS CustomData - " + sCustomData);
 
@@ -4981,7 +4981,7 @@ namespace Core.ConditionalAccess
                     else
                     {
                         bool bIsCouponValid = false;
-                        bIsCouponValid = Utils.IsCouponValid(m_nGroupID, sCouponCode);
+                        bIsCouponValid = Utils.IsCouponValid(m_nGroupID, sCouponCode, uObj.m_user.m_domianID);
                         if (!string.IsNullOrEmpty(sCouponCode) && !bIsCouponValid)
                         {
                             oResponse.m_oStatus = BillingResponseStatus.Fail;
@@ -5056,7 +5056,7 @@ namespace Core.ConditionalAccess
                                 //Create the Custom Data
                                 sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
                                     nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                    sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                    sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, uObj.m_user.m_domianID);
                                 log.Debug("CustomData - " + sCustomData);
 
 
@@ -5940,7 +5940,7 @@ namespace Core.ConditionalAccess
                     else
                     {
                         dPrice = InitializePriceForBundlePurchase(dPrice, bDummy);
-                        if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                        if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode, uObj.m_user.m_domianID))
                         {
                             ret.m_oStatus = BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
@@ -7493,14 +7493,14 @@ namespace Core.ConditionalAccess
         protected internal virtual void HandleCouponUses(Subscription relevantSub, string sPPVModuleCode,
             string sSiteGUID, double dPrice, string sCurrency,
             Int32 nMediaFileID, string sCouponCode, string sUserIP,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bFromPurchase, int nPrePaidCode, Int32 relevantCollection)
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bFromPurchase, int nPrePaidCode, Int32 relevantCollection, long domainId)
         {
             if (!string.IsNullOrEmpty(sCouponCode))
             {
 
                 if (bFromPurchase == false)
                 {
-                    double dPercent = Utils.GetCouponDiscountPercent(m_nGroupID, sCouponCode);
+                    double dPercent = Utils.GetCouponDiscountPercent(m_nGroupID, sCouponCode, domainId);
 
                     if (dPercent < 100)
                         return;
@@ -7519,7 +7519,7 @@ namespace Core.ConditionalAccess
 
                 try
                 {
-                    Pricing.Module.SetCouponUses(m_nGroupID, sCouponCode, sSiteGUID, nMediaFileID, nSubCode, relevantCollection, nPrePaidCode);
+                    Pricing.Module.SetCouponUses(m_nGroupID, sCouponCode, sSiteGUID, nMediaFileID, nSubCode, relevantCollection, nPrePaidCode, domainId);
                 }
                 catch (Exception ex)
                 {
@@ -7627,7 +7627,7 @@ namespace Core.ConditionalAccess
         // Get CustomData string
         protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Campaign campaign,
                                                string sSiteGUID, double dPrice, string sCurrency, Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode,
-                                               string sCampaignCode, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+                                               string sCampaignCode, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, long domainId)
         {
             return GetCustomData(relevantSub, thePPVModule, campaign, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode,
                                  sCampaignCode, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
@@ -7885,13 +7885,13 @@ namespace Core.ConditionalAccess
         }
 
         protected virtual string GetCustomDataForSubscription(Subscription theSub, Campaign campaign, string sSubscriptionCode, string sCampaignCode,
-   string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
-   string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+                                                                string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
+                                                                string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, long domainId)
         {
 
             return GetCustomDataForSubscription(theSub, campaign, sSubscriptionCode, sCampaignCode,
-           sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP,
-           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, string.Empty, false);
+            sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP,
+            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, string.Empty, false);
 
         }
 
@@ -7999,10 +7999,10 @@ namespace Core.ConditionalAccess
                                         //Create the Custom Data
                                         string sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
                                             nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
 
                                         HandleCouponUses(relevantSub, sPPVModuleCode, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode,
-                                            sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
+                                            sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0,domainId);
 
                                         insertQuery = new ODBCWrapper.InsertQuery("ppv_purchases");
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
@@ -8293,7 +8293,7 @@ namespace Core.ConditionalAccess
                                         }
 
                                         HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP,
-                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
+                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0, domainId);
 
                                         updateQuery1 = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
                                         updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
@@ -9106,7 +9106,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                        if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode, uObj.m_user.m_domianID))
                         {
                             ret.m_oStatus = BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
@@ -9178,7 +9178,7 @@ namespace Core.ConditionalAccess
                                     //Create the Custom Data
                                     sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
                                         nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                        sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, uObj.m_user.m_domianID);
                                     log.Debug("CustomData - " + sCustomData);
                                     ret = HandleCellularChargeUser(m_nGroupID, sSiteGUID, dPrice, sCurrency, sUserIP, sCustomData, 1, 1, sExtraParameters, bDummy, false);
                                 }
@@ -9322,7 +9322,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                        if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode, uObj.m_user.m_domianID))
                         {
                             ret.m_oStatus = BillingResponseStatus.Fail;
                             ret.m_sRecieptCode = string.Empty;
@@ -11411,7 +11411,7 @@ namespace Core.ConditionalAccess
                     // create custom data
                     string customData = GetCustomData(relevantSub, ppv, null, siteguid, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3,
                                                       contentId, mediaID, productId.ToString(), string.Empty, string.Empty,
-                                                      userIp, country, string.Empty, deviceName);
+                                                      userIp, country, string.Empty, deviceName, householdId);
 
                     // create new GUID for billing transaction
                     string billingGuid = Guid.NewGuid().ToString();
@@ -12500,7 +12500,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // coupon validation
-                if (!string.IsNullOrEmpty(coupon) && !Utils.IsCouponValid(m_nGroupID, coupon))
+                if (!string.IsNullOrEmpty(coupon) && !Utils.IsCouponValid(m_nGroupID, coupon, householdId))
                 {
                     log.ErrorFormat("RecordTransaction - Coupon Not Valid {0}", coupon);
                     return new ApiObjects.Response.Status((int)eResponseStatus.CouponNotValid, "Coupon Not Valid");

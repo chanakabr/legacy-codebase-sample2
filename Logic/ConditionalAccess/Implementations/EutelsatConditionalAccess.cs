@@ -138,7 +138,7 @@ namespace Core.ConditionalAccess
 
 
             // Check coupon validity
-            if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
+            if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode, nDomainID))
             {
                 ret.m_oStatus = BillingResponseStatus.Fail;
                 ret.m_sRecieptCode = string.Empty;
@@ -246,7 +246,7 @@ namespace Core.ConditionalAccess
 
                     //Create the Custom Data
                     sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode, sUserIP,
-                                                sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
+                                                sCountryCd, sLANGUAGE_CODE, sDeviceUDID, nDomainID);
                     log.Debug("CustomData - " + sCustomData);
 
 
@@ -255,7 +255,7 @@ namespace Core.ConditionalAccess
 
                 if (ret.m_oStatus == BillingResponseStatus.Success)
                 {
-                    HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDeviceUDID, true, 0, 0);
+                    HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDeviceUDID, true, 0, 0, uObj.m_user.m_domianID);
 
                     int transactionID = int.Parse(ret.m_sRecieptCode);
 
@@ -632,7 +632,7 @@ namespace Core.ConditionalAccess
                 #endregion
 
 
-                if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode))
+                if (!string.IsNullOrEmpty(sCouponCode) && !Utils.IsCouponValid(m_nGroupID, sCouponCode, domainId))
                 {
                     ret.m_oStatus = BillingResponseStatus.Fail;
                     ret.m_sRecieptCode = string.Empty;
@@ -744,7 +744,7 @@ namespace Core.ConditionalAccess
             }
 
             //Create the Custom Data
-            sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+            sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
 
             log.Debug("CustomData - " + sCustomData);
 
@@ -760,7 +760,7 @@ namespace Core.ConditionalAccess
 
             if (ret.m_oStatus == BillingResponseStatus.Success)
             {
-                HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
+                HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0, !string.IsNullOrEmpty(sHouseholdUID) ? long.Parse(sHouseholdUID) : 0);
 
                 bool dbRes = DAL.ConditionalAccessDAL.UpdateSubPurchase(m_nGroupID, sSiteGUID, sSubscriptionCode, bIsRecurring ? 1 : 0);
 

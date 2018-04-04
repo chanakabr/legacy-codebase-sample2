@@ -36,7 +36,7 @@ namespace Core.ConditionalAccess
                 long ownerSiteGuid = 0;
                 if (!string.IsNullOrEmpty(cai.m_socialInviteInfo.m_hashCode))
                 {
-                    CouponDataResponse cd = Pricing.Module.GetCouponStatus(groupID, cai.m_socialInviteInfo.m_hashCode);
+                    CouponDataResponse cd = Pricing.Module.GetCouponStatus(groupID, cai.m_socialInviteInfo.m_hashCode, 0);
                     if (cd != null && cd.Coupon != null)
                     {
                         ownerSiteGuid = cd.Coupon.m_ownerGUID;

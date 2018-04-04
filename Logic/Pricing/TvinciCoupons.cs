@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Pricing;
 using ApiObjects.Response;
+using DAL;
 using KLogMonitor;
 using KlogMonitorHelper;
 using System;
@@ -78,15 +79,36 @@ namespace Core.Pricing
             return tmp;
         }
 
-        public override CouponData GetCouponStatus(string sCouponCode)
+        public override CouponData GetCouponStatus(string sCouponCode, long domainId)
         {
             CouponData data = new CouponData();
             Coupon coupon = new Coupon();
+            int? totalUses = null, leftUses = null;
 
             if (coupon.Initialize(sCouponCode, m_nGroupID))
             {
-                CouponsGroup couponsGroup = coupon.GetCouponGroup(m_nGroupID);
-                data.Initialize(sCouponCode, couponsGroup, coupon.GetCouponStatus(), coupon.m_couponType, coupon.m_campaignID, coupon.m_ownerGUID, coupon.m_ownerMedia);
+                CouponsGroup couponsGroup = CouponsGroup.GetCouponsGroup(coupon.couponsGroupId, m_nGroupID);
+
+                CouponsStatus status = coupon.GetCouponStatus(m_nGroupID, couponsGroup);
+                if (status == CouponsStatus.Valid)
+                {
+                    int uses = coupon.useCount;
+                    if (couponsGroup.maxDomainUses > 0)
+                    {
+                        totalUses = couponsGroup.maxDomainUses;
+                        int domainUses = PricingDAL.GetCouponDomainUses(m_nGroupID, coupon.m_nCouponID, domainId);
+                        if (domainUses >= couponsGroup.maxDomainUses)
+                        {
+                            status = CouponsStatus.AllreadyUsed;
+                        }
+                        else
+                        {
+                            leftUses = couponsGroup.maxDomainUses - domainUses;
+                        }
+                    }
+                }
+
+                data.Initialize(sCouponCode, couponsGroup, status, coupon.m_couponType, coupon.m_campaignID, coupon.m_ownerGUID, coupon.m_ownerMedia, leftUses, totalUses);
             }
             else
             {
@@ -96,9 +118,9 @@ namespace Core.Pricing
             return data;
         }
 
-        public override CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID, Int32 nMFID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode)
+        public override CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID, Int32 nMFID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode, long domainId)
         {
-            return Coupon.SetCouponUsed(sCouponCode, m_nGroupID, sSiteGUID, nCollectionCode, nMFID, nSubCode, nPrePaidCode);
+            return Coupon.SetCouponUsed(sCouponCode, m_nGroupID, sSiteGUID, nCollectionCode, nMFID, nSubCode, nPrePaidCode, domainId);
         }
 
         public override List<Coupon> GenerateCoupons(int numberOfCoupons, long couponGroupId)
@@ -192,7 +214,7 @@ namespace Core.Pricing
             return result;
         }
 
-        public override CouponDataResponse ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode)
+        public override CouponDataResponse ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode, long domainId)
         {
             CouponDataResponse response = new CouponDataResponse();
             try
@@ -206,7 +228,7 @@ namespace Core.Pricing
                 }
                 else
                 {                    
-                    response.Coupon = GetCouponStatus(couponCode);
+                    response.Coupon = GetCouponStatus(couponCode, domainId);
                 }
             }
             catch (Exception ex)

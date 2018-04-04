@@ -575,14 +575,14 @@ namespace Core.Pricing
             }
         }
         
-        public static CouponDataResponse GetCouponStatus(int nGroupID, string sCouponCode)
+        public static CouponDataResponse GetCouponStatus(int nGroupID, string sCouponCode, long domainId)
         {
             CouponDataResponse response = new CouponDataResponse();
             BaseCoupons t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                CouponData coupon = t.GetCouponStatus(sCouponCode);
+                CouponData coupon = t.GetCouponStatus(sCouponCode, domainId);
                 response.Status = new Status((int)eResponseStatus.Error, "Error");
 
                 if (coupon != null)
@@ -594,7 +594,6 @@ namespace Core.Pricing
                         response.Status = new Status((int)eResponseStatus.CouponNotValid, "Coupon Not Valid");
                     }
                 }
-
             }
             else
             {
@@ -605,7 +604,7 @@ namespace Core.Pricing
             return response;
         }
         
-        public static CouponsStatus SetCouponUsed(int nGroupID, string sCouponCode, string sSiteGUID)
+        public static CouponsStatus SetCouponUsed(int nGroupID, string sCouponCode, string sSiteGUID, long domainId)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
@@ -614,7 +613,7 @@ namespace Core.Pricing
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.SetCouponUsed(sCouponCode, sSiteGUID, 0, 0, 0, 0);
+                return t.SetCouponUsed(sCouponCode, sSiteGUID, 0, 0, 0, 0, domainId);
             }
             else
             {
@@ -622,7 +621,7 @@ namespace Core.Pricing
             }
         }
         
-        public static CouponsStatus SetCouponUses(int nGroupID, string sCouponCode, string sSiteGUID, Int32 nMediaFileID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode)
+        public static CouponsStatus SetCouponUses(int nGroupID, string sCouponCode, string sSiteGUID, Int32 nMediaFileID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode, long domainId)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
@@ -631,7 +630,7 @@ namespace Core.Pricing
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.SetCouponUsed(sCouponCode, sSiteGUID, nMediaFileID, nSubCode, nCollectionCode, nPrePaidCode);
+                return t.SetCouponUsed(sCouponCode, sSiteGUID, nMediaFileID, nSubCode, nCollectionCode, nPrePaidCode, domainId);
             }
             else
             {
@@ -1077,13 +1076,13 @@ namespace Core.Pricing
             }
         }
 
-        public static CouponDataResponse ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode)
+        public static CouponDataResponse ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode, long domainId)
         {
             Pricing.BaseCoupons t = null;
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                return t.ValidateCouponForSubscription(groupId, subscriptionId, couponCode);
+                return t.ValidateCouponForSubscription(groupId, subscriptionId, couponCode, domainId);
             }
             else
             {
