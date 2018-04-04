@@ -1335,12 +1335,10 @@ namespace Core.ConditionalAccess
                                 removeSubscriptionCodes.Add(subscription.m_SubscriptionCode);
 
                                 // remove this renewDetails (it's an AddOn)
-                                bool remove = renewSubscriptioDetails.Remove(rsDetail);
-
-                                log.DebugFormat("remove renewSubscriptioDetails : {0}, count: {1}, res : {2}", rsDetail.PurchaseId, renewSubscriptioDetails.Count, remove);
+                                renewSubscriptioDetails.Remove(rsDetail);
                             }
 
-                            log.ErrorFormat("failed renew subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", subscription.m_SubscriptionCode, status.Code, status.Message);
+                            log.DebugFormat("stoping renew add-on subscription id: {0}, code = {1}, message = {2}", subscription.m_SubscriptionCode, status.Code, status.Message);
                         }
                     }
                 }
@@ -1348,7 +1346,7 @@ namespace Core.ConditionalAccess
 
             if (renewSubscriptioDetails == null || renewSubscriptioDetails.Count == 0)// all resDetails were addon with none relevant base
             {
-                log.DebugFormat("RenewUnifiedTransaction fail due to no addon subscriptions for householdid = {0} and paymentgatewayid = { 1 }", householdId, paymentgatewayId);
+                log.DebugFormat("stop renew process due to no subs to renew");
                 return true;
             }
             if (removeSubscriptionCodes.Count() > 0) // remove all not relevant subscriptions
