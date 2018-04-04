@@ -84,10 +84,14 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "couponGroupType")]
         [JsonProperty("couponGroupType")]
         [XmlElement(ElementName = "couponGroupType", IsNullable = true)]
-        public KalturaCouponGroupType? CouponGroupType
-        {
-            get;
-            set;
-        }
+        public KalturaCouponGroupType? CouponGroupType { get; set; }
+
+        /// <summary>
+        /// Maximum number of uses per household for each coupon in the group
+        /// </summary>
+        [DataMember(Name = "maxHouseholdUses")]
+        [JsonProperty("maxHouseholdUses")]
+        [XmlElement(ElementName = "maxHouseholdUses", IsNullable = true)]
+        public int? MaxHouseholdUses { get; set; }
     }
 }

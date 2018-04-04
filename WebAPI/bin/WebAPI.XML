@@ -9211,6 +9211,16 @@
             Coupon status 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCoupon.TotalUses">
+            <summary>
+            Total available coupon uses
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCoupon.LeftUses">
+            <summary>
+            Left coupon uses
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Pricing.KalturaItemPriceListResponse">
             <summary>
             ItemPrice list
@@ -9419,6 +9429,11 @@
         <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.CouponGroupType">
             <summary>
             Type of the coupon group
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.MaxHouseholdUses">
+            <summary>
+            Maximum number of uses per household for each coupon in the group
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaDiscountModule">

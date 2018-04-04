@@ -98,18 +98,16 @@ namespace WebAPI.Clients
             return subscriptions;
         }
 
-        internal KalturaCoupon GetCouponStatus(int groupId, string couponCode)
+        internal KalturaCoupon GetCouponStatus(int groupId, string couponCode, long householdId)
         {
             CouponDataResponse response = null;
             KalturaCoupon coupon = new KalturaCoupon();
-
-            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetCouponStatus(groupId, couponCode);
+                    response = Core.Pricing.Module.GetCouponStatus(groupId, couponCode, householdId);
                 }
             }
             catch (Exception ex)
@@ -170,7 +168,7 @@ namespace WebAPI.Clients
             return result;
         }
               
-        internal KalturaCoupon ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode)
+        internal KalturaCoupon ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode, long householdId)
         {
             CouponDataResponse response = null;
             KalturaCoupon coupon = new KalturaCoupon();
@@ -179,7 +177,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.ValidateCouponForSubscription(groupId, subscriptionId, couponCode);
+                    response = Core.Pricing.Module.ValidateCouponForSubscription(groupId, subscriptionId, couponCode, householdId);
                 }
             }
             catch (Exception ex)

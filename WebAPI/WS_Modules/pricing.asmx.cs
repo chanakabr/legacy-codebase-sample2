@@ -1051,7 +1051,7 @@ namespace WS_Pricing
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.GetCouponStatus(nGroupID, sCouponCode);
+                return Core.Pricing.Module.GetCouponStatus(nGroupID, sCouponCode, 0);
             }
             else
             {
@@ -1077,7 +1077,7 @@ namespace WS_Pricing
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.SetCouponUsed(nGroupID, sCouponCode, sSiteGUID);
+                return Core.Pricing.Module.SetCouponUsed(nGroupID, sCouponCode, sSiteGUID, 0);
             }
             else
             {
@@ -1099,7 +1099,7 @@ namespace WS_Pricing
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.SetCouponUses(nGroupID, sCouponCode, sSiteGUID, nMediaFileID, nSubCode, nCollectionCode, nPrePaidCode);
+                return Core.Pricing.Module.SetCouponUses(nGroupID, sCouponCode, sSiteGUID, nMediaFileID, nSubCode, nCollectionCode, nPrePaidCode, 0);
             }
             else
             {

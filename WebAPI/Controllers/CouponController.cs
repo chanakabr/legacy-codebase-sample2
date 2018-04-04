@@ -31,6 +31,7 @@ namespace WebAPI.Controllers
             KalturaCoupon coupon = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            
 
             if (string.IsNullOrEmpty(code))
             {
@@ -40,7 +41,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                coupon = ClientsManager.PricingClient().GetCouponStatus(groupId, code);
+                coupon = ClientsManager.PricingClient().GetCouponStatus(groupId, code, HouseholdUtils.GetHouseholdIDByKS(groupId));
             }
             catch (ClientException ex)
             {

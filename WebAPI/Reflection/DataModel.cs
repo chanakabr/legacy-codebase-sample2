@@ -3103,8 +3103,12 @@ namespace WebAPI.Reflection
                     {
                         case "CouponsGroup":
                             return "couponsGroup";
+                        case "LeftUses":
+                            return "leftUses";
                         case "Status":
                             return "status";
+                        case "TotalUses":
+                            return "totalUses";
                     }
                     break;
                     
@@ -3119,6 +3123,8 @@ namespace WebAPI.Reflection
                             return "endDate";
                         case "Id":
                             return "id";
+                        case "MaxHouseholdUses":
+                            return "maxHouseholdUses";
                         case "MaxUsesNumber":
                             return "maxUsesNumber";
                         case "MaxUsesNumberOnRenewableSub":
