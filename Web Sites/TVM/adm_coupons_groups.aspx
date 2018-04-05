@@ -46,6 +46,10 @@
         return false;
     }
 
+    function CouponsNameGenerator(coupon_group_id) {
+        openCouponsNameGenerator(coupon_group_id);
+    }
+
     function CouponsGenerator(coupon_group_id) {
         openCouponsGenerator(coupon_group_id);
     }
@@ -67,6 +71,29 @@
         theHtml += "</tr>";
         theHtml += "<tr>";
         theHtml += "<td><a href='javascript:CouponNameGenerator(" + coupon_group_id + ");'>Coupon name generator</a></td>";
+        theHtml += "</tr>";
+        theHtml += "</table></td></tr></table>";
+        oDiv = window.document.getElementById("tag_collections_div");
+        oDiv.style.display = "block";
+        oDiv.style.left = (openmouseX - 100) + 'px';
+        oDiv.style.top = openmouseY + 'px';
+        oDiv.innerHTML = theHtml;
+    }
+
+    function CouponNameGenerator(coupon_group_id) {
+        theHtml = "<table dir=ltr style=\"background-color: #FFFFFF;\"  cellspacing='1' cellpadding='0' border='1'>";
+        theHtml += "<tr><td>";
+        theHtml += "<table dir='ltr' border='0' cellpadding='6' cellspacing='0'>";
+        theHtml += "<tr class='adm_table_header_nbg' style=\"FONT-WEIGHT: bold;FONT-SIZE: 12px;COLOR: #000000;FONT-FAMILY: Arial, Arial , David , Courier New ;border-color: #aaaaaa; TEXT-DECORATION: none;\">";
+        theHtml += "<td class=calendar_table_cell align='left'  style='width: 100%;cursor: pointer;' onclick='openmouseX = 0;openmouseY = 0;closeCollDiv(\"\")'>X</td>";
+        theHtml += "<td class=calendar_table_cell align='right'  style='cursor: pointer;' onclick='openCouponsNameGenerator(\"\")'>back</td>";
+        theHtml += "<table>";
+        theHtml += "<tr>";
+        theHtml += "<td class='adm_table_header_nbg' nowrap>Coupon code (name)</td>";
+        theHtml += "<td><input id='coupon_code' class='FormInput' name='coupon_code' type='text' dir='ltr' size=16 /></td>";
+        theHtml += "</tr>";
+        theHtml += "<tr>";
+        theHtml += "<td id='confirm_btn'><a href='javascript:ManipCouponNameGenerator(" + coupon_group_id + ",document.getElementById(\"coupon_code\").value);' class='btn'></a></td>";
         theHtml += "</tr>";
         theHtml += "</table></td></tr></table>";
         oDiv = window.document.getElementById("tag_collections_div");
@@ -117,6 +144,13 @@
             + "&use_special_characters=" + escape(use_special_characters)
             + "&use_numbers=" + escape(use_numbers)
             + "&use_letters=" + escape(use_letters);
+
+        postFile(sURL, callback_ManipCouponGenerator);
+    }
+
+    function ManipCouponNameGenerator(coupon_group_id, coupon_code) {
+        sURL = "AjaxManipCouponGenerator.aspx?type=CouponNameGenerator&coupon_group_id=" + escape(coupon_group_id)
+            + "&coupon_code=" + escape(coupon_code);
 
         postFile(sURL, callback_ManipCouponGenerator);
     }

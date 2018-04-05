@@ -4,7 +4,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 
-
 public partial class AjaxManipCouponGenerator : System.Web.UI.Page
 {
     static Dictionary<int, Thread> ThreadDict = new Dictionary<int, Thread>();
@@ -21,21 +20,18 @@ public partial class AjaxManipCouponGenerator : System.Web.UI.Page
         if (Request.Form["coupon_group_id"] != null)
             couponGroupId = Request.Form["coupon_group_id"].ToString();
 
-        bool bOK = false;
-        string sError = "";
-
+        bool ok = false;
+        string errorMsg = "";
 
         if (sType == "CouponGenerator")
         {
-            CouponGenerator(couponGroupId, ref bOK, ref sError);
+            CouponGenerator(couponGroupId, ref ok, ref errorMsg);
         }
         if (sType == "CouponNameGenerator")
         {
-            //ca_ws.BillingResponseStatus ret = GiveFreePPV(sSiteGUID, sGiftCode, sRemarks, ref sError);
-            //if (ret == ca_ws.BillingResponseStatus.Success)
-            bOK = true;
+            CouponNameGenerator(couponGroupId, ref ok, ref errorMsg);
         }
-        if (bOK == true)
+        if (ok == true)
             sRet = "OK";
         else
             sRet = "FAIL";
@@ -43,24 +39,25 @@ public partial class AjaxManipCouponGenerator : System.Web.UI.Page
         Response.AddHeader("Pragma", "no-cache");
         Response.Expires = -1;
         Response.Clear();
-        Response.Write(sRet + "~~|~~" + sError);
+        Response.Write(sRet + "~~|~~" + errorMsg);
     }
 
     private void CouponGenerator(string couponGroupId, ref bool bOK, ref string sError)
     {
         string numberOfCoupons = "";
-        string useSpecialCharacters = "";
-        string useNumbers = "";
-        string useLetters = "";
+        bool useSpecialCharacters = false;
+        bool useNumbers = false;
+        bool useLetters = false;
 
         if (Request.Form["number_of_coupons"] != null)
             numberOfCoupons = Request.Form["number_of_coupons"].ToString();
         if (Request.Form["use_special_characters"] != null)
-            useSpecialCharacters = Request.Form["use_special_characters"].ToString();
+            useSpecialCharacters = bool.Parse(Request.Form["use_special_characters"].ToString());
         if (Request.Form["use_numbers"] != null)
-            useNumbers = Request.Form["use_numbers"].ToString();
+            useNumbers = bool.Parse(Request.Form["use_numbers"].ToString());
         if (Request.Form["use_letters"] != null)
-            useLetters = Request.Form["use_letters"].ToString();
+            useLetters = bool.Parse(Request.Form["use_letters"].ToString());
+
 
         int numOfCoupons = 0;
         int.TryParse(numberOfCoupons, out numOfCoupons);
@@ -72,6 +69,12 @@ public partial class AjaxManipCouponGenerator : System.Web.UI.Page
         if (numOfCoupons > 50000)
         {
             sError = "Maximum Generation is 50000 coupons";
+            bOK = false;
+        }
+
+        if (!useLetters && !useNumbers && !useSpecialCharacters)
+        {
+            sError = "Please choose at least one option: letter, numbers or special characters";
             bOK = false;
         }
 
@@ -91,9 +94,49 @@ public partial class AjaxManipCouponGenerator : System.Web.UI.Page
                 vals[0] = numOfCoupons;
                 vals[1] = int.Parse(couponGroupId);
                 vals[2] = nGroupID;
-                vals[3] = bool.Parse(useSpecialCharacters) ? 1 : 0;
-                vals[4] = bool.Parse(useNumbers) ? 1 : 0;
-                vals[5] = bool.Parse(useLetters) ? 1 : 0;
+                vals[3] = useSpecialCharacters ? 1 : 0;
+                vals[4] = useNumbers ? 1 : 0;
+                vals[5] = useLetters ? 1 : 0;
+
+                t.Start(vals);
+                bOK = true;
+            }
+            else
+            {
+                sError = "Working";
+            }
+        }
+    }
+
+    private void CouponNameGenerator(string couponGroupId, ref bool bOK, ref string sError)
+    {
+        string couponCode = "";
+
+        if (Request.Form["coupon_code"] != null)
+            couponCode = Request.Form["coupon_code"].ToString();
+
+        if (string.IsNullOrEmpty(couponCode))
+        {
+            sError = "Coupon code (name) is empty";
+            bOK = false;
+        }
+
+        if (string.IsNullOrEmpty(sError))
+        {
+            Int32 nGroupID = TVinciShared.LoginManager.GetLoginGroupID();
+
+            if (!ThreadDict.ContainsKey(nGroupID))
+            {
+                ParameterizedThreadStart start = new ParameterizedThreadStart(GenerateNameCoupons);
+
+                Thread t = new Thread(start);
+
+                ThreadDict.Add(TVinciShared.LoginManager.GetLoginGroupID(), t);
+
+                string[] vals = new string[3];
+                vals[0] = couponCode;
+                vals[1] = couponGroupId;
+                vals[2] = nGroupID.ToString();
 
                 t.Start(vals);
                 bOK = true;
@@ -147,12 +190,34 @@ public partial class AjaxManipCouponGenerator : System.Web.UI.Page
                 nCounter = 0;
                 query = string.Empty;
             }
-
         }
 
         lock (ThreadDict)
         {
             ThreadDict.Remove(nGroupID);
+        }
+    }
+
+    protected void GenerateNameCoupons(object val)
+    {
+        string[] vals = (string[])val;
+
+        string couponCode = vals[0];
+        string nCGID = vals[1];
+        int groupID = int.Parse(vals[2]);
+
+        string query = string.Format("Insert into coupons(code, COUPON_GROUP_ID, GROUP_ID) values('{0}',{1},{2});", couponCode, nCGID, groupID);
+
+        ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
+        directQuery += query;
+        directQuery.SetConnectionKey("pricing_connection");
+        directQuery.Execute();
+        directQuery.Finish();
+        directQuery = null;
+
+        lock (ThreadDict)
+        {
+            ThreadDict.Remove(groupID);
         }
     }
 
