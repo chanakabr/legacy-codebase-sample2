@@ -1591,8 +1591,13 @@ namespace Core.Catalog.CatalogManagement
                 {
                     List<KeyValuePair<eAssetTypes, long>> assetsToRetrieve = assets.Select(x => new KeyValuePair<eAssetTypes, long>(x.AssetType, long.Parse(x.AssetId))).ToList();
                     List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isOperatorSearch);
-                    if (unOrderedAssets == null || unOrderedAssets.Count != assets.Count)
+                    if (!isOperatorSearch && (unOrderedAssets == null || unOrderedAssets.Count == 0))
                     {
+                        result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        return result;
+                    }
+                    else if (unOrderedAssets == null || unOrderedAssets.Count != assets.Count)
+                    {                        
                         log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
                                         assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.AssetType.ToString(), x.AssetId)).ToList()) : string.Empty);
                         result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
