@@ -20,7 +20,7 @@ namespace Core.Pricing
         private const int BULK_TO_INSERT = 100;
 
 
-        public TvinciCoupons(Int32 nGroupID): base(nGroupID)
+        public TvinciCoupons(Int32 nGroupID) : base(nGroupID)
         {
         }
 
@@ -123,7 +123,7 @@ namespace Core.Pricing
             return Coupon.SetCouponUsed(sCouponCode, m_nGroupID, sSiteGUID, nCollectionCode, nMFID, nSubCode, nPrePaidCode, domainId);
         }
 
-        public override List<Coupon> GenerateCoupons(int numberOfCoupons, long couponGroupId)
+        public override List<Coupon> GenerateCoupons(int numberOfCoupons, long couponGroupId, bool useLetters = true, bool useNumbers = true, bool useSpecialCharacters = true)
         {
             List<Coupon> coupons = new List<Coupon>();
 
@@ -133,7 +133,7 @@ namespace Core.Pricing
                 bool isCouponGroupId = DAL.PricingDAL.IsCouponGroupExsits(m_nGroupID, couponGroupId);
                 if (!isCouponGroupId)
                 {
-                    log.ErrorFormat("fail GenerateCoupons coupon group not exsits groupId={0}, numberOfCoupons={1},couponGroupId={2} ", m_nGroupID, numberOfCoupons, couponGroupId);
+                    log.ErrorFormat("fail GenerateCoupons coupon group not exists groupId={0}, numberOfCoupons={1},couponGroupId={2} ", m_nGroupID, numberOfCoupons, couponGroupId);
                     return new List<Coupon>();
                 }
                 int bulkToInsert = Utils.GetIntValFromConfig("BULK_TO_INSERT_COUPON", BULK_TO_INSERT);
@@ -146,7 +146,10 @@ namespace Core.Pricing
                 CouponGenerator p = new CouponGenerator();
                 p.Maximum = 16;
                 p.Minimum = 12;
-                p.RepeatCharacters = false;
+                p.UseLetters = useLetters;
+                p.UseNumbers = useNumbers;
+                p.ExcludeSymbols = !useSpecialCharacters;
+
                 string couponCode = string.Empty;
 
                 for (i = 1; i <= numberOfCoupons; i++)
@@ -185,7 +188,7 @@ namespace Core.Pricing
             return coupons;
         }
 
-        private bool InsertCoupons(long couponGroupId, List<Coupon> coupons, XmlDocument xmlDoc, XmlNode rootNode, int retry = 0 )
+        private bool InsertCoupons(long couponGroupId, List<Coupon> coupons, XmlDocument xmlDoc, XmlNode rootNode, int retry = 0)
         {
             bool result = false;
             try
@@ -195,7 +198,7 @@ namespace Core.Pricing
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     coupons.AddRange(dt.AsEnumerable().Select(dr => new Coupon((int)dr.Field<Int64>("id"), dr.Field<string>("code"))).ToList());
-                    result = true;                   
+                    result = true;
                 }
                 else
                 {
@@ -203,7 +206,7 @@ namespace Core.Pricing
                     if (retry < 3)
                     {
                         InsertCoupons(couponGroupId, coupons, xmlDoc, rootNode, ++retry);
-                    }                    
+                    }
                 }
             }
             catch (Exception ex)
@@ -218,25 +221,59 @@ namespace Core.Pricing
         {
             CouponDataResponse response = new CouponDataResponse();
             try
-            {               
+            {
                 ApiObjects.Response.Status validateCoupon = Utils.ValidateCouponForSubscription((long)subscriptionId, groupId, couponCode);
                 response.Status = validateCoupon;
 
                 if (response.Status.Code != (int)eResponseStatus.OK)
-                {                   
+                {
                     return response;
                 }
                 else
-                {                    
+                {
                     response.Coupon = GetCouponStatus(couponCode, domainId);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("fail to Validate Coupon For Subscription groupId={0}, subscriptionId={1},couponCode={2}, ex={3} ", m_nGroupID, subscriptionId, couponCode, ex);               
+                log.ErrorFormat("fail to Validate Coupon For Subscription groupId={0}, subscriptionId={1},couponCode={2}, ex={3} ", m_nGroupID, subscriptionId, couponCode, ex);
             }
 
             return response;
         }
+
+        public override CouponGroupGenerationResponse GeneratePublicCode(int groupId, long domainId, long cocouponGroupId, string code)
+        {
+            CouponGroupGenerationResponse response = new CouponGroupGenerationResponse();
+
+            //    try
+            //    {
+
+            //        if (string.IsNullOrEmpty(code))
+            //        {
+            //            response.Status = new Status() { Code = (int)eResponseStatus.Error, Message = "Coupon code (name) is empty" };
+            //            return response;
+            //        }
+
+            //        ApiObjects.Response.Status validateCoupon = Utils.ValidateCouponForSubscription((long)subscriptionId, groupId, couponCode);
+            //        response.Status = validateCoupon;
+
+            //        if (response.Status.Code != (int)eResponseStatus.OK)
+            //        {
+            //            return response;
+            //        }
+            //        else
+            //        {
+            //            response.Coupon = GetCouponStatus(couponCode, domainId);
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        log.ErrorFormat("fail to Validate Coupon For Subscription groupId={0}, subscriptionId={1},couponCode={2}, ex={3} ", m_nGroupID, subscriptionId, couponCode, ex);
+            //    }
+
+            return response;
+        }
+
     }
 }

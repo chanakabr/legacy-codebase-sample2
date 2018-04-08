@@ -919,8 +919,8 @@ namespace Core.Pricing
                 response = new ApiObjects.BusinessModuleResponse(0, new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error"));
             }
             return response;
-        }
-        
+        }       
+
         public static ApiObjects.BusinessModuleResponse InsertPricePlan(int groupID, ApiObjects.IngestPricePlan pricePlan)
         {
             ApiObjects.BusinessModuleResponse response = new ApiObjects.BusinessModuleResponse();
@@ -1062,13 +1062,13 @@ namespace Core.Pricing
             }
         }
 
-        public static List<Coupon> GenerateCoupons(int groupId, int numberOfCoupons, long couponGroupId)
+        public static List<Coupon> GenerateCoupons(int groupId, int numberOfCoupons, long couponGroupId, bool useLetters = true, bool useNumbers = true, bool useSpecialCharacters = true)
         {
             Pricing.BaseCoupons t = null;
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                return t.GenerateCoupons(numberOfCoupons, couponGroupId);
+                return t.GenerateCoupons(numberOfCoupons, couponGroupId, useLetters ,useNumbers , useSpecialCharacters );
             }
             else
             {
@@ -1410,9 +1410,7 @@ namespace Core.Pricing
                 status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return status;
-        }
-
-       
+        }       
 
         public static SubscriptionSetsResponse UpdateSubscriptionDependencySet(int groupId, long setId, string name, long? baseSubscriptionId, List<long> subscriptionIds,
             bool shouldUpdateSubscriptionIds, SubscriptionSetType setType = SubscriptionSetType.Dependency)
@@ -1556,6 +1554,23 @@ namespace Core.Pricing
             {
                 return null;
             }
+        }
+
+        public static CouponGroupGenerationResponse GeneratePublicCode(int groupId, long domainId, long cocouponGroupId, string code)
+        {
+            CouponGroupGenerationResponse response = new CouponGroupGenerationResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            BaseCoupons t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                response =  t.GeneratePublicCode(groupId, domainId, cocouponGroupId, code);
+            }
+
+            return response;
         }
     }
 }
