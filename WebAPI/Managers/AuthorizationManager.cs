@@ -627,7 +627,7 @@ namespace WebAPI.Managers
                 }
             }
 
-            if (ks.Privileges.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
+            if (ks.Privileges != null && ks.Privileges.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
             {
                 string sessionId = ks.Privileges[APP_TOKEN_PRIVILEGE_SESSION_ID];
                 string revokedSessionKeyFormat = GetRevokedSessionKeyFormat(group);
