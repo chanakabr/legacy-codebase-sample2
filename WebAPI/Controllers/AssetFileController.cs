@@ -103,22 +103,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "assetType", "contextType");
             }
 
-            KS ksObject = null;
-
-            if (!string.IsNullOrEmpty(ks))
-            {
-                ksObject = KS.ParseKS(ks);
-
-                if (!ksObject.IsValid)
-                {
-                    throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
-                }
-
-                if (partnerId != ksObject.GroupId)
-                {
-                    throw new UnauthorizedException(UnauthorizedException.PARTNER_INVALID);
-                }
-            }
+            KS ksObject = KS.GetFromRequest();
 
             string response = null;
 
