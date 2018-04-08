@@ -1604,12 +1604,12 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static DataTable GetCoupon(int groupId, string couponGroup)
+        public static DataTable GetCoupon(int groupId, string couponCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCoupon");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@couponGroup", couponGroup);
+            sp.AddParameter("@couponCode", couponCode);
             return sp.Execute();
         }
 
