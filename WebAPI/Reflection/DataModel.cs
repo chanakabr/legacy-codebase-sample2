@@ -5328,6 +5328,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPublicCouponGenerationOptions":
+                    switch(property.Name)
+                    {
+                        case "Code":
+                            return "code";
+                    }
+                    break;
+                    
                 case "KalturaPurchase":
                     switch(property.Name)
                     {
@@ -5403,6 +5411,20 @@ namespace WebAPI.Reflection
                             return "externalToken";
                         case "Token":
                             return "token";
+                    }
+                    break;
+                    
+                case "KalturaRandomCouponGenerationOptions":
+                    switch(property.Name)
+                    {
+                        case "NumberOfCoupons":
+                            return "numberOfCoupons";
+                        case "UseLetters":
+                            return "useLetters";
+                        case "UseNumbers":
+                            return "useNumbers";
+                        case "UseSpecialCharacters":
+                            return "useSpecialCharacters";
                     }
                     break;
                     

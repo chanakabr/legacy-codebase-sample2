@@ -63,7 +63,7 @@ namespace WebAPI.Clients
             subscriptions = AutoMapper.Mapper.Map<List<KalturaSubscription>>(response.Subscriptions);
 
             return subscriptions;
-        }
+        }        
 
         internal List<int> GetSubscriptionIDsContainingMediaFile(int groupId, int mediaFileID)
         {
@@ -834,6 +834,16 @@ namespace WebAPI.Clients
             subscriptions = PricingMappings.ConvertToIntList(response.Ids);
 
             return subscriptions;
+        }
+
+        internal string GenerateCode(int groupId, long cocouponGroupId, long domainId, int numberOfCoupons, bool useLetters, bool useNumbers, bool useSpecialCharacters)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal string GeneratePublicCode(int groupId, long cocouponGroupId, long domainId, string code)
+        {
+            throw new NotImplementedException();
         }
     }
 }
