@@ -14,8 +14,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/couponGroup/action")]
-    public class CouponGroupController : ApiController
+    [RoutePrefix("_service/couponsGroup/action")]
+    public class CouponsGroupsController : ApiController
     {
         /// <summary>
         /// Generate a coupon 
@@ -25,7 +25,6 @@ namespace WebAPI.Controllers
         [Route("generate"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        //[Throws(eResponseStatus.CouponNotValid)]
         public string Generate(long id, KalturaCouponGenerationOptions couponGenerationOptions)
         {
             string code = null;

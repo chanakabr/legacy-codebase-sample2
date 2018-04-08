@@ -236,7 +236,7 @@
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
     <Compile Include="Controllers\CollectionController.cs" />
-    <Compile Include="Controllers\CouponGroupController.cs" />
+    <Compile Include="Controllers\CouponsGroupController.cs" />
     <Compile Include="Controllers\EmailController.cs" />
     <Compile Include="Controllers\UnifiedPaymentController.cs" />
     <Compile Include="Controllers\PriceDetailsController.cs" />
