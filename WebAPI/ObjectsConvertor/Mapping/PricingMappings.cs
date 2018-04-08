@@ -759,5 +759,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return prices;
         }
+
+        public static KalturaStringValueArray BuildCouponCodeList(List<string> list)
+        {
+            if (list == null)
+            {
+                return null;
+            }
+
+            KalturaStringValueArray stringValueArray = new KalturaStringValueArray();
+
+            foreach (var stringValue in list)
+            {
+                stringValueArray.Objects.Add(new KalturaStringValue() { value = stringValue });
+            }
+
+            return stringValueArray;
+        }
     }
 }

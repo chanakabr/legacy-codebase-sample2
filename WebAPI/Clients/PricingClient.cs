@@ -1,8 +1,13 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.Pricing;
+using ApiObjects.Response;
+using Core.Pricing;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.ServiceModel;
 using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
@@ -11,13 +16,8 @@ using WebAPI.Managers.Models;
 using WebAPI.Mapping.ObjectsConvertor;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
-using WebAPI.Utils;
-using System.Net;
-using System.ServiceModel;
-using ApiObjects.Response;
 using WebAPI.ObjectsConvertor.Mapping;
-using Core.Pricing;
-using ApiObjects.Pricing;
+using WebAPI.Utils;
 
 namespace WebAPI.Clients
 {
@@ -836,14 +836,76 @@ namespace WebAPI.Clients
             return subscriptions;
         }
 
-        internal string GenerateCode(int groupId, long cocouponGroupId, long domainId, int numberOfCoupons, bool useLetters, bool useNumbers, bool useSpecialCharacters)
+        internal CouponGroupGenerationResponse GenerateCode(int groupId, long couponGroupId, int numberOfCoupons, bool useLetters, bool useNumbers, bool useSpecialCharacters)
         {
-            throw new NotImplementedException();
+            CouponGroupGenerationResponse response = new CouponGroupGenerationResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    var coupons = Core.Pricing.Module.GenerateCoupons(groupId, numberOfCoupons,couponGroupId, useLetters ,useNumbers ,useSpecialCharacters);
+                    if (coupons != null && coupons.Count > 0)
+                    {
+                        response.Codes = coupons.Select(x => x.code).ToList();
+                        response.Status.Code = (int)eResponseStatus.OK;
+                        response.Status.Message = eResponseStatus.OK.ToString();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            return response;
         }
 
         internal string GeneratePublicCode(int groupId, long cocouponGroupId, long domainId, string code)
         {
-            throw new NotImplementedException();
+            string response = string.Empty;
+
+            //try
+            //{
+            //    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+            //    {
+            //        response = Core.Pricing.Module.GeneratePublicCode(groupId, domainId, cocouponGroupId, code);
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+            //    ErrorUtils.HandleWSException(ex);
+            //}
+
+            //if (response == null)
+            //{
+            //    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            //}
+
+            //if (response.Status.Code != (int)StatusCode.OK)
+            //{
+            //    throw new ClientException(response.Status.Code, response.Status.Message);
+            //}
+
+            //subscriptions = PricingMappings.ConvertToIntList(response.Ids);
+
+            //return subscriptions;
+            return response;
         }
     }
 }

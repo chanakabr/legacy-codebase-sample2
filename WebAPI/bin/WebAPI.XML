@@ -668,7 +668,7 @@
             <remarks>Possible status codes:      
               </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.CouponGroupController.Generate(System.Int64,WebAPI.Models.Pricing.KalturaCouponGenerationOptions)">
+        <member name="M:WebAPI.Controllers.CouponsGroupController.Generate(System.Int64,WebAPI.Models.Pricing.KalturaCouponGenerationOptions)">
             <summary>
             Generate a coupon 
             </summary>

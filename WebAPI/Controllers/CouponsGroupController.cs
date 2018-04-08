@@ -9,13 +9,14 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/couponsGroup/action")]
-    public class CouponsGroupsController : ApiController
+    public class CouponsGroupController : ApiController
     {
         /// <summary>
         /// Generate a coupon 
@@ -25,16 +26,13 @@ namespace WebAPI.Controllers
         [Route("generate"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public string Generate(long id, KalturaCouponGenerationOptions couponGenerationOptions)
+
+        //[Throws(eResponseStatus.CouponNotValid)]
+        public KalturaStringValueArray Generate(long id, KalturaCouponGenerationOptions couponGenerationOptions)
         {
-            string code = null;
+            KalturaStringValueArray result = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-
-            //if (string.IsNullOrEmpty(code))
-            //{
-            //    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "code");
-            //}
 
             try
             {
@@ -42,16 +40,25 @@ namespace WebAPI.Controllers
                 {
                     KalturaPublicCouponGenerationOptions couponGeneration = (KalturaPublicCouponGenerationOptions)couponGenerationOptions;
 
+                    if (string.IsNullOrEmpty(couponGeneration.Code))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "code");
+                    }
+
                     // call client
-                    code = ClientsManager.PricingClient().GeneratePublicCode(groupId, id, HouseholdUtils.GetHouseholdIDByKS(groupId), couponGeneration.Code);
+                    //code = ClientsManager.PricingClient().GeneratePublicCode(groupId, id, HouseholdUtils.GetHouseholdIDByKS(groupId), couponGeneration.Code);
                 }
                 else if (couponGenerationOptions is KalturaRandomCouponGenerationOptions)
                 {
                     KalturaRandomCouponGenerationOptions couponGeneration = (KalturaRandomCouponGenerationOptions)couponGenerationOptions;
 
+                    if (couponGeneration.NumberOfCoupons <= 0)
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "numberOfCoupons");
+                    }
+
                     // call client
-                    code = ClientsManager.PricingClient().GenerateCode(groupId, id, HouseholdUtils.GetHouseholdIDByKS(groupId),
-                        couponGeneration.NumberOfCoupons, couponGeneration.UseLetters, couponGeneration.UseNumbers, couponGeneration.UseSpecialCharacters);
+                    //code = ClientsManager.PricingClient().GenerateCode(groupId, id, couponGeneration.NumberOfCoupons, couponGeneration.UseLetters, couponGeneration.UseNumbers, couponGeneration.UseSpecialCharacters);
                 }
                 else
                 {
@@ -63,7 +70,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return code;
+            return result;
         }
     }
 }
