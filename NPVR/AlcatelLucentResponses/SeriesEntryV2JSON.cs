@@ -7,9 +7,9 @@ using System.Text;
 namespace NPVR.AlcatelLucentResponses
 {
     [Serializable]
-    public class SeriesEntryJSON
+    public class SeriesEntryV2JSON
     {
-        [JsonProperty("seasonId")]
+        [JsonProperty("seriesId")]
         public string SeriesID { get; set; }
 
         [JsonProperty("seasonName")]
@@ -20,5 +20,14 @@ namespace NPVR.AlcatelLucentResponses
 
         [JsonProperty("channelId")]
         public string ChannelID { get; set; }
+
+        [JsonProperty("seasonNumber")]
+        public string seasonNumber { get; set; }
+
+        [JsonProperty("seasonId")]
+        public string seasonId { get; set; }
+
+        [JsonProperty("type")]
+        public string type { get; set; }
     }
 }
