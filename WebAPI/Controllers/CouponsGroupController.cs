@@ -72,5 +72,31 @@ namespace WebAPI.Controllers
 
             return result;
         }
+
+        /// <summary>
+        /// Returns information about coupons group
+        /// </summary>
+        /// <param name="id">Coupons group ID</param>
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        [SchemeArgument("id", MinLong = 1)]
+        public KalturaCouponsGroup Get(long id)
+        {
+            KalturaCouponsGroup couponsGroup = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                couponsGroup = ClientsManager.PricingClient().GetCouponsGroup(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return couponsGroup;
+        }
     }
 }
