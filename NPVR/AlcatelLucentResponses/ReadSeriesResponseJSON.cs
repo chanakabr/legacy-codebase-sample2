@@ -7,7 +7,7 @@ using System.Text;
 namespace NPVR.AlcatelLucentResponses
 {
     [Serializable]
-    public class ReadSeriesResponseJSON
+    public class ReadSeriesResponseJSON<T>
     {
         [JsonProperty("entriesLength")]
         public int EntriesLength { get; set; }
@@ -19,7 +19,7 @@ namespace NPVR.AlcatelLucentResponses
         public int EntriesPageSize { get; set; }
 
         [JsonProperty("entries")]
-        public List<SeriesEntryJSON> Entries { get; set; }
+        public List<T> Entries { get; set; }
 
     }
 }

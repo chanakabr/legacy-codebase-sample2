@@ -1615,7 +1615,7 @@ namespace NPVR
             return args != null && !string.IsNullOrEmpty(args.EntityID) && (args.PageSize > 0 || args.PageIndex == 0);
         }
 
-        private List<RecordedSeriesObject> ExtractRecordedSeries(ReadSeriesResponseJSON responseJson)
+        private List<RecordedSeriesObject> ExtractRecordedSeries(ReadSeriesResponseJSON<SeriesEntryJSON> responseJson)
         {
             List<RecordedSeriesObject> res = new List<RecordedSeriesObject>(responseJson.Entries.Count);
             foreach (SeriesEntryJSON entry in responseJson.Entries)
@@ -1635,7 +1635,7 @@ namespace NPVR
         {
             try
             {
-                ReadSeriesResponseJSON success = JsonConvert.DeserializeObject<ReadSeriesResponseJSON>(responseJson);
+                ReadSeriesResponseJSON<SeriesEntryJSON> success = JsonConvert.DeserializeObject<ReadSeriesResponseJSON<SeriesEntryJSON>>(responseJson);
                 response.isOK = true;
                 response.msg = string.Empty;
                 response.results = ExtractRecordedSeries(success);

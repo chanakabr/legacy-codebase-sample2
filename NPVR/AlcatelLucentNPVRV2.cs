@@ -1976,10 +1976,10 @@ namespace NPVR
             }
         }
 
-        private List<RecordedSeriesObject> ExtractRecordedSeries(ReadSeriesResponseJSON responseJson)
+        private List<RecordedSeriesObject> ExtractRecordedSeries(ReadSeriesResponseJSON<SeriesEntryV2JSON> responseJson)
         {
             List<RecordedSeriesObject> res = new List<RecordedSeriesObject>(responseJson.Entries.Count);
-            foreach (SeriesEntryJSON entry in responseJson.Entries)
+            foreach (SeriesEntryV2JSON entry in responseJson.Entries)
             {
                 RecordedSeriesObject obj = new RecordedSeriesObject();
 
@@ -2001,7 +2001,7 @@ namespace NPVR
         {
             try
             {
-                ReadSeriesResponseJSON success = JsonConvert.DeserializeObject<ReadSeriesResponseJSON>(responseJson);
+                ReadSeriesResponseJSON<SeriesEntryV2JSON> success = JsonConvert.DeserializeObject<ReadSeriesResponseJSON<SeriesEntryV2JSON>>(responseJson);
                 response.isOK = true;
                 response.msg = string.Empty;
                 response.results = ExtractRecordedSeries(success);
