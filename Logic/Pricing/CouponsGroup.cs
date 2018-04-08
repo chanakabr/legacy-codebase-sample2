@@ -105,7 +105,6 @@ namespace Core.Pricing
             return Initialize(couponsGroup);
         }
 
-        public long Id;
         public DiscountModule m_oDiscountCode;
         public string m_sDiscountCode;
         public LanguageContainer[] m_sDescription;
@@ -122,13 +121,10 @@ namespace Core.Pricing
 
         internal bool Initialize(CouponsGroup couponGroup)
         {
-            Id = couponGroup.Id;
             return this.Initialize(couponGroup.m_sGroupName, couponGroup.m_sGroupCode, couponGroup.m_oDiscountCode, couponGroup.m_sDescription,
             couponGroup.m_dStartDate, couponGroup.m_dEndDate, couponGroup.m_nMaxUseCountForCoupon, couponGroup.m_nFinancialEntityID, couponGroup.m_nMaxRecurringUsesCountForCoupon, couponGroup.maxDomainUses,
             couponGroup.couponGroupType);            
         }
-
-
 
         public static CouponsGroup GetCouponsGroup(long couponsGroupId, int groupId)
         {
@@ -172,12 +168,12 @@ namespace Core.Pricing
 
                                 couponsGroup = new CouponsGroup()
                                 {
-                                    Id = couponsGroupId.Value,
+                                    m_sGroupCode = couponsGroupId.Value.ToString(),
                                     m_oDiscountCode = t.GetDiscountCodeData(sDiscountCode),
                                     m_dStartDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "START_DATE"),
                                     m_dEndDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "END_DATE"),
                                     m_nMaxUseCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "MAX_USE_TIME"),
-                                    m_sGroupCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "CODE"),
+                                    m_sGroupName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "CODE"),
                                     m_nFinancialEntityID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "FINANCIAL_ENTITY_ID"),
                                     m_nMaxRecurringUsesCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "MAX_RECURRING_USES"),
                                     couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "COUPON_GROUP_TYPE"),
