@@ -28,5 +28,7 @@ namespace Core.Pricing
         public abstract CouponDataResponse ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode, long domainId);
 
         public abstract CouponGroupGenerationResponse GeneratePublicCode(int groupId, long domainId, long cocouponGroupId, string code);
+
+        public abstract CouponsGroupResponse GetCouponGroupData(long couponsGroupId);
     }
 }
