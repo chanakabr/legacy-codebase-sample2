@@ -1208,7 +1208,7 @@ namespace WebAPI.Filters
                 throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
             }
 
-            KS ks = KS.CreateKSFromApiToken(token);
+            KS ks = KS.CreateKSFromApiToken(token, ksVal);
 
             if (!ks.IsValid)
             {

@@ -300,7 +300,7 @@ namespace WebAPI.Managers.Models
             return (KS)HttpContext.Current.Items[RequestParser.REQUEST_KS];
         }
 
-        public static KS CreateKSFromApiToken(ApiToken token)
+        public static KS CreateKSFromApiToken(ApiToken token, string tokenVal)
         {
             KS ks = new KS()
             {
@@ -308,7 +308,8 @@ namespace WebAPI.Managers.Models
                 userId = token.UserId,
                 sessionType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
                 expiration = Utils.SerializationUtils.ConvertFromUnixTimestamp(token.AccessTokenExpiration),
-                data = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = token.Udid })
+                data = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = token.Udid }),
+                encryptedValue = tokenVal
             };
 
             return ks;
