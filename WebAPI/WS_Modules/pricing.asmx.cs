@@ -1768,11 +1768,12 @@ namespace WS_Pricing
 
         [WebMethod]
         public virtual List<Coupon> GenerateCoupons(string sWSUserName, string sWSPassword, int numberOfCoupons, long couponGroupId)
-        {           
+        {
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.GenerateCoupons(nGroupID, numberOfCoupons, couponGroupId);
+                Status status = null;
+                return Core.Pricing.Module.GenerateCoupons(nGroupID, numberOfCoupons, couponGroupId, out status);
             }
             else
             {

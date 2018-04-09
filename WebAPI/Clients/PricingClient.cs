@@ -840,21 +840,18 @@ namespace WebAPI.Clients
         internal KalturaStringValueArray GenerateCode(int groupId, long couponGroupId, int numberOfCoupons, bool useLetters, bool useNumbers, bool useSpecialCharacters)
         {
             KalturaStringValueArray stringValueArray = null;
-            CouponGroupGenerationResponse response = new CouponGroupGenerationResponse()
-            {
-                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
+            CouponGroupGenerationResponse response = new CouponGroupGenerationResponse() { Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
+            Status status = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    var coupons = Core.Pricing.Module.GenerateCoupons(groupId, numberOfCoupons, couponGroupId, useLetters, useNumbers, useSpecialCharacters);
+                    var coupons = Core.Pricing.Module.GenerateCoupons(groupId, numberOfCoupons, couponGroupId, out status, useLetters, useNumbers, useSpecialCharacters);
+                    response.Status = status;
                     if (coupons != null && coupons.Count > 0)
                     {
                         response.Codes = coupons.Select(x => x.code).ToList();
-                        response.Status.Code = (int)eResponseStatus.OK;
-                        response.Status.Message = eResponseStatus.OK.ToString();
                     }
                 }
             }
@@ -882,21 +879,19 @@ namespace WebAPI.Clients
         internal KalturaStringValueArray GeneratePublicCode(int groupId, long couponGroupId, string code)
         {
             KalturaStringValueArray stringValueArray = null;
-            CouponGroupGenerationResponse response = new CouponGroupGenerationResponse()
-            {
-                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
+            CouponGroupGenerationResponse response = new CouponGroupGenerationResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            Status status = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    var coupons = Core.Pricing.Module.GeneratePublicCode(groupId, couponGroupId, code);
+                    var coupons = Core.Pricing.Module.GeneratePublicCode(groupId, couponGroupId, code, out status);
+                    response.Status = status;
+
                     if (coupons != null && coupons.Count > 0)
                     {
-                        response.Codes = coupons.Select(x => x.code).ToList();
-                        response.Status.Code = (int)eResponseStatus.OK;
-                        response.Status.Message = eResponseStatus.OK.ToString();
+                        response.Codes = coupons.Select(x => x.code).ToList();                       
                     }
                 }
             }

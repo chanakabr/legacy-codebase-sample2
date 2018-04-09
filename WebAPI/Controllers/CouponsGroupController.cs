@@ -27,8 +27,7 @@ namespace WebAPI.Controllers
         [Route("generate"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-
-        //[Throws(eResponseStatus.CouponNotValid)]
+        [Throws(eResponseStatus.InvalidCouponGroup)]
         public KalturaStringValueArray Generate(long id, KalturaCouponGenerationOptions couponGenerationOptions)
         {
             KalturaStringValueArray result = null;
