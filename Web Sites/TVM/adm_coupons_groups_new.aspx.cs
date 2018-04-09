@@ -1,9 +1,14 @@
-﻿using ConfigurationManager;
+﻿using CachingProvider.LayeredCache;
+using ConfigurationManager;
+using KLogMonitor;
+using RabbitMQ.Client.Impl;
 using System;
 using TVinciShared;
 
 public partial class adm_coupons_groups_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -48,7 +53,14 @@ public partial class adm_coupons_groups_new : System.Web.UI.Page
 
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                DBManipulator.DoTheWork("pricing_connection");
+                long id = DBManipulator.DoTheWork("pricing_connection");
+
+                string invalidationKey = LayeredCacheKeys.GetCouponsGroupInvalidationKey(LoginManager.GetLoginGroupID(), id);
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for group DRM adapter. key = {0}", invalidationKey);
+                }
+
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
