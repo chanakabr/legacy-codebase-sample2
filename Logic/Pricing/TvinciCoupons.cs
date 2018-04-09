@@ -19,6 +19,7 @@ namespace Core.Pricing
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int BULK_TO_INSERT = 100;
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group identifier wasn't found";
+        private const string COUPON_CODE_ALREADY_EXISTS = "Coupon code already exist";
 
 
 
@@ -263,6 +264,16 @@ namespace Core.Pricing
                     log.ErrorFormat("fail GeneratePublicCode coupon group not exists groupId={0}, couponCode={1},couponGroupId={2} ", m_nGroupID, couponCode, couponGroupId);
                     status.Code = (int)eResponseStatus.InvalidCouponGroup;
                     status.Message = COUPON_GROUP_NOT_FOUND;
+                    return coupons;
+                }
+
+                // check that couponCode doesn't exists 
+                bool isCouponcouponCodeExist = DAL.PricingDAL.IsCouponCodeExists(m_nGroupID, couponCode);
+                if (!isCouponcouponCodeExist)
+                {
+                    log.ErrorFormat("fail GeneratePublicCode coupon group not exists groupId={0}, couponCode={1},couponGroupId={2} ", m_nGroupID, couponCode, couponGroupId);
+                    status.Code = (int)eResponseStatus.CouponCodeAlreadyExists;
+                    status.Message = COUPON_CODE_ALREADY_EXISTS;
                     return coupons;
                 }
 
