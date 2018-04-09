@@ -1,8 +1,8 @@
 ﻿using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using KLogMonitor;
-using RabbitMQ.Client.Impl;
 using System;
+using System.Reflection;
 using TVinciShared;
 
 public partial class adm_coupons_groups_new : System.Web.UI.Page
