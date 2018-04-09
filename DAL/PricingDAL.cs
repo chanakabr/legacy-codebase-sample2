@@ -1372,7 +1372,7 @@ namespace DAL
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupID", m_nGroupID);
             sp.AddParameter("@couponGroupID", couponGroupId);
-            return sp.ExecuteReturnValue<int>() > 0;
+            return sp.ExecuteReturnValue<int>() > 0;            
         }
 
         public static DataTable InsertCoupons(System.Xml.XmlDocument xmlDoc)
@@ -1630,6 +1630,15 @@ namespace DAL
             sp.AddParameter("@couponId", couponId);
             sp.AddParameter("@domainId", domainId);
             return sp.ExecuteReturnValue<int>();
+        }
+
+        public static bool IsCouponCodeExists(int groupId, string couponCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Is_CouponCodeExists");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@couponCode", couponCode);
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
     }
