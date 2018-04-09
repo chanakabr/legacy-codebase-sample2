@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using Core.Pricing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +47,7 @@ namespace WebAPI.Controllers
                     }
 
                     // call client
-                    //code = ClientsManager.PricingClient().GeneratePublicCode(groupId, id, HouseholdUtils.GetHouseholdIDByKS(groupId), couponGeneration.Code);
+                    result = ClientsManager.PricingClient().GeneratePublicCode(groupId, id, couponGeneration.Code);
                 }
                 else if (couponGenerationOptions is KalturaRandomCouponGenerationOptions)
                 {
@@ -58,7 +59,7 @@ namespace WebAPI.Controllers
                     }
 
                     // call client
-                    //code = ClientsManager.PricingClient().GenerateCode(groupId, id, couponGeneration.NumberOfCoupons, couponGeneration.UseLetters, couponGeneration.UseNumbers, couponGeneration.UseSpecialCharacters);
+                    result = ClientsManager.PricingClient().GenerateCode(groupId, id, couponGeneration.NumberOfCoupons, couponGeneration.UseLetters, couponGeneration.UseNumbers, couponGeneration.UseSpecialCharacters);
                 }
                 else
                 {
