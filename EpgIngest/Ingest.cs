@@ -287,6 +287,10 @@ namespace EpgIngest
                         foreach (desc description in prog.desc)
                         {
                             language = description.lang.ToLower();
+
+                            if (string.IsNullOrEmpty(description.Value))
+                                description.Value = string.Empty;
+
                             if (dEpgCbTranslate.ContainsKey(language))
                             {
                                 dEpgCbTranslate[language].Description = description.Value;
