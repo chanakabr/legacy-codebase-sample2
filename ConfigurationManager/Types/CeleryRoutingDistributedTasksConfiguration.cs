@@ -41,115 +41,143 @@ namespace ConfigurationManager
         {
             resize_image = new ConfigurationManager.StringConfigurationValue("resize_image", this)
             {
-                DefaultValue = "ImageResizeHandler"
+                DefaultValue = "ImageResizeHandler",
+                ShouldAllowEmpty = true
             };
             upload_image = new ConfigurationManager.StringConfigurationValue("upload_image", this)
             {
-                DefaultValue = "FileUploadHandler"
+                DefaultValue = "FileUploadHandler",
+                ShouldAllowEmpty = true
             };
             update_index = new ConfigurationManager.StringConfigurationValue("update_index", this)
             {
-                DefaultValue = "ElasticSearchHandler"
+                DefaultValue = "ElasticSearchHandler",
+                ShouldAllowEmpty = true
             };
             build_index = new ConfigurationManager.StringConfigurationValue("build_index", this)
             {
-                DefaultValue = "ElasticSearchHandler"
+                DefaultValue = "ElasticSearchHandler",
+                ShouldAllowEmpty = true
             };
             merge_social_feed = new ConfigurationManager.StringConfigurationValue("merge_social_feed", this)
             {
-                DefaultValue = "SocialMergeHandler"
+                DefaultValue = "SocialMergeHandler",
+                ShouldAllowEmpty = true
             };
             update_social_feed = new ConfigurationManager.StringConfigurationValue("update_social_feed", this)
             {
-                DefaultValue = "SocialFeedHandler"
+                DefaultValue = "SocialFeedHandler",
+                ShouldAllowEmpty = true
             };
             index_snapshot_restore = new ConfigurationManager.StringConfigurationValue("index_snapshot_restore", this)
             {
-                DefaultValue = "IndexSnapshotRestoreHandler"
+                DefaultValue = "IndexSnapshotRestoreHandler",
+                ShouldAllowEmpty = true
             };
             transform_epg_xml_to_xtvd = new ConfigurationManager.StringConfigurationValue("transform_epg_xml_to_xtvd", this)
             {
-                DefaultValue = "EPG_XDTVTransform"
+                DefaultValue = "EPG_XDTVTransform",
+                ShouldAllowEmpty = true
             };
             cdr_notification = new ConfigurationManager.StringConfigurationValue("cdr_notification", this)
             {
-                DefaultValue = "CdrNotificationHandler"
+                DefaultValue = "CdrNotificationHandler",
+                ShouldAllowEmpty = true
             };
             setup_task = new ConfigurationManager.StringConfigurationValue("setup_task", this)
             {
-                DefaultValue = "SetupTaskHandler"
+                DefaultValue = "SetupTaskHandler",
+                ShouldAllowEmpty = true
             };
             update_cache = new ConfigurationManager.StringConfigurationValue("update_cache", this)
             {
-                DefaultValue = "UpdateCacheHandler"
+                DefaultValue = "UpdateCacheHandler",
+                ShouldAllowEmpty = true
             };
             renew_subscription = new ConfigurationManager.StringConfigurationValue("renew_subscription", this)
             {
-                DefaultValue = "SubscriptionRenewHandler"
+                DefaultValue = "SubscriptionRenewHandler",
+                ShouldAllowEmpty = true
             };
             export = new ConfigurationManager.StringConfigurationValue("export", this)
             {
-                DefaultValue = "ExportHandler"
+                DefaultValue = "ExportHandler",
+                ShouldAllowEmpty = true
             };
             image_upload = new ConfigurationManager.StringConfigurationValue("image_upload", this)
             {
-                DefaultValue = "ImageUploadHandler"
+                DefaultValue = "ImageUploadHandler",
+                ShouldAllowEmpty = true
             };
             message_announcements = new ConfigurationManager.StringConfigurationValue("message_announcements", this)
             {
-                DefaultValue = "MessageAnnouncementHandler"
+                DefaultValue = "MessageAnnouncementHandler",
+                ShouldAllowEmpty = true
             };
             initiate_notification_action = new ConfigurationManager.StringConfigurationValue("initiate_notification_action", this)
             {
-                DefaultValue = "InitiateNotificationActionHandler"
+                DefaultValue = "InitiateNotificationActionHandler",
+                ShouldAllowEmpty = true
             };
             free_item_update = new ConfigurationManager.StringConfigurationValue("free_item_update", this)
             {
-                DefaultValue = "FreeAssetUpdateHandler"
+                DefaultValue = "FreeAssetUpdateHandler",
+                ShouldAllowEmpty = true
             };
             recording_task = new ConfigurationManager.StringConfigurationValue("recording_task", this)
             {
-                DefaultValue = "RecordingTaskHandler"
+                DefaultValue = "RecordingTaskHandler",
+                ShouldAllowEmpty = true
             };
             check_pending_transaction = new ConfigurationManager.StringConfigurationValue("check_pending_transaction", this)
             {
-                DefaultValue = "PendingTransactionHandler"
+                DefaultValue = "PendingTransactionHandler",
+                ShouldAllowEmpty = true
             };
             modified_recording = new ConfigurationManager.StringConfigurationValue("modified_recording", this)
             {
-                DefaultValue = "ModifiedRecordingsHandler"
+                DefaultValue = "ModifiedRecordingsHandler",
+                ShouldAllowEmpty = true
             };
             series_recording_task = new ConfigurationManager.StringConfigurationValue("series_recording_task", this)
             {
-                DefaultValue = "SeriesRecordingTaskHandler"
+                DefaultValue = "SeriesRecordingTaskHandler",
+                ShouldAllowEmpty = true
             };
             user_task = new ConfigurationManager.StringConfigurationValue("user_task", this)
             {
-                DefaultValue = "UserTaskHandler"
+                DefaultValue = "UserTaskHandler",
+                ShouldAllowEmpty = true
             };
             message_reminders = new ConfigurationManager.StringConfigurationValue("message_reminders", this)
             {
-                DefaultValue = "MessageReminderHandler"
+                DefaultValue = "MessageReminderHandler",
+                ShouldAllowEmpty = true
             };
             action_rule = new ConfigurationManager.StringConfigurationValue("action_rule", this)
             {
-                DefaultValue = "ActionRuleHandler"
+                DefaultValue = "ActionRuleHandler",
+                ShouldAllowEmpty = true
             };
             engagements = new ConfigurationManager.StringConfigurationValue("engagements", this)
             {
-                DefaultValue = "EngagementHandler"
+                DefaultValue = "EngagementHandler",
+                ShouldAllowEmpty = true
             };
             message_interests = new ConfigurationManager.StringConfigurationValue("message_interests", this)
             {
-                DefaultValue = "MessageInterestHandler"
+                DefaultValue = "MessageInterestHandler",
+                ShouldAllowEmpty = true
             };
             unified_renew_subscription = new ConfigurationManager.StringConfigurationValue("unified_renew_subscription", this)
             {
-                DefaultValue = "SubscriptionRenewHandler"
+                DefaultValue = "SubscriptionRenewHandler",
+                ShouldAllowEmpty = true
             };
             ps_events = new ConfigurationManager.StringConfigurationValue("ps_events", this)
             {
-                DefaultValue = "ProfessionalServicesHandler"
+                DefaultValue = "ProfessionalServicesHandler",
+                ShouldAllowEmpty = true
             };
         }
     }
