@@ -982,7 +982,7 @@ namespace Core.Pricing
             }
             return response;
         }
-        
+
         public static ApiObjects.BusinessModuleResponse test(int nGroupID, string name)
         {
             ApiObjects.IngestMultiPricePlan mpp = new ApiObjects.IngestMultiPricePlan();
@@ -1568,6 +1568,23 @@ namespace Core.Pricing
             {
                 return null;
             }            
+        }
+
+        public static CouponsGroupResponse GetCouponsGroup(int groupId, long id)
+        {
+            CouponsGroupResponse response = new CouponsGroupResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            BaseCoupons t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.GetCouponGroupData(id);
+            }
+
+            return response;
         }
     }
 }

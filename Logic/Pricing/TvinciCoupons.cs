@@ -275,5 +275,20 @@ namespace Core.Pricing
             return coupons;
         }
 
+        public override CouponsGroupResponse GetCouponGroupData(long couponsGroupId)
+        {
+            CouponsGroupResponse response = new CouponsGroupResponse();
+            try
+            {
+                response.CouponsGroup = new CouponsGroup();
+                response.CouponsGroup.Initialize((int)couponsGroupId, m_nGroupID);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed to get coupons group, Id = {0}", couponsGroupId), ex);
+            }
+            
+            return response;
+        }
     }
 }
