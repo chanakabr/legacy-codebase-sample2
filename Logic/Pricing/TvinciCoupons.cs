@@ -281,7 +281,10 @@ namespace Core.Pricing
             try
             {
                 response.CouponsGroup = new CouponsGroup();
-                response.CouponsGroup.Initialize((int)couponsGroupId, m_nGroupID);
+                if (response.CouponsGroup.Initialize((int)couponsGroupId, m_nGroupID))
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
             catch (Exception ex)
             {
