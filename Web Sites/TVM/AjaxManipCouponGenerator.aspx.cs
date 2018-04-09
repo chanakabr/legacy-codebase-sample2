@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using TVinciShared;
 
@@ -122,9 +120,17 @@ public partial class AjaxManipCouponGenerator : System.Web.UI.Page
             bOK = false;
         }
 
+        Int32 nGroupID = TVinciShared.LoginManager.GetLoginGroupID();
+
+
+        if (IsCouponcouponCodeExist(nGroupID, couponCode))
+        {
+            sError = "Coupon code already exist";
+            bOK = false;
+        }
+
         if (string.IsNullOrEmpty(sError))
         {
-            Int32 nGroupID = TVinciShared.LoginManager.GetLoginGroupID();
 
             if (!ThreadDict.ContainsKey(nGroupID))
             {
@@ -132,7 +138,7 @@ public partial class AjaxManipCouponGenerator : System.Web.UI.Page
 
                 Thread t = new Thread(start);
 
-                ThreadDict.Add(TVinciShared.LoginManager.GetLoginGroupID(), t);
+                ThreadDict.Add(nGroupID, t);
 
                 string[] vals = new string[3];
                 vals[0] = couponCode;
@@ -164,16 +170,16 @@ public partial class AjaxManipCouponGenerator : System.Web.UI.Page
         int nCounter = 0;
         int nInsertMax = 300;
 
+        PasswordGenerator p = new PasswordGenerator();
+        p.Maximum = 16;
+        p.Minimum = 12;
+        p.RepeatCharacters = true;
+        p.ExcludeSymbols = useSpecialCharacters == 0;
+        p.UseNumbers = useNumbers == 1;
+        p.UseLetters = useLetters == 1;
+
         for (int i = 0; i < nNumberOfCoupons; i++)
         {
-            PasswordGenerator p = new PasswordGenerator();
-            p.Maximum = 16;
-            p.Minimum = 12;
-            p.RepeatCharacters = true;
-            p.ExcludeSymbols = useSpecialCharacters == 0;
-            p.UseNumbers = useNumbers == 1;
-            p.UseLetters = useLetters == 1;
-
             string sPass = p.Generate();
 
             query += string.Format("Insert into coupons(code, COUPON_GROUP_ID, GROUP_ID) values('{0}',{1},{2});", sPass, nCGID, nGroupID);
@@ -222,4 +228,21 @@ public partial class AjaxManipCouponGenerator : System.Web.UI.Page
         }
     }
 
+    private bool IsCouponcouponCodeExist(int groupId, string code)
+    {
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("pricing_connection");
+        selectQuery += string.Format("SELECT TOP (1) id FROM dbo.coupons WITH(NOLOCK) WHERE   group_id = {0} "
+            + " AND CODE = '{1}' AND [status] = 1", groupId, code);
+
+        if (selectQuery.Execute("query", true) != null && selectQuery.Table("query") != null && selectQuery.Table("query").Rows.Count != 0)
+        {
+            return true;
+        }
+
+        selectQuery.Finish();
+        selectQuery = null;
+
+        return false;
+    }
 }
