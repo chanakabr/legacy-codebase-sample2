@@ -269,7 +269,7 @@ namespace Core.Pricing
 
                 // check that couponCode doesn't exists 
                 bool isCouponcouponCodeExist = DAL.PricingDAL.IsCouponCodeExists(m_nGroupID, couponCode);
-                if (!isCouponcouponCodeExist)
+                if (isCouponcouponCodeExist)
                 {
                     log.ErrorFormat("fail GeneratePublicCode coupon group not exists groupId={0}, couponCode={1},couponGroupId={2} ", m_nGroupID, couponCode, couponGroupId);
                     status.Code = (int)eResponseStatus.CouponCodeAlreadyExists;
