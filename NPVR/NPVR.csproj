@@ -73,6 +73,7 @@
     <Compile Include="AlcatelLucentResponses\ReadSeriesResponseJSON.cs" />
     <Compile Include="AlcatelLucentResponses\RecordAssetResponseJSON.cs" />
     <Compile Include="AlcatelLucentResponses\RecordSeriesResponseJSON.cs" />
+    <Compile Include="AlcatelLucentResponses\SeriesEntryV2JSON.cs" />
     <Compile Include="AlcatelLucentResponses\SeriesEntryJSON.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="INPVRProvider.cs" />
