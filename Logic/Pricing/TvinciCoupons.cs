@@ -242,37 +242,37 @@ namespace Core.Pricing
             return response;
         }
 
-        public override CouponGroupGenerationResponse GeneratePublicCode(int groupId, long domainId, long cocouponGroupId, string code)
+        public override List<Coupon> GeneratePublicCode(int groupId, long couponGroupId, string couponCode)
         {
-            CouponGroupGenerationResponse response = new CouponGroupGenerationResponse();
+            List<Coupon> coupons = new List<Coupon>();
 
-            //    try
-            //    {
+            try
+            {
+                // check that coupon groupId exists 
+                bool isCouponGroupId = DAL.PricingDAL.IsCouponGroupExsits(m_nGroupID, couponGroupId);
+                if (!isCouponGroupId)
+                {
+                    log.ErrorFormat("fail GeneratePublicCode coupon group not exists groupId={0}, couponCode={1},couponGroupId={2} ", m_nGroupID, couponCode, couponGroupId);
+                    return coupons;
+                }              
 
-            //        if (string.IsNullOrEmpty(code))
-            //        {
-            //            response.Status = new Status() { Code = (int)eResponseStatus.Error, Message = "Coupon code (name) is empty" };
-            //            return response;
-            //        }
+                XmlDocument xmlDoc = new XmlDocument();
+                XmlNode rootNode = xmlDoc.CreateElement("root");
+                xmlDoc.AppendChild(rootNode);
 
-            //        ApiObjects.Response.Status validateCoupon = Utils.ValidateCouponForSubscription((long)subscriptionId, groupId, couponCode);
-            //        response.Status = validateCoupon;
+                // insert it to XML        
+                Utils.BuildCouponXML(rootNode, xmlDoc, couponCode, m_nGroupID, couponGroupId);
 
-            //        if (response.Status.Code != (int)eResponseStatus.OK)
-            //        {
-            //            return response;
-            //        }
-            //        else
-            //        {
-            //            response.Coupon = GetCouponStatus(couponCode, domainId);
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        log.ErrorFormat("fail to Validate Coupon For Subscription groupId={0}, subscriptionId={1},couponCode={2}, ex={3} ", m_nGroupID, subscriptionId, couponCode, ex);
-            //    }
-
-            return response;
+                if (!InsertCoupons(couponGroupId, coupons, xmlDoc, rootNode))
+                {
+                    return coupons;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail GeneratePublicCode groupId={0}, numberOfCoupons={1},couponCode={2}, ex={3} ", m_nGroupID, couponCode, couponGroupId, ex);               
+            }
+            return coupons;
         }
 
     }
