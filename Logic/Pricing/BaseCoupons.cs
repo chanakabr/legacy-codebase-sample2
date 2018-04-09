@@ -23,12 +23,11 @@ namespace Core.Pricing
 
         protected Int32 m_nGroupID;
 
-        public abstract List<Coupon> GenerateCoupons(int numberOfCoupons, long couponGroupId, bool useLetters = true, bool useNumbers = true, bool useSpecialCharacters = true);
+        public abstract List<Coupon> GenerateCoupons(int numberOfCoupons, long couponGroupId, out ApiObjects.Response.Status status, bool useLetters = true, bool useNumbers = true, bool useSpecialCharacters = true);
 
         public abstract CouponDataResponse ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode, long domainId);
 
-        public abstract CouponGroupGenerationResponse GeneratePublicCode(int groupId, long domainId, long cocouponGroupId, string code);
-
+        public abstract List<Coupon> GeneratePublicCode(int groupId, long couponGroupId, string code, out ApiObjects.Response.Status status);
         public abstract CouponsGroupResponse GetCouponGroupData(long couponsGroupId);
     }
 }

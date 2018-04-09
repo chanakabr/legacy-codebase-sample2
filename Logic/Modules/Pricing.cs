@@ -961,8 +961,8 @@ namespace Core.Pricing
                 response = new ApiObjects.BusinessModuleResponse(0, new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error"));
             }
             return response;
-        }
-        
+        }        
+
         public static ApiObjects.BusinessModuleResponse DeletePricePlan(int groupID, string pricePlan)
         {
             ApiObjects.BusinessModuleResponse response = new ApiObjects.BusinessModuleResponse();
@@ -1062,13 +1062,15 @@ namespace Core.Pricing
             }
         }
 
-        public static List<Coupon> GenerateCoupons(int groupId, int numberOfCoupons, long couponGroupId, bool useLetters = true, bool useNumbers = true, bool useSpecialCharacters = true)
+        public static List<Coupon> GenerateCoupons(int groupId, int numberOfCoupons, long couponGroupId, out Status status, bool useLetters = true, bool useNumbers = true, 
+            bool useSpecialCharacters = true)
         {
+            status = null;
             Pricing.BaseCoupons t = null;
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                return t.GenerateCoupons(numberOfCoupons, couponGroupId, useLetters ,useNumbers , useSpecialCharacters );
+                return t.GenerateCoupons(numberOfCoupons, couponGroupId, out status, useLetters ,useNumbers , useSpecialCharacters );
             }
             else
             {
@@ -1556,21 +1558,19 @@ namespace Core.Pricing
             }
         }
 
-        public static CouponGroupGenerationResponse GeneratePublicCode(int groupId, long domainId, long cocouponGroupId, string code)
+        public static List<Coupon> GeneratePublicCode(int groupId, long couponGroupId, string code, out ApiObjects.Response.Status status)
         {
-            CouponGroupGenerationResponse response = new CouponGroupGenerationResponse()
-            {
-                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
-
-            BaseCoupons t = null;
+            status = null;
+            Pricing.BaseCoupons t = null;
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                response =  t.GeneratePublicCode(groupId, domainId, cocouponGroupId, code);
+                return t.GeneratePublicCode(groupId, couponGroupId, code, out status); ;
             }
-
-            return response;
+            else
+            {
+                return null;
+            }            
         }
 
         public static CouponsGroupResponse GetCouponsGroup(int groupId, long id)

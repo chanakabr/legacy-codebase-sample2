@@ -912,7 +912,8 @@ namespace Core.Notification
             userEngagements.RemoveAll(x => x.IsEngagementSent);
 
             // generate coupon according to user count 
-            List<Coupon> coupons = Core.Pricing.Module.GenerateCoupons(partnerId, userEngagements.Count, engagement.CouponGroupId);
+            Status status = null;
+            List<Coupon> coupons = Core.Pricing.Module.GenerateCoupons(partnerId, userEngagements.Count, engagement.CouponGroupId, out status);
             if (coupons == null || coupons.Count != userEngagements.Count)
             {
                 log.ErrorFormat("Number of coupons not equal to users number. engagementBulkId: {0}, requested coupons: {1}, received: {2} ",
