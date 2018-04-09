@@ -18,6 +18,8 @@ namespace Core.Pricing
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int BULK_TO_INSERT = 100;
+        private const string COUPON_GROUP_NOT_FOUND = "Coupon group identifier wasn't found";
+
 
 
         public TvinciCoupons(Int32 nGroupID) : base(nGroupID)
@@ -123,8 +125,9 @@ namespace Core.Pricing
             return Coupon.SetCouponUsed(sCouponCode, m_nGroupID, sSiteGUID, nCollectionCode, nMFID, nSubCode, nPrePaidCode, domainId);
         }
 
-        public override List<Coupon> GenerateCoupons(int numberOfCoupons, long couponGroupId, bool useLetters = true, bool useNumbers = true, bool useSpecialCharacters = true)
+        public override List<Coupon> GenerateCoupons(int numberOfCoupons, long couponGroupId, out ApiObjects.Response.Status status, bool useLetters = true, bool useNumbers = true, bool useSpecialCharacters = true)
         {
+            status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             List<Coupon> coupons = new List<Coupon>();
 
             try
@@ -134,6 +137,8 @@ namespace Core.Pricing
                 if (!isCouponGroupId)
                 {
                     log.ErrorFormat("fail GenerateCoupons coupon group not exists groupId={0}, numberOfCoupons={1},couponGroupId={2} ", m_nGroupID, numberOfCoupons, couponGroupId);
+                    status.Code = (int)eResponseStatus.InvalidCouponGroup;
+                    status.Message = COUPON_GROUP_NOT_FOUND;
                     return new List<Coupon>();
                 }
                 int bulkToInsert = Utils.GetIntValFromConfig("BULK_TO_INSERT_COUPON", BULK_TO_INSERT);
@@ -185,6 +190,8 @@ namespace Core.Pricing
                 log.ErrorFormat("fail GenerateCoupons groupId={0}, numberOfCoupons={1},couponGroupId={2}, ex={3} ", m_nGroupID, numberOfCoupons, couponGroupId, ex);
                 coupons = new List<Coupon>();
             }
+            status.Code = (int)eResponseStatus.OK;
+            status.Message = eResponseStatus.OK.ToString();
             return coupons;
         }
 
@@ -242,8 +249,9 @@ namespace Core.Pricing
             return response;
         }
 
-        public override List<Coupon> GeneratePublicCode(int groupId, long couponGroupId, string couponCode)
+        public override List<Coupon> GeneratePublicCode(int groupId, long couponGroupId, string couponCode, out ApiObjects.Response.Status status)
         {
+            status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             List<Coupon> coupons = new List<Coupon>();
 
             try
@@ -253,8 +261,10 @@ namespace Core.Pricing
                 if (!isCouponGroupId)
                 {
                     log.ErrorFormat("fail GeneratePublicCode coupon group not exists groupId={0}, couponCode={1},couponGroupId={2} ", m_nGroupID, couponCode, couponGroupId);
+                    status.Code = (int)eResponseStatus.InvalidCouponGroup;
+                    status.Message = COUPON_GROUP_NOT_FOUND;
                     return coupons;
-                }              
+                }
 
                 XmlDocument xmlDoc = new XmlDocument();
                 XmlNode rootNode = xmlDoc.CreateElement("root");
@@ -270,8 +280,11 @@ namespace Core.Pricing
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("fail GeneratePublicCode groupId={0}, numberOfCoupons={1},couponCode={2}, ex={3} ", m_nGroupID, couponCode, couponGroupId, ex);               
+                log.ErrorFormat("fail GeneratePublicCode groupId={0}, numberOfCoupons={1},couponCode={2}, ex={3} ", m_nGroupID, couponCode, couponGroupId, ex);
             }
+
+            status.Code = (int)eResponseStatus.OK;
+            status.Message = eResponseStatus.OK.ToString();
             return coupons;
         }
 
@@ -287,7 +300,7 @@ namespace Core.Pricing
             {
                 log.Error(string.Format("Failed to get coupons group, Id = {0}", couponsGroupId), ex);
             }
-            
+
             return response;
         }
     }

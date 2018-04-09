@@ -1062,13 +1062,15 @@ namespace Core.Pricing
             }
         }
 
-        public static List<Coupon> GenerateCoupons(int groupId, int numberOfCoupons, long couponGroupId, bool useLetters = true, bool useNumbers = true, bool useSpecialCharacters = true)
+        public static List<Coupon> GenerateCoupons(int groupId, int numberOfCoupons, long couponGroupId, out Status status, bool useLetters = true, bool useNumbers = true, 
+            bool useSpecialCharacters = true)
         {
+            status = null;
             Pricing.BaseCoupons t = null;
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                return t.GenerateCoupons(numberOfCoupons, couponGroupId, useLetters ,useNumbers , useSpecialCharacters );
+                return t.GenerateCoupons(numberOfCoupons, couponGroupId, out status, useLetters ,useNumbers , useSpecialCharacters );
             }
             else
             {
@@ -1556,13 +1558,14 @@ namespace Core.Pricing
             }
         }
 
-        public static List<Coupon> GeneratePublicCode(int groupId, long couponGroupId, string code)
+        public static List<Coupon> GeneratePublicCode(int groupId, long couponGroupId, string code, out ApiObjects.Response.Status status)
         {
+            status = null;
             Pricing.BaseCoupons t = null;
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                return t.GeneratePublicCode(groupId, couponGroupId, code); ;
+                return t.GeneratePublicCode(groupId, couponGroupId, code, out status); ;
             }
             else
             {
