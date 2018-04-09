@@ -47,7 +47,7 @@ namespace ConfigurationManager
         public static OTTUserControllerConfiguration OTTUserControllerConfiguration;
         public static CouchbaseSectionMapping CouchbaseSectionMapping;
         public static UsersCacheConfiguration UsersCacheConfiguration;
-        public static NamedCacheConfiguration BaseCacheConfiguration;
+        public static BaseCacheConfiguration BaseCacheConfiguration;
         public static DatabaseConfiguration DatabaseConfiguration;
         public static NamedCacheConfiguration WSCacheConfiguration;
         public static NamedCacheConfiguration ODBCWrapperCacheConfiguration;
@@ -272,8 +272,9 @@ namespace ConfigurationManager
             OTTUserControllerConfiguration = new OTTUserControllerConfiguration("ott_user_controller");
             CouchbaseSectionMapping = new CouchbaseSectionMapping("CouchbaseSectionMapping");
             UsersCacheConfiguration = new UsersCacheConfiguration("users_cache_configuration");
-            BaseCacheConfiguration = new NamedCacheConfiguration("base_cache_configuration");
+            BaseCacheConfiguration = new BaseCacheConfiguration("base_cache_configuration");
             BaseCacheConfiguration.TTLSeconds.OriginalKey = "Groups_Cache_TTL";
+            BaseCacheConfiguration.Type = null;
 
             DatabaseConfiguration = new DatabaseConfiguration("database_configuration");
 
@@ -311,6 +312,8 @@ namespace ConfigurationManager
             NotificationCacheConfiguration.Name.DefaultValue = "NotificationCache";
             NotificationCacheConfiguration.TTLSeconds.OriginalKey = "CACHE_TIME_IN_MINUTES";
             NotificationCacheConfiguration.Name.OriginalKey = "CACHE_NAME";
+            // type is always inner cache in this case
+            NotificationCacheConfiguration.Type = null;
 
             GroupsCacheConfiguration = new NamedCacheConfiguration("groups_cache_configuration");
             GroupsCacheConfiguration.TTLSeconds.DefaultValue = 86400;
@@ -416,6 +419,7 @@ namespace ConfigurationManager
             };
             RecordingsMaxDegreeOfParallelism = new NumericConfigurationValue("recordings_max_degree_of_parallelism")
             {
+                OriginalKey = "MaxDegreeOfParallelism",
                 DefaultValue = 5
             };
             ReconciliationFrequencySeconds = new NumericConfigurationValue("reconciliation_frequency_seconds")

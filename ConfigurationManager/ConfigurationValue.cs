@@ -100,7 +100,10 @@ namespace ConfigurationManager
             {
                 foreach (var child in this.Children)
                 {
-                    result &= child.Validate();
+                    if (child != null)
+                    {
+                        result &= child.Validate();
+                    }
                 }
             }
 

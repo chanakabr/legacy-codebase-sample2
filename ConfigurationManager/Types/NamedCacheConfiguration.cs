@@ -17,5 +17,17 @@ namespace ConfigurationManager
                 DefaultValue = "Cache"
             };
         }
+
+        internal override bool Validate()
+        {
+            bool result = base.Validate();
+
+            if (this.Name != null)
+            {
+                result &= this.Name.Validate();
+            }
+
+            return result;
+        }
     }
 }

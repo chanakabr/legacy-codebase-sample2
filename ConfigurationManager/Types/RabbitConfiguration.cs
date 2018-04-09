@@ -22,6 +22,7 @@ namespace ConfigurationManager
             this.Default.HostName.OriginalKey = "hostName";
             this.Default.UserName.OriginalKey = "userName";
             this.Default.Password.OriginalKey = "password";
+            this.Default.Port.OriginalKey = "port";
             this.Default.RoutingKey.OriginalKey = "routingKey";
             this.Default.Exchange.OriginalKey = "exchange";
             this.Default.Queue.OriginalKey = "queue";
