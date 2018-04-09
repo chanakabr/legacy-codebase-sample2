@@ -35,6 +35,7 @@ namespace ConfigurationManager
             RevokedSessionKeyFormat = new StringConfigurationValue("revoked_sessions_key_format", this)
             {
                 DefaultValue = "r_session_{0}",
+                OriginalKey = "revoked_sessions_key_format"
             };
         }
     }

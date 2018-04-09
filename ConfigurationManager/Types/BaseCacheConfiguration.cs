@@ -21,5 +21,22 @@ namespace ConfigurationManager
                 DefaultValue = 86400
             };
         }
+
+        internal override bool Validate()
+        {
+            bool result = true;
+
+            if (this.Type != null)
+            {
+                result &= this.Type.Validate();
+            }
+
+            if (this.TTLSeconds != null)
+            {
+                result &= this.TTLSeconds.Validate();
+            }
+
+            return result;
+        }
     }
 }
