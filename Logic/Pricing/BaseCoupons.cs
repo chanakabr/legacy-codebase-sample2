@@ -31,11 +31,8 @@ namespace Core.Pricing
 
         public abstract CouponsGroupResponse GetCouponGroupData(long couponsGroupId);
 
-        internal CouponsGroupResponse GetGroupCouponGroups()
-        {
-            throw new NotImplementedException();
-        }
         public abstract CouponsGroupResponse UpdateCouponsGroup(int groupId, CouponsGroup couponsGroup);
 
+        public abstract CouponsGroupsResponse GetCouponGroups();
     }
 }

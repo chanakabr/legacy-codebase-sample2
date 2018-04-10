@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Pricing;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using DAL;
 using KLogMonitor;
 using KlogMonitorHelper;
@@ -20,7 +21,7 @@ namespace Core.Pricing
         private const int BULK_TO_INSERT = 100;
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group identifier wasn't found";
         private const string COUPON_CODE_ALREADY_EXISTS = "Coupon code already exist";
-        private const string COUPON_GROUP_NOT_EXIST = "Coupon group doesn't exist";      
+        private const string COUPON_GROUP_NOT_EXIST = "Coupon group doesn't exist";
 
         public TvinciCoupons(Int32 nGroupID) : base(nGroupID)
         {
@@ -76,7 +77,7 @@ namespace Core.Pricing
                 tmp = new CouponsGroup();
                 tmp.Initialize(nCouponGroupID, m_nGroupID);
             }
-                return tmp;
+            return tmp;
         }
 
         public override CouponData GetCouponStatus(string sCouponCode, long domainId)
@@ -342,6 +343,82 @@ namespace Core.Pricing
             }
 
             return response;
+        }
+
+        public override CouponsGroupsResponse GetCouponGroups()
+        {
+            CouponsGroupsResponse response = new CouponsGroupsResponse();
+            List<CouponsGroup> couponsGroups = new List<CouponsGroup>();
+
+            string key = LayeredCacheKeys.GetCouponsGroupsKey(m_nGroupID);
+            if (!LayeredCache.Instance.Get<List<CouponsGroup>>(key, ref couponsGroups, GetCouponsGroups, new Dictionary<string, object>() { { "groupId", m_nGroupID } },
+                m_nGroupID, LayeredCacheConfigNames.GET_COUPONS_GROUP, new List<string>() { LayeredCacheKeys.GetCouponsGroupsInvalidationKey(m_nGroupID) }))
+            {
+                log.ErrorFormat("Failed coupons groups from LayeredCache, key: {0}", key);
+            }
+            else
+            {
+                response.CouponsGroups = couponsGroups;
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
+
+        private static Tuple<List<CouponsGroup>, bool> GetCouponsGroups(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<CouponsGroup> couponsGroups = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("groupId"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+
+                        if (groupId.HasValue)
+                        {
+                            DataTable dt = PricingDAL.GetGroupCouponsGroups(groupId.Value);
+
+                            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                            {
+                                CouponsGroup couponsGroup = null;
+                                foreach (DataRow row in dt.Rows)
+                                {
+                                    string sDiscountCode = ODBCWrapper.Utils.GetSafeStr(row, "DISCOUNT_CODE");
+                                    BaseDiscount t = null;
+                                    Utils.GetBaseImpl(ref t, groupId.Value);
+
+                                    couponsGroup = new CouponsGroup()
+                                    {
+                                        m_oDiscountCode = t.GetDiscountCodeData(sDiscountCode),
+                                        m_dStartDate = ODBCWrapper.Utils.GetDateSafeVal(row, "START_DATE"),
+                                        m_dEndDate = ODBCWrapper.Utils.GetDateSafeVal(row, "END_DATE"),
+                                        m_nMaxUseCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(row, "MAX_USE_TIME"),
+                                        m_sGroupName = ODBCWrapper.Utils.GetSafeStr(row, "CODE"),
+                                        m_nFinancialEntityID = ODBCWrapper.Utils.GetIntSafeVal(row, "FINANCIAL_ENTITY_ID"),
+                                        m_nMaxRecurringUsesCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(row, "MAX_RECURRING_USES"),
+                                        couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(row, "COUPON_GROUP_TYPE"),
+                                        maxDomainUses = ODBCWrapper.Utils.GetIntSafeVal(row, "DOMAIN_MAX_USES"),
+                                        m_sGroupCode = ODBCWrapper.Utils.GetSafeStr(row, "ID"),
+                                    };
+
+                                    couponsGroups.Add(couponsGroup);
+                                }
+                                result = true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetCouponsGroups failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<CouponsGroup>, bool>(couponsGroups, result);
         }
     }
 }
