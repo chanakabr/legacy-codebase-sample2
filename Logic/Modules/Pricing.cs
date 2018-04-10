@@ -1590,18 +1590,15 @@ namespace Core.Pricing
             return response;
         }
 
-        public static CouponsGroupResponse GetGroupCouponsGroups(int groupId)
+        public static CouponsGroupsResponse GetCouponsGroups(int groupId)
         {
-            CouponsGroupResponse response = new CouponsGroupResponse()
-            {
-                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
+            CouponsGroupsResponse response = new CouponsGroupsResponse();
 
             BaseCoupons t = null;
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                response = t.GetGroupCouponGroups();
+                response = t.GetCouponGroups();
             }
 
             return response;

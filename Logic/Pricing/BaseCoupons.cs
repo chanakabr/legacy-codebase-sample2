@@ -30,9 +30,7 @@ namespace Core.Pricing
         public abstract List<Coupon> GeneratePublicCode(int groupId, long couponGroupId, string code, out ApiObjects.Response.Status status);
         public abstract CouponsGroupResponse GetCouponGroupData(long couponsGroupId);
 
-        internal CouponsGroupResponse GetGroupCouponGroups()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract CouponsGroupsResponse GetCouponGroups();
+        
     }
 }
