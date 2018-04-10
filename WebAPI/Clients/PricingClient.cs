@@ -131,7 +131,6 @@ namespace WebAPI.Clients
             return coupon;
         }
 
-
         internal KalturaPpv GetPPVModuleData(int groupId, long ppvCode)
         {
             PPVModuleDataResponse response = null;
@@ -891,7 +890,7 @@ namespace WebAPI.Clients
 
                     if (coupons != null && coupons.Count > 0)
                     {
-                        response.Codes = coupons.Select(x => x.code).ToList();                       
+                        response.Codes = coupons.Select(x => x.code).ToList();
                     }
                 }
             }
@@ -947,6 +946,50 @@ namespace WebAPI.Clients
             couponsGroup = AutoMapper.Mapper.Map<KalturaCouponsGroup>(response.CouponsGroup);
 
             return couponsGroup;
+        }
+
+        internal KalturaCouponsGroup UpdateCouponsGroup(int groupId, KalturaCouponsGroup kCouponsGroup)
+        {
+            KalturaCouponsGroup kalturaCouponsGroup = null;
+            CouponsGroupResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+
+                    CouponsGroup couponsGroup = AutoMapper.Mapper.Map<CouponsGroup>(kCouponsGroup);
+                    // fire request                        
+                    response = Core.Pricing.Module.UpdateCouponsGroup(groupId, couponsGroup);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.CouponsGroup == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            // convert response
+            kalturaCouponsGroup = AutoMapper.Mapper.Map<KalturaCouponsGroup>(response.CouponsGroup);
+            return kalturaCouponsGroup;
         }
     }
 }
