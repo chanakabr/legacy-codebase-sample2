@@ -356,7 +356,7 @@ namespace DAL
             DataSet ds = spCollectionData.ExecuteDataSet();
             return ds;
         }
-
+        
         public static DataTable GetUsageModulePPV(string sAssetCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUsageModulePPV");
@@ -1641,5 +1641,12 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+        public static DataTable GetGroupCouponsGroups(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupCouponsGroups");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            return sp.Execute();
+        }
     }
 }

@@ -286,6 +286,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("coupons_group_id_{0}_groupId_{1}", couponsGroupId, groupId);
         }
+
+        public static string GetCouponsGroupsKey(int groupId)
+        {
+            return string.Format("coupons_groups_groupId_{0}", groupId);
+        }
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -461,6 +466,11 @@ namespace CachingProvider.LayeredCache
         public static string GetCouponsGroupInvalidationKey(int groupId, long couponsGroup)
         {
             return string.Format("invalidationKey_coupons_group_{0}_groupId_{1}", couponsGroup, groupId);
+        }
+
+        public static string GetCouponsGroupsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_coupons_groups_groupId_{0}", groupId);
         }
         #endregion  
 
