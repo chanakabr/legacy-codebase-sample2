@@ -950,14 +950,14 @@ namespace WebAPI.Clients
 
         internal KalturaCouponsGroupListResponse GetCouponsGroups(int groupId)
         {
-            CouponsGroupResponse response = null;
+            CouponsGroupsResponse response = null;
             KalturaCouponsGroupListResponse couponsGroups = new KalturaCouponsGroupListResponse();
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetGroupCouponsGroups(groupId);
+                    response = Core.Pricing.Module.GetCouponsGroups(groupId);
                 }
             }
             catch (Exception ex)
@@ -974,7 +974,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            couponsGroups.couponsGroups = AutoMapper.Mapper.Map<List<KalturaCouponsGroup>>(response.CouponsGroup);
+            couponsGroups.couponsGroups = AutoMapper.Mapper.Map<List<KalturaCouponsGroup>>(response.CouponsGroups);
             couponsGroups.TotalCount = couponsGroups.couponsGroups != null ? couponsGroups.couponsGroups.Count : 0;
 
             return couponsGroups;
