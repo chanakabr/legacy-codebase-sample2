@@ -28,11 +28,14 @@ namespace Core.Pricing
         public abstract CouponDataResponse ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode, long domainId);
 
         public abstract List<Coupon> GeneratePublicCode(int groupId, long couponGroupId, string code, out ApiObjects.Response.Status status);
+
         public abstract CouponsGroupResponse GetCouponGroupData(long couponsGroupId);
 
         internal CouponsGroupResponse GetGroupCouponGroups()
         {
             throw new NotImplementedException();
         }
+        public abstract CouponsGroupResponse UpdateCouponsGroup(int groupId, CouponsGroup couponsGroup);
+
     }
 }

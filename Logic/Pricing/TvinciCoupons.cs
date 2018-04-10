@@ -20,8 +20,7 @@ namespace Core.Pricing
         private const int BULK_TO_INSERT = 100;
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group identifier wasn't found";
         private const string COUPON_CODE_ALREADY_EXISTS = "Coupon code already exist";
-
-
+        private const string COUPON_GROUP_NOT_EXIST = "Coupon group doesn't exist";      
 
         public TvinciCoupons(Int32 nGroupID) : base(nGroupID)
         {
@@ -311,6 +310,35 @@ namespace Core.Pricing
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed to get coupons group, Id = {0}", couponsGroupId), ex);
+            }
+
+            return response;
+        }
+
+        public override CouponsGroupResponse UpdateCouponsGroup(int groupId, CouponsGroup couponsGroup)
+        {
+            CouponsGroupResponse response = new CouponsGroupResponse() { Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
+            try
+            {
+                if (couponsGroup == null)
+                {
+                    log.ErrorFormat("UpdateCouponsGroup couponsGroup is null", "");
+                    return response;
+                }
+
+                //check couponsGroup exists
+                if (!response.CouponsGroup.Initialize(int.Parse(couponsGroup.m_sGroupCode), groupId)) ;
+                {
+                    response.Status.Code = (int)eResponseStatus.CouponGroupNotExist;
+                    response.Status.Message = COUPON_GROUP_NOT_EXIST;
+                    return response;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+
             }
 
             return response;
