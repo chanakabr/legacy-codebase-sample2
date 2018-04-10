@@ -1589,5 +1589,22 @@ namespace Core.Pricing
 
             return response;
         }
+
+        public static CouponsGroupResponse GetGroupCouponsGroups(int groupId)
+        {
+            CouponsGroupResponse response = new CouponsGroupResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            BaseCoupons t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.GetGroupCouponGroups();
+            }
+
+            return response;
+        }
     }
 }

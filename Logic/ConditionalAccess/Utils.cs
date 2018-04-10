@@ -1496,6 +1496,7 @@ namespace Core.ConditionalAccess
                     previousPurchaseCurrencyCode = rsDetail.Currency;
                     previousPurchaseCountryName = rsDetail.CountryName;
                     previousPurchaseCountryCode = rsDetail.CountryCode;
+                    couponCode = rsDetail.CouponCode;
 
                     subscription = subscriptions.Where(x => x.m_SubscriptionCode == rsDetail.ProductId).FirstOrDefault();
                     if (!cas.GetMultiSubscriptionUsageModule(rsDetail.UserId, userIp, (int)rsDetail.PurchaseId, rsDetail.PaymentNumber, rsDetail.TotalNumOfPayments, rsDetail.NumOfPayments, rsDetail.IsPurchasedWithPreviewModule,
@@ -7973,10 +7974,7 @@ namespace Core.ConditionalAccess
             if (!string.IsNullOrEmpty(couponCode))
             {
                 couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode);
-                if (couponGroupId == 0)
-                {
-                    log.DebugFormat("GetSubscriptiopnPurchaseCoupon purchaseId={0}, groupId={1}, couponGroupId={2}, couponCode={3}", purchaseId, groupId, couponGroupId, couponCode);
-                }
+                log.DebugFormat("GetSubscriptiopnPurchaseCoupon purchaseId={0}, groupId={1}, couponGroupId={2}, couponCode={3}", purchaseId, groupId, couponGroupId, couponCode);
             }
 
             return couponGroupId;

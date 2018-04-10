@@ -69,17 +69,15 @@ namespace Core.Pricing
         {
             CouponsGroup tmp = null;
             Int32 nCouponGroupID = 0;
-            try
+
+            Int32.TryParse(sCouponGroupID, out nCouponGroupID);
+
+            if (nCouponGroupID > 0)
             {
-                nCouponGroupID = int.Parse(sCouponGroupID);
+                tmp = new CouponsGroup();
+                tmp.Initialize(nCouponGroupID, m_nGroupID);
             }
-            catch
-            {
-                return null;
-            }
-            tmp = new CouponsGroup();
-            tmp.Initialize(nCouponGroupID, m_nGroupID);
-            return tmp;
+                return tmp;
         }
 
         public override CouponData GetCouponStatus(string sCouponCode, long domainId)
