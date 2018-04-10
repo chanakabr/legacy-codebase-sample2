@@ -101,6 +101,37 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Update coupons group 
+        /// </summary>    
+        /// <param name="id">Coupons group identifier</param>        
+        /// <param name="couponsGroup">Coupons group</param>        
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        public KalturaCouponsGroup Update(int id, KalturaCouponsGroup couponsGroup)
+        {
+            KalturaCouponsGroup response = null;
+
+            try
+            {
+                if (id <= 0)
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "id");
+                }
+
+                int groupId = KS.GetFromRequest().GroupId;
+                // call client                
+                response = ClientsManager.PricingClient().UpdateCouponsGroup(groupId, couponsGroup);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Returns information about partner coupons groups
         /// </summary>
         [Route("list"), HttpPost]
@@ -115,6 +146,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 couponsGroups = ClientsManager.PricingClient().GetCouponsGroups(groupId);
+
             }
             catch (ClientException ex)
             {
