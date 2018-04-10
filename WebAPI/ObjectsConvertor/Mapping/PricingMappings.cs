@@ -37,6 +37,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MaxHouseholdUses, opt => opt.MapFrom(src => src.maxDomainUses))
                ;
 
+            Mapper.CreateMap< KalturaCouponsGroup, CouponsGroup>()
+               .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Descriptions))
+               //.ForMember(dest => dest.m_dEndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.EndDate)))
+               .ForMember(dest => dest.m_sGroupCode, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.m_sGroupName, opt => opt.MapFrom(src => src.Name))
+               //.ForMember(dest => dest.m_dStartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.StartDate)))
+               .ForMember(dest => dest.m_nMaxUseCountForCoupon, opt => opt.MapFrom(src => src.MaxUsesNumber))
+               .ForMember(dest => dest.m_nMaxRecurringUsesCountForCoupon, opt => opt.MapFrom(src => src.MaxUsesNumberOnRenewableSub))
+               .ForMember(dest => dest.couponGroupType, opt => opt.MapFrom(src => ConvertCouponGroupType(src.CouponGroupType)))
+               .ForMember(dest => dest.maxDomainUses, opt => opt.MapFrom(src => src.MaxHouseholdUses))
+               ;
+
 
             Mapper.CreateMap<SubscriptionCouponGroup, KalturaCouponsGroup>()
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
@@ -328,7 +340,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ProductCodes, opt => opt.MapFrom(src => ConvertProductCodes(src.ExternalProductCodes)))
                .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)))
                ;
-        }
+        }        
 
         private static KalturaSubscriptionSetType ConvertSetType(SubscriptionSetType subscriptionSetType)
         {
@@ -417,6 +429,32 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 result = list.ToList();
             }
+            return result;
+        }
+
+        private static CouponGroupType ConvertCouponGroupType(KalturaCouponGroupType? couponGroupType)
+        {
+            CouponGroupType result = CouponGroupType.Coupon;
+            if (couponGroupType.HasValue)
+            {
+
+                switch (couponGroupType.Value)
+                {
+                    case KalturaCouponGroupType.COUPON:
+                        {
+                            result = CouponGroupType.Coupon;
+                            break;
+                        }
+                    case KalturaCouponGroupType.GIFT_CARD:
+                        {
+                            result = CouponGroupType.GiftCard;
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
             return result;
         }
 

@@ -107,6 +107,7 @@ namespace WebAPI.Controllers
         /// <param name="couponsGroup">Coupons group</param>        
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.CouponGroupNotExist)]
         public KalturaCouponsGroup Update(int id, KalturaCouponsGroup couponsGroup)
         {
             KalturaCouponsGroup response = null;
@@ -117,6 +118,8 @@ namespace WebAPI.Controllers
                 {
                     throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "id");
                 }
+
+                couponsGroup.Id = id.ToString();
 
                 int groupId = KS.GetFromRequest().GroupId;
                 // call client                

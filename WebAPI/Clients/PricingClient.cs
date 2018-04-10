@@ -982,17 +982,17 @@ namespace WebAPI.Clients
 
         internal KalturaCouponsGroup UpdateCouponsGroup(int groupId, KalturaCouponsGroup kCouponsGroup)
         {
-            KalturaCouponsGroup kalturaCouponsGroup = null;
+            CouponsGroup couponsGroup = null;
             CouponsGroupResponse response = null;
 
-            kalturaCouponsGroup = AutoMapper.Mapper.Map<KalturaCouponsGroup>(response.CouponsGroup);
+            couponsGroup = AutoMapper.Mapper.Map<CouponsGroup>(kCouponsGroup);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request                        
-                    //response = Core.Pricing.Module.UpdateCouponsGroup(groupId, couponsGroup);
+                    response = Core.Pricing.Module.UpdateCouponsGroup(groupId, couponsGroup);
                 }
             }
             catch (Exception ex)
@@ -1009,7 +1009,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            CouponsGroup couponsGroup = AutoMapper.Mapper.Map<CouponsGroup>(kCouponsGroup);
+            KalturaCouponsGroup kalturaCouponsGroup = AutoMapper.Mapper.Map<KalturaCouponsGroup>(response.CouponsGroup);
 
             return kalturaCouponsGroup;
         }
