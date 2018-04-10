@@ -94,4 +94,22 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "maxHouseholdUses", IsNullable = true)]
         public int? MaxHouseholdUses { get; set; }
     }
+
+    /// <summary>
+    /// Coupons group list
+    /// </summary>
+    [DataContract(Name = "KalturaCouponsGroupListResponse", Namespace = "")]
+    [XmlRoot("KalturaCouponsGroupListResponse")]
+    public class KalturaCouponsGroupListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// A list of coupons groups
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaCouponsGroup> couponsGroups { get; set; }
+    }
+
 }

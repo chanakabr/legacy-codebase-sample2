@@ -131,7 +131,6 @@ namespace WebAPI.Clients
             return coupon;
         }
 
-
         internal KalturaPpv GetPPVModuleData(int groupId, long ppvCode)
         {
             PPVModuleDataResponse response = null;
@@ -947,6 +946,40 @@ namespace WebAPI.Clients
             couponsGroup = AutoMapper.Mapper.Map<KalturaCouponsGroup>(response.CouponsGroup);
 
             return couponsGroup;
+        }
+
+        internal KalturaCouponsGroupListResponse GetCouponsGroups(int groupId)
+        {
+            CouponsGroupResponse response = null;
+            KalturaCouponsGroupListResponse couponsGroups = new KalturaCouponsGroupListResponse();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetGroupCouponsGroups(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            couponsGroups.couponsGroups = AutoMapper.Mapper.Map<List<KalturaCouponsGroup>>(response.CouponsGroup);
+            couponsGroups.TotalCount = couponsGroups.couponsGroups != null ? couponsGroups.couponsGroups.Count : 0;
+
+            return couponsGroups;
         }
     }
 }

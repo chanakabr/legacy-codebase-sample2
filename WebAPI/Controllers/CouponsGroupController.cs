@@ -99,5 +99,29 @@ namespace WebAPI.Controllers
 
             return couponsGroup;
         }
+
+        /// <summary>
+        /// Returns information about partner coupons groups
+        /// </summary>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaCouponsGroupListResponse List()
+        {
+            KalturaCouponsGroupListResponse couponsGroups = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                couponsGroups = ClientsManager.PricingClient().GetCouponsGroups(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return couponsGroups;
+        }
     }
 }

@@ -3136,6 +3136,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCouponsGroupListResponse":
+                    switch(property.Name)
+                    {
+                        case "couponsGroups":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaCurrency":
                     switch(property.Name)
                     {

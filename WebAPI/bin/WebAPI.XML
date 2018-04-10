@@ -681,6 +681,11 @@
             </summary>
             <param name="id">Coupons group ID</param>
         </member>
+        <member name="M:WebAPI.Controllers.CouponsGroupController.List">
+            <summary>
+            Returns information about partner coupons groups
+            </summary>
+        </member>
         <member name="M:WebAPI.Controllers.EmailController.Send(WebAPI.Models.Notification.KalturaEmailMessage)">
             <summary>
             Sends email notification
@@ -9477,6 +9482,16 @@
         <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.MaxHouseholdUses">
             <summary>
             Maximum number of uses per household for each coupon in the group
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaCouponsGroupListResponse">
+            <summary>
+            Coupons group list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroupListResponse.couponsGroups">
+            <summary>
+            A list of coupons groups
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaDiscountModule">
