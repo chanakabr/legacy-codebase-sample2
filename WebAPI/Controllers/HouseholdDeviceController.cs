@@ -35,6 +35,7 @@ namespace WebAPI.Controllers
         {
             KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
+            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
             {
@@ -45,8 +46,10 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    return ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                    return ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)householdId, udid);
                 }
+
+                AuthorizationManager.RevokeDeviceSessions(groupId, householdId, udid);
             }
             catch (ClientException ex)
             {
