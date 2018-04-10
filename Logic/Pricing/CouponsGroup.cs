@@ -177,7 +177,7 @@ namespace Core.Pricing
                                     m_nFinancialEntityID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "FINANCIAL_ENTITY_ID"),
                                     m_nMaxRecurringUsesCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "MAX_RECURRING_USES"),
                                     couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "COUPON_GROUP_TYPE"),
-                                    maxDomainUses = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "MAX_DOMAIN_USES"),
+                                    maxDomainUses = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "DOMAIN_MAX_USES"),
                                 };
 
                                 result = true;
