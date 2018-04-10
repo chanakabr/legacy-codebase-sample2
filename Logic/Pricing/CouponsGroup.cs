@@ -194,12 +194,5 @@ namespace Core.Pricing
             return new Tuple<CouponsGroup, bool>(couponsGroup, result);
         }
 
-    }
-
-    [Serializable]
-    public enum CouponGroupType
-    {
-        Coupon = 0,
-        GiftCard = 1
-    }
+    }    
 }

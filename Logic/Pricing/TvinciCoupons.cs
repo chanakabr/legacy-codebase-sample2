@@ -318,7 +318,11 @@ namespace Core.Pricing
 
         public override CouponsGroupResponse UpdateCouponsGroup(int groupId, CouponsGroup couponsGroup)
         {
-            CouponsGroupResponse response = new CouponsGroupResponse() { Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
+            CouponsGroupResponse response = new CouponsGroupResponse()
+            {
+                CouponsGroup = new CouponsGroup(),                
+                Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() }
+            };
             try
             {
                 if (couponsGroup == null)
@@ -328,18 +332,33 @@ namespace Core.Pricing
                 }
 
                 //check couponsGroup exists
-                if (!response.CouponsGroup.Initialize(int.Parse(couponsGroup.m_sGroupCode), groupId)) ;
+                if (!response.CouponsGroup.Initialize(int.Parse(couponsGroup.m_sGroupCode), groupId))
                 {
                     response.Status.Code = (int)eResponseStatus.CouponGroupNotExist;
                     response.Status.Message = COUPON_GROUP_NOT_EXIST;
                     return response;
                 }
 
+                DataTable dt = PricingDAL.UpdateCouponsGroup(groupId, int.Parse(couponsGroup.m_sGroupCode), couponsGroup.m_sGroupName);
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    log.ErrorFormat("Error while UpdateCouponsGroup. groupId: {0}, CoupunGroupId: {1}", groupId, couponsGroup.m_sGroupCode);
+                    return response;
+                }
 
+
+                response.CouponsGroup = new CouponsGroup();
+                response.CouponsGroup.m_sGroupCode = couponsGroup.m_sGroupCode;
+                response.CouponsGroup.m_sGroupName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "CODE");
+                response.CouponsGroup.couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "COUPON_GROUP_TYPE");
+
+
+                response.Status.Code = (int)eResponseStatus.OK;
+                response.Status.Message = eResponseStatus.OK.ToString();
             }
             catch (Exception ex)
             {
-
+                log.ErrorFormat("UpdateCouponsGroup failed ex={0}, groupId={1}, couponGroupId={2}", ex, groupId, couponsGroup.m_sGroupCode);
             }
 
             return response;
