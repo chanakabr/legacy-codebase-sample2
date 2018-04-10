@@ -960,7 +960,7 @@ namespace WebAPI.Clients
 
                     CouponsGroup couponsGroup = AutoMapper.Mapper.Map<CouponsGroup>(kCouponsGroup);
                     // fire request                        
-                    response = Core.Pricing.Module.UpdateCouponsGroup(groupId, couponsGroup);
+                    //response = Core.Pricing.Module.UpdateCouponsGroup(groupId, couponsGroup);
                 }
             }
             catch (Exception ex)
