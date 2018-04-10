@@ -307,6 +307,9 @@ namespace WebAPI.Managers
                 sessionDuration = Math.Min(sessionDuration, expiry.Value);
             }
 
+            //ValidateUser(groupId, userId);
+            //ValidateUdid(groupId, udid);
+
             // set udid in payload
             WebAPI.Managers.Models.KS.KSData ksData = new WebAPI.Managers.Models.KS.KSData()
             {
@@ -384,7 +387,7 @@ namespace WebAPI.Managers
 
             return response;
         }
-
+        
         internal static KalturaAppToken AddAppToken(KalturaAppToken appToken, int groupId)
         {
             // validate partner id
@@ -746,5 +749,38 @@ namespace WebAPI.Managers
             return loginSession;
         }
 
+        public static void RevokeDeviceSessions(int groupId, long householdId, string udid)
+        {
+            List<string> householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true);
+
+            if (householdUserIds == null || householdUserIds.Count == 0)
+                return;
+
+            Group group = GroupsManager.GetGroup(groupId);
+            long utcNow = Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long maxSessionDuration = utcNow + Math.Max(group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds);
+
+            foreach (string userId in householdUserIds)
+            {
+                if (!UpdateUsersSessionsRevocationTime(group, userId, udid, (int)utcNow, (int)maxSessionDuration))
+                {
+                    log.ErrorFormat("RevokeDeviceSessions: Failed to revoke session for UDID = {0}, userId = {1}", udid, userId);
+                }
+            }
+        }
+
+        private static void ValidateUdid(int groupId, string udid)
+        {
+            if (string.IsNullOrEmpty(udid))
+                return;
+
+            List<string> udids = HouseholdUtils.GetHouseholdUdids(groupId);
+
+            if (udids == null || udids.Contains(udid))
+            {
+                log.ErrorFormat("ValidateUdid: UDID not found in household. UDID = {0}", udid);
+                throw new UnauthorizedException(UnauthorizedException.INVALID_UDID, udid);
+            }
+        }
     }
 }
