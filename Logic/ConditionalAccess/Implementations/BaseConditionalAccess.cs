@@ -3308,39 +3308,29 @@ namespace Core.ConditionalAccess
                 if ((theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_oDiscountCode != null)
                     || (allCoupons != null && allCoupons.Count > 0 && allCoupons.Where(x => x.m_oDiscountCode == null).Count() == 0))
                 {
-                    /*check if 
-                     * coupon related to subscription 
-                     * the type is coupon gift card or coupon                        
-                     * */
-
+                    // check if coupon related to subscription the type is coupon gift card or coupon             
+                               
                     long couponGroupId = Utils.GetSubscriptiopnPurchaseCoupon(ref couponCode, nPurchaseID, m_nGroupID); // return only if valid .
 
-                    if (couponGroupId > 0 && theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString())
+                    if (couponGroupId > 0 && ((theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString()) ||
+                        (allCoupons != null && allCoupons.Where(x => x.m_sGroupCode == couponGroupId.ToString()).Count() > 0)))
                     {
                         // look if this coupon group id is a gift card in the subscription list 
-                        CouponsGroup cg = theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.GiftCard ? theSub.m_oCouponsGroup :
-                            allCoupons.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.GiftCard).Select(x => x).FirstOrDefault();
-
-                        if (cg != null)
+                        CouponsGroupResponse cg = Pricing.Module.GetCouponsGroup(m_nGroupID, couponGroupId);
+                        if (cg.Status.Code == (int)eResponseStatus.OK)
                         {
-                            //retCouponCode = couponCode;
-                            isCouponGiftCard = true;
-                        }
-
-                        else // this is not a gift card
-                        {
-                            // look if this coupon group id exsits in coupon list 
-                            cg = theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.Coupon ? theSub.m_oCouponsGroup :
-                                allCoupons.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.Coupon).Select(x => x).FirstOrDefault();
-
-                            if (cg != null && !string.IsNullOrEmpty(cg.m_sGroupCode))
+                            if (cg.CouponsGroup.couponGroupType == CouponGroupType.GiftCard)
                             {
-                                if (IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, cg.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber, out firstExceeded))
+                                isCouponGiftCard = true;
+                            }
+                            else // this is not a gift card
+                            {
+                                if (IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, cg.CouponsGroup.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber, out firstExceeded))
                                 {
                                     Price priceBeforeCouponDiscount = new Price();
                                     priceBeforeCouponDiscount.m_dPrice = dPrice;
                                     priceBeforeCouponDiscount.m_oCurrency = oCurrency;
-                                    Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, cg.m_oDiscountCode, 0);
+                                    Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, cg.CouponsGroup.m_oDiscountCode, 0);
                                     dPrice = priceResult.m_dPrice;
                                     retCouponCode = couponCode;
                                 }
