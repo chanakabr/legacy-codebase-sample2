@@ -406,7 +406,7 @@ namespace Core.Pricing
         private static Tuple<List<CouponsGroup>, bool> GetCouponsGroups(Dictionary<string, object> funcParams)
         {
             bool result = false;
-            List<CouponsGroup> couponsGroups = null;
+            List<CouponsGroup> couponsGroups = new List<CouponsGroup>();
 
             try
             {
