@@ -1107,7 +1107,7 @@ namespace Core.Pricing
             }
 
             return response;
-        }
+        }       
 
         public static SubscriptionSetsResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds, SubscriptionSetType? type = null)
         {
@@ -1618,6 +1618,20 @@ namespace Core.Pricing
             }
 
             return response;
+        }
+
+        public static Status DeleteCouponsGroups(int groupId, long id)
+        {
+            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) ;
+
+            BaseCoupons t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                status = t.DeleteCouponsGroups(groupId, id);
+            }
+
+            return status;
         }
     }
 }

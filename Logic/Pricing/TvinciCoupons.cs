@@ -22,6 +22,8 @@ namespace Core.Pricing
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group identifier wasn't found";
         private const string COUPON_CODE_ALREADY_EXISTS = "Coupon code already exist";
         private const string COUPON_GROUP_NOT_EXIST = "Coupon group doesn't exist";
+        private const string FAILED_ERROR_FORMAT = "failed to {0}";
+
 
         public TvinciCoupons(Int32 nGroupID) : base(nGroupID)
         {
@@ -457,6 +459,52 @@ namespace Core.Pricing
             }
 
             return new Tuple<List<CouponsGroup>, bool>(couponsGroups, result);
+        }
+
+        public override Status DeleteCouponsGroups(int groupId, long id)
+        {
+            Status status = null; new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            CouponsGroup tmp = new CouponsGroup();
+            try
+            {
+                //check couponsGroup exists
+                if (!tmp.Initialize(Convert.ToInt32(id), groupId))
+                {
+                    return new Status((int)eResponseStatus.CouponGroupNotExist, COUPON_GROUP_NOT_EXIST);
+                }
+
+                int res = PricingDAL.DeleteCouponsGroup(groupId, id);
+                if (res == 0)
+                {
+                    return  new Status((int)eResponseStatus.Error, string.Format(FAILED_ERROR_FORMAT, "delete"));
+                }
+                else if (res == -1)
+                {
+                    return  new Status((int)eResponseStatus.CouponGroupNotExist, COUPON_GROUP_NOT_EXIST);
+                }
+                else
+                {
+                    status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+
+                string invalidationKey = LayeredCacheKeys.GetCouponsGroupInvalidationKey(groupId, id);
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for CouponsGroupInvalidationKey . key = {0}", invalidationKey);
+                }
+
+                invalidationKey = LayeredCacheKeys.GetCouponsGroupsInvalidationKey(groupId);
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for CouponsGroupsInvalidationKey. key = {0}", invalidationKey);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("DeleteCouponsGroup failed ex={0}, groupId={1}, couponGroupId={2}", ex, groupId, id);
+            }
+
+            return status;
         }
     }
 }

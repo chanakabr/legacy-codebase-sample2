@@ -1,8 +1,7 @@
 ﻿using ApiObjects.Pricing;
+using ApiObjects.Response;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Core.Pricing
 {
@@ -35,5 +34,7 @@ namespace Core.Pricing
             int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType);
 
         public abstract CouponsGroupsResponse GetCouponGroups();
+
+        public abstract Status DeleteCouponsGroups(int groupId, long id);        
     }
 }
