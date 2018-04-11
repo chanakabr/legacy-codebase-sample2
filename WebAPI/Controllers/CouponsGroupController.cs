@@ -190,5 +190,36 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Add coupons group 
+        /// </summary>    
+        /// <param name="couponsGroup">Coupons group</param>        
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.NameRequired)]
+        public KalturaCouponsGroup Add(KalturaCouponsGroup couponsGroup)
+        {
+            KalturaCouponsGroup response = null;
+
+            try
+            {
+                if (string.IsNullOrEmpty( couponsGroup.Name))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+                }
+
+                int groupId = KS.GetFromRequest().GroupId;
+                // call client                
+                response = ClientsManager.PricingClient().AddCouponsGroup(groupId, couponsGroup);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

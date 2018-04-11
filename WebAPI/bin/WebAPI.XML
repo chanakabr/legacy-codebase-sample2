@@ -699,6 +699,12 @@
             </summary>
             <param name="id">Coupons group identifier</param>        
         </member>
+        <member name="M:WebAPI.Controllers.CouponsGroupController.Add(WebAPI.Models.Pricing.KalturaCouponsGroup)">
+            <summary>
+            Add coupons group 
+            </summary>    
+            <param name="couponsGroup">Coupons group</param>        
+        </member>
         <member name="M:WebAPI.Controllers.EmailController.Send(WebAPI.Models.Notification.KalturaEmailMessage)">
             <summary>
             Sends email notification
