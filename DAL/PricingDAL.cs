@@ -352,8 +352,8 @@ namespace DAL
 
             DataSet ds = spCollectionData.ExecuteDataSet();
             return ds;
-        }
-        
+        }        
+
         public static DataTable GetUsageModulePPV(string sAssetCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUsageModulePPV");
@@ -1646,14 +1646,20 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static DataTable UpdateCouponsGroup(int groupId, int id, string name)
+        public static DataTable UpdateCouponsGroup(int groupId, long id, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber, 
+            int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
         {
-
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_CouponsGroups");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@id", id);
             sp.AddParameter("@name", name);
+            sp.AddParameter("@startDate", startDate);
+            sp.AddParameter("@endDate", endDate);
+            sp.AddParameter("@maxUsesNumber", maxUsesNumber);
+            sp.AddParameter("@maxUsesNumberOnRenewableSub", maxUsesNumberOnRenewableSub);
+            sp.AddParameter("@maxHouseholdUses", maxHouseholdUses);
+            sp.AddParameter("@couponGroupType", couponGroupType);
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null)
