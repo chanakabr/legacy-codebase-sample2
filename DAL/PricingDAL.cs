@@ -568,7 +568,7 @@ namespace DAL
             }
 
             return res;
-        }
+        }        
 
         public static DataTable Get_SubscriptionsServices(int groupID, List<long> subscriptionsIDs)
         {
@@ -1682,6 +1682,25 @@ namespace DAL
                 HandleException(string.Empty, ex);
             }
             return 0;
+        }
+
+        public static DataTable AddCouponsGroup(int groupId, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_CouponsGroups");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@name", name);
+            sp.AddParameter("@startDate", startDate);
+            sp.AddParameter("@endDate", endDate);
+            sp.AddParameter("@maxUsesNumber", maxUsesNumber);
+            sp.AddParameter("@maxUsesNumberOnRenewableSub", maxUsesNumberOnRenewableSub);
+            sp.AddParameter("@maxHouseholdUses", maxHouseholdUses);
+            sp.AddParameter("@couponGroupType", couponGroupType);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;
         }
     }
 }
