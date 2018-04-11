@@ -58,7 +58,13 @@ public partial class adm_coupons_groups_new : System.Web.UI.Page
                 string invalidationKey = LayeredCacheKeys.GetCouponsGroupInvalidationKey(LoginManager.GetLoginGroupID(), id);
                 if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
-                    log.ErrorFormat("Failed to set invalidation key for group DRM adapter. key = {0}", invalidationKey);
+                    log.ErrorFormat("Failed to set invalidation key for CouponsGroupInvalidationKey . key = {0}", invalidationKey);
+                }
+
+                invalidationKey = LayeredCacheKeys.GetCouponsGroupsInvalidationKey(LoginManager.GetLoginGroupID());
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for CouponsGroupsInvalidationKey. key = {0}", invalidationKey);
                 }
 
                 return;
