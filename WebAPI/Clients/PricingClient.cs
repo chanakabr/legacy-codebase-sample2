@@ -199,7 +199,7 @@ namespace WebAPI.Clients
             coupon = AutoMapper.Mapper.Map<KalturaCoupon>(response.Coupon);
 
             return coupon;
-        }
+        }       
 
         internal KalturaSubscriptionSetListResponse GetSubscriptionSets(int groupId, List<long> ids, KalturaSubscriptionSetOrderBy? orderBy, KalturaSubscriptionSetType? type)
         {
@@ -1015,6 +1015,39 @@ namespace WebAPI.Clients
             KalturaCouponsGroup kalturaCouponsGroup = AutoMapper.Mapper.Map<KalturaCouponsGroup>(response.CouponsGroup);
 
             return kalturaCouponsGroup;
+        }
+
+        internal bool DeleteCouponsGroups(int groupId, long id)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.Pricing.Module.DeleteCouponsGroups(groupId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
         }
     }
 }

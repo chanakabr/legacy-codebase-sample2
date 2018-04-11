@@ -158,5 +158,37 @@ namespace WebAPI.Controllers
 
             return couponsGroups;
         }
+
+        /// <summary>
+        /// Delete a coupons group
+        /// </summary>
+        /// <param name="id">Coupons group identifier</param>        
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.CouponGroupNotExist)]
+        public bool Delete(long id)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                if (id <= 0)
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "id");
+                }
+
+                // call client
+                response = ClientsManager.PricingClient().DeleteCouponsGroups(groupId, id);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

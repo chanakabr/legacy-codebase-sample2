@@ -693,6 +693,12 @@
             Returns information about partner coupons groups
             </summary>
         </member>
+        <member name="M:WebAPI.Controllers.CouponsGroupController.Delete(System.Int64)">
+            <summary>
+            Delete a coupons group
+            </summary>
+            <param name="id">Coupons group identifier</param>        
+        </member>
         <member name="M:WebAPI.Controllers.EmailController.Send(WebAPI.Models.Notification.KalturaEmailMessage)">
             <summary>
             Sends email notification
