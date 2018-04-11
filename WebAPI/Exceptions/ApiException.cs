@@ -212,6 +212,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType MEDIA_FILE_NOT_BELONG_TO_ASSET = new ClientExceptionType(eResponseStatus.MediaFileNotBelongToAsset, "Media File Not Belong To Asset");
         public static ClientExceptionType MEDIA_FILE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MediaFileDoesNotExist, "Media File Does Not Exist");
         public static ClientExceptionType IMAGE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.ImageDoesNotExist, "Image Does Not Exist");
+        public static ClientExceptionType DEFAULT_IMAGE_INVALID_IMAGE_TYPE = new ClientExceptionType(eResponseStatus.DefaultImageInvalidImageType, "Default Image Invalid Image Type");
         public static ClientExceptionType IMAGE_TYPE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.ImageTypeDoesNotExist, "Image Type Does Not Exist");
         public static ClientExceptionType IMAGE_TYPE_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.ImageTypeAlreadyInUse, "Image Type Already In Use");
         public static ClientExceptionType TAG_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.TagDoesNotExist, "Tag Does Not Exist");

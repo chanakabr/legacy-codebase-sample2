@@ -116,6 +116,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ImageTypeAlreadyInUse)]
         [Throws(eResponseStatus.ImageTypeDoesNotExist)]
         [Throws(eResponseStatus.ImageDoesNotExist)]
+        [Throws(eResponseStatus.DefaultImageInvalidImageType)]
         [SchemeArgument("id", MinLong = 1)]
         public KalturaImageType Update(long id, KalturaImageType imageType)
         {
