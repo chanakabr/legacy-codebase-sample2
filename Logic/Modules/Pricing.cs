@@ -1604,7 +1604,8 @@ namespace Core.Pricing
             return response;
         }
 
-        public static CouponsGroupResponse UpdateCouponsGroup(int groupId, CouponsGroup couponsGroup)
+        public static CouponsGroupResponse UpdateCouponsGroup(int groupId, long id, string name, DateTime? startDate, DateTime? endDate,
+            int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
         {
             CouponsGroupResponse response = new CouponsGroupResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
@@ -1612,7 +1613,8 @@ namespace Core.Pricing
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                response = t.UpdateCouponsGroup( groupId, couponsGroup);
+                response = t.UpdateCouponsGroup(groupId, id, name, startDate, endDate, maxUsesNumber, maxUsesNumberOnRenewableSub, 
+                    maxHouseholdUses, couponGroupType);
             }
 
             return response;

@@ -316,52 +316,71 @@ namespace Core.Pricing
             return response;
         }
 
-        public override CouponsGroupResponse UpdateCouponsGroup(int groupId, CouponsGroup couponsGroup)
+        public override CouponsGroupResponse UpdateCouponsGroup(int groupId, long id, string name, DateTime? startDate, DateTime? endDate,
+            int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
         {
             CouponsGroupResponse response = new CouponsGroupResponse()
             {
-                CouponsGroup = new CouponsGroup(),                
+                CouponsGroup = new CouponsGroup(),
                 Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() }
             };
             try
             {
-                if (couponsGroup == null)
-                {
-                    log.ErrorFormat("UpdateCouponsGroup couponsGroup is null", "");
-                    return response;
-                }
-
                 //check couponsGroup exists
-                if (!response.CouponsGroup.Initialize(int.Parse(couponsGroup.m_sGroupCode), groupId))
+                if (!response.CouponsGroup.Initialize(Convert.ToInt32(id), groupId))
                 {
                     response.Status.Code = (int)eResponseStatus.CouponGroupNotExist;
                     response.Status.Message = COUPON_GROUP_NOT_EXIST;
                     return response;
                 }
 
-                DataTable dt = PricingDAL.UpdateCouponsGroup(groupId, int.Parse(couponsGroup.m_sGroupCode), couponsGroup.m_sGroupName);
+                DataTable dt = PricingDAL.UpdateCouponsGroup(groupId, id, name, startDate, endDate,
+                    maxUsesNumber, maxUsesNumberOnRenewableSub, maxHouseholdUses, couponGroupType);
                 if (dt == null || dt.Rows.Count == 0)
                 {
-                    log.ErrorFormat("Error while UpdateCouponsGroup. groupId: {0}, CoupunGroupId: {1}", groupId, couponsGroup.m_sGroupCode);
+                    log.ErrorFormat("Error while UpdateCouponsGroup. groupId: {0}, CoupunGroupId: {1}", groupId, id);
                     return response;
                 }
 
+                string invalidationKey = LayeredCacheKeys.GetCouponsGroupInvalidationKey(groupId, id);
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for CouponsGroupInvalidationKey . key = {0}", invalidationKey);
+                }
 
-                response.CouponsGroup = new CouponsGroup();
-                response.CouponsGroup.m_sGroupCode = couponsGroup.m_sGroupCode;
-                response.CouponsGroup.m_sGroupName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "CODE");
-                response.CouponsGroup.couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "COUPON_GROUP_TYPE");
+                invalidationKey = LayeredCacheKeys.GetCouponsGroupsInvalidationKey(groupId);
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for CouponsGroupsInvalidationKey. key = {0}", invalidationKey);
+                }
 
-
+                response.CouponsGroup = CreateCouponsGroup(dt.Rows[0]);                
                 response.Status.Code = (int)eResponseStatus.OK;
                 response.Status.Message = eResponseStatus.OK.ToString();
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("UpdateCouponsGroup failed ex={0}, groupId={1}, couponGroupId={2}", ex, groupId, couponsGroup.m_sGroupCode);
+                log.ErrorFormat("UpdateCouponsGroup failed ex={0}, groupId={1}, couponGroupId={2}", ex, groupId, id);
             }
 
             return response;
+        }
+
+        private CouponsGroup CreateCouponsGroup(DataRow dataRow)
+        {
+            CouponsGroup couponsGroup = new CouponsGroup()
+            {
+                    m_sGroupCode = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ID").ToString(),                    
+                    m_dStartDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "START_DATE"),
+                    m_dEndDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE"),
+                    m_nMaxUseCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_USE_TIME"),
+                    m_sGroupName = ODBCWrapper.Utils.GetSafeStr(dataRow, "CODE"),                    
+                    m_nMaxRecurringUsesCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_RECURRING_USES"),
+                    couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(dataRow, "COUPON_GROUP_TYPE"),
+                    maxDomainUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "DOMAIN_MAX_USES"),
+               };
+
+            return couponsGroup;
         }
 
         public override CouponsGroupsResponse GetCouponGroups()

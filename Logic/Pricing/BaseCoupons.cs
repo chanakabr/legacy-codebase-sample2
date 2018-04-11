@@ -31,7 +31,8 @@ namespace Core.Pricing
 
         public abstract CouponsGroupResponse GetCouponGroupData(long couponsGroupId);
 
-        public abstract CouponsGroupResponse UpdateCouponsGroup(int groupId, CouponsGroup couponsGroup);
+        public abstract CouponsGroupResponse UpdateCouponsGroup(int groupId, long id, string name, DateTime? startDate, DateTime? endDate,
+            int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType);
 
         public abstract CouponsGroupsResponse GetCouponGroups();
     }
