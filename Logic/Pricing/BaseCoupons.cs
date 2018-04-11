@@ -35,6 +35,9 @@ namespace Core.Pricing
 
         public abstract CouponsGroupsResponse GetCouponGroups();
 
-        public abstract Status DeleteCouponsGroups(int groupId, long id);        
+        public abstract Status DeleteCouponsGroups(int groupId, long id);
+
+        public abstract CouponsGroupResponse AddCouponsGroup(int groupId, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber,
+            int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType);
     }
 }

@@ -23,7 +23,7 @@ namespace Core.Pricing
         private const string COUPON_CODE_ALREADY_EXISTS = "Coupon code already exist";
         private const string COUPON_GROUP_NOT_EXIST = "Coupon group doesn't exist";
         private const string FAILED_ERROR_FORMAT = "failed to {0}";
-
+        private const string NAME_REQUIRED = "Name must have a value";
 
         public TvinciCoupons(Int32 nGroupID) : base(nGroupID)
         {
@@ -356,7 +356,7 @@ namespace Core.Pricing
                     log.ErrorFormat("Failed to set invalidation key for CouponsGroupsInvalidationKey. key = {0}", invalidationKey);
                 }
 
-                response.CouponsGroup = CreateCouponsGroup(dt.Rows[0]);                
+                response.CouponsGroup = CreateCouponsGroup(dt.Rows[0]);
                 response.Status.Code = (int)eResponseStatus.OK;
                 response.Status.Message = eResponseStatus.OK.ToString();
             }
@@ -372,15 +372,15 @@ namespace Core.Pricing
         {
             CouponsGroup couponsGroup = new CouponsGroup()
             {
-                    m_sGroupCode = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ID").ToString(),                    
-                    m_dStartDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "START_DATE"),
-                    m_dEndDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE"),
-                    m_nMaxUseCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_USE_TIME"),
-                    m_sGroupName = ODBCWrapper.Utils.GetSafeStr(dataRow, "CODE"),                    
-                    m_nMaxRecurringUsesCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_RECURRING_USES"),
-                    couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(dataRow, "COUPON_GROUP_TYPE"),
-                    maxDomainUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "DOMAIN_MAX_USES"),
-               };
+                m_sGroupCode = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ID").ToString(),
+                m_dStartDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "START_DATE"),
+                m_dEndDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE"),
+                m_nMaxUseCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_USE_TIME"),
+                m_sGroupName = ODBCWrapper.Utils.GetSafeStr(dataRow, "CODE"),
+                m_nMaxRecurringUsesCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_RECURRING_USES"),
+                couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(dataRow, "COUPON_GROUP_TYPE"),
+                maxDomainUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "DOMAIN_MAX_USES"),
+            };
 
             return couponsGroup;
         }
@@ -476,11 +476,11 @@ namespace Core.Pricing
                 int res = PricingDAL.DeleteCouponsGroup(groupId, id);
                 if (res == 0)
                 {
-                    return  new Status((int)eResponseStatus.Error, string.Format(FAILED_ERROR_FORMAT, "delete"));
+                    return new Status((int)eResponseStatus.Error, string.Format(FAILED_ERROR_FORMAT, "delete"));
                 }
                 else if (res == -1)
                 {
-                    return  new Status((int)eResponseStatus.CouponGroupNotExist, COUPON_GROUP_NOT_EXIST);
+                    return new Status((int)eResponseStatus.CouponGroupNotExist, COUPON_GROUP_NOT_EXIST);
                 }
                 else
                 {
@@ -505,6 +505,55 @@ namespace Core.Pricing
             }
 
             return status;
+        }
+
+        public override CouponsGroupResponse AddCouponsGroup(int groupId, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber,
+            int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
+        {
+            CouponsGroupResponse response = new CouponsGroupResponse()
+            {
+                CouponsGroup = new CouponsGroup(),
+                Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() }
+            };
+            try
+            {
+                if (string.IsNullOrEmpty(name))
+                {
+                    response.Status.Code = (int)eResponseStatus.NameRequired;
+                    response.Status.Message = NAME_REQUIRED;
+                    return response;
+                }
+
+                DataTable dt = PricingDAL.AddCouponsGroup(groupId, name, startDate, endDate,
+                    maxUsesNumber, maxUsesNumberOnRenewableSub, maxHouseholdUses, couponGroupType);
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    log.ErrorFormat("Error while AddCouponsGroup. groupId: {0}, name: {1}", groupId, name);
+                    return response;
+                }
+
+                response.CouponsGroup = CreateCouponsGroup(dt.Rows[0]);
+                response.Status.Code = (int)eResponseStatus.OK;
+                response.Status.Message = eResponseStatus.OK.ToString();
+
+                string invalidationKey = LayeredCacheKeys.GetCouponsGroupInvalidationKey(groupId, int.Parse(response.CouponsGroup.m_sGroupCode));
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for CouponsGroupInvalidationKey . key = {0}", invalidationKey);
+                }
+
+                invalidationKey = LayeredCacheKeys.GetCouponsGroupsInvalidationKey(groupId);
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for CouponsGroupsInvalidationKey. key = {0}", invalidationKey);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("AddCouponsGroup failed ex={0}, groupId={1}, name={2}", ex, groupId, name);
+            }
+
+            return response;
         }
     }
 }

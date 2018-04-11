@@ -1124,7 +1124,7 @@ namespace Core.Pricing
             }
 
             return response;
-        }
+        }      
 
         public static SubscriptionSetsResponse GetSubscriptionSetsBySetIds(int groupId, List<long> setIds)
         {
@@ -1632,6 +1632,22 @@ namespace Core.Pricing
             }
 
             return status;
+        }
+
+        public static CouponsGroupResponse AddCouponsGroup(int groupId, string name, DateTime? startDate, DateTime? endDate,
+            int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
+        {
+            CouponsGroupResponse response = new CouponsGroupResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+
+            BaseCoupons t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.AddCouponsGroup(groupId, name, startDate, endDate, maxUsesNumber, maxUsesNumberOnRenewableSub,
+                    maxHouseholdUses, couponGroupType);
+            }
+
+            return response;
         }
     }
 }
