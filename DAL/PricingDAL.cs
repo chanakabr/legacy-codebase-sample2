@@ -352,7 +352,7 @@ namespace DAL
 
             DataSet ds = spCollectionData.ExecuteDataSet();
             return ds;
-        }        
+        }
 
         public static DataTable GetUsageModulePPV(string sAssetCode)
         {
@@ -1646,7 +1646,7 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static DataTable UpdateCouponsGroup(int groupId, long id, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber, 
+        public static DataTable UpdateCouponsGroup(int groupId, long id, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber,
             int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_CouponsGroups");
@@ -1665,6 +1665,23 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
+        }
+
+        public static int DeleteCouponsGroup(int groupId, long id)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Delete_CouponsGroups");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", id);
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 0;
         }
     }
 }
