@@ -242,6 +242,7 @@ namespace ApiObjects.Response
         InvalidUrlForImage = 4066,
         ElasticSearchReturnedDeleteItem = 4067,
         ElasticSearchReturnedUnupdatedItem = 4068,
+        DefaultImageInvalidImageType = 4069,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

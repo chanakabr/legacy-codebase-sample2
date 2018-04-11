@@ -515,6 +515,13 @@ namespace Core.Catalog.CatalogManagement
                     if (imageList == null || imageList.Status == null || imageList.Status.Code != (int)eResponseStatus.OK || imageList.Images == null || imageList.Images.Count != 1)
                     {
                         result.Status = new Status((int)eResponseStatus.ImageDoesNotExist, eResponseStatus.ImageDoesNotExist.ToString());
+                        return result;
+                    }
+
+                    if (imageList.Images[0].ImageTypeId != id)
+                    {
+                        result.Status = new Status((int)eResponseStatus.DefaultImageInvalidImageType, eResponseStatus.DefaultImageInvalidImageType.ToString());
+                        return result;
                     }
                 }
 
