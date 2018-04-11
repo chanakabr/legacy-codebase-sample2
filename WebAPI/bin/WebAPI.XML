@@ -681,7 +681,7 @@
             </summary>
             <param name="id">Coupons group ID</param>
         </member>
-        <member name="M:WebAPI.Controllers.CouponsGroupController.Update(System.Int32,WebAPI.Models.Pricing.KalturaCouponsGroup)">
+        <member name="M:WebAPI.Controllers.CouponsGroupController.Update(System.Int64,WebAPI.Models.Pricing.KalturaCouponsGroup)">
             <summary>
             Update coupons group 
             </summary>    

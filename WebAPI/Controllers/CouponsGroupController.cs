@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
         [Route("update"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.CouponGroupNotExist)]
-        public KalturaCouponsGroup Update(int id, KalturaCouponsGroup couponsGroup)
+        public KalturaCouponsGroup Update(long id, KalturaCouponsGroup couponsGroup)
         {
             KalturaCouponsGroup response = null;
 
@@ -123,7 +123,7 @@ namespace WebAPI.Controllers
 
                 int groupId = KS.GetFromRequest().GroupId;
                 // call client                
-                response = ClientsManager.PricingClient().UpdateCouponsGroup(groupId, couponsGroup);
+                response = ClientsManager.PricingClient().UpdateCouponsGroup(groupId, id, couponsGroup);
 
             }
             catch (ClientException ex)

@@ -1,20 +1,20 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.ConditionalAccess;
+using ApiObjects.Pricing;
+using AutoMapper;
+using Core.ConditionalAccess;
+using Core.Pricing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using AutoMapper;
-using ApiObjects;
-using WebAPI.Managers.Models;
 using WebAPI.Exceptions;
-using WebAPI.Models.Pricing;
-using WebAPI.Models.General;
-using WebAPI.Models.ConditionalAccess;
-using WebAPI.Models.Users;
+using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
-using ApiObjects.Pricing;
-using Core.Pricing;
-using Core.ConditionalAccess;
-using ApiObjects.ConditionalAccess;
+using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.General;
+using WebAPI.Models.Pricing;
+using WebAPI.Models.Users;
 using WebAPI.Utils;
 
 
@@ -36,19 +36,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.CouponGroupType, opt => opt.MapFrom(src => ConvertCouponGroupType(src.couponGroupType)))
                .ForMember(dest => dest.MaxHouseholdUses, opt => opt.MapFrom(src => src.maxDomainUses))
                ;
-
-            Mapper.CreateMap< KalturaCouponsGroup, CouponsGroup>()
-               .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Descriptions))
-               //.ForMember(dest => dest.m_dEndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.EndDate)))
-               .ForMember(dest => dest.m_sGroupCode, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.m_sGroupName, opt => opt.MapFrom(src => src.Name))
-               //.ForMember(dest => dest.m_dStartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.StartDate)))
-               .ForMember(dest => dest.m_nMaxUseCountForCoupon, opt => opt.MapFrom(src => src.MaxUsesNumber))
-               .ForMember(dest => dest.m_nMaxRecurringUsesCountForCoupon, opt => opt.MapFrom(src => src.MaxUsesNumberOnRenewableSub))
-               .ForMember(dest => dest.couponGroupType, opt => opt.MapFrom(src => ConvertCouponGroupType(src.CouponGroupType)))
-               .ForMember(dest => dest.maxDomainUses, opt => opt.MapFrom(src => src.MaxHouseholdUses))
-               ;
-
 
             Mapper.CreateMap<SubscriptionCouponGroup, KalturaCouponsGroup>()
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
@@ -432,12 +419,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static CouponGroupType ConvertCouponGroupType(KalturaCouponGroupType? couponGroupType)
+        public static CouponGroupType? ConvertCouponGroupType(KalturaCouponGroupType? couponGroupType)
         {
-            CouponGroupType result = CouponGroupType.Coupon;
+            CouponGroupType? result = null;
             if (couponGroupType.HasValue)
             {
-
                 switch (couponGroupType.Value)
                 {
                     case KalturaCouponGroupType.COUPON:

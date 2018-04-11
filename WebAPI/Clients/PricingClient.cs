@@ -980,19 +980,22 @@ namespace WebAPI.Clients
             return couponsGroups;
         }
 
-        internal KalturaCouponsGroup UpdateCouponsGroup(int groupId, KalturaCouponsGroup kCouponsGroup)
+        internal KalturaCouponsGroup UpdateCouponsGroup(int groupId, long id, KalturaCouponsGroup kCouponsGroup)
         {
             CouponsGroup couponsGroup = null;
             CouponsGroupResponse response = null;
-
-            couponsGroup = AutoMapper.Mapper.Map<CouponsGroup>(kCouponsGroup);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
+                    //kCouponsGroup.descriptions TODO: 
                     // fire request                        
-                    response = Core.Pricing.Module.UpdateCouponsGroup(groupId, couponsGroup);
+                    response = Core.Pricing.Module.UpdateCouponsGroup(groupId, id, kCouponsGroup.Name,
+                        kCouponsGroup.StartDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.StartDate.Value) : new DateTime?(),
+                        kCouponsGroup.EndDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.EndDate.Value) : new DateTime?(),
+                        kCouponsGroup.MaxUsesNumber, kCouponsGroup.MaxUsesNumberOnRenewableSub, kCouponsGroup.MaxHouseholdUses,
+                        PricingMappings.ConvertCouponGroupType(kCouponsGroup.CouponGroupType));
                 }
             }
             catch (Exception ex)
