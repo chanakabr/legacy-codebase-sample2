@@ -199,7 +199,7 @@ namespace WebAPI.Clients
             coupon = AutoMapper.Mapper.Map<KalturaCoupon>(response.Coupon);
 
             return coupon;
-        }       
+        }
 
         internal KalturaSubscriptionSetListResponse GetSubscriptionSets(int groupId, List<long> ids, KalturaSubscriptionSetOrderBy? orderBy, KalturaSubscriptionSetType? type)
         {
@@ -265,7 +265,7 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }        
+        }
 
         internal KalturaSubscriptionSetListResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds, KalturaSubscriptionSetOrderBy? orderBy, KalturaSubscriptionSetType? type)
         {
@@ -1058,10 +1058,21 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     //kCouponsGroup.descriptions TODO: 
-                    // fire request                        
-                    response = Core.Pricing.Module.AddCouponsGroup(groupId, kCouponsGroup.Name,
-                        kCouponsGroup.StartDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.StartDate.Value) : new DateTime?(),
-                        kCouponsGroup.EndDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.EndDate.Value) : new DateTime?(),
+                    // fire request                 
+                    DateTime startDate = new DateTime(1753, 1, 1);
+                    DateTime endDate = DateTime.MaxValue;
+
+                    if (!kCouponsGroup.StartDate.HasValue)
+                    {
+                        startDate = SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.StartDate.Value);
+                    }
+
+                    if (kCouponsGroup.EndDate.HasValue)
+                    {
+                        endDate = SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.EndDate.Value);
+                    }
+
+                    response = Core.Pricing.Module.AddCouponsGroup(groupId, kCouponsGroup.Name, startDate, endDate,
                         kCouponsGroup.MaxUsesNumber, kCouponsGroup.MaxUsesNumberOnRenewableSub, kCouponsGroup.MaxHouseholdUses,
                         PricingMappings.ConvertCouponGroupType(kCouponsGroup.CouponGroupType));
                 }

@@ -209,6 +209,11 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
                 }
 
+                if (couponsGroup.StartDate.HasValue && couponsGroup.EndDate.HasValue && couponsGroup.StartDate >= couponsGroup.EndDate )
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");                    
+                }
+
                 int groupId = KS.GetFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.PricingClient().AddCouponsGroup(groupId, couponsGroup);
