@@ -1059,10 +1059,10 @@ namespace WebAPI.Clients
                 {
                     //kCouponsGroup.descriptions TODO: 
                     // fire request                 
-                    DateTime startDate = new DateTime(1753, 1, 1);
+                    DateTime startDate = new DateTime(1970, 1, 1);
                     DateTime endDate = DateTime.MaxValue;
 
-                    if (!kCouponsGroup.StartDate.HasValue)
+                    if (kCouponsGroup.StartDate.HasValue)
                     {
                         startDate = SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.StartDate.Value);
                     }
