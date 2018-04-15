@@ -39,6 +39,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("descriptions")]
         [XmlArray(ElementName = "descriptions", IsNullable = true)]
         [XmlArrayItem("item")]
+        [Deprecated("4.8.1.0")]
         public List<KalturaTranslationToken> Descriptions { get; set; }
 
         /// <summary>

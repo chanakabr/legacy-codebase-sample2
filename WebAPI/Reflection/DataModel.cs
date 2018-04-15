@@ -33,6 +33,14 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaCouponsGroup":
+                    switch (propertyName)
+                    {
+                        case "Descriptions":
+                            return DeprecatedAttribute.IsDeprecated("4.8.1.0");
+                    };
+                    break;
+                    
                 case "KalturaEntitlement":
                     switch (propertyName)
                     {
