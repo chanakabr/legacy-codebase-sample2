@@ -40,7 +40,7 @@ namespace Core.Pricing
 
         public bool Initialize(string sGroupName , string sGroupCode , DiscountModule oDiscountCode, LanguageContainer[] sDescription,
             DateTime dStartDate, DateTime dEndDate, Int32 nMaxUseCountForCoupon, Int32 nFinancilaEntityID, Int32 nMaxRecurringUsesCountForCoupon, int maxDomainUses,
-            CouponGroupType couponType = CouponGroupType.Coupon)
+             string discountCode, CouponGroupType couponType = CouponGroupType.Coupon)
         {
             m_sGroupCode = sGroupCode;
             m_sDescription = sDescription;
@@ -53,6 +53,7 @@ namespace Core.Pricing
             m_nMaxRecurringUsesCountForCoupon = nMaxRecurringUsesCountForCoupon;
             this.couponGroupType = couponType;
             this.maxDomainUses = maxDomainUses;
+            this.m_sDiscountCode = discountCode;
             return true;
         }
 
@@ -123,7 +124,7 @@ namespace Core.Pricing
         {
             return this.Initialize(couponGroup.m_sGroupName, couponGroup.m_sGroupCode, couponGroup.m_oDiscountCode, couponGroup.m_sDescription,
             couponGroup.m_dStartDate, couponGroup.m_dEndDate, couponGroup.m_nMaxUseCountForCoupon, couponGroup.m_nFinancialEntityID, couponGroup.m_nMaxRecurringUsesCountForCoupon, couponGroup.maxDomainUses,
-            couponGroup.couponGroupType);            
+            couponGroup.m_sDiscountCode, couponGroup.couponGroupType);            
         }
 
         public static CouponsGroup GetCouponsGroup(long couponsGroupId, int groupId)
@@ -178,6 +179,7 @@ namespace Core.Pricing
                                     m_nMaxRecurringUsesCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "MAX_RECURRING_USES"),
                                     couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "COUPON_GROUP_TYPE"),
                                     maxDomainUses = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "DOMAIN_MAX_USES"),
+                                    m_sDiscountCode = sDiscountCode
                                 };
 
                                 result = true;

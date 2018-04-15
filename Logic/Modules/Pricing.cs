@@ -1605,7 +1605,7 @@ namespace Core.Pricing
         }
 
         public static CouponsGroupResponse UpdateCouponsGroup(int groupId, long id, string name, DateTime? startDate, DateTime? endDate,
-            int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
+            int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType, long? discountCode)
         {
             CouponsGroupResponse response = new CouponsGroupResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
@@ -1614,7 +1614,7 @@ namespace Core.Pricing
             if (t != null)
             {
                 response = t.UpdateCouponsGroup(groupId, id, name, startDate, endDate, maxUsesNumber, maxUsesNumberOnRenewableSub, 
-                    maxHouseholdUses, couponGroupType);
+                    maxHouseholdUses, couponGroupType, discountCode);
             }
 
             return response;
@@ -1635,7 +1635,7 @@ namespace Core.Pricing
         }
 
         public static CouponsGroupResponse AddCouponsGroup(int groupId, string name, DateTime? startDate, DateTime? endDate,
-            int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
+            int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType, long? discountCode)
         {
             CouponsGroupResponse response = new CouponsGroupResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
@@ -1644,7 +1644,7 @@ namespace Core.Pricing
             if (t != null)
             {
                 response = t.AddCouponsGroup(groupId, name, startDate, endDate, maxUsesNumber, maxUsesNumberOnRenewableSub,
-                    maxHouseholdUses, couponGroupType);
+                    maxHouseholdUses, couponGroupType, discountCode);
             }
 
             return response;

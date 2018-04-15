@@ -25,6 +25,7 @@ namespace Core.Pricing
         private const string FAILED_ERROR_FORMAT = "failed to {0}";
         private const string NAME_REQUIRED = "Name must have a value";
         private const string COUPON_CODE_NOT_IN_THE_RIGHT_LENGTH = "The Coupon code provided is not valid.(does not match the required number of digits).";
+        private const string DISCOUNT_CODE_NOT_EXIST = "Discount code doen't exist";
 
         public TvinciCoupons(Int32 nGroupID) : base(nGroupID)
         {
@@ -338,7 +339,7 @@ namespace Core.Pricing
         }
 
         public override CouponsGroupResponse UpdateCouponsGroup(int groupId, long id, string name, DateTime? startDate, DateTime? endDate,
-            int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
+            int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType, long? discountCode)
         {
             CouponsGroupResponse response = new CouponsGroupResponse()
             {
@@ -355,8 +356,20 @@ namespace Core.Pricing
                     return response;
                 }
 
+                if (discountCode.HasValue)
+                {
+                    // check that discount code exists 
+                    bool isDiscountCodeExsits = DAL.PricingDAL.IsDiscountCodeExists(m_nGroupID, discountCode.Value);
+                    if (!isDiscountCodeExsits)
+                    {                        
+                        response.Status.Code = (int)eResponseStatus.DiscountCodeNotExist;
+                        response.Status.Message = DISCOUNT_CODE_NOT_EXIST;
+                        return response;
+                    }
+                }
+
                 DataTable dt = PricingDAL.UpdateCouponsGroup(groupId, id, name, startDate, endDate,
-                    maxUsesNumber, maxUsesNumberOnRenewableSub, maxHouseholdUses, couponGroupType);
+                    maxUsesNumber, maxUsesNumberOnRenewableSub, maxHouseholdUses, couponGroupType, discountCode);
                 if (dt == null || dt.Rows.Count == 0)
                 {
                     log.ErrorFormat("Error while UpdateCouponsGroup. groupId: {0}, CoupunGroupId: {1}", groupId, id);
@@ -399,6 +412,7 @@ namespace Core.Pricing
                 m_nMaxRecurringUsesCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_RECURRING_USES"),
                 couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(dataRow, "COUPON_GROUP_TYPE"),
                 maxDomainUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "DOMAIN_MAX_USES"),
+                m_sDiscountCode = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "DISCOUNT_CODE").ToString(),
             };
 
             return couponsGroup;
@@ -462,6 +476,7 @@ namespace Core.Pricing
                                         couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(row, "COUPON_GROUP_TYPE"),
                                         maxDomainUses = ODBCWrapper.Utils.GetIntSafeVal(row, "DOMAIN_MAX_USES"),
                                         m_sGroupCode = ODBCWrapper.Utils.GetSafeStr(row, "ID"),
+                                        m_sDiscountCode = sDiscountCode
                                     };
 
                                     couponsGroups.Add(couponsGroup);
@@ -527,7 +542,7 @@ namespace Core.Pricing
         }
 
         public override CouponsGroupResponse AddCouponsGroup(int groupId, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber,
-            int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
+            int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType, long? discountCode)
         {
             CouponsGroupResponse response = new CouponsGroupResponse()
             {
@@ -544,7 +559,7 @@ namespace Core.Pricing
                 }
 
                 DataTable dt = PricingDAL.AddCouponsGroup(groupId, name, startDate, endDate,
-                    maxUsesNumber, maxUsesNumberOnRenewableSub, maxHouseholdUses, couponGroupType);
+                    maxUsesNumber, maxUsesNumberOnRenewableSub, maxHouseholdUses, couponGroupType, discountCode);
                 if (dt == null || dt.Rows.Count == 0)
                 {
                     log.ErrorFormat("Error while AddCouponsGroup. groupId: {0}, name: {1}", groupId, name);

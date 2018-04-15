@@ -31,13 +31,13 @@ namespace Core.Pricing
         public abstract CouponsGroupResponse GetCouponGroupData(long couponsGroupId);
 
         public abstract CouponsGroupResponse UpdateCouponsGroup(int groupId, long id, string name, DateTime? startDate, DateTime? endDate,
-            int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType);
+            int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType, long? discountCode);
 
         public abstract CouponsGroupsResponse GetCouponGroups();
 
         public abstract Status DeleteCouponsGroups(int groupId, long id);
 
         public abstract CouponsGroupResponse AddCouponsGroup(int groupId, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber,
-            int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType);
+            int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType, long? discountCode);
     }
 }
