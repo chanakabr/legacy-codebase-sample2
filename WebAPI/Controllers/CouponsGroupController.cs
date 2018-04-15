@@ -113,6 +113,7 @@ namespace WebAPI.Controllers
         [Route("update"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.CouponGroupNotExist)]
+        [Throws(eResponseStatus.DiscountCodeNotExist)]
         public KalturaCouponsGroup Update(long id, KalturaCouponsGroup couponsGroup)
         {
             KalturaCouponsGroup response = null;
@@ -203,6 +204,7 @@ namespace WebAPI.Controllers
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.DiscountCodeNotExist)]
         public KalturaCouponsGroup Add(KalturaCouponsGroup couponsGroup)
         {
             KalturaCouponsGroup response = null;
