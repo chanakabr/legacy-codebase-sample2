@@ -181,9 +181,9 @@ namespace Core.Pricing
                                     maxDomainUses = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "DOMAIN_MAX_USES"),
                                     m_sDiscountCode = sDiscountCode
                                 };
-
-                                result = true;
                             }
+
+                            result = true;
                         }
                     }
                 }
