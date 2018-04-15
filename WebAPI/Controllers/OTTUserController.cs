@@ -258,6 +258,11 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username or password");
             }
+            else if (password.Length > 128)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_LENGTH_CROSSED, "password", 128);
+            }
+
             try
             {
                 response = ClientsManager.UsersClient().SignUp(partnerId, user, password);
