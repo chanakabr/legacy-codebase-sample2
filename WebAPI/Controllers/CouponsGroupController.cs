@@ -59,6 +59,11 @@ namespace WebAPI.Controllers
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "numberOfCoupons");
                     }
 
+                    if (couponGeneration.NumberOfCoupons > 50000)
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_MAX_LENGTH_CROSSED, "numberOfCoupons", 50000);
+                    }
+
                     bool useLetters = couponGeneration.UseLetters.HasValue ? couponGeneration.UseLetters.Value : true;
                     bool useNumbers = couponGeneration.UseNumbers.HasValue ? couponGeneration.UseNumbers.Value : true;
                     bool useSpecialCharacters = couponGeneration.UseSpecialCharacters.HasValue ? couponGeneration.UseSpecialCharacters.Value : true;
