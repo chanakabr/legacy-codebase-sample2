@@ -9503,6 +9503,11 @@
             Maximum number of uses per household for each coupon in the group
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.DiscountCode">
+            <summary>
+            Discount code
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Pricing.KalturaCouponsGroupListResponse">
             <summary>
             Coupons group list

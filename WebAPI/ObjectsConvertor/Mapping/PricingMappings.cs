@@ -35,6 +35,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MaxUsesNumberOnRenewableSub, opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon))
                .ForMember(dest => dest.CouponGroupType, opt => opt.MapFrom(src => ConvertCouponGroupType(src.couponGroupType)))
                .ForMember(dest => dest.MaxHouseholdUses, opt => opt.MapFrom(src => src.maxDomainUses))
+               .ForMember(dest => dest.DiscountCode, opt => opt.MapFrom(src => long.Parse(src.m_sDiscountCode)))
                ;
 
             Mapper.CreateMap<SubscriptionCouponGroup, KalturaCouponsGroup>()
@@ -144,7 +145,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.m_fictivicMediaID))
-                //.ForMember(dest => dest.PremiumServices, opt => opt.MapFrom(src => src.m_lServices))
+               //.ForMember(dest => dest.PremiumServices, opt => opt.MapFrom(src => src.m_lServices))
                .ForMember(dest => dest.PremiumServices, opt => opt.MapFrom(src => ConvertServices(src.m_lServices)))
                .ForMember(dest => dest.PricePlans, opt => opt.MapFrom(src => src.m_MultiSubscriptionUsageModule))
                .ForMember(dest => dest.HouseholdLimitationsId, opt => opt.MapFrom(src => src.m_nDomainLimitationModule))
@@ -327,7 +328,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ProductCodes, opt => opt.MapFrom(src => ConvertProductCodes(src.ExternalProductCodes)))
                .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)))
                ;
-        }        
+        }
 
         private static KalturaSubscriptionSetType ConvertSetType(SubscriptionSetType subscriptionSetType)
         {
@@ -451,17 +452,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (couponType)
             {
                 case CouponGroupType.Coupon:
-                {
-                    result = KalturaCouponGroupType.COUPON;
-                    break;
-                }
+                    {
+                        result = KalturaCouponGroupType.COUPON;
+                        break;
+                    }
                 case CouponGroupType.GiftCard:
-                {
-                    result = KalturaCouponGroupType.GIFT_CARD;
-                    break;
-                }
+                    {
+                        result = KalturaCouponGroupType.GIFT_CARD;
+                        break;
+                    }
                 default:
-                break;
+                    break;
             }
 
             return result;
@@ -576,7 +577,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             if (itemPrices != null)
             {
                 prices = new List<KalturaPpvPrice>();
-                
+
                 foreach (var item in itemPrices)
                 {
                     if (item.m_oItemPrices != null)
@@ -584,29 +585,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         foreach (var ppvPrice in item.m_oItemPrices)
                         {
                             prices.Add(new KalturaPpvPrice()
-                                {
-                                    CollectionId = ppvPrice.m_relevantCol != null ? ppvPrice.m_relevantCol.m_CollectionCode : null,
-                                    DiscountEndDate = ppvPrice.m_dtDiscountEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(ppvPrice.m_dtDiscountEndDate.Value) : 0,
-                                    EndDate = ppvPrice.m_dtEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(ppvPrice.m_dtEndDate.Value) : 0,
-                                    FileId = item.m_nMediaFileID,
-                                    FirstDeviceName = ppvPrice.m_sFirstDeviceNameFound,
-                                    FullPrice = AutoMapper.Mapper.Map<KalturaPrice>(ppvPrice.m_oFullPrice),
-                                    IsInCancelationPeriod = ppvPrice.m_bCancelWindow,
-                                    IsSubscriptionOnly = ppvPrice.m_bSubscriptionOnly,
-                                    PPVDescriptions = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(ppvPrice.m_oPPVDescription),
-                                    PPVModuleId = ppvPrice.m_sPPVModuleCode,
-                                    PrePaidId = ppvPrice.m_relevantPP != null ? ppvPrice.m_relevantPP.m_ObjectCode.ToString() : null,
-                                    Price = AutoMapper.Mapper.Map<KalturaPrice>(ppvPrice.m_oPrice),
-                                    ProductCode = ppvPrice.m_sProductCode,
-                                    ProductId = item.m_sProductCode,
-                                    ProductType = KalturaTransactionType.ppv,
-                                    PurchasedMediaFileId = ppvPrice.m_lPurchasedMediaFileID,
-                                    PurchaseStatus = ConvertPriceReasonToPurchaseStatus(ppvPrice.m_PriceReason),
-                                    PurchaseUserId = ppvPrice.m_sPurchasedBySiteGuid,
-                                    RelatedMediaFileIds = AutoMapper.Mapper.Map<List<KalturaIntegerValue>>(ppvPrice.m_lRelatedMediaFileIDs),
-                                    StartDate = ppvPrice.m_dtStartDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(ppvPrice.m_dtStartDate.Value) : 0,
-                                    SubscriptionId = ppvPrice.m_relevantSub != null ? ppvPrice.m_relevantSub.m_sObjectCode : null
-                                });
+                            {
+                                CollectionId = ppvPrice.m_relevantCol != null ? ppvPrice.m_relevantCol.m_CollectionCode : null,
+                                DiscountEndDate = ppvPrice.m_dtDiscountEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(ppvPrice.m_dtDiscountEndDate.Value) : 0,
+                                EndDate = ppvPrice.m_dtEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(ppvPrice.m_dtEndDate.Value) : 0,
+                                FileId = item.m_nMediaFileID,
+                                FirstDeviceName = ppvPrice.m_sFirstDeviceNameFound,
+                                FullPrice = AutoMapper.Mapper.Map<KalturaPrice>(ppvPrice.m_oFullPrice),
+                                IsInCancelationPeriod = ppvPrice.m_bCancelWindow,
+                                IsSubscriptionOnly = ppvPrice.m_bSubscriptionOnly,
+                                PPVDescriptions = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(ppvPrice.m_oPPVDescription),
+                                PPVModuleId = ppvPrice.m_sPPVModuleCode,
+                                PrePaidId = ppvPrice.m_relevantPP != null ? ppvPrice.m_relevantPP.m_ObjectCode.ToString() : null,
+                                Price = AutoMapper.Mapper.Map<KalturaPrice>(ppvPrice.m_oPrice),
+                                ProductCode = ppvPrice.m_sProductCode,
+                                ProductId = item.m_sProductCode,
+                                ProductType = KalturaTransactionType.ppv,
+                                PurchasedMediaFileId = ppvPrice.m_lPurchasedMediaFileID,
+                                PurchaseStatus = ConvertPriceReasonToPurchaseStatus(ppvPrice.m_PriceReason),
+                                PurchaseUserId = ppvPrice.m_sPurchasedBySiteGuid,
+                                RelatedMediaFileIds = AutoMapper.Mapper.Map<List<KalturaIntegerValue>>(ppvPrice.m_lRelatedMediaFileIDs),
+                                StartDate = ppvPrice.m_dtStartDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(ppvPrice.m_dtStartDate.Value) : 0,
+                                SubscriptionId = ppvPrice.m_relevantSub != null ? ppvPrice.m_relevantSub.m_sObjectCode : null
+                            });
                         }
                     }
                 }
@@ -680,7 +681,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             return result;
         }
-        
+
         public static SubscriptionType? ConvertSubscriptionType(KalturaSubscriptionDependencyType? type)
         {
             SubscriptionType? result = null;

@@ -94,6 +94,15 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("maxHouseholdUses")]
         [XmlElement(ElementName = "maxHouseholdUses", IsNullable = true)]
         public int? MaxHouseholdUses { get; set; }
+
+        /// <summary>
+        /// Discount code
+        /// </summary>
+        [DataMember(Name = "discountCode")]
+        [JsonProperty("discountCode")]
+        [XmlElement(ElementName = "discountCode", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
+        public long? DiscountCode { get; set; }
     }
 
     /// <summary>

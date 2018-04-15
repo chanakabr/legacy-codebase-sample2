@@ -3127,6 +3127,8 @@ namespace WebAPI.Reflection
                             return "couponGroupType";
                         case "Descriptions":
                             return "descriptions";
+                        case "DiscountCode":
+                            return "discountCode";
                         case "EndDate":
                             return "endDate";
                         case "Id":

@@ -994,7 +994,8 @@ namespace WebAPI.Clients
                         kCouponsGroup.StartDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.StartDate.Value) : new DateTime?(),
                         kCouponsGroup.EndDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.EndDate.Value) : new DateTime?(),
                         kCouponsGroup.MaxUsesNumber, kCouponsGroup.MaxUsesNumberOnRenewableSub, kCouponsGroup.MaxHouseholdUses,
-                        PricingMappings.ConvertCouponGroupType(kCouponsGroup.CouponGroupType));
+                        PricingMappings.ConvertCouponGroupType(kCouponsGroup.CouponGroupType),
+                        kCouponsGroup.DiscountCode);
                 }
             }
             catch (Exception ex)
@@ -1074,7 +1075,8 @@ namespace WebAPI.Clients
 
                     response = Core.Pricing.Module.AddCouponsGroup(groupId, kCouponsGroup.Name, startDate, endDate,
                         kCouponsGroup.MaxUsesNumber, kCouponsGroup.MaxUsesNumberOnRenewableSub, kCouponsGroup.MaxHouseholdUses,
-                        PricingMappings.ConvertCouponGroupType(kCouponsGroup.CouponGroupType));
+                        PricingMappings.ConvertCouponGroupType(kCouponsGroup.CouponGroupType),
+                        kCouponsGroup.DiscountCode);
                 }
             }
             catch (Exception ex)
