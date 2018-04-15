@@ -558,6 +558,18 @@ namespace Core.Pricing
                     return response;
                 }
 
+                if (discountCode.HasValue)
+                {
+                    // check that discount code exists 
+                    bool isDiscountCodeExsits = DAL.PricingDAL.IsDiscountCodeExists(m_nGroupID, discountCode.Value);
+                    if (!isDiscountCodeExsits)
+                    {
+                        response.Status.Code = (int)eResponseStatus.DiscountCodeNotExist;
+                        response.Status.Message = DISCOUNT_CODE_NOT_EXIST;
+                        return response;
+                    }
+                }
+
                 DataTable dt = PricingDAL.AddCouponsGroup(groupId, name, startDate, endDate,
                     maxUsesNumber, maxUsesNumberOnRenewableSub, maxHouseholdUses, couponGroupType, discountCode);
                 if (dt == null || dt.Rows.Count == 0)
