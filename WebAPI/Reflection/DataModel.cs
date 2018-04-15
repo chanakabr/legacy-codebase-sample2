@@ -37,7 +37,7 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "Descriptions":
-                            return DeprecatedAttribute.IsDeprecated("4.8.1.0");
+                            return DeprecatedAttribute.IsDeprecated("4.8.0.0");
                     };
                     break;
                     
