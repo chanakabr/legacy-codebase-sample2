@@ -376,7 +376,7 @@ namespace DAL
             if (ds != null && ds.Tables != null)
                 return ds.Tables[0];
             return null;
-        }
+        }        
 
         public static DataTable GetUsageModuleCollection(string sAssetCode)
         {
@@ -1647,7 +1647,7 @@ namespace DAL
         }
 
         public static DataTable UpdateCouponsGroup(int groupId, long id, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber,
-            int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
+            int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType, long? discountCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_CouponsGroups");
             sp.SetConnectionKey("pricing_connection");
@@ -1660,6 +1660,7 @@ namespace DAL
             sp.AddParameter("@maxUsesNumberOnRenewableSub", maxUsesNumberOnRenewableSub);
             sp.AddParameter("@maxHouseholdUses", maxHouseholdUses);
             sp.AddParameter("@couponGroupType", couponGroupType);
+            sp.AddParameter("@discountCode", discountCode);
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null)
@@ -1684,7 +1685,8 @@ namespace DAL
             return 0;
         }
 
-        public static DataTable AddCouponsGroup(int groupId, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber, int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType)
+        public static DataTable AddCouponsGroup(int groupId, string name, DateTime? startDate, DateTime? endDate, int? maxUsesNumber, 
+            int? maxUsesNumberOnRenewableSub, int? maxHouseholdUses, CouponGroupType? couponGroupType, long? discountCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_CouponsGroups");
             sp.SetConnectionKey("pricing_connection");
@@ -1696,11 +1698,21 @@ namespace DAL
             sp.AddParameter("@maxUsesNumberOnRenewableSub", maxUsesNumberOnRenewableSub);
             sp.AddParameter("@maxHouseholdUses", maxHouseholdUses);
             sp.AddParameter("@couponGroupType", couponGroupType);
+            sp.AddParameter("@discountCode", discountCode);
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null)
                 return ds.Tables[0];
             return null;
+        }
+
+        public static bool IsDiscountCodeExists(int groupId, long discountCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Is_DiscountCodeExists");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@discountCodeId", discountCode);
+            return sp.ExecuteReturnValue<int>() > 0;
         }
     }
 }
