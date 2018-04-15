@@ -24,6 +24,7 @@ namespace Core.Pricing
         private const string COUPON_GROUP_NOT_EXIST = "Coupon group doesn't exist";
         private const string FAILED_ERROR_FORMAT = "failed to {0}";
         private const string NAME_REQUIRED = "Name must have a value";
+        private const string COUPON_CODE_NOT_IN_THE_RIGHT_LENGTH = "The Coupon code provided is not valid.(does not match the required number of digits).";
 
         public TvinciCoupons(Int32 nGroupID) : base(nGroupID)
         {
@@ -264,6 +265,24 @@ namespace Core.Pricing
                     log.ErrorFormat("fail GeneratePublicCode coupon group not exists groupId={0}, couponCode={1},couponGroupId={2} ", m_nGroupID, couponCode, couponGroupId);
                     status.Code = (int)eResponseStatus.InvalidCouponGroup;
                     status.Message = COUPON_GROUP_NOT_FOUND;
+                    return coupons;
+                }               
+
+                if (string.IsNullOrEmpty(couponCode) || couponCode.Length > 50)
+                {
+                    log.ErrorFormat("fail GeneratePublicCode coupon code not in the right length groupId={0}, couponCode={1},couponGroupId={2} ", m_nGroupID, couponCode, couponGroupId);
+                    status.Code = (int)eResponseStatus.CouponCodeNotInTheRightLength;
+                    status.Message = COUPON_CODE_NOT_IN_THE_RIGHT_LENGTH;
+                    return coupons;
+                }
+
+                couponCode = couponCode.Trim();
+
+                if (couponCode.Contains(" "))
+                {
+                    log.ErrorFormat("fail GeneratePublicCode. coupon code should not have space. groupId={0}, couponCode={1},couponGroupId={2} ", m_nGroupID, couponCode, couponGroupId);
+                    status.Code = (int)eResponseStatus.Error;
+                    status.Message = "The Coupon code should not have spaces.";
                     return coupons;
                 }
 

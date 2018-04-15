@@ -370,6 +370,7 @@ namespace ApiObjects.Response
         PriceDetailsDoesNotExist = 9018,
         CouponCodeAlreadyExists = 9019,
         CouponGroupNotExist = 9020,
+        CouponCodeNotInTheRightLength = 9021,        
 
         // Adapters 10000-10999
         AdapterNotExists = 10000,
