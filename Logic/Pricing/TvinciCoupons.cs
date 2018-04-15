@@ -93,7 +93,7 @@ namespace Core.Pricing
             if (coupon.Initialize(sCouponCode, m_nGroupID))
             {
                 CouponsGroup couponsGroup = CouponsGroup.GetCouponsGroup(coupon.couponsGroupId, m_nGroupID);
-
+                
                 CouponsStatus status = coupon.GetCouponStatus(m_nGroupID, couponsGroup);
                 if (status == CouponsStatus.Valid)
                 {
@@ -328,6 +328,10 @@ namespace Core.Pricing
                 if (response.CouponsGroup.Initialize((int)couponsGroupId, m_nGroupID))
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    response.Status = new Status((int)eResponseStatus.CouponGroupNotExist, COUPON_GROUP_NOT_EXIST);
                 }
             }
             catch (Exception ex)
