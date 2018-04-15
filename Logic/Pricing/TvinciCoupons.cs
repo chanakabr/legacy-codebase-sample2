@@ -25,7 +25,7 @@ namespace Core.Pricing
         private const string FAILED_ERROR_FORMAT = "failed to {0}";
         private const string NAME_REQUIRED = "Name must have a value";
         private const string COUPON_CODE_NOT_IN_THE_RIGHT_LENGTH = "The Coupon code provided is not valid.(does not match the required number of digits).";
-        private const string DISCOUNT_CODE_NOT_EXIST = "Discount code doen't exist";        
+        private const string DISCOUNT_CODE_NOT_EXIST = "Discount code doesn't exist";        
 
         public TvinciCoupons(Int32 nGroupID) : base(nGroupID)
         {
