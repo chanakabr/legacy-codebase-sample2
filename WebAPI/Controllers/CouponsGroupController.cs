@@ -130,6 +130,16 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "id");
                 }
 
+                if (couponsGroup.StartDate.HasValue && couponsGroup.EndDate.HasValue && couponsGroup.StartDate >= couponsGroup.EndDate)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");
+                }
+
+                if (couponsGroup.MaxUsesNumber.HasValue && couponsGroup.MaxHouseholdUses.HasValue && couponsGroup.MaxUsesNumber < couponsGroup.MaxHouseholdUses)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "maxHouseholdUses", "maxUsesNumber");
+                }
+
                 couponsGroup.Id = id.ToString();
 
                 int groupId = KS.GetFromRequest().GroupId;
@@ -229,6 +239,11 @@ namespace WebAPI.Controllers
                 if (couponsGroup.StartDate.HasValue && couponsGroup.EndDate.HasValue && couponsGroup.StartDate >= couponsGroup.EndDate )
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");                    
+                }
+
+                if (couponsGroup.MaxUsesNumber.HasValue && couponsGroup.MaxHouseholdUses.HasValue && couponsGroup.MaxUsesNumber < couponsGroup.MaxHouseholdUses)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "maxHouseholdUses", "maxUsesNumber");
                 }
 
                 int groupId = KS.GetFromRequest().GroupId;

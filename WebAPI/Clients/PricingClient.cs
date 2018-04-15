@@ -988,7 +988,6 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //kCouponsGroup.descriptions TODO: 
                     // fire request                        
                     response = Core.Pricing.Module.UpdateCouponsGroup(groupId, id, kCouponsGroup.Name,
                         kCouponsGroup.StartDate.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(kCouponsGroup.StartDate.Value) : new DateTime?(),
