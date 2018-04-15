@@ -59,8 +59,12 @@ namespace WebAPI.Controllers
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "numberOfCoupons");
                     }
 
+                    bool useLetters = couponGeneration.UseLetters.HasValue ? couponGeneration.UseLetters.Value : true;
+                    bool useNumbers = couponGeneration.UseNumbers.HasValue ? couponGeneration.UseNumbers.Value : true;
+                    bool useSpecialCharacters = couponGeneration.UseSpecialCharacters.HasValue ? couponGeneration.UseSpecialCharacters.Value : true;
+
                     // call client
-                    result = ClientsManager.PricingClient().GenerateCode(groupId, id, couponGeneration.NumberOfCoupons, couponGeneration.UseLetters, couponGeneration.UseNumbers, couponGeneration.UseSpecialCharacters);
+                    result = ClientsManager.PricingClient().GenerateCode(groupId, id, couponGeneration.NumberOfCoupons, useLetters, useNumbers, useSpecialCharacters);
                 }
                 else
                 {
