@@ -573,6 +573,11 @@ namespace Core.Users
                 // add notifications event 
                 Utils.AddInitiateNotificationActionToQueue(m_nGroupID, eUserMessageAction.Signup, nUserID, string.Empty);
             }
+            else
+            {
+                resp.Initialize(ResponseStatus.ErrorOnSaveUser, u);
+                return resp;
+            }
 
             if (u.m_domianID <= 0)
             {
