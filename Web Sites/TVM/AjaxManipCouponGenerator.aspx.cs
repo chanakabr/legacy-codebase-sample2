@@ -114,36 +114,22 @@ public partial class AjaxManipCouponGenerator : System.Web.UI.Page
         if (Request.Form["coupon_code"] != null)
             couponCode = Request.Form["coupon_code"].ToString();
 
-        if (string.IsNullOrEmpty(couponCode))
+        int groupId = TVinciShared.LoginManager.GetLoginGroupID();
+
+        if (IsCouponNameValid(groupId, couponCode, couponGroupId, ref sError))
         {
-            sError = "Coupon code (name) is empty";
-            bOK = false;
-        }
-
-        Int32 nGroupID = TVinciShared.LoginManager.GetLoginGroupID();
-
-
-        if (IsCouponcouponCodeExist(nGroupID, couponCode))
-        {
-            sError = "Coupon code already exist";
-            bOK = false;
-        }
-
-        if (string.IsNullOrEmpty(sError))
-        {
-
-            if (!ThreadDict.ContainsKey(nGroupID))
+            if (!ThreadDict.ContainsKey(groupId))
             {
                 ParameterizedThreadStart start = new ParameterizedThreadStart(GenerateNameCoupons);
 
                 Thread t = new Thread(start);
 
-                ThreadDict.Add(nGroupID, t);
+                ThreadDict.Add(groupId, t);
 
                 string[] vals = new string[3];
                 vals[0] = couponCode;
                 vals[1] = couponGroupId;
-                vals[2] = nGroupID.ToString();
+                vals[2] = groupId.ToString();
 
                 t.Start(vals);
                 bOK = true;
@@ -152,7 +138,31 @@ public partial class AjaxManipCouponGenerator : System.Web.UI.Page
             {
                 sError = "Working";
             }
+        }       
+    }
+
+    private bool IsCouponNameValid(int groupId, string couponCode, string couponGroupId, ref string sError)
+    {
+        if (string.IsNullOrEmpty(couponCode) || couponCode.Length > 50)
+        {
+            sError = "The Coupon code provided is not valid.(does not match the required number of digits).";
+            return false;
         }
+
+        couponCode = couponCode.Trim();
+        if (couponCode.Contains(" "))
+        {
+            sError = "The Coupon code should not have spaces.";
+            return false;
+        }
+       
+        if (IsCouponcouponCodeExist(groupId, couponCode))
+        {
+            sError = "Coupon code already exist";
+            return false;
+        }
+
+        return true;
     }
 
     protected void GenerateCoupons(object val)
