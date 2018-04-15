@@ -25,7 +25,7 @@ namespace Core.Pricing
         private const string FAILED_ERROR_FORMAT = "failed to {0}";
         private const string NAME_REQUIRED = "Name must have a value";
         private const string COUPON_CODE_NOT_IN_THE_RIGHT_LENGTH = "The Coupon code provided is not valid.(does not match the required number of digits).";
-        private const string DISCOUNT_CODE_NOT_EXIST = "Discount code doen't exist";
+        private const string DISCOUNT_CODE_NOT_EXIST = "Discount code doen't exist";        
 
         public TvinciCoupons(Int32 nGroupID) : base(nGroupID)
         {
@@ -267,7 +267,7 @@ namespace Core.Pricing
                     status.Code = (int)eResponseStatus.InvalidCouponGroup;
                     status.Message = COUPON_GROUP_NOT_FOUND;
                     return coupons;
-                }               
+                }
 
                 if (string.IsNullOrEmpty(couponCode) || couponCode.Length > 50)
                 {
@@ -361,11 +361,21 @@ namespace Core.Pricing
                     // check that discount code exists 
                     bool isDiscountCodeExsits = DAL.PricingDAL.IsDiscountCodeExists(m_nGroupID, discountCode.Value);
                     if (!isDiscountCodeExsits)
-                    {                        
+                    {
                         response.Status.Code = (int)eResponseStatus.DiscountCodeNotExist;
                         response.Status.Message = DISCOUNT_CODE_NOT_EXIST;
                         return response;
                     }
+                }
+
+                int maxUsesNumberToUpdate = maxUsesNumber.HasValue ? maxUsesNumber.Value : response.CouponsGroup.m_nMaxUseCountForCoupon;
+                int maxHouseholdUsesToUpdate = maxHouseholdUses.HasValue ? maxHouseholdUses.Value : response.CouponsGroup.maxDomainUses;
+
+                if(maxHouseholdUsesToUpdate > maxUsesNumberToUpdate)
+                {
+                    response.Status.Code = (int)eResponseStatus.Error;
+                    response.Status.Message = "maxHouseholdUses value conflicts maxUsesNumber value";
+                    return response;
                 }
 
                 DataTable dt = PricingDAL.UpdateCouponsGroup(groupId, id, name, startDate, endDate,
