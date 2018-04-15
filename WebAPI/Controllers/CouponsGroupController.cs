@@ -29,6 +29,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.InvalidCouponGroup)]
         [Throws(eResponseStatus.CouponCodeAlreadyExists)]
+        [Throws(eResponseStatus.CouponCodeNotInTheRightLength)]
         public KalturaStringValueArray Generate(long id, KalturaCouponGenerationOptions couponGenerationOptions)
         {
             KalturaStringValueArray result = null;
