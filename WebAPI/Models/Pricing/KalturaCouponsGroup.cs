@@ -77,7 +77,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("maxUsesNumberOnRenewableSub")]
         [XmlElement(ElementName = "maxUsesNumberOnRenewableSub", IsNullable = true)]
         [OldStandardProperty("max_uses_number_on_renewable_sub")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinInteger = 0)]
         public int? MaxUsesNumberOnRenewableSub { get; set; }
 
 
@@ -95,7 +95,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "maxHouseholdUses")]
         [JsonProperty("maxHouseholdUses")]
         [XmlElement(ElementName = "maxHouseholdUses", IsNullable = true)]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinInteger = 0)]
         public int? MaxHouseholdUses { get; set; }
 
         /// <summary>
