@@ -374,11 +374,19 @@ namespace Core.Pricing
 
                 int maxUsesNumberToUpdate = maxUsesNumber.HasValue ? maxUsesNumber.Value : response.CouponsGroup.m_nMaxUseCountForCoupon;
                 int maxHouseholdUsesToUpdate = maxHouseholdUses.HasValue ? maxHouseholdUses.Value : response.CouponsGroup.maxDomainUses;
-
                 if(maxHouseholdUsesToUpdate > maxUsesNumberToUpdate)
                 {
                     response.Status.Code = (int)eResponseStatus.Error;
                     response.Status.Message = "maxHouseholdUses value conflicts maxUsesNumber value";
+                    return response;
+                }
+
+                DateTime startDateToUpdate = startDate.HasValue ? startDate.Value : response.CouponsGroup.m_dStartDate;
+                DateTime endDateToUpdate = endDate.HasValue ? endDate.Value : response.CouponsGroup.m_dEndDate;
+                if (startDateToUpdate > endDateToUpdate)
+                {
+                    response.Status.Code = (int)eResponseStatus.Error;
+                    response.Status.Message = "startDate value conflicts endDate value";
                     return response;
                 }
 
