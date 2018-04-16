@@ -246,6 +246,11 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "maxHouseholdUses", "maxUsesNumber");
                 }
 
+                if (!couponsGroup.MaxUsesNumber.HasValue)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "maxUsesNumber");
+                }
+
                 int groupId = KS.GetFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.PricingClient().AddCouponsGroup(groupId, couponsGroup);
