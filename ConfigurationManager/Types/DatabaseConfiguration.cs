@@ -32,39 +32,57 @@ namespace ConfigurationManager
             };
             BillingConnectionString = new StringConfigurationValue("BILLING_CONNECTION_STRING", this)
             {
-                OriginalKey = "BILLING_CONNECTION_STRING"
+                //OriginalKey = "BILLING_CONNECTION_STRING",
+                ShouldAllowEmpty = true,
+                Description = "Still not in use, requires massive amount of code refactoring."
             };
             ConnectionString = new StringConfigurationValue("CONNECTION_STRING", this)
             {
-                OriginalKey = "CONNECTION_STRING"
+                //OriginalKey = "CONNECTION_STRING"
+                ShouldAllowEmpty = true,
+                Description = "Still not in use, requires massive amount of code refactoring."
             };
             MainConnectionString = new StringConfigurationValue("MAIN_CONNECTION_STRING", this)
             {
-                OriginalKey = "MAIN_CONNECTION_STRING"
+                //OriginalKey = "MAIN_CONNECTION_STRING"
+                ShouldAllowEmpty = true,
+                Description = "Still not in use, requires massive amount of code refactoring."
             };
             ConditionalAccessConnectionString = new StringConfigurationValue("CA_CONNECTION_STRING", this)
             {
-                OriginalKey = "CA_CONNECTION_STRING"
+                //OriginalKey = "CA_CONNECTION_STRING"
+                ShouldAllowEmpty = true,
+                Description = "Still not in use, requires massive amount of code refactoring."
             };
             FinancialReportConnectionString = new StringConfigurationValue("FR_CONNECTION_STRING", this)
             {
-                OriginalKey = "FR_CONNECTION_STRING"
+                //OriginalKey = "FR_CONNECTION_STRING"
+                ShouldAllowEmpty = true,
+                Description = "Still not in use, requires massive amount of code refactoring."
             };
             RecordingConnectionString = new StringConfigurationValue("RECORDING_CONNECTION_STRING", this)
             {
-                OriginalKey = "RECORDING_CONNECTION_STRING"
+                //OriginalKey = "RECORDING_CONNECTION_STRING"
+                ShouldAllowEmpty = true,
+                Description = "Still not in use, requires massive amount of code refactoring."
             };
             MessageBoxConnectionString = new StringConfigurationValue("MESSAGE_BOX_CONNECTION_STRING", this)
             {
-                OriginalKey = "MESSAGE_BOX_CONNECTION_STRING"
+                //OriginalKey = "MESSAGE_BOX_CONNECTION_STRING"
+                ShouldAllowEmpty = true,
+                Description = "Still not in use, requires massive amount of code refactoring."
             };
             PricingConnectionString = new StringConfigurationValue("pricing_connection_string", this)
             {
-                OriginalKey = "pricing_connection"
+                //OriginalKey = "pricing_connection"
+                ShouldAllowEmpty = true,
+                Description = "Still not in use, requires massive amount of code refactoring."
             };
             UsersConnectionString = new StringConfigurationValue("users_connection_string", this)
             {
-                OriginalKey = "users_connection_string"
+                //OriginalKey = "users_connection_string"
+                ShouldAllowEmpty = true,
+                Description = "Still not in use, requires massive amount of code refactoring."
             };
             UseAlwaysOn = new BooleanConfigurationValue("UseAlwaysOn", this)
             {
