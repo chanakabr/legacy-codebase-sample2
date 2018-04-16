@@ -250,6 +250,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserExists)]
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
         [Throws(eResponseStatus.UserExternalError)]
+        [SchemeArgument("password", MaxLength = 128)]
         public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
         {
             KalturaOTTUser response = null;
@@ -257,10 +258,6 @@ namespace WebAPI.Controllers
             if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(password))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username or password");
-            }
-            else if (password.Length > 128)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_LENGTH_CROSSED, "password", 128);
             }
 
             try
