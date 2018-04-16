@@ -127,7 +127,7 @@ public partial class AjaxManipCouponGenerator : System.Web.UI.Page
                 ThreadDict.Add(groupId, t);
 
                 string[] vals = new string[3];
-                vals[0] = couponCode;
+                vals[0] = couponCode.Trim();
                 vals[1] = couponGroupId;
                 vals[2] = groupId.ToString();
 
