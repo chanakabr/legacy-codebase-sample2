@@ -4,6 +4,7 @@ using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
+using ConfigurationManager;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
