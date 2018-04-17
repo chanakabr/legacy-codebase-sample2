@@ -4,20 +4,20 @@ using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
+using ConfigurationManager;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using Core.Notification.Adapters;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
-using Core.Notification.Adapters;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -1097,7 +1097,13 @@ namespace Core.Notification
             NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements);
 
             if (dbAnnouncements != null)
-                dbAnnouncements = dbAnnouncements.Where(ann => userNotificationData.Announcements.Select(userAnn => userAnn.AnnouncementId).Contains(ann.ID)).ToList();
+            {
+                var announcements = dbAnnouncements.Where(ann => userNotificationData.Announcements.Select(userAnn => userAnn.AnnouncementId).Contains(ann.ID) && ann.RecipientsType == eAnnouncementRecipientsType.Other);
+                if(announcements != null && announcements.ToList< DbAnnouncement>().Count > 0)
+                {
+                    dbAnnouncements = announcements.ToList();
+                }
+            }
 
             if (dbAnnouncements == null || dbAnnouncements.Count == 0)
             {
