@@ -3304,6 +3304,18 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+        public static bool SetSubscriptionPurchaseStatusByUnifiedProccessIds(int groupId, List<long> unifiedProccessIds, SubscriptionPurchaseStatus subscriptionPurchseStatus, PaymentGatewayStatus isSuspend)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetSubscriptionPurchaseStatusByUnifiedProccessIds");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter<long>("@unifiedProccessIds", unifiedProccessIds, "Id");
+            sp.AddParameter("@subscriptionPurchseStatus", (int)subscriptionPurchseStatus);
+            sp.AddParameter("@isSuspend", (int)isSuspend);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
         public static bool UpdateMPPRenewalSubscriptionStatus(List<int> purchaseIds, int status, int groupId = 0, long householdId = 0, long processId = 0)
         {
             try
