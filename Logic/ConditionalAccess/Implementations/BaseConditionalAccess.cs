@@ -16291,34 +16291,55 @@ namespace Core.ConditionalAccess
                 }
 
                 HouseholdPaymentGateway householdPaymentGateway = DAL.BillingDAL.GetHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId, 1);
-                if (householdPaymentGateway == null && householdPaymentGateway.Selected != 1)
+                if (householdPaymentGateway == null || householdPaymentGateway.Selected != 1)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.HouseholdNotSetToPaymentGateway, "Household not set to paymentGateway");
                     return response;
                 }
 
-                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId);
+                if (householdPaymentGateway.Status == PaymentGatewayStatus.Suspend)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Payment gateway is suspended");
+                    return response;
+                }
 
-                long processId = 0;
+                // set paymentgateway to suspend status 
+                if (!BillingDAL.UpdatePaymentGatewayHouseholdStatus(householdId, paymentGatewayId, PaymentGatewayStatus.Suspend))
+                {
+                    log.ErrorFormat("Failed to suspend household payment gateway. householdId = {0}, paymentGatewayId = {1}", householdId, paymentGatewayId);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to suspend household payment gateway");
+                    return response;
+                }
+
+                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId);
 
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+                    List<long> unifiedProcessIds = new List<long>();
+
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        long proccessId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                        int status = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
+
+                        if (proccessId > 0 && status != 2)
+                        {
+                            unifiedProcessIds.Add(proccessId);
+                        }
+                    }
+
+                    if (unifiedProcessIds.Count > 0)
+                    {
+                        // set suspend to payment_gateway_household + subscriptions_purchases
+                        if (!ConditionalAccessDAL.SetSubscriptionPurchaseStatusByUnifiedProccessIds(m_nGroupID, unifiedProcessIds, SubscriptionPurchaseStatus.Suspended, PaymentGatewayStatus.Suspend))
+                        {
+                            log.ErrorFormat("Failed to suspend household entitlements. householdId = {0}, proccessId = {1}", householdId, string.Join(",", unifiedProcessIds));
+                        }
+                    }
                 }
                 else
                 {
                     log.DebugFormat("Failed to suspend household entitlements for payment gateway: proccessId was not found in DB. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", m_nGroupID, paymentGatewayId, householdId);
-                }
-
-                if (processId > 0)
-                {
-                    // set suspend to payment_gateway_household + subscriptions_purchases
-                    if (!ConditionalAccessDAL.SetSubscriptionPurchaseStatusByUnifiedProccessId(m_nGroupID, processId, SubscriptionPurchaseStatus.Suspended, paymentGatewayId, householdId, PaymentGatewayStatus.Suspend))
-                    {
-                        log.ErrorFormat("Failed to suspend household entitlements for payment gateway: SetSubscriptionPurchaseStatusByUnifiedProccessId in DB failed. groupId = {0}, paymentGatewayId = {1}, householdId = {2}, proccessId= {3}", m_nGroupID, paymentGatewayId, householdId, processId);
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                        return response;
-                    }
                 }
             }
             catch (Exception ex)
@@ -16352,34 +16373,46 @@ namespace Core.ConditionalAccess
                 }
 
                 HouseholdPaymentGateway householdPaymentGateway = DAL.BillingDAL.GetHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId, 1);
-                if (householdPaymentGateway == null && householdPaymentGateway.Selected != 1)
+                if (householdPaymentGateway == null || householdPaymentGateway.Selected != 1)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.HouseholdNotSetToPaymentGateway, "Household not set to paymentGateway");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.HouseholdNotSetToPaymentGateway, "Household not set to payment gateway");
+                    return response;
+                }
+
+                if (householdPaymentGateway.Status == PaymentGatewayStatus.OK)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Payment gateway not suspended");
+                    return response;
+                }
+
+                // get paymentgateway out of suspend status 
+                if (!BillingDAL.UpdatePaymentGatewayHouseholdStatus(householdId, paymentGatewayId, PaymentGatewayStatus.OK))
+                {
+                    log.ErrorFormat("Failed to resume household payment gateway. householdId = {0}, paymentGatewayId = {1}", householdId, paymentGatewayId);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to resume household payment gateway");
                     return response;
                 }
 
                 DataTable dt = ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId);
 
-                if (dt == null && dt.Rows == null && dt.Rows.Count == 0)
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    log.ErrorFormat("Failed to resume household entitlements for payment gateway: failed to get proccessId and endDate from DB. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", m_nGroupID, paymentGatewayId, householdId);
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    return response;
-                }
-
-                long proccessId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
-                DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "END_DATE");
-
-                if (proccessId > 0)
-                {
-                    if (!RenewManager.HandleRenewUnifiedSubscriptionPending(m_nGroupID, householdId, endDate, 0, proccessId))
+                    foreach (DataRow dr in dt.Rows)
                     {
-                        log.ErrorFormat("Failed to resume household entitlements for payment gateway: HandleRenewUnifiedSubscriptionPending failed. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", m_nGroupID, paymentGatewayId, householdId);
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                        return response;
+                        long proccessId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                        DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+                        int state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");
+                        ProcessUnifiedState processPurchasesState = (ProcessUnifiedState)state;
+                        int status = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
+
+                        if (proccessId > 0 && status != 2 && endDate < DateTime.UtcNow)
+                        {
+                            if (!RenewManager.HandleRenewUnifiedSubscriptionPending(m_nGroupID, householdId, endDate, 0, proccessId))
+                            {
+                                log.ErrorFormat("Failed to resume entitlements. householdId = {0}, proccessId = {1}", householdId, proccessId);
+                            }
+                        }
                     }
-                    // get paymentgateway out of suspend status 
-                    BillingDAL.UpdatePaymentGatewayHouseholdStatus(householdId, paymentGatewayId, PaymentGatewayStatus.OK);
                 }
             }
             catch (Exception ex)
