@@ -2307,14 +2307,18 @@ namespace Core.Billing
             //incase "CREATE_TRANSACTION true
             bool failReasonCodeExist;
 
-            if (adapterResponse != null &&
-                adapterResponse.Transaction != null)
+            if (adapterResponse != null && adapterResponse.Transaction != null)
             {
                 bool createTransaction = DAL.BillingDAL.GetPaymentGatewayFailReason(adapterResponse.Transaction.FailReasonCode, out failReasonCodeExist);
 
                 if (!failReasonCodeExist)
                 {
-                    response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.PaymentGatewayAdapterFailReasonUnknown, Message = "Payment gateway adapter fail reason unknown" };
+                    response.Status = new ApiObjects.Response.Status()
+                    {
+                        Code = (int)eResponseStatus.PaymentGatewayAdapterFailReasonUnknown,
+                        Message = "Payment gateway adapter fail reason unknown"
+                    };
+
                     return response;
                 }
 
