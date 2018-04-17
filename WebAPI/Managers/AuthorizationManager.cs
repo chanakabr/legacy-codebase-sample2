@@ -413,6 +413,17 @@ namespace WebAPI.Managers
             appToken.Token = Utils.Utils.Generate32LengthGuid();
 
             // 3. set default values for empty properties
+            List<long> userRoles = RolesManager.GetRoleIds(KS.GetFromRequest(), false);
+
+            if (appToken.getExpiry() == 0 && userRoles.Where(ur => ur > RolesManager.MASTER_ROLE_ID).Count() == 0)
+            {
+                appToken.Expiry = group.AppTokenMaxExpirySeconds;
+            }
+
+            long utcNow = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow);
+            appToken.CreateDate = utcNow;
+            appToken.UpdateDate = utcNow;
+
             // session duration
             if (appToken.SessionDuration == null || appToken.SessionDuration <= 0 || appToken.SessionDuration > group.AppTokenSessionMaxDurationSeconds)
             {
@@ -436,7 +447,7 @@ namespace WebAPI.Managers
 
             // 4. save in CB
             AppToken cbAppToken = new AppToken(appToken);
-            int appTokenExpiryInSeconds = appToken.getExpiry() > 0 ? appToken.getExpiry() - (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) : 0;
+            int appTokenExpiryInSeconds = appToken.getExpiry() > 0 ? appToken.getExpiry() - (int)utcNow : 0;
             if (!cbManager.Add(appTokenCbKey, cbAppToken, (uint)appTokenExpiryInSeconds, true))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");

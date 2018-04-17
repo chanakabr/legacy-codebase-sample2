@@ -2201,6 +2201,8 @@ namespace WebAPI.Reflection
                 case "KalturaAppToken":
                     switch(property.Name)
                     {
+                        case "CreateDate":
+                            return "createDate";
                         case "Expiry":
                             return "expiry";
                         case "HashType":
@@ -2221,6 +2223,8 @@ namespace WebAPI.Reflection
                             return "status";
                         case "Token":
                             return "token";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     

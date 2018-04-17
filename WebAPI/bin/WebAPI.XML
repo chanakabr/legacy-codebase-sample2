@@ -4105,6 +4105,16 @@
             User id of KS (Kaltura Session) that created using the current token
             </summary>
         </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.CreateDate">
+            <summary>
+            Create date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Managers.Models.AppToken.UpdateDate">
+            <summary>
+            Update date
+            </summary>
+        </member>
         <member name="M:WebAPI.Managers.Models.AppToken.CalcHash">
             <summary>
             calculates the hash of the ks + token string based on the token hash type
@@ -8032,6 +8042,16 @@
         <member name="P:WebAPI.Models.General.KalturaAppToken.SessionUserId">
             <summary>
             User id of KS (Kaltura Session) that created using the current token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.CreateDate">
+            <summary>
+            Create date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaAppToken.UpdateDate">
+            <summary>
+            Update date
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaAppTokenHashType">
