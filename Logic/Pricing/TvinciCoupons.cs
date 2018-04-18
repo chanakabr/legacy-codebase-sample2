@@ -105,6 +105,7 @@ namespace Core.Pricing
                         if (domainUses >= couponsGroup.maxDomainUses)
                         {
                             status = CouponsStatus.AllreadyUsed;
+                            leftUses = 0;
                         }
                         else
                         {
