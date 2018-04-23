@@ -844,6 +844,14 @@
             <param name="ratio">Ratio to add for the partner</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.RatioController.Update(System.Int64,WebAPI.Models.Catalog.KalturaRatio)">
+            <summary>
+            Update group ratio's PrecisionPrecentage
+            </summary>
+            <param name="id">The ratio ID</param>
+            <param name="ratio">Ratio to update for the partner</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.ImageTypeController.List(WebAPI.Models.Catalog.KalturaImageTypeFilter)">
             <summary>
             Get the list of image types for the partner

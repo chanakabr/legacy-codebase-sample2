@@ -3583,6 +3583,43 @@ namespace WebAPI.Clients
             return responseRatio;
         }
 
+        internal KalturaRatio UpdateRatio(int groupId, long userId, KalturaRatio ratio, long ratioId)
+        {
+            KalturaRatio responseRatio = new KalturaRatio();
+            RatioResponse response = null;
+
+            try
+            {
+                Core.Catalog.CatalogManagement.Ratio requestRatio = AutoMapper.Mapper.Map<Core.Catalog.CatalogManagement.Ratio>(ratio);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.CatalogManagement.ImageManager.UpdateRatio(groupId, userId, requestRatio, ratioId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Ratio != null)
+            {
+                responseRatio = AutoMapper.Mapper.Map<KalturaRatio>(response.Ratio);
+            }
+
+            return responseRatio;
+        }
+
         public KalturaMediaFileTypeListResponse GetMediaFileTypes(int groupId)
         {
             KalturaMediaFileTypeListResponse result = new KalturaMediaFileTypeListResponse() { TotalCount = 0 };

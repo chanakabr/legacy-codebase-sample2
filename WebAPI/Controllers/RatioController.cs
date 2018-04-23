@@ -51,6 +51,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.RatioAlreadyExist)]
         public KalturaRatio Add(KalturaRatio ratio)
         {
             KalturaRatio response = null;
@@ -67,6 +68,33 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.CatalogClient().AddRatio(groupId, userId, ratio);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+        
+        /// <summary>
+        /// Update group ratio's PrecisionPrecentage
+        /// </summary>
+        /// <param name="id">The ratio ID</param>
+        /// <param name="ratio">Ratio to update for the partner</param>
+        /// <returns></returns>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.RatioDoesNotExist)]
+        public KalturaRatio Update(long id, KalturaRatio ratio)
+        {
+            KalturaRatio response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+            
+            try
+            {
+                response = ClientsManager.CatalogClient().UpdateRatio(groupId, userId, ratio, id);
 
             }
             catch (ClientException ex)

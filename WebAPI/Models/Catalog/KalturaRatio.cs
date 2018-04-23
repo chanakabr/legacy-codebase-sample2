@@ -26,6 +26,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
         [XmlElement(ElementName = "name")]
+        [SchemeProperty(InsertOnly = true)]
         public string Name { get; set; }
 
         /// <summary>
@@ -34,7 +35,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "height")]
         [JsonProperty(PropertyName = "height")]
         [XmlElement(ElementName = "height")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinInteger = 1, InsertOnly = true)]
         public int Height { get; set; }
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "width")]
         [JsonProperty(PropertyName = "width")]
         [XmlElement(ElementName = "width")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinInteger = 1, InsertOnly = true)]
         public int Width { get; set; }
 
         /// <summary>

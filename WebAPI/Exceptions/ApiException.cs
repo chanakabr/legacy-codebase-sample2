@@ -201,6 +201,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType Media_FILE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.MediaFileTypeDoesNotExist, "The Asset File Type Does Not Exist");
         public static ClientExceptionType CAN_NOT_REMOVE_BASIC_META_IDS = new ClientExceptionType(eResponseStatus.CanNotRemoveBasicMetaIds, "Can Not Remove Basic Meta Ids from Asset");
         public static ClientExceptionType RATIO_ALREADY_EXIST = new ClientExceptionType(eResponseStatus.RatioAlreadyExist, "Ratio Already Exist");
+        public static ClientExceptionType RATIO_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.RatioDoesNotExist, "Ratio Does Not Exist");
         public static ClientExceptionType IVALID_URL_FOR_IMAGE = new ClientExceptionType(eResponseStatus.InvalidUrlForImage, "Invalid Url For Image");
         public static ClientExceptionType MEDIA_FILE_WITH_THIS_TYPE_ALREADY_EXISTS_FOR_ASSET = new ClientExceptionType(eResponseStatus.MediaFileWithThisTypeAlreadyExistForAsset, "Media File With This Type Already Exist For Asset");
         public static ClientExceptionType DEFUALT_CDN_ADAPTER_PROFILE_NOT_CONFIGURED = new ClientExceptionType(eResponseStatus.DefaultCdnAdapterProfileNotConfigurd, "Default Cdn Adapter Profile Not Configured");
