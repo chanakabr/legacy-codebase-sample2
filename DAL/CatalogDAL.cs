@@ -5103,6 +5103,18 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
+        public static DataTable UpdateGroupImageRatios(long ratioId, int groupId, long userId, int precisionPercentage)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateGroupImageRatio");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@id", ratioId);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@precisionPrecentage", precisionPercentage);
+            sp.AddParameter("@updaterId", userId);
+
+            return sp.Execute();
+        }
+
         public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId,
             long billingType, double? duration, DateTime endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage,
             string language, int? orderNum, int outputProtecationLevel, DateTime startDate, string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive)
