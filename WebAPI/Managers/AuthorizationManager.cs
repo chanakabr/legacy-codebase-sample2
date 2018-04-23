@@ -415,12 +415,13 @@ namespace WebAPI.Managers
             // 3. set default values for empty properties
             List<long> userRoles = RolesManager.GetRoleIds(KS.GetFromRequest(), false);
 
+            int utcNow = (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow);
+
             if (appToken.getExpiry() == 0 && userRoles.Where(ur => ur > RolesManager.MASTER_ROLE_ID).Count() == 0)
             {
-                appToken.Expiry = group.AppTokenMaxExpirySeconds;
+                appToken.Expiry = utcNow + group.AppTokenMaxExpirySeconds;
             }
 
-            long utcNow = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow);
             appToken.CreateDate = utcNow;
             appToken.UpdateDate = utcNow;
 
