@@ -837,16 +837,14 @@ namespace ODBCWrapper
                         var allMatches = tableNameReegx.Matches(query);
                         if (allMatches != null && allMatches.Count > 0)
                         {
-                            StringBuilder sb = new StringBuilder();
-                            for (int i = 0; i < allMatches.Count; i++)
+                            for (int i = 1; i < allMatches[0].Groups.Count; i++)
                             {
-                                if (i == 0)
-                                    sb.Append(allMatches[i].ToString().ToLower().Replace("from", string.Empty).Trim());
-                                else
-                                    sb.Append(" " + allMatches[i].ToString().ToLower().Replace("from", string.Empty).Trim());
+                                if (!String.IsNullOrEmpty(allMatches[0].Groups[i].Value))
+                                {
+                                    sqlInfo.Table = allMatches[0].Groups[i].Value;
+                                    break;
+                                }
                             }
-
-                            sqlInfo.Table = sb.ToString();
                         }
                     }
                 }
