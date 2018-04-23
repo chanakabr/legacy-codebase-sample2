@@ -243,6 +243,7 @@ namespace ApiObjects.Response
         ElasticSearchReturnedDeleteItem = 4067,
         ElasticSearchReturnedUnupdatedItem = 4068,
         DefaultImageInvalidImageType = 4069,
+        RatioDoesNotExist = 4070,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

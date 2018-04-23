@@ -899,6 +899,45 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public static RatioResponse UpdateRatio(int groupId, long userId, Ratio ratio, long ratioId)
+        {
+            RatioResponse result = new RatioResponse();
+            try
+            {
+                DataTable dt = CatalogDAL.UpdateGroupImageRatios(ratioId, groupId, userId, ratio.PrecisionPrecentage);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    result.Ratio = new Ratio()
+                    {
+                        Id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID"),
+                        Height = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "height"),
+                        Width = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "width"),
+                        PrecisionPrecentage = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "precision_percentage"),
+                        Name = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME")
+                    };
+
+                    string invalidationKey = LayeredCacheKeys.GetGroupRatiosInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on UpdateRatio key = {0}", invalidationKey);
+                    }
+
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    result.Status = new Status((int)eResponseStatus.RatioDoesNotExist, "Ratio Does Not Exist");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateRatio for ratioId: {0} and groupId: {1} ", ratioId, groupId), ex);
+            }
+
+            return result;
+        }
+
         public static List<Picture> ConvertImagesToPictures(List<Image> assetImages, int groupId)
         {
             List<Picture> pictures = new List<Picture>();
