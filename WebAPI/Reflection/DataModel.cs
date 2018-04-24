@@ -98,8 +98,6 @@ namespace WebAPI.Reflection
                 case "KalturaLinearMediaAsset":
                     switch (propertyName)
                     {
-                        case "CatchUpBuffer":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "EnableCatchUp":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "EnableCdvr":
@@ -109,8 +107,6 @@ namespace WebAPI.Reflection
                         case "EnableStartOver":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                         case "EnableTrickPlay":
-                            return DeprecatedAttribute.IsDeprecated("4.6.0.0");
-                        case "TrickPlayBuffer":
                             return DeprecatedAttribute.IsDeprecated("4.6.0.0");
                     };
                     break;
@@ -3899,36 +3895,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaEpgChannel":
-                    switch(property.Name)
-                    {
-                        case "CatchUpBuffer":
-                            return "catchUpBuffer";
-                        case "CreateDate":
-                            return "createDate";
-                        case "Description":
-                            return "description";
-                        case "EnableCatchUp":
-                            return "enableCatchUp";
-                        case "EnableCdvr":
-                            return "enableCdvr";
-                        case "EnableRecordingPlaybackNonEntitledChannel":
-                            return "enableRecordingPlaybackNonEntitledChannel";
-                        case "EnableStartOver":
-                            return "enableStartOver";
-                        case "EnableTrickPlay":
-                            return "enableTrickPlay";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
-                        case "TrickPlayBuffer":
-                            return "trickPlayBuffer";
-                        case "UpdateDate":
-                            return "updateDate";
-                    }
-                    break;
-                    
                 case "KalturaEPGChannelAssets":
                     switch(property.Name)
                     {
@@ -4738,8 +4704,40 @@ namespace WebAPI.Reflection
                 case "KalturaLinearMediaAsset":
                     switch(property.Name)
                     {
+                        case "BufferCatchUp":
+                            return "bufferCatchUp";
+                        case "BufferTrickPlay":
+                            return "bufferTrickPlay";
+                        case "CatchUpBuffer":
+                            return "catchUpBuffer";
+                        case "CatchUpEnabled":
+                            return "catchUpEnabled";
+                        case "CdvrEnabled":
+                            return "cdvrEnabaled";
+                        case "EnableCatchUp":
+                            return "enableCatchUp";
+                        case "EnableCdvr":
+                            return "enableCdvr";
+                        case "EnableRecordingPlaybackNonEntitledChannel":
+                            return "enableRecordingPlaybackNonEntitledChannel";
+                        case "EnableStartOver":
+                            return "enableStartOver";
+                        case "EnableTrickPlay":
+                            return "enableTrickPlay";
                         case "EpgChannelId":
                             return "epgChannelId";
+                        case "ExternalCdvrId":
+                            return "externalCdvrId";
+                        case "ExternalIngestId":
+                            return "externalIngestId";
+                        case "RecordingPlaybackNonEntitledChannelEnabled":
+                            return "recordingPlaybackNonEntitledChannelEnabled";
+                        case "StartOverEnabled":
+                            return "startOverEnabled";
+                        case "TrickPlayBuffer":
+                            return "trickPlayBuffer";
+                        case "TrickPlayEnabled":
+                            return "trickPlayEnabled";
                     }
                     break;
                     
