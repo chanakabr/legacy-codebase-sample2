@@ -415,14 +415,20 @@ namespace WebAPI.Clients
             KalturaAsset result = null;
             AssetResponse response = null;
             Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
+            Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
 
             try
             {
                 eAssetTypes assetType = eAssetTypes.UNKNOWN;
                 Asset assetToAdd = null;
-                kalturaMediaAssetType = typeof(KalturaMediaAsset);
+                // in case asset is linear media
+                if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+                {
+                    assetToAdd = AutoMapper.Mapper.Map<LinearMediaAsset>(asset);
+                    assetType = eAssetTypes.MEDIA;
+                }
                 // in case asset is media
-                if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+                else if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
                 {
                     assetToAdd = AutoMapper.Mapper.Map<MediaAsset>(asset);
                     assetType = eAssetTypes.MEDIA;
@@ -454,6 +460,12 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
             
+            // in case asset is media
+            if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+            {
+                result = Mapper.Map<KalturaMediaAsset>(response.Asset);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            }
             // in case asset is media
             if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
@@ -556,7 +568,7 @@ namespace WebAPI.Clients
                 default:
                     throw new ClientException((int)StatusCode.Error, "Invalid assetType");
                     break;
-            }   
+            }
 
             return result;
         }

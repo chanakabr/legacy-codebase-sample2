@@ -5960,66 +5960,6 @@
             groupBy
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.Id">
-            <summary>
-            Unique identifier for the epg channel
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.Name">
-            <summary>
-            epg channel name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.Description">
-            <summary>
-            epg channel description
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.CreateDate">
-            <summary>
-            Specifies when was the epg channel was created. Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.UpdateDate">
-            <summary>
-            Specifies when was the epg channel last updated. Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.EnableCdvr">
-            <summary>
-            Enable cDVR
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.EnableCatchUp">
-            <summary>
-            Enable catch-up
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.EnableStartOver">
-            <summary>
-            Enable start over
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.CatchUpBuffer">
-            <summary>
-            Catch-up buffer
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.TrickPlayBuffer">
-            <summary>
-            Trick-play buffer
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.EnableRecordingPlaybackNonEntitledChannel">
-            <summary>
-            Enable Recording playback for non entitled channel
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaEpgChannel.EnableTrickPlay">
-            <summary>
-            Enable trick-play
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaLinearMediaAsset">
             <summary>
             Linear media asset info
@@ -6028,6 +5968,86 @@
         <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EpgChannelId">
             <summary>
             Id of epg channel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableCdvr">
+            <summary>
+            Enable CDVR, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableCatchUp">
+            <summary>
+            Enable catch-up, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableStartOver">
+            <summary>
+            Enable start over, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.CatchUpBuffer">
+            <summary>
+            Catch-up buffer, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.TrickPlayBuffer">
+            <summary>
+            Trick-play buffer, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableRecordingPlaybackNonEntitledChannel">
+            <summary>
+            Enable Recording playback for non entitled channel, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableTrickPlay">
+            <summary>
+            Enable trick-play, configuration only
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.ExternalIngestId">
+            <summary>
+            External identifier used when ingesting programs for this linear media asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.ExternalCdvrId">
+            <summary>
+            External identifier for the CDVR
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.CdvrEnabled">
+            <summary>
+            Is CDVR enabled for this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.CatchUpEnabled">
+            <summary>
+            Is catch-up enabled for this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.StartOverEnabled">
+            <summary>
+            Is start over enabled for this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.BufferCatchUp">
+            <summary>
+            buffer Catch-up
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.BufferTrickPlay">
+            <summary>
+            buffer Trick-play 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.RecordingPlaybackNonEntitledChannelEnabled">
+            <summary>
+            Is recording playback for non entitled channel enabled for this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.TrickPlayEnabled">
+            <summary>
+            Is trick-play enabled for this asset
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaAsset">
@@ -6573,7 +6593,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAsset.ExternalId">
             <summary>
-            External identifier for the media file
+            External identifier for the asset
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBundleFilter.IdEqual">

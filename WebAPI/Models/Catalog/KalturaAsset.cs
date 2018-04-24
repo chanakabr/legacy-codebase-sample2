@@ -175,7 +175,7 @@ namespace WebAPI.Models.Catalog
         public bool? EnableTrickPlay { get; set; }
 
         /// <summary>
-        /// External identifier for the media file
+        /// External identifier for the asset
         /// </summary>
         [DataMember(Name = "externalId")]
         [JsonProperty(PropertyName = "externalId")]
