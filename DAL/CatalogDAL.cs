@@ -5500,6 +5500,48 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+        public static DataSet InsertLinearMediaAsset(int groupId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableRecordingPlaybackNonEntitledChannel, TstvState? enableStartOver, TstvState? enableTrickPlay,
+                                                    long? catchUpBuffer, long? trickPlayBuffer, string externalCdvrId, string externalIngestId, long mediaId, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertLinearMediaAsset");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@EnableCdvr", (int)enableCdvr.Value);
+            sp.AddParameter("@EnableCatchUp", (int)enableCatchUp.Value);
+            sp.AddParameter("@EnableRecordingPlaybackNonEntitledChannel", (int)enableRecordingPlaybackNonEntitledChannel.Value);
+            sp.AddParameter("@EnableStartOver", (int)enableStartOver.Value);
+            sp.AddParameter("@EnableTrickPlay", (int)enableTrickPlay.Value);
+            sp.AddParameter("@CatchUpBuffer", catchUpBuffer);
+            sp.AddParameter("@TrickPlayBuffer", trickPlayBuffer);
+            sp.AddParameter("@ExternalCdvrId", externalCdvrId);
+            sp.AddParameter("@ExternalIngestId", externalIngestId);
+            sp.AddParameter("@MediaId", mediaId);
+            sp.AddParameter("@UpdaterId", userId);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static DataSet UpdateLinearMediaAsset(int groupId, long epgChannelId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableRecordingPlaybackNonEntitledChannel, TstvState? enableStartOver,
+                                                        TstvState? enableTrickPlay, long? catchUpBuffer, long? trickPlayBuffer, string externalCdvrId, string externalIngestId, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertLinearMediaAsset");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@EpgChannelId", epgChannelId);
+            sp.AddParameter("@EnableCdvr", (int)enableCdvr.Value);
+            sp.AddParameter("@EnableCatchUp", (int)enableCatchUp.Value);
+            sp.AddParameter("@EnableRecordingPlaybackNonEntitledChannel", (int)enableRecordingPlaybackNonEntitledChannel.Value);
+            sp.AddParameter("@EnableStartOver", (int)enableStartOver.Value);
+            sp.AddParameter("@EnableTrickPlay", (int)enableTrickPlay.Value);
+            sp.AddParameter("@CatchUpBuffer", catchUpBuffer);
+            sp.AddParameter("@TrickPlayBuffer", trickPlayBuffer);
+            sp.AddParameter("@ExternalCdvrId", externalCdvrId);
+            sp.AddParameter("@ExternalIngestId", externalIngestId);      
+            sp.AddParameter("@UpdaterId", userId);
+
+            return sp.ExecuteDataSet();
+        }
+
         #endregion
     }
 }
