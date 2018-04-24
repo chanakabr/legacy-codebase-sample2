@@ -988,9 +988,6 @@ namespace WebAPI.Clients
             LicensedLinkResponse response = null;
             KalturaLicensedUrl urls = null;
 
-            // get group ID
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

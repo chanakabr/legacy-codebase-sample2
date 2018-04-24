@@ -236,6 +236,7 @@
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
     <Compile Include="Controllers\CollectionController.cs" />
+    <Compile Include="Controllers\AssetRuleController.cs" />
     <Compile Include="Controllers\CouponsGroupController.cs" />
     <Compile Include="Controllers\EmailController.cs" />
     <Compile Include="Controllers\UnifiedPaymentController.cs" />
@@ -283,10 +284,13 @@
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\NewObjectType.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
+    <Compile Include="Models\API\KalturaAction.cs" />
+    <Compile Include="Models\API\KalturaCondition.cs" />
     <Compile Include="Models\API\KalturaCurrencyListResponse.cs" />
     <Compile Include="Models\API\KalturaCurrency.cs" />
     <Compile Include="Models\API\KalturaCurrencyFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
+    <Compile Include="Models\API\KalturaAssetRule.cs" />
     <Compile Include="Models\Catalog\KalturaBaseSearchAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaSearchAssetListFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAdContext.cs" />

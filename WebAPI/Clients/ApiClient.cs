@@ -50,7 +50,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
         }
-
+        
         internal List<KalturaUserRole> GetUserRoles(int groupId, string userId)
         {            
             List<KalturaUserRole> roles = new List<KalturaUserRole>();
@@ -3838,6 +3838,26 @@ namespace WebAPI.Clients
             }
 
             return drmAdapterResponse.Value;
+        }
+
+        internal KalturaAssetRule UpdateAssetRule(int groupId, KalturaAssetRule assetRule)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaAssetRule AddAssetRule(int groupId, KalturaAssetRule assetRule)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaAssetRule DeleteAssetRule(int groupId, long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaAssetRuleListResponse GetAssetRules(int groupId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
