@@ -22,8 +22,7 @@ namespace Core.Catalog.CatalogManagement
         public DateTime? StartDate { get; set; }        
         public DateTime? EndDate { get; set; }
         public List<Metas> Metas { get; set; }
-        public List<Tags> Tags { get; set; }
-        public Dictionary<string, int> TagNameToIdMap { get; set; }
+        public List<Tags> Tags { get; set; }        
         public List<Image> Images { get; set; }
         public string CoGuid{ get; set; }        
 
@@ -41,13 +40,12 @@ namespace Core.Catalog.CatalogManagement
             this.EndDate = null;
             this.Metas = new List<Metas>();
             this.Tags = new List<Tags>();
-            this.TagNameToIdMap = new Dictionary<string, int>();
             this.Images = new List<Image>();
             this.CoGuid = string.Empty;            
         }
 
         public Asset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages, DateTime? createDate, 
-                    DateTime? startDate, DateTime? updateDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Image> images, string coGuid, Dictionary<string, int> tagNameToIdMap = null)
+                    DateTime? startDate, DateTime? updateDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Image> images, string coGuid)
         {
             this.Id = id;
             this.AssetType = assetType;
@@ -63,7 +61,6 @@ namespace Core.Catalog.CatalogManagement
             this.Tags = tags != null ? new List<Tags>(tags) : new List<Tags>();
             this.Images = images != null ? new List<Image>(images) : new List<Image>();
             this.CoGuid = coGuid;            
-            this.TagNameToIdMap = tagNameToIdMap != null ? new Dictionary<string, int>(tagNameToIdMap, StringComparer.OrdinalIgnoreCase) : new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         }
 
     }

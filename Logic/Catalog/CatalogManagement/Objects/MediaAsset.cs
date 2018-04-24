@@ -19,6 +19,8 @@ namespace Core.Catalog.CatalogManagement
         public string UserTypes { get; set; }
         public bool? IsActive { get; set; }
 
+        public MediaAssetType MediaAssetType { get; set; }
+
         public MediaAsset()
             :base()
         {
@@ -31,6 +33,7 @@ namespace Core.Catalog.CatalogManagement
             this.Files = new List<AssetFile>();
             this.UserTypes = string.Empty;
             this.IsActive = null;
+            this.MediaAssetType = MediaAssetType.Media;
         }
 
         public MediaAsset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages,
@@ -57,6 +60,7 @@ namespace Core.Catalog.CatalogManagement
             this.Files = files != null ? new List<AssetFile>(files) : new List<AssetFile>();
             this.UserTypes = userTypes;
             this.IsActive = isActive;
+            this.MediaAssetType = MediaAssetType.Media;
         }
 
     }

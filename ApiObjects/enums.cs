@@ -1024,4 +1024,17 @@ namespace ApiObjects
         V1_0 = 1,
         V2_0 = 2
     }
+
+    public enum TstvState
+    {
+        Inherited = 0,
+        Enabled = 1,
+        Disabled = 2        
+    }
+
+    public enum MediaAssetType
+    {
+        Media = 0,
+        Linear = 1
+    }
 }

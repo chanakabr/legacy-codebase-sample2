@@ -1039,6 +1039,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
+        
 
         private static AssetResponse UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, long userId)
         {
@@ -1737,6 +1738,11 @@ namespace Core.Catalog.CatalogManagement
                         if (mediaAssetToAdd != null)
                         {
                             result = AddMediaAsset(groupId, ref catalogGroupCache, mediaAssetToAdd, userId);
+                            if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && assetToAdd is LinearMediaAsset)
+                            {
+                                LinearMediaAsset linearMediaAssetToAdd = assetToAdd as LinearMediaAsset;
+                                // add linear asset;
+                            }
                         }
                         break;
                     default:
