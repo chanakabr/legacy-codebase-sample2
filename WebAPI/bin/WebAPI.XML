@@ -679,11 +679,12 @@
             </summary>
             <param name="assetRule">Asset rule</param>
         </member>
-        <member name="M:WebAPI.Controllers.AssetRuleController.Update(WebAPI.Models.API.KalturaAssetRule)">
+        <member name="M:WebAPI.Controllers.AssetRuleController.Update(System.Int64,WebAPI.Models.API.KalturaAssetRule)">
             <summary>
             Update asset rule
             </summary>
             <param name="assetRule">Asset rule</param>
+            <param name="id">Asset rule ID to update</param>
         </member>
         <member name="M:WebAPI.Controllers.AssetRuleController.Delete(System.Int64)">
             <summary>
@@ -4181,42 +4182,42 @@
             <param name="silent">Fail silently</param>
             <returns>True if the method argument is permitted, false otherwise</returns>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaAction">
+        <member name="T:WebAPI.Models.API.KalturaAssetRuleAction">
             <summary>
             Action
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaBlockAction">
+        <member name="P:WebAPI.Models.API.KalturaAssetRuleAction.Description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaBlockRuleAction">
             <summary>
             Block action
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaBlockAction.Ksql">
-            <summary>
-            KSQL  
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.API.TimeOffsetAction">
+        <member name="T:WebAPI.Models.API.KalturaTimeOffsetRuleAction">
             <summary>
             Time offset action
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.TimeOffsetAction.Offset">
+        <member name="P:WebAPI.Models.API.KalturaTimeOffsetRuleAction.Offset">
             <summary>
             Offset in seconds 
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.TimeOffsetAction.TimeZone">
+        <member name="P:WebAPI.Models.API.KalturaTimeOffsetRuleAction.TimeZone">
             <summary>
             Indicates whether to add time zone offset to the time 
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.EndDateOffsetAction">
+        <member name="T:WebAPI.Models.API.KalturaEndDateOffsetRuleAction">
             <summary>
             End date offset action
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.StartDateOffsetAction">
+        <member name="T:WebAPI.Models.API.KalturaStartDateOffsetRuleAction">
             <summary>
             Start date offset action
             </summary>
@@ -4229,6 +4230,11 @@
         <member name="P:WebAPI.Models.API.KalturaCondition.Not">
             <summary>
             Indicates whether to apply not on the other properties in the condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCondition.Description">
+            <summary>
+            Description
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaAssetCondition">

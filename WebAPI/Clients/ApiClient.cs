@@ -3840,7 +3840,7 @@ namespace WebAPI.Clients
             return drmAdapterResponse.Value;
         }
 
-        internal KalturaAssetRule UpdateAssetRule(int groupId, KalturaAssetRule assetRule)
+        internal KalturaAssetRule UpdateAssetRule(int groupId, long id, KalturaAssetRule assetRule)
         {
             throw new NotImplementedException();
         }

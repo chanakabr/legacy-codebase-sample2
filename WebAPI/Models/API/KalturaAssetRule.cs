@@ -54,7 +54,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "actions")]
         [JsonProperty("actions")]
         [XmlElement(ElementName = "actions")]
-        public List<KalturaAction> Actions { get; set; }
+        public List<KalturaAssetRuleAction> Actions { get; set; }
 
     }
 

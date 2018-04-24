@@ -284,7 +284,7 @@
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\NewObjectType.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
-    <Compile Include="Models\API\KalturaAction.cs" />
+    <Compile Include="Models\API\KalturaAssetRuleAction.cs" />
     <Compile Include="Models\API\KalturaCondition.cs" />
     <Compile Include="Models\API\KalturaCurrencyListResponse.cs" />
     <Compile Include="Models\API\KalturaCurrency.cs" />

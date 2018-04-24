@@ -13,29 +13,28 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Action
     /// </summary>
-    public class KalturaAction : KalturaOTTObject
+    public abstract class KalturaAssetRuleAction : KalturaOTTObject
     {
-        
+        /// <summary>
+        /// Description
+        /// </summary>
+        [DataMember(Name = "description")]
+        [JsonProperty("description")]
+        [XmlElement(ElementName = "description")]
+        public string Description { get; set; }
     }
 
     /// <summary>
     /// Block action
     /// </summary>
-    public class KalturaBlockAction : KalturaAction
+    public class KalturaBlockRuleAction : KalturaAssetRuleAction
     {
-        /// <summary>
-        /// KSQL  
-        /// </summary>
-        [DataMember(Name = "ksql")]
-        [JsonProperty("ksql")]
-        [XmlElement(ElementName = "ksql")]
-        public string Ksql { get; set; }
     }
 
     /// <summary>
     /// Time offset action
     /// </summary>
-    public class TimeOffsetAction : KalturaAction
+    public class KalturaTimeOffsetRuleAction : KalturaAssetRuleAction
     {
         /// <summary>
         /// Offset in seconds 
@@ -57,14 +56,14 @@ namespace WebAPI.Models.API
     /// <summary>
     /// End date offset action
     /// </summary>
-    public class EndDateOffsetAction : TimeOffsetAction
+    public class KalturaEndDateOffsetRuleAction : KalturaTimeOffsetRuleAction
     {
     }
 
     /// <summary>
     /// Start date offset action
     /// </summary>
-    public class StartDateOffsetAction : TimeOffsetAction
+    public class KalturaStartDateOffsetRuleAction : KalturaTimeOffsetRuleAction
     {
     }
 }

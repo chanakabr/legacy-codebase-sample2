@@ -2510,6 +2510,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetRuleAction":
+                    switch(property.Name)
+                    {
+                        case "Description":
+                            return "description";
+                    }
+                    break;
+                    
                 case "KalturaAssetRuleListResponse":
                     switch(property.Name)
                     {
@@ -2669,14 +2677,6 @@ namespace WebAPI.Reflection
                     {
                         case "transactions":
                             return "objects";
-                    }
-                    break;
-                    
-                case "KalturaBlockAction":
-                    switch(property.Name)
-                    {
-                        case "Ksql":
-                            return "ksql";
                     }
                     break;
                     
@@ -2977,6 +2977,8 @@ namespace WebAPI.Reflection
                 case "KalturaCondition":
                     switch(property.Name)
                     {
+                        case "Description":
+                            return "description";
                         case "Not":
                             return "not";
                     }
@@ -6356,6 +6358,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaTimeOffsetRuleAction":
+                    switch(property.Name)
+                    {
+                        case "Offset":
+                            return "offset";
+                        case "TimeZone":
+                            return "timeZone";
+                    }
+                    break;
+                    
                 case "KalturaTimeShiftedTvPartnerSettings":
                     switch(property.Name)
                     {
@@ -6731,16 +6743,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                    }
-                    break;
-                    
-                case "TimeOffsetAction":
-                    switch(property.Name)
-                    {
-                        case "Offset":
-                            return "offset";
-                        case "TimeZone":
-                            return "timeZone";
                     }
                     break;
                     

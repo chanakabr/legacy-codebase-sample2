@@ -71,9 +71,10 @@ namespace WebAPI.Controllers
         /// Update asset rule
         /// </summary>
         /// <param name="assetRule">Asset rule</param>
+        /// <param name="id">Asset rule ID to update</param>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetRule Update(KalturaAssetRule assetRule)
+        public KalturaAssetRule Update(long id, KalturaAssetRule assetRule)
         {
             KalturaAssetRule response = null;
 
@@ -81,7 +82,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().UpdateAssetRule(groupId, assetRule);
+                response = ClientsManager.ApiClient().UpdateAssetRule(groupId, id, assetRule);
             }
             catch (ClientException ex)
             {

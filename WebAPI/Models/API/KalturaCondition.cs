@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Condition
     /// </summary>
-    public class KalturaCondition : KalturaOTTObject
+    public abstract class KalturaCondition : KalturaOTTObject
     {
         /// <summary>
         /// Indicates whether to apply not on the other properties in the condition
@@ -21,7 +21,21 @@ namespace WebAPI.Models.API
         [DataMember(Name = "not")]
         [JsonProperty("not")]
         [XmlElement(ElementName = "not")]
-        public bool Not { get; set; }
+        public bool? Not
+        {
+            get { return not; }
+            set { not = value.HasValue ? value.Value : false; }
+        }
+        private bool not;
+
+        /// <summary>
+        /// Description
+        /// </summary>
+        [DataMember(Name = "description")]
+        [JsonProperty("description")]
+        [XmlElement(ElementName = "description")]
+        public string Description { get; set; }
+
     }
 
     /// <summary>
