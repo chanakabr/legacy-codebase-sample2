@@ -1115,6 +1115,29 @@ namespace Core.Catalog
 
                     #endregion
 
+                    #region - get countries of media
+
+                    // Regions table should be 6h on stored procedure
+                    if (dataSet.Tables.Count > 7 && dataSet.Tables[7].Columns != null && dataSet.Tables[7].Rows != null)
+                    {
+                        foreach (DataRow mediaCountryRow in dataSet.Tables[7].Rows)
+                        {
+                            int mediaId = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "MEDIA_ID");
+                            int countryId = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "COUNTRY_ID");
+                            bool isAvailable = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "IS_AVAILABLE") == 1;
+
+                            if (isAvailable)
+                            {
+                                medias[mediaId].availableCountries.Add(countryId);
+                            }
+                            else
+                            {
+                                medias[mediaId].restrictedCountries.Add(countryId);
+                            }
+                        }
+                    }
+
+                    #endregion
                 }
 
             }
