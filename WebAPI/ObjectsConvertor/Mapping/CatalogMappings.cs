@@ -613,6 +613,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.GeoBlockRuleId, opt => opt.MapFrom(src => src.GeoBlockRuleId))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.WatchPermissionRule, opt => opt.Ignore())
+                // goes to ConvertImageListToKalturaMediaImageList instead
+                .ForMember(dest => dest.Images, opt => opt.Ignore())
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
 
             //LinearMediaAsset to KalturaMediaAsset
@@ -633,7 +635,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.RecordingPlaybackNonEntitledChannelEnabled))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
                 .ForMember(dest => dest.TrickPlayBuffer, opt => opt.MapFrom(src => src.TrickPlayBuffer))
-                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled));                
+                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled))
+                // goes to ConvertImageListToKalturaMediaImageList instead
+                .ForMember(dest => dest.Images, opt => opt.Ignore());                
             #endregion
 
             #region Tag
