@@ -4548,5 +4548,26 @@ namespace DAL
 
             return rules;
         }
+
+        public static long AddAssetRule(int groupId, string name, string description)
+        {
+            long id = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_AssetRule");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@description", description);
+
+                id = sp.ExecuteReturnValue<long>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddAssetRule in DB, groupId: {0}, name: {1}, description: {2} , ex:{3} ", groupId, name, description, ex);
+            }
+
+            return id;
+        }
     }
 }
