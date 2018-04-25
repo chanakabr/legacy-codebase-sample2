@@ -1377,7 +1377,7 @@ namespace TVPApiServices
         // Ira. this is not at the Icond..
         [WebMethod(EnableSession = true, Description = "Recording Watche Status")]
         [PrivateMethod]
-        public NPVRResponse RecordingWatchStatus(InitializationObject initObj, int recordingId, int alreadyWatched)
+        public NPVRResponse RecordingWatchStatus(InitializationObject initObj, string recordingId, int alreadyWatched)
         {
             NPVRResponse res = null;
 
@@ -1390,7 +1390,7 @@ namespace TVPApiServices
                 try
                 {
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).RecordingWatchStatus(initObj.SiteGuid, initObj.DomainID, initObj.UDID,
-                        recordingId.ToString(), alreadyWatched);
+                        recordingId, alreadyWatched);
                 }
                 catch (Exception ex)
                 {
