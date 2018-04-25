@@ -16291,7 +16291,7 @@ namespace Core.ConditionalAccess
                 }
 
                 HouseholdPaymentGateway householdPaymentGateway = DAL.BillingDAL.GetHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId, 1);
-                if (householdPaymentGateway == null || householdPaymentGateway.Selected != 1)
+                if (householdPaymentGateway == null || householdPaymentGateway.PaymentGatewayId != paymentGatewayId)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.HouseholdNotSetToPaymentGateway, "Household not set to paymentGateway");
                     return response;
@@ -16373,7 +16373,7 @@ namespace Core.ConditionalAccess
                 }
 
                 HouseholdPaymentGateway householdPaymentGateway = DAL.BillingDAL.GetHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId, 1);
-                if (householdPaymentGateway == null || householdPaymentGateway.Selected != 1)
+                if (householdPaymentGateway == null || householdPaymentGateway.PaymentGatewayId != paymentGatewayId)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.HouseholdNotSetToPaymentGateway, "Household not set to payment gateway");
                     return response;
