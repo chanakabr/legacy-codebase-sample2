@@ -39,7 +39,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Time offset action
     /// </summary>
-    public class KalturaTimeOffsetRuleAction : KalturaRuleAction
+    public abstract class KalturaTimeOffsetRuleAction : KalturaRuleAction
     {
         /// <summary>
         /// Offset in seconds 
