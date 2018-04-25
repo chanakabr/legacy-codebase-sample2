@@ -1841,5 +1841,10 @@ namespace Core.Api
         {
             return Core.Api.api.GetUserWatchedMediaIds(groupId, userId);
         }
+
+        public static AssetRulesResponse AddAssetRule(int groupId, AssetRule assetRule)
+        {
+            return Core.Api.api.AddAssetRule(groupId, assetRule);
+        }
     }
 }

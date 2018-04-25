@@ -25,6 +25,7 @@ using Core.Pricing;
 using DAL;
 using EpgBL;
 using KLogMonitor;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using QueueWrapper;
 using QueueWrapper.Queues.QueueObjects;
@@ -482,7 +483,7 @@ namespace Core.Api
             autoCompleteRequest.m_lMetas = request.m_InfoStruct.m_Metas;
             autoCompleteRequest.m_lTags = request.m_InfoStruct.m_Tags;
 
-            string sSignString = Guid.NewGuid().ToString();           
+            string sSignString = Guid.NewGuid().ToString();
             string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4762,7 +4763,7 @@ namespace Core.Api
 
             return status;
         }
-        
+
         public static ApiObjects.Response.Status SetDomainParentalRules(int groupId, int domainId, long ruleId, int isActive)
         {
             Users.Domain domain;
@@ -6922,7 +6923,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine deleted");
-                    
+
                     string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
@@ -7020,7 +7021,7 @@ namespace Core.Api
                             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "recommendation engine failed set settings");
                         }
                     }
-                    
+
                     string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]{
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngine.ID)
@@ -7259,7 +7260,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine set changes");
-                    
+
                     string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
@@ -7324,7 +7325,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine configs delete");
-                    
+
                     string version = ApplicationConfiguration.Version.Value;
                     string[] keys = new string[1]
                     {
@@ -7578,7 +7579,7 @@ namespace Core.Api
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.ExternalChannelNotExist, EXTERNAL_CHANNEL_NOT_EXIST);
                 }
-                
+
                 string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                 {
@@ -7670,7 +7671,7 @@ namespace Core.Api
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "external channel failed set changes");
                 }
-                
+
                 string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                 {
@@ -8631,7 +8632,7 @@ namespace Core.Api
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                 }
-                
+
                 string version = ApplicationConfiguration.Version.Value;
                 string[] keys = new string[1]
                     {
@@ -10369,7 +10370,7 @@ namespace Core.Api
                             m_nPageSize = 0,
                             AssetTypes = null,
                             FilterStatus = eWatchStatus.All,
-                            NumOfDays = 365, 
+                            NumOfDays = 365,
                             OrderDir = ApiObjects.SearchObjects.OrderDir.DESC
                         };
 
@@ -10474,6 +10475,38 @@ namespace Core.Api
             }
 
             return ruleIds;
+        }
+
+        internal static AssetRulesResponse AddAssetRule(int groupId, AssetRule assetRule)
+        {
+
+            AssetRulesResponse response = new AssetRulesResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            try
+            {
+                if (assetRule == null)
+                {
+                    return response;
+                }
+
+                long assetRuleId = DAL.ApiDAL.AddAssetRule(groupId, assetRule.Name, assetRule.Description);
+
+                if (assetRuleId > 0)
+                {
+                    //TODO: save CB action & condition
+
+
+                    assetRule.Id = assetRuleId;
+                    response.Status.Code = (int)eResponseStatus.OK;
+                    response.Status.Message=  eResponseStatus.OK.ToString();
+                    response.AssetRules = new List<AssetRule>() { assetRule };
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while adding new assetRule . groupId: {0}, assetRule: {1}, ex: {2}", groupId, JsonConvert.SerializeObject(assetRule), ex);
+            }
+
+            return response;
         }
     }
 }
