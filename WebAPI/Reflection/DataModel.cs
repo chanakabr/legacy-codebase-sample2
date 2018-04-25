@@ -2510,14 +2510,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaAssetRuleAction":
-                    switch(property.Name)
-                    {
-                        case "Description":
-                            return "description";
-                    }
-                    break;
-                    
                 case "KalturaAssetRuleListResponse":
                     switch(property.Name)
                     {
@@ -5773,6 +5765,8 @@ namespace WebAPI.Reflection
                 case "KalturaRuleAction":
                     switch(property.Name)
                     {
+                        case "Description":
+                            return "description";
                         case "Type":
                             return "type";
                     }

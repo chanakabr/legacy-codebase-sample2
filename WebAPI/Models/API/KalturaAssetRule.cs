@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -54,7 +55,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "actions")]
         [JsonProperty("actions")]
         [XmlElement(ElementName = "actions")]
-        public List<KalturaAssetRuleAction> Actions { get; set; }
+        public List<KalturaRuleAction> Actions { get; set; }
 
     }
 
