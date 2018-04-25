@@ -518,7 +518,47 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.filter.ToString()))
               ;
 
-            #endregion            
+            #endregion
+
+            #region AssetRule
+
+            Mapper.CreateMap<AssetRule, KalturaAssetRule>()
+              //.ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetRuleActions(src.Actions)))
+              //.ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertAssetRuleConditions(src.Conditions)))
+              .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              ;
+
+            Mapper.CreateMap<KalturaAssetRule, AssetRule>()
+             //.ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetRuleActions(src.Actions)))
+              //.ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertAssetRuleConditions(src.Conditions)))
+              .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              ;
+
+            #endregion
+        }
+
+        private static AssetRuleCondition ConvertAssetRuleConditions(List<KalturaCondition> conditions)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static KalturaCondition ConvertAssetRuleConditions(List<AssetRuleCondition> conditions)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static KalturaAssetRuleAction ConvertAssetRuleActions(List<AssetRuleAction> actions)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static AssetRuleAction ConvertAssetRuleActions(List<KalturaAssetRuleAction> actions)
+        {
+            throw new NotImplementedException();
         }
 
         private static List<Permission> ConvertPermissionsNames(string permissionNames, string excludedPermissionNames)
