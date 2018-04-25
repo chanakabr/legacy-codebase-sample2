@@ -270,7 +270,7 @@ namespace WebAPI.Controllers
                     mediaIds = favorites.Where(m => (m.AssetId != 0) == true).Select(x => Convert.ToInt32(x.AssetId)).Distinct().ToList();
 
                     KalturaAssetInfoListResponse assetInfoWrapper = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId,
-                        (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 0, mediaIds, with.Select(x => x.type).ToList());
+                        udid, language, 0, 0, mediaIds, with.Select(x => x.type).ToList());
 
                     favoritesFinalList = new List<KalturaFavorite>();
                     foreach (var favorite in favorites)
