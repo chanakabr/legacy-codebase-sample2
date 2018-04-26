@@ -8497,62 +8497,27 @@ namespace Core.Api
             return result;
         }
 
-        public static TimeShiftedTvPartnerSettingsResponse GetTimeShiftedTvPartnerSettings(int groupID)
+        public static TimeShiftedTvPartnerSettingsResponse GetTimeShiftedTvPartnerSettings(int groupId)
         {
             TimeShiftedTvPartnerSettingsResponse response = new TimeShiftedTvPartnerSettingsResponse();
-
             try
             {
-                DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
-                if (dr == null)
+                response.Settings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+                if (response.Settings != null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.TimeShiftedTvPartnerSettingsNotFound, eResponseStatus.TimeShiftedTvPartnerSettingsNotFound.ToString());
-                }
-                else
-                {
-                    int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", 0);
-                    int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", 0);
-                    int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", 0);
-                    int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", 0);
-                    long catchUpBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "catch_up_buffer", 7);
-                    long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "trick_play_buffer", 1);
-                    long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_schedule_window_buffer", 0);
-                    int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
-                    long paddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_after_program_ends", 0);
-                    long paddingBeforeProgramStarts = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_before_program_starts", 0);
-                    int protection = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_protection", 0);
-                    int protectionPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_period", 90);
-                    int protectionQuotaPercentage = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_quota_percentage", 25);
-                    int recordingLifetimePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_lifetime_period", 182);
-                    int cleanupNoticePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "cleanup_notice_period", 7);
-                    int series_recording = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_series_recording", 1); //Default = enabled
-                    int enable_recording_playback_non_entitled = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_entitled", 0); // Default = disabled
-                    int enable_recording_playback_non_existing = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_existing", 0); // Default = disabled
-                    int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0);
-                    int protectionPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_policy", 0);
-                    int recoveryGracePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recovery_grace_period_seconds", 0); // seconds
-
-                    if (recordingScheduleWindow > -1)
-                    {
-                        response.Settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
-                                                trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
-                                                protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod,
-                                                series_recording == 1, enable_recording_playback_non_entitled == 1, enable_recording_playback_non_existing == 1, quotaOveragePolicy,
-                                                protectionPolicy, recoveryGracePeriod);
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    }
-                }
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }                
             }
 
             catch (Exception ex)
             {
-                log.Error("GetTimeShiftedTvPartnerSettings - " + string.Format("Error in GetTimeShiftedTvPartnerSettings: groupID = {0} ex = {1}", groupID, ex.Message, ex.StackTrace), ex);
+                log.Error("GetTimeShiftedTvPartnerSettings - " + string.Format("Error in GetTimeShiftedTvPartnerSettings: groupID = {0} ex = {1}", groupId, ex.Message, ex.StackTrace), ex);
             }
 
             return response;
         }
 
-        public static ApiObjects.Response.Status UpdateTimeShiftedTvPartnerSettings(int groupID, TimeShiftedTvPartnerSettings settings)
+        public static ApiObjects.Response.Status UpdateTimeShiftedTvPartnerSettings(int groupId, TimeShiftedTvPartnerSettings settings)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -8574,16 +8539,24 @@ namespace Core.Api
                 }
                 else
                 {
-                    if (DAL.ApiDAL.UpdateTimeShiftedTvPartnerSettings(groupID, settings))
+                    if (DAL.ApiDAL.UpdateTimeShiftedTvPartnerSettings(groupId, settings))
                     {
-                        response = UpdateTimeShiftedTvEpgChannelsSettings(groupID, settings);
+                        response = UpdateTimeShiftedTvEpgChannelsSettings(groupId, settings);
+                        if (response != null && response.Code == (int)eResponseStatus.OK)
+                        {
+                            string invalidationKey = LayeredCacheKeys.GetTstvAccountSettingsInvalidationKey(groupId);
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                            }
+                        }
                     }
                 }
             }
 
             catch (Exception ex)
             {
-                log.Error("UpdateTimeShiftedTvPartnerSettings - " + string.Format("Error in UpdateTimeShiftedTvPartnerSettings: groupID = {0}, settings = {1}, ex = {2}", groupID, ex.Message, settings.ToString(), ex.StackTrace), ex);
+                log.Error("UpdateTimeShiftedTvPartnerSettings - " + string.Format("Error in UpdateTimeShiftedTvPartnerSettings: groupID = {0}, settings = {1}, ex = {2}", groupId, ex.Message, settings.ToString(), ex.StackTrace), ex);
                 response.Code = (int)ApiObjects.Response.eResponseStatus.Error;
                 response.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
             }

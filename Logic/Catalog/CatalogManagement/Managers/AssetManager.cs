@@ -242,6 +242,12 @@ namespace Core.Catalog.CatalogManagement
             result = new MediaAsset(id, eAssetTypes.MEDIA, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, updateDate, startDate, endDate, metas, tags, images, coGuid,
                                     isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes);
 
+            // if media is linear we also have the epg channel table returned
+            if (ds.Tables.Count == 7)
+            {
+                result = CreateLinearMediaAssetFromDataTable(groupId, ds.Tables[6], result);
+            }
+
             return result;
         }
 
@@ -250,9 +256,9 @@ namespace Core.Catalog.CatalogManagement
             List<MediaAsset> result = null;
             try
             {
-                if (ds == null || ds.Tables == null || ds.Tables.Count < 6)
+                if (ds == null || ds.Tables == null || ds.Tables.Count < 7)
                 {
-                    log.WarnFormat("CreateMediaAssets didn't receive dataset with 6 or more tables");
+                    log.WarnFormat("CreateMediaAssets didn't receive dataset with 7 or more tables");
                     return null;
                 }
 
@@ -298,7 +304,14 @@ namespace Core.Catalog.CatalogManagement
                 {
                     assetUpdateDate = ds.Tables[5].AsEnumerable();
                 }
-                                
+
+                EnumerableRowCollection<DataRow> linearMedias = new DataTable().AsEnumerable();
+                // epgChannels table
+                if (ds.Tables[6] != null && ds.Tables[6].Rows != null && ds.Tables[6].Rows.Count > 0)
+                {
+                    linearMedias = ds.Tables[6].AsEnumerable();
+                }
+
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
                 {
                     int id = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "ID", 0);
@@ -366,6 +379,14 @@ namespace Core.Catalog.CatalogManagement
                         else
                         {
                             assetDataset.Tables.Add(ds.Tables[5].Clone());
+                        }
+
+                        EnumerableRowCollection<DataRow> linearMediaRow = (from row in linearMedias
+                                                                               where (Int64)row["MEDIA_ID"] == id
+                                                                               select row);
+                        if (linearMediaRow != null && linearMediaRow.Count() > 0)
+                        {
+                            assetDataset.Tables.Add(linearMediaRow.CopyToDataTable());
                         }
 
                         MediaAsset mediaAsset = CreateMediaAsset(groupId, id, assetDataset, defaultLanguage, groupLanguages);
@@ -906,7 +927,19 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else if (mediaAssetMap != null)
                 {
-                    mediaAssets = mediaAssetMap.Values.Select(x => x as MediaAsset).ToList();
+                    mediaAssets = new List<MediaAsset>();
+                    foreach (MediaAsset mediaAsset in mediaAssetMap.Values)
+                    {
+                        if (mediaAsset.MediaAssetType == MediaAssetType.Linear)
+                        {
+                            LinearMediaAsset linearMediaAsset = mediaAsset as LinearMediaAsset;
+                            mediaAssets.Add(linearMediaAsset);
+                        }
+                        else
+                        {
+                            mediaAssets.Add(mediaAsset);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -1499,24 +1532,16 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static AssetResponse CreateLinearMediaAssetResponseFromDataSet(int groupId, DataSet ds, MediaAsset mediaAsset)
+        private static LinearMediaAsset CreateLinearMediaAssetFromDataTable(int groupId, DataTable dt, MediaAsset mediaAsset)
         {
-            AssetResponse result = new AssetResponse();
-            if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
+            LinearMediaAsset result = null;
+            if (dt == null || dt.Rows == null || dt.Rows.Count != 1)
             {
-                log.WarnFormat("CreateLinearMediaAssetResponseFromDataSet - dataset or tables are null");
+                log.WarnFormat("CreateLinearMediaAssetResponseFromDataTable - returned table is not valid");
                 return result;
             }
 
-            // Basic details tables
-            if (ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count != 1)
-            {
-                log.WarnFormat("CreateLinearMediaAssetResponseFromDataSeta - returned table is not valid");
-                return result;
-            }
-
-            DataRow dr = ds.Tables[0].Rows[0];
-            long epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+            DataRow dr = dt.Rows[0];            
             TstvState enableCdvr = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CDVR");
             TstvState enableCatchUp = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CATCH_UP");
             TstvState enableStartOver = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_START_OVER");
@@ -1527,13 +1552,8 @@ namespace Core.Catalog.CatalogManagement
             string externalIngestId = ODBCWrapper.Utils.GetSafeStr(dr, "CHANNEL_ID");
             string externalCdvrId = ODBCWrapper.Utils.GetSafeStr(dr, "CDVR_ID");
             TimeShiftedTvPartnerSettings accountTstvSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
-            result.Asset = new LinearMediaAsset(epgChannelId, enableCdvr, enableCatchUp, enableStartOver, enableTrickPlay, enableRecordingPlaybackNonEntitledChannel,
+            result = new LinearMediaAsset(enableCdvr, enableCatchUp, enableStartOver, enableTrickPlay, enableRecordingPlaybackNonEntitledChannel,
                                                 catchUpBuffer, trickPlayBuffer, externalIngestId, externalCdvrId, mediaAsset, accountTstvSettings);
-
-            if (result.Asset != null)
-            {
-                result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            }
 
             return result;
         }
@@ -1543,13 +1563,14 @@ namespace Core.Catalog.CatalogManagement
             AssetResponse result = new AssetResponse();
             try
             {
-                DataSet ds = CatalogDAL.InsertLinearMediaAsset(groupId, linearMediaAssetToAdd.EnableCdvr, linearMediaAssetToAdd.EnableCatchUp, linearMediaAssetToAdd.EnableRecordingPlaybackNonEntitledChannel,
-                                                                linearMediaAssetToAdd.EnableStartOver, linearMediaAssetToAdd.EnableTrickPlay, linearMediaAssetToAdd.CatchUpBuffer, linearMediaAssetToAdd.TrickPlayBuffer,
+                DataTable dt = CatalogDAL.InsertLinearMediaAsset(groupId, linearMediaAssetToAdd.EnableCdvrState, linearMediaAssetToAdd.EnableCatchUpState, linearMediaAssetToAdd.EnableRecordingPlaybackNonEntitledChannelState,
+                                                                linearMediaAssetToAdd.EnableStartOverState, linearMediaAssetToAdd.EnableTrickPlayState, linearMediaAssetToAdd.CatchUpBuffer, linearMediaAssetToAdd.TrickPlayBuffer,
                                                                 linearMediaAssetToAdd.ExternalCdvrId, linearMediaAssetToAdd.ExternalIngestId, mediaAsset.Id, userId);
-                result = CreateLinearMediaAssetResponseFromDataSet(groupId, ds, mediaAsset);
-
-                if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null)
+                result.Asset = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
+                if (result.Asset != null)
                 {
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
                     // UpdateIndex
                     bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Asset.Id);
                     if (!indexingResult)
@@ -1571,13 +1592,15 @@ namespace Core.Catalog.CatalogManagement
             AssetResponse result = new AssetResponse();
             try
             {
-                DataSet ds = CatalogDAL.UpdateLinearMediaAsset(groupId, linearMediaAssetToUpdate.EpgChannelId, linearMediaAssetToUpdate.EnableCdvr, linearMediaAssetToUpdate.EnableCatchUp,
-                                                                linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannel, linearMediaAssetToUpdate.EnableStartOver, linearMediaAssetToUpdate.EnableTrickPlay,
+                DataTable dt = CatalogDAL.UpdateLinearMediaAsset(groupId, mediaAsset.Id, linearMediaAssetToUpdate.EnableCdvrState, linearMediaAssetToUpdate.EnableCatchUpState,
+                                                                linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState, linearMediaAssetToUpdate.EnableStartOverState, linearMediaAssetToUpdate.EnableTrickPlayState,
                                                                 linearMediaAssetToUpdate.CatchUpBuffer, linearMediaAssetToUpdate.TrickPlayBuffer, linearMediaAssetToUpdate.ExternalCdvrId, linearMediaAssetToUpdate.ExternalIngestId, userId);
-                result = CreateLinearMediaAssetResponseFromDataSet(groupId, ds, mediaAsset);
+                result.Asset = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
 
-                if (result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Asset != null)
+                if (result.Asset != null)
                 {
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
                     // UpdateIndex
                     bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Asset.Id);
                     if (!indexingResult)

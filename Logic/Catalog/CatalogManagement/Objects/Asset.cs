@@ -63,5 +63,23 @@ namespace Core.Catalog.CatalogManagement
             this.CoGuid = coGuid;            
         }
 
+        public Asset(Asset assetToCopy)
+        {
+            this.Id = assetToCopy.Id;
+            this.AssetType = assetToCopy.AssetType;
+            this.Name = assetToCopy.Name;
+            this.NamesWithLanguages = assetToCopy.NamesWithLanguages != null ? new List<LanguageContainer>(assetToCopy.NamesWithLanguages) : new List<LanguageContainer>();
+            this.Description = assetToCopy.Description;
+            this.DescriptionsWithLanguages = assetToCopy.DescriptionsWithLanguages != null ? new List<LanguageContainer>(assetToCopy.DescriptionsWithLanguages) : new List<LanguageContainer>();
+            this.CreateDate = assetToCopy.CreateDate;
+            this.UpdateDate = assetToCopy.UpdateDate;
+            this.StartDate = assetToCopy.StartDate;
+            this.EndDate = assetToCopy.EndDate;
+            this.Metas = assetToCopy.Metas != null ? new List<Metas>(assetToCopy.Metas) : new List<Metas>();
+            this.Tags = assetToCopy.Tags != null ? new List<Tags>(assetToCopy.Tags) : new List<Tags>();
+            this.Images = assetToCopy.Images != null ? new List<Image>(assetToCopy.Images) : new List<Image>();
+            this.CoGuid = assetToCopy.CoGuid;
+        }
+
     }
 }

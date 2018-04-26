@@ -63,5 +63,20 @@ namespace Core.Catalog.CatalogManagement
             this.MediaAssetType = MediaAssetType.Media;
         }
 
+        public MediaAsset(MediaAsset mediaAssetToCopy)
+            :base(mediaAssetToCopy)
+        {
+            this.CatalogStartDate = mediaAssetToCopy.CatalogStartDate;
+            this.FinalEndDate = mediaAssetToCopy.FinalEndDate;
+            this.MediaType = new MediaType(mediaAssetToCopy.MediaType.m_sTypeName, mediaAssetToCopy.MediaType.m_nTypeID);
+            this.EntryId = mediaAssetToCopy.EntryId;
+            this.DeviceRuleId = mediaAssetToCopy.DeviceRuleId;
+            this.GeoBlockRuleId = mediaAssetToCopy.GeoBlockRuleId;
+            this.Files = mediaAssetToCopy.Files != null ? new List<AssetFile>(mediaAssetToCopy.Files) : new List<AssetFile>();
+            this.UserTypes = mediaAssetToCopy.UserTypes;
+            this.IsActive = mediaAssetToCopy.IsActive;
+            this.MediaAssetType = mediaAssetToCopy.MediaAssetType;
+        }
+
     }
 }

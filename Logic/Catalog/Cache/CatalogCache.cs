@@ -402,34 +402,6 @@ namespace Core.Catalog.Cache
             return values;
         }
 
-        public bool IsTstvSettingsExists(int groupId)
-        {
-            bool isTstvSettingsExists = false;
-            try
-            {
-                string key = string.Format("TstvGroupSettingsExists_{0}", groupId);
-                object obj = Get(key);
-                if (obj != null)
-                {
-                    isTstvSettingsExists = (bool)obj;
-                }
-                else
-                {
-                    DataRow dr = ApiDAL.GetTimeShiftedTvPartnerSettings(groupId);
-                    if (dr != null)
-                    {
-                        isTstvSettingsExists = true;                        
-                    }
-                    Set(key, isTstvSettingsExists);
-                }
-            }
-            catch
-            {
-                return false;
-            }
-            return isTstvSettingsExists;
-        }
-
         public Dictionary<int,string> GetGroupWatchPermissionsTypes(int groupID)
         {
             Dictionary<int,string> watchPermissionsTypes = null;
