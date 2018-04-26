@@ -1016,4 +1016,10 @@ namespace ApiObjects
         StartDateOffset,
         EndDateOffset,
     }
+
+    public enum AssetRuleConditionType
+    {
+        Asset,
+        Country        
+    }
 }

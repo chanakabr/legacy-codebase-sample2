@@ -17,9 +17,20 @@ namespace ApiObjects.Rules
         public string Description { get; set; }
     }
 
-    public class AssetRuleCondition
+    public abstract class AssetRuleCondition
     {
-        public RuleActionType Type { get; set; }
+        public AssetRuleConditionType Type { get; set; }
+        public bool Not { get; set; }
         public string Description { get; set; }
+    }
+
+    public class  AssetCondition : AssetRuleCondition
+    {
+        public string Ksql { get; set; }
+    }
+
+    public class CountryCondition : AssetRuleCondition
+    {
+        public List<long> Countries { get; set; }
     }
 }
