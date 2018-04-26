@@ -9,14 +9,14 @@ using AutoMapper;
 using Core.Api.Modules;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
-using System.Linq;
-
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -282,7 +282,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<KalturaUserRole, Role>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))            
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => ConvertPermissionsNames(src.PermissionNames, src.ExcludedPermissionNames)));
 
             #endregion
@@ -523,49 +523,153 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region AssetRule
 
             Mapper.CreateMap<AssetRule, KalturaAssetRule>()
-              //.ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetRuleActions(src.Actions)))
-              //.ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertAssetRuleConditions(src.Conditions)))
+              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetRuleActions(src.Actions)))
+              .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertAssetRuleConditions(src.Conditions)))
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               ;
 
             Mapper.CreateMap<KalturaAssetRule, AssetRule>()
-             //.ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetRuleActions(src.Actions)))
-              //.ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertAssetRuleConditions(src.Conditions)))
+              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => ConvertAssetRuleActions(src.Actions)))
+              .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => ConvertAssetRuleConditions(src.Conditions)))
               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               ;
 
+            Mapper.CreateMap<AssetRuleAction, KalturaRuleAction>()
+             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRuleActionType(src.Type)))
+             ;
+
+            Mapper.CreateMap<KalturaRuleAction, AssetRuleAction>()
+             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRuleActionType(src.Type)))
+             ;
+
+            Mapper.CreateMap<AssetRuleCondition, KalturaCondition>()
+             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+             ;
+
+            Mapper.CreateMap<KalturaCondition, AssetRuleCondition>()
+             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+             ;
+
             #endregion
         }
 
-        private static AssetRuleCondition ConvertAssetRuleConditions(List<KalturaCondition> conditions)
+        private static KalturaRuleActionType ConvertRuleActionType(RuleActionType type)
         {
-            throw new NotImplementedException();
+            switch (type)
+            {
+                case RuleActionType.Block:
+                    return KalturaRuleActionType.BLOCK;
+                case RuleActionType.StartDateOffset:
+                    return KalturaRuleActionType.START_DATE_OFFSET;
+                case RuleActionType.EndDateOffset:
+                    return KalturaRuleActionType.END_DATE_OFFSET;
+                default:
+                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown RuleActionType value : {0}", type.ToString()));
+            }
         }
 
-        private static KalturaCondition ConvertAssetRuleConditions(List<AssetRuleCondition> conditions)
+        private static RuleActionType ConvertRuleActionType(KalturaRuleActionType type)
         {
-            throw new NotImplementedException();
+            switch (type)
+            {
+                case KalturaRuleActionType.BLOCK:
+                    return RuleActionType.Block;
+                case KalturaRuleActionType.START_DATE_OFFSET:
+                    return RuleActionType.StartDateOffset;
+                case KalturaRuleActionType.END_DATE_OFFSET:
+                    return RuleActionType.EndDateOffset;
+                default:
+                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown RuleActionType value : {0}", type.ToString()));
+            }
         }
 
-        private static KalturaAssetRuleAction ConvertAssetRuleActions(List<AssetRuleAction> actions)
+        private static List<AssetRuleCondition> ConvertAssetRuleConditions(List<KalturaCondition> conditions)
         {
-            throw new NotImplementedException();
+            List<AssetRuleCondition> result = null;
+
+            if (conditions != null && conditions.Count > 0)
+            {
+                result = new List<AssetRuleCondition>();
+
+                AssetRuleCondition item;
+                foreach (var condition in conditions)
+                {
+                    item = AutoMapper.Mapper.Map<AssetRuleCondition>((KalturaCondition)condition);
+                    result.Add(item);
+                }
+            }
+
+            return result;
         }
 
-        private static AssetRuleAction ConvertAssetRuleActions(List<KalturaAssetRuleAction> actions)
+        private static List<KalturaCondition> ConvertAssetRuleConditions(List<AssetRuleCondition> conditions)
         {
-            throw new NotImplementedException();
+            List<KalturaCondition> result = null;
+
+            if (conditions != null && conditions.Count > 0)
+            {
+                result = new List<KalturaCondition>();
+
+                KalturaCondition item;
+                foreach (var condition in conditions)
+                {
+                    item = AutoMapper.Mapper.Map<KalturaCondition>((AssetRuleCondition)condition);
+                    result.Add(item);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<KalturaRuleAction> ConvertAssetRuleActions(List<AssetRuleAction> ruleActions)
+        {
+            List<KalturaRuleAction> result = null;
+
+            if (ruleActions != null && ruleActions.Count > 0)
+            {
+                result = new List<KalturaRuleAction>();
+
+                KalturaRuleAction item;
+                foreach (var ruleAction in ruleActions)
+                {
+                    item = AutoMapper.Mapper.Map<KalturaRuleAction>((AssetRuleAction)ruleAction);
+                    result.Add(item);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<AssetRuleAction> ConvertAssetRuleActions(List<KalturaRuleAction> ruleActions)
+        {
+            List<AssetRuleAction> result = null;
+
+            if (ruleActions != null && ruleActions.Count > 0)
+            {
+                result = new List<AssetRuleAction>();
+
+                AssetRuleAction item;
+                foreach (var ruleAction in ruleActions)
+                {
+                    item = AutoMapper.Mapper.Map<AssetRuleAction>((KalturaRuleAction)ruleAction);
+                    result.Add(item);
+                }
+            }
+
+            return result;
         }
 
         private static List<Permission> ConvertPermissionsNames(string permissionNames, string excludedPermissionNames)
         {
             List<Permission> result = new List<Permission>();
             HashSet<string> duplicatePermission = new HashSet<string>();
-            
+
             if (!string.IsNullOrEmpty(permissionNames))
             {
                 foreach (string permission in permissionNames.Split(','))
@@ -600,7 +704,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             string result = null;
 
             if (permissions != null && permissions.Count > 0)
-            {   
+            {
                 result = string.Join(",", permissions.Where(x => x.isExcluded == isExcluded).Select(x => x.Name).ToList());
             }
 
@@ -626,12 +730,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 KalturaGroupByField groupByField = (KalturaGroupByField)Enum.Parse(typeof(KalturaGroupByField), groupBy);
 
                 ((KalturaAssetFieldGroupBy)kalturaAssetGroupBy).Value = groupByField;
-       
+
             }
             else
             {
                 kalturaAssetGroupBy = new KalturaAssetMetaOrTagGroupBy();
-                ((KalturaAssetMetaOrTagGroupBy)kalturaAssetGroupBy).Value = groupBy;                
+                ((KalturaAssetMetaOrTagGroupBy)kalturaAssetGroupBy).Value = groupBy;
             }
             return kalturaAssetGroupBy;
         }
@@ -643,13 +747,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaMetaType.STRING:
                     return false;
                 case KalturaMetaType.NUMBER:
-                    return false;                    
+                    return false;
                 case KalturaMetaType.BOOLEAN:
-                    return false;                    
+                    return false;
                 case KalturaMetaType.STRING_ARRAY:
                     return true;
                 default:
-                    return false;                                        
+                    return false;
             }
         }
 
@@ -728,7 +832,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     list.Add(ConvertMetaFeatureType(kalturaMetaFeatureType));
                 }
             }
-            
+
             return list;
         }
 
