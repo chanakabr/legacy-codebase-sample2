@@ -5500,7 +5500,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet InsertLinearMediaAsset(int groupId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableRecordingPlaybackNonEntitledChannel, TstvState? enableStartOver, TstvState? enableTrickPlay,
+        public static DataTable InsertLinearMediaAsset(int groupId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableRecordingPlaybackNonEntitledChannel, TstvState? enableStartOver, TstvState? enableTrickPlay,
                                                     long? catchUpBuffer, long? trickPlayBuffer, string externalCdvrId, string externalIngestId, long mediaId, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertLinearMediaAsset");
@@ -5518,16 +5518,16 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@MediaId", mediaId);
             sp.AddParameter("@UpdaterId", userId);
 
-            return sp.ExecuteDataSet();
+            return sp.Execute();
         }
 
-        public static DataSet UpdateLinearMediaAsset(int groupId, long epgChannelId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableRecordingPlaybackNonEntitledChannel, TstvState? enableStartOver,
+        public static DataTable UpdateLinearMediaAsset(int groupId, long mediaId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableRecordingPlaybackNonEntitledChannel, TstvState? enableStartOver,
                                                         TstvState? enableTrickPlay, long? catchUpBuffer, long? trickPlayBuffer, string externalCdvrId, string externalIngestId, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertLinearMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@EpgChannelId", epgChannelId);
+            sp.AddParameter("@MediaId", mediaId);
             sp.AddParameter("@EnableCdvr", (int)enableCdvr.Value);
             sp.AddParameter("@EnableCatchUp", (int)enableCatchUp.Value);
             sp.AddParameter("@EnableRecordingPlaybackNonEntitledChannel", (int)enableRecordingPlaybackNonEntitledChannel.Value);
@@ -5539,7 +5539,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ExternalIngestId", externalIngestId);      
             sp.AddParameter("@UpdaterId", userId);
 
-            return sp.ExecuteDataSet();
+            return sp.Execute();
         }
 
         #endregion

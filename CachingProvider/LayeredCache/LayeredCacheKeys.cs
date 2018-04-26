@@ -354,6 +354,11 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+        public static string GetTstvAccountSettingsKey(int groupId)
+        {
+            return string.Format("TstvAccountSettings_groupId_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -591,6 +596,11 @@ namespace CachingProvider.LayeredCache
         public static string GetCDNAdapterInvalidationKey(int groupId, int adapterId)
         {
             return string.Format("InvalidationKey_cdnAdapter_groupId_{0}_adapterId_{1}", groupId, adapterId);
+        }
+
+        public static string GetTstvAccountSettingsInvalidationKey(int groupId)
+        {
+            return string.Format("InvalidationKey_TstvAccountSettings_groupId_{0}", groupId);
         }
 
         public static Dictionary<string, List<string>> GetAssetsInvalidationKeysMap(string assetType, List<long> ids)
