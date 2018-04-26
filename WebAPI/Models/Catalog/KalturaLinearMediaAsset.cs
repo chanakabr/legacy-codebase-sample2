@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
@@ -15,38 +17,33 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     public class KalturaLinearMediaAsset : KalturaMediaAsset
     {
-        /// <summary>
-        /// Id of epg channel
-        /// </summary>
-        [DataMember(Name = "epgChannelId")]
-        [JsonProperty(PropertyName = "epgChannelId")]
-        [XmlElement(ElementName = "epgChannelId")]
-        [SchemeProperty(ReadOnly = true)]
-        public long EpgChannelId { get; set; }
 
         /// <summary>
         /// Enable CDVR, configuration only
         /// </summary>
-        [DataMember(Name = "enableCdvr")]
-        [JsonProperty(PropertyName = "enableCdvr")]
-        [XmlElement(ElementName = "enableCdvr")]
-        public KalturaTstvState? EnableCdvr { get; set; }
+        [DataMember(Name = "enableCdvrState")]
+        [JsonProperty(PropertyName = "enableCdvrState")]
+        [XmlElement(ElementName = "enableCdvrState")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        public KalturaTimeShiftedTvState? EnableCdvrState { get; set; }
 
         /// <summary>
         /// Enable catch-up, configuration only
         /// </summary>
-        [DataMember(Name = "enableCatchUp")]
-        [JsonProperty(PropertyName = "enableCatchUp")]
-        [XmlElement(ElementName = "enableCatchUp")]
-        public KalturaTstvState? EnableCatchUp { get; set; }
+        [DataMember(Name = "enableCatchUpState")]
+        [JsonProperty(PropertyName = "enableCatchUpState")]
+        [XmlElement(ElementName = "enableCatchUpState")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        public KalturaTimeShiftedTvState? EnableCatchUpState { get; set; }
 
         /// <summary>
         /// Enable start over, configuration only
         /// </summary>
-        [DataMember(Name = "enableStartOver")]
-        [JsonProperty(PropertyName = "enableStartOver")]
-        [XmlElement(ElementName = "enableStartOver")]
-        public KalturaTstvState? EnableStartOver { get; set; }
+        [DataMember(Name = "enableStartOverState")]
+        [JsonProperty(PropertyName = "enableStartOverState")]
+        [XmlElement(ElementName = "enableStartOverState")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        public KalturaTimeShiftedTvState? EnableStartOverState { get; set; }
 
         /// <summary>
         /// Catch-up buffer, configuration only
@@ -54,6 +51,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "catchUpBuffer")]
         [JsonProperty(PropertyName = "catchUpBuffer")]
         [XmlElement(ElementName = "catchUpBuffer")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLong = 0)]
         public long? CatchUpBuffer { get; set; }
 
         /// <summary>
@@ -62,24 +60,26 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "trickPlayBuffer")]
         [JsonProperty(PropertyName = "trickPlayBuffer")]
         [XmlElement(ElementName = "trickPlayBuffer")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLong = 0)]
         public long? TrickPlayBuffer { get; set; }
 
         /// <summary>
         /// Enable Recording playback for non entitled channel, configuration only
         /// </summary>
-        [DataMember(Name = "enableRecordingPlaybackNonEntitledChannel")]
-        [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannel")]
-        [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
-        [SchemeProperty(ReadOnly = true)]
-        public KalturaTstvState? EnableRecordingPlaybackNonEntitledChannel { get; set; }
+        [DataMember(Name = "enableRecordingPlaybackNonEntitledChannelState")]
+        [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannelState")]
+        [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannelState")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        public KalturaTimeShiftedTvState? EnableRecordingPlaybackNonEntitledChannelState { get; set; }
 
         /// <summary>
         /// Enable trick-play, configuration only
         /// </summary>
-        [DataMember(Name = "enableTrickPlay")]
-        [JsonProperty(PropertyName = "enableTrickPlay")]
-        [XmlElement(ElementName = "enableTrickPlay")]
-        public KalturaTstvState? EnableTrickPlay { get; set; }
+        [DataMember(Name = "enableTrickPlayState")]
+        [JsonProperty(PropertyName = "enableTrickPlayState")]
+        [XmlElement(ElementName = "enableTrickPlayState")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        public KalturaTimeShiftedTvState? EnableTrickPlayState { get; set; }
 
         /// <summary>
         /// External identifier used when ingesting programs for this linear media asset
@@ -159,10 +159,71 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "trickPlayEnabled")]
         [SchemeProperty(ReadOnly = true)]
         public bool TrickPlayEnabled { get; set; }
+
+        internal void ValidateForInsert()
+        {
+            if (EnableCatchUpState == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableCatchUpState");
+            }
+
+            if (EnableCdvrState == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableCdvrState");
+            }
+
+            if (EnableRecordingPlaybackNonEntitledChannelState == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableRecordingPlaybackNonEntitledChannelState");
+            }
+
+            if (EnableStartOverState == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableStartOverState");
+            }
+
+            if (EnableTrickPlayState == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableTrickPlayState");
+            }
+
+            if (CatchUpBuffer == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "catchUpBufferState");
+            }
+
+            if (TrickPlayBuffer == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "trickPlayBufferState");
+            }
+
+            if (string.IsNullOrEmpty(ExternalIngestId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalIngestId");
+            }
+
+            if (string.IsNullOrEmpty(ExternalCdvrId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalCdvrId");
+            }
+        }
+
+        internal void ValidateForUpdate()
+        {
+            if (ExternalIngestId != null && ExternalIngestId == string.Empty)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalIngestId");
+            }
+
+            if (ExternalCdvrId != null && ExternalCdvrId == string.Empty)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalCdvrId");
+            }
+        }
     }
 
     [Serializable]
-    public enum KalturaTstvState
+    public enum KalturaTimeShiftedTvState
     {
         INHERITED = 0,
         ENABLED = 1,

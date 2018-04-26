@@ -5965,22 +5965,17 @@
             Linear media asset info
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EpgChannelId">
-            <summary>
-            Id of epg channel
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableCdvr">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableCdvrState">
             <summary>
             Enable CDVR, configuration only
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableCatchUp">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableCatchUpState">
             <summary>
             Enable catch-up, configuration only
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableStartOver">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableStartOverState">
             <summary>
             Enable start over, configuration only
             </summary>
@@ -5995,12 +5990,12 @@
             Trick-play buffer, configuration only
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableRecordingPlaybackNonEntitledChannel">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableRecordingPlaybackNonEntitledChannelState">
             <summary>
             Enable Recording playback for non entitled channel, configuration only
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableTrickPlay">
+        <member name="P:WebAPI.Models.Catalog.KalturaLinearMediaAsset.EnableTrickPlayState">
             <summary>
             Enable trick-play, configuration only
             </summary>

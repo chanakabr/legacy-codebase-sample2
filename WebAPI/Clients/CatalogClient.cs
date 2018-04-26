@@ -461,13 +461,13 @@ namespace WebAPI.Clients
             }
             
             // in case asset is media
-            if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
-                result = Mapper.Map<KalturaMediaAsset>(response.Asset);
+                result = Mapper.Map<KalturaLinearMediaAsset>(response.Asset);
                 result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
             // in case asset is media
-            if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+            else if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
                 result = Mapper.Map<KalturaMediaAsset>(response.Asset);
                 result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
@@ -557,7 +557,14 @@ namespace WebAPI.Clients
             switch (assetType)
             {
                 case eAssetTypes.MEDIA:
-                    result = Mapper.Map<KalturaMediaAsset>(response.Asset);
+                    if ((response.Asset as MediaAsset).MediaAssetType == MediaAssetType.Linear)
+                    {
+                        result = Mapper.Map<KalturaLinearMediaAsset>(response.Asset);
+                    }
+                    else
+                    {
+                        result = Mapper.Map<KalturaMediaAsset>(response.Asset);
+                    }                    
                     result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
                     break;
                 case eAssetTypes.EPG:

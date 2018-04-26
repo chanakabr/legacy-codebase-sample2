@@ -1080,10 +1080,19 @@ namespace WebAPI.Controllers
             asset.ValidateMetas();
             asset.ValidateTags();
 
-            if (asset is KalturaMediaAsset && !(asset as KalturaMediaAsset).Status.HasValue)
+            Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
+            Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
+
+            if ((kalturaMediaAssetType.IsAssignableFrom(asset.GetType())) && !(asset as KalturaMediaAsset).Status.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
-            }            
+            }
+
+            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+            {
+                KalturaLinearMediaAsset linearAsset = asset as KalturaLinearMediaAsset;
+                linearAsset.ValidateForInsert();
+            }
 
             try
             {
@@ -1178,6 +1187,11 @@ namespace WebAPI.Controllers
 
             asset.ValidateMetas();
             asset.ValidateTags();
+
+            if (asset is KalturaLinearMediaAsset)
+            {
+                (asset as KalturaLinearMediaAsset).ValidateForUpdate();
+            }
 
             try
             {

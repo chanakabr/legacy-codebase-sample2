@@ -4714,18 +4714,16 @@ namespace WebAPI.Reflection
                             return "catchUpEnabled";
                         case "CdvrEnabled":
                             return "cdvrEnabaled";
-                        case "EnableCatchUp":
-                            return "enableCatchUp";
-                        case "EnableCdvr":
-                            return "enableCdvr";
-                        case "EnableRecordingPlaybackNonEntitledChannel":
-                            return "enableRecordingPlaybackNonEntitledChannel";
-                        case "EnableStartOver":
-                            return "enableStartOver";
-                        case "EnableTrickPlay":
-                            return "enableTrickPlay";
-                        case "EpgChannelId":
-                            return "epgChannelId";
+                        case "EnableCatchUpState":
+                            return "enableCatchUpState";
+                        case "EnableCdvrState":
+                            return "enableCdvrState";
+                        case "EnableRecordingPlaybackNonEntitledChannelState":
+                            return "enableRecordingPlaybackNonEntitledChannelState";
+                        case "EnableStartOverState":
+                            return "enableStartOverState";
+                        case "EnableTrickPlayState":
+                            return "enableTrickPlayState";
                         case "ExternalCdvrId":
                             return "externalCdvrId";
                         case "ExternalIngestId":
