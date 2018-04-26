@@ -1009,4 +1009,11 @@ namespace ApiObjects
         V1_0 = 1,
         V2_0 = 2
     }
+
+    public enum RuleActionType
+    {
+        Block,
+        StartDateOffset,
+        EndDateOffset,
+    }
 }

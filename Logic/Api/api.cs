@@ -10488,16 +10488,28 @@ namespace Core.Api
                     return response;
                 }
 
-                long assetRuleId = DAL.ApiDAL.AddAssetRule(groupId, assetRule.Name, assetRule.Description);
+                List<int> assetRulesActions = null;
+                if (assetRule.Actions != null)
+                {
+                    assetRulesActions = assetRule.Actions.Select(x => (int)x.Type).ToList();
+                }
 
-                if (assetRuleId > 0)
+                List<int> assetRulesConditions = null;
+                if (assetRule.Actions != null)
+                {
+                    assetRulesConditions = assetRule.Actions.Select(x => (int)x.Type).ToList();
+                }
+
+                DataSet ds  = DAL.ApiDAL.AddAssetRule(groupId, assetRule.Name, assetRule.Description, assetRulesActions, assetRulesConditions);
+
+                if (ds != null)
                 {
                     //TODO: save CB action & condition
 
 
-                    assetRule.Id = assetRuleId;
+                    //assetRule.Id = assetRuleId;
                     response.Status.Code = (int)eResponseStatus.OK;
-                    response.Status.Message=  eResponseStatus.OK.ToString();
+                    response.Status.Message = eResponseStatus.OK.ToString();
                     response.AssetRules = new List<AssetRule>() { assetRule };
                 }
             }

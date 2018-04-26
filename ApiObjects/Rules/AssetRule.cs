@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ApiObjects.Rules
 {
@@ -17,9 +13,13 @@ namespace ApiObjects.Rules
 
     public class AssetRuleAction
     {
+        public RuleActionType Type { get; set; }
+        public string Description { get; set; }
     }
 
     public class AssetRuleCondition
-    {      
+    {
+        public RuleActionType Type { get; set; }
+        public string Description { get; set; }
     }
 }
