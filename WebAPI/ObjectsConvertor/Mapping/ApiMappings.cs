@@ -548,14 +548,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRuleActionType(src.Type)))
              ;
 
-            Mapper.CreateMap<AssetRuleCondition, KalturaCondition>()
-             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-             ;
-
-            Mapper.CreateMap<KalturaCondition, AssetRuleCondition>()
-             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-             ;
-
             #endregion
         }
 
@@ -600,7 +592,33 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 AssetRuleCondition item;
                 foreach (var condition in conditions)
                 {
-                    item = AutoMapper.Mapper.Map<AssetRuleCondition>((KalturaCondition)condition);
+                    if (condition is KalturaAssetCondition)
+                    {
+                        KalturaAssetCondition kAssetCondition = condition as KalturaAssetCondition;
+                        item = new AssetCondition()
+                        {
+                            Description = kAssetCondition.Description,
+                            Not = kAssetCondition.Not.HasValue ? kAssetCondition.Not.Value : false,
+                            Ksql = kAssetCondition.Ksql,
+                            Type = AssetRuleConditionType.Asset
+                        };
+                    }
+                    else if (condition is KalturaCountryCondition)
+                    {
+                        KalturaCountryCondition kAssetCondition = condition as KalturaCountryCondition;
+                        item = new CountryCondition()
+                        {
+                            Description = kAssetCondition.Description,
+                            Not = kAssetCondition.Not.HasValue ? kAssetCondition.Not.Value : false,
+                            Countries = kAssetCondition.getCountries(),
+                            Type = AssetRuleConditionType.Country                            
+                        };
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
                     result.Add(item);
                 }
             }
@@ -619,7 +637,34 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 KalturaCondition item;
                 foreach (var condition in conditions)
                 {
-                    item = AutoMapper.Mapper.Map<KalturaCondition>((AssetRuleCondition)condition);
+                    if (condition is AssetCondition)
+                    {
+                        AssetCondition assetCondition = condition as AssetCondition;
+                        item = new KalturaAssetCondition()
+                        {
+                            Description = assetCondition.Description,
+                            Not = assetCondition.Not,
+                            Ksql = assetCondition.Ksql,
+                        };
+                    }
+                    else if (condition is CountryCondition)
+                    {
+                        CountryCondition assetCondition = condition as CountryCondition;
+                        item = new KalturaCountryCondition()
+                        {
+                            Description = assetCondition.Description,
+                            Not = assetCondition.Not
+                        };
+                        if( assetCondition.Countries != null)
+                        {
+                            ((KalturaCountryCondition)item).Countries = string.Join(",", assetCondition.Countries);
+                        }
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
                     result.Add(item);
                 }
             }

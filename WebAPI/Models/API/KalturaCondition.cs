@@ -41,7 +41,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Asset Condition
     /// </summary>
-    public class KalturaAssetCondition : KalturaOTTObject
+    public class KalturaAssetCondition : KalturaCondition
     {
         /// <summary>
         /// KSQL  
