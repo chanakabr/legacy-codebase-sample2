@@ -4549,9 +4549,15 @@ namespace DAL
             return rules;
         }
 
-        public static long AddAssetRule(int groupId, string name, string description)
+        public static DataSet AddAssetRule(int groupId, string name, string description, List<int> assetRulesActions, List<int> assetRulesConditions)
         {
-            long id = 0;
+            DataSet ds = null;
+
+            // DB IDlist type cannot be null.
+            if (assetRulesActions == null)
+                assetRulesActions = new List<int>();
+            if (assetRulesConditions == null)
+                assetRulesConditions = new List<int>();
 
             try
             {
@@ -4559,15 +4565,18 @@ namespace DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@description", description);
+                sp.AddIDListParameter<int>("@assetRulesActions", assetRulesActions, "Id");
+                sp.AddIDListParameter<int>("@assetRulesConditions", assetRulesConditions, "Id");
 
-                id = sp.ExecuteReturnValue<long>();
+
+                ds = sp.ExecuteDataSet();
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while AddAssetRule in DB, groupId: {0}, name: {1}, description: {2} , ex:{3} ", groupId, name, description, ex);
             }
 
-            return id;
+            return ds;
         }
     }
 }
