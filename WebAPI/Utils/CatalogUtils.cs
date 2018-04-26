@@ -266,9 +266,7 @@ namespace WebAPI.Utils
 
             return result;
         }
-
-
-
+        
         internal static List<KalturaIAssetable> GetAssets(List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
         {
             var assets = GetOrderedAssets(assetsBaseData, request, cacheDuration);
@@ -587,8 +585,7 @@ namespace WebAPI.Utils
             result = CatalogUtils.GetAssets(assetsBaseDataList, request, cacheDuration);
             return result;
         }
-
-
+        
         //internal static KalturaAssetListResponse GetBundleAssets(BundleAssetsRequest request, string key, int cacheDuration)
         //{
 
