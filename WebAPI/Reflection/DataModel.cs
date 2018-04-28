@@ -2971,8 +2971,6 @@ namespace WebAPI.Reflection
                     {
                         case "Description":
                             return "description";
-                        case "Not":
-                            return "not";
                     }
                     break;
                     
@@ -3137,6 +3135,8 @@ namespace WebAPI.Reflection
                     {
                         case "Countries":
                             return "countries";
+                        case "Not":
+                            return "not";
                     }
                     break;
                     

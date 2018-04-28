@@ -16,19 +16,6 @@ namespace WebAPI.Models.API
     public abstract class KalturaCondition : KalturaOTTObject
     {
         /// <summary>
-        /// Indicates whether to apply not on the other properties in the condition
-        /// </summary>
-        [DataMember(Name = "not")]
-        [JsonProperty("not")]
-        [XmlElement(ElementName = "not")]
-        public bool? Not
-        {
-            get { return not; }
-            set { not = value.HasValue ? value.Value : false; }
-        }
-        private bool not;
-
-        /// <summary>
         /// Description
         /// </summary>
         [DataMember(Name = "description")]
@@ -58,6 +45,19 @@ namespace WebAPI.Models.API
     public class KalturaCountryCondition : KalturaCondition
     {
         /// <summary>
+        /// Indicates whether to apply not on the other properties in the condition
+        /// </summary>
+        [DataMember(Name = "not")]
+        [JsonProperty("not")]
+        [XmlElement(ElementName = "not")]
+        public bool? Not
+        {
+            get { return not; }
+            set { not = value.HasValue ? value.Value : false; }
+        }
+        private bool not;
+
+        /// <summary>
         /// Comma separated countries IDs list
         /// </summary>
         [DataMember(Name = "countries")]
@@ -66,16 +66,16 @@ namespace WebAPI.Models.API
         [SchemeProperty(DynamicMinInt = 0)]
         public string Countries { get; set; }
 
-        public List<long> getCountries()
+        public List<int> getCountries()
         {
-            List<long> countries = new List<long>();
+            List<int> countries = new List<int>();
 
             if (!string.IsNullOrEmpty(Countries))
             {
                 string[] splitted = Countries.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var country in splitted)
                 {
-                    countries.Add(long.Parse(country));
+                    countries.Add(int.Parse(country));
                 }
             }
 

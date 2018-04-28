@@ -4187,11 +4187,6 @@
             Condition
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaCondition.Not">
-            <summary>
-            Indicates whether to apply not on the other properties in the condition
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.API.KalturaCondition.Description">
             <summary>
             Description
@@ -4210,6 +4205,11 @@
         <member name="T:WebAPI.Models.API.KalturaCountryCondition">
             <summary>
             Country condition
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCountryCondition.Not">
+            <summary>
+            Indicates whether to apply not on the other properties in the condition
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaCountryCondition.Countries">

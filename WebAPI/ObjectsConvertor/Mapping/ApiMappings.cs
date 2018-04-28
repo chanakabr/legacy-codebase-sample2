@@ -598,7 +598,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         item = new AssetCondition()
                         {
                             Description = kAssetCondition.Description,
-                            Not = kAssetCondition.Not.HasValue ? kAssetCondition.Not.Value : false,
                             Ksql = kAssetCondition.Ksql,
                             Type = AssetRuleConditionType.Asset
                         };
@@ -643,7 +642,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         item = new KalturaAssetCondition()
                         {
                             Description = assetCondition.Description,
-                            Not = assetCondition.Not,
                             Ksql = assetCondition.Ksql,
                         };
                     }
