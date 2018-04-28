@@ -1128,11 +1128,20 @@ namespace Core.Catalog
 
                             if (isAvailable)
                             {
-                                medias[mediaId].availableCountries.Add(countryId);
+                                medias[mediaId].allowedCountries.Add(countryId);
                             }
                             else
                             {
-                                medias[mediaId].restrictedCountries.Add(countryId);
+                                medias[mediaId].blockedCountries.Add(countryId);
+                            }
+                        }
+
+                        // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
+                        foreach (Media media in medias.Values)
+                        {
+                            if (media.allowedCountries.Count == 0)
+                            {
+                                media.allowedCountries.Add(0);
                             }
                         }
                     }
