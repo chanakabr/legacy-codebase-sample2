@@ -20,7 +20,6 @@ namespace ApiObjects.Rules
     public abstract class AssetRuleCondition
     {
         public AssetRuleConditionType Type { get; set; }
-        public bool Not { get; set; }
         public string Description { get; set; }
     }
 
@@ -31,6 +30,8 @@ namespace ApiObjects.Rules
 
     public class CountryCondition : AssetRuleCondition
     {
-        public List<long> Countries { get; set; }
+        public bool Not { get; set; }
+
+        public List<int> Countries { get; set; }
     }
 }
