@@ -218,11 +218,11 @@ namespace ElasticSearch.Common
             #region add countries
 
             // Add this field only if there are available countries on the media object
-            if (media.availableCountries != null && media.availableCountries.Count > 0)
+            if (media.allowedCountries != null && media.allowedCountries.Count > 0)
             {
-                recordBuilder.Append(", \"available_countries\": [");
+                recordBuilder.Append(", \"allowed_countries\": [");
 
-                foreach (int countryId in media.availableCountries)
+                foreach (int countryId in media.allowedCountries)
                 {
                     recordBuilder.Append(countryId);
                     recordBuilder.Append(',');
@@ -235,11 +235,11 @@ namespace ElasticSearch.Common
             }
 
             // Add this field only if there are restricted countries on the media object
-            if (media.restrictedCountries != null && media.restrictedCountries.Count > 0)
+            if (media.blockedCountries != null && media.blockedCountries.Count > 0)
             {
-                recordBuilder.Append(", \"restricted_countries\": [");
+                recordBuilder.Append(", \"blocked_countries\": [");
 
-                foreach (int countryId in media.restrictedCountries)
+                foreach (int countryId in media.blockedCountries)
                 {
                     recordBuilder.Append(countryId);
                     recordBuilder.Append(',');

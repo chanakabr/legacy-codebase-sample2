@@ -280,7 +280,7 @@ namespace DAL
 
             return null;
         }
-
+        
         public static bool UpdateRole(int groupId, long id, string name, string permissionMap, int isActive = 1 , int status = 1)
         {
             try
@@ -4577,6 +4577,11 @@ namespace DAL
             }
 
             return ds;
+        }
+
+        public static bool UpdateAssetRuleLastRunDate(long id)
+        {
+            throw new NotImplementedException();
         }
     }
 }
