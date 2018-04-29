@@ -287,6 +287,13 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public bool shouldDateSearchesApplyToAllTypes;
 
+        /// <summary>
+        /// Defines if the search is internal and should search in internalReservedUnifiedSearchNumericFields
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public bool isInternalSearch;
+
         [JsonProperty()]
         [DataMember]
         public int exactGroupId
@@ -400,6 +407,7 @@ namespace ApiObjects.SearchObjects
 
             shouldUseSearchEndDate = false;
             shouldDateSearchesApplyToAllTypes = false;
+            isInternalSearch = false;
 
             distinctGroup = new KeyValuePair<string, string>();
 

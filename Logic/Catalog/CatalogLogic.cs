@@ -109,6 +109,12 @@ namespace Core.Catalog
                         "epg_id",
                     };
 
+        private static readonly HashSet<string> internalReservedUnifiedSearchNumericFields = new HashSet<string>()
+                    {
+                        "allowed_countries",
+                        "blocked_countries"
+                    };
+
         private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
         {
             "media_type_id",
@@ -7448,6 +7454,24 @@ namespace Core.Catalog
                         }
                     }
                     else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
+                    {
+                        leaf.shouldLowercase = false;
+
+                        if (leaf.operand != ComparisonOperator.In)
+                        {
+                            leaf.valueType = typeof(long);
+
+                            try
+                            {
+                                leaf.value = Convert.ToInt64(leaf.value);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new KalturaException(string.Format("Invalid search value was sent for numeric field: {0}", originalKey), (int)eResponseStatus.BadSearchRequest);
+                            }
+                        }
+                    }
+                    else if (definitions.isInternalSearch && internalReservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
                         leaf.shouldLowercase = false;
 

@@ -52,6 +52,7 @@ namespace Core.Catalog
 
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
                 definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes;
+                definitions.isInternalSearch = request.isInternalSearch;
 
                 definitions.shouldIgnoreDeviceRuleID = request.shouldIgnoreDeviceRuleID;
 

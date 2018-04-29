@@ -66,6 +66,12 @@ namespace Core.Catalog.Request
         public bool shouldDateSearchesApplyToAllTypes;
 
         /// <summary>
+        /// Defines if the search is internal and should search in internalReservedUnifiedSearchNumericFields
+        /// </summary>
+        [DataMember]
+        public bool isInternalSearch;
+
+        /// <summary>
         /// add new GroupID to Search assets ONLY in specific group 
         /// </summary>
         [DataMember]
