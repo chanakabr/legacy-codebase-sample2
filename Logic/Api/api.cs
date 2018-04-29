@@ -1603,7 +1603,7 @@ namespace Core.Api
                 }
             }
             return res;
-        }
+        }       
 
         internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
         {
@@ -10529,6 +10529,16 @@ namespace Core.Api
             }
 
             return response;
+        }
+
+        internal static Status DeleteAssetRule(int groupId, long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static AssetRulesResponse GetAssetRules(int groupId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

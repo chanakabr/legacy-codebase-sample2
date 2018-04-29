@@ -1846,5 +1846,15 @@ namespace Core.Api
         {
             return Core.Api.api.AddAssetRule(groupId, assetRule);
         }
+
+        public static Status DeleteAssetRule(int groupId, long id)
+        {
+            return Core.Api.api.DeleteAssetRule(groupId, id);
+        }
+
+        public static AssetRulesResponse GetAssetRules(int groupId)
+        {
+            return Core.Api.api.GetAssetRules(groupId);
+        }
     }
 }
