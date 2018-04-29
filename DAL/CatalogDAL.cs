@@ -5542,6 +5542,15 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
+        public static DataTable GetGroupLinearMediaIds(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupLinearMediaIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+
+            return sp.Execute();
+        }
+
         #endregion
     }
 }
