@@ -22,7 +22,6 @@ namespace WebAPI.Models.API
         [JsonProperty("description")]
         [XmlElement(ElementName = "description")]
         public string Description { get; set; }
-
     }
 
     /// <summary>
