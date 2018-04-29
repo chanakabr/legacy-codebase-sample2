@@ -10500,14 +10500,24 @@ namespace Core.Api
                     assetRulesConditions = assetRule.Actions.Select(x => (int)x.Type).ToList();
                 }
 
-                DataSet ds  = DAL.ApiDAL.AddAssetRule(groupId, assetRule.Name, assetRule.Description, assetRulesActions, assetRulesConditions);
+                DataSet ds = ApiDAL.AddAssetRule(groupId, assetRule.Name, assetRule.Description, assetRulesActions, assetRulesConditions);
 
-                if (ds != null)
+                if (ds != null && ds.Tables.Count == 3 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
                 {
-                    //TODO: save CB action & condition
+                    long assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID");
+                    assetRule.Id = assetRuleId;
 
+                    // Save assetRulesActions
+                    if (!ApiDAL.SaveAssetRulesActions(groupId, assetRuleId, ds.Tables[1], assetRule.Actions))
+                    {
+                        log.ErrorFormat("Error while saving AssetRulesActions. groupId: {0}, assetRule:{1}", groupId, JsonConvert.SerializeObject(assetRule));
+                    }
+                    // Save assetRulesConditions
+                    if (!ApiDAL.SaveAssetRulesConditions(groupId,assetRuleId, ds.Tables[2], assetRule.Conditions))
+                    {
+                        log.ErrorFormat("Error while saving AssetRulesConditions. groupId: {0}, assetRule:{1}", groupId, JsonConvert.SerializeObject(assetRule));
+                    }
 
-                    //assetRule.Id = assetRuleId;
                     response.Status.Code = (int)eResponseStatus.OK;
                     response.Status.Message = eResponseStatus.OK.ToString();
                     response.AssetRules = new List<AssetRule>() { assetRule };
