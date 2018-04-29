@@ -589,11 +589,17 @@ namespace WebAPI.Clients
             try
             {
                 eAssetTypes assetType = eAssetTypes.UNKNOWN;
-                Asset assetToUpdate = null;                
-                // in case asset is media
-                if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+                Asset assetToUpdate = null;
+                // in case asset is linear media
+                if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
                 {
-                    assetToUpdate = AutoMapper.Mapper.Map<MediaAsset>(asset as KalturaMediaAsset);
+                    assetToUpdate = AutoMapper.Mapper.Map<LinearMediaAsset>(asset);
+                    assetType = eAssetTypes.MEDIA;
+                }
+                // in case asset is media
+                else if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+                {
+                    assetToUpdate = AutoMapper.Mapper.Map<MediaAsset>(asset);
                     assetType = eAssetTypes.MEDIA;
                 }
                 // add here else if for epg\recording when needed
