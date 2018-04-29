@@ -11,10 +11,42 @@ namespace ApiObjects.Rules
         public List<AssetRuleAction> Actions { get; set; }
     }
 
-    public class AssetRuleAction
+    public abstract class AssetRuleAction
     {
         public RuleActionType Type { get; set; }
         public string Description { get; set; }
+    }
+
+
+    public class AccessControlBlockAction: AssetRuleAction
+    {
+        public AccessControlBlockAction()
+        {
+            Type = RuleActionType.Block;
+        }
+
+    }
+
+    public class EndDateOffsetRuleAction : AssetRuleAction
+    {
+        public int Offset { get; set; }
+        public bool TimeZone { get; set; }
+
+        public EndDateOffsetRuleAction()
+        {
+            Type = RuleActionType.EndDateOffset;
+        }
+    }
+
+    public class StartDateOffsetRuleAction : AssetRuleAction
+    {
+        public int Offset { get; set; }
+        public bool TimeZone { get; set; }
+
+        public StartDateOffsetRuleAction()
+        {
+            Type = RuleActionType.StartDateOffset;
+        }
     }
 
     public abstract class AssetRuleCondition
