@@ -123,7 +123,7 @@ namespace WebAPI.Controllers
             if ( assetRule != null && assetRule.Actions != null)
             {
                 var duplicates = assetRule.Actions.GroupBy(x => x.Type).Where(t => t.Count() >= 2);
-                if (duplicates != null)
+                if (duplicates != null && duplicates.ToList().Count > 1)
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "actions");
                 }
