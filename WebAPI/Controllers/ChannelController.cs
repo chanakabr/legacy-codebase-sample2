@@ -344,6 +344,10 @@ namespace WebAPI.Controllers
                     isOperatorSearch = true;
                 }
 
+                if (filter.MediaIdEqual > 0)
+                {
+                    response = ClientsManager.CatalogClient().GetChannelsContainingMedia(groupId, filter.MediaIdEqual, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy);
+                }
                 if (filter.IdEqual > 0)
                 {
                     // get by id

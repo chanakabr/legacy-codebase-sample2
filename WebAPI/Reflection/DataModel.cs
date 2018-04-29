@@ -3152,6 +3152,8 @@ namespace WebAPI.Reflection
                     {
                         case "IdEqual":
                             return "idEqual";
+                        case "MediaIdEqual":
+                            return "mediaIdEqual";
                         case "NameEqual":
                             return "nameEqual";
                         case "NameStartsWith":

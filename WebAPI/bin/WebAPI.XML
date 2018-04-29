@@ -5584,6 +5584,11 @@
             channel identifier to filter by
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.MediaIdEqual">
+            <summary>
+            media identifier to filter by
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.NameEqual">
             <summary>
             Exact channel name to filter by
@@ -5591,7 +5596,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannelsFilter.NameStartsWith">
             <summary>
-            Channel name starts with (autocomplete)
+            Channel name starts with (auto-complete)
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaDynamicChannel.Ksql">

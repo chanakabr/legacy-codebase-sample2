@@ -791,7 +791,7 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }
+        }        
 
         #endregion        
 
@@ -4328,39 +4328,96 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaChannelProfile GetKSQLChannel(int groupId, int channelId)
+        internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy)
         {
-            KalturaChannelProfile profile = null;
-            KSQLChannelResponse response = null;
+            KalturaChannelListResponse result = new KalturaChannelListResponse();
+            Core.Catalog.CatalogManagement.ChannelListResponse response = null;
 
+            List<GroupsCacheManager.Channel> channels = null;
+            ChannelOrderBy orderBy = ChannelOrderBy.Id;
+            OrderDir orderDirection = OrderDir.NONE;
 
+            switch (channelOrderBy)
+            {
+                case KalturaChannelsOrderBy.NONE:
+                    {
+                        orderBy = ChannelOrderBy.Id;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.NAME_ASC:
+                    {
+                        orderBy = ChannelOrderBy.Name;
+                        orderDirection = OrderDir.ASC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.NAME_DESC:
+                    {
+                        orderBy = ChannelOrderBy.Name;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.CREATE_DATE_ASC:
+                    {
+                        orderBy = ChannelOrderBy.CreateDate;
+                        orderDirection = OrderDir.ASC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.CREATE_DATE_DESC:
+                    {
+                        orderBy = ChannelOrderBy.CreateDate;
+                        orderDirection = OrderDir.DESC;
+                        break;
+                    }
+                default:
+                    break;
+            }
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetKSQLChannel(groupId, channelId);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize, orderBy, orderDirection);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetKSQLChannel. groupID: {0}, channelId: {1}, exception: {2}", groupId, channelId, ex);
+                log.ErrorFormat("Exception received while calling SearchChannels. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
             if (response == null)
             {
+                // general exception
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            profile = Mapper.Map<KalturaChannelProfile>(response.Channel);
+            if (response.Channels != null && response.Channels.Count > 0)
+            {
+                result.Channels = new List<KalturaChannel>();
+                // convert channels
+                List<KalturaDynamicChannel> dynamicChannels = Mapper.Map<List<KalturaDynamicChannel>>(response.Channels.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL).ToList());
+                List<KalturaManualChannel> manualChannels = Mapper.Map<List<KalturaManualChannel>>(response.Channels.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual).ToList());
+                if (dynamicChannels != null)
+                {
+                    result.Channels.AddRange(dynamicChannels);
+                }
 
-            return profile;
+                if (manualChannels != null && manualChannels.Count > 0)
+                {
+                    result.Channels.AddRange(manualChannels);
+                }
+
+                result.TotalCount = response.TotalItems;
+            }
+
+            return result;
         }
 
     }
