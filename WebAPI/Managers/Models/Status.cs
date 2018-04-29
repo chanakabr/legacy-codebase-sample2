@@ -128,5 +128,6 @@ namespace WebAPI.Managers.Models
         ExternalError = 500063,
         MultirequestGenericMethod = 500064,
         HttpMethodNotSupported = 500065,
+        ArgumentsDuplicate = 500066
     }
 }

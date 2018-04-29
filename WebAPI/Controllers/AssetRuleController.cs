@@ -57,6 +57,9 @@ namespace WebAPI.Controllers
 
             try
             {
+                //  check 
+                ValidateAssetRuleAction(assetRule);
+
                 response = ClientsManager.ApiClient().AddAssetRule(groupId, assetRule);
             }
             catch (ClientException ex)
@@ -65,7 +68,7 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }
+        }       
 
         /// <summary>
         /// Update asset rule
@@ -111,6 +114,26 @@ namespace WebAPI.Controllers
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
+            }
+        }
+
+        private void ValidateAssetRuleAction(KalturaAssetRule assetRule)
+        {
+
+            if ( assetRule != null && assetRule.Actions != null)
+            {
+                var duplicates = assetRule.Actions.GroupBy(x => x.Type).Where(t => t.Count() >= 2);
+                if (duplicates != null)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "actions");
+                }
+
+                var ruleActionBlock = assetRule.Actions.Where(x => x.Type == KalturaRuleActionType.BLOCK);
+                if(ruleActionBlock != null && assetRule.Actions.Count > 1 )
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "actions=" + KalturaRuleActionType.BLOCK.ToString(), 
+                        "actions= " + KalturaRuleActionType.END_DATE_OFFSET.ToString() + "/" + KalturaRuleActionType.START_DATE_OFFSET.ToString());
+                }
             }
         }
     }
