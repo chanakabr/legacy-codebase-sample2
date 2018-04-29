@@ -101,9 +101,9 @@ namespace WebAPI.Controllers
         /// <param name="id">Asset rule ID</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public void Delete(long id)
+        public bool Delete(long id)
         {
-            KalturaAssetRule response = null;
+            bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -115,6 +115,8 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
+            return response;
         }
 
         private void ValidateAssetRuleAction(KalturaAssetRule assetRule)
