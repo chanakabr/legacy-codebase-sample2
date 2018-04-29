@@ -459,8 +459,8 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            
-            // in case asset is media
+
+            // in case asset is Linear Media
             if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
                 result = Mapper.Map<KalturaLinearMediaAsset>(response.Asset);
@@ -585,6 +585,7 @@ namespace WebAPI.Clients
             KalturaAsset result = null;
             AssetResponse response = null;
             Type kalturaMediaAssetType = typeof(KalturaMediaAsset);
+            Type kalturaLinearMediaAssetType = typeof(KalturaLinearMediaAsset);
             try
             {
                 eAssetTypes assetType = eAssetTypes.UNKNOWN;
@@ -622,8 +623,14 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
+            // in case asset is Linear Media
+            if (kalturaLinearMediaAssetType.IsAssignableFrom(asset.GetType()))
+            {
+                result = Mapper.Map<KalturaLinearMediaAsset>(response.Asset);
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            }
             // in case asset is media
-            if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
+            else if (kalturaMediaAssetType.IsAssignableFrom(asset.GetType()))
             {
                 result = Mapper.Map<KalturaMediaAsset>(response.Asset);
                 result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, response.Asset.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
@@ -695,7 +702,16 @@ namespace WebAPI.Clients
                     Dictionary<long, string> imageTypeIdToRatioNameMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
                     foreach (MediaAsset mediaAssetToConvert in assetListResponse.Assets.Where(x => x.AssetType == eAssetTypes.MEDIA))
                     {
-                        KalturaMediaAsset kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);
+                        KalturaMediaAsset kalturaMediaAsset = null;
+                        if (mediaAssetToConvert.MediaAssetType == MediaAssetType.Linear)
+                        {
+                            kalturaMediaAsset = Mapper.Map<KalturaLinearMediaAsset>(mediaAssetToConvert);                            
+                        }
+                        else
+                        {
+                            kalturaMediaAsset = Mapper.Map<KalturaMediaAsset>(mediaAssetToConvert);                            
+                        }
+
                         kalturaMediaAsset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(groupId, mediaAssetToConvert.Images, imageTypeIdToRatioNameMap);
                         result.Objects.Add(kalturaMediaAsset);
                     }
