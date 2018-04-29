@@ -25,6 +25,7 @@ using ApiObjects.Response;
 using Catalog.Response;
 using Core.Catalog.Response;
 using ElasticSearch.Common;
+using CachingProvider.LayeredCache;
 
 namespace Core.Catalog
 {
@@ -1483,5 +1484,62 @@ namespace Core.Catalog
             return new Tuple<Dictionary<int, string>, bool>(result, res);
         }
 
+        private static Tuple<List<int>, bool> GetMediaChannels(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<int> result = new List<int>();
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId"))
+                    {
+                        int? groupId, mediaId;
+                        groupId = funcParams["groupId"] as int?;
+                        mediaId = funcParams["mediaId"] as int?;
+
+                        ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+                        if (searcher != null)
+                        {
+                            if (searcher is ElasticsearchWrapper)
+                            {
+                                if (groupId.HasValue && mediaId.HasValue)
+                                {
+                                    result = searcher.GetMediaChannels(groupId.Value, mediaId.Value);
+                                    res = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaChannels faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<int>, bool>(result, res);
+        }
+
+        internal static List<int> GetChannelsContainingMedia(int groupId, int mediaId)
+        {
+            List<int> result = null;
+            try
+            {
+                List<string> invalidationKeys = new List<string>() { LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId) };
+                invalidationKeys.AddRange(LayeredCacheKeys.GetAssetMultipleInvalidationKeys(groupId, ApiObjects.eAssetTypes.MEDIA.ToString(), mediaId));
+                string key = LayeredCacheKeys.GetChannelsContainingMediaKey(mediaId);
+                if (!LayeredCache.Instance.Get<List<int>>(key, ref result, GetMediaChannels, new Dictionary<string, object>() { { "groupId", groupId }, { "mediaId", mediaId } },
+                                                            groupId, LayeredCacheConfigNames.CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME, invalidationKeys))
+                {
+                    log.ErrorFormat("Failed getting channels containing media from LayeredCache, groupId: {0}, mediaId: {1}, key: {2}", groupId, mediaId, key);
+                }                
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetChannelsContainingMedia for groupId: {0}, mediaId: {1}", groupId, mediaId), ex);
+            }
+
+            return result;
+        }
     }
 }

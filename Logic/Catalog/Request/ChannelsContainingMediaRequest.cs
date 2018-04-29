@@ -45,23 +45,13 @@ namespace Core.Catalog.Request
 
                 CheckSignature(request);
 
-                List<int> channels = null;
-                List<string> invalidationKeys = new List<string>() { LayeredCacheKeys.GetGroupChannelsInvalidationKey(request.m_nGroupID) };
-                invalidationKeys.AddRange(LayeredCacheKeys.GetAssetMultipleInvalidationKeys(request.m_nGroupID, ApiObjects.eAssetTypes.MEDIA.ToString(), request.m_nMediaID));
-
-
-                string key = LayeredCacheKeys.GetChannelsContainingMediaKey(request.m_nMediaID);
-
-                bool cacheResult = LayeredCache.Instance.Get<List<int>>(key, ref channels, GetMediaChannels, new Dictionary<string, object>() { { "groupId", request.m_nGroupID }, { "mediaId", request.m_nMediaID } },
-                    request.m_nGroupID, LayeredCacheConfigNames.CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME, invalidationKeys);
-
-                if (cacheResult && channels != null && channels.Count > 0)
+                List<int> channels = Utils.GetChannelsContainingMedia(request.m_nGroupID, request.m_nMediaID);
+                if (channels != null && channels.Count > 0)
                 {
-                    Dictionary<int, int> dChannels = channels.ToDictionary<int, int>(item => item);
-
+                    HashSet<int> channelsMap = new HashSet<int>(channels);
                     foreach (int item in request.m_lChannles)
                     {
-                        if (dChannels.ContainsKey(item))
+                        if (channelsMap.Contains(item))
                         {
                             response.m_lChannellList.Add(item);
                         }
@@ -77,40 +67,6 @@ namespace Core.Catalog.Request
             }
         }
 
-        private Tuple<List<int>, bool> GetMediaChannels(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            List<int> result = new List<int>();
-            try
-            {
-                if (funcParams != null && funcParams.Count == 2)
-                {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId"))
-                    {
-                        int? groupId, mediaId;
-                        groupId = funcParams["groupId"] as int?;
-                        mediaId = funcParams["mediaId"] as int?;
-
-                        ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-                        if (searcher != null)
-                        {
-                            if (searcher is ElasticsearchWrapper)
-                            {
-                                if (groupId.HasValue && mediaId.HasValue)
-                                {
-                                    result = searcher.GetMediaChannels(groupId.Value, mediaId.Value);
-                                    res = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetMediaChannels faild params : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-            return new Tuple<List<int>, bool>(result, res);
-        }
+        
     }
 }

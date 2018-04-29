@@ -383,7 +383,40 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return new Tuple<Dictionary<string, Channel>, bool>(result, res);
-        }        
+        }
+
+        private static ChannelListResponse GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isOperatorSearch, int totalItems)
+        {
+            ChannelListResponse result = new ChannelListResponse();
+            try
+            {
+                List<Channel> unorderedChannels = ChannelManager.GetChannels(groupId, channelIds, isOperatorSearch);
+                if (unorderedChannels == null || unorderedChannels.Count != channelIds.Count)
+                {
+                    log.ErrorFormat("Failed getting channels from GetChannels, for groupId: {0}, channelIds: {1}", groupId, channelIds != null ? string.Join(",", channelIds) : string.Empty);
+                    result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
+                    return result;
+                }
+
+                Dictionary<int, Channel> mappedChannels = unorderedChannels.ToDictionary(x => x.m_nChannelID, x => x);
+                foreach (int channelId in channelIds)
+                {
+                    result.Channels.Add(mappedChannels[channelId]);
+                }
+
+                if (result.Channels != null)
+                {
+                    result.TotalItems = totalItems;
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetChannelsListResponseByChannelIds with groupId: {0}, channelIds: {1}", groupId, channelIds != null ? string.Join(",", channelIds) : string.Empty), ex);
+            }
+
+            return result;
+        }
 
         #endregion
 
@@ -442,25 +475,7 @@ namespace Core.Catalog.CatalogManagement
                 ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
                 int totalItems = 0;
                 List<int> channelIds = wrapper.SearchChannels(definitions, ref totalItems);
-                List<Channel> unorderedChannels = ChannelManager.GetChannels(groupId, channelIds, isOperatorSearch);
-                if (unorderedChannels == null || unorderedChannels.Count != channelIds.Count)
-                {
-                    log.ErrorFormat("Failed getting channels from GetChannels, for groupId: {0}, channelIds: {1}", groupId, channelIds != null ? string.Join(",", channelIds) : string.Empty);
-                    result.Status = new Status((int)eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
-                    return result;
-                }
-
-                Dictionary<int, Channel> mappedChannels = unorderedChannels.ToDictionary(x => x.m_nChannelID, x => x);
-                foreach (int channelId in channelIds)
-                {
-                    result.Channels.Add(mappedChannels[channelId]);
-                }
-
-                if (result.Channels != null)
-                {
-                    result.TotalItems = totalItems;
-                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
+                result = GetChannelsListResponseByChannelIds(groupId, channelIds, isOperatorSearch, totalItems);
             }
             catch (Exception ex)
             {
@@ -884,6 +899,25 @@ namespace Core.Catalog.CatalogManagement
                 log.Error(string.Format("Failed groupID={0}, channelId={1}", groupId, channelId), ex);
             }
             return response;
+        }
+
+        public static ChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, ChannelOrderBy orderBy, OrderDir orderDirection)
+        {
+            ChannelListResponse result = new ChannelListResponse();
+            try
+            {                
+                List<int> channelIds = Utils.GetChannelsContainingMedia(groupId, (int)mediaId);
+                int totalItems = channelIds != null ? channelIds.Count : 0;
+                // isOperatorSearch = true because only operator can calls GetChannelsContainingMedia
+                // TODO - Lior : need to paass totalItems from GetChannelsContainingMedia
+                result = GetChannelsListResponseByChannelIds(groupId, channelIds, true, totalItems);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetChannelsContainingMedia with groupId: {0}, mediaId: {1}", groupId, mediaId), ex);
+            }
+
+            return result;
         }
 
         #endregion
