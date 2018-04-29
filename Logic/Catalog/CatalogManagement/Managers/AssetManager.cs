@@ -1919,6 +1919,13 @@ namespace Core.Catalog.CatalogManagement
                         bool isLinear = assetToUpdate is LinearMediaAsset;
                         MediaAsset mediaAssetToUpdate = assetToUpdate as MediaAsset;
                         MediaAsset currentAsset = asset as MediaAsset;
+                        // validate that existing asset is indeed linear media
+                        if (isLinear && currentAsset.MediaAssetType != MediaAssetType.Linear)
+                        {
+                            result.Status = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.OK.ToString());
+                            return result;
+                        }
+
                         mediaAssetToUpdate.Id = id;
                         if (currentAsset != null && mediaAssetToUpdate != null)
                         {
