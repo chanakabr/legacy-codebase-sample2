@@ -8542,14 +8542,15 @@ namespace Core.Api
                     if (DAL.ApiDAL.UpdateTimeShiftedTvPartnerSettings(groupId, settings))
                     {
                         response = UpdateTimeShiftedTvEpgChannelsSettings(groupId, settings);
-                        if (response != null && response.Code == (int)eResponseStatus.OK)
+                        // invalidate the tstv object in layered cache
+                        string invalidationKey = LayeredCacheKeys.GetTstvAccountSettingsInvalidationKey(groupId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
-                            string invalidationKey = LayeredCacheKeys.GetTstvAccountSettingsInvalidationKey(groupId);
-                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                            {
-                                log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
-                            }
+                            log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
                         }
+
+                        // invalidate all the linear medias
+                        Catalog.CatalogManagement.AssetManager.InvalidateGroupLinearAssets(groupId);
                     }
                 }
             }
