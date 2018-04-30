@@ -908,7 +908,10 @@ namespace Core.Catalog.CatalogManagement
             try
             {                
                 List<int> channelIds = Utils.GetChannelsContainingMedia(groupId, (int)mediaId);
-                result = SearchChannels(groupId, true, string.Empty, channelIds, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);                
+                if (channelIds != null && channelIds.Count > 0)
+                {
+                    result = SearchChannels(groupId, true, string.Empty, channelIds, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);
+                }
             }
             catch (Exception ex)
             {
