@@ -2510,8 +2510,7 @@ namespace DAL
 
             return ossAdapterRes;
         }
-
-
+        
         public static List<OSSAdapter> GetOSSAdapterList(int groupID, int status = 1, int isActive = 1)
         {
             List<OSSAdapter> res = new List<OSSAdapter>();
@@ -4832,6 +4831,41 @@ namespace DAL
             }
 
             return assetRuleCondition as AssetRuleCondition;
+        }
+
+        public static DataSet GetAssetRule(int groupId, long id)
+        {
+            DataSet ds = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AssetRuleById");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", id);
+
+                ds = sp.ExecuteDataSet();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetAssetRule in DB, groupId: {0} , ex:{1} ", groupId, ex);
+            }
+
+            return ds;
+        }
+
+        public static int DeleteAssetRule(int groupId, long id)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Delete_AssetRule");                
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", id);
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteAssetRule in DB, groupId: {0}, id: {1} , ex:{1} ", groupId, id,ex);
+            }
+            return 0;
         }
     }
 }
