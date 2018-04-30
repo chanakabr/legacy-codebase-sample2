@@ -323,7 +323,7 @@ namespace Core.Social
             }
             catch (Exception ex)
             {
-                log.Error("Notifier - SendGetHttpReq exception:" + ex.Message + " to: " + sUrl, ex);
+                log.Error("ApiLogic - SendGetHttpReq exception:" + ex.Message + " to: " + sUrl, ex);
                 if (oWebResponse != null)
                     oWebResponse.Close();
                 if (receiveStream != null)
