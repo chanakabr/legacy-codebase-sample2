@@ -1603,7 +1603,7 @@ namespace Core.Api
                 }
             }
             return res;
-        }       
+        }
 
         internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
         {
@@ -10513,7 +10513,7 @@ namespace Core.Api
                         log.ErrorFormat("Error while saving AssetRulesActions. groupId: {0}, assetRule:{1}", groupId, JsonConvert.SerializeObject(assetRule));
                     }
                     // Save assetRulesConditions
-                    if (!ApiDAL.SaveAssetRulesConditions(groupId,assetRuleId, ds.Tables[2], assetRule.Conditions))
+                    if (!ApiDAL.SaveAssetRulesConditions(groupId, assetRuleId, ds.Tables[2], assetRule.Conditions))
                     {
                         log.ErrorFormat("Error while saving AssetRulesConditions. groupId: {0}, assetRule:{1}", groupId, JsonConvert.SerializeObject(assetRule));
                     }
@@ -10538,7 +10538,150 @@ namespace Core.Api
 
         internal static AssetRulesResponse GetAssetRules(int groupId)
         {
-            throw new NotImplementedException();
+            AssetRulesResponse response = new AssetRulesResponse();
+            try
+            {
+                DataSet ds = DAL.ApiDAL.GetAssetRules(groupId);
+
+                if (ds != null && ds.Tables.Count == 3)
+                {
+                    response.AssetRules = new List<AssetRule>();
+                    long assetRuleId = 0;
+                    AssetRule assetRule = null;
+                    foreach (DataRow dataRow in ds.Tables[0].Rows)
+                    {
+                        assetRuleId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID");
+
+                        assetRule = CreateAssetRule(assetRuleId, dataRow);
+
+                        if (ds.Tables[1].Rows.Count > 0)
+                        {
+                            var dtAssetRuleAction = ds.Tables[1].Select("ASSET_RULE_ID = " + assetRuleId);
+                            assetRule.Actions = CreateAssetRuleActions(groupId, assetRuleId, dtAssetRuleAction);
+                        }
+
+                        if (ds.Tables[2].Rows.Count > 0)
+                        {
+                            var dtAssetRuleCondition = ds.Tables[2].Select("ASSET_RULE_ID = " + assetRuleId);
+                            assetRule.Conditions = CreateAssetRuleConditions(groupId, assetRuleId, dtAssetRuleCondition);
+                        }
+
+                        response.AssetRules.Add(assetRule);
+                    }
+                }
+
+                if (response.AssetRules == null || response.AssetRules.Count == 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No AssetRules found");
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed GetAssetRules groupID: {0}, ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        private static List<AssetRuleAction> CreateAssetRuleActions(int groupId, long assetRuleId, DataRow[] dtAssetRuleAction)
+        {
+            List<AssetRuleAction> assetRuleActions = new List<AssetRuleAction>();
+            if (dtAssetRuleAction != null && dtAssetRuleAction.Length > 0)
+            {
+                // Get assetRulesActions
+                int id = 0;
+                RuleActionType type ;
+                AssetRuleAction assetRuleAction = null;
+                foreach (DataRow dr in dtAssetRuleAction)
+                {
+                    id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                    type = (RuleActionType)ODBCWrapper.Utils.GetIntSafeVal(dr, "type");
+                    assetRuleAction = GetAssetRuleActionByType(groupId, assetRuleId, id, type);
+                    if(assetRuleAction == null)
+                    {
+                        log.ErrorFormat("Error while GetAssetRuleAction. groupId: {0}, assetRuleId: {1}, assetRuleActionId: {2}", groupId, assetRuleId, id);
+                        continue;
+                    }
+
+                    assetRuleActions.Add(assetRuleAction);
+                }
+            }
+
+            return assetRuleActions;
+        }       
+
+        private static List<AssetRuleCondition> CreateAssetRuleConditions(int groupId, long assetRuleId, DataRow[] dtAssetRuleCondition)
+        {
+            List<AssetRuleCondition> assetRuleActions = new List<AssetRuleCondition>();
+            if (dtAssetRuleCondition != null && dtAssetRuleCondition.Length > 0)
+            {
+                // Get assetRulesCondition
+                int id = 0;
+                AssetRuleConditionType type;
+                AssetRuleCondition assetRuleCondition = null;
+                foreach (DataRow dr in dtAssetRuleCondition)
+                {
+                    id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                    type = (AssetRuleConditionType)ODBCWrapper.Utils.GetIntSafeVal(dr, "type");
+
+                    assetRuleCondition = GetAssetRuleConditionByType(groupId, assetRuleId, id, type);                    
+                    if (assetRuleCondition == null)
+                    {
+                        log.ErrorFormat("Error while CreateAssetRuleConditions. groupId: {0}, assetRuleId: {1}, assetRuleActionId: {2}", groupId, assetRuleId, id);
+                        continue;
+                    }
+
+                    assetRuleActions.Add(assetRuleCondition);
+                }
+            }
+
+            return assetRuleActions;
+        }
+
+        private static AssetRuleCondition GetAssetRuleConditionByType(int groupId, long assetRuleId, int id, AssetRuleConditionType type)
+        {
+            switch (type)
+            {
+                case AssetRuleConditionType.Asset:
+                    return ApiDAL.GetAssetRuleCondition<AssetCondition>(groupId, assetRuleId, id);
+                case AssetRuleConditionType.Country:
+                    return ApiDAL.GetAssetRuleCondition<CountryCondition>(groupId, assetRuleId, id);
+                default:
+                    return ApiDAL.GetAssetRuleCondition<AssetRuleCondition>(groupId, assetRuleId, id);
+            }
+        }
+
+        private static AssetRule CreateAssetRule(long assetRuleId, DataRow dataRow)
+        {
+            AssetRule assetRule = new AssetRule()
+            {
+                Id = assetRuleId,
+                Name = ODBCWrapper.Utils.GetSafeStr(dataRow, "NAME"),
+                Description = ODBCWrapper.Utils.GetSafeStr(dataRow, "DESCRIPTION")
+            };
+
+            return assetRule;
+        }
+
+        private static AssetRuleAction GetAssetRuleActionByType(int groupId, long assetRuleId, int id, RuleActionType type)
+        {
+            AssetRuleAction assetRuleAction = null;
+            switch (type)
+            {
+                case RuleActionType.Block:
+                    return assetRuleAction = ApiDAL.GetAssetRuleAction<AccessControlBlockAction>(groupId, assetRuleId, id);
+                case RuleActionType.StartDateOffset:
+                    return assetRuleAction = ApiDAL.GetAssetRuleAction<StartDateOffsetRuleAction>(groupId, assetRuleId, id);
+                case RuleActionType.EndDateOffset:
+                    return assetRuleAction = ApiDAL.GetAssetRuleAction<EndDateOffsetRuleAction>(groupId, assetRuleId, id);
+                default:
+                    return assetRuleAction = ApiDAL.GetAssetRuleAction<AssetRuleAction>(groupId, assetRuleId, id);
+            }
         }
     }
 }
