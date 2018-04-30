@@ -25,6 +25,7 @@ namespace DAL
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
         private static readonly string CB_MESSAGE_QUEUE_DESGIN = ApplicationConfiguration.CouchBaseDesigns.QueueMessagesDesign.Value;
         private const int NUM_OF_INSERT_TRIES = 10;
+        private const int NUM_OF_TRIES = 3;
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
 
         public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
@@ -4583,13 +4584,14 @@ namespace DAL
         {
             throw new NotImplementedException();
         }
+
         public static bool SaveAssetRulesConditions(long groupId, long assetRuleId, DataTable dtAssetRulesConditions, List<AssetRuleCondition> conditions)
         {
             bool result = false;
 
             if (dtAssetRulesConditions != null && conditions != null && dtAssetRulesConditions.Rows.Count == dtAssetRulesConditions.Rows.Count)
             {
-                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK); //IRA
+                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
                 long assetRuleConditionId = 0;
                 int assetRuleConditionIndex = 0;
                 foreach (var assetRuleCondition in conditions)
@@ -4653,7 +4655,7 @@ namespace DAL
 
             if (dtAssetRulesActions != null && actions != null && dtAssetRulesActions.Rows.Count == dtAssetRulesActions.Rows.Count)
             {
-                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK); //IRA
+                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
                 long assetRuleActionId = 0;
                 int assetRuleActionIndex = 0;
                 foreach (var assetRuleAction in actions)
@@ -4760,6 +4762,115 @@ namespace DAL
             }
 
             return false;
+        }
+
+        public static DataSet GetAssetRules(int groupId)
+        {
+            DataSet ds = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AssetRules");
+                sp.AddParameter("@groupId", groupId);
+
+                ds = sp.ExecuteDataSet();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetAssetRules in DB, groupId: {0} , ex:{1} ", groupId, ex);
+            }
+
+            return ds;
+        }
+
+        public static AssetRuleAction GetAssetRuleAction<T>(int groupId, long assetRuleId, int assetRuleActionId)
+        {
+            T assetRuleAction = default(T);
+            eResultStatus status = eResultStatus.ERROR;
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+
+            string key = GetAssetRuleActionKey(groupId, assetRuleId, assetRuleActionId);
+
+            try
+            {
+                bool result = false;
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_TRIES)
+                {
+                    assetRuleAction = cbManager.Get<T>(key, out status);
+                    if (assetRuleAction == null)
+                    {
+                        if (status == eResultStatus.ERROR)
+                        {
+                            numOfTries++;
+                            log.ErrorFormat("Error while GetAssetRuleAction. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
+
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                    else
+                    {
+                        result = true;
+
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully received AssetRuleAction. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, key);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to GetAssetRuleAction. key: {0}, ex: {1}", key, ex);
+            }
+
+            return assetRuleAction as AssetRuleAction;
+        }
+
+        public static AssetRuleCondition GetAssetRuleCondition<T>(int groupId, long assetRuleId, int assetRuleConditionId)
+        {
+            T assetRuleCondition = default(T);
+            eResultStatus status = eResultStatus.ERROR;
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS); 
+
+            string key = GetAssetRuleConditionKey(groupId, assetRuleId, assetRuleConditionId);
+
+            try
+            {
+                bool result = false;
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_TRIES)
+                {
+                    assetRuleCondition = cbManager.Get<T>(key, out status);
+                    if (assetRuleCondition == null)
+                    {
+                        if (status == eResultStatus.ERROR)
+                        {
+                            numOfTries++;
+                            log.ErrorFormat("Error while GetAssetRuleCondition. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                    else
+                    {
+                        result = true;
+
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully received GetAssetRuleCondition. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, key);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to GetAssetRuleCondition. key: {0}, ex: {1}", key, ex);
+            }
+
+            return assetRuleCondition as AssetRuleCondition;
         }
     }
 }
