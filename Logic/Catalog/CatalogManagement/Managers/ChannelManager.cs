@@ -912,6 +912,11 @@ namespace Core.Catalog.CatalogManagement
                 {
                     result = SearchChannels(groupId, true, string.Empty, channelIds, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);
                 }
+                else
+                {
+                    result.TotalItems = 0;
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
             catch (Exception ex)
             {
