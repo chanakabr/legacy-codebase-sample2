@@ -802,7 +802,7 @@ namespace Core.Catalog.CatalogManagement
         private static bool UpdateChannelPercolator(ElasticSearchApi esApi, Channel channel, List<int> subGroupIds, List<string> mediaAliases, List<string> epgAliases)
         {
             bool result = false;
-            if (channel != null && channel.m_nIsActive == 1)
+            if (channel != null)
             {
                 bool isMedia = false;
                 bool isEpg = false;
