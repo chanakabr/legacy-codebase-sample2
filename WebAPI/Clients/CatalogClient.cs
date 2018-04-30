@@ -3938,7 +3938,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy, bool isOperatorSearch)
+        internal KalturaChannelListResponse SearchChannels(int groupId, bool isExcatValue, string value, List<int> specificChannelIds, int pageIndex, int pageSize,
+                                                            KalturaChannelsOrderBy channelOrderBy, bool isOperatorSearch)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
             Core.Catalog.CatalogManagement.ChannelListResponse response = null;
@@ -3987,7 +3988,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, specificChannelIds, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);
                 }
             }
             catch (Exception ex)
@@ -4328,7 +4329,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy)
+        internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, KalturaChannelsOrderBy channelOrderBy, bool isOperatorSearch)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
             Core.Catalog.CatalogManagement.ChannelListResponse response = null;
@@ -4377,7 +4378,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize, orderBy, orderDirection);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);
                 }
             }
             catch (Exception ex)

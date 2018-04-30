@@ -346,9 +346,9 @@ namespace WebAPI.Controllers
 
                 if (filter.MediaIdEqual > 0)
                 {
-                    response = ClientsManager.CatalogClient().GetChannelsContainingMedia(groupId, filter.MediaIdEqual, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy);
+                    response = ClientsManager.CatalogClient().GetChannelsContainingMedia(groupId, filter.MediaIdEqual, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isOperatorSearch);
                 }
-                if (filter.IdEqual > 0)
+                else if (filter.IdEqual > 0)
                 {
                     // get by id
                     KalturaChannel channel = ClientsManager.CatalogClient().GetChannel(groupId, filter.IdEqual, isOperatorSearch);
@@ -357,12 +357,12 @@ namespace WebAPI.Controllers
                 else if (!string.IsNullOrEmpty(filter.NameEqual))
                 {
                     //search using ChannelEqual
-                    response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.NameEqual, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isOperatorSearch);
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.NameEqual, null, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isOperatorSearch);
                 }
                 else
                 {
                     //search using ChannelLike
-                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.NameStartsWith, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isOperatorSearch);
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.NameStartsWith, null, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isOperatorSearch);
                 }
             }
             catch (ClientException ex)
