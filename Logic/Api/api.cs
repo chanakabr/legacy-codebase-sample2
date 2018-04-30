@@ -103,6 +103,9 @@ namespace Core.Api
         private const double HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
         private const string ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE = "PROCESS_ACTION_RULE";
 
+        private const string ASSET_RULE_NOT_EXIST = "Asset rule doesn't exist";
+        private const string ASSET_RULE_FAILED_DELETE= "failed to delete Asset rule";
+
         #endregion
 
         protected api() { }
@@ -10485,6 +10488,7 @@ namespace Core.Api
             {
                 if (assetRule == null)
                 {
+                    log.ErrorFormat("Error while AddAssetRule. assetRule is empty.");
                     return response;
                 }
 
@@ -10533,7 +10537,46 @@ namespace Core.Api
 
         internal static Status DeleteAssetRule(int groupId, long id)
         {
-            throw new NotImplementedException();
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                //check AssetRule exists
+                DataSet ds = ApiDAL.GetAssetRule(groupId, id);
+                if (ds == null || ds.Tables.Count != 3)
+                {
+                    response.Code = (int)eResponseStatus.AssetRuleNotExists;
+                    response.Message = ASSET_RULE_NOT_EXIST;
+                    return response;
+                }
+
+                int res = ApiDAL.DeleteAssetRule(groupId, id);
+                if (res == 0)
+                {
+                    response.Code = (int)eResponseStatus.Error;
+                    response.Message = ASSET_RULE_FAILED_DELETE;
+                    return response;
+                }
+                else if (res == -1)
+                {
+                    response.Code = (int)eResponseStatus.AssetRuleNotExists;
+                    response.Message = ASSET_RULE_NOT_EXIST;
+                    return response;
+                }
+                else
+                {
+                    // Delete from CB :(:(:(:(:
+
+                    response.Code = (int)eResponseStatus.OK;
+                    response.Message = eResponseStatus.OK.ToString();
+                    return response;                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("DeleteAssetRule failed ex={0}, groupId={1}, AssetRuleId={2}", ex, groupId, id);
+            }
+
+            return response;
         }
 
         internal static AssetRulesResponse GetAssetRules(int groupId)
@@ -10595,14 +10638,14 @@ namespace Core.Api
             {
                 // Get assetRulesActions
                 int id = 0;
-                RuleActionType type ;
+                RuleActionType type;
                 AssetRuleAction assetRuleAction = null;
                 foreach (DataRow dr in dtAssetRuleAction)
                 {
                     id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
                     type = (RuleActionType)ODBCWrapper.Utils.GetIntSafeVal(dr, "type");
                     assetRuleAction = GetAssetRuleActionByType(groupId, assetRuleId, id, type);
-                    if(assetRuleAction == null)
+                    if (assetRuleAction == null)
                     {
                         log.ErrorFormat("Error while GetAssetRuleAction. groupId: {0}, assetRuleId: {1}, assetRuleActionId: {2}", groupId, assetRuleId, id);
                         continue;
@@ -10613,7 +10656,7 @@ namespace Core.Api
             }
 
             return assetRuleActions;
-        }       
+        }
 
         private static List<AssetRuleCondition> CreateAssetRuleConditions(int groupId, long assetRuleId, DataRow[] dtAssetRuleCondition)
         {
@@ -10629,7 +10672,7 @@ namespace Core.Api
                     id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
                     type = (AssetRuleConditionType)ODBCWrapper.Utils.GetIntSafeVal(dr, "type");
 
-                    assetRuleCondition = GetAssetRuleConditionByType(groupId, assetRuleId, id, type);                    
+                    assetRuleCondition = GetAssetRuleConditionByType(groupId, assetRuleId, id, type);
                     if (assetRuleCondition == null)
                     {
                         log.ErrorFormat("Error while CreateAssetRuleConditions. groupId: {0}, assetRuleId: {1}, assetRuleActionId: {2}", groupId, assetRuleId, id);
