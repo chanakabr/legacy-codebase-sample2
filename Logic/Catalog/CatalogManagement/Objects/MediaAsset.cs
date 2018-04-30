@@ -18,7 +18,6 @@ namespace Core.Catalog.CatalogManagement
         public List<AssetFile> Files { get; set; }
         public string UserTypes { get; set; }
         public bool? IsActive { get; set; }
-
         public MediaAssetType MediaAssetType { get; set; }
 
         public MediaAsset()

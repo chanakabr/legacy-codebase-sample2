@@ -454,7 +454,7 @@ namespace Core.Catalog.CatalogManagement
             return groupChannels;
         }
 
-        public static ChannelListResponse SearchChannels(int groupId, bool isExcatValue, string searchValue, int pageIndex, int pageSize,
+        public static ChannelListResponse SearchChannels(int groupId, bool isExcatValue, string searchValue, List<int> specificChannelIds, int pageIndex, int pageSize,
             ApiObjects.SearchObjects.ChannelOrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection, bool isOperatorSearch)
         {
             ChannelListResponse result = new ChannelListResponse();
@@ -467,6 +467,7 @@ namespace Core.Catalog.CatalogManagement
                     PageSize = pageSize,
                     AutocompleteSearchValue = isExcatValue ? string.Empty : searchValue,
                     ExactSearchValue = isExcatValue ? searchValue : string.Empty,
+                    SpecificChannelIds = specificChannelIds != null && specificChannelIds.Count > 0 ? new List<int>(specificChannelIds) : null,
                     OrderBy = orderBy,
                     OrderDirection = orderDirection,
                     IsOperatorSearch = isOperatorSearch
@@ -901,16 +902,13 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static ChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, ChannelOrderBy orderBy, OrderDir orderDirection)
+        public static ChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, ChannelOrderBy orderBy, OrderDir orderDirection, bool isOperatorSearch)
         {
             ChannelListResponse result = new ChannelListResponse();
             try
             {                
                 List<int> channelIds = Utils.GetChannelsContainingMedia(groupId, (int)mediaId);
-                int totalItems = channelIds != null ? channelIds.Count : 0;
-                // isOperatorSearch = true because only operator can calls GetChannelsContainingMedia
-                // TODO - Lior : need to paass totalItems from GetChannelsContainingMedia
-                result = GetChannelsListResponseByChannelIds(groupId, channelIds, true, totalItems);
+                result = SearchChannels(groupId, true, string.Empty, channelIds, pageIndex, pageSize, orderBy, orderDirection, isOperatorSearch);                
             }
             catch (Exception ex)
             {

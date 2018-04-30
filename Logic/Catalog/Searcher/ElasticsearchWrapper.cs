@@ -3114,6 +3114,7 @@ namespace Core.Catalog
             BoolQuery query = new BoolQuery();
             
             ESTerm valueTerm = null;
+            ESTerms idsTerm = null;
 
             if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue))
             {
@@ -3131,10 +3132,23 @@ namespace Core.Catalog
                     Value = definitions.ExactSearchValue
                 };
             }
-            
+            else if (definitions.SpecificChannelIds != null && definitions.SpecificChannelIds.Count > 0)
+            {
+                idsTerm = new ESTerms(true)
+                {
+                    Key = "_id"
+                };
+
+                idsTerm.Value.AddRange(definitions.SpecificChannelIds.Select(x => x.ToString()));
+            }
+
             if (valueTerm != null)
             {
                 query.AddChild(valueTerm, CutWith.AND);
+            }
+            else if (idsTerm != null)
+            {
+                query.AddChild(idsTerm, CutWith.AND);
             }
 
             QueryFilter queryFilter = null;
