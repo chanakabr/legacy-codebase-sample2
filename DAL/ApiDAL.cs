@@ -4720,7 +4720,46 @@ namespace DAL
         private static string GetAssetRuleActionKey(int groupId, long assetRuleId, long assetRuleActionId)
         {
             return string.Format("asset_rule_action:{0}:{1}:{2}", groupId, assetRuleId, assetRuleActionId);
+        }
 
+        public static bool AddCountryToBlockedInAssets(int groupId, List<int> assetIds, int country)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddCountryToBlockedInAssets");
+                sp.AddParameter("@mediaIds", assetIds);
+                sp.AddParameter("@country", country);
+                sp.AddParameter("@groupId", groupId);
+
+                int rowCount = sp.ExecuteReturnValue<int>();
+                return rowCount > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while adding country to blocked countries in assets", ex);
+            }
+
+            return false;
+        }
+
+        public static bool AddCountryToAllowedInAssets(int groupId, List<int> assetIds, int country)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddCountryToAllowedInAssets");
+                sp.AddParameter("@mediaIds", assetIds);
+                sp.AddParameter("@country", country);
+                sp.AddParameter("@groupId", groupId);
+
+                int rowCount = sp.ExecuteReturnValue<int>();
+                return rowCount > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while adding country to allowed countries in assets", ex);
+            }
+
+            return false;
         }
     }
 }
